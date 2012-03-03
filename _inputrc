@@ -1,0 +1,29 @@
+# Modified: Sat 03 Mar 2012 08:26:06 (Bob Heckel)
+#
+# $ man readline
+#
+# To verify settings:
+# $ bind -P 
+# 
+# To source this file:
+# $ set -o emacs
+# Ctr-x Ctr-r  <---to re-read-init-file
+# $set -o vi
+
+# Ummm, shouldn't this be the default?
+set editing-mode vi
+set completion-query-items 100
+
+# Be more like Vim.  Allow single tab to show completions.
+set show-all-if-ambiguous on
+set visible-stats on
+set mark-directories on
+set completion-ignore-case on
+# insensitivity between hyphens and underscores
+set completion-map-case on
+# No pager for large result list
+set page-completions off
+
+# Assumes .bashrc is overriding the ctrl-s key of death with stty -ixon
+Control-s: re-read-init-file
+
