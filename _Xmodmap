@@ -1,0 +1,39 @@
+!
+! Modified: Sat 03 Mar 2012 17:42:10 (Bob Heckel)
+!
+! $ ln -s ~/code/misccode/_Xmodmap .Xmodmap
+!
+! Current maps:
+! $ xmodmap -pke | less
+! or
+! $ xev
+!
+! Manual set:
+! $ xmodmap -e "pointer = 3 2 1 4 5"
+! $ xmodmap -e "keycode 108 = Return"
+
+! Lefty mouse
+pointer = 3 2 1 4 5
+
+! Capslock is next to tab .So make Capslock act like Tab.
+keycode 66 = Tab
+clear lock
+
+! Set keypad to numeric values as if Numlock is always on 
+keycode 79=7
+keycode 80=8
+keycode 81=9
+keycode 83=4
+keycode 84=5
+keycode 85=6
+keycode 87=1
+keycode 88=2
+keycode 89=3
+keycode 90=0
+keycode 91=period
+keycode 86=plus
+! Change Numlock key since we don't need it
+keycode 77 = KP_Divide
+ 
+! remap Keypad Enter (normally KP_Enter) to the same as regular Enter (normally Return)
+keycode 108 = Return
