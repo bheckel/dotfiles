@@ -3,7 +3,7 @@
 #     Name: $HOME/code/misccode/oneliners
 #
 #  Summary: Programming and sysadmin fragments I've collected over the 
-#           years.
+#           years.  Searchable via gone.sh
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
 # Modified: Sun 04 Mar 2012 09:22:41 (Bob Heckel)
@@ -2101,7 +2101,7 @@ sed '2,3d;7,8d' bladerun_crawl
 sed '/were/{s/Repli/RAPLI/;s/not/two!!!/}' bladerun_crawl
 
 # Make changes and save just changed lines to file for debugging:
-sed 's/Repl/XXX/w junkchanges' bladerun_crawl
+sed 's/Repl/YYZ/w junkchanges' bladerun_crawl
 
 Double space doublespace a file:
 sed G foo.txt
@@ -3064,6 +3064,9 @@ $ 7z x proust.7z
 
 # Avoid the bash Ctrl-s key combo of death that requires a Ctrl-q to escape its clutches
 stty -ixon
+
+# Temporary file
+$ PROCSFILE=$(mktemp) && echo $PROCSFILE && ps -ef >$PROCSFILE
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4263,6 +4266,10 @@ DDMONYY in Oracle is DATE7 in SAS
 # Google custom search SAS
 http://tx0.org/uf
 
+Enhanced Editor: Comment the selection with line comments  Ctrl + /  Undo the Comment  Ctrl + Shift + /
+
+libname RO 'c:/temp/' access=readonly;
+
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -5049,6 +5056,8 @@ git checkout master
 git checkout master && git merge mynewbranch && git branch -d mynewbranch
 # git commit mantra (svn-ish)
 git add . && git commit -am 'another bitfiddle'
+# github commit mantra
+git add . && git commit -am 'another bitfiddle' && git push origin master
 
 # discard abandon all pending changes "not staged for commit"
 git checkout .
@@ -5351,6 +5360,11 @@ alias lims='sqlplus sasreport/sasreport@usprd259'
 select '' as test_result, ...
 
 Ubuntu purple color #290020
+
+" Vimscript's wacky by-ref...:
+let sorted_list = reverse(sort(unsorted_list))
+" ...is almost always supposed to be:
+let sorted_list = reverse(sort(copy(unsorted_list)))
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
