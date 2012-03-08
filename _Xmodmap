@@ -1,5 +1,5 @@
 !
-! Modified: Sat 03 Mar 2012 17:42:10 (Bob Heckel)
+! Modified: Mon 05 Mar 2012 17:36:04 (Bob Heckel)
 !
 ! $ ln -s ~/code/misccode/_Xmodmap .Xmodmap
 !
@@ -10,7 +10,7 @@
 !
 ! Manual set:
 ! $ xmodmap -e "pointer = 3 2 1 4 5"
-! $ xmodmap -e "keycode 108 = Return"
+! $ xmodmap -e "keycode 104 = Return"
 
 ! Lefty mouse
 pointer = 3 2 1 4 5
@@ -36,4 +36,4 @@ keycode 86=plus
 keycode 77 = KP_Divide
  
 ! remap Keypad Enter (normally KP_Enter) to the same as regular Enter (normally Return)
-keycode 108 = Return
+keycode 104 = Return
