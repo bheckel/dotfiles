@@ -1,0 +1,10 @@
+[begin] (fluxbox)
+[include] (/etc/X11/fluxbox/fluxbox-menu)
+  [exec] (Urxvt) {urxvt} </usr/share/pixmaps/xterm-color_32x32.xpm>
+  [exec] (Chrome) {/opt/google/chrome/google-chrome} </opt/google/chrome/product_logo_32.xpm>
+  [exec] (Firefox) {/usr/bin/firefox} </usr/share/pixmaps/firefox.xpm>
+  [exec] (Midori) {midori} <>
+  [exec] (Gvim) {/usr/bin/vim.gnome -g -f} </usr/share/pixmaps/vim-32.xpm>
+  [exec] (VLC media player) {/usr/bin/qvlc} </usr/share/icons/hicolor/32x32/apps/vlc.xpm>
+  [exec] (Xfe) {/usr/bin/xfe} </usr/share/icons/hicolor/32x32/apps/xfe.xpm>
+[end]
