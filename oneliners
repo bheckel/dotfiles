@@ -5,6 +5,8 @@
 #  Summary: Programming and sysadmin fragments I've collected over the 
 #           years.  Searchable via gone.sh
 #
+#           Comments are written for searching, not proper English...
+#
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
 # Modified: Sun 04 Mar 2012 09:22:41 (Bob Heckel)
 #
@@ -1771,7 +1773,10 @@ FILES=$(find $PTHCODE -type f -not -name baseline.md5 -a -not -name '*.log' -a -
 PDBSEXIST=$(find "$PDB" '*.pdb' -type f -printf "%s" 2>/dev/null)
 if [ -n  "$PDBSEXIST" ];then ...
 
-# Use precise range minutes to find timestamp files older than 4:10pm and newer than 4:19pm using tempfiles (mmddtttt)
+# Use rough date to find files earlier older than the last time you looked
+find '//Bredsntp002/uk_gms_wre_data_area/GDM Reporting Profiles/DATAPOST/Verified/' -newer /cygdrive/u/tmp/mdes.timestamp && touch $u/tmp/mdes.timestamp
+
+# Use precise range minutes to find timestamp files earlier older than 4:10pm and newer than 4:19pm using tempfiles (mmddtttt)
 touch -t 02191610 /tmp/f1 && touch -t 02191619 /tmp/f2
 find . -newer /tmp/f1  ! -newer /tmp/f2 -print
 # Or for finding files between datestamp June 26 and June 30:
