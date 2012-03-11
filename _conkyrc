@@ -2,7 +2,7 @@
 #     Name: .conkyrc
 #
 #  Created: Sat 04 Feb 2012 21:38:40 (Bob Heckel - adapted from darcon @ gmail.com)
-# Modified: Sat 25 Feb 2012 08:54:42 (Bob Heckel)
+# Modified: Sat 10 Mar 2012 21:20:35 (Bob Heckel)
 ################################################################################
 
 # set to yes if you want Conky to be forked in the background
@@ -48,6 +48,8 @@ double_buffer yes
 
 # Minimum size of text area
 minimum_size 1000 5
+
+text_buffer_size 1000
 
 # Draw shades?
 draw_shades yes
@@ -300,7 +302,8 @@ TEXT
 
 ###${offset 0}${font Arial Black:size=12}Sabbe dhamma${font}
 ###${offset 0}${font Arial Black:size=12}nalam abhinivesaya${font}
-${color goldenrod}${execi 1200 display-dhamma | par -w25}
+###${color goldenrod}${execi 1200 display-dhamma | par -w25}
+${color dark goldenrod}${execi 1200 display-dhamma | par -w25}
 
 ###${offset 0}${color slate grey}${time %a, } ${color }${time %e %B %G}
 ###${offset 0}${color slate grey}${time %Z,    }${color }${time %H:%M:%S}
@@ -318,14 +321,14 @@ ${offset 0}${color slate grey}Highest CPU:
 ${offset 0}${color lightgrey} ${top name 1}${top_mem cpu 1}
 ${offset 0}${color lightgrey} ${top name 2}${top cpu 2}
 ${offset 0}${color lightgrey} ${top name 3}${top cpu 3}
-${offset 0}${color lightgrey} ${top name 4}${top cpu 4}
+###${offset 0}${color lightgrey} ${top name 4}${top cpu 4}
 
 ${offset 0}${color slate grey}Highest MEM:
 ###${offset 0}${color #ddaa00} ${top_mem name 1}${top_mem mem 1}
 ${offset 0}${color lightgrey} ${top_mem name 1}${top_mem mem 1}
 ${offset 0}${color lightgrey} ${top_mem name 2}${top_mem mem 2}
 ${offset 0}${color lightgrey} ${top_mem name 3}${top_mem mem 3}
-${offset 0}${color lightgrey} ${top_mem name 4}${top_mem mem 4}
+###${offset 0}${color lightgrey} ${top_mem name 4}${top_mem mem 4}
 
 ${offset 0}${color slate grey}MEM:  ${color } $memperc% $mem/$memmax
 ${offset 0}${membar 3,100}
@@ -337,9 +340,7 @@ ${offset 0}${color slate grey}/home:  ${color }${fs_free /home}/${fs_size /home}
 ${offset 0}${fs_bar 3,100 /home}
 ###${offset 0}${color slate grey}SLACK:  ${color }${fs_free /mnt/slack}/${fs_size /mnt/slack}
 ###${offset 0}${fs_bar 3,100 /mnt/slack}
-
-${offset 0}${color slate grey}NET: ${color}${addr wlan0}
-###${offset 15}${color}${addr wlan0}
+###${offset 0}${color slate grey}NET: ${color}${addr wlan0}
 
 ${offset 0}${color}Up: ${color }${upspeed wlan0} k/s
 ${offset 0}${upspeedgraph wlan0 20,130 000000 ffffff}
@@ -349,14 +350,11 @@ ${offset 0}${downspeedgraph wlan0 20,130 000000 ffffff}
 ${offset 0}${color slate grey}MOUNTS: 
 ${color lightgrey}${execi 600 mount|grep '^/dev' | fold -s -w25}
 
+${offset 0}${color slate grey}SENSORS: 
+${color lightgrey}${execi 1200 sensors -f|grep '^C'|grep -v Core | cut -c -25}
+
 ${offset 0}${color slate grey}SYSLOG: 
-# TODO why only "2" works??
-${color lightgrey}${execi 31 tail -n2 /var/log/syslog | fold -s -w25}
-###${execi 60 tail 2 /var/log/syslog | fold -w25} 
-###${execi 60 tail 5 /var/log/syslog}
+${color lightgrey}${execi 30 tail -n2 /var/log/syslog | fold -s -w25}
 ###${offset 0}${color}${image /home/bheckel/Dropbox/Public/misc/gina-gershon-01.jpg}
 ###${color slate grey}/var/log/messages:
 ###${color}${exec tail -n20 /var/log/messages}
-
-${offset 0}${color slate grey}SENSORS: 
-${color lightgrey}${execi 1200 sensors -f|grep '^C'|grep -v Core | cut -c -25}
