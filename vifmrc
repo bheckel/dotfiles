@@ -1,16 +1,20 @@
-# You can edit this file by hand.
-# The # character at the beginning of a line comments out the line.
-# Blank lines are ignored.
-# The basic format for each item is shown with an example.
+##############################################################################
+#     Name: ~/.vifm/vifmrc
+#
+#  Summary: vifm config file
+#
+#           Edit this file only when vifm is not running.
+#
+# Modified: Mon 12 Mar 2012 08:49:23 (Bob Heckel)
+##############################################################################
+  
 # The '=' character is used to separate fields within a single line.
 # Most settings are true = 1 or false = 0.
 
 # This is the actual command used to start vi.  The default is vi.
 # If you would like to use another vi clone such as Vim, Elvis, or Vile
 # you will need to change this setting.
-
 VI_COMMAND=vim
-# VI_COMMAND=vim
 # VI_COMMAND=elvis -G termcap
 # VI_COMMAND=vile
 
@@ -21,25 +25,18 @@ VI_COMMAND=vim
 # files by deleting them and then using p to put the file in the new location.
 # I recommend not changing this until you are familiar with vifm.
 # This probably shouldn't be an option.
-
 USE_TRASH=1
 
 # Show only one Window
 # If you would like to start vifm with only one window set this to 1
-
 USE_ONE_WINDOW=0
 
 # Screen configuration.  If you would like to use vifm with
 # the screen program set this to 1.
-
 USE_SCREEN=0
 
-# 1 means use color if the terminal supports it.
-# 0 means don't use color even if supported.
-
 # This is how many files to show in the directory history menu.
-
-HISTORY_LENGTH=15
+HISTORY_LENGTH=20
 
 # The sort type is how the files will be sorted in the file listing.
 # Sort by File Extension = 0
@@ -54,17 +51,14 @@ HISTORY_LENGTH=15
 # Sort by Time Changed =9
 # Sort by Time Modified =10
 # This can be set with the :sort command in vifm.
-
 LEFT_WINDOW_SORT_TYPE=1
-
-RIGHT_WINDOW_SORT_TYPE=1
+RIGHT_WINDOW_SORT_TYPE=10
 
 # The regular expression used to filter files out of
 # the directory listings.
 # LWIN_FILTER=\.o$ and LWIN_INVERT=1 would filter out all
 # of the .o files from the directory listing. LWIN_INVERT=0
 # would show only the .o files
-
 LWIN_FILTER=\.o$
 LWIN_INVERT=1
 RWIN_FILTER=\.o$
@@ -72,16 +66,14 @@ RWIN_INVERT=1
 
 # If you installed the vim.txt help file change this to 1.
 # If would rather use a plain text help file set this to 0.
-
+# rsh 12-Mar-12 setting to 1 fails, 0 displays help
 USE_VIM_HELP=0
 
 # If you would like to run an executable file when you 
 # press return on the file name set this to 1.
-
-RUN_EXECUTABLE=0
+RUN_EXECUTABLE=1
 
 # BOOKMARKS=mark=/full/directory/path=filename
-
 BOOKMARKS=H=/home/bheckel=../
 BOOKMARKS=z=/home/bheckel/.vifm=../
 
@@ -93,9 +85,8 @@ BOOKMARKS=z=/home/bheckel/.vifm=../
 # %d the current directory name.
 # %D the other window directory name.
 # %m run the command in a menu window
-
-COMMAND=gvim=gvim %f
-COMMAND=mid=midori "%f"
+COMMAND=txt=gvim %f
+COMMAND=htm=midori "%f"
 COMMAND=mp=vlc "%f"
 COMMAND=mp3=vlc "%f"
 COMMAND=pdf=evince "%f"
@@ -103,9 +94,11 @@ COMMAND=pdf=evince "%f"
 # The file type is for the default programs to be used with
 # a file extension. 
 # FILETYPE=description=extension1,extension2=defaultprogram, program2
-# FILETYPE=Web=html,htm,shtml=links,mozilla,elvis
+FILETYPE=Web=html,htm,shtml=w3m,links,mozilla,elvis
 # would set links as the default program for .html .htm .shtml files
 # The other programs for the file type can be accessed with the :file command
 # The command macros %f, %F, %d, %F may be used in the commands.
 # The %a macro is ignored.  To use a % you must put %%.
 
+# rsh 12-Mar-12 TODO is this possible?
+###map <Space> <C-f>
