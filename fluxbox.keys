@@ -7,7 +7,7 @@
 #
 #           $ man fluxbox-keys
 #
-# Modified: Fri 10 Feb 2012 17:25:42 (Bob Heckel)
+# Modified: Mon 12 Mar 2012 17:59:26 (Bob Heckel)
 ##############################################################################
 
 # click on the desktop to get menus
@@ -76,6 +76,7 @@ Mod4 t   :Exec urxvt
 Mod4 g   :Exec gvim
 Mod4 f   :Exec firefox
 Mod4 v   :Exec urxvt -name alsa -e alsamixer
+Mod4 x   :Exec xfe
 Mod4 F11 :Fullscreen
 
 # open a dialog to run programs
@@ -158,3 +159,6 @@ Mod4 Right :NextWorkspace
 ###Control Mod4 F12 :TakeToWorkspace 12
 
 Print :ExecCommand gnome-screenshot
+# TODO use these instead
+###Print  :ExecCommand import -window root -quality 75 `date +shot-%Y-%m-%d-%H%M%S.jpg`
+###Mod1 Print  :ExecCommand import -quality 75 `date +window-%Y-%m-%d-%H%M%S.jpg`
