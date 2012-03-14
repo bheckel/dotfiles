@@ -1,18 +1,18 @@
 [OPTIONS]
-height=751
+height=742
 toolstoolbar=1
-panel_view=3
-width=1187
+panel_view=0
+width=992
 use_startup_notification=1
-treetwopanels_tree_pct=0.2409435551811289
+treetwopanels_tree_pct=0.2106149957877001
 confirm_delete=0
 use_sudo=0
-ypos=1
+ypos=28
 use_trash_can=1
 auto_save_layout=1
 use_trash_bypass=0
 mount_warn=0
-treepanel_tree_pct=0.3012295081967213
+treepanel_tree_pct=0.3064516129032258
 confirm_overwrite=1
 paneltoolbar=1
 confirm_delete_emptydir=1
@@ -27,7 +27,7 @@ treetwopanels_lpanel_pct=0.392586352148273
 status=1
 root_mode=1
 generaltoolbar=1
-xpos=412
+xpos=557
 confirm_drag_and_drop=1
 
 [HISTORY]
@@ -139,23 +139,23 @@ type_size=0
 deldate_size=150
 origpath_size=200
 liststyle=0
-attr_size=148
-user_size=74
+attr_size=124
+user_size=62
 hiddenfiles=0
 dirs_first=1
 ext_size=0
-grou_size=74
-modd_size=224
+grou_size=62
+modd_size=187
 ignore_case=1
-sort_func=ascendingTime
+sort_func=ascendingCase
 showthumbnails=1
-name_size=271
-size_size=83
+name_size=226
+size_size=69
 
 [SETTINGS]
 listforecolor=Black
 iconpath=/usr/share/xfe/icons/gnomeblue-theme
-hilitecolor=#bbdff5
+hilitecolor=#7cb57f
 single_click=0
 highlightcolor=#eeeeee
 textfont=Andale Mono [monotype],90,normal,regular
@@ -163,11 +163,11 @@ bordercolor=Black
 relative_resize=1
 font=Droid Sans [unknown],90,normal,regular
 listbackcolor=#c5c2c5
-shadowcolor=#6d828f
+shadowcolor=#48694a
 file_tooltips=1
 tippause=500
 forecolor=Black
-basecolor=#9cbacd
+basecolor=#68976a
 selbackcolor=#528194
 wheellines=5
 smooth_scroll=1
@@ -388,8 +388,13 @@ name_size=200
 size_size=60
 
 [bookmarks]
-BOOKMARK1=/home/bheckel
-BOOKMARK2=/home/bheckel/code
-BOOKMARK3=/home/bheckel/Dropbox/Public/misc
-BOOKMARK4=/home/bheckel/Downloads
+BOOKMARK8=/home/bheckel/Downloads
+BOOKMARK9=/home/bheckel/too_big_for_dropbox
+BOOKMARK4=/home/bheckel/code
+BOOKMARK5=/home/bheckel/Dropbox/Public/USB/cygwin/home/bheckel/code
+BOOKMARK6=/home/bheckel
+BOOKMARK7=/home/bheckel/Dropbox/Public/misc
+BOOKMARK1=/home/bheckel/Dropbox/Public/misc/toread
+BOOKMARK2=/home/bheckel/Dropbox/Private
+BOOKMARK3=/home/bheckel/Dropbox/Public/misc/dhamma/New Course Reading Pali
 
