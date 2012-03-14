@@ -83,6 +83,7 @@ RUN_EXECUTABLE=1
 # BOOKMARKS=mark=/full/directory/path=filename
 
 BOOKMARKS=H=/home/bheckel=../
+BOOKMARKS=d=/home/bheckel/Downloads=../
 BOOKMARKS=z=/home/bheckel/.vifm=../
 
 # COMMAND=command_name=action
@@ -94,11 +95,6 @@ BOOKMARKS=z=/home/bheckel/.vifm=../
 # %D the other window directory name.
 # %m run the command in a menu window
 
-COMMAND=htm=midori "%f" &
-COMMAND=mp=vlc "%f" &
-COMMAND=mp3=vlc "%f" &
-COMMAND=pdf=evince "%f"
-COMMAND=txt=gvim "%f" &
 
 # The file type is for the default programs to be used with
 # a file extension. 
@@ -110,3 +106,6 @@ COMMAND=txt=gvim "%f" &
 # The %a macro is ignored.  To use a % you must put %%.
 
 FILETYPE=Web=html,htm,shtml=w3m,links,mozilla,elvis
+FILETYPE=Image=png,jpg,gif=midori,mozilla
+FILETYPE=Audio=mp4=vlc
+FILETYPE=PDF=pdf=acroread
