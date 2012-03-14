@@ -4,7 +4,7 @@ session.screen0.menu.alpha:	255
 session.screen0.tabs.usePixmap:	true
 session.screen0.tabs.maxOver:	false
 session.screen0.tabs.intitlebar:	true
-session.screen0.toolbar.widthPercent:	98
+session.screen0.toolbar.widthPercent:	96
 session.screen0.toolbar.layer:	Dock
 session.screen0.toolbar.autoHide:	false
 session.screen0.toolbar.onhead:	1
