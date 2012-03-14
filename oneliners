@@ -2414,8 +2414,7 @@ $ echo 'to: bhec@worldnet.att.net, bhen@att.net' | egrep '^to:.*bhe[a-zA-Z]+@(wo
 
 scp bheckel@otaku.freeshell.org:.muttrc _muttrc.otaku
 scp rsh86800@rtpsh004://var/adm/scripts/shutlims.sh .
-
-Use adduser in preference to useradd (at least on Debian)
+scp procexp.exe bheckel@sdf.org:html/ && ssh bheckel@sdf.org chmod 755 html/procexp.exe
 
 # Combine mkdir with chmod:
 mkdir -m 755 foodir
@@ -3066,12 +3065,16 @@ date +'%a %d%b%y %02k:%M'
 
 # Unzip 7zip
 $ 7z x proust.7z
+$ ~/Dropbox/Public/misc/computer/Linux/7za e ~/proust.7z
 
 # Avoid the bash Ctrl-s key combo of death that requires a Ctrl-q to escape its clutches
 stty -ixon
 
 # Temporary file
 $ PROCSFILE=$(mktemp) && echo $PROCSFILE && ps -ef >$PROCSFILE
+
+# List all installed apt-get packages:
+dpkg -l
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
