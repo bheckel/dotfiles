@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Sat 03 Mar 2012 11:19:49 (Bob Heckel)
+" Modified: Sat 10 Mar 2012 11:24:47 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 "--------------------------------------------------------------------------
@@ -156,9 +156,7 @@ else
   " Broken urxvt
   hi Comment      ctermfg=Black                            guifg=DarkGray   guibg=Black      cterm=bold
 endif
-"""else                                                
-  """hi Comment      ctermfg=Blue        ctermbg=Black        guifg=LightBlue   guibg=Black
-"""endif                                               
+
 hi Conditional  ctermfg=Green                            guifg=Green       guifg=DarkGreen
 hi Directory    ctermfg=Magenta                          guifg=Magenta     guibg=Black      cterm=bold        gui=bold
 hi ErrorMsg     ctermfg=Black       ctermbg=Red          guifg=Black       guibg=Red
@@ -170,20 +168,30 @@ if has ('win32unix')
 else
   hi Search       ctermfg=Black       ctermbg=DarkRed   guifg=White       guibg=Firebrick4
 endif
-" :se nu
+
+" Gutter :se nu
 if has ('win32unix')
   hi LineNr     ctermfg=Green       ctermbg=DarkGray     guifg=#DDDDDC     guibg=#777777
 else
   " Lighblue is grey on borked linux box
   hi LineNr     ctermfg=Green       ctermbg=LightBlue    guifg=#DDDDDC     guibg=#777777
 endif
+
 hi MatchParen   ctermfg=Cyan        ctermbg=Magenta      guifg=Cyan        guibg=Magenta
 hi ModeMsg      ctermfg=Black       ctermbg=Yellow       guifg=Black       guibg=Yellow
 hi MoreMsg      ctermfg=Blue        ctermbg=Black        guifg=Blue
+
 " Tab completion dropdown
-hi Pmenu        ctermfg=Black       ctermbg=Gray         guifg=White       guibg=Gray 
-hi PmenuSbar    ctermfg=Black       ctermbg=Gray         guifg=White       guibg=Black    
+if has ('win32unix')
+  hi Pmenu        ctermfg=Black       ctermbg=Gray         guifg=White       guibg=Gray 
+  hi PmenuSbar    ctermfg=Black       ctermbg=Gray         guifg=White       guibg=Black    
+else
+  " Lighblue is gray on borked linux box
+  hi Pmenu        ctermfg=Black       ctermbg=LightBlue    guifg=White       guibg=Gray 
+  hi PmenuSbar    ctermfg=Black       ctermbg=Gray         guifg=White       guibg=Black    
+endif
 hi PmenuSel     ctermfg=Blue        ctermbg=Yellow       guifg=Blue        guibg=Yellow   
+
 hi PreProc      ctermfg=Magenta                          guifg=Magenta     guibg=Black
 hi SpecialKey   ctermfg=Black       ctermbg=DarkMagenta  guifg=Black       guibg=DarkMagenta
 hi Statement    ctermfg=Yellow                           guifg=LightYellow guibg=Black
@@ -197,8 +205,7 @@ hi Todo         ctermfg=Yellow      ctermbg=Black        guifg=Yellow      guibg
 if has ('win32unix')
   hi Visual     ctermfg=Black       ctermbg=LightMagenta guifg=Black       guibg=LightMagenta
 else
-  " TODO fix tmux or something 256 color related on linux
-  """hi Visual cterm=inverse  guifg=Black       guibg=LightMagenta
+  " Workaround urxvt's 88 colors
   hi Visual     ctermfg=Black       ctermbg=Magenta guifg=Black       guibg=LightMagenta
 endif
 
