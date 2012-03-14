@@ -107,5 +107,5 @@ BOOKMARKS=z=/home/bheckel/.vifm=../
 
 FILETYPE=Web=html,htm,shtml=w3m,links,mozilla,elvis
 FILETYPE=Image=png,jpg,gif=midori,mozilla
-FILETYPE=Audio=mp4=vlc
+FILETYPE=Audio=mp3,mp4=vlc
 FILETYPE=PDF=pdf=acroread
