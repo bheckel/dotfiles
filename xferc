@@ -1,22 +1,23 @@
 [OPTIONS]
-height=742
 toolstoolbar=1
 panel_view=0
-width=992
+width=906
+confirm_drag_and_drop=1
 use_startup_notification=1
 treetwopanels_tree_pct=0.2106149957877001
 confirm_delete=0
 use_sudo=0
-ypos=28
+ypos=1
 use_trash_can=1
-auto_save_layout=1
+confirm_quit=0
 use_trash_bypass=0
 mount_warn=0
-treepanel_tree_pct=0.3064516129032258
+treepanel_tree_pct=0.3013245033112583
+auto_save_layout=1
 confirm_overwrite=1
 paneltoolbar=1
 confirm_delete_emptydir=1
-confirm_quit=0
+root_mode=1
 ask_before_copy=0
 mount_messages=0
 locationbar=1
@@ -25,18 +26,14 @@ root_warn=0
 confirm_trash=0
 treetwopanels_lpanel_pct=0.392586352148273
 status=1
-root_mode=1
 generaltoolbar=1
-xpos=557
-confirm_drag_and_drop=1
+xpos=693
+height=755
 
 [HISTORY]
 open=/usr/bin/gvim:/usr/bin/ebook-viewer:
 run=
 filter=*:
-
-[PROGS]
-audioviewer=vlc
 
 [KEYBINDINGS]
 search_prev=Shift-Ctrl-G
@@ -118,8 +115,8 @@ deldate_size=150
 origpath_size=200
 liststyle=0
 attr_size=193
+size_size=91
 user_size=99
-hiddenfiles=1
 dirs_first=1
 ext_size=0
 grou_size=99
@@ -128,7 +125,7 @@ ignore_case=1
 sort_func=ascendingCase
 showthumbnails=1
 name_size=205
-size_size=91
+hiddenfiles=1
 
 [DIR PANEL]
 hidden_dir=0
@@ -139,18 +136,21 @@ type_size=0
 deldate_size=150
 origpath_size=200
 liststyle=0
-attr_size=124
-user_size=62
-hiddenfiles=0
+attr_size=113
+size_size=63
+user_size=56
 dirs_first=1
 ext_size=0
-grou_size=62
-modd_size=187
+grou_size=56
+modd_size=171
 ignore_case=1
 sort_func=ascendingCase
 showthumbnails=1
-name_size=226
-size_size=69
+name_size=267
+hiddenfiles=0
+
+[PROGS]
+audioviewer=vlc
 
 [SETTINGS]
 listforecolor=Black
@@ -388,13 +388,8 @@ name_size=200
 size_size=60
 
 [bookmarks]
-BOOKMARK8=/home/bheckel/Downloads
-BOOKMARK9=/home/bheckel/too_big_for_dropbox
-BOOKMARK4=/home/bheckel/code
-BOOKMARK5=/home/bheckel/Dropbox/Public/USB/cygwin/home/bheckel/code
-BOOKMARK6=/home/bheckel
-BOOKMARK7=/home/bheckel/Dropbox/Public/misc
-BOOKMARK1=/home/bheckel/Dropbox/Public/misc/toread
-BOOKMARK2=/home/bheckel/Dropbox/Private
-BOOKMARK3=/home/bheckel/Dropbox/Public/misc/dhamma/New Course Reading Pali
+BOOKMARK1=/home/bheckel
+BOOKMARK2=/home/bheckel/code
+BOOKMARK3=/home/bheckel/misc
+BOOKMARK4=/home/bheckel/Downloads
 
