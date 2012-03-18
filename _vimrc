@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Sat 10 Mar 2012 11:24:47 (Bob Heckel)
+" Modified: Thu 15 Mar 2012 12:32:02 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 "--------------------------------------------------------------------------
@@ -1287,9 +1287,8 @@ inoremap <C-L> <C-X><C-L>
 " Dictionary
 inoremap <C-K> <C-X><C-K>
 
-" Smart tabbing to avoid doing a Ctr-v + Tab to get a tab.  The '=' allows
-" calling the function without leaving insert mode.
-inoremap <Tab> <C-R>=InsertTabWrapper()<CR>
+" Remap <TAB> for smart completion on various characters
+inoremap <silent> <TAB> <C-R>=SmartComplete()<CR>
 
 """cmap vvv noautocmd vimgrep // **/*.*<Left><Left><Left><Left><Left><Left><Left><Left>
 """cmap vvv vimgrep // **/*.*<Left><Left><Left><Left><Left><Left><Left><Left>
@@ -1415,19 +1414,6 @@ fu! FixStatusLine()  " {{{2
   highlight StatusLineNC term=reverse  cterm=reverse  gui=reverse
 endfu
 command! -nargs=0 Fix call FixStatusLine()  " }}}
-
-
-fu! InsertTabWrapper()  " {{{2
-  " Use the <Tab> key in insert mode while still being able to use it when at
-  " the start of a line or when the preceding char is not a keyword character.
-  " Good for tab-loving workplaces.  Used in an inoremap above.
-  let col = col('.') - 1
-  if !col || getline('.')[col - 1] !~ '\k'
-    return "\<TAB>"
-  else
-    return "\<C-P>"
-  endif
-endfu   " }}}
 
 
 fu! SetExecutableBit()   " {{{2
@@ -1852,7 +1838,7 @@ fu! Commentout(line, lang)  " {{{2
   let lang = a:lang
 
   if lang == 'sas'
-    echon '.vimrc: commentout'
+    echon '.vimrc: sas commentout'
     let marker1 = '/***'
     let marker2 = '***/'
     if !match(line, '^/')
@@ -1862,23 +1848,33 @@ fu! Commentout(line, lang)  " {{{2
       return l2
     endif
   elseif lang == 'sas2'
-    echon '.vimrc: commentout'
+    echon '.vimrc: sas2 commentout'
     let marker1 = '***'
     let marker2 = ''
   elseif lang == 'cpp'
-    echon '.vimrc: commentout'
+    echon '.vimrc: cpp commentout'
     let marker1 = '///'
     let marker2 = ''
   elseif lang == 'vb'
-    echon '.vimrc: commentout'
+    echon '.vimrc: vb commentout'
     let marker1 = "'''"
     let marker2 = ''
+  elseif lang == 'bat'
+    echon '.vimrc: bat commentout'
+    let marker1 = ":::"
+    let marker2 = ''
+    if !match(line, ':')
+      echon '.vimrc: remove bat comment'
+      let l1 = substitute(line, '^:::', '', 'g')
+      let l2 = substitute(l1, '', '', 'g')
+      return l2
+    endif
   elseif lang == 'vim'
-    echon '.vimrc: commentout'
+    echon '.vimrc: vim commentout'
     let marker1 = '"""'
     let marker2 = ''
     if !match(line, '"')
-      echon '.vimrc: remove comment'
+      echon '.vimrc: remove vim comment'
       let l1 = substitute(line, '^"""', '', 'g')
       let l2 = substitute(l1, '', '', 'g')
       return l2
@@ -1954,6 +1950,77 @@ fun! AlignAssignments()  " {{{2
   endfor
 endfu
 """nmap <silent>  ;=  :call AlignAssignments()<CR>
+" }}}
+
+" Table of completion specifications (a list of lists)...   {{{2
+" Build a TAB key function that can:
+"  -Recognize special user-defined insertion contexts and complete them appropriately
+"   Fall back to regular CTRL-N completion after an identifier
+"   -till act like a TAB everywhere else
+let s:completions = []
+" Function to add user-defined completions...
+function! AddCompletion (left, right, completion, restore)
+  " Adapted: Tue 13 Mar 2012 12:33:32 (Bob Heckel -- Damian Conway)
+  " http://www.ibm.com/developerworks/linux/library/l-vim-script-3/index.html
+  call insert(s:completions, [a:left, a:right, a:completion, a:restore])
+endfunction
+let s:NONE = ""
+" Table of completions...
+"                    Left          Right    Complete with...       Restore
+"                    =====         =======  ====================   =======
+call AddCompletion( '{',           s:NONE,  "}",                      1 )
+call AddCompletion( '{',           '}',     "\<CR>\<C-D>\<ESC>O",     0 )
+call AddCompletion( '\[',          s:NONE,  "]",                      1 )
+call AddCompletion( '\[',          '\]',    "\<CR>\<ESC>O\<TAB>",     0 )
+call AddCompletion( '(',           s:NONE,  ")",                      1 )
+call AddCompletion( '(',           ')',     "\<CR>\<ESC>O\<TAB>",     0 )
+call AddCompletion( '<',           s:NONE,  ">",                      1 )
+call AddCompletion( '<',           '>',     "\<CR>\<ESC>O\<TAB>",     0 )
+call AddCompletion( '"',           s:NONE,  '"',                      1 )
+call AddCompletion( '"',           '"',     "\\n",                    1 )
+call AddCompletion( "'",           s:NONE,  "'",                      1 )
+call AddCompletion( "'",           "'",     s:NONE,                   0 )
+call AddCompletion( 'function!\?', "",      "\<CR>endfunction",       1 )
+" Implement smart completion magic...
+function! SmartComplete ()
+  let cursorpos = getpos('.')
+  let cursorcol = cursorpos[2]
+  let curr_line = getline('.')
+
+  " Special subpattern to match only at cursor position...
+  let curr_pos_pat = '\%' . cursorcol . 'c'
+
+  " Tab as usual at the left margin...
+  if curr_line =~ '^\s*' . curr_pos_pat
+      return "\<TAB>"
+  endif
+
+  " How to restore the cursor position...
+  let cursor_back = "\<C-O>:call setpos('.'," . string(cursorpos) . ")\<CR>"
+
+  " If a matching smart completion has been specified, use that...
+  for [left, right, completion, restore] in s:completions
+      let pattern = left . curr_pos_pat . right
+      if curr_line =~ pattern
+          " Code around bug in setpos() when used at EOL...
+          if cursorcol == strlen(curr_line)+1 && strlen(completion)==1 
+              let cursor_back = "\<LEFT>"
+          endif
+
+          " Return the completion...
+          return completion . (restore ? cursor_back : "")
+      endif
+  endfor
+
+  " If no contextual match and after an identifier, do keyword completion...
+  if curr_line =~ '\k' . curr_pos_pat
+      return "\<C-N>"
+
+  " Otherwise, just be a <TAB>...
+  else
+      return "\<TAB>"
+  endif
+endfunction
 " }}}
 
 " end Functions-
@@ -2075,6 +2142,7 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufRead,BufEnter *.bat map ;m 0Di:: Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.bat map ,m yy0I:::<ESC>p
   au BufNewFile,BufRead,BufEnter *.bat map ;s /s/^/:::/<CR>
+  au BufNewFile,BufRead,BufEnter *.bat  map ;; :call setline('.', Commentout(getline('.'), 'bat'))<CR>
 
   """au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;; mz0I///<ESC>`zlll
   au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;; :call setline('.', Commentout(getline('.'), 'cpp'))<CR>
