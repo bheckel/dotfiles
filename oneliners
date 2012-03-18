@@ -5,10 +5,10 @@
 #  Summary: Programming and sysadmin fragments I've collected over the 
 #           years.  Searchable via gone.sh
 #
-#           Comments are written for searching, not proper English...
+#           Comments are often written for searching, not proper English...
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Sun 04 Mar 2012 09:22:41 (Bob Heckel)
+# Modified: Sun 18 Mar 2012 11:59:06 (Bob Heckel)
 #
 #########################################################################
 
@@ -575,7 +575,7 @@ print $paragraphs[int rand 3];
 m/$foo/o  # compile interpolation pattern only once o regex switch:
 
 system('/bin/bzip2', '-k', @zipme);
-system('cp', '-i', $maxname, 'c:/cygwin/home/bheckel/tmp/foo');
+system('cp', '-i', $maxname, 'c:/cygwin/home/rheckel/tmp/foo');
 
 # Like SAS' scan()
 $x = (split / /, $x)[0];
@@ -930,12 +930,12 @@ At start of lines do ma, go to end of list, !'asort  <---go to EOL & no ':'!
 " Turn line containing only a url into an HREF
 :0,$:s:\(.*\):<A HREF=\1>\1</A>:gc 
 
-" Put angle brackets around an email address.  E.g. <bheckel@yaho.com>
-" TODO fails on strings like bheckel@sdf.lonestr.org
+" Put angle brackets around an email address.  E.g. <rheckel@yaho.com>
+" TODO fails on strings like rheckel@sdf.lonestr.org
 :0,$:s: \(\w\+@\w\+\.\w\+\)$: \<\1>:gc
 
 " Write file to two different places (current dir and other) simultaneously:
-:w | :w!/home/bheckel/tmp/%:t
+:w | :w!/home/rheckel/tmp/%:t
 
 " Quick date stamp on tail
 :w u:/%:t.YdS   <---assumes my strftime vim map is available
@@ -1014,11 +1014,11 @@ qa    <---try again
 " Substitute, search and replace, on several files in a directory (e.g. instead of using ~/bin/replace)
 " Recursively load the files (like :e *.c but that doesn't work)
 :args **/*.c
-:argdo %s:'\\\\rtpsawnv0312\\pucc:'C\:\\cygwin\\home\\bheckel\\projects\\datapost\\tmp:ge | update
+:argdo %s:'\\\\rtpsawnv0312\\pucc:'C\:\\cygwin\\home\\rheckel\\projects\\datapost\\tmp:ge | update
 " Bulk update substitute single quotes for double quotes in all open buffer files
 :argdo g/libname/s/'/"/g | update
 " Bulk update convert fully qualified path to SAS macrovariable in all open buffer files ( : and & make it even messier than usual)
-:argdo %s:C\:\\cygwin\\home\\bheckel\\projects\\datapost\\tmp\\ADVAIR_HFA:\&DIRROOT:ge | update
+:argdo %s:C\:\\cygwin\\home\\rheckel\\projects\\datapost\\tmp\\ADVAIR_HFA:\&DIRROOT:ge | update
 
 " Simple bulk - must have used :args - e in ge keeps vim quiet if no match (c confirm doesn't appear to work-THERE IS NO CONFIRMATION), do a  :vimgrep /foo/ **/*.sas  first to verify what will change.
 :argdo %s/foo/bar/ge | update
@@ -1071,8 +1071,10 @@ qa    <---try again
 /a.*b     <---greedy finds axbxb
 /a.\{-}b  <---non-greedy finds axb
 " Better pipe delimited non-greedy (e.g. "dod_yr|$1-4|REV|date of death" rets
-" dod_yr).  Replace the first  .*  with  [^|]*  to be non-greedy
+" dod_yr).  Replace the first  .*  with  [^|]*  to be non-greedy e.g.:
 :,$:s:\([^|]*\)|.*:\1:gc
+" or non-greedy colon
+:%s/^[^:]*://gc
 
 " Pad a row to a specific number of columns, 97 in this case, using a macro:
 " Start on line of interest.
@@ -1082,7 +1084,7 @@ O97i 0jYkR"jdd      <--- '^[' are escapes, there is a space after i
 " It finishes on next line to process.
 42@@      <---to do 42 more lines
 
-Modeline samples.  Trailing ':' required for multiple set's.  /* vim: set tw=72 ft=sas ff=unix: */ # vim: set list syntax=off foldmarker=#{{{,#}}} foldmethod=marker tw=78:
+" Modeline samples.  Trailing ':' required for multiple set's.  /* vim: set tw=72 ft=sas ff=unix: */ # vim: set list syntax=off foldmarker=#{{{,#}}} foldmethod=marker tw=78:
 
 " Substitute TBE2.FINAL.BF19.DATASET using nested capturing parens:
 :0,$:s:BF19\.\(..\)\(.*\):FILENAME \12001 'BF19\.\1\2' DISP=SHR;:gc
@@ -1172,11 +1174,11 @@ yl
 " Open all folds zR (think 'release').  Close all folds zM (think 'mash').
 
 " netrw plugin if vim already open (beware there is NO file locking here):
-:Nwrite "daeb bheckel Tistyb4p tmp/testing/junk2z"
+:Nwrite "daeb rheckel Tistyb4p tmp/testing/junk2z"
 :Nread "mf bqh0 Tistyb4p pgm.trash(junk)"
 :Nwrite "mf bqh0 Tistyb4p pgm.trash(junk)"
 " Netrw using vim with ssh (similar using FTP):
-$ vim scp://bheckel@192.94.73.4/html/index.html
+$ vim scp://rheckel@192.94.73.4/html/index.html
 # or - note no colon and double slash
 $ vi scp://rsh86800@rtpsh005//opt/QCServer/A.05.00/svr/files/Inspec_Lot-0108.log
 " set bufhidden=hide to avoid reloading on every buffer reentry
@@ -1386,6 +1388,9 @@ if &diff                 <---is diff running
 %s:<ExtractEnabled>0<\/ExtractEnabled>:<ExtractEnabled>1<\/ExtractEnabled>:g | :%s:<TrendEnabled>0<\/TrendEnabled>:<TrendEnabled>1<\/TrendEnabled>:g
 %s:<ExtractEnabled>1<\/ExtractEnabled>:<ExtractEnabled>0<\/ExtractEnabled>:g | :%s:<TransformEnabled>1<\/TransformEnabled>:<TransformEnabled>0<\/TransformEnabled>:g | :%s:<TrendEnabled>1<\/TrendEnabled>:<TrendEnabled>0<\/TrendEnabled>:g
 
+" Chain global ex command regex
+g!/10000000059062\|10000000060721/d
+
 " Toggle XML flags
 %s:<\(Extract\|Transform\)Enabled>1<:<\1Enabled>0<:gc
 
@@ -1532,7 +1537,7 @@ while [ true ]; do date; sleep 10; done;
 $ for i in 1 2 3; do echo 'bobh'; sleep $i; done
 
 # Remote copy syntax example
-rcp foo.txt zrtph128:/home/bheckel/tmp
+rcp foo.txt zrtph128:/home/rheckel/tmp
 
 # On the REMOTE Unix box:
 $ /usr/X11R6/bin/xhost +daeb  # sometimes required to be run on LOCAL MACHINE
@@ -1562,7 +1567,7 @@ $ export DISPLAY=158.111.250.163:0.0 && mozilla&
 5 0 * * * /usr/bin/disk_hogs > /dev/null 2>&1
 
 # Avoid email on cron output (use logfile instead):
-59 * * * * /usr/bin/fooprg >> /home/bheckel/fooprglog.txt 2>&1
+59 * * * * /usr/bin/fooprg >> /home/rheckel/fooprglog.txt 2>&1
 
 # Human readable disk space Solaris
 df -h
@@ -1660,7 +1665,7 @@ chmod a+x runvirus.sh
 
 # Use a remote file as a starting point without having to ftp/rcp first.
 #             -------on oradev------  to Cygwin
-rsh zrtph128 'cat /home/bheckel/junk' | vi -
+rsh zrtph128 'cat /home/rheckel/junk' | vi -
 
 # Canonical sort by largest files (descending), assumes filesize is in 5th column
 ls -l | sort -r -n -k 5
@@ -1685,7 +1690,7 @@ for i in *; do du -sk $i; done | sort -n
 # and begins to extract ( xvfB) the contents of the archive from the buffer
 # where it resides.  (B) is used for blocking and should be used to prevent
 # data loss across the network.
-tar cf - tar_me | rsh theotherserver '( cd /home/bheckel/todel; tar xvfB - )'
+tar cf - tar_me | rsh theotherserver '( cd /home/rheckel/todel; tar xvfB - )'
 
 # Backup workbox code changes each weekday (where code/ is mounted, not symlinked)
 (cd; touch .ts -d 'last monday 7am'; find code -type f -not -name '*.sw[op]' -daystart -newer .ts | xargs tar cvfz ${HOSTNAME}.tgz)
@@ -1824,7 +1829,7 @@ find mydir -maxdepth 1 ! -type d  | xargs tar cvfz bobh.tgz
 # tar(1) is a bitch when it comes to specifying files, use this instead:
 cat my_FullyQualified_filelist.txt | xargs tar cvfz onlyspecificfilestarred.tgz
 
-find -type f -mtime -1|xargs tar cvfz foo/t.tar.gz && scp foo/t.tar.gz bheckel@daeb:~/tmp/
+find -type f -mtime -1|xargs tar cvfz foo/t.tar.gz && scp foo/t.tar.gz rheckel@daeb:~/tmp/
 
 # Recursive grep (if no GNU -r available and even that doesn't always work):
 find . -name '*.h' -exec grep -H foostring {} \;
@@ -2159,7 +2164,7 @@ awk 'NR < 5 {print}' 8_2_ntlx72ba.bom
 awk 'NR >5 && NR <11 {print}' 8_2_ntlx72ba.bom
 
 # Checkout a repository on a remote machine:
-export CVSROOT=:ext:bheckel@parsifal:/home/bheckel/repository
+export CVSROOT=:ext:rheckel@parsifal:/home/rheckel/repository
 cvs co eandb
 
 # Debian (at least) date undocumented set time (as root):
@@ -2412,9 +2417,9 @@ cat foo.txt | awk "{if(NR>3)print}"
 Test procmail regex:
 $ echo 'to: bhec@worldnet.att.net, bhen@att.net' | egrep '^to:.*bhe[a-zA-Z]+@(worldnet)*att.net'
 
-scp bheckel@otaku.freeshell.org:.muttrc _muttrc.otaku
+scp rheckel@otaku.freeshell.org:.muttrc _muttrc.otaku
 scp rsh86800@rtpsh004://var/adm/scripts/shutlims.sh .
-scp procexp.exe bheckel@sdf.org:html/ && ssh bheckel@sdf.org chmod 755 html/procexp.exe
+scp procexp.exe rheckel@sdf.org:html/ && ssh rheckel@sdf.org chmod 755 html/procexp.exe
 
 # Combine mkdir with chmod:
 mkdir -m 755 foodir
@@ -2525,12 +2530,12 @@ ls -l | sort +4r | grep -v "total"
 $ useradd -g daebstat -m -p N6lPzsXhb5TLg dwj2
 
 $ mailx -s 'email subject type CTRL-D or dot on blank line to end' root@daeb
-$ mailx -s "mysubject" -r LMITHELP@cdc.gov -c 'bboswell@cdc.gov bheckel@cdc.gov' 'ckj1@cdc.gov kjk4@cdc.gov' <junk
+$ mailx -s "mysubject" -r LMITHELP@cdc.gov -c 'bboswell@cdc.gov rheckel@cdc.gov' 'ckj1@cdc.gov kjk4@cdc.gov' <junk
 ? touch *    # mark all as read and write to mbox in mailx...
 mailx -f ~/mbox   # ...and read them
 ssh rtpsh005 'ls -l /home/gaaadmin/GAAAdapter/gaa/receive/Output_Data | mailx -s 'subject' rsh86800@gsk.com'
 
-59 5 6 * * mailx -s "Automated reminder from Bob" eandbmom@yahoo.com </arpa/af/b/bheckel/mailxmsg.txt
+59 5 6 * * mailx -s "Automated reminder from Bob" eandbmom@yahoo.com </arpa/af/b/rheckel/mailxmsg.txt
 
 # Watch file sizes using cron and email every day at 2:05
 5 2 * * * find /apache/logs/access_log -size +10000000c  | mailx -s "file is getting too big" admin@rocket.ugu.com
@@ -2567,7 +2572,7 @@ for f in *.sas;do bfp $f "bqh0.pgm.testlib(${f%.*})"; done
 for f in *.bak; do cp $f ${f%.*}; done
 
 # HTMLify recently created files:
-find /home -newer /tmp/f1 -name '*PDF' 2>/dev/null | perl -ne "print if s#......(....).............(.*PDF)#<A HREF=http://158.111.250.37/~\1/\2>\1 \2</A><BR>#" >| /home/bheckel/public_html/email_down_list.html
+find /home -newer /tmp/f1 -name '*PDF' 2>/dev/null | perl -ne "print if s#......(....).............(.*PDF)#<A HREF=http://158.111.250.37/~\1/\2>\1 \2</A><BR>#" >| /home/rheckel/public_html/email_down_list.html
 
 # Which package did a file come from (Solaris):
 grep /my/missing/file /var/sadm/install/contents
@@ -2611,7 +2616,7 @@ find ~/projects -name 'junk.*'|xargs rm
 # Monitor a directory tree for new pdf files:
 find /home -type f -name '*.PDF' -a -newer /tmp/fx -exec ls -lo {} \; 2>/dev/null
 # Monitor a box for logons:
-while true; do last|head|grep -v bheckel; sleep 60; done
+while true; do last|head|grep -v rheckel; sleep 60; done
 
 # Monitor process load and get the cpu info you need that xload and uptime
 # don't tell you
@@ -2684,22 +2689,22 @@ for f in c html misccode sas vb; do scp $f.tgz sverige.freeshell.org:~/code/; do
 cygcheck -l apache
 
 # Use a default if no parameter is passed via command line
-KNOPPIX_DIR=${1:-/home/bheckel/tmp}
+KNOPPIX_DIR=${1:-/home/rheckel/tmp}
 BAR=notemptylikeFOOis; echo ${FOO-$BAR}  # use $bar if $foo doesn't exist
 
 # Determine file size in bytes
 filesize=$(find $1 -printf "%s" )
 
 # use locate(1) to search, this to create (findutils package):
-$ updatedb --prunepaths='/cygdrive /proc /tmp /var /home/bheckel/tmp'
+$ updatedb --prunepaths='/cygdrive /proc /tmp /var /home/rheckel/tmp'
 
 # For .bashrc "loc" alias (good candidate for cron):
 # alias loc='locate --ignore-case --database=/var/lib/locatedb.code '
-$ /bin/updatedb --localpaths='/home/bheckel/code' --output='/var/lib/locatedb.code'
+$ /bin/updatedb --localpaths='/home/rheckel/code' --output='/var/lib/locatedb.code'
 # On cygwin swiss:
-$ /bin/updatedb --localpaths='/cygdrive/e/cygwin/home/bheckel/code' --output='/var/lib/locatedb.code'
+$ /bin/updatedb --localpaths='/cygdrive/e/cygwin/home/rheckel/code' --output='/var/lib/locatedb.code'
 # Linux
-$ sudo updatedb --database-root='/home/bheckel/code' --output='/var/lib/locatedb.code'
+$ sudo updatedb --database-root='/home/rheckel/code' --output='/var/lib/locatedb.code'
 
 # Calculate the day before assumes GNU date(1):
 date -d '20050801 2 day ago' +"%Y%m%d"
@@ -2766,7 +2771,7 @@ START=`date +%s`;WORDS=`cat|wc -w`; STOP=`date +%s`; SPEED=`echo "$WORDS / ( ( $
 
 # Configure ssh for no password:
 ssh-keygen -t dsa  # on mario
-cat /home/chronos/.ssh/id_dsa.pub | ssh bheckel@sdf.org 'cat - >> ~/.ssh/authorized_keys'
+cat /home/chronos/.ssh/id_dsa.pub | ssh rheckel@sdf.org 'cat - >> ~/.ssh/authorized_keys'
 # Better ssh no password,  Ignores mkdir if ~/.ssh/ already exists:
 ssh user@host "mkdir -p .ssh && cat >> .ssh/authorized_keys" < ~/.ssh/id_rsa.pub
 
@@ -2847,7 +2852,7 @@ $ stty erase ^H intr ^C kill ^K
 # or sometimes ^? instead of ^H
 
 # Update a production directory with newer files from dev (maybe this should be a script)
-FR=/home/bheckel/tmp/junk26Jun08_1214509437/from; TO=/home/bheckel/tmp/junk26Jun08_1214509437/to; cd $FR && find -type f -mtime 0 -print0 | xargs -0 tar cvfz $TO/t.tgz && cd $TO && tar xvfz t.tgz
+FR=/home/rheckel/tmp/junk26Jun08_1214509437/from; TO=/home/rheckel/tmp/junk26Jun08_1214509437/to; cd $FR && find -type f -mtime 0 -print0 | xargs -0 tar cvfz $TO/t.tgz && cd $TO && tar xvfz t.tgz
 
 # Tampering check:
 $ md5sum * > tampering.md5                        # build
@@ -2972,10 +2977,10 @@ tar cvfz /cygdrive/u/bkup/sd.`date +%d%b%y`.tgz CODE/
 awk -F, '{ print $1; print $2; print $3 }' t.csv
 
 # Count unique batches, in column 1, from CSV file
-tail +2 "/home/bheckel/projects/datapost/tmp/VALTREX_Caplets/OUTPUT_COMPILED_DATA/CSV valtrex_FreeWeigh.csv"|cut -d ',' -f1|sort|uniq|wc -l
+tail +2 "/home/rheckel/projects/datapost/tmp/VALTREX_Caplets/OUTPUT_COMPILED_DATA/CSV valtrex_FreeWeigh.csv"|cut -d ',' -f1|sort|uniq|wc -l
 
 # Temporary mount:
-$ mount -f "C:\Users\bheckel_6\Documents\My Dropbox\Public\USB\cygwin\home\bheckel" /home/bheckel  # temporary
+$ mount -f "C:\Users\rheckel_6\Documents\My Dropbox\Public\USB\cygwin\home\rheckel" /home/rheckel  # temporary
 $ mount -m  # cat the current mountpoints for pasting into /etc/fstab for permanent mount
 
 # Is database up?
@@ -3034,21 +3039,21 @@ find datapost/ -name '*.sas' -o -name '*.xml' -o -name '*.xslt' -o -name '*.map'
 # Whack files named "!THIS IS DEMO" in all subdirs:
 find . -name '!THI*' -type f -print0 |xargs -0 rm
 
-# Write file as root if you opened it accidentally as bheckel:
+# Write file as root if you opened it accidentally as rheckel:
 :w !sudo tee %
 
 # Brace expansion - good for creating several new dummy files:
 touch {a,b,c}{a,b,c}{a,b,c}
 
 # Append to a remote text file via ssh:
-ssh bheckel@sdf.org 'cat >> remotefoo' < localfoo
+ssh rheckel@sdf.org 'cat >> remotefoo' < localfoo
 
 # System monitoring tools: top iostat ps vmstat (memory) lsof (list open files)
 
 # Install debian
 sudo dpkg -i google-chrome-stable_current_i386.deb
 
-ssh bheckel@sdf.org /arpa/af/b/bheckel/bin/rss
+ssh rheckel@sdf.org /arpa/af/b/rheckel/bin/rss
 
 export PROMPT_COMMAND=; echo -ne "\033]0; override change rxvt window title\007"
 
@@ -3075,6 +3080,9 @@ $ PROCSFILE=$(mktemp) && echo $PROCSFILE && ps -ef >$PROCSFILE
 
 # List all installed apt-get packages:
 dpkg -l
+
+# Process substitution diff
+diff -u ~/code/misccode/_bashrc <(ssh rheckel@sdf.org cat .bashrc)
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3753,7 +3761,7 @@ http://rtpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program=ping&_admi
  /* SAS' version of Oracle's ROWNUM<5 */
 where monotonic() < 5
 
- /* E.g. C:\cygwin\home\bheckel\tmp\testing\tmpsas.5660.sas */
+ /* E.g. C:\cygwin\home\rheckel\tmp\testing\tmpsas.5660.sas */
 %put fully qual name of the currently running pgm: %sysfunc(getoption(SYSIN));
 %put basename only of currently running pgm: &SYSPROCESSNAME
 
@@ -4328,7 +4336,7 @@ HTML email link:
 <A HREF="mailto:mutt-users-digest-request@mutt.org?Subject=Subscribe Mutt Users Digest&Body=subscribe">mailme</A>
 <A HREF="mailto:bqh0@cdc.gov?Subject=Subscribe">mailme</A>
 <a href="mailto:&#98heckel&#64&#97&#116&#116&#46&#110&#101&#116">anti-spam email address</a>
-<a href="mailto:&#98heckel&#64&#99&#112&#97&#110&#46&#111&#114&#103">bheckel@cpan.org</a>
+<a href="mailto:&#98heckel&#64&#99&#112&#97&#110&#46&#111&#114&#103">rheckel@cpan.org</a>
 
 <!-- Add an HTML button to go back in history: -->
 <INPUT TYPE="button" VALUE="Back" onClick = "javascript:history.back()">
@@ -4338,7 +4346,7 @@ HTML email link:
 <input type="button" onclick="document.body.bgColor='lavender';" value="Change background color" />
 
 Refresh newsgroups in slrn
-/usr/bin/slrn --create -h news.cis.dfn.de -f /home/bheckel/slrn/news.cis.dfn.de jnewsrc
+/usr/bin/slrn --create -h news.cis.dfn.de -f /home/rheckel/slrn/news.cis.dfn.de jnewsrc
 
 ' Plural vs. singular display.
 sPlural = IIf((iFileCnt > 1), "s" & Chr(32), Chr(32))
@@ -4435,7 +4443,7 @@ Pop up new window using only HTML
 <A HREF="http://www.cdc.gov" TARGET=_BLANK>Spawn new window
 
 Set up ssh ssl tunnel:
-ssh -f -L 110:localhost:110 -l bheckel mail.freeshell.org
+ssh -f -L 110:localhost:110 -l rheckel mail.freeshell.org
 
 Mozilla cookies:
 /c/Documents\ and\ Settings/bqh0/Application\ Data/Mozilla/Profiles/default/
@@ -4702,7 +4710,7 @@ spool u:/ahfa60stab.out;
 
 -- userid/password@hostname
 $ sqlplus pks/dev123dba@usdev388
-$ sqlplus pks/dev123dba@usdev388 @c:/cygwin//home/bheckel/code/misccode/_sqlplusrc.sql
+$ sqlplus pks/dev123dba@usdev388 @c:/cygwin//home/rheckel/code/misccode/_sqlplusrc.sql
 $ sqlplus pks/dev123dba@usdev388 @t.sql --need an exit; in t.sql to run standalone
 
 SQL> define_editor='c:/program files/vim/vim70/gvim -c "set filetype=sql"'
@@ -4784,7 +4792,7 @@ http://chart.apis.google.com/chart?cht=lc&chs=200x125&chd=s:helloWorld&chxt=x,y&
 <img src="http://chart.apis.google.com/chart?chs=200x125&amp;chd=s:helloWorld&amp;cht=lc&amp;chxt=x,y&amp;chxl=0:|Mar|Apr|May|June|July|1:||50+Kb"alt="Sample chart" />
 
 Browser HTML File URL
-file:///c:/cygwin/home/bheckel/tmp
+file:///c:/cygwin/home/rheckel/tmp
 
 $ ~/bin/msgbox "my title" "my body" error
 
@@ -4830,7 +4838,7 @@ Points are a typesetter's standard unit of measure. There are 72 points to an in
 Private Sub cmdDeleteListItems_Click() Dim i As Integer For i = List1.ListCount - 1 To 0 Step -1 If List1.Selected(i) Then List1.RemoveItem i Next i End Sub
 
 Vimperator Firefox:
-C:\Progra~1\Mozill~1\firefox.exe -vimperator "+u 'c:\cygwin\home\bheckel\.vimperatorrc'"
+C:\Progra~1\Mozill~1\firefox.exe -vimperator "+u 'c:\cygwin\home\rheckel\.vimperatorrc'"
 C:\Progra~1\Mozill~1\firefox.exe -vimperator "+c ':h index'"
 :dia console <--open error console :emenu <TAB> :h index :mes[sages] :se[t] :se[t] all :pref[erences] :pref! <--open about:config :res[tart] :addo[ns]  (<TAB> for all choices then <TAB> & <Shift><Tab> to navigate) :dia history
 
@@ -5021,7 +5029,7 @@ application/xhtml+xml
 select regexp_substr(upper('Advair Diskus Inh Pwdr 250/50 mcg 60D'),'\d+/[^/]* *MCG') as strength2 from dual
 
 Virtual Box after setting \code (put the mount cmd in /etc/rc.local for debian distros)
-mkdir ~/code; sudo mount -t vboxsf -o uid=1000,gid=1000 code /home/bheckel/code
+mkdir ~/code; sudo mount -t vboxsf -o uid=1000,gid=1000 code /home/rheckel/code
 
 -- Oracle not equal !=
 
