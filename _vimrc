@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Thu 15 Mar 2012 12:32:02 (Bob Heckel)
+" Modified: Sat 31 Mar 2012 09:43:37 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 "--------------------------------------------------------------------------
@@ -32,10 +32,8 @@
 " DEBUG toggle -- watch changes to text happen slowly.  Mostly useless.
 """set writedelay=50
 
-let BOX=hostname()
-let WORKBOX1='ZEBWL06A16349'
-let WORKBOX2='ZEBWD08D26987'
-let WORKBOX3='ZEBWL10D43164'
+let THISBOX = hostname()
+let WORKBOXES = [ 'ZEBWL06A16349', 'ZEBWD08D26987', 'ZEBWL10D43164', 'ZEBWL12H29961' ]
 
 au FileType NETRW set winwidth=150
 "let g:netrw_browse_split=2
@@ -47,18 +45,18 @@ if has ('win32unix')
 endif
 
 " For editing in familiar FS (NERDTree is slow)
-if has('unix')
-  let NERDChristmasTree=0
-  let NERDTreeShowBookmarks=1
-  let NERDTreeIgnore=['\.sas7b.at$']
-  let NERDTreeChDirMode=2
-  let NERDTreeWinSize=27
-  let NERDTreeStatusline=-1
-  """source $HOME/code/misccode/NERD_tree.vim
-endif
+"""if has('unix')
+"""  let NERDChristmasTree=0
+"""  let NERDTreeShowBookmarks=1
+"""  let NERDTreeIgnore=['\.sas7b.at$']
+"""  let NERDTreeChDirMode=2
+"""  let NERDTreeWinSize=27
+"""  let NERDTreeStatusline=-1
+"""  """source $HOME/code/misccode/NERD_tree.vim
+"""endif
 
 " Setup Vim tempspace that Cygwin and gVim can share
-if BOX==WORKBOX1 || BOX==WORKBOX2 || BOX==WORKBOX3
+if matchstr(WORKBOXES, THISBOX) == THISBOX
   if has('gui')
     let VTMP = 'c:/temp'
     let VTMPU = 'u:/temp'
@@ -528,7 +526,7 @@ set wrapscan
 " because it's confusing as hell with BufExplorer.
 " TODO how to resolve VTMP in a SET statement?
 " Make sure _viminfo file is ff=unix
-if BOX==WORKBOX1 || BOX==WORKBOX2 || BOX==WORKBOX3
+if matchstr(WORKBOXES, THISBOX) == THISBOX
   if has('gui')
     set viminfo='5000,\"750,nC:/temp/_viminfo
   else
@@ -796,35 +794,17 @@ if has('gui')
   map <F4><F4> :call SetOpt('columns', 80)<CR>
 endif
 
-" SAS MVS files are unsuffixed.
-" TODO this is a mess, how to keep from going unhighlighted on buffer switch?
-" Toggle depending on keystroke speed.
-"""if version > 599
-  """map <F5><F5> :sy off<CR>
-"""endif
-" For unsuffixed files:
-"""map <F5> :set filetype=sas<CR>:source ~/code/sas/sas.vim<CR>
-" For broken function key machines.
-"""map ,5 :set filetype=sas<CR>:source ~/code/sas/sas.vim<CR>
-"""map <F5> :call CheckForShebang()<CR>
-
-map <F5> :e!<CR>
-
 if has('win32')
   map <F6> :se guifont=Andale_Mono:h5<CR>z.
   map <F7> :se guifont=Andale_Mono:h7<CR>z.
-  " <F8> sometimes consumed by .sas aucommands
+  " <F8> is occasionally consumed by .sas aucommands
   " normal size
   map <F9> :se guifont=Andale_Mono:h9<CR>z.
   map <F10> :se guifont=Andale_Mono:h10<CR>z.
 endif
 
 " Filter SAS Log for error-like lines only
-"""map <F8> :g!/\\C^ERROR\\s\\+\\d\\+-\\d\\+:\\\|^WARNING:\\\|\\C^ERROR:\\\|stopped processing this step because\\\|lines were truncated\\\|NOTE: Invalid data for\\\|NOTE: Variable\\\|NOTE\\s\\+\\d\\+-\\d\\+:/d<CR>
-"""map <F8> :g!/\\C^ERROR\\s\\+\\d\\+-\\d\\+:\\\|^WARNING: [^Compression]\\\|\\C^ERROR: [^Limit set by]\\\|stopped processing this step because\\\|lines were truncated\\\|NOTE: Invalid data for\\\|NOTE: Variable\\\|NOTE\\s\\+\\d\\+-\\d\\+:/d<CR>
 map <silent> <F8> :g!/\\C^ERROR: \\\|\\C^ERROR\\s\\+\\d\\+-\\d\\+:\\\|^WARNING: [^Compression]\\\|stopped processing this step because\\\|lines were truncated\\\|NOTE: Invalid data for\\\|NOTE: Variable\\\|NOTE\\s\\+\\d\\+-\\d\\+:/d<CR>
-" TODO elim the ERROR= junk
-"""map <F8> :g!/\\C^ERROR: .[^ERRORS=]\\\|\\C^ERROR\\s\\+\\d\\+-\\d\\+:\\\|^WARNING: [^Compression]\\\|stopped processing this step because\\\|lines were truncated\\\|NOTE: Invalid data for\\\|NOTE: Variable\\\|NOTE\\s\\+\\d\\+-\\d\\+:/d<CR>
 
 " View syntax group info.  Probably mostly empty if no syntax defined (e.g. .txt)
 """map <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
@@ -912,7 +892,6 @@ map ,j :map j gj<CR>
 map ,k :map gk<CR>
 
 " (L)owercase a word
-"""map ,l muviwu`u\|:echon '.vimrc: word lowercased'<CR>
 map ,l mzviwu\|:echon '.vimrc: word lowercased'<CR>`z
 
 " Comment out and yank/paste current line.  Default (may be overridden below,
@@ -1022,32 +1001,13 @@ map ;; :call setline('.', Commentout(getline('.'), 'default'))<CR>
 map ;/ my^3x<ESC>`yhhh
 
 " $ vi -dR 1 2
-"""if ( has('gui') && box==workbox )
-"""  " Hack for swiss drive '~' confusion
-"""  map ;1 :silent! w!c:/cygwin/home/bheckel/tmp/1<CR>
-"""  map ;2 :silent! w!c:/cygwin/home/bheckel/tmp/2<CR>
-"""  map ;3 :silent! w!c:/cygwin/home/bheckel/tmp/3<CR>
-"""  map ;4 :silent! w!c:/cygwin/home/bheckel/tmp/4<CR>
-"""else
-"""let v1=g:VTMP"/1"
-"""map ;1 :silent! w! g:VTMP . '/1'
-"""map ;1 :call WriteToFile('%', VTMP, 1, 0)<CR>
-"""map ;2 :call WriteToFile('%', VTMP, 2, 0, 'cd ~/tmp; vi -d 1 2')<CR>
-"""map ;3 :call WriteToFile('%', VTMP, 3, 0)<CR>
-"""map ;4 :call WriteToFile('%', VTMP, 4, 0)<CR>
-"""endif
 map ;1 :%call WriteToFile(VTMP, 1, 0)<CR>
-"""map ;2 :%call WriteToFile(VTMP, 2, 0, 'cd ~/tmp; vi -d 1 2')<CR>
 map ;2 :%call WriteToFile(VTMP, 2, 0)<CR>
 map ;3 :%call WriteToFile(VTMP, 3, 0)<CR>
 map ;4 :%call WriteToFile(VTMP, 4, 0)<CR>
 
 " Checkpoint the file
 map ;5 :call BkupFile(VTMP)<CR>
-
-" (A)ppend - see ;w
-"""nmap ;a :. w! >>~/.vimxfer<CR>
-"""vnoremap ;a :w! >>~/.vimxfer<CR>
 
 " Maximize window.  Alternative to z99.  <C-W>_ makes my hands hurt just
 " looking at the chording.  Same as map ,b without the jumping.  Mnemoic [b]ig
@@ -1062,7 +1022,6 @@ map ;d :call CDtoThisFilesLoc()<CR>
 
 " Check for SAS Log errors (SAS' .log only so might want to au command it if
 " we run out of free semicolon maps)
-"""map ;e /\\C^ERROR\\s\\+\\d\\+-\\d\\+:\\\|^WARNING:\\\|\\C^ERROR:\\\|stopped processing this step because<CR>
 "                    __       ___ required for map
 """map ;e :set hls<CR> /\\C^ERROR:\\\|SYSCC\\\|stopped processing this step because/<CR>
 map ;e :set hls<CR> /\\C^ERROR:\\\|NOTE: SYSCC: [123456789]\\\|stopped processing this step because/<CR>
@@ -1087,7 +1046,7 @@ endif
 " Jump to leftside window without chording
 map ;h <C-W>h
 
-" Jump to rightside window without chording.  Non-intutitive but 'l' is
+" Jump to rightside window without chording.  Non-intutitive but ';l' is
 " already taken.
 map ;i <C-W>l
 
@@ -1130,8 +1089,7 @@ map ;q viw"zxllciwhhpll"zp
 
 " Transfer/read and write one block of text between vim sessions:
 " This is part 1 of the most useful map of all time.  See ;w and ;a for part 2
-"""nmap ;r :r VTMP/.vimxfer<CR>
-if BOX==WORKBOX1 || BOX==WORKBOX2 || BOX==WORKBOX3
+if matchstr(WORKBOXES, THISBOX) == THISBOX
   nmap ;r :call ReadFromFile(VTMPU, '.vimxfer')<CR>
 else
   nmap ;r :call ReadFromFile(VTMP, '.vimxfer')<CR>
@@ -1151,10 +1109,9 @@ map ;tt mz<Esc>:se tw=78<CR>\|:echon '.vimrc: tw set to 78'<CR>'z
 
 map ;u :FufBuffer 
 
-"""map ;v :source $HOME/.vimrc
-
 " Transfer/read and write one block of text between vim sessions:
-if BOX==WORKBOX1 || BOX==WORKBOX2 || BOX==WORKBOX3
+"""if BOX==WORKBOX1 || BOX==WORKBOX2 || BOX==WORKBOX3
+if matchstr(WORKBOXES, THISBOX) == THISBOX
   nmap ;a :call WriteToFile(VTMPU, '.vimxfer', 1)<CR>
   vmap ;a :call WriteToFile(VTMPU, '.vimxfer', 1)<CR>
   """nmap ;w :call WriteToFile('.', VTMPU, '.vimxfer', 0)<CR>
@@ -2056,7 +2013,8 @@ if !exists("autocommands_loaded")
   " SAS Logs, created under sasrun, should collapse to hide sasrun's initialization details
   au BufRead */*\d\+.log set foldmethod=marker
 
-  if BOX==WORKBOX1 || BOX==WORKBOX2 || BOX==WORKBOX3
+"""  if BOX==WORKBOX1 || BOX==WORKBOX2 || BOX==WORKBOX3
+  if matchstr(WORKBOXES, THISBOX) == THISBOX
     autocmd BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source u:/code/sas/saslog.vim 
   else
     autocmd BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim 
