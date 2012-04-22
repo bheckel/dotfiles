@@ -1385,7 +1385,6 @@ K                        <---on (K)eyword for help or man etc.
 if &diff                 <---is diff running
 
 " Chain two commands (unfortunately shortcircuits on 'Pattern not found'):
-%s:<ExtractEnabled>0<\/ExtractEnabled>:<ExtractEnabled>1<\/ExtractEnabled>:g | :%s:<TrendEnabled>0<\/TrendEnabled>:<TrendEnabled>1<\/TrendEnabled>:g
 %s:<ExtractEnabled>1<\/ExtractEnabled>:<ExtractEnabled>0<\/ExtractEnabled>:g | :%s:<TransformEnabled>1<\/TransformEnabled>:<TransformEnabled>0<\/TransformEnabled>:g | :%s:<TrendEnabled>1<\/TrendEnabled>:<TrendEnabled>0<\/TrendEnabled>:g
 
 " Chain global ex command regex
@@ -1422,6 +1421,9 @@ nmap <silent> [[ :let &tabstop -= &tabstop > 1 ? 1 : 0<CR>
 
 " Toggle a flag, creating it if it doesn't already exist:
 let w:check_words = exists('w:check_words') ? !w:check_words : 1
+
+" Sort unique without external uniq
+:%sort u
 
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -2068,6 +2070,10 @@ chown oracle.dba /u01  (or oracle:dba)
 
 # Mount CDROM
 mount -t iso9660 /dev/cdrom /mnt/cdrom
+
+# Mount Android
+sudo mount -t vfat /dev/sdb /media/Nexus -o uid=1000,gid=1000,utf8,dmask=027,fmask=137
+sudo umount /media/Nexus
 
 # To pad with leading zeroes:
 gawk 'BEGIN {printf "%10.0g\n",3.14; exit}'
@@ -3081,8 +3087,14 @@ $ PROCSFILE=$(mktemp) && echo $PROCSFILE && ps -ef >$PROCSFILE
 # List all installed apt-get packages:
 dpkg -l
 
+# See if a new Chrome is out there
+sudo apt-get install google-chrome-stable
+
 # Process substitution diff
 diff -u ~/code/misccode/_bashrc <(ssh rheckel@sdf.org cat .bashrc)
+
+# Does vi exist on this box? (avoid which(1):
+hash vi &>/dev/null if [ $? -eq 0 ]; then export EDITOR=vi fi
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4985,7 +4997,7 @@ Disable screensaver lock Windows XP (see also code\misccode\ScreenSaverIsSecure_
 \HKCU\Software\Policies\Microsoft\Windows\ControlPanel\Desktop
 ScreenSaverIsSecure 0
 
-Windows Explorer shortcut Target box tree view:
+Windows Explorer shortcut Target box override force tree view:
 %windir%\explorer.exe /e,u:\_go
 
 WinXP icons
@@ -5370,7 +5382,7 @@ $ psfile '\\rtpaswn321' -u uxx1903 -p uxx06tt 25060 -c
 xmllint --noout Bookstore-DTD.xml
 xmllint -schema Bookstore.xsd --noout Bookstore-XSD.xml
 
-alias lims='sqlplus sasreport/sasreport@usprd259'
+alias lims='sqlplus sasrepor/sasrepor@usprd259'
 
 :: SELECT constant to provide an empty column 
 select '' as test_result, ...
@@ -5381,6 +5393,12 @@ Ubuntu purple color #290020
 let sorted_list = reverse(sort(unsorted_list))
 " ...is almost always supposed to be:
 let sorted_list = reverse(sort(copy(unsorted_list)))
+
+Indent XML
+xmllint --format t.xml
+
+-- Compare Oracle schemas
+select count(*), object_type from dba_objects where owner='PKS' group by object_type;
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  
