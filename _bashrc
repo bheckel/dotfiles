@@ -4,7 +4,7 @@
 # Summary: bash shell config for at least Cygwin 1.3/1.5/1.7, Unix and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Thu 15 Mar 2012 18:53:49 (Bob Heckel)
+# Modified: Fri 20 Apr 2012 14:18:40 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -29,24 +29,20 @@ stty -ixon
 # Generic Export  #{{{2
 #-----------------------
 export EDITOR=vi
-###export FIGNORE='.bak:.bak2:.bak3'  # ignore during filename tab completion
-###export HISTFILE=$HOME/.bash_history
-export HISTFILESIZE=1000000  # max lines in $HISTFILE
-export HISTIGNORE='f:fg:l:ls:la:cd:h:ll::d:by:&'  # '&' supposedly same as HISTCONTROL=ignoredups
+export HISTFILESIZE=50000  # max lines in $HISTFILE
+export HISTIGNORE='f:fg:l:ls:la:cd:h:ll::d:by:&'  # '&' supposedly same as HISTCONTROL=ignoredups - consecutive dups that is
 # No duplicates, no same successive entries ('&' HISTIGNORE doesn't work 2007-11-18)
 export HISTCONTROL=ignoreboth
 export HISTTIMEFORMAT='%F %T '
-###export HISTSIZE=50000  # saved commands copied to $HISTFILE at shell exit
 export IGNOREEOF=1  # require 2 ctr-d to exit
 # More portable than the cleaner  if [ "${OSTYPE:0:6}" = 'CYGWIN' ]; then ...
 ###export ISCYG=`echo ${OSTYPE} | /usr/bin/perl -pe 's/(.{6}).*/$1/'`
-###export LYNX_CFG=$HOME/.lynx.cfg
 # Prevent ugly default bolding
 export LS_COLORS='*.swp=00;35:*.swo=00;35:*.bak=00;35:ex=00;32:*.java=00;32:*.pm=00;32:no=00:fi=00:di=01;34:ln=00;36:*.lnk=00;36:*.gz=00;31:*.bz2=00;31:*.zip=00;31:*.tgz=00;31:*.7z=00;31'
 export PAGER=less  # for man(1)
 export PARINIT='rTbgqR B=.?_A_a Q=_s>| w65'  # par formatter
 export TMP=$HOME/tmp
-# Default "unknown" indicator.  For .vimrc statusline.
+# Default "unknown host" indicator for my .vimrc statusline
 export VIMSTATUSL='?@?'
 
 # Used by at least PS1, also good for use in shell scripts.  But bad for when printing env
@@ -472,9 +468,10 @@ stoppedjobs() {
 ###}
 
 
-# Build a disposable sandbox for testing
+# Build a fast, disposable sandbox for testing
 sbx() {
-  todayuniq=`date +%d%b%y_%s`$1
+  # Leading epoch date for sorting purposes
+  todayuniq=`date +%s_%d%b%y`$1
   mkdir $HOME/tmp/$todayuniq
   cd $HOME/tmp/$todayuniq
 }
@@ -513,10 +510,10 @@ to() {
 
 
 # For PS1
-function parse_git_dirty {
+parse_git_dirty() {
   [[ $(git status 2> /dev/null | tail -n1) != "nothing to commit (working directory clean)" ]] && echo "*"
 }
-function parse_git_branch {
+parse_git_branch() {
   git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e "s/* \(.*\)/[\1$(parse_git_dirty)]/"
 }
 
@@ -612,25 +609,18 @@ case "$OSTYPE" in
     ###export LCHOSTNAME="`echo ${HOSTNAME} | perl -ne 's/(.*)/\L$1\E/;print'`"
     export LCHOSTNAME="`echo ${HOSTNAME} | tr [A-Z] [a-z]`"
     # The echo -ne "\033]0;${PWD}\007" causes rxvt titlebar to show PWD.
-    # '\[ ... \]' says "ignore this material while calculating the size of the 
-    # prompt".
-    # TODO want our history appended (-a) and other term's history merged into
-    # ours (-n) but this dups too much
-    ###export PROMPT_COMMAND='history -a; set_prompt_colors; echo -ne "\033]0;`stoppedjobs`${LCHOSTNAME:0:6}:${PWD}\007"; history -n'
+    # '\[ ... \]' says "ignore this material while calculating the size of the prompt".
     # We only want hostname's first 4 chars to avoid cluttering the titlebar.
     # Calling stoppedjobs() is too expensive on parsifal
     ###export PROMPT_COMMAND='echo -ne "\033]0;${LCHOSTNAME:0:4}:${PWD}\007";'
     ###export PROMPT_COMMAND='history -a;set_prompt_colors; echo -ne "\033]0;${LCHOSTNAME:0:4}:${PWD}\007";'
     # Needed to display path in menu titlebar.  TODO still need the history hack?
-    export PROMPT_COMMAND='history -a; history -n; echo -ne "\033]0;${LCHOSTNAME:0:4}:${PWD}\007";'
-    # Set colors in set_prompt_colors(), not here:
-    ###export PS1='\[${fg_darkgray}\]: `stoppedjobs`\[${normal}\]\[${prompt_beg}\]${USERNAME}@${LCHOSTNAME:0:8}\[${prompt_end}\]\[${fg_green}\]\$\[${fg_darkgray}\];\[${normal}\] '
+    # Want our history appended (-a) and other term's history merged into ours (-n)
+    ###export PROMPT_COMMAND='history -a; history -n; echo -ne "\033]0;${LCHOSTNAME:0:4}:${PWD}\007";'
+    export PROMPT_COMMAND='history -a; echo -ne "\033]0;${LCHOSTNAME:0:4}:${PWD}\007";'
     # Triple clickable noop prompt.  WinXP==CYGWIN_NT-5.1 W2K==5.0 
     ###if [ "${OSTYPE}" = 'CYGWIN_NT-5.1' ]; then
-      # TODO only for rxvt interactive terminals (freaks out mintty & screen)
-      ###export PS1='${fg_darkgray}`stoppedjobs` ${fg_greenbold}\u@${LCHOSTNAME}${fg_darkgray} \W/ \d \t ${normal} \n\$ '
-      ###export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${LCHOSTNAME}${fg_darkgray} \W/ \d \t ${normal} \n\$ '
-      export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${LCHOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
+      ###export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${LCHOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
     ###export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${LCHOSTNAME}${fg_darkgray} \W/ \d \t ${normal} \n\$ '
     ###else
       # Not sure why the escapes break WinXP.
@@ -639,8 +629,8 @@ case "$OSTYPE" in
       # TODO gets repeated chars during backspacing under tab completion, have
       # to remove the '\['s
       ###export PS1=': `stoppedjobs`\[${prompt_beg}\]${USERNAME}@${LCHOSTNAME:0:8}\[${prompt_end}\]; '
-      ###export PS1=': `stoppedjobs`${USERNAME}@${LCHOSTNAME:0:8}; '
     ###fi
+    export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${LCHOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
     export PS2=' '  # allow multiple line copy to clipboard 
     export TEMP=/cygdrive/c/temp
     ###export TERM=rxvt  # for cygwin 1.3.10 so that w3m restores upon exiting
@@ -859,7 +849,8 @@ case "$OSTYPE" in
     alias f='fg; echo'
     alias gv=gvim
     # Allow output to be triple clicked as a noop.
-    alias h='history|tail -20|perl -pe "s/(\d+)(.*)/: \1; \2/"'
+    ###alias h='history|tail -20|perl -pe "s/(\d+)(.*)/: \1; \2/"'
+    alias h='history|tail -20'
     alias l='ls -GFw80 --color=none'   # for speed in Cygwin
     # Elim . .., owner and group info on Cygwin.
     alias ll='ls -FloGg --color=auto'
@@ -877,22 +868,18 @@ case "$OSTYPE" in
     ###alias runllg="w3m -no-cookie -dump_source 'http://rtpsawn321/links/runllg.asp?action=Run+LLG'|grep '^LLG'"
     alias runllg="w3m -no-cookie -dump_source 'http://rtpsawn321/links/runllg.asp?action=Run+LLG'|grep '^LLG' ; grep ERRMSG /cygdrive/x/SQL_Loader/Logs/LGI.log || echo fail"
     alias sas="c:/Program\ Files/SAS\ Institute/SAS/V8/sas.exe"
-    alias sas8="c:/Program\ Files/SAS\ Institute/SAS/V8/sas.exe"
-    alias sas9="c:/Program\ Files/SAS/SAS\ 9.1/sas.exe"
+    ###alias sas8="c:/Program\ Files/SAS\ Institute/SAS/V8/sas.exe"
+    ###alias sas9="c:/Program\ Files/SAS/SAS\ 9.1/sas.exe"
     alias sasdate=$HOME/code/misccode/sasdate
     alias sasrun=$HOME/code/misccode/sasrun
-    alias tree=$HOME/code/misccode/tree
-    # TODO use a -f to force w/o prompt
+    ###alias tree=$HOME/code/misccode/tree
     alias usb="$HOME/bin/USB_Disk_Eject /removename '*LEXAR'"
     alias usbe="$HOME/bin/USB_Disk_Eject /removeletter E"
     alias uvi=$HOME/code/perl/uvi  # don't change timestamp
     alias v="vim -u $HOME/code/misccode/.vimrc.more"  # alternative to 'm'
     alias vi=vim
-    ###alias vid='vi -d ~/tmp/{1,2}'
     # Poor-man's gvim in an xterm.
     alias vig='rxvt -geometry 80x50+250+50 +sb -fn "Andale Mono-12" -e vi -c start&'
-    # TODO modify to warn if data on floppy is < 2 days old
-    ###alias wy='echo -n ok to delete a: ? ; read throwaway; wipea -y'
 
     # Avoid nullglob or e.g. ls k* will show all files if no k* files exist.
     shopt -s cdspell checkhash checkwinsize cmdhist huponexit \
@@ -1068,7 +1055,7 @@ case "$OSTYPE" in
         source ~/code/misccode/_bashrc
       fi
 
-      if [ $HOSTNAME = 'red' ] && [ -e 'EMIAKEFLAG' ]; then
+      if [ $HOSTNAME = 'redhat' ] && [ -e 'EMIAKEFLAG' ]; then
         # VMWare loses track of the date while suspended.  This pops-up
         # /usr/X11R6/bin/vmware-toolbox to synchronize the guest with the host
         $HOME/bin/dtsynch
@@ -1085,7 +1072,7 @@ case "$OSTYPE" in
         alias vi='vim -u ~/code/misccode/_vimrc'
       fi
 
-      export PROMPT_COMMAND='history -a; history -n; echo -ne "\033]0;${HOSTNAME:0:4}:${PWD}\007";'
+      export PROMPT_COMMAND='history -a; echo -ne "\033]0;${HOSTNAME:0:4}:${PWD}\007";'
       export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
 
       export VIMSTATUSL="${USER}@`echo ${HOSTNAME} | tr [A-Z] [a-z]`"
