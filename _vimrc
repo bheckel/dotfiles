@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Sat 31 Mar 2012 09:43:37 (Bob Heckel)
+" Modified: Thu 19 Apr 2012 15:34:21 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 "--------------------------------------------------------------------------
@@ -951,7 +951,7 @@ map ,W :set tw=78 nolinebreak nowrap<CR>
 map ,z :s#^#<!-- #g<CR>:s#$# -->#g<CR>
 
 " Comment out current line.
-map ,# 0I###<ESC>
+"""map ,# 0I###<ESC>
 
 " Space out current line e.g if(foo) { ...   to  if ( foo ) { ...      
 map ,0 :s# \*(\\([^ ].*[^ ]\\))# ( \\1 )#<CR>
@@ -1795,7 +1795,7 @@ fu! Commentout(line, lang)  " {{{2
   let lang = a:lang
 
   if lang == 'sas'
-    echon '.vimrc: sas commentout'
+    echon '.vimrc: sas Commentout'
     let marker1 = '/***'
     let marker2 = '***/'
     if !match(line, '^/')
@@ -1805,19 +1805,19 @@ fu! Commentout(line, lang)  " {{{2
       return l2
     endif
   elseif lang == 'sas2'
-    echon '.vimrc: sas2 commentout'
+    echon '.vimrc: sas2 Commentout'
     let marker1 = '***'
     let marker2 = ''
   elseif lang == 'cpp'
-    echon '.vimrc: cpp commentout'
+    echon '.vimrc: cpp Commentout'
     let marker1 = '///'
     let marker2 = ''
   elseif lang == 'vb'
-    echon '.vimrc: vb commentout'
+    echon '.vimrc: vb Commentout'
     let marker1 = "'''"
     let marker2 = ''
   elseif lang == 'bat'
-    echon '.vimrc: bat commentout'
+    echon '.vimrc: bat Commentout'
     let marker1 = ":::"
     let marker2 = ''
     if !match(line, ':')
@@ -1827,7 +1827,7 @@ fu! Commentout(line, lang)  " {{{2
       return l2
     endif
   elseif lang == 'vim'
-    echon '.vimrc: vim commentout'
+    echon '.vimrc: vim Commentout'
     let marker1 = '"""'
     let marker2 = ''
     if !match(line, '"')
@@ -1837,7 +1837,7 @@ fu! Commentout(line, lang)  " {{{2
       return l2
     endif
   else
-    echon '.vimrc: unknown language, using default commentout style'
+    echon '.vimrc: unknown language, using default Commentout style'
     let marker1 = '###'
     let marker2 = ''
     if !match(line, '#')
@@ -1909,6 +1909,7 @@ endfu
 """nmap <silent>  ;=  :call AlignAssignments()<CR>
 " }}}
 
+
 " Table of completion specifications (a list of lists)...   {{{2
 " Build a TAB key function that can:
 "  -Recognize special user-defined insertion contexts and complete them appropriately
@@ -1916,7 +1917,7 @@ endfu
 "   -till act like a TAB everywhere else
 let s:completions = []
 " Function to add user-defined completions...
-function! AddCompletion (left, right, completion, restore)
+fu! AddCompletion (left, right, completion, restore)
   " Adapted: Tue 13 Mar 2012 12:33:32 (Bob Heckel -- Damian Conway)
   " http://www.ibm.com/developerworks/linux/library/l-vim-script-3/index.html
   call insert(s:completions, [a:left, a:right, a:completion, a:restore])
@@ -1977,6 +1978,25 @@ function! SmartComplete ()
   else
       return "\<TAB>"
   endif
+endfu
+" }}}
+
+
+" Template  {{{2
+function! Foo() range
+   let have_already_seen = {}
+   let unique_lines = []
+
+   for original_line in getline(a:firstline, a:lastline)
+     let normalized_line = '>' . original_line 
+     if !has_key(have_already_seen, normalized_line)
+       call add(unique_lines, original_line)
+       let have_already_seen[normalized_line] = 1
+     endif
+   endfor
+
+   exec a:firstline . ',' . a:lastline . 'delete'
+   call append(a:firstline-1, unique_lines)
 endfunction
 " }}}
 
@@ -1989,13 +2009,6 @@ endfunction
 "  Chain commands with '|'
 "  No spaces between comma-delimited file lists!
 "--------------------------------------------------------------------------
-
-" TODO trouble with comment indicators forcing their way on every newline
-"""if has("autocmd")
-  """filetype on
-  """filetype indent on
-  """filetype plugin on
-"""endif
 
 " Avoid double sourcing.
 if !exists("autocommands_loaded")
@@ -2013,7 +2026,6 @@ if !exists("autocommands_loaded")
   " SAS Logs, created under sasrun, should collapse to hide sasrun's initialization details
   au BufRead */*\d\+.log set foldmethod=marker
 
-"""  if BOX==WORKBOX1 || BOX==WORKBOX2 || BOX==WORKBOX3
   if matchstr(WORKBOXES, THISBOX) == THISBOX
     autocmd BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source u:/code/sas/saslog.vim 
   else
@@ -2029,8 +2041,8 @@ if !exists("autocommands_loaded")
     au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!c:/Progra~1/SASIns~1/SAS/V8/sas.exe -sysin %<CR>:args %:r.lst %:r.log<CR>
   else
     autocmd BufReadPre,FileReadPre *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim 
-    " Use the convenient sasrun wrapper on known boxes
-    au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!sasrun %<CR>
+    " Run SAS on Cygwin bash shell
+    au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!~/code/sas/sasrun %<CR>
   endif
 
   " Close both .log and .lst (created by ~/bin/sasrun) when exiting.
@@ -2064,9 +2076,7 @@ if !exists("autocommands_loaded")
   autocmd BufNewFile,BufRead,BufEnter *.pl nmap ;z :!echo && echo && perl %<CR>
   autocmd BufNewFile,BufRead,BufEnter *.t set filetype=perl
   autocmd BufNewFile,BufRead,BufEnter *.pl set makeprg=$VIMRUNTIME/tools/efm_perl.pl\ -c\ %\ $*
-  """autocmd BufNewFile,BufRead,BufEnter *.pl set errorformat=%f:%l:%m
   " Alternate help files via 'K'.  Default s/b set above as keywordprg=man
-  """au BufNewFile,BufRead,BufEnter *.p[lm] set keywordprg=perldoc\ -T\ -f
   au BufNewFile,BufRead,BufEnter *.p[lm] set keywordprg=perldoc\ -f
 
   au BufNewFile,BufRead,BufEnter *.p[lm] map ,m yy0I###<ESC>p
@@ -2173,11 +2183,12 @@ if !exists("autocommands_loaded")
   " S/b empty to default to Vim's :h help.
   au BufNewFile,BufRead,BufEnter *.vim,.vimrc,*.htm,*.html,*_vimrc set keywordprg=
 
-  """au BufNewFile,BufRead,BufEnter .vimrc,_vimrc,*.vim,_vimperatorrc map ;; mz0I"""<ESC>`zlll
   au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;; :call setline('.', Commentout(getline('.'), 'vim'))<CR>
   au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;c 0Di"  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;m 0Di" Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ,m yy0I"""<ESC>p
+
+  au BufNewFile,BufRead,BufEnter .bashrc,_bashrc* map ;; :call setline('.', Commentout(getline('.'), 'bash'))<CR>
 
   au BufNewFile,BufRead,BufEnter *.vim nmap ;z :source %<CR>
   " end Vim
@@ -2276,12 +2287,13 @@ if !exists("autocommands_loaded")
   " TODO
   """au FileType netrw map ;o :!c:\\cygwin\\bin\\rxvt.exe -geometry 80x45+295+135 -fn "Andale Mono-13" -sl 10000 +j +sk +si -e /bin/bash -i
 
-  " Folding
   " Plus need to see coworker's wild mix of tabs with spaces
   """au BufRead *.xml set foldmethod=indent | set list
   au BufRead *.xml set foldmethod=indent | set foldlevel=1
-  " Needed for coworker's combined use of spaces and tabs
-  au BufRead X:/datapost/cfg/DataPost_Configuration*.xml set list
+  au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
+
+  " Needed for coping with coworker's inventive use of both spaces and tabs
+"""  au BufRead X:/datapost/cfg/DataPost_Configuration*.xml set list
   au BufEnter oneliners,.vimrc,_vimrc,.bashrc,_bashrc,gsk set foldmethod=marker
   au BufEnter .vimrc echo ".vimrc: $MYVIMRC:" $MYVIMRC
 
