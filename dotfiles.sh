@@ -5,6 +5,7 @@
 #  Summary: Build dotfile (and configuration) symlinks to ~ on a new box
 #
 #  Created: Sat 17 Mar 2012 14:13:44 (Bob Heckel)
+# Modified: Sun 06 May 2012 13:32:15 (Bob Heckel)
 ##############################################################################
 
 dryrun=1
@@ -14,11 +15,16 @@ if [ $dryrun -eq 1 ]; then
   echo dryrun!!!!
   echo dryrun!!!!
   dryrun=echo
+  $dryrun -n ok to dryrun [Y/n]? 
+  read yn
+  if [ $yn = n ];then
+    exit
+  fi
 else
   dryrun=
 fi
 
-cd ~/code/misccode || exit
+cd $HOME/code/misccode || exit
   
 underscores=(bashrc Xdefaults inputrc vimrc Xmodmap)
 echo 'starting underscore symlinking...'
