@@ -9,11 +9,10 @@
 ##############################################################################
 
 dryrun=1
+symloc=$HOME/code/misccode
 
 if [ $dryrun -eq 1 ]; then
-  echo dryrun!!!!
-  echo dryrun!!!!
-  echo dryrun!!!!
+  echo "!!!starting dryrun to $symloc !!!!"
   dryrun=echo
   $dryrun -n ok to dryrun [Y/n]? 
   read yn
@@ -24,29 +23,29 @@ else
   dryrun=
 fi
 
-cd $HOME/code/misccode || exit
+cd $symloc || echo -n "$symloc does not exist"; exit
   
 underscores=(bashrc Xdefaults inputrc vimrc Xmodmap)
 echo 'starting underscore symlinking...'
 for f in ${underscores[*]}; do
-  $dryrun mv -i ~/.$f ~/.$f.ORIG
-  $dryrun ln -s _$f ~/.$f
+  $dryrun mv -i $HOME/.$f $HOME/.$f.ORIG  # backup just in case
+  $dryrun ln -s $symloc/_$f $HOME/.$f     # then overwrite it
 done
 
 
 echo; echo 'starting fluxbox symlinking...'
 flux=(keys menu init startup)
 for f in ${flux[*]}; do
-  $dryrun mv -i ~/.fluxbox/$f ~/.fluxbox/$f.ORIG
-  $dryrun ln -s fluxbox.$f ~/.fluxbox/$f
+  $dryrun mv -i $HOME/.fluxbox/$f $HOME/.fluxbox/$f.ORIG  # backup just in case
+  $dryrun ln -s $symloc/fluxbox.$f $HOME/.fluxbox/$f      # then overwrite it
 done
 
 
 echo; echo 'starting xfe copy (must copy because xfe will overwrite symlinks)...'
-$dryrun mv -i ~/.config/xfe/xferc ~/.config/xferc/xferc.ORIG
-$dryrun cp -i ~/code/misccode/xferc ~/.config/xferc/xferc
+$dryrun mv -i $HOME/.config/xfe/xferc $HOME/.config/xferc/xferc.ORIG  # backup just in case
+$dryrun cp -i $HOME/code/misccode/xferc $HOME/.config/xferc/xferc     # then overwrite it
 
 
 echo; echo 'starting conky symlinking...'
-$dryrun mv -i ~/.conkyrc ~/.conkyrc.ORIG
-$dryrun ln -s .conkyrc ~/.conkyrc
+$dryrun mv -i $HOME/.conkyrc $HOME/.conkyrc.ORIG  # backup just in case
+$dryrun ln -s $symloc/_conkyrc $HOME/.conkyrc     # then overwrite it
