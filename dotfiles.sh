@@ -8,20 +8,11 @@
 # Modified: Sun 06 May 2012 13:32:15 (Bob Heckel)
 ##############################################################################
 
-dryrun=1
+dryrun=echo
 symloc=$HOME/code/misccode
 
-if [ $dryrun -eq 1 ]; then
-  echo "!!!starting dryrun to $symloc !!!!"
-  dryrun=echo
-  $dryrun -n ok to dryrun [Y/n]? 
-  read yn
-  if [ $yn = n ];then
-    exit
-  fi
-else
-  dryrun=
-fi
+echo "!!! dryrun set to $dryrun !!!!"
+read
 
 cd $symloc || echo -n "$symloc does not exist"; exit
   
