@@ -3090,6 +3090,9 @@ dpkg -l
 # See if a new Chrome is out there
 sudo apt-get install google-chrome-stable
 
+# Debian, Ubuntu full update (not dist upgrade)
+sudo apt-get update && sudo apt-get upgrade
+
 # Process substitution diff
 diff -u ~/code/misccode/_bashrc <(ssh rheckel@sdf.org cat .bashrc)
 
@@ -3281,7 +3284,8 @@ SAS Special Missing Value (.A thru .Z)
 
  /* Write all variables to the Log with "foo=" notation on one line: */
 put _ALL_  /* print PDV to Log */
-put 'WARNING: ' _ALL_
+put 'WARNING: ' _ALL_;
+put 'WAR' 'NING: ' _ALL_;  /* better if you're searching a Log for real WARNINGs not a SOURCE or MPRINT: */
  /* Write all variables to the Log with "foo=" notation on one line per var: */
 put (_ALL_)(=)
  /* Use anywhere but can't combine to one %put */
@@ -3303,7 +3307,7 @@ put '13'x;  /* s/b the same */
  /* Alternative is to use a blank  title2;  */
 
 Runaway GUI SAS killer:
-*'; *"; */; %mend; run;
+*'; *"; */; %mend; quit; run;
 
  /* Free up space - delete datasets */
 proc datasets library=WORK; kill; QUIT;  /* !not RUN; */
@@ -4298,6 +4302,9 @@ Enhanced Editor: Comment the selection with line comments  Ctrl + /  Undo the Co
 
 libname RO 'c:/temp/' access=readonly;
 
+ /* Print a CNTLIN stored format: */
+proc format library=work FMTLIB; run;
+
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -4328,7 +4335,7 @@ net use x: \\rtpsawn321\e$ /persistent:yes /user:us1_auth\rsh86800n axhidhamx
 :: Cygwin
 net use x: '\\rtpsawn321\e$' '/persistent:yes' '/user:us1_auth\rsh86800n' conascent8
 :: Disconnect unmap Windows shares (from a DOS prompt):
-net use z: /delete
+net use z: /delete /yes
 net use * /delete
 
 :: Browse current connections (need single quotes only on Cygwin)
