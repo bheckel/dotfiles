@@ -26,12 +26,12 @@ keycode 81=9
 keycode 83=4
 keycode 84=5
 keycode 85=6
+keycode 86=plus
 keycode 87=1
 keycode 88=2
 keycode 89=3
 keycode 90=0
 keycode 91=period
-keycode 86=plus
 ! Change Numlock key since we don't need it
 keycode 77 = KP_Divide
  
