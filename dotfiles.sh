@@ -13,8 +13,9 @@ symloc=$HOME/code/misccode
 
 echo "!!! dryrun set to $dryrun !!!!"
 read
+echo "'cannot stat' errors are to be expected"
 
-cd $symloc || echo -n "$symloc does not exist"; exit
+cd $symloc || (echo -n "$symloc does not exist" && exit)
   
 underscores=(bashrc Xdefaults inputrc vimrc Xmodmap)
 echo 'starting underscore symlinking...'
