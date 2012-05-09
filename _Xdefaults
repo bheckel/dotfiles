@@ -5,7 +5,7 @@
 !           See (u)rxvt --help for items available
 !
 !  Created: Thu 10 Jan 2002 08:56:11 (Bob Heckel)
-! Modified: Sun 18 Mar 2012 10:50:32 (Bob Heckel)
+! Modified: Sat 28 Apr 2012 15:19:40 (Bob Heckel)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -128,11 +128,12 @@ URxvt*color14: #00ffff
 ! Bright white
 URxvt*color15: #ffffff
 
-URxvt*transparent:true
+!!!URxvt*transparent:true
 !!!URxvt*tintColor:blue
 !!!URxvt*shading:40
 ! Ubuntu purple
-URxvt*tintColor:#290020
+!!!URxvt*tintColor:#290020
+URxvt*background: #290020
 !!!URxvt*tintColor:green
 !!!URxvt*shading:70
 URxvt.cursorBlink: on
