@@ -3099,6 +3099,9 @@ diff -u ~/code/misccode/_bashrc <(ssh rheckel@sdf.org cat .bashrc)
 # Does vi exist on this box? (avoid which(1):
 hash vi &>/dev/null if [ $? -eq 0 ]; then export EDITOR=vi fi
 
+# Increment +1 ++ like C in bash
+i=$(($i+1))
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -3443,11 +3446,11 @@ substr(mystr, mylen+1) = '00'x
  /* Name of currently running SAS program file: (like $0 in shell): */
 %put &SYSPROCESSNAME;
 
- /* Class variables:  nums (discrete categories) or chars, identify classes
+ /* CLASS Class variables:  nums (discrete categories) or chars, identify classes
   * or discrete categories on which calculations are done.  E.g. gender,
   * country, state, zip
   *
-  * Analysis variables:  numbers, usually continuous, appropriate for
+  * VAR Analysis variables:  numbers, usually continuous, appropriate for
   * calculating averages, sums, etc.  E.g. salary, number of orders
   */
 
@@ -3500,6 +3503,9 @@ sas -sysin t.sas; cat t.log; cat t.lst
 proc printto LOG="D:\foo.log" NEW PRINT="D:\foo.lst" NEW; run; ...code... proc printto;run;
  /* Keep GUI open during the run.  Instead of -sysin */
 c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -autoexec "\\rtpsawnv0312\pucc\Serevent_Diskus\CODE\0_MAIN_Serevent_Diskus.sas" -sysparm "\\rtpsawnv0312\pucc\Serevent_Diskus\CODE"
+
+ /* Suppress discard SAS List .lst */
+c:\PROGRA~1\SASINS~1\SAS\V8\sas.exe -sysin t.sas -log t.log -NOterminal -NOprint
 
 # Cygwin
 $ echo 'proc print data=sashelp.shoes;run;' >| t.sas; c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin t.sas
@@ -3818,6 +3824,10 @@ proc sql;CREATE INDEX MYSORTEDx ON lelimsgist05e (Samp_Id, Indvl_Meth_Stage_Nm);
 
 dm 'clear log; clear lst; wpgm'; 
 
+PROC SQL; CONNECT TO ORACLE(USER=gdm_zeb ORAPW=gdm123zeb45 PATH=ukprd613); CREATE TABLE foo AS SELECT * FROM CONNECTION TO ORACLE (
+  SELECT bat_num, mat_cod, work_cntr_cod, work_cntr_desc FROM gdm_dist.vw_zeb_merps_prcs_ord_material WHERE plant_cod = 'US01' and bat_num ='0ZP0029'
+); DISCONNECT FROM ORACLE; QUIT;
+
 PROC SQL; CONNECT TO ORACLE(USER=pks ORAPW=dev123dba PATH=usdev388); CREATE TABLE foo AS SELECT * FROM CONNECTION TO ORACLE ( SELECT DISTINCT barfield FROM baztbl); DISCONNECT FROM ORACLE; QUIT;
 
 LENGTH TimeNum 8 Meth_Peak $3 Indvl_Tst_Rslt_Val_Char $40;
@@ -4011,7 +4021,8 @@ sBatch1Code = tranwrd(sBatch1Code, 'foo', '');
 proc sql; select * from sashelp.shoes (rename=(region=myyr subsidiary=mysub)) ; quit;
 data d9(drop=long_test_name rename=(long_test_name2=long_test_name)); ...
 
- /* View, display, print format permanent stored formats */
+ /* View, display, print format permanent stored formats to .lst */
+libname l '.'; proc format library=l FMTLIB; run;
 proc format library=WORK FMTLIB; run;
 
 %let previousMonth = %sysfunc(intnx(MONTH, %sysfunc(today()), -1));
@@ -4929,11 +4940,12 @@ SQL> r  -- run query
 
 -- SQL Server date datetime literal or  { d '1990-10-02' }  { t '13:33:41' }
 WHERE fwn.VariableStp.dtSplTakenTime= {ts '2008-11-21 15:46:59.727'}
-
--- SQL Server version:  SELECT @@VERSION
-
 -- SQL Server like Oracle TO_DATE: 
 WHERE  batch_time > {ts '2008-02-13 00:00:00.000'}
+-- but if simple SQL Server date just use:
+WHERE batch_time > '2008-02-13'
+
+-- SQL Server version:  SELECT @@VERSION
 
 <!-- Clear textbox on entry click -->
 <INPUT NAME="the_batch" TYPE="text" VALUE="Enter batch" onClick="javascript:value=''; return false">
@@ -5087,12 +5099,15 @@ git checkout -b mynewbranch
 # git switch branches
 git checkout master
 
-# git merge
-git checkout master && git merge mynewbranch && git branch -d mynewbranch
-# git commit mantra (svn-ish)
+# git commit (cautious) mantra:
+git add cfg/DataPost_Configuration.xml && git commit -m 'modding one file'
+# git commit mantra (svn-ish):
 git add . && git commit -am 'another bitfiddle'
-# github commit mantra
+# github commit mantra:
 git add . && git commit -am 'another bitfiddle' && git push origin master
+
+# git merge:
+git checkout master && git merge mynewbranch && git branch -d mynewbranch
 
 # discard abandon all pending changes "not staged for commit"
 git checkout .
@@ -5406,6 +5421,10 @@ xmllint --format t.xml
 
 -- Compare Oracle schemas
 select count(*), object_type from dba_objects where owner='PKS' group by object_type;
+
+<div id="divTestArea3" style="width:50px; height:50px; display:none; background-color:#89BC38;"></div>
+
+<a href="javascript:void(0);" onclick="alert('Hello, world!');">Test</a>
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  
