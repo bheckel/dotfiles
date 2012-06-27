@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Thu 19 Apr 2012 15:34:21 (Bob Heckel)
+" Modified: Fri 15 Jun 2012 12:44:44 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 "--------------------------------------------------------------------------
@@ -35,33 +35,29 @@
 let THISBOX = hostname()
 let WORKBOXES = [ 'ZEBWL06A16349', 'ZEBWD08D26987', 'ZEBWL10D43164', 'ZEBWL12H29961' ]
 
-au FileType NETRW set winwidth=150
-"let g:netrw_browse_split=2
-"let g:netrw_altv=2
-"let g:netrw_liststyle= 3
-"let g:netrw_preview=1
+" I'm usually only browsing with netrw
 if has ('win32unix')
+  " E.g. scp to be provided by Cygwin
   let g:netrw_cygwin=1
+  let g:netrw_browsex_viewer='cygstart'
 endif
-
-" For editing in familiar FS (NERDTree is slow)
-"""if has('unix')
-"""  let NERDChristmasTree=0
-"""  let NERDTreeShowBookmarks=1
-"""  let NERDTreeIgnore=['\.sas7b.at$']
-"""  let NERDTreeChDirMode=2
-"""  let NERDTreeWinSize=27
-"""  let NERDTreeStatusline=-1
-"""  """source $HOME/code/misccode/NERD_tree.vim
-"""endif
+let g:netrw_browse_split=2
+let g:netrw_liststyle= 3
+let g:netrw_sort_options="i"
+let g:netrw_use_noswf=1
+" i to iterate view
+let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
+au FileType NETRW map q :q<CR>
 
 " Setup Vim tempspace that Cygwin and gVim can share
 if matchstr(WORKBOXES, THISBOX) == THISBOX
   if has('gui')
     let VTMP = 'c:/temp'
+"""    let VTMPU = 'u:/temp'
     let VTMPU = 'u:/temp'
   elseif has('win32unix')
     let VTMP = '/cygdrive/c/temp'
+"""    let VTMPU = '/cygdrive/u/temp'
     let VTMPU = '/cygdrive/u/temp'
   endif
 else  " home
@@ -105,24 +101,6 @@ set t_te=[?47l8
 " TODO needed?
 """set termencoding=latin1
 
-" Splitting the window vertically (press v) with the new window and cursor at
-" the right
-"""let g:netrw_altv = 1
-"""" Horizontal (press o)
-"""let g:netrw_alto = 1
-""""""let g:netrw_winsize='100'
-"""let g:netrw_browsex_viewer='cygstart'
-""""""let g:netrw_sort_direction='reverse'
-"""let g:netrw_dirhistmax=40
-"""" Track netrw's browsing dir
-"""let g:netrw_keepdir=0
-"""" Ignore case
-"""let g:netrw_sort_options="i"
-"""" No swapfiles  TODO ignored
-"""let g:netrw_use_noswf=1
-"""" scp to be provided by Cygwin
-"""let g:netrw_cygwin=1
-"""let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
 
 " end initialization-
 
@@ -232,7 +210,7 @@ endif
 "--------------------------------------------------------------------------
 "  Settings- 	{{{1
 "--------------------------------------------------------------------------
-" Unleash the 666 beast VIVIVI
+" Unleash the beast VIVIVI
 set nocompatible
 
 " Just use my ;5 checkpoint map before starting important changes
@@ -260,12 +238,12 @@ set complete=.,w,b,u
 " 'let &cpo = s:save_cpo' below in 3rd party plugin section or this is ignored.
 set cpoptions=s$
 
-" For vimdiff.
+" For vimdiff
 if version > 599
-  set diffopt=filler,iwhite,vertical
+  set diffopt=filler,iwhite,vertical,icase
 endif
 
-" 'Ctrl-r "' pastes while in insert mode.
+" 'Ctrl-r "' pastes while in insert mode
 set esckeys
 
 " We want Unix version so make sure shell=/bin/sh
@@ -342,10 +320,6 @@ set incsearch
 
 " Default.  K to active.  See au BufNewFile, etc. below (.vimrc, .pl .pm treated specially).
 set keywordprg=man
-
-" Quickfix.  Default is /tmp/vim##.err
-"""set makeef=$HOME/tmp/vim##.err
-"""set makeef=~/tmp/vim##.err
 
 " Quickfix.  :mak[e]  jumps to errors (use :cn :cN to navigate).  See au
 " commands for C++ files.  Warning: can't undo after make returns (may not be
@@ -503,13 +477,10 @@ set startofline
 " E.g. t.pl [PERL,unix,b1] bqh0@rtp-bqh0-148279                    1L,1C(All)
 set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%L,%cC%V(%P)
 
-"""set titlestring=%{$HOSTNAME}.%t%(\ %M%)%(\ (%{expand(\"%:~:.:h\")})%)%(\ %a%)
-
 set suffixes=.old,.old2,.OLD,OLD2,.o,.swp,.bak,.bak2,.BAK,.BAK2,~
 
 set wildchar=<Tab>
 
-"""set wildignore=*.o,*.obj,*.bak,*.exe
 if exists("&wildignorecase")
   set wildignorecase
 endif
@@ -557,9 +528,7 @@ endif
 "
 " To get a literal (e.g. HtM) type CTRL-V *after* you finish typing the 
 " abbreviation.  Do :ab to view your abbreviations.  Or e.g. view all HTML
-" ab's with  :iab H  Do :abclear to remove all of them.
-"
-" Quotes are interpreted literally. 
+" ab's with  :iab H  Do :abclear to remove all.
 "--------------------------------------------------------------------------
 
 """""
@@ -567,7 +536,7 @@ endif
 iab AdD 2212 Fullwood Place<CR>Raleigh, NC 27614
 iab BoB Bob Heckel
 iab RoB Robert S. Heckel Jr.
-iab EmA bheckel@gmail.com
+iab EmA b.heckel@gmail.com
 iab PhO (919)816-2347
 
 """""
@@ -593,7 +562,7 @@ iab RuL ----+----1----+----2----+----3----+----4----+----5----+----6----+----7--
 iab ShE #!/bin/sh
 
 """""
-" Date/Time (see man strftime libc.txt or date --help):
+" Date/Time (see man strftime or date --help):
 
 " Default.  Overridden later in au commands.
 " E.g. Created: Tue 02 Mar 1999 11:19:32 (Bob Heckel)
@@ -610,10 +579,6 @@ iab YdA  Adapted: <C-R>=strftime("%c")<CR> (Bob Heckel)
 " Short.  ISO-8601 format.  E.g. 2002-07-05
 iab YdS <C-R>=strftime("%Y-%m-%d")<CR>
 
-" TODO no time zone, is this only a problem on Cygwin?
-" E.g. Mon 14 Dec 1998 15:58:56
-iab YdT <C-R>=strftime("%c")<CR>
-
 " Glaxo GSK style
 iab YdG <C-R>=strftime("%d-%b-%y")<CR>
 cab YdG <C-R>=strftime("%d-%b-%y")<CR>
@@ -625,21 +590,21 @@ iab CsW switch ( c ) {<CR>case 'a':<CR>  puts("it is a");<CR>break;<CR><Left><Le
 """""
 " HTML
 " 'It takes more time working around the annoying pathologies of web authoring
-" tools than it takes to just write the thing in html source to begin with.' -
-" Anonymous
+" tools than it takes to just write the thing in html source to begin with.'
+" -Anonymous
 iab CoN Content-type: text/html
-iab HtA <A HREF="http://gsk.com">gsk</A>
+iab HtA <a href="http://example.com">example link</a>
 iab HtB <INPUT NAME="the_submit" TYPE="submit">
 iab HtM <html><CR>  <head><title></title></head><CR><body></body><CR><Left><Left></html>
 iab HtJ <script language="JavaScript"><CR><CR></script>
 iab HtT <table><CR>  <tr><td> </td></tr><CR><Left><Left></table>
 " Character entities:
-iab ;< &lt;
-iab ;> &gt;
-iab ;' &apos;
-iab ;" &quot;
-iab ;& &amp;
-iab ;_ &nbsp;
+"""iab ;< &lt;
+"""iab ;> &gt;
+"""iab ;' &apos;
+"""iab ;" &quot;
+"""iab ;& &amp;
+"""iab ;_ &nbsp;
 
 " For the iabs starting with <Backspace>, we must precede the map with a space
 " (to trigger), then the backspace readjusts that space.  There's probably a
@@ -663,24 +628,23 @@ iab ;_ &nbsp;
 
 " Pali
 " A macron
-iab xA &#256;
-" a macron
-iab xa <Backspace>&#257;
-" I macron
-iab xI <Backspace>&#298;
-" i macron
-iab xi <Backspace>&#299;
-" U macron
-iab xU &#362;
-" u macron
-iab xu <Backspace>&#363;
-" n dot over (n.)
-iab xno <Backspace>&#7749;
-" n dot under (still renders as n.)
-iab xnu <Backspace>&#7751;
-
-" n tilde (no '#')
-iab xt <Backspace>&ntilde;
+"""iab paliA &#256;
+"""" a macron
+"""iab palia <Backspace>&#257;
+"""" I macron
+"""iab paliI <Backspace>&#298;
+"""" i macron
+"""iab palii <Backspace>&#299;
+"""" U macron
+"""iab paliU &#362;
+"""" u macron
+"""iab paliu <Backspace>&#363;
+"""" n dot over (n.)
+"""iab palino <Backspace>&#7749;
+"""" n dot under (still renders as n.)
+"""iab palinu <Backspace>&#7751;
+"""" n tilde (no '#')
+"""iab palit <Backspace>&ntilde;
 
 """""
 " Mutt
@@ -689,15 +653,13 @@ iab xt <Backspace>&ntilde;
 """iab MuR Return-Receipt-To: bheckel@freeshell.org
 
 """""
-" Perl (must doubleslash in .vimrc)
+" Perl
 iab PeC sub new {<CR>  my $class = shift;<CR><CR>my $self = {};<CR>bless($self, $class);<CR><CR>return $self;<CR><BS><BS>}
 """iab PeD use Data::Dumper; print Dumper  ;<Left>
 iab PeD use Data::Dumper;print Dumper  ;<Left>
 iab PeE open F, '>junk' or die;use Data::Dumper;print F Dumper  ;<Left>
-" Assumes you'll esc instead of cr after typing the iab.  Doesn't sort well.
 iab PeH while ( (my $k, my $v) = each %h ) { print "$k=$v\\n"; }
 " Use PeD for hash dumping, this for everything else on symbol table
-" TODO not working 2008-03-05 problem w/my?
 iab PeM open F, '>junkdumpmain'; for $s(sort keys %main::) { local *sym=$main::{$s}; print F "\\$$s is $$s\\n" if defined $sym; print F "\\@$s is @$s\\n" if defined @sym;}
 iab PeO open FH, 'foo' or die "Error: $0: $!";<CR><CR>while ( <FH> ){<CR>}<Up>
 iab PeP warn "$ENV{fg_yellow}DEBUG$ENV{normal}>   $ENV{fg_yellow}<DEBUG$ENV{normal}";<Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>
@@ -746,8 +708,6 @@ cab SyL source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/sas/saslog.v
 " Powershell
 cab SyP source $HOME/code/misccode/ps1.vim
 cab SyQ source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/sql.vim 
-" Mine is better.
-"""cab SyS source ~/code/sas/sas.vim<CR>
 cab SyS source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/sas/sas.vim
 " Mine is better.
 cab SyV source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/vb/vb.vim
@@ -810,14 +770,19 @@ map <silent> <F8> :g!/\\C^ERROR: \\\|\\C^ERROR\\s\\+\\d\\+-\\d\\+:\\\|^WARNING: 
 """map <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
 
 if has('win32')
+  " Avoid mswin.vim making Ctrl-v act as paste, etc.
+  noremap <C-V> <C-V>
+  noremap <C-A> <C-A>
+
   " Minimize gvim (like alt-spacebar-n) to taskbar
   """map <F2> :simalt ~n<CR>
   " Maximize gvim
   map <F11> :simalt ~x<CR>
   " Restore gvim
   map <F11><F11> :simalt ~r<CR>
-else
-  map <F11> :set lines=999 columns=999<CR>
+  " 28-May-12 not working for fluxbox - use Mod4 F11 instead
+"""else
+"""  map <F11> :set lines=999 columns=999<CR>
 endif
 
 """if ( box == 'otaku' || box == 'sverige' || box == 'sdf' ) 
@@ -947,12 +912,6 @@ map ,W :set tw=78 nolinebreak nowrap<CR>
 """map ,x :s#^\\(.\*\\)#/\*\*\*\\1#g<CR>:s#$#\*\*\*/#g<CR>:se nohls<CR>
 """map ,x :call setline('.', Commentout(getline('.'), 'sas'))<CR>
 
-" HTML comment html.  See also <F4>
-map ,z :s#^#<!-- #g<CR>:s#$# -->#g<CR>
-
-" Comment out current line.
-"""map ,# 0I###<ESC>
-
 " Space out current line e.g if(foo) { ...   to  if ( foo ) { ...      
 map ,0 :s# \*(\\([^ ].*[^ ]\\))# ( \\1 )#<CR>
 
@@ -976,25 +935,13 @@ map ,[ :let @z=substitute(expand("<cword>"),".*","\\(&\\)","g")<CR>ciw<C-R>z<ESC
 " Begin ';' semicolon mapping 
 " (RSI warning: don't use uppercase, leave those contortions for emacs)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"""map ;<Tab> :match TabLuvrsSuck /\\t/<CR>
-"""map ;<Tab><Tab> :match TabLuvrsSuck /UnsetExistingMapTabLoversSuk/<CR>
 " TODO how to do > 1 line in file?
 map ;<Tab> :syn match BoldWholeLine /.*\\%#.*/<CR>
 " TODO doesn't unset
 map ;<Tab><Tab> :syn match BoldWholeLine "NONE"<CR>
 
-" Comment out (using the most common comment style for suffix-less files).
+" Comment out (using the most common comment style '###' for suffix-less files).
 " This default may be overridden by au commands below.
-" SAS style
-"""map ;; mz0I***<ESC>`zlll
-"""if version > 599
-"""  " Perl style
-"""  map ;;; my0I###<ESC>`ylll
-"""  " C++ style
-"""  map ;;;; my0I\/\/\/<ESC>`ylll
-"""endif
-"""
-" Toggle '###' comments
 map ;; :call setline('.', Commentout(getline('.'), 'default'))<CR>
 
 " Uncomment, de-comment out my current line triplet convention (where Commentout function isn't aware of comment type)
@@ -1107,7 +1054,7 @@ map ;tt mz<Esc>:se tw=78<CR>\|:echon '.vimrc: tw set to 78'<CR>'z
 " Upload file to mainframe (basename without extension):
 """map ;u :!bfp % 'bqh0.pgm.lib(%:t:r)'<CR>
 
-map ;u :FufBuffer 
+map ;v :highlight Normal guibg=white guifg=black
 
 " Transfer/read and write one block of text between vim sessions:
 """if BOX==WORKBOX1 || BOX==WORKBOX2 || BOX==WORKBOX3
@@ -1790,6 +1737,7 @@ endfu
 
 
 fu! Commentout(line, lang)  " {{{2
+"                                                   ___ not necessarily vim filetype, refers to my tags below!
 " E.g. :call setline('.', Commentout(getline('.'), 'sas') )
   let line = a:line
   let lang = a:lang
@@ -1799,9 +1747,19 @@ fu! Commentout(line, lang)  " {{{2
     let marker1 = '/***'
     let marker2 = '***/'
     if !match(line, '^/')
-      echon '.vimrc: remove comment'
+      echon '.vimrc: remove sas comment'
       let l1 = substitute(line, '^/\*\*\*', '', 'g')
       let l2 = substitute(l1, '\*\*\*/$', '', 'g')
+      return l2
+    endif
+  elseif lang == 'html'
+    echon '.vimrc: html Commentout'
+    let marker1 = '<!--'
+    let marker2 = '-->'
+    if !match(line, '^<')
+      echon '.vimrc: remove html comment'
+      let l1 = substitute(line, '^<!--', '', 'g')
+      let l2 = substitute(l1, '-->$', '', 'g')
       return l2
     endif
   elseif lang == 'sas2'
@@ -2124,7 +2082,7 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufRead,BufEnter *.c nmap ;z :!gcc %<CR>\|:echon 'compiled a.exe via ;z map'<CR>
 
   """au FileType html map ;; mz0I///<ESC>`zlll
-  au FileType html map ;; :call setline('.', Commentout(getline('.'), 'cpp'))<CR>
+  au FileType javascript map ;; :call setline('.', Commentout(getline('.'), 'cpp'))<CR>
 
   au BufNewFile,BufRead,BufEnter *.htm* inoremap <Tab><Tab> <C-R>=InsertCloseTag()<CR>
   au BufNewFile,BufRead,BufEnter *.htm* map ;c 0Di//  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
@@ -2299,6 +2257,8 @@ if !exists("autocommands_loaded")
 
   au BufRead,BufNewFile *.map set filetype=xslt
 
+  au BufNewFile,BufRead,BufEnter *.html,*.htm map ;; :call setline('.', Commentout(getline('.'), 'html'))<CR>
+
   "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
   "
@@ -2352,7 +2312,7 @@ endif
 "--------------------------------------------------------------------------}}}
 " Inlined Plugins-  {{{1
 " Simple plugins that are easier to store here than ~/.vim/plugin/
-" Avoid Cygwin vs gvim problems, improve portability.  But vimballs are
+" Improve portability (e.g. Cygwin vs gvim problems).  But vimballs are
 " probably easier to just install: vi Align.vba.gz then :so %
 "
 "  2007-08-08 important plugins have been inlined, only need
@@ -4504,6 +4464,10 @@ let &cpo = s:save_cpo
 " end 3rd Party Plugins
 "--------------------------------------------------------------------------
 
+" Machine or security-sensitive settings
+if filereadable(glob("~/.vimrc.local")) 
+  source ~/.vimrc.local
+endif
 
 " 2011-02-26 ignored:
 " vim: set foldmethod=marker:
