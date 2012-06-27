@@ -6,6 +6,7 @@
 "  Windows Shortcut:
 "  C:\Progra~1\Mozill~1\firefox.exe -vimperator "+u 'c:\cygwin\home\bheckel\.vimperatorrc'"
 "
+"  :so u:/code/misccode/_vimperatorrc
 "  :so u:\\code\\misccode\\_vimperatorrc
 "
 "  Created: Mon 15 Oct 2007 11:21:26 (Bob Heckel)
