@@ -3,12 +3,12 @@
 #     Name: $HOME/code/misccode/oneliners
 #
 #  Summary: Programming and sysadmin fragments I've collected over the 
-#           years.  Searchable via gone.sh
+#           years.  Searchable via my gone.sh
 #
 #           Comments are often written for searching, not proper English...
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Sun 18 Mar 2012 11:59:06 (Bob Heckel)
+# Modified: Thu 12 Jul 2012 10:08:36 (Bob Heckel)
 #
 #########################################################################
 
@@ -733,9 +733,10 @@ xxPERLxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
-:g/USPRD372/s/rtpsduxrac21/us1sduxrac03-vip/c
+" For each line containing USPRD372, do this substitution
+:g/USPRD372/s/rtpsduxrac21/us1sduxrac03/c
 
-" Delete specific line 10 and the 3 lines following it (total 4 lines deleted)
+" Delete line 10 and the 3 lines following it (total 4 lines deleted)
 :10d 4
 
 " Delete first replicant (only) from line 9 to end of file
@@ -802,16 +803,12 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 " Surround each word with single quotes.  E.g. foo, bar, baz, boom:
 :%s/\(\w\+\)/'\1'/gc
 
-" Substitute Ford to Decker where found on a line starting with the word Actor:
-:g/^Actor/s/Ford/Decker/c
-
 " Copy the line (or lines) *preceding* UNI to the last line in the file:
 :g/UNI/- co $
 " Go up 2 lines to do the copy:
 :g/UNI/-- co $
 
-" Find lines with 'Replicant'.  Then substitute 'were' with 'WERE NOT'.  Then
-" copy those lines to the bottom of the file.  Pipe is a separator in vi.
+" Find lines with 'Replicant', substitute.  Then copy those lines to the bottom of the file:
 :g/Replicant/s/were/WERE NOT/ | copy $
 
 " Moves a section of text below another section of text.
@@ -1040,7 +1037,7 @@ qa    <---try again
 /myword/e+1   <---cursor is on char after myword -- end plus 1 char
 /myword/e+    <---cursor is on char after myword -- end plus 1 char
 
-" Insert date:
+" Insert date on current line:
 !!date
 
 " Display color syntax:
@@ -1280,8 +1277,9 @@ $ vim -c 'argdo set nomore | g!/-2008/d | update' CI2003individualsRELEASE_Ven60
 
 " Compare vimdiff diff two existing buffers :vert diffsplit then switch to other buffer and :diffthis then force any changes :diffupdate when done reset the diff :se nodiff
 
-" vimdiff keystrokes
-do == :diffget  dp == :diffput
+" vimdiff keymaps
+do == :diffget
+dp == :diffput
 
 $ vim -u NONE -U NONE -N   <---no .vimrc and plugins ('clean' VIM)
 
@@ -1444,7 +1442,7 @@ ssh -l root 192.168.0.108
 grep findme * | grep -v foo
 
 # Look in Julie chats for password related info (with context)
-$ find . -name '*Bass*.txt' -print0 | xargs -0 grep -3 -i 'password'
+find . -name '*Julie*.txt' -print0 | xargs -0 grep -3 -i 'password'
 
 # Send results of find to grep then send results of grep to pr then send
 # results of pr to lpr.  The xargs command takes an argument and executes it.
@@ -2703,12 +2701,8 @@ filesize=$(find $1 -printf "%s" )
 
 # use locate(1) to search, this to create (findutils package):
 $ updatedb --prunepaths='/cygdrive /proc /tmp /var /home/rheckel/tmp'
-
-# For .bashrc "loc" alias (good candidate for cron):
-# alias loc='locate --ignore-case --database=/var/lib/locatedb.code '
-$ /bin/updatedb --localpaths='/home/rheckel/code' --output='/var/lib/locatedb.code'
-# On cygwin swiss:
-$ /bin/updatedb --localpaths='/cygdrive/e/cygwin/home/rheckel/code' --output='/var/lib/locatedb.code'
+# Canonical updatedb.  alias loc='locate --ignore-case --database=/var/lib/locatedb.code '
+$ /bin/updatedb --localpaths='/home/rsh86800/code' --prunepaths='/home/rsh86800/code/misccode/.git' --output='/var/lib/locatedb.code'
 # Linux
 $ sudo updatedb --database-root='/home/rheckel/code' --output='/var/lib/locatedb.code'
 
@@ -2856,9 +2850,6 @@ for i in `seq 1 500`; do cp FW_ONLINE.txt $i; cat $i >> FW_ONLINE.big.txt; rm $i
 # Fix backspace in shell (for vi)
 $ stty erase ^H intr ^C kill ^K
 # or sometimes ^? instead of ^H
-
-# Update a production directory with newer files from dev (maybe this should be a script)
-FR=/home/rheckel/tmp/junk26Jun08_1214509437/from; TO=/home/rheckel/tmp/junk26Jun08_1214509437/to; cd $FR && find -type f -mtime 0 -print0 | xargs -0 tar cvfz $TO/t.tgz && cd $TO && tar xvfz t.tgz
 
 # Tampering check:
 $ md5sum * > tampering.md5                        # build
@@ -5403,6 +5394,7 @@ $ psfile '\\rtpaswn321' -u uxx1903 -p uxx06tt 25060 -c
 
 xmllint --noout Bookstore-DTD.xml
 xmllint -schema Bookstore.xsd --noout Bookstore-XSD.xml
+au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
 
 alias lims='sqlplus sasrepor/sasrepor@usprd259'
 
@@ -5425,6 +5417,9 @@ select count(*), object_type from dba_objects where owner='PKS' group by object_
 <div id="divTestArea3" style="width:50px; height:50px; display:none; background-color:#89BC38;"></div>
 
 <a href="javascript:void(0);" onclick="alert('Hello, world!');">Test</a>
+
+-- Rename oracle table
+ALTER TABLE user_role3 RENAME TO user_role2;
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  
