@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Fri 15 Jun 2012 12:44:44 (Bob Heckel)
+" Modified: Fri 13 Jul 2012 14:09:09 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 "--------------------------------------------------------------------------
@@ -747,6 +747,7 @@ map <F2> :cprevious<CR>
 """  " Cygwin only
 """  map <F3> :r!getclip<CR>
 """endif
+map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
 
 " Widen gvim to max column width
 if has('gui')
@@ -2248,7 +2249,7 @@ if !exists("autocommands_loaded")
   " Plus need to see coworker's wild mix of tabs with spaces
   """au BufRead *.xml set foldmethod=indent | set list
   au BufRead *.xml set foldmethod=indent | set foldlevel=1
-  au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
+"""  au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
 
   " Needed for coping with coworker's inventive use of both spaces and tabs
 """  au BufRead X:/datapost/cfg/DataPost_Configuration*.xml set list
