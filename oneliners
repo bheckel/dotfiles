@@ -4151,8 +4151,8 @@ run;
  /* Convert to Oracle formatted datetime e.g. 21-MAY-98 02:30:37 is Oracle format 'DD-MON-YY HH24:MI:SS' */
 proc format; picture ORADTT other='%0d-%b-%0y %0H:%0M:%0S' (datatype=datetime);run; data; s='21May98:02:30:37'DT; call symput('IP21START',"'"||trim(left(put(s, ORADTT.)))||"'");run;
 
- /* SAS IDE command key shortcuts */
-F11 out->Result log-->Log lst-->Output wpg-->Enhanced Editor
+ /* SAS Enhanced Editor IDE F11 command shortcuts */
+out-->SAS Output  lst-->SAS Output (same)  log-->SAS Log  wpg-->Enhanced Editor
 
  /* proc sql &SQLRC is 0 when there were no errors */
 
@@ -4306,6 +4306,8 @@ libname RO 'c:/temp/' access=readonly;
 
  /* Print a CNTLIN stored format: */
 proc format library=work FMTLIB; run;
+
+options NOlabel;  /* Avoid proc sql printing pretty names instead of varnames */
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
