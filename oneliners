@@ -728,6 +728,9 @@ perl -ne '$s = $_ if $. == 1; $s = $_ if length($_) < length($s); END { print $s
 # Random password generator
 perl -le 'print map { ("a".."z")[rand 26] } 1..8'
 
+# days from (e.g. 3 years ago)
+~/code/perl/datecalc -1080
+
 xxPERLxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -1422,6 +1425,10 @@ let w:check_words = exists('w:check_words') ? !w:check_words : 1
 
 " Sort unique without external uniq
 :%sort u
+
+" Force syntax coloring
+:se ft=asp
+:so $VIMRUNTIME/syntax/aspvbs.vim
 
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -2877,7 +2884,7 @@ if [ "${1##*.}" = 'tar' ]; then ... fi
 $ tar -x extract_only_me.txt -vf my.tar
 
 CSVS=$(find $PTHPAR -maxdepth 1 -name '*.csv' -not -mtime 0)
-if ! [ -z "$CSVS"  ];then echo files are stale ...
+if [ -z "$CSVS"  ];then # string is zero length, no files meet stale criteria, so now echo 'files have been touched today...'
 
 # Determine Cygwin version:
 $ cygcheck -c | grep ygwi
@@ -2965,7 +2972,7 @@ if [ -d '\\rtpdscel01dm06\rsh86800$' ];then echo 'directory exists'; fi
 diff <(sort file1) <(sort file2)
 
 # For loop shell array
-for x in "${MAPFILES[@]}"; do ... done
+for x in "${MAPFILES[@]}"; do ...; done
 
 # Canonical backup quick tar quick backup
 tar cvfz /cygdrive/u/bkup/sd.`date +%d%b%y`.tgz CODE/
@@ -3072,16 +3079,16 @@ $ ~/Dropbox/Public/misc/computer/Linux/7za e ~/proust.7z
 # Avoid the bash Ctrl-s key combo of death that requires a Ctrl-q to escape its clutches
 stty -ixon
 
-# Temporary file
+# Temporary file:
 $ PROCSFILE=$(mktemp) && echo $PROCSFILE && ps -ef >$PROCSFILE
 
 # List all installed apt-get packages:
 dpkg -l
 
-# See if a new Chrome is out there
+# See if a new Chrome is out there:
 sudo apt-get install google-chrome-stable
 
-# Debian, Ubuntu full update (not dist upgrade)
+# Debian, Ubuntu full update (not dist upgrade):
 sudo apt-get update && sudo apt-get upgrade
 
 # Process substitution diff
@@ -3090,8 +3097,13 @@ diff -u ~/code/misccode/_bashrc <(ssh rheckel@sdf.org cat .bashrc)
 # Does vi exist on this box? (avoid which(1):
 hash vi &>/dev/null if [ $? -eq 0 ]; then export EDITOR=vi fi
 
-# Increment +1 ++ like C in bash
+# Increment +1 ++ like C in bash:
 i=$(($i+1))
+
+# Do these batches exist in any of these csv files? Just list filenames if so:
+for f in 2ZM3089 2ZM3090; do find . -name 'asampext*' |xargs grep -l $f; done;
+# Then filter them in vim:
+g!/Bat\|2ZM3089\|2ZM3090\|2ZM3091\|2ZM3092\|2ZM3093/d
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4690,7 +4702,7 @@ SQL> SELECT * FROM (SELECT * FROM t ORDER BY c) WHERE ROWNUM <= 10;
 -- Oracle describe table
 SQL> desc mytable
 
-' ASP debugging:
+' Debug ASP debugging:
 response.write "mfg" & Request("Mfg_Shift") & <br><br>""
 response.write "foo" & lstrEntryType
 ' or outside of code (hidden from user if white):
@@ -5391,8 +5403,10 @@ c:\> java -fullversion
 -- Oracle concatenation
 select column_name, data_type || '(' || data_length || ')' as fancy_type
 
+:: Which Windows files are open on server?:
+psfile '\\kopsawn557' -u uxx1903 -p uxx06tes
 :: Force Windows unlock open file closed (stupid reverse paramter required for closing a file):
-$ psfile '\\rtpaswn321' -u uxx1903 -p uxx06tt 25060 -c
+$ psfile '\\rtpaswn321' -u uxx1903 -p uxx06tes 25060 -c
 
 xmllint --noout Bookstore-DTD.xml
 xmllint -schema Bookstore.xsd --noout Bookstore-XSD.xml
@@ -5422,6 +5436,11 @@ select count(*), object_type from dba_objects where owner='PKS' group by object_
 
 -- Rename oracle table
 ALTER TABLE user_role3 RENAME TO user_role2;
+
+-- Oracle copy table
+CREATE TABLE user_roleTEST AS SELECT * FROM user_role;  -- do something to TEST...
+DROP TABLE user_role;  -- ...if it worked do this...
+CREATE TABLE user_role AS SELECT * FROM user_roleTEST;  -- ...and this
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  
