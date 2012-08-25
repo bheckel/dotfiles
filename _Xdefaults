@@ -1,0 +1,141 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!     Name: .Xdefaults
+!
+!           Often symlinked as ~/code/misccode/_Xdefaults
+!           See (u)rxvt --help for items available
+!
+!  Created: Thu 10 Jan 2002 08:56:11 (Bob Heckel)
+! Modified: Sat 28 Apr 2012 15:19:40 (Bob Heckel)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Rxvt (usually Cygwin)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Black
+Rxvt*background: #000000
+Rxvt*cutchars: `"'()*,;<>[]{|}@
+!!!Rxvt*cursorColor: #00ff00
+Rxvt*cursorColor: White
+Rxvt*foreground: Wheat
+Rxvt*saveLines: 2048
+Rxvt*scrollColor: Grey26
+Rxvt*scrollBar_right: on
+Rxvt*termName: xterm
+Rxvt*visualBell: on
+Rxvt*font: Andale Mono-8
+Rxvt*font1: Andale Mono-9
+Rxvt*font2: Andale Mono-10
+Rxvt*font3: Andale Mono-11
+Rxvt*font4: Andale Mono-12
+Rxvt*font5: Andale Mono-14
+Rxvt*font6: Andale Mono-16
+!!!Rxvt*backgroundPixmap:/home/bqh0/code/misccode/pattern.xpm
+!!!Rxvt*backgroundPixmap:/usr/share/WindowMaker/Pixmaps/tile.xpm
+! Black
+Rxvt*color0: #000000
+! Red
+Rxvt*color1: Red2
+! Green
+Rxvt*color2: Green1
+! Yellow (brown)
+Rxvt*color3: Khaki1
+! Blue
+Rxvt*color4: DodgerBlue1
+! Magenta
+Rxvt*color5: DarkOrchid1
+! Cyan
+Rxvt*color6: Cyan2
+! This is not foreground color!
+! White
+Rxvt*color7: #fdfdfd
+! Gray
+Rxvt*color8: #666666
+! Bright red
+!!!Rxvt*color9: #ee0000
+Rxvt*color9: OrangeRed
+! Bright green
+Rxvt*color10: SpringGreen1
+! Yellow
+Rxvt*color11: Yellow
+! Bright blue
+Rxvt*color12: DodgerBlue3
+! Bright magenta
+Rxvt*color13: #ff00ff
+! Bright cyan
+Rxvt*color14: #00ffff
+! This is not foreground color!
+! Bright white
+Rxvt*color15: #ffffff
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! URxvt (usually Ubuntu)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!URxvt*termName: rxvt-256color
+! Black
+URxvt*background: #000000
+URxvt*cutchars: `"'()*,;<>[]{|}@
+!!!URxvt*cursorColor: #00ff00
+URxvt*cursorColor: Wheat
+URxvt*foreground: White
+URxvt*saveLines: 2048
+URxvt*scrollColor: Grey26
+URxvt*scrollBar:true
+! Athena
+URxvt*scrollstyle:xterm
+URxvt*scrollBar_right: on
+URxvt*termName: xterm
+URxvt*visualBell: on
+URxvt*font: xft:Andale Mono-9:antialias=true
+!!!URxvt*font: xft:Bitstream Vera Sans Mono:pixelsize=11
+!!!URxvt*boldFont: xft:Bitstream Vera Sans Mono:bold:pixelsize=11
+!!!URxvt*font:-*-courier-medium-r-normal-*-*-140-*-*-*-*-iso8859-1
+!!!URxvt*boldFont:-*-courier-bold-r-normal-*-*-140-*-*-*-*-iso8859-1
+!!!URxvt*font: xft:Terminus-8:antialias=true
+!!!URxvt*backgroundPixmap:/home/bqh0/code/misccode/pattern.xpm
+!!!URxvt*backgroundPixmap:/usr/share/WindowMaker/Pixmaps/tile.xpm
+! Black
+URxvt*color0: #000000
+! Red
+URxvt*color1: Red2
+! Green
+URxvt*color2: Green1
+! Yellow (brown)
+URxvt*color3: Khaki1
+! Blue
+URxvt*color4: DodgerBlue1
+! Magenta
+URxvt*color5: DarkOrchid1
+! Cyan
+URxvt*color6: Cyan2
+! This does not refer to foreground color!
+! White
+URxvt*color7: #fdfdfd
+! Gray
+URxvt*color8: #666666
+! Bright red
+URxvt*color9: OrangeRed
+! Bright green
+URxvt*color10: SpringGreen1
+! Yellow
+URxvt*color11: Yellow
+! Bright blue
+URxvt*color12: DodgerBlue3
+! Bright magenta
+URxvt*color13: #ff00ff
+! Bright cyan
+URxvt*color14: #00ffff
+! This does not refer to foreground color!
+! Bright white
+URxvt*color15: #ffffff
+
+!!!URxvt*transparent:true
+!!!URxvt*tintColor:blue
+!!!URxvt*shading:40
+! Ubuntu purple
+!!!URxvt*tintColor:#290020
+URxvt*background: #290020
+!!!URxvt*tintColor:green
+!!!URxvt*shading:70
+URxvt.cursorBlink: on
+URxvt*geometry: 85x35
+!!!URxvt.termName: rxvt-unicode

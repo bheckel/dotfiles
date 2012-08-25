@@ -1799,6 +1799,17 @@ find . -newer /tmp/t1 ! -newer /tmp/t2
 # older timstamps TODO)
 touch /tmp/f1 && while true;do find /home -newer /tmp/f1 2>/dev/null;touch /tmp/f1;sleep 5;done
 
+<<<<<<< HEAD
+=======
+# Canonical touch file time stamp date stamp datestamp.
+touch -d 'May 2 2008 15:03' foo.txt
+touch -d "Sep 24 2006" foo.txt
+touch -d "Sep 24" foo.txt
+find . -not -name '*co'|xargs touch -d 'Mar 24 2011 13:26'
+touch '\\rtpsawnv0312\pucc\VALTREX_Caplets\INPUT_DATA_FILES\tmp\DPRunFlg.txt'
+touch  //rtpsawnv0312/pucc/VALTREX_Caplets/INPUT_DATA_FILES/tmp/DPRunFlg.txt
+
+>>>>>>> origin/master
 # Recursive touch
 $ find . -type f -mtime -40 -name '*sas' | xargs touch
 # Recursive touch(1) for dirs that might have spaces in names
@@ -3097,6 +3108,7 @@ for f in 2ZM3089 2ZM3090; do find . -name 'asampext*' |xargs grep -l $f; done;
 # Then filter them in vim:
 g!/Bat\|2ZM3089\|2ZM3090\|2ZM3091\|2ZM3092\|2ZM3093/d
 
+<<<<<<< HEAD
 # Canonical touch file time stamp date stamp datestamp.
 touch -d 'May 2 2008 15:03' foo.txt
 touch -d "Sep 24 2006" foo.txt
@@ -3105,6 +3117,8 @@ find . -not -name '*co'|xargs touch -d 'Mar 24 2011 13:26'
 touch '\\rtpsawnv0312\pucc\VALTREX_Caplets\INPUT_DATA_FILES\tmp\DPRunFlg.txt'
 touch  //rtpsawnv0312/pucc/VALTREX_Caplets/INPUT_DATA_FILES/tmp/DPRunFlg.txt
 
+=======
+>>>>>>> origin/master
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -5442,8 +5456,11 @@ CREATE TABLE user_roleTEST AS SELECT * FROM user_role;  -- do something to TEST.
 DROP TABLE user_role;  -- ...if it worked do this...
 CREATE TABLE user_role AS SELECT * FROM user_roleTEST;  -- ...and this
 
+<<<<<<< HEAD
 git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
 
+=======
+>>>>>>> origin/master
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  
 

@@ -1,0 +1,206 @@
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"     Name: _vimperatorrc
+"
+"  Summary: Generic Vimperator rc file
+"
+"  Windows Shortcut:
+"  C:\Progra~1\Mozill~1\firefox.exe -vimperator "+u 'c:\cygwin\home\bheckel\.vimperatorrc'"
+"
+"  :so u:/code/misccode/_vimperatorrc
+"  :so u:\\code\\misccode\\_vimperatorrc
+"
+"  Created: Mon 15 Oct 2007 11:21:26 (Bob Heckel)
+" Modified: Sat 10 Mar 2012 15:50:25 (Bob Heckel)
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"""""""""""""""""""""""""
+" Abbreviations
+" E.g. :o g searchme
+"""""""""""""""""""""""""
+"""cabbrev b open bing
+"""cabbrev g open google
+"""cabbrev w open wikipedia
+"""cabbrev y open yahoo
+
+
+"""""""""""""""""""""""""
+" SET Options
+"""""""""""""""""""""""""
+"""set complete=lsf
+"""set complete=slf
+"""set wildmode=list:full
+
+" Avoid a google search by default
+"""set defsearch=
+
+" Make sure we're in the awesome bar when a new tab is created via Ctr-t
+set nofocuscontent
+
+" See ,t
+"""set guioptions=TrB
+
+" Time allowed to disambiguate hint 1 vs 10, 2 vs 200 etc
+set hinttimeout=1000
+
+" Case sensitive if use capitals.  Must use together if using smartcase.
+set ignorecase
+set smartcase
+
+set incsearch
+
+"""set laststatus=0
+
+" Open these in a new tab (but see popups)
+set newtab=addons,downloads,help,prefs
+
+"""set nextpattern='Next Page »,\bnext,^>$,^(>>|»)$,^(>|»),(>|»)$,\bmore\b'
+
+" So that a right click in the gutter will allow a new tab w/o keyboarding
+"""set showtabline=2
+
+"""set wildcase=smart
+
+"""set visualbell
+
+
+"""""""""""""""""""""""""
+" JavaScript
+"""""""""""""""""""""""""
+" :js preview()
+"""javascript <<EOF
+"""pp = function () {
+""" PrintUtils.printPreview();
+"""};
+"""EOF
+
+" Used by maps below
+:js << EOF
+    toggle_element = function (name) {
+        document.getElementById(name).collapsed ^= 1;
+    }
+EOF
+
+" Better to just use a Firefox bookmark with keyword then :o r
+""":js << EOF
+  """readability = function(){readStyle='style-apertura';readSize='size-large';readMargin='margin-wide';_readability_script=document.createElement('SCRIPT');_readability_script.type='text/javascript';_readability_script.src='http://lab.arc90.com/experiments/readability/js/readability.js?x='+(Math.random());document.getElementsByTagName('head')[0].appendChild(_readability_script);_readability_css=document.createElement('LINK');_readability_css.rel='stylesheet';_readability_css.href='http://lab.arc90.com/experiments/readability/css/readability.css';_readability_css.type='text/css';_readability_css.media='all';document.getElementsByTagName('head')[0].appendChild(_readability_css);_readability_print_css=document.createElement('LINK');_readability_print_css.rel='stylesheet';_readability_print_css.href='http://lab.arc90.com/experiments/readability/css/readability-print.css';_readability_print_css.media='print';_readability_print_css.type='text/css';document.getElementsByTagName('head')[0].appendChild(_readability_print_css);}
+"""EOF
+"""map ,r :js readability()
+
+"""""""""""""""""""""""""
+" Maps
+"""""""""""""""""""""""""
+map <F1> :echo ":dia history\n:dia printpreview\n:downl\n:emenu\n:mes[sages]\n:se[t] all\n:pref[erences]\n:pref!\n:res[tart]\n:addo[ns]\n:optionusage\n:dia console\nTAB and Shift-Tab to view choices"<CR>:h index
+
+" Toggle fullscreen like many other apps
+map <F11> :set invfs<CR>
+
+map <F12> :qa<CR>
+
+" Toggle usermode CSS display
+map \\ :set invum<CR>
+
+" ALT-less arrow key navigation
+map <Right> gt
+map <Left>  gT
+
+" Reorder/move current tab left/right
+map <S-Right> :tabmove! +1<CR>
+map <C-Right> :tabmove! +1<CR>
+map <S-Left>  :tabmove! -1<CR>
+map <C-Left>  :tabmove! -1<CR>
+
+" Easier navigation (but harder left-right page scrolling)
+noremap h H
+noremap l L
+noremap H h
+noremap L l
+
+" Speed up movements a bit
+noremap k 2k
+noremap j 2j
+noremap <C-e> 3<C-e>
+noremap <C-y> 3<C-y>
+
+" Too risky, will just use multiple 'd's
+map D <Nop>
+
+" Not orthogonal with Vim so eliminate
+map M <Nop>
+
+
+""""""""""""
+" Comma Maps
+" Reserve comma maps for GUI controls
+
+map ,b :js toggle_element('PersonalToolbar')<CR>
+
+map ,c :dialog console<CR>
+
+" In a new tab, not its own window
+map ,d :downloads<CR>
+
+"""map ,g :t https://mail.google.com<CR>
+
+"""map ,h :sidebar history<CR>
+map ,h :dia history<CR>
+
+" Think (m)enubar
+"""map <silent> ,m :js toggle_element('toolbar-menubar')<CR>
+map ,m :js toggle_element('toolbar-menubar')<CR>
+
+map ,p :dia printpreview<CR>
+
+" Think (t)oggle (t)oolbar
+map <silent> ,t :js toggle_element('PersonalToolbar')<CR>
+
+""""""""""""
+
+" NEXT/PREV links
+map . ]]
+"""map ,n ]]
+"""map ,p [[
+
+" :q! is actually the command when :q is used.  :wq or ZZ to save tabs for next time
+"""map ,qq :quitall<CR>
+
+"""map ;c o file:///E:/cygwin/home/bheckel/code/
+
+" Like vim
+map ;l :buffers<CR>
+
+
+"""""""""""""""""""""""""
+" Highlighting
+" hi[ghlight] clear {group}
+" Replicate .vimrc where possible
+"""""""""""""""""""""""""
+"""highlight! Bell color:grey; background-color:grey
+"""highlight! StatusLine color:white; background-color:#0066FF; font-size:10px
+"""highlight! StatusLineSecure StatusLine color:white; background-color:#CCFFCC;font-size:10px
+"""highlight! StatusLineExtended StatusLine color:white; background-color:#007700;font-size:10px
+"""highlight! StatusLineBroken StatusLine color:white; background-color:#FF0066;font-size:10px
+"""highlight! CmdLine color:white; background-color:black; font-family:monospace; font-size:10px
+"""highlight! Hint font-family:monospace; font-size:13px; font-weight:bold; color:white; background-color:red; border-color:ButtonShadow; border-width:0px
+
+
+"""""""""""""""""""""""""
+" Commands
+"""""""""""""""""""""""""
+"""command -nargs=* Goo open google <args>
+
+
+"""""""""""""""""""""""""
+" about:config overrides
+"""""""""""""""""""""""""
+"""set! browser.urlbar.maxRichResults=6
+"""set! keywordlURL="http://www.google.com/search?ie=UTF-8&oe=UTF-8&sourceid=navclient&gfns=1&q="
+
+
+"""""""""""""""""""""""""
+" Autocommands
+"""""""""""""""""""""""""
+" All Google pages except Google [s]earch, [n]ews, [a]pis
+"""autocmd LocationChange .* js modes.passAllKeys = /google\.com\/[^s|n|a]/.test(buffer.URL)
+
+
+echomsg '_vimperatorrc sourced'

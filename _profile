@@ -1,0 +1,38 @@
+#!/bin/sh
+
+# Generic .profile
+# Modified: Fri 12 Mar 2004 09:32:32 (Bob Heckel)
+
+export EDITOR=vi              # important for command line editing
+export HISTFILE=$HOME/.sh_history
+export HISTSIZE=5000
+###export LESS='-M-j5$-a-P%f$'
+###export PAGER=less
+###export PATH=$HOME/bin:$PATH
+# E.g. bheckel@parsifal[127]$    $PROMPT_COMMAND does not exist in ksh so use
+# this to display pwd in titlebar.
+###export PS1='`echo -n -e "\033]2;$PWD\07"`${LOGNAME}@`uname -n`[$?]$ '
+export TMP=$HOME/tmp
+
+set -o vi
+
+alias be='vi $HOME/.profile'
+alias by=exit
+alias cd..='cd ..;ls'
+alias cls='clear'
+alias l='ls -F'
+alias la='ls -aF'
+alias ls='ls -F'
+alias ll='ls -lF'
+alias lla='ls -alF'
+alias lll='ls -lF | more'
+alias lt='ls -lt | head -n25'
+alias m=less
+alias srcb='. $HOME/.profile'
+alias ve='vi $HOME/.vimrc'
+
+stty erase ^H intr ^C
+
+umask 077
+
+exit
