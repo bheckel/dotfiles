@@ -363,5 +363,5 @@ ${color lightgrey}${execi 30 tail -n3 /var/log/syslog | fold -s -w25}
 ###${color slate grey}/var/log/messages:
 ###${color}${exec tail -n20 /var/log/messages}
 
-${color dark goldenrod}${execi 1500 display-dhamma | par -w25}
+###${color dark goldenrod}${execi 1500 display-dhamma | par -w25}
 
