@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Fri 13 Jul 2012 14:09:09 (Bob Heckel)
+" Modified: Sun 19 Aug 2012 09:45:43 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 "--------------------------------------------------------------------------
@@ -450,7 +450,10 @@ set undolevels=5000
 " Write swap file to disk after each n characters
 " To disable swapfiles (and prevent opening files on servers that you have no
 " delete permission, leaving .foo.swp files behind when you exit), use -n
-set updatecount=50
+"""set updatecount=50
+
+" 05-Aug-12 Employer autorebooting boxes causes a swapfile mess.  Disabling for now.  TODO only disable for workboxes.
+"""set noswapfile
 
 " Write swap file to disk after 30 inactive seconds
 set updatetime=30000
@@ -506,7 +509,9 @@ if matchstr(WORKBOXES, THISBOX) == THISBOX
 endif
 
 " Shhhhhhhhhhhhhhhhhhhh people are trying to work!
-set visualbell
+"""set visualbell
+" 05-Aug-12 can't avoid a too-long flash for visualbell so disabling
+set noerrorbells
 
 " Emulate xterm mouse.  Same as :behave xterm
 set selectmode=
@@ -947,6 +952,11 @@ map ;; :call setline('.', Commentout(getline('.'), 'default'))<CR>
 
 " Uncomment, de-comment out my current line triplet convention (where Commentout function isn't aware of comment type)
 map ;/ my^3x<ESC>`yhhh
+
+" Very useful with Vimium
+if has('unix')
+  map ;0 <ESC>:!/usr/bin/google-chrome 'https://google.com/search?q=<C-R>=Websearch()<CR>'<CR><CR>
+endif
 
 " $ vi -dR 1 2
 map ;1 :%call WriteToFile(VTMP, 1, 0)<CR>
@@ -1959,6 +1969,14 @@ function! Foo() range
 endfunction
 " }}}
 
+" Adapted from http://hartley.io
+function! Websearch()
+  call inputsave()
+  let searchterm = input('Google: ')
+  call inputrestore()
+  return searchterm
+endfunction
+
 " end Functions-
 
 
@@ -1983,7 +2001,7 @@ if !exists("autocommands_loaded")
   " Assuming we've copied my sas.vim to $VIMRUNTIME for Cygwin & gVim
   "
   " SAS Logs, created under sasrun, should collapse to hide sasrun's initialization details
-  au BufRead */*\d\+.log set foldmethod=marker
+"""  au BufRead */*\d\+.log set foldmethod=marker
 
   if matchstr(WORKBOXES, THISBOX) == THISBOX
     autocmd BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source u:/code/sas/saslog.vim 
@@ -4469,6 +4487,8 @@ let &cpo = s:save_cpo
 if filereadable(glob("~/.vimrc.local")) 
   source ~/.vimrc.local
 endif
+
+
 
 " 2011-02-26 ignored:
 " vim: set foldmethod=marker:
