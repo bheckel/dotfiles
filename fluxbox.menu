@@ -1,9 +1,15 @@
 [begin] (fluxbox)
 [include] (/etc/X11/fluxbox/fluxbox-menu)
+  [separator] () {} 
   [exec] (Chrome) {/opt/google/chrome/google-chrome} </opt/google/chrome/product_logo_32.xpm>
-  [exec] (Firefox            Mod4+f) {/usr/bin/firefox} </usr/share/pixmaps/firefox.xpm>
-  [exec] (Gvim                Mod4+g) {/usr/bin/vim.gnome -g -f} </usr/share/pixmaps/vim-32.xpm>
-  [exec] (iview               Mod4+i) {/home/bheckel/bin/iview}
-  [exec] (Urxvt               Mod4+t) {urxvt} </usr/share/pixmaps/xterm-color_32x32.xpm>
-  [exec] (Xfe                  Mod4+x) {/usr/bin/xfe} </usr/share/icons/hicolor/32x32/apps/xfe.xpm>
+  [exec] (Firefox        Mod4+f) {/usr/bin/firefox} </home/bheckel/misc/computer/firefox.png>
+  [exec] (Gvim           Mod4+g) {/usr/bin/vim.gnome -g -f} </usr/share/pixmaps/vim-32.xpm>
+  [exec] (iview          Mod4+i) {/home/bheckel/bin/iview}
+  [exec] (Urxvt          Mod4+t) {urxvt} </usr/share/pixmaps/xterm-color_32x32.xpm>
+  [exec] (VirtualBox) {/usr/bin/virtualbox} </usr/share/pixmaps/virtualbox.xpm>
+  [exec] (Xfe            Mod4+x) {/usr/bin/xfe} </usr/share/pixmaps/xfe.xpm>
+  [separator] () {} 
+  [exec] (Suspend) {sleep 75 && sudo /usr/sbin/pm-suspend}
+  [exec] (Hibernate) {sleep 75 && sudo /usr/sbin/pm-hibernate}
+  [exec] (About) {(fluxbox -v; fluxbox -info | sed 1d) 2> /dev/null | xmessage -file - -center}
 [end]

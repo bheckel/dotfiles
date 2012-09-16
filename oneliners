@@ -8,7 +8,7 @@
 #           Comments are often written for searching, not proper English...
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Sat 25 Aug 2012 12:33:20 (Bob Heckel)
+# Modified: Mon 03 Sep 2012 09:53:49 (Bob Heckel)
 #
 #########################################################################
 
@@ -1173,15 +1173,14 @@ yl
 
 " Open all folds zR (think 'release').  Close all folds zM (think 'mash').
 
+" netrw most common keystroke cycling - s sort, i ls details, r reverse sort order
 " netrw plugin if vim already open (beware there is NO file locking here):
 :Nwrite "daeb rheckel Tistyb4p tmp/testing/junk2z"
 :Nread "mf bqh0 Tistyb4p pgm.trash(junk)"
 :Nwrite "mf bqh0 Tistyb4p pgm.trash(junk)"
 " Netrw using vim with ssh (similar using FTP):
 $ vim scp://rheckel@192.94.73.4/html/index.html
-# or - note no colon and double slash
-$ vi scp://rsh86800@rtpsh005//opt/QCServer/A.05.00/svr/files/Inspec_Lot-0108.log
-" set bufhidden=hide to avoid reloading on every buffer reentry
+$ vi scp://rsh86800@rtpsh005//opt/QCServer/A.05.00/svr/files/Inspec_Lot-0108.log  # note no colon and double slash
 
 " Debug shell script by doing an echo line below declaration:
 :,$:s:\(export \(\w\+\).*\):\1echo '\2 ' \$\2:gc
@@ -2475,8 +2474,12 @@ while : ; do echo bob; sleep 6; done
 # Create several simple dummy files:
 for i in 1 2 3;do echo "i am $i" >foo$i; done
 
-# Sequence
+# Sequence loop while number is less than 6
 for i in `seq 5`; do mem; sleep 3; done
+
+# Monitor speed of database connections over time:
+for i in `seq 16`; do date; sqlplus -S sasreport/sasreport@usprd259 @donothing; date;date; sleep 1800; done
+for i in `seq 16`; do date; a=`date +%s`; sqlplus -S sasreport/sasreport@usprd259 @donothing; date; b=`date +%s`; c=`expr $b - $a`; if [ $c -gt 7 ];then echo $fg_redbold GT 7 SECONDS! $normal; fi; sleep 1800; done
 
 # Display terminal output on two xterms simultaneously (untested):
 sh -c "$prog|tee -a $mytty" 1>$othertty 2>&1 0>$othertty
@@ -2663,7 +2666,7 @@ gpg -c foofile # encrypt; gpg -d foofile # decrypt
 
 # Recursive wc recursive find - safe for Windows filenames w/ spaces (Cygwin) canonical total count lines of code (alternatively use :vimgrep /foo/ **/*.vb)
 find . -name '*.vb' -print0 | xargs -0 grep -i 'databound web'
-find . -name '*.sas' -print0 | xargs -0 wc -l  # count lines
+find . -name '*.sas' -print0 | xargs -0 wc -l  # canonical count lines of code
 
 # File attributes - simple access in shell
 unixtime=$(find foo.txt -printf "%AT" ); echo $unixtime
@@ -2805,8 +2808,6 @@ Then Ctr-] and Ctr-t in Vim to navigate or find function whose name you only
 know part of (assumes you've run ctags *):
 :ta[g]/iknowpartialregex
 
-sudo apt-get install samba
-
 # Canonical awk
 awk -F ' ' '{print $1}'  # -F ' ' is unnecesary
 awk '{print $1}'
@@ -2916,9 +2917,9 @@ if [ $x != a ]; then echo not equal; fi
 
 # ksh commandline completion - In vi-mode use <ESC> to control mode and then \ to complete or = to list.
 
-# Is today Monday?  If today is Monday.  Use  !=  to negate.
+# Is today Monday?  If today is Monday.  Use  !=  to negate.  Date filter by day of week.
 if [ `date +%a` = Mon ];then echo ok; fi
-# Is today the 15th?  Use  !=  to negate.
+# Is today the 15th?  Use  !=  to negate. Date filter by day of month.
 if [ `date +%d` = 15 ];then echo ok; fi
 
 # Watch for process, send warning email if it's not there
@@ -3028,9 +3029,8 @@ function myfunction { ... }
 
 urxvt-X.exe -display 127.0.0.1:0.0 -bc -e /bin/bash --login
 
-# Create empty directories and subdirs (skip files):
-cd ~/projects/datapost/data
-TMPD=/home/rsh86800/tmp/11Apr11_1302538066/datapost/data; mkdir -p $TMPD && find * -type d | while read d; do mkdir ${TMPD}/${d}; done
+# Create empty directories and subdirs (skip files) TODO NOT SAFE FOR DIRS WITH SPACES:
+mkdir -p $c/datapost && find * -type d | while read d; do mkdir $c/datapost/${d}; done
 
 30 09,15,20 * * * grep http /home/chronos/user/Bookmarks | awk '{print $2}'| sed 's/"//g' | sed 's/$/<BR>/' >| /home/chronos/user/Dropbox/Public/Equanimity/bm.html 2>|/home/chronos/user/cron.log
 
@@ -3043,7 +3043,7 @@ find . -name '*png' |xargs zip plots14jun11.zip
 find . -name '*png' |xargs zip -j plots14jun11.zip 
 find datapost/ -name '*.sas' -o -name '*.xml' -o -name '*.xslt' -o -name '*.map' |xargs zip -j ~/code/misccode/datapostcode.zip  # -j eliminate folder structure
 
-# Whack files named "!THIS IS DEMO" in all subdirs:
+# Whack files named "!THIS IS DEMO" in all subdirs (record separator becomes null character instead of space):
 find . -name '!THI*' -type f -print0 |xargs -0 rm
 
 # Write file as root if you opened it accidentally as rheckel:
@@ -3088,6 +3088,11 @@ $ PROCSFILE=$(mktemp) && echo $PROCSFILE && ps -ef >$PROCSFILE
 # List all installed apt-get packages:
 dpkg -l
 
+# Query apt-get
+apt-cache search vim
+apt-cache show vim
+apt-cache policy vim
+
 # See if a new Chrome is out there:
 sudo apt-get install google-chrome-stable
 
@@ -3108,7 +3113,6 @@ for f in 2ZM3089 2ZM3090; do find . -name 'asampext*' |xargs grep -l $f; done;
 # Then filter them in vim:
 g!/Bat\|2ZM3089\|2ZM3090\|2ZM3091\|2ZM3092\|2ZM3093/d
 
-<<<<<<< HEAD
 # Canonical touch file time stamp date stamp datestamp.
 touch -d 'May 2 2008 15:03' foo.txt
 touch -d "Sep 24 2006" foo.txt
@@ -3117,8 +3121,19 @@ find . -not -name '*co'|xargs touch -d 'Mar 24 2011 13:26'
 touch '\\rtpsawnv0312\pucc\VALTREX_Caplets\INPUT_DATA_FILES\tmp\DPRunFlg.txt'
 touch  //rtpsawnv0312/pucc/VALTREX_Caplets/INPUT_DATA_FILES/tmp/DPRunFlg.txt
 
-=======
->>>>>>> origin/master
+# Sort on column 11:
+find -ls | sort -k 11
+
+# Which processes are running on port 80:
+lsof -i :80
+# shows pid 25226
+ls -l /proc/25226/exe
+
+# Inplace edit (without vi) remove #
+sudo sed -i -e "s/# deb/deb/g" /etc/apt/sources.list
+
+# Bash switchout command temporarily cmd1<C-U>cmd2<C-Y>cmd1
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -5131,8 +5146,10 @@ git checkout master && git merge mynewbranch && git branch -d mynewbranch
 # discard abandon all pending changes "not staged for commit"
 git checkout .
 
-# github
+# github (github is origin)
 git push origin master
+
+git stash;  git checkout master; ...  git checkout branchistashed; git stash clear;
 
 # vifmrc
 COMMAND=st=cygstart "%f"
@@ -5456,11 +5473,11 @@ CREATE TABLE user_roleTEST AS SELECT * FROM user_role;  -- do something to TEST.
 DROP TABLE user_role;  -- ...if it worked do this...
 CREATE TABLE user_role AS SELECT * FROM user_roleTEST;  -- ...and this
 
-<<<<<<< HEAD
 git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
 
-=======
->>>>>>> origin/master
+Windows work gvim GUI Target: icon:
+"C:\Program Files\Vim\vim73\gvim.exe" -u u:\code\misccode\_vimrc
+
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  
 
