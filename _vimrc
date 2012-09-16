@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Sun 19 Aug 2012 09:45:43 (Bob Heckel)
+" Modified: Fri 14 Sep 2012 08:51:03 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 "--------------------------------------------------------------------------
@@ -35,7 +35,8 @@
 let THISBOX = hostname()
 let WORKBOXES = [ 'ZEBWL06A16349', 'ZEBWD08D26987', 'ZEBWL10D43164', 'ZEBWL12H29961' ]
 
-" I'm usually only browsing with netrw
+" I'm usually only browsing with netrw.  Tree will be very narrow, use zz to
+" get into it to widen if desired for browsing additional files w/o :q.
 if has ('win32unix')
   " E.g. scp to be provided by Cygwin
   let g:netrw_cygwin=1
@@ -133,73 +134,74 @@ else
   hi Comment      ctermfg=Black                            guifg=DarkGray   guibg=Black      cterm=bold
 endif
 
-hi Conditional  ctermfg=Green                            guifg=Green       guifg=DarkGreen
-hi Directory    ctermfg=Magenta                          guifg=Magenta     guibg=Black      cterm=bold        gui=bold
-hi ErrorMsg     ctermfg=Black       ctermbg=Red          guifg=Black       guibg=Red
-hi Folded       ctermfg=LightGray   ctermbg=Black        guifg=LightGray   guibg=Black      cterm=bold        gui=bold
-hi Function     ctermfg=Yellow                           guifg=Yellow      guibg=Black
-hi IncSearch    ctermfg=White       ctermbg=Blue         guifg=White       guibg=#123456
+hi Conditional ctermfg=Green guifg=Green
+hi Directory ctermfg=Magenta guifg=Magenta guibg=Black cterm=bold gui=bold
+hi ErrorMsg ctermfg=Black ctermbg=Red guifg=Black guibg=Red
+hi Folded ctermfg=LightGray ctermbg=Black guifg=LightGray guibg=Black cterm=bold gui=bold
+hi Function ctermfg=LightYellow guifg=LightYellow guibg=Black
+hi Identifier ctermfg=LightCyan guifg=LightCyan
+hi IncSearch ctermfg=White ctermbg=Blue guifg=White guibg=#123456
 if has ('win32unix')
-  hi Search       ctermfg=White       ctermbg=DarkYellow   guifg=White       guibg=Firebrick4
+  hi Search ctermfg=White ctermbg=DarkYellow guifg=White guibg=Firebrick4
 else
-  hi Search       ctermfg=Black       ctermbg=DarkRed   guifg=White       guibg=Firebrick4
+  hi Search ctermfg=Black ctermbg=DarkRed guifg=White guibg=Firebrick4
 endif
 
 " Gutter :se nu
 if has ('win32unix')
-  hi LineNr     ctermfg=Green       ctermbg=DarkGray     guifg=#DDDDDC     guibg=#777777
+  hi LineNr ctermfg=Green ctermbg=DarkGray guifg=#DDDDDC guibg=#777777
 else
   " Lighblue is grey on borked linux box
-  hi LineNr     ctermfg=Green       ctermbg=LightBlue    guifg=#DDDDDC     guibg=#777777
+  hi LineNr ctermfg=Green ctermbg=LightBlue guifg=#DDDDDC guibg=#777777
 endif
 
-hi MatchParen   ctermfg=Cyan        ctermbg=Magenta      guifg=Cyan        guibg=Magenta
-hi ModeMsg      ctermfg=Black       ctermbg=Yellow       guifg=Black       guibg=Yellow
-hi MoreMsg      ctermfg=Blue        ctermbg=Black        guifg=Blue
-
+hi MatchParen ctermfg=Cyan ctermbg=Magenta guifg=Cyan guibg=Magenta
+hi ModeMsg ctermfg=Black ctermbg=Yellow guifg=Black guibg=Yellow
+hi MoreMsg ctermfg=Blue ctermbg=Black guifg=Blue
+hi Number ctermfg=Magenta ctermbg=Black guifg=Magenta guibg=Black
 " Tab completion dropdown
 if has ('win32unix')
-  hi Pmenu        ctermfg=Black       ctermbg=Gray         guifg=White       guibg=Gray 
-  hi PmenuSbar    ctermfg=Black       ctermbg=Gray         guifg=White       guibg=Black    
+  hi Pmenu ctermfg=Black ctermbg=Gray guifg=White guibg=Gray 
+  hi PmenuSbar ctermfg=Black ctermbg=Gray guifg=White guibg=Black 
 else
-  " Lighblue is gray on borked linux box
-  hi Pmenu        ctermfg=Black       ctermbg=LightBlue    guifg=White       guibg=Gray 
-  hi PmenuSbar    ctermfg=Black       ctermbg=Gray         guifg=White       guibg=Black    
+  " Lightblue is gray on borked linux box
+  hi Pmenu ctermfg=Black ctermbg=LightBlue guifg=White guibg=Gray 
+  hi PmenuSbar ctermfg=Black ctermbg=Gray guifg=White guibg=Black 
 endif
-hi PmenuSel     ctermfg=Blue        ctermbg=Yellow       guifg=Blue        guibg=Yellow   
+hi PmenuSel ctermfg=Blue ctermbg=Yellow guifg=Blue guibg=Yellow 
 
-hi PreProc      ctermfg=Magenta                          guifg=Magenta     guibg=Black
-hi SpecialKey   ctermfg=Black       ctermbg=DarkMagenta  guifg=Black       guibg=DarkMagenta
-hi Statement    ctermfg=Yellow                           guifg=LightYellow guibg=Black
-hi String       ctermfg=White                            guifg=White       guibg=Black      cterm=bold        gui=bold
-hi TabLine      ctermfg=Gray        ctermbg=DarkGray
-hi TabLineSel   ctermfg=White       ctermbg=DarkGray
-hi TabLineFill  cterm=underline     ctermbg=Gray
-hi Title        ctermfg=White       ctermbg=Magenta      guifg=White       guibg=Purple
-hi Todo         ctermfg=Yellow      ctermbg=Black        guifg=Yellow      guibg=Black      cterm=undercurl   gui=undercurl 
+hi PreProc ctermfg=LightMagenta guifg=LightMagenta guibg=Black
+hi SpecialKey ctermfg=Black ctermbg=DarkMagenta guifg=Black guibg=DarkMagenta
+hi Statement ctermfg=LightYellow guifg=LightYellow guibg=Black
+hi String ctermfg=White guifg=White guibg=Black cterm=bold gui=bold
+hi TabLine ctermfg=Gray ctermbg=DarkGray
+hi TabLineSel ctermfg=White ctermbg=DarkGray
+hi TabLineFill cterm=underline ctermbg=Gray
+hi Title ctermfg=White ctermbg=Magenta guifg=White guibg=Purple
+hi Todo cterm=undercurl gui=undercurl 
 
 if has ('win32unix')
-  hi Visual     ctermfg=Black       ctermbg=LightMagenta guifg=Black       guibg=LightMagenta
+  hi Visual ctermfg=Black ctermbg=LightMagenta guifg=Black guibg=LightMagenta
 else
   " Workaround urxvt's 88 colors
-  hi Visual     ctermfg=Black       ctermbg=Magenta guifg=Black       guibg=LightMagenta
+  hi Visual ctermfg=Black ctermbg=Magenta guifg=Black guibg=LightMagenta
 endif
 
-hi   WarningMsg   ctermfg=Magenta     ctermbg=Yellow       guifg=Magenta     guibg=Yellow
+hi WarningMsg ctermfg=Magenta ctermbg=Yellow guifg=Magenta guibg=Yellow
 " :match WhitespaceEOL /\s\+$/
-hi WhitespaceEOL  ctermbg=red                                                guibg=red
+hi WhitespaceEOL ctermbg=red guibg=red
 
 " Alert if we're using older versions of Vim
 if version < 600
-  hi StatusLine   ctermfg=Green       ctermbg=White        guifg=Green       guibg=Blue
-  hi StatusLineNC ctermfg=Green       ctermbg=Black        guifg=Green       guibg=Black       gui=inverse,bold
+  hi StatusLine ctermfg=Green ctermbg=White guifg=Green guibg=Blue
+  hi StatusLineNC ctermfg=Green ctermbg=Black guifg=Green guibg=Black gui=inverse,bold
 else
   " For statusline setting below
-  hi User1        ctermfg=red                              guifg=red                           cterm=inverse,bold 
+  hi User1 ctermfg=red guifg=red cterm=inverse,bold 
   " Active status line
-  hi StatusLine   ctermfg=Blue        ctermbg=White       guifg=Blue        guibg=White
+  hi StatusLine ctermfg=Blue ctermbg=White guifg=Blue guibg=White
   " Inactive status line
-  hi StatusLineNC ctermfg=Blue        ctermbg=Gray        guifg=Blue        guibg=Gray
+  hi StatusLineNC ctermfg=Blue ctermbg=Gray guifg=Blue guibg=Gray
 endif
 
 " Highlight tabs other than at start of line for indenting
