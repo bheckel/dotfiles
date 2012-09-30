@@ -548,8 +548,7 @@ perl '-V:install.*'
 # Using rcs (automatically inserts revision sequence on co)
 our $VERSION = sprintf("%d.%02d", q$Revision$ =~ /(\d+)\.(\d+)/o);
 
-# Quick install: cp ~/code/perl/Irenamer.pm /usr/lib/perl5/5.8/cygwin/File (or
-# other dir on the @INC path)
+# Quick install: cp -i $HOME/code/perl/Irenamer.pm $HOME/perllib (or other dir on the @INC path):
 perl -MFile::Irenamer -e 'InteractiveRename(verbose,recurse)'
 
 # Reverse sort a hash:
@@ -1598,6 +1597,8 @@ setterm -blank 0
 
 # Determine IP address on Unix:
 ping `hostname`
+# or determine IP address on Unix:
+who -u
 # or determine IP address on Unix:
 grep `hostname` /etc/hosts | awk '{ print $1 }'
 # or determine IP address on Unix:
@@ -4520,11 +4521,6 @@ submit 'bqh0.pgm.lib(include)' && for i in 1 2; do sysout -v|tail -1; sleep 7; d
 
 format c: /S     <---also write autoexec.bat, etc.
 
-Find info in horribly nested directory:
-find "K:\ORKAND\System Documentation" | less
-#                                    TODO xargs?
-find "K:\ORKAND\System Documentation" | grep -i truct
-
 Access parameter query:
 like [Enter Partial Name] & "*" 
 like "*" &  [Enter Partial Name] & "*" 
@@ -4902,11 +4898,9 @@ Points are a typesetter's standard unit of measure. There are 72 points to an in
 Private Sub cmdDeleteListItems_Click() Dim i As Integer For i = List1.ListCount - 1 To 0 Step -1 If List1.Selected(i) Then List1.RemoveItem i Next i End Sub
 
 Vimperator Firefox:
-C:\Progra~1\Mozill~1\firefox.exe -vimperator "+u 'c:\cygwin\home\rheckel\.vimperatorrc'"
 C:\Progra~1\Mozill~1\firefox.exe -vimperator "+c ':h index'"
 :dia console <--open error console :emenu <TAB> :h index :mes[sages] :se[t] :se[t] all :pref[erences] :pref! <--open about:config :res[tart] :addo[ns]  (<TAB> for all choices then <TAB> & <Shift><Tab> to navigate) :dia history
-
-Windows shortcut Properties target box:
+Vimperator autoload Windows shortcut Properties target box:
 "C:\Program Files\Mozilla Firefox\firefox.exe" -vimperator "+u 'u:\code\misccode\_vimperatorrc'
 
 Windows shortcut Properties target box:
@@ -5020,9 +5014,6 @@ To see logged on users in Windows 2003 - "Computer Management" "Shared Folders" 
 
 -- Oracle sqlplus do not display query results (usually when sending output to .out file)
 set termout off
-
-:: Determine .NET version installed installation
-%systemroot%\Microsoft.NET\Framework
 
 <div style="font-family:arial; color:blue; text-decoration:underline; font-weight:bold; font-size:200%">Newer approach - HTML using CSS</div>
 
@@ -5406,9 +5397,9 @@ while ( $true ) { ... }
 --SQLPlus formatting
 column meth_spec_nm format a80;
 
-Check for dotnet .NET Framework version
+:: Determine dotnet .NET Framework version - look for e.g. v4.0/:
+dir %windir%\Microsoft.NET\Framework\
 HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\.NETFramework\InstallRoot
-then check for a local directory like: %windir%\Microsoft.NET\Framework\<version>
 
 -- Oracle schema info
 select object_type, count(*) from dba_objects where owner='PKS_USER' group by object_type;
@@ -5477,6 +5468,11 @@ git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
 
 Windows work gvim GUI Target: icon:
 "C:\Program Files\Vim\vim73\gvim.exe" -u u:\code\misccode\_vimrc
+
+Windows commandline CPU monitor
+c:\> wmic cpu get loadpercentage
+
+$ git ls-files  # list which files are tracked under git source control not just staged
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  
