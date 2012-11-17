@@ -8,7 +8,7 @@
 #           Comments are often written for searching, not proper English...
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Mon 03 Sep 2012 09:53:49 (Bob Heckel)
+# Modified: Fri 09 Nov 2012 10:44:21 (Bob Heckel)
 #
 #########################################################################
 
@@ -1922,9 +1922,12 @@ cat foo.txt | awk ' /^['\ '|'\\t']*$/ { ++x } END{ print "Blanks = " x } '
 # Create patch(1) - stand in common parent directory of lao tzu:
 diff -Nrup lao tzu >t.patch
 # Install patch:
-patch <t.patch lao  # lao tzu are identical now
+patch <t.patch lao  # or patch -u t.patch lao   lao and tzu are identical now
 # Reverse patch:
-patch -R < t.patch  # lao tzu differ again
+patch -R < t.patch  # or patch -R t.patch lao   lao and tzu differ again
+# Better approach for single file patch:
+diff -u setup.html setup.new.html > setup.html.patch
+patch --dry-run -Np0 -i setup.html.patch
 
 # Fix a manpage.  The sed script has lines like  s/\.YODLTAGSTART\./\r\.YODLTAGSTART\./g
 $ sed -f mysedpatchscript.sed /tmp/rxvt.1 > /usr/man/man1/rxvt.1
@@ -2378,6 +2381,9 @@ zip -r foo.zip flop/
 $ cat *.txt | awk '{ if (x<length()) x=length() } END{ print x }' 
 # Or if want individual max line lengths:
 $ for f in *.sas; do echo $f; cat $f | awk '{ if (x<length()) x=length() } END{ print x }'; done
+
+# Tarball specific filetypes only
+$ find $x/datapost/ -name '*.sas7bdat' |xargs tar cfz ~/tmp/datapost.tgz
 
 Get the value of the last parameter passed into a korn shell script.
 eval last=\${$#}
@@ -2980,7 +2986,7 @@ diff <(sort file1) <(sort file2)
 for x in "${MAPFILES[@]}"; do ...; done
 
 # Canonical backup quick tar quick backup
-tar cvfz /cygdrive/u/bkup/sd.`date +%d%b%y`.tgz CODE/
+cd $c && tar cvfz /cygdrive/u/bkup/dpCdrive.`date +%d%b%y`.tgz datapost && cd -
 
 # Comma delimited items split into lines, one item per line (convert wide to long)
 awk -F, '{ print $1; print $2; print $3 }' t.csv
@@ -3040,9 +3046,11 @@ echo $[(5*3)-2]
 
 # For Windows users who don't have tar and gzip:
 find . -name '*png' |xargs zip plots14jun11.zip 
-# Junk the dirs, all files go in single zip (make sure don't have dup filenames in subdirs)
+# Ignore the directories, all files go in single zip (make sure we don't have dup filenames in subdirs!)
 find . -name '*png' |xargs zip -j plots14jun11.zip 
 find datapost/ -name '*.sas' -o -name '*.xml' -o -name '*.xslt' -o -name '*.map' |xargs zip -j ~/code/misccode/datapostcode.zip  # -j eliminate folder structure
+# TODO handle spaces in names -print0 and -0 aren't working
+find $z/datapost/ -name '*.sas' -o -name '*.xml' -o -name '*.xslt' -o -name '*.map' |xargs tar cvfz ~/code/misccode/datapostcode.tgz
 
 # Whack files named "!THIS IS DEMO" in all subdirs (record separator becomes null character instead of space):
 find . -name '!THI*' -type f -print0 |xargs -0 rm
@@ -3134,6 +3142,9 @@ ls -l /proc/25226/exe
 sudo sed -i -e "s/# deb/deb/g" /etc/apt/sources.list
 
 # Bash switchout command temporarily cmd1<C-U>cmd2<C-Y>cmd1
+
+# Avoid having to cd / to untar a cygwin package:
+tar -C / -xvf connect-proxy-1.101-1.tar.gz
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3317,9 +3328,11 @@ V9.1 SAS online docs http://support.sas.com/91doc/docMainpage.jsp
 Missing value '.' always sort lower than char or num and ._ sorts lowest of all
 SAS Special Missing Value (.A thru .Z)
 ...else if comment = 'refused to answer' then age = .A;...
+...if .z < labvalue < 3 then...
+...if .z < round(labvalue,0.0001) < 3.15 then...
 
  /* Write all variables to the Log with "foo=" notation on one line: */
-put _ALL_  /* print PDV to Log */
+put _ALL_;  /* print PDV to Log */
 put 'WARNING: ' _ALL_;
 put 'WAR' 'NING: ' _ALL_;  /* better if you're searching a Log for real WARNINGs not a SOURCE or MPRINT: */
  /* Write all variables to the Log with "foo=" notation on one line per var: */
@@ -3742,7 +3755,7 @@ data _null_; mycurrentquarter = floor((month(date())-1)/3)+1; put mycurrentquart
  /* Avoid missing failure if datetime inputs are incomplete */
 mydttm = dhms(mydate, max(0,hour(mytime)), max(0,minute(mytime)), max(0,second(mytime)));
 
- /* Convert datetime floating point number to human 25AUG2005 date */
+ /* Convert datetime floating point number to human e.g. 25AUG2005 date in open code */
 %put %sysfunc(putn(1440588139.7, datetime9.));
 %put %sysfunc(putn(1441637788, datetime14.));
 
@@ -4013,10 +4026,6 @@ options ls=180;proc contents data=SASHELP._all_ /*NODS*/;run;
 proc setinit noalias; run; 
  /* Apply setinit (to an expired license SAS - TODO does it work for a normal system?).  May be simpler just to right-click a setinit.sss file */
 C:\Program Files\SAS Institute\SAS\V8>sas.exe -setinit -sysin c:\setinit.sas -config "c:\Program Files\SAS Institute\SAS\V8\sasv8.cfg"
-
- /* Convert character constant date to character and SAS date to number (easiest date convert conversion) */
-%put %sysfunc(putn('30OCT1965'D, 8.));
-%put %sysfunc(putn(17325, DATE9.));
 
  /* Canonical read in readin infile input text CSV file: */
 data Val500_Fielder_DIVI_Granulation; infile F DLM=',' DSD MISSOVER LRECL=2600 FIRSTOBS=3; input Product :$40. mydt :DATE. ... ; run;
@@ -4351,6 +4360,22 @@ proc format library=work FMTLIB; run;
 
 options NOlabel;  /* Avoid proc sql printing pretty names instead of varnames */
 
+ /* Convert SAS epoch date to human: */
+~/code/perl/datecalc 1/1/1960 19272
+
+SAS93WIN=C:/PROGRA~1/SASHome/SASFoundation/9.3/sas.exe
+
+ /* Convert character constant date to character and SAS date to number in open code (easiest date converter conversion) */
+%put %sysfunc(putn('30OCT1965'D, 8.));
+%put %sysfunc(putn(17325, DATE9.));
+ /* Convert character constant datetime to character and SAS date to number in open code (easiest datetime converter conversion) */
+%put %sysfunc(putn('30OCT1965:12:01:00'DT, 10.));  /* "10." instead of "8." to avoid "1.8399E8" */
+%put %sysfunc(putn(183988860, DATETIME14.));
+
+ /* Wrap put */
+  put "And here is how a to not line break a long 
+looooooooooooooooooooooooooooooooooooong macro string";
+
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -4359,7 +4384,7 @@ xxOTHERxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 :: DOS directory list ls by age, order by oldest last.
 dir /p /o:d
 
-:: Short DOS names e.g. PROGRA~1
+:: Short 8.3 DOS names e.g. PROGRA~1
 dir /x
 
 ' Visual Basic CRLF in decimal.  Octal is 015 and 012.  Hex is 0xD and 0xA.
@@ -4997,7 +5022,9 @@ XML namespaces:
 
 <xsl:variable name="Str_OutputFilePath">
 <!-- DEBUG XSLT -->
-<!-- foo <xsl:value-of select="$Str_OutputFilePath"/> bar -->
+<xsl:message>!X!<xsl:copy-of select="$addresses"/>!Y!</xsl:message>
+
+<xsl:if test="ExecuteFrequency != 'sunday'">
 
 :: Run checkdisk check disk on USB drive E: without rebooting:
 chkdsk /f e:
@@ -5464,6 +5491,10 @@ CREATE TABLE user_roleTEST AS SELECT * FROM user_role;  -- do something to TEST.
 DROP TABLE user_role;  -- ...if it worked do this...
 CREATE TABLE user_role AS SELECT * FROM user_roleTEST;  -- ...and this
 
+-- Oracle days from today, two days ago
+select to_char(sysdate-2, 'DD-MON-YY') from dual
+select sysdate-2 from dual
+
 git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
 
 Windows work gvim GUI Target: icon:
@@ -5473,6 +5504,14 @@ Windows commandline CPU monitor
 c:\> wmic cpu get loadpercentage
 
 $ git ls-files  # list which files are tracked under git source control not just staged
+
+$ cygcheck -cv w3m  # is package OK?
+
+# Delete branch if (unmerged):
+$ git branch -d experimental
+
+# Discard git discard throw away changes
+$ git checkout .   # abandon all pending changes "not staged for commit"
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  

@@ -4,7 +4,7 @@
 # Summary: bash shell config for at least Cygwin 1.3/1.5/1.7, Unix and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Sun 16 Sep 2012 12:37:06 (Bob Heckel)
+# Modified: Thu 25 Oct 2012 10:59:19 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -530,6 +530,9 @@ parse_git_branch() {
 
 # Assumes $ /bin/updatedb --localpaths='/home/bheckel/code/c /home/bheckel/code/html /home/bheckel/code/misccode /home/bheckel/code/perl /home/bheckel/code/readme /home/bheckel/code/sas /home/bheckel/code/vb' --output='/var/lib/locatedb.code'
 # or better, $ /bin/updatedb --localpaths='/cygdrive/l/cygwin/home/bheckel/code' --output='/var/lib/locatedb.code'
+# 18-Oct-12 Workaround:
+###alias upd="cd $HOME/code; find . >| loc; cd -"
+###alias loc="vi $HOME/code/loc -c 'map <CR> gf'"
 loc() {
   local cmd='locate --ignore-case --database=/var/lib/locatedb.code'
   local emsg="nothing found ($cmd)"
@@ -1148,6 +1151,7 @@ case "$OSTYPE" in
       #----------------
       # Alias NetBSD  #{{{2 
       #----------------
+      # TODO if sdf boxes only
       alias crontab=mkcron
       # Mnemonic 'after my alias "f" to fg'
       ###alias g='screen -r'
@@ -1156,7 +1160,7 @@ case "$OSTYPE" in
       alias la='\ls -la'
       alias ls='\ls -F'
       alias ll='\ls -Fl'
-      alias me="vi $HOME/.muttrc"
+      alias sha1sum='cksum -a sha1 '
       alias ve="vi ~/.vimrc"
       alias vi='/usr/pkg/bin/vim'
 

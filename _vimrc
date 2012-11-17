@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Fri 14 Sep 2012 08:51:03 (Bob Heckel)
+" Modified: Fri 05 Oct 2012 09:16:22 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 "--------------------------------------------------------------------------
@@ -33,7 +33,7 @@
 """set writedelay=50
 
 let THISBOX = hostname()
-let WORKBOXES = [ 'ZEBWL06A16349', 'ZEBWD08D26987', 'ZEBWL10D43164', 'ZEBWL12H29961' ]
+let WORKBOXES = [ 'ZEBWL06A16349', 'ZEBWD08D26987', 'ZEBWL10D43164', 'ZEBWL12H29961', 'ZEBWL12H26564' ]
 
 " I'm usually only browsing with netrw.  Tree will be very narrow, use zz to
 " get into it to widen if desired for browsing additional files w/o :q.
@@ -109,8 +109,10 @@ set t_te=[?47l8
 "  Color Syntax- 	{{{1
 "
 "  View current highlighting: :hi (optionally :set verbose=1 first for more info) or :so $VIMRUNTIME/syntax/hitest.vim
+" 
+"  To override built-in syntax: e.g. ln -s ~/code/sas/sas.vim ~/.vim/syntax/
 "
-" To test :runtime syntax/colortest.vim
+"  To test :runtime syntax/colortest.vim
 "--------------------------------------------------------------------------
 
 if has ('syntax') && &t_Co > 1
