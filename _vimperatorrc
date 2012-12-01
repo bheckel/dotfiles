@@ -94,7 +94,7 @@ map <F1> :echo ":dia history\n:dia printpreview\n:downl\n:emenu\n:mes[sages]\n:s
 " Toggle fullscreen like many other apps
 map <F11> :set invfs<CR>
 
-map <F12> :qa<CR>
+"""map <F12> :qa<CR>
 
 " Toggle usermode CSS display
 map \\ :set invum<CR>

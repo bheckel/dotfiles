@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Fri 05 Oct 2012 09:16:22 (Bob Heckel)
+" Modified: Mon 26 Nov 2012 13:16:25 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 "--------------------------------------------------------------------------
@@ -1184,7 +1184,7 @@ noremap <C-Y> 2<C-Y>
 noremap <Space> <C-F>
 
 " gn is unused in v7.2.  Orthogonal with gt for tab windows
-noremap gn :bn<CR>
+"""noremap gn :bn<CR>
 
 " Use for simple window jumping.  Use C-W for complex jumps.  Normal zz is the
 " same as z. so override it here since z. is better.  Also see map ,b and map ;b
@@ -1204,7 +1204,7 @@ inoremap <C-I> <C-X><C-I>
 inoremap <C-L> <C-X><C-L>
 
 " Dictionary
-inoremap <C-K> <C-X><C-K>
+"""inoremap <C-K> <C-X><C-K>
 
 " Remap <TAB> for smart completion on various characters
 inoremap <silent> <TAB> <C-R>=SmartComplete()<CR>
@@ -2281,6 +2281,9 @@ if !exists("autocommands_loaded")
   au BufRead,BufNewFile *.map set filetype=xslt
 
   au BufNewFile,BufRead,BufEnter *.html,*.htm map ;; :call setline('.', Commentout(getline('.'), 'html'))<CR>
+
+  " Browsing tarballs:
+  au FileType TAR map q :q<CR>
 
   "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_

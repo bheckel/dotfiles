@@ -8,730 +8,9 @@
 #           Comments are often written for searching, not proper English...
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Fri 09 Nov 2012 10:44:21 (Bob Heckel)
+# Modified: Tue 27 Nov 2012 13:27:27 (Bob Heckel)
 #
 #########################################################################
-
-xxPERLxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
-
-$ find `perl -e 'print "@INC"'` -name '*.pm'  # which Perl modules are installed
-
-$ find /usr/lib/perl5/site_perl/5.6.1/ -name '*.pm'  # which Perl modules I installed
-
-$ perl -V  # determine the @INC path
-
-# Test perl code (or a regex) interactively in the Perl debugger:
-$ perl -de 0
-DB<1> $x='a1'; $x=~/(\d)/; print $1 <---must be on same line or lose $1
-
-# Test perl from the command line without debugger (hardcore):
-$ perl; $x='test string'; $x =~ /^(test).*/; $y=$1; print $y; <Ctr-d>
-# Better
-$x='test string'; ($y = $x) =~ s/^(test).*/$1/; print $y;
-# Best (we get readline capability)
-perl -e '$x="test string"; ($y=$x)=~ s/^(test).*/$1/;print $y;'
-
-# Simple test regex test from commandline without needing a variable:
-perl -e 'print "found" if "a"=~/[^1-9]/'
-
-# Hash slice:
-perl -e '@h{"key1", "key2"} = (1,2); print $h{key2};'
-
-# Regex to commify commafy a number (see ~/code/perl/commafy.pl)
-s/(\d{1,3})(?=(?:\d\d\d)+(?!\d))/$1,/g;
-
-# De-chomp un-chomp reverse chomp:
-for ( @lines ) { $_ .= "\n"; }
-
-# Regex to pick out the filename, i.e. basename, tail, and strip the path off:
-$basefilename = $1 if $fullyqualifiedpath =~ m|[/\\:]+([^/\\:]+)$|;
-# Pick out the fully qualified path and strip off the filename:
-$directory = $1 if $fullyqualifiedpath =~ m|(.*[/\\:])+[^/\\:]+$|;
-
-# Specify where to install Perl module (if you want a non standard directory):
-perl Makefile.PL PREFIX=~/perllib
-# then must later say  use lib '~/perllib';  or  export PERLLIB=~/perllib
-
-# Determine if singular or plural word is required:
-printf("Retrieving %d email%s...\n", $mailcount, $mailcount==1 ? "" : "s");
-my $r = $rchg!=1 ? 'records' : 'record';
-
-# Determine current day of the week:
-$current_weekday = (Sun,Mon,Tue,Wed,Thu,Fri,Sat)[localtime(6)];
-
-# Canonical directory read:
-opendir D, "$dir" or die "$!"; @FILES=grep { !/^..?$/ && !-d } map "$dir/$_", readdir D;
-# Quick directory read, skip dot files while reading directory:
-@files = grep(!/^..?$/, readdir DIR);
-
-# Put a pair of items into a hash:
-$header{$1} = $2  while /(File|Node|Prev|Next|Up):\s*([^,]*)/g;
-# Better
-%h = /^(.*?): (.*)$/gm;
-
-# Carriage return newline (i.e. linefeed) cleanup.
-s/\015\012/\n/;
-
-# chomp improvement esp. Windows, remove <CR> and/or <LF> from the end of $_
-s/[\r\n]+$//;
-
-# Cache keys in a hash (the Orcish maneuver), sort on modified time:
-@sorted = sort { ($modtimes{$a} ||= -M $a) <=> ($modtimes{$b} ||= -M $b) } @filenames;
-
-# Rewind a file handle
-seek(FILEHANDLE, 0, 0);
-
-# Cryptic OOP constructor:
-sub new { bless({}, shift); }
-
-# Do something every 5 times using modulus
-unless ( $i++ % 5 ) { print 'foo'; }
-
-# Do something every 3000 times using modulus
-print $_ if ($i++ % 3000) == 0;
-next unless ( $. % 3000 ) == 0;
-
-# Find only unique array elements:
-%seen = undef; @unique = grep(!$seen{$_}++, @thearr)
-# Better
-@unique = keys %{ { map {$_ => 1} @possibleduplicateslist } };
-
-# Remove empty or undef elements from an array:
-@x = grep { !/^$/ } @x;
-
-# Remove part of string and 'chomp' all elements in an array in one swoop.
-map{ s/.*=// && s/[\r\n]+$// } @previousrun;
-
-# Format date string (see LibC for %b, etc.).  E.g. this rets 'May 25'
-use POSIX qw(strftime);
-$fmtdt = strftime("%b %d", localtime(991422942));
-$matchdt = strftime('%Y%m%d%H%M%S', localtime(time));
-
-# Time stamp the last modified date.
-my $mtime = (stat($0))[9]; my $t = localtime $mtime; print "Last Modified $t";
-
-# Want new string substitution without clobbering original variable:
-($y = $x) =~ s/foo/bar/g;
-
-# Default (unless a 0 is a valid possibility)
-$leavealoneifset ||= $default;
-# or 
-$best_suffix ||= $soso_suffix || $notsogood_suffix || 'txt';
-
-# Replacer (recursive with backup) replace all instances of XXX (see :args :argdo or ~/bin/replace)
-$ find -name foo.txt | xargs perl -pi.bak -e 's/XXX/bobh/'
-
-# Split a scalar into an array, saving only part of the split result.
-$x = 'zero:one:two';
-@z = (split /:/, $x)[0,2]    # @z contains 'zero', 'two'
-
-# lvalue is in scalar context (right side is therefore evaluated in a scalar context, $a gets 8):
-$a = (2, 4, 6, 8); 
-
-# Prepend, concatenate, something to each element of array:
-@x = grep { s/^/foosuffix/ } @x
-
-# Input from args or stdin, smash several all parameter arguments into one:
-$_ = (join ' ', @ARGV) || <>; 
-
-# Source code passed in implicitly via standard input:
-echo "print qq(Hello @ARGV)" | perl - World
-
-exit 0  # <--- success  exit 1 <--- failure  both same as shell
-
-# Determine which compiler Perl was compiled with
-perl -e 'use Config; print "$Config{'cc'}"'
-
-use whine qw(toobusy twokids codetooscarylookin);      <---no commas!
-
-# Iterate over a loop
-for ( $i=0; $i<@colors; $i++ ) { ... }
-# or 
-for ( $i=0; $i<=$#colors; $i++ ) { ... }
-
-# Constant declaration:
-use constant SECONDS_PER_DAY => 60 * 60 * 24;       # 86400
-$delta = abs($stamp - $stamp_mirror) / SECONDS_PER_DAY;
-
-# Constant used as filehandle (must use concatenation in the open()):
-use constant OUTPUTTXTFILE => 'foo.txt';
-open FILE, '>>'.OUTPUTTXTFILE || die "$0: can't open file: $!\n";
-
-# Classes OOP
-$request->redirect($new_url)
-# same as
-Request::redirect($request, $new_url)
-
-# Thin out, print 10 random lines from a file (good for creating dummy files):
-cat smallBEN.txt | perl -e '@line=<>; for(1..9){print $line[int rand @line]}'
-
-# A subroutine's incoming parameters are held in @_  This includes flattened arrays, etc. (it may be inefficient since it is "pass by value").
-E.g. my @parms = @_;
-
-# Force, prepend, a non-standard directory onto @INC:
-unshift(@INC, '.');
-# More elegant prepending of @INC:
-use lib ".";
-
-# Don't be greedy on regex:
-$x = 'multi, comma, line'
-$x =~ /(.*,)/   <---greedily returns 'multi, comma,' in $1
-# but replacing the dot with  [^,]  i.e. what you don't want is non-greedy
-$x =~ /([^,]*,)/  <---returns 'multi,'
-
-# Regex matches floating point numbers.
-/^[+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?$/
-# or regex that matches floating point numbers less Perlishly,
-(\+|-)?([0-9]+\.?[0-9]*|\.[0-9]+)([eE](\+|-)?[0-9]+)? 
-
-# Remember not to use = when you need =~
-$x =  /foo/;  # searches $_, puts result in $x
-$x =~ /foo/;  # searches $x, discards result
-
-# Strip HTML tags from a string:
-$string =~ s/<([^>]|\n)*>//g;
-
-# Lookahead (?=) lookbehind (?!) regex assertions.
-$x = "foobar";
-$x =~ /foo(?!bar)/;  # doesn't match, 'bar' follows 'foo'
-$x =~ /foo(?!baz)/;  # matches, 'baz' doesn't follow 'foo'
-$x =~ /(?<!\s)foo/;  # matches, there is no \s before 'foo'
-
-# On the fly substitution of array scalars with hash references:
-@usernames = ('joe', 'ted', 'larry');
-map { $_ = {$_ => length} } @usernames;
-# Now @usernames is ( {'joe' => 3}, {'ted' => 3}, {'larry' => 5})
-print $usernames[0]->{joe};  # rets 3
-
-# Redirect STDERR error messages to STDOUT.
-open(STDERR, ">&" . STDOUT) or die "Cannot Redirect STDERR: $!";
-
-# Low-level alternative to print
-write(2, "I'm using STDERR", 16);
-
-# Want affirmative from user:
-die unless <STDIN> =~ /^y|^yes|^ok/i;
-# or
-<STDIN> ne "n\n" ? print "ok\n" : die "Exiting\n";
-print "keep going? "; <STDIN> eq "y\n" ? print "ok\n" : die "dead\n";
-
-# Skip the first line of a textfile:
-cat junk.txt | perl -e 'while(<STDIN>){print $_ if $.>1}'       # ok
-cat junk.txt | perl -ne 'print if $.>1'                         # best
-
-# Lowercase a word from the command line:
-$ echo ThisWord | perl -pe 's/(.*)/\L$1\E/'
-
-# Uppercase (a.k.a rightcase titlecase smartcase) first letter of word in $all_lower:
-($first_ltr_uppercased = $all_lower) =~ s/(\w+)/\u$1/g;
-
-# Delete lines containing counter.hitua.net for each file in directory:
-perl -pi.bak -e 's/.*counter.hitua.net.*//g' testch*.ht
-# Change background color of all webpages, recursively:
-find . -name '*.html' -exec perl -pi.bak -e "s/BGCOLOR=\"#ffffff\"/BGCOLOR=\"#cccccc\"/" {} \;
-# Better
-find . -name '*.html' |xargs perl -pi -e 's/BGCOLOR=\"#ffffff\"/BGCOLOR=\"#cccccc\"/'
-# Delete multiple blocks paragraphs of text (consecutive with start and finish lines):  TODO why can't use xargs (it only mods first file)??
-for f in `find . -name 'testch*.htm'`; do perl -i -e 'BEGIN{$/=undef}$x=<>;$x=~s/Ukrainian Banner Network 468x60 START.*?Ukrainian Banner Network 468x60 END/FOOZBALL/sg;END{print $x}' $f; done
-
-# Swap array elements using an array slice:
-@x = qw(a b c);
-@x[0,1] = @x[1,0];  <---holds bac now
-
-# In Perl, unlike shell and C:
-@ARGV contains the command-line arguments for the script but does not include the command name.  E.g. $ ./test.pl foo bar  <---$ARGV[0] is foo
-# Get at them like this:
-foreach $arg ( @ARGV ) { ...work on param $arg one at a time... }
-# or better:
-map { print "$_\n" } @ARGV;
-# Contrast with:
-while ( <ARGV> ) { chomp; ...work on each line of each param... }
-
-# Filter out all but plain text files from the command line parameters.
-@ARGV = grep { -f && -T } @ARGV;
-
-# Clear, initialize, the hash.
-%hash = ();  #     <---NOT  %hash = {};
-
-# Parse a date string:
-($day, $mon, $year, $yday) = (localtime())[3,4,5,7];
-
-$ perl Makefile.PL && make && make test && make install  # perl install mantra.  build module downloaded from CPAN.
-
-# Number of elements in hash:
-print scalar keys %myhash;
-
-# Perl variable heredoc
-$stuff = <<"EOT";
-# or Perl print heredoc
-print <<"EOT";
-
-# Variable interpolation of constants -- print (ugly but it works):
-use constant FOO => 0;
-print qq:The value of FOO is @{[ FOO ]}\n:;
-# Variable interpolation of constants -- regex (ugly but it works):
-use constant EXTENSION => 'PDF';
-next unless ( $d =~ /.*@{[EXTENSION]}$/ );
-
-# Search file for lines (records) containing a specific 2 digit number in a
-# specific column position, in this case 77 and 78.  Like a database query.
-$ perl -ne '/.{76}(..)/; print if $1==15' foo.txt
-# same as the verbose:
-$ perl -ne '$_ =~ m/.{76}(..)/; print "$_" if $1 == 15' foo.txt
-# or for character queries:
-perl -ne 'm/.{174}(\w)/; print if $1 eq "Y"' foo.txt
-
-# To sort on a specific column, see the Schwartzian transformation.
-
-# Slurp an entire file into a single variable -- make sure ff=unix !!
-my $str = do { local $/ = <FH> };  # slurp
-# Can use __DATA__ filehandle like SAS' CARDS; or DATALINES;
-{ local $/ = undef; $contents = <DATA>; }
-
-# Current time timestamp since the Epoch:
-print localtime();
-# Current time timestamp human-readable:
-print scalar localtime();
-
-# Current date today:
-$currentday   = (localtime())[3];
-$currentmonth = qw(January February March April May June July August September October November December)[(localtime())[4]];
-$currentyear  = (localtime())[5]+1900;
-
-# Create a unique filename based on seconds since the Epoch using Perl:
-print "foo" . time() . ".txt";
-
-# Remove quotes from each element of an array of enquoted items:
-my @fl = map /'(.*)'/, @filelist;
-
-# Create a hash using map on the fly:
-my %h = map /(BF19\.\w\wX(.*)\..*)/i, @fl;
-
-# Add the first and last columns (@F comes from using -a):
-perl -lane 'print $F[0] + $F[-1]' whitespace_separated_nums.txt
-# Thanks to the switches, this is what it's doing:
-while ( <> ) { @F = split(' '); print $F[0] + $F[-1]; } 
-# Compare with
-cat whitespace_separated_nums.txt | awk '{i = NF; print $1 + $i}'
-
-# Replace all occurences of number 55 with a random number less than 100 (TODO how to avoid .bak files?)
-perl -i.bak -pe "s/55/int rand(100)/eg"
-# Recursively for specific extensions
-perl -pi.bak -e "s/Output Compiled Data/Output_Compiled_Data/" `find . -name '*.sas'`
-
-# Simple way to comment out a block of code.
-=debugbobh  ...code...  =cut
-
-# Read user's input from the commandline:
-chomp(my $transtyp = <STDIN>);
-
-# Set a cookie (after Content-Type: line):
-print "Set-Cookie: lastused=foo; path=/; expires=$cookie_expire;\n\n";
-
-# Set a default for an undefined value (using the ternary hook operator):
-$x = ($x ? $x : 42);
-# Maximum using ternary hook:
-$max = $x > $y ? $x : $y;
-
-# Left zero pad a number:
-$j = sprintf("%02d", $i);
-
-# C's break is Perl's last.  C's continue is Perl's next.
-
-# Read or edit a Perl module:
-vi `perldoc -l net::ftp`
-
-# Syntax check a directory:
-for f in *.pl; do perl -c $f; done
-
-# Switch -n says not to autoprint -p says to print while looping foo.txt -a gives @F
-
-# Are columns 1 and 3 equal?
-perl -ne '@x=split; print if $x[0] != $x[2]' foo.txt
-
-# nl(1) number line replacement
-perl -n -e 'print "$. $_"' foo.txt
-# Better nl(1) number line replacement
-perl -pe '$_ = "$. $_"' foo.txt
-# Best nl(1) number line replacement
-perl -pe 's/^/$.: /' file1 file2 file3
-
-# Automatic LINE: label is available under -ne
-perl -ne 'next LINE unless /eplicant/; print "$. $_"' bladerun_crawl 
-# Simpler if don't need the label to break out of a nested loop:
-perl -ne 'next unless /eplicant/; print "$. $_"' bladerun_crawl 
-
-# Search a tab-delimited file
-perl -ne '@x=split /\t/; print "@x" if $x[1]=~/foundme/' foo.txt
-
-# Search a tab-delimited file after removing header line
-perl -ne '@x=split /\t/; print "$x[0] and $x[1]\n" if $.>1' *.xls |sort|uniq
-
-# Automatic command line Perl module installation:
-perl -MCPAN -e shell  # interactive mode
-perl -MCPAN -e 'install DBI'
-perl -MCPAN -e 'install DBD::mysql'
-
-# Print a random number (automatically seeded by Perl):
-perl -e 'print rand()'        <---floating point from 0 to 1
-perl -e 'print rand'          <---same
-perl -e 'print int rand 5'    <---integer from 0 to 5
-perl -e 'print int(rand(51)) + 25;'  <---integer from 25 to 75
-# Print 3 random numbers which will be 1, 2, 3 or 4
-for i in 1 2 3; do perl -e 'print int(rand(4)) + 1, "\n"'; done
-
-# Remove nulls (ASCII 0) from a file (also works as :'<,'>!perl -pe 's/\0//g')
-perl -pe 's/\0//g' 
-# Remove single quotes from a file.  Simple substitution on the fly printing
-# changes to STDOUT
-perl -pe "s/'//g" junk
-
-# Substitute, inplace edit, and make backup from command line.  NOT recursive.
-# TODO why is -p mandatory, and the -e must stand alone
-perl -pi.bak -e "s/old/new/g" *.pl
-# or
-perl -pi.bak -e  's/old/new/g' `find . -name "foo.txt"`
-
-# Replace all instances in files without backups:
-perl -pi -e "s:#\!/usr/bin/perl:#\!/usr/pkg/bin/perl:" junk
-perl -pi -e "s/REPLACEME/foo/" dhammapada.rss
-
-# Swap colon delimited items, looping over foo.txt
-perl -pe 's/(.*):(.*)/$2:$1/' foo.txt
-
-# Print capitalized words by looping over file and printing at end of file.
-perl -ne 'push @w,/(\b[A-Z]\S*?\b)/g;END{print "@w"}' file.txt
-
-# Parse a file for email address pattern (used for Palm Pilot Memo) by looping
-# over file:
-perl -ne 'print "|$1 $2" if /\w+ \w+ (.*)<(.*)>.*/' ~/.email_addr
-
-# Uppercase all letters in file (works on foreign characters) to STDOUT:
-perl -pe 's/(\w+)/\U$1/g' foo.txt
-# Lowercase all words in a file to STDOUT:
-perl -pe 's/(.*)/\L$1\E/' foo.txt
-# In-place edit to lowercase all words:
-perl -pi -e 's/(\w+)/\L$1/g' desc.LST
-
-# Current time in seconds since the epoch
-perl -e 'print time, "\n"'
-# Convert a Unix time (1970 is epoch) to RFC822 format.
-perl -e "print scalar localtime(983595600)"
-
-perl -e "print crypt('mummy','garbagesalt'),\"\n\""
-
-# Test system function outside of code to debug (Windows examples):
-perl -e 'system "attrib +R c:/temp/translate.tpg"'
-perl -e "system 'mozilla file:///C:/cygwin/tmp/junk.html'"
-
-# Extract the rightmost (last) column.  Split on whitespace.  Don't need to
-# know how many columns exist.  @F is automatic.
-perl -ane 'print pop(@F), "\n";' foo.txt
-
-# Extract the leftmost (first) column.  Split on whitespace.
-perl -ane 'print shift(@F), "\n";' foo.txt
-
-# Convert decimal to binary:
-perl -e "print unpack('B32', pack('N', 12))"
-# Convert binary to decimal:
-perl -e "print unpack('N', pack('B32', substr('0'x32 . 1100, -32)))"
-
-# Test a multi-line string using a regex:
-perl -e 'print "match!" if "This is my\nmultiline string" =~ /This.*string/s;'
-
-# Parse on specific fixed column positions -- also see parse_fixed_width.pl
-perl -ne 'push @x, unpack "@1 A36 @37 A36",$_; END{$i=1;for(@x){print "$_\t"; if(++$i%2){print "\n"' foo.txt
-
-perl -e 'BEGIN{$foo="avenue"};print "ok" if $foo=~/ave/'
-# Same
-perl -e '$foo="avenue";print "ok" if $foo=~/ave/'
-
-# Extract a section of a file where you know the start and end patterns.
-awk '/first word/, /last word/ {print}' startendpatt.txt
-# Same (don't need  while(<>){...}  when using -ne)
-perl -ne 'print if /first word/ .. /last word/' startendpatt.txt
-
-# Extract a section of a file where you know the start and end line numbers.
-perl -ne 'print if 15 .. 17' foo.txt                     # inefficient
-perl -ne 'print if $. >= 15; exit if $. >= 17;' foo.txt  # better
-
-# Print repeat string 5 times:
-perl -e 'while($i++<5){print "ok "}'
-
-# Convert ASCII num to char:
-perl -e 'print pack "C", 97'
-# Convert ASCII char to num:
-perl -e 'print unpack "C", a'
-
-# Count the exact number of occurrences of X:
-perl -e '$s="ThisXlineXhasXsomeXxsXinXit"; $x=($s =~ tr/X//);print $x;'
-
-# Print 0123456789
-perl -e 'print pack( "H2"x10, map { "3$_" } ( 0..9 ) )'
-
-# Replacement for list ls -l 
-perl -e 'print scalar localtime((stat "t.pl")[9])'
-
-# Pipe delimit a space delimited file (to STDOUT):
-perl -ne 's/ /|/g; print' foo.txt
-
-# Get info about a module using -M
-perl -MCPAN -e 'print $CPAN::VERSION'
-perl -MMail::Sendmail -e 'print $Mail::Sendmail::VERSION'
-
-# Show days between modify and access for all files in dir:
-perl -e 'map \{printf "%10.3f - $_\n",(-C)-(-A)},@ARGV' *
-
-# wc replacement:
-perl -ne '@w=split; $x+=@w; END{print $x}' foo.txt
-
-# Use capturing parentheses to swap two items:
-grep -v fips | perl -pe 's/(.*) (.*)/\2 \1/'
-
-# Is this module installed on this machine?  Does this module exist?
-perl -MImage::ExifTool -e "print 'ok'"
-
-perl -e 'print "it is now @{[scalar localtime]}"'
-perl -e 'print "it is now ", scalar localtime'
-# m/d/yyyy formatted date
-perl -e '($d,$m,$y) = (localtime)[3,4,5];print join "/", $m+1, $d, $y+1900'
-
-# Super ls list.  Don't display any file containing dontlistme in it.
-ls | perl -e 'while(<STDIN>){print $_ if grep(!/dontlistme/,$_)}'
-# Better
-ls | perl -ne 'print if grep !/dontlistme/,$_'
-ls listened/ | perl -ne 'print "$1\n" if /.*(2001_\d+).*/'
-# Compare but do so less precisely since \d doesn't exist under awk
-ls listened/ | awk '/2001_\w/{print $1}'
-
-# Parse string into an array:
-perl -e '@words = "What did he say?" =~ /([A-Za-z]+)/g; END{print "@words"}'
-
-# Find user's home directory:
-perl -e '$x=(getpwuid($<))[7];print $x'
-
-# Do something alternating days, will return '1' every other day.
-date | awk '{print $3}' | perl -e '$x = (<> % 2); END {print $x}'
-
-# Does a file exist?  Pop message box if so
-perl -e 'system msgbox if (-f "./myfile.txt")'
-perl -e 'print "ok" if (-e "./bladerun_crawl")'
-
-print "Maximum commandline index: $#ARGV\n";
-print "Last commandline argument: $ARGV[$#ARGV]\n";
-
-# Use a default if not provided on command line:
-$ARGV[0] ||= 66;
-$ARGV[0] = ($ARGV[0] ? $ARGV[0] : 66);  <---instead of this mess
-
-# Insert an array inside roughly the middle of another array:
-splice @arrayA, $#arrayA/2, 0, @arrayB;
-
-# Create a module template (we only care about MyModule.pm unless CPANing it)
-$ h2xs -AX Foo::MyModule
-
-# 'our' allows you to circumvent strict for variables you want accessible from anywhere using the $Package::variable or @MyModule::ISA notation.
-
-# Delete specific hash keys:
-delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
-
-# Pipes (can avoid using system()):
-open OUT, "|more" or *OUT = *STDOUT;
-open IN, "ps|" or die "Can't start ps";
-
-@x = split /:/,  "ab:cd:::ef:gh";  <--- two empty fields between cd and ef
-@y = split /:+/, "ab:cd:::ef:gh";  <--- one big fat delimiter between cd and ef
-
-# Find all installation directories:
-perl '-V:install.*'
-
-# Using rcs (automatically inserts revision sequence on co)
-our $VERSION = sprintf("%d.%02d", q$Revision$ =~ /(\d+)\.(\d+)/o);
-
-# Quick install: cp -i $HOME/code/perl/Irenamer.pm $HOME/perllib (or other dir on the @INC path):
-perl -MFile::Irenamer -e 'InteractiveRename(verbose,recurse)'
-
-# Reverse sort a hash:
-@files = sort { $filehash{$b} <=> $filehash{$a} } keys %filehash;
-
-# Determine a script's module dependencies (add to eof):
-END { print join( $/, values %INC ), $/ }
-
-# Social security ssn number regex:
-[0-9]\{3\}-[0-9]\{2\}-[0-9}\{4\}
-
-# Poor man's tac(1) to reverse lines in a file:
-perl -e 'print reverse <>' foo.txt
-
-# Use reverse video for debugging (this doesn't require ctrl chars, just paste)
-print "DEBUG> \e[7mUnexpected format of 'mystr':\e[m\n";
-
-pdoc -f binmode  # function perldoc
-
-# Random array element 0, 1, 2 or 3
-print $paragraphs[int rand 3];
-
-m/$foo/o  # compile interpolation pattern only once o regex switch:
-
-system('/bin/bzip2', '-k', @zipme);
-system('cp', '-i', $maxname, 'c:/cygwin/home/rheckel/tmp/foo');
-
-# Like SAS' scan()
-$x = (split / /, $x)[0];
-
-# Reference to hash of anonymous arrays (note curly braces for ref, NOT parens)
-$h = { one => [ 'a', 'b', 'c' ], two => [ 'd', 'e', 'f' ] }; 
-
-use Data::Dumper; print Dumper $myref;
-open FH, '>foo' or die "$0: $!"; use Data::Dumper; print FH Dumper @a;
-
-# Read a file into a variable:
-open PID, '/usr/local/apache/logs/httpd.pid' or die"; $pid = <PID>;  close PID;
-
-# Read a file into an array (one element per line):
-@data = <FH>;
-# Print 2nd line in that file:
-print "$data[1]";
-
-# push and pop == a stack
-# push and shift == a queue
-
-push @existingarray, 'more', 'stuff';
-
-@array = ("anicca", "dukkha", "anatta");
-%hash = (1=>'One', '2'=>'Two', '3'=>'Three');
-
-$#array is the index of the highest defined array element
-# Truncate an array
-@whatever = ();  or  $#whatever = -1;
-
-# Check webserver return code to see if it's down
-perl -MLWP::UserAgent -e '$u=new LWP::UserAgent;$r=$u->head;print $r->{_rc}'
-
-print "Content-type: text/html\n\n";  # web CGI (HTTP/1.0 at least)
-
-# Split on pipes, print field of interest:
-perl -ane '@x=split /\|/;print $x[0], "\n";' vcc.txt
-
-# Split comma-delimited string into anonymous array and show 2nd element:
-$a='one,two,three'; $aa = [ split /\s*,\s*/, $a ]; print $$aa[1];
-
-# Unbuffer, i.e. make hot, the LOG filehandle (and switch back to the original):
-select((select(LOG), $|=1)[0]);
-
-# Is timestamp recent?:
-perl -e 'print "ok" if (stat("prellg"))[9] > time-86400'
-
-# Modify CPAN module settings (perl -MCPAN -e shell) TODO 2008-08-06 not working
-cpan> o conf http_proxy http://setproxy.gsk.com/proxy.pac
-cpan> o conf urllist push ftp://myurl/'
-
-while ( ($key, $value) = each %myhash ) { ... 
-
-# Is module installed properly?:
-perl -MDBI -e 0
-
-# Append 2 hashes (leftside hash takes precedence):
-%comb = (%hashx, %hashy);
-
-die 'debug archwitutl.pm', scalar localtime;
-
-# Canonical system call
-system('mv', '-i', "$new", "$path/");
-
-print 'deleted' if unlink '/cygdrive/x/sql_loader/junk';
-
-my ($multiple, $vars, $must, $be, $parethesized);
-
-# Canonical hash:
-%hash = ("laurel" => "hardy", "nick" =>  "nora");
-# Canonical array:
-@array = (10, 20);
-
-# Toggle warnings:
-no warnings; $discSize=$W2LIni->{Recording}{mediaSize}; $mediaType=$W2LIni->{Recording}{mediaType}; use warnings;
-
-# Canonical date
-($mon, $day, $year) = (localtime())[4,3,5];
-
-# Call sub 100 times, and time it
-use Benchmark; timethis(100, "MySub()"); 
-
-# Why anonymous arrays are useful:
-@children = (\%john, \%peggy); $sues{'children'} = \@children;
-# becomes simply
-$sues{'children'} = [ \%john, \%peggy ];
-print $sues{children}->[1]->{age};  # Peggy's age
-# Same
-print $sues{children}[1]{age};
-
-# Quick dump Main (see dumpmain.pl for hash included version)
-open F, '>junkdumpmain'; for $s(sort keys %main::) { local *sym=$main::{$s}; print F "\$$s is $$s\n" if defined $sym; print F "\@$s is @$s\n" if defined @sym;}
-# Then do a >junkdumpmain to "seed" tail and...  TODO tail part not working
-$ tail -f junkdumpmain | grep -a potentialHeaderFields junkdumpmain
-
-$array[7][12]				# array of arrays
-$array[7]{string}			# array of hashes
-$hash{string}[7]			# hash of arrays
-$hash{string}{'another string'}		# hash of hashes
-$hohoh{Robot}{Santa}{Claus}='mostly harmful';  # hash of hash of hash
-
-# Parse a textfile grid:
-perl -ne 'push @AoA, [ split ];END{print "$AoA[1][1]\n"}' junk.txt
-
-# Number of elements (minus 1 so say (0 .. $#a) ) in array:
-perl -e '@a=(1,2,3);print $#a'
-
-# Round a number:
-printf("%.3f", 3.1415926535);
-
-# Convert a hash to an array to make unique eliminate duplicates:
-%hash = map { $_, 1 } @array; @unique = keys %hash;
-
-# Canonical search and replace (interactive :bufdo %s/foo/bar/gic may be better):
-$ perl -pi.bak -e "s/foo/bar/" *.sas
-
-# Canonical perl translate
-$novowels =~ tr/aeiou/!/;  # change any vowel in $novowels into !
-
-($HOST = $host) =~ tr/a-z/A-Z/;  # uppercase en passant (but it's better to use \U and \L for Unicode)
-
-# Sum the 3rd column of a file
-perl -l -a -n -e '$n+=$F[2]; END{ print $n}' threecolumnsofnumbers.txt
-
-Expressions - a sequence of literals, variables, function connected by one or more operators that evaluate to a single value-scalar or array. 
-Statements are a complete unit of instruction for the computer to process. Statement modifiers: if, unless, until, and while.
-
-# Canonical map:
-my @tripled = map { $_ * 3 } @numbers;
-
-# Canonical count number of elements in an array without a temp variable:
-$count = () = myarray();
-
-print 'hash key "c" is undefined and this will not autovivify it' if ! defined $h{c};
-
-# Canonical print an array
-@a = ('a','b','c'); print "Hello, $_" for @a;
-
-# Canonical regex en-passant - EXTRACT first name (reads left to right)
-my ($firstname) = $name =~ /($firstname_precompiledregex)/;
-# Canonical regex en-passant - MODIFY first name (reads right to left)
-(my $normalizedname = $name) =~ tr/A-Za-z//dc;
-
-# Print the longest line
-perl -ne '$l = $_ if length($_) > length($l); END { print $l }' bladerun_crawl
-
-# Print the shortest line
-perl -ne '$s = $_ if $. == 1; $s = $_ if length($_) < length($s); END { print $s }' bladerun_crawl
-
-# Random password generator
-perl -le 'print map { ("a".."z")[rand 26] } 1..8'
-
-# days from (e.g. 3 years ago)
-~/code/perl/datecalc -1080
-
-xxPERLxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
-
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
@@ -1429,6 +708,1087 @@ let w:check_words = exists('w:check_words') ? !w:check_words : 1
 :so $VIMRUNTIME/syntax/aspvbs.vim
 
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
+
+
+xxSASxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
+
+V8 SAS online docs  onlinedoc documentation manual help webpages: http://v8doc.sas.com/sashtml/main.htm
+V9.1 SAS online docs http://support.sas.com/91doc/docMainpage.jsp
+
+Missing value '.' always sort lower than char or num and ._ sorts lowest of all
+SAS Special Missing Value (.A thru .Z)
+...else if comment = 'refused to answer' then age = .A;...
+...if .z < labvalue < 3 then...
+...if .z < round(labvalue,0.0001) < 3.15 then...
+
+ /* Write all variables to the Log with "foo=" notation on one line: */
+put _ALL_;  /* print PDV to Log */
+put 'WARNING: ' _ALL_;
+put 'WAR' 'NING: ' _ALL_;  /* better if you're searching a Log for real WARNINGs not a SOURCE or MPRINT: */
+ /* Write all variables to the Log with "foo=" notation on one line per var: */
+put (_ALL_)(=)
+ /* Use anywhere but can't combine to one %put */
+%put !!!; %put _USER_;
+
+ /* Macro -- no quotes! */
+%put You find yourself in a maze of %upcase(twisty SAS passages) all alike;
+ /* In a DATA step -- quotes, no commas */
+put 'fname is ' fname=;
+put '!!!' _ALL_;
+
+ /* Writes specific variables to the Log.  NO COMMAS. */
+put varname1= varname2=;
+ /* Automatic concatenation: */   
+put 'here it is: ' varname1=;
+ /* Carriage return in output: */
+put;
+put '13'x;  /* s/b the same */
+ /* Alternative is to use a blank  title2;  */
+
+Runaway GUI SAS killer:
+*'; *"; */; %mend; quit; run;
+
+ /* Free up space - delete datasets */
+proc datasets library=WORK; kill; QUIT;  /* !not RUN; */
+proc datasets NOlist; delete FooDS BarDS; quit;
+
+Column input with some missing data -- use truncover
+List input with some missing data at the rightmost edge -- use missover to keep SAS from trying, stupidly in most cases, the next line
+
+ /* Describe paths to SAS libraries: */
+libname _ALL_ list;
+
+ /* Clear libnames */
+libname _ALL_ clear;  or  libname L clear <---only one libname allowed!
+
+ /* Determine where the WORK temp library is located on your system: */
+libname WORK list;
+ /* or */
+%let workpath=%sysfunc(pathname(work));
+
+SAS debugger e.g. data foo / DEBUG; ...
+
+'07jul00'D              <---SAS date constant
+'07JUL2000'D            <---SAS date constant
+'04:15'T                <---SAS time constant (seconds since midnight 0-86400)
+'04:15:66pm'T           <---SAS time constant (seconds since midnight 0-86400)
+'07jul2000:04:15:00'DT  <---SAS datetime constant
+
+SAS Functions work *within* an observation.  Procedures work *across* observations.
+
+ /* Increment in macro.  Like yr++ */
+%let YR1 = 2002;  %let YR2 = %eval(&YR1+1);
+ /* Convert macrovariable from string to numeric (integer): */
+%let Y = 2000; %let YR = %eval(&Y+0);
+ /* Convert macrovariable (always string) to numeric: */
+data _null_; age=input(symget('age'),12.); run;
+
+ /* SAS X command (ok in open code): */
+x 'c:/util/vim/vim61/gvim.exe -c "set winsize=100 20" out.dat';
+
+ /* Canonical generate random number between 1 and 5 */
+randomnum = ceil(ranuni(0) * 5);
+ /* Generate random number between 100 and 123: */
+randomnum = 23*ranuni(-1) + 100;
+
+ /* Adjust the line length (if not using JCL): */
+file OUTF LRECL=1048576 PAD;  /* mainframe max?? */
+file WSIP21C LRECL=32767;  /* Windows max */
+
+Interactive SAS on OS/390 (from TSO command line):
+==> sas options('dms')
+or
+==> sas options('dms yearcutoff=1905')
+
+Using 1920 default: 00...19 becomes 2000...2019
+
+//* Use your own SAS System Options in JCL:
+//STEP1     EXEC SAS,CONFIG='BQH0.PGM.DEV(MYCONFIG)',TIME=100, 
+//          OPTIONS='MEMSIZE=0'                                
+//...
+
+ /* Actually sets the auto variable myfname, not the keyword FILENAME, to
+  * the physical name of the currently opened file.  Cowabunga! 
+ */
+infile IN FILENAME=myfname;
+
+ /* SAS hexadecimal tab */
+'09'x  or  '05'x  or  '3132,3334'x
+put aprclass '09'x '09'x APR_Count;
+
+ /* It's an alphabetical character isalpha: */
+if ship GE 'a' and ship LE 'z' then delete;
+ /* It's a numeric character isnum: */
+if indx GE '0' and indx LE '9' then delete;
+ /* Keep only numbers from a mixed var (CHAR formatted).  See verify.sas */
+isnum = verify(result, '.0123456789'); ... if isnum eq 0 then put "pure numerical";
+
+ /* ltrim() and rtrim() don't exist in SAS */
+trim(left(put(numericsasvari,F4.)));
+
+ /* Distributive range input statement: */
+input @166 (r1-r15) ($CHAR1.);
+input @166 (c1-c15) (:$1.);
+
+ /* Super input statement uses the data! to determine column position */
+input @'IP Address' n1 n2 n3 n4 3.;
+
+ /* Move cursor one to the left, backspace, to squeeze colon against word: */
+put @1 myname +(-1)":"  @30 myvalue;
+
+ /* Multiple datasets on the set statement: */
+data work.all; set %do j=1 %to 3; work.tmp&j %end; ; run;
+
+ /* Get current year date. */
+call symput("CYR4", substr(put("&sysdate9"d,mmddyy10.),7,4));
+
+ /* Increment the symput generated mvar */
+call symput('RUNME'||compress(put(_N_,5.)), executemacro);
+
+ /* Equal colon -- same as using LIKE 'mormer%' in SQL. */
+if foo =: 'mormer';
+
+ /* Use more than one library, look in best first, then justok if not found: */
+libname mylib (best justok);
+ /* libname concatenation. Works on z/OS too. Only a WARNING: for idontexist/ */
+libname CONCAT ('c:/temp' 'c:/cygwin/tmp/' 'c:/idontexist');
+
+ /* Uppercase a macrovariable: */
+%let the_type=%upcase(&the_type);
+
+ /* Mainframe filename */
+filename OUT "DWJ2.DCFET03.D04NOV03" DISP=NEW UNIT=TEMP LRECL=229 BLKSIZE=229 RECFM=FB;
+
+ /* Fixed length file.  Pads to 70. */
+filename f 'c:/temp/foo1' lrecl=70 recfm=f;
+ /* Variable length file.  No padding. */
+filename f 'c:/temp/foo2' lrecl=70 recfm=v;
+
+ /* Today's SAS epoch (range is 1582 - 20000 AD) date. Convert unix to SAS epoch date */
+$ date +%s |awk '{d=int($1/86400+3653)} END {print d}'
+
+ /* Left zero pad a number: */
+zerocert=put(certificate, Z6.);
+
+ /* Sum accumulator is auto-retained (but  foo = foo + 1  is not) */
+foo+1;
+
+ /* Reorder the variables in a dataset (alternatively use proc report): */
+retain first second third;
+
+ /* Create a C-like null terminated string: */
+substr(mystr, mylen+1) = '00'x
+
+ /* Name of currently running SAS program file: (like $0 in shell): */
+%put &SYSPROCESSNAME;
+
+ /* CLASS Class variables:  nums (discrete categories) or chars, identify classes
+  * or discrete categories on which calculations are done.  E.g. gender,
+  * country, state, zip
+  *
+  * VAR Analysis variables:  numbers, usually continuous, appropriate for
+  * calculating averages, sums, etc.  E.g. salary, number of orders
+  */
+
+ /* Pick off the MORMER1 suffix, and ignoring trailing, trash returns "MOR" */
+%let FN=BF19.FIX0342.MORMER1;
+%let EVT=%substr(%scan(&FN, 3, '.'), 1, 3);
+
+ /* SAS exponentiation */
+x = 2**3;
+
+ /* Syntax check program (compile) without running or overwriting files (for debugging): */
+options obs=0 NOreplace;
+ /* Syntax check datastep (compile) without running or overwriting files (for debugging): */
+run cancel;
+
+ /* Do to first obs: */
+if _N_ eq 1 then put 'data step has BEGUN EXECUTING once';
+ /* Do to last obs: */
+set l.sumventolin01a (obs=10) end=e; if e then put 'footer';
+ /* Caution: _N_ is only counting begun iterations of the implied loop of the dataset, NOT the observations.  */
+
+Subsetting IFs can appear only in DATA steps but WHERE statements can appear in DATA or PROC steps.
+
+ /* Run SAS without my ~/bin/sasrun */
+$ sas -sysin t.sas; cat t.log
+$ sas -sysin t.sas; vim -o -c '/^ERROR.*:\|^WARNING:/' t.log t.lst
+" Run a .sas from Vim on an alien box
+:!/cygdrive/c/Program\ Files\/SAS\ Instititute/SAS/V8/sas.exe -sysin %
+:!/cygdrive/c/Program\ Files\/SAS\ Instititute/SAS/V8/sas.exe -sysin % -altlog %.log -altprint %.lst
+
+ /* Run Version 9 V9 SAS from commandline */
+c:/PROGRA~1/SAS/SASFoundation/9.2/sas.exe -sysin t.sas && vi *.l??
+
+ /* Run Windows PC SAS from command line (often need an ENDSAS; if run via .bat) */
+$ c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin t.sas -altlog t.log -altprint t.lst
+$ /cygdrive/c/Program\ Files/SAS\ Institute/SAS/V8/sas.exe -sysin t.sas && vi -c 'map q :q!<CR>' t.log
+$ c:/PROGRA~1/SAS/SASFoundation/9.2/sas.exe -sysin t.sas && vi *.l??
+ /* same */
+$ c:/Program\ Files/SAS\ Institute/SAS/V8/sas.exe -sysin t.sas -log t.log -print t.lst
+ /* String foo is available in &SYSPARM */
+$ c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -nosplash -sysin t.sas -altlog Apr.log -sysparm foo
+ /* Passing a comma separated list will require e.g.
+  * %let samplist=%scan(%bquote(&SYSPARM), 2, '_'); 
+  * in the code:
+  */
+$ date;c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin indsumresCI.sas -altlog 01.log -sysparm 01_231973,231591,231476
+ /* Run Solaris Unix SAS from command line */
+sas -sysin t.sas; cat t.log; cat t.lst
+ /* If you can't edit the command line, use these in start/end of the code to save Log and List (NEW to avoid append): */
+proc printto LOG="D:\foo.log" NEW PRINT="D:\foo.lst" NEW; run; ...code... proc printto;run;
+ /* Keep GUI open during the run.  Instead of -sysin */
+c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -autoexec "\\rtpsawnv0312\pucc\Serevent_Diskus\CODE\0_MAIN_Serevent_Diskus.sas" -sysparm "\\rtpsawnv0312\pucc\Serevent_Diskus\CODE"
+
+ /* Suppress discard SAS List .lst */
+c:\PROGRA~1\SASINS~1\SAS\V8\sas.exe -sysin t.sas -log t.log -NOterminal -NOprint
+
+# Cygwin
+$ echo 'proc print data=sashelp.shoes;run;' >| t.sas; c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin t.sas
+echo "options ps=max;libname l '//Rtpdsntp032/DataPostArchive/Ventolin_HFA/OUTPUT_COMPILED_DATA';proc freq data=l.ven60_analytical_individuals;table mfg_batch test;run;" >| u:/tmp/t.sas && c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin 'u:\tmp\t.sas' -log 'u:\tmp\t.log' -print 'u:\tmp\t.lst'; cat 'u:\tmp\t.lst'
+
+ /* Describe option settings in effect: (also sr ~/code/sas/options.cmdl.sas linesize) */
+proc options option=&SYSPARM define value; run;
+
+format vs informat: Formats modify the external representation of a value (preexisting in a ds).  Informats convert raw data into SAS representations (to be put in a ds).
+
+ /* Current dataset macrovariable formatted to "LIBRARY  DSNAME" */
+&SYSDSN
+
+ /* Print quotes around a variable, in this case, myvar */
+put "!!! found " myvar $QUOTE.;
+
+ /* Check if a file has a SAS extension */
+if index(upcase(file),'.sas') > 0;  /* true */
+
+ /* Portability -- Use this JCL for SAS filename on MF: */
+//IN   DD DISP=SHR,DSN=BF19.MOX0401.NATMER
+ /* vs. this JCL-less method on the PC via Connect: */
+filename IN 'BF19.MOX0401.NATMER' DISP=SHR;
+
+ /* Include code plus display source w/o an options statment (%include is synchronous): */
+%include 'tabdelim.sas' / SOURCE2;
+
+ /* Paste code between these two */
+%include "&HOME/code/sas/tabdelim.sas";
+options NOmlogic NOmprint NOsgen;%Tabdelim(WORK.tmp, 'junk.xls');
+
+ /* Find max using a SAS range: */
+retain hi; hi=max(hi, DatastepVarWeWantMaxFrom);
+ /* Find max using a SAS range: */
+if max(of one1-one3) < 5 then ...
+
+ /* Test for oddness */
+mod(x,2) eq 1
+ /* Test for eveness */
+mod(x,2) eq 0
+
+ /* SAS array declare and initialize */
+array starr{*} $2 st1-st57 ('AL', 'AK', 'AR', 'AZ', 'CA', 'CO');
+ /* SAS array access */
+do i=1 to dim(starr); otherarr{i} = starr{i}; end;
+
+ /* Get the $HOME environment variable (Windows & Unix at least) */
+%let myhome=%sysget(HOME); %put _all_;
+ /* Determine %SASROOT% */
+%let sashome=%sysget(SASROOT); %put _all_;
+
+ /* Substring */
+%put %substr(2168, 3, 2);
+data _null_; x=substr('2168', 3, 2); put x=; run;
+
+ /* Good demo sample template dataset: */
+proc print data=SASHELP.shoes (obs=10); var region stores sales returns; run;
+data tmp; set SASHELP.shoes; if region in:('A', 'E'); run;
+
+proc print data=MVDS1.caNEW; where acme_uc eq: 'Y'; run;
+proc print LABEL SPLIT='*' NOOBS N;
+
+ /* Macro with parameters parms: */
+%macro Foo(bar, baz); %put &bar and &baz; %mend; %Foo(test ing, me);
+
+ /* Avoid having SAS eliminate leading whitespace (as would $2.) */
+input foo $CHAR2.;
+
+ /* Suppress any input errors in SAS Log and keep _ERROR_=0 */
+input name $8.  number  ??;
+
+ /* Macro date - format today's date into a macrovar: */
+%let FDATE=%sysfunc(date(), YYMMDD10.);
+%let FDOLLARS=%sysfunc(putn(&MYNUM, DOLLAR10.));
+
+ /* Operating system specific option: */
+%macro OS; %if &SYSSCP eq OS %then %str(options NOs99nomig;); %mend; %OS
+
+ /* Thin out cleanout SAS Log, can use \| to get >1 line at a time */
+:g/\s*SYMB\|\s*MLOG\|\d\+\s*THE SAS/d
+
+ /* Best small 10% random sample sampling: */
+data OUT.WANEW; set IN.WANEW; if uniform(0) le .01; run;
+
+ /* Don't add lines with NULLs */
+if sex = '00'x||'00'x||'00'x then delete;
+
+ /* Most efficient block size on mainframe: Moderate to large DASD-stored datasets s/b blocked at half a track. Small ds and catalogs s/b blocked at 6144 bytes. Tape 32760 bytes. */
+options blksize(dasd)=half;
+
+ /* Perl regex in SAS */
+data; set SASHELP.shoes; if _N_ eq 1 then rc=prxparse("/ica$/"); retain rc; if prxmatch(rc,region); run;
+
+ /* v9+ only I think */
+%if not %index(&endyr, 20) %then %abort;
+ /* so use this (also aborts ok inside a macro): */
+data _NULL_; abort abend 008; run;
+
+ /* macro in() for macro */
+%if %sysfunc(indexw(AK AR VI WV, &STATE)) %then %do; %put is in list; %end;
+ /* macro not in for macro multiple values */
+%if not %sysfunc(indexw(&RANGEVARS, &VAR)) %then %do; %put is NOT in list; %end;
+
+ /* Remove trailing dot */
+myvar = trim(translate(myvar, '', '.'));
+
+ /* Simple datetime stamp: */
+%put %sysfunc(putn(%sysfunc(datetime()),DATETIME.));
+
+ /* Print timestamp at end of job */
+%put ended %sysfunc(putn(%sysfunc(datetime()),DATETIME.));
+
+ /* Time a job */
+%let _start=%sysfunc(time()); %put NOTE: %sysfunc(getoption(SYSIN)) started: %sysfunc(putn(%sysfunc(datetime()),DATETIME.));
+  ...code...
+%put NOTE: SYSCC: &SYSCC (%sysfunc(getoption(SYSIN)) ended: %sysfunc(putn(%sysfunc(datetime()),DATETIME.)) / minutes elapsed: %sysevalf((%sysfunc(time())-&_start)/60));
+
+ /* Quick sample dummy dataset */
+data x; do i=1 to 5; do j=20 to 25; do k=100 to 101; output; end; end; end; run;
+
+ /* Create an empty dataset */
+data work.empty; set work.sample (obs=0); run;
+data reallyempty_1obs_0vars; run;
+
+ /* Search SUGI papers via Google w/o that ugly lexjansen page */
+findmystring site:www2.sas.com filetype:pdf
+
+ /* BETWEEN statement is inclusive /*
+where i between 1 and 5;
+
+ /* Same */
+options pagesize=32767;
+options pagesize=max;
+
+ /* Comma separated, single quoted mvar SELECT...INTO :foo list in proc sql: */
+select quote(trim(mycharvar)) into :RISKVARS separated by ', '
+select froms, tos, dist into :ITEM1, :ITEM2, :ITEM3
+
+ /* If you use this: */
+LIBNAME FMTLIB "DWJ2.NAT2003.FMTLIB" DISP=SHR WAIT=250;
+ /* you also need this: */
+OPTIONS FMTSEARCH=(WORK FMTLIB);
+
+ /* Find and use custom format aerodtt. in c:/datapost/code/formats.sas7bcat */
+options fmtsearch=(MYFMTLIB); libname MYFMTLIB 'c:/datapost/code';
+
+ /* Calculate seconds since the SAS epoch */
+data _null_; when=datetime(); put when=; run;
+
+ /* Get last highest -1th element of string */
+if substr(reverse(trim(revising_status)),1,1) eq 'N' ...
+
+x='8ZM1234'; if substr(x, 2, 1) eq 'Z' then ...
+
+ /* Remove the last five chars of a mvar */
+%let str=%sysfunc(reverse(%substr(%sysfunc(reverse(&str)),5)));
+
+cat "//'bqh0.inc.saslog'" | vi -     # HFS
+
+ /* Remove trailing comma: */
+%let YRCNTS=%substr(%bquote(&YRCNTS), 1, %length(&YRCNTS)-1);
+
+ /* Count observations count without opening dataset (or if it's open in SAS GUI) */
+data _null_; rc=attrn(open('tmp1.pull_lift'), 'NOBS'); put rc=;run;
+%macro m; %put %sysfunc(attrn(%sysfunc(open(tmp1.pull_lift)), NLOBSF)); %mend;%m
+...%if %sysfunc(attrn(%sysfunc(open(_LAST_)), NLOBSF)) lt 100 %then %do; %put ok; %end;...
+
+ /* Count observations without opening dataset IF GOING TO USE DS LATER */
+%let dsid=%sysfunc(open(work.foo)); %let cnt=%sysfunc(attrn(&dsid, NOBS)); %let rc=%sysfunc(close(&dsid));
+%let dsid=%sysfunc(open(work.foo)); %let cnt=%sysfunc(attrn(&dsid, NVARS));
+data _null_; dsid=open('work.tmp'); numobs=attrn(dsid, 'nobs'); rc=close(dsid); run;
+
+ /* Count observations */
+data _null_; if 0 then set SASHELP.shoes nobs=count; call symput('CNTOFOBS', count); stop; run;
+
+ /* Count observations */
+proc sql; select count(*) into :CNTOFOBS from SASHELP.shoes; quit; 
+
+ /* Day of week number 1=Sunday 7=Saturday */
+if weekday(today()) eq 2 then put "it's Monday";
+ /* Conditionally run macro if it's Wednesday */
+data _null_; if weekday(today()) eq 4 then do; call execute('%include "&CODE\PLOT_CODE\100__make_AdvHFA_STABILITY_PLOTS.sas";'); end; run;
+
+str2 = '%include "' || left(trim(product)) || '\' || left(trim(product)) || '.sas"';
+call execute(str2);
+str1 = '%mymacro(' || left(trim(product)) || ',' || left(trim(server)) || ',' || left(trim(writeoutput)) || ');' ;
+call execute(str1);
+
+ /* Canonical convert datetime to human */
+data _null_; human=put(1613578239, DATETIME18.); put human=; run;
+
+ /* Convert DATETIME to DATE */
+mysasdate = datepart(mysasdatetime);
+ /* Convert DATE to DATETIME */
+mysasdatetime = dhms(mysasdate, 0, 0, mysastime);
+mysasdatetime = mysasdate*86400  /* seconds in a day */
+
+data _null_; myquarter =        floor((mymonthnumber-1)/3)+1; put mycurrentquarter=; run;
+data _null_; mycurrentquarter = floor((month(date())-1)/3)+1; put mycurrentquarter=; run;
+
+ /* Avoid missing failure if datetime inputs are incomplete */
+mydttm = dhms(mydate, max(0,hour(mytime)), max(0,minute(mytime)), max(0,second(mytime)));
+
+ /* Convert datetime floating point number to human e.g. 25AUG2005 date in open code */
+%put %sysfunc(putn(1440588139.7, datetime9.));
+%put %sysfunc(putn(1441637788, datetime14.));
+
+ /* Check for success to this point before continuing to destructive section */
+%if &SYSERR eq 0 %then %do ... %end
+
+ /* Speed up proc sql delete v9+ */
+libname SAND ... direct_exe=delete ...;
+
+ /* Speed up proc append to database */
+libname SAND ... bulkload=yes ...;
+
+ /* Count number of characters in a string v9+ */
+commas=countc(myvar, ',');
+
+ /* Colon input specifier - we'll take anything between the delimiters but with a max of 40 chars: */
+input ProviderLicenseNumber :$40.;  /* no preceeding LENGTH statement needed */
+
+ /* Capture part of a string */
+captureUpToDash = substr(SampName,1,index(SampName, '-')-1);
+ /* Better */
+captureUpToDash2 = scan(SampName,1,'-');  /* be explicit on 2nd parm or it'll use default of split on  spaces . < ( + & ! $ * ) ; ^ - / , % | */
+
+ /* If sampname is 0000345198-01 not 0000345198-890000022217-01 skip it */
+if not scan(SampName, 3, '-') then delete;
+
+Same but handle spaces differently
+http://yourserver/cgi-bin/broker?_SERVICE=default&_PROGRAM=sample.webhello.sas&person=john+doe
+http://yourserver/cgi-bin/broker?_SERVICE=default&_PROGRAM=sample.webhello.sas&person=john%20doe
+
+ /* View all formats */
+proc format library=work FMTLIB; run;
+
+ /* diff two datasets canonical compare */
+proc compare base=l.material_mapping_tableOLD compare=l.material_mapping_table; run;
+
+SELECT COUNT(DISTINCT samp_id)  /* good */
+SELECT DISTINCT COUNT(samp_id)  /* bad - syntax is ok but probably not what you want */
+
+ /* Cannot use to rename a ds in same lib */
+proc copy in=OLDLIB out=NEWLIB memtype=data; select myds1 myds2...; run;
+ /* so use this instead of proc copy */
+proc append base=newdstocreate data=olddsname FORCE; run;
+ /* True append */
+proc append base=ci_oth data=ci_oth_&strength; run;
+
+ /* format= relies on e.g. ls=N cannot have ls=max to pull this off */
+options ls=80; proc sql; select specname FORMAT=$20. from v ; quit;
+
+proc sql; select id, (dis-adm)+1 AS mycalc LENGTH=4 LABEL='foo' from bar; quit;
+
+libname ORA oracle user=pks password=pks path=usdev100 schema=pks;
+
+ /* Fast freq */
+proc freq data=sashelp.shoes(where=(region like 'A%')); run;
+proc freq data=l.lelimsindres01a201962(where=(specname like '%2064%')); table specname*varname; run;
+proc freq; table description*market / LIST nocum norow nocol nopct; run;
+
+ /* Where IntrNet keeps its datasets for a session */
+%let spath=%sysfunc(pathname(SAVE));
+
+ /* Canonical IntrNet URL */
+http://myserver/cgi-bin/broker.exe?_SERVICE=default&_DEBUG=131&_PROGRAM=MYLIB.mypgm.sas&mymvar=foo
+
+ /* Display SAS Intrnet ENVIRONMENT */
+http://rtpsawn321/sasweb/cgi-bin/broker.exe?_DEBUG=16384&_SERVICE=default
+
+ /* Wake up, ping restarted IntrNet server */
+http://rtpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program=ping&_adminpw=
+
+ /* SAS' version of Oracle's ROWNUM<5 */
+where monotonic() < 5
+
+ /* E.g. C:\cygwin\home\rheckel\tmp\testing\tmpsas.5660.sas */
+%put fully qual name of the currently running pgm: %sysfunc(getoption(SYSIN));
+%put basename only of currently running pgm: &SYSPROCESSNAME
+
+ /* Determine OS platform */
+%put !!!&SYSSCP;
+
+ /* View all macrovariable data (GLOBAL, etc) */
+data vars; set SASHELP.vmacro; run; proc print data=_LAST_(obs=max); run;
+
+ /* View created dataset */
+options noxwait;x "start lelimssumres01a&nm..sas7bdat";
+
+ /* Auto-vivifies any var not read in (or worse, typo'd) */
+format matl_typ $18. batch_nbr $10.;
+
+ /* Note: not 'lastobs'     ___    */
+set work.sample (firstobs=2 obs=5);
+
+ /* Same as SAS sort-sort-merge.  Emulate a SAS merge without having to sort. */
+proc sql; select coalesce(one.acct, two.acct) as a, rate, balance from one FULL JOIN two  ON one.acct=two.acct ; quit;
+
+data _null_; do while ( x<3 ); put x=; x+1; end; run;
+%macro w; %let i=0; %do %while ( &i lt 3 ); %put &i; %let i=%eval(&i+1); %end; %mend; %w
+... do year=1990 to 2004 while ( capital > -1 ); ...
+... %do i=1 %to 4 %by 2; %put &minyr.&i; %end; ...  /* only 2 puts */
+
+ /* run d:\sas_programs\t.sas on blade server: */
+http://rtpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program=LINKS.t.sas&UID=rsh86800&_debug=131
+
+ /* Prepare single quoted date for Oracle TODO not correct */
+data _NULL_; call symput('STARTDT', "'"||put("&SYSDATE9"D-1, DATE9.)||"'"); run;
+
+ /* NODUP eliminates obs that are exactly the same across ALL variables.  NODUPKEY eliminates obs that are exactly the same across *only* the BY variables. */
+proc sort data=foo out=bar NODUPKEY; by x y; run;
+
+ /* proc sort alternative */
+proc sql;CREATE INDEX MYSORTEDx ON lelimsgist05e (Samp_Id, Indvl_Meth_Stage_Nm);quit;
+
+dm 'clear log; clear lst; wpgm'; 
+
+PROC SQL; CONNECT TO ORACLE(USER=gdm_zeb ORAPW=gdm123zeb45 PATH=ukprd613); CREATE TABLE foo AS SELECT * FROM CONNECTION TO ORACLE (
+  SELECT bat_num, mat_cod, work_cntr_cod, work_cntr_desc FROM gdm_dist.vw_zeb_merps_prcs_ord_material WHERE plant_cod = 'US01' and bat_num ='0ZP0029'
+); DISCONNECT FROM ORACLE; QUIT;
+
+PROC SQL; CONNECT TO ORACLE(USER=pks ORAPW=dev123dba PATH=usdev388); CREATE TABLE foo AS SELECT * FROM CONNECTION TO ORACLE ( SELECT DISTINCT barfield FROM baztbl); DISCONNECT FROM ORACLE; QUIT;
+
+LENGTH TimeNum 8 Meth_Peak $3 Indvl_Tst_Rslt_Val_Char $40;
+
+ /* Specific number of random records from a dataset: */
+proc surveyselect n=10 data=tmp out=foo; run;
+data r; do i=1 to 10; obsnumiwant=ranuni(int(datetime())); set d; output; end; stop; run;
+
+attrib state length=$3 label='foo bar' format=$40.; 
+
+ /* Foreach dataset in library, push names into a mvar: */
+proc sql NOPRINT; select memname into :DSETS separated by ' ' from dictionary.members where libname like 'WORK'; quit;
+options ls=180 NOlabel;proc sql;select * from dictionary.columns where libname eq 'WORK' and memname eq 'EFORMSNUMCH';quit;
+
+ /* Complex oracle SEPARATED BY */
+select distinct r.sampid, s.specname, put(r.sampid,F6.)||'-'||s.specname into :RETESTSAMPIDS separated by ',', :METHS separated by ' ', :METHPAIRS separated by ' '
+
+%if %sysfunc(fileexist(&fn)) %then %put exists; %else %put no;
+
+" Convert SAS input to put statments:
+" e.g. 
+"   no_obst $ 125  amnio $ 126  elec_fet $ 127-128  ind_lab $ 129
+" becomes 
+"   @125 no_obst  @126 amnio  @127 elec_fet  @129 ind_lab
+"
+:s:\(\w\+\) \$ \(\d\+-*\d\+\):@\2 \1:gc
+
+/* Setup the default SAS System user work folder and autocall in 
+ * /cygdrive/c/Program\ * Files/SAS\ Institute/SAS/V8/SASV8.CFG
+ */
+-WORK "E:\SAS Temporary Files\"
+...
+-SET SASAUTOS  ( "d:\Auto_Call" ...
+
+ /* Do not auto-delete, save WORK datasets and _TD.... in 'SAS Temporary Files' dir after run completes. Override default. */
+options NOworkterm; %put !!! WORK lib is:; libname WORK list;
+
+ /* Keep temporary WORK datasets in your own dir, not in the default _TD....\ */
+libname W './workdir'; options USER=W;  /* workdir must already exist! */
+
+ /* Use datasets in pwd (w/o libname prefix "L") pretending that's WORK: */
+options USER=L;
+
+/* Single quote in SAS macro requires quoting with percent sign % */
+%put this is %str(John%'s office) here;
+
+ /* Read only do not modify dataset */
+options NOreplace;
+ /* Read only do not modify anything in library */
+libname L 'U:\courses\PRG1\PRG1 course data' access=READONLY;
+
+ /* Redirect from LOG device to PRINT device to draw line in the .lst (tilde repeats 78 times) */
+data _null_; file PRINT; put 78 * '~'; run;
+
+%local i j item;  /* no commas */
+
+ /* Comma-separated SQL macrovariable */
+select distinct quote(trim(batch_nbr)), quote(trim(matl_nbr)) into :batches, :materials separated by ','
+ /* But for oracle we need single not double quotes (then add a leading & trailing quote): */
+%let sq=%str(%'); %let batches=&sq&batches&sq; ...
+select batch_nbr, matl_nbr into :batches separated by "','", :materials separated by "','"
+select distinct region into :region1 thru :region3 ...
+
+x "move /Y lelimssumres01a.sas7bdat \\rtpsawn321\d\sql_loader\LeLimsSumres01a&suffix..sas7bdat";
+
+ /* Tells SAS not to worry about keeping obs with the same BY variable values in the same order (for speed) */
+proc sql NOEQUAL ...
+
+ /* DELETE returns to the top of the datastep w/o writing.
+  * RETURN returns to the top of the datastep with a default OUTPUT.
+  * LEAVE exits a loop.
+  * CONTINUE goes to the next iteration of the loop.
+  */
+
+ /* PUT STATEMENT writes to a buffer (default: LOG) vs. INPUT statement reads from a buffer (default: CARDS)
+  *
+  * FORMAT specify how data is to be written vs. INFORMAT specify how data is to be read
+  *
+  * FUNCTION:  put(SAS data, $formats.)  vs.  input(raw data, $informats.)
+  */
+
+ /* concatenate (stack) two datasets */
+... set x1 x2; ...
+ /* interleave two datasets same except end up sorted */
+... set x1 x2;  by state; ...
+
+grandtot = sum(of idnum--qtr4);
+
+m=mean(of a[*]);   /* variable array */
+m=mean(of v1-v5);  /* variable list */
+
+ /* Split parse string on dash taking 7ZP6699 from 7ZP6699-4148428 */
+mfg_batch=scan(mfg_batch,1,'-');
+
+ /* Get every 4th obs */
+if mod(_N_, 4) eq 0; ...
+ /* Get every other obs */
+if mod(_N_, 2) eq 0; ...
+
+ /* Determine where WORK dir is located: */
+libname l '.'; proc contents data=l._ALL_; run;
+proc contents data=WORK._all_ NODS; run;
+proc contents data=WORK._all_; run;  /* cleaner, ds names only */
+proc contents data=L._ALL_ out=WORK.prcnts; run;
+
+ /* List all vars in dataset: */
+proc sql;select name from dictionary.columns where libname eq 'L' and memname eq 'LELIMSINDRES01A210255';quit;
+
+ /* Canonical do loop: */
+%do i=1 %to 5; %put here is &i; %end;
+%do i=5 %to 1 %by -1; %put here is &i; %end;
+ /* Canonical do loop list: */
+data _null_; do i = 1, 2, 3; put i=; end; run;
+do i = 1, 2, 3, 'a', 'b', 'c';
+do i=1 to 3, 'cat', 20; ...; end;
+
+ /* Canonical do loop until: */
+do until (n>100); ...
+do i=1 to 10 until (n>5); ...
+
+do while (1);  /* infinite loop */
+
+ /* Has zero observations?: */
+  /* If don't care about closing, otherwise need to get a ds id number */
+data _null_; numobs=attrn(open('work.tmp'), 'nobs'); put "!!!" numobs=; run;
+...%let dsid=%sysfunc(open(CI_release)); %let cnt=%sysfunc(attrn(&dsid, NOBS)); %let rc=%sysfunc(close(&dsid)); %if &cnt eq 0 %then %do; %goto EXIT; %end;...
+
+ /* Build tail of filename c:/foo/tmp/bar.txt */
+%let PRODUCTNAME=%substr(&DIRROOT, %eval(%index(&DIRROOT, tmp)+4));
+
+ /* %global is distributive */
+%global foo bar;
+
+ /* Skip first observation, get 2 3 4 5 only */
+set work.sample (firstobs=2 obs= 5);
+
+if description ne: 'al' then do; file "&DIRROOT\&SYSMACRONAME._Error.txt"; put "UNEXPECTED: &SYSDATE &SYSTIME " description=; end;
+
+ /* Maximum storage size of SAS numeric using default 8. */
+9,007,199,254,740,992
+
+/* vim: set foldmethod=marker: */
+
+proc sort; by DESCENDING numb lname; run;
+
+ /* View browse SASHELP library */
+options ls=180;proc contents data=SASHELP._all_ /*NODS*/;run;
+
+ /* What SAS products are licensed / installed? */
+proc setinit noalias; run; 
+ /* Apply setinit (to an expired license SAS - TODO does it work for a normal system?).  May be simpler just to right-click a setinit.sss file */
+C:\Program Files\SAS Institute\SAS\V8>sas.exe -setinit -sysin c:\setinit.sas -config "c:\Program Files\SAS Institute\SAS\V8\sasv8.cfg"
+
+ /* Canonical read in readin infile input text CSV file: */
+data Val500_Fielder_DIVI_Granulation; infile F DLM=',' DSD MISSOVER LRECL=2600 FIRSTOBS=3; input Product :$40. mydt :DATE. ... ; run;
+ /* DSD "data sensitive delimiter" treats two consecutive delimiters as a missing value and removes quotation marks from values */
+
+ /* Compress spaces from a numeric macrovariable: */
+%let c = %sysfunc(compress(&c));
+
+ /* Count spaces in a macrovariable by compressing them away */
+%let l1=%length(&spacey); %let c=%sysfunc(compress(&spacey)); %let l2=%length(&c); %let csp=%eval(&l1-&l2);
+
+ /* Remove commas and quote delimiters from mvar */
+%let X=%sysfunc(compress(%quote(%sysfunc(translate(%quote(&S),' ',','))),'"'));
+
+ /* Extract basename shortname stem from a fully qualified path: */
+%let fq = %sysfunc(reverse(&fq)); %let basename = %sysfunc(reverse(%scan(&fq, 1, '\')));
+
+ /* Remove last 4 characters of sting */
+stem_with_end_removed=reverse(substr(reverse(s), 4));
+
+ /* Delete specific characters, like regex s/foo// */
+phone = compress(fullphone, '()- ');
+
+ /* Substitute specific characters, like regex s/-/_/g */
+sBatch1Code = translate(sBatch1Code, '_', '-');
+
+ /* Substitute specific words, like regex s/foo/bar/g */
+sBatch1Code = tranwrd(sBatch1Code, 'foo', 'bar');
+sBatch1Code = tranwrd(sBatch1Code, 'foo', '');
+
+ /* Canonical if then else macro: */
+%if &i eq 2 %then %do; %let fqds=8ZP2432; %end; %else %do; %let fqds=32; %end;
+
+ /* Rename vars to avoid "WARNING: Variable mfg_batch already exists on file WORK.VALTREX_PRODUCTIONANDANALYTICAL." */
+proc sql; select * from sashelp.shoes (rename=(region=myyr subsidiary=mysub)) ; quit;
+data d9(drop=long_test_name rename=(long_test_name2=long_test_name)); ...
+
+ /* View, display, print format permanent stored formats to .lst */
+libname l '.'; proc format library=l FMTLIB; run;
+proc format library=WORK FMTLIB; run;
+
+%let previousMonth = %sysfunc(intnx(MONTH, %sysfunc(today()), -1));
+
+ /* Store as numeric */
+time_point = input(time_pointSTR, F4.);
+
+ /* Fast proc means */
+proc means data=tmp; class time_point; var resultnum; run;
+
+ /* Stupid SAS error message V8 at least: */
+NOTE: BY-line has been truncated at least once.  /* fix with options ls=max */
+
+ /* Left align a numeric into a character */
+numlike=put(num, 6. -L); 
+
+ /* View List and Log in my ;z map vim session */
+:args %:r.log %:r.lst
+
+ /* Canonical SELECT (case) statement */
+select ( storeno ); when ( 81,83, 12 ) delete; when ( 73 ) put 'okthen'; otherwise; end;
+
+ /* System call */
+options NOxwait; data _NULL_; x "start lelimssumres01a&nm..sas7bdat"; /* 0 for success */ %put Windows status is &SYSRC; run;
+
+ /* Remove all formats in dataset */
+data foo; format _ALL_; run;
+
+ /* Go back 1 year */
+%let thisyr = %sysfunc(year("&SYSDATE"d)); %let minyr = %eval(&thisyr-1);
+
+proc export data=VenHFA_analytical_individuals OUTFILE= "\\rtpsawnv0312\pucc\VENTOLIN_HFA\Output Compiled Data\CSV VenHFA_analytical_individuals.csv" DBMS=CSV replace; run;
+
+filename HERE '.'; %let pwd=%sysfunc(pathname(HERE)); 
+
+Patches installed:
+C:\Program Files\SAS Institute\SAS\V8\core\sasinst\hotfix\
+
+dataset_exists = %SYSFUNC(EXIST(mydataset));  /* 1 yes, 0 no */
+
+ods PDF file='c:/temp/t.pdf';  proc...run; ods PDF close;
+
+ /* Eliminate garbage from a normally numeric field.  Keep Log clean. */
+proc format; invalue NUMONLY(UPCASE) -999999999 - 999999999 = _SAME_ OTHER = . ; run; data clean_numbers_only; input mynum NUMONLY9.; ...
+
+ /* Avoid this v8 problem by not using empty parentheses on macro calls */
+180: LINE and COLUMN cannot be determined.
+
+ /* Hardcoded literals in SQL select query */
+select distinct 'literal ' as hardcodedfieldname, region 'display reggy all for rows' format=$5., product from sashelp.shoes
+
+ /* Macro index search */
+%if %index(&the_type, natmer) %then %put found a natmer;
+
+ /* Canonical transpose, stat goes as column now */
+proc transpose data=foo; by store; id _STAT_; var totdol; run;
+
+libname INXML XML "&SYSPARM\&prodname\CODE\util\&DATASRC..xml" access=READONLY; proc contents data=INXML._all_;run; data tmp; set INXML.table; run;
+
+ /* Default DM keys command line command focus SAS: <F11> PGM WPGM LOG OUT NUMS */
+
+Change default WORK location (PC SAS): edit near EOF -WORK
+C:\Program Files\SAS\SAS 9.1\nls\en\SASV9.CFG
+
+Right click C:\Program Files\SAS Institute\SAS\V8\core\sashelp\setinit.sss to install license
+
+ /* Display each line of textfile as it's read-in using INPUT statement */
+put '!!!' _INFILE_;
+
+ /* Submit the top n lines in SAS Editor - good for debugging like sasrun's endsas; trick */
+SUBTOP 42
+
+ /* Show order by most frequent first */
+proc freq data=students order=freq; tables name / nocum; run;
+
+ /* Loop all characters in dataset: */
+array cs _CHARACTER_; do over cs; if cs eq: 'foo' then cs = 'bar'; end;
+
+ /* Single trailing at sign (for ID field) @ vs. Double trailing (for repeating blocks) @@ */
+@  holds record in input buffer so that logic can be used to figure out which (next) INPUT statement to us.  More than one INPUT statement exists in data step.  Releases when control returns to top of data step.
+@@ holds a record across multiple iterations of the DATA Step to allow reading multiple obs from a single line of raw data.  A single INPUT statement exists in data step.  Releases when the end of the raw RECORD is reached  or an @[@]-less INPUT statement is encountered.
+
+ /* SAS Date format checker: */
+data _null_; d1 = input('01-JAN-60', DATE9.); d2 = input('01/01/2009', MMDDYY10.); put _all_; run;
+
+ /* Build large dataset: */
+proc surveyselect data=SASHELP.shoes out=stacked samprate=1 reps=5; run;
+
+ /* 2 years ago */
+%let thisyr = %sysfunc(year("&SYSDATE"d)); %let minyr = %eval(&thisyr-2);
+
+ /* What SAS day number is one year ago from today? */
+%let mindt = %sysevalf(%sysfunc(date())-365);
+...  if test_date > &mindt; ...
+
+ /* Save output as excel CSV file. v8 at least */
+ods CSVALL file='junk.csv'; proc print; run; ods CSVALL close;
+
+ /* char2num canonical */
+data Material_Mapping_Table(drop=TMPmat_cod); set Material_Mapping_Table(rename=(mat_cod=TMPmat_cod)); mat_cod=input(TMPmat_cod, ? BEST. -L); run;
+
+ /* char2num but suppress SAS Log "NOTE: Invalid argument to function INPUT at line..." */
+y=input(anumber, ? BEST. -L);
+
+ /* char2num if you know it's coming in looking like a SAS date */
+numdollars = input(chardollars, COMMA7.);  /* 123,456 */
+ /* num2char */
+devicealp = put(devicenum, 8. -L);   /* integer */
+devicealp = put(devicenum, 8.2 -L);  /* floating point */
+
+ /* SAS atoi ASCII (character) to integer (numeric) conversion statement (think "I"NPUT is closer to "C"har so use that to convert a char): */
+yrtext='2003';  yrnum=input(yrtext, F4.);
+yrtext='2003';  yrnum=input(yrtext, ?? F4.);  /* avoid Log errors if char data can't convert to num */
+ /* SAS itoa integer (numeric) to ASCII (character) */
+yrnum=2003; yrtext=put(yrnum, 8.);
+data v3(drop=NUM:); set v012(rename=(instance=NUMinstance)); instance = put(NUMinstance, 8.); run;
+
+ /* num2char2date */
+numdate=122572;
+chardate=put(numdate,z6.);
+sasdate=input(chardate,mmddyy6.);
+
+options NOlabel;  /* prevent stupid proc sql default from displaying labels instead of varnames */
+
+ /* View control and non numchar characters: */
+... c=compress(comments1159,'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');  ...
+
+ /* Linehold using @ */
+data _null_;
+  file X21;
+  put 'SELECT NAME, IP_TREND_TIME, IP_TREND_VALUE FROM "23034794.Vessel.Pres.PV" WHERE IP_TREND_TIME BETWEEN ' @; *** '02-APR-10 00:00:00' AND '21-APR-10 15:00:00';
+  put "&IP21START and &IP21END";
+run;
+
+ /* Convert to Oracle formatted datetime e.g. 21-MAY-98 02:30:37 is Oracle format 'DD-MON-YY HH24:MI:SS' */
+proc format; picture ORADTT other='%0d-%b-%0y %0H:%0M:%0S' (datatype=datetime);run; data; s='21May98:02:30:37'DT; call symput('IP21START',"'"||trim(left(put(s, ORADTT.)))||"'");run;
+
+ /* SAS Enhanced Editor IDE F11 command shortcuts */
+out-->SAS Output  lst-->SAS Output (same)  log-->SAS Log  wpg-->Enhanced Editor
+
+ /* proc sql &SQLRC is 0 when there were no errors */
+
+ /* 10 seconds */
+data _null_; x=sleep(10); run;
+
+if first.storeno and last.storeno then put 'firstdot lastdot says there is only one of these unique values: ' storeno;
+
+ /* Assigned automatically by SAS */
+SASUSER libname e.g.: C:\Documents and Settings\rsh86800\My Documents\My SAS Files\V8
+
+ /* Display editor line numbers (Enhanced Editor etc) */
+nums
+
+ /* SAS Program Editor (*not* Enhanced) where n is num of lines */
+Cn/CC copy  Dn/DD del  In insert  Mn move  Rn repeat  A after  B before  undo (in cmdline)
+
+ /* View input file text file in a SAS IDE window */
+filename f 'bladerun_crawl'; proc fslist file=f;run;
+
+ /* SAS Truth - True is 1 (or anything other than False), False is 0 or . */
+
+ /* Distributive input statement */
+input (name1-name12) ($)  @@;
+input (Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec) (1.);  /* read raw 111222333444 */
+
+array elements{5} $2 _TEMPORARY_ ('H','He','Li','Be','B'); /* can't use '{*}' here */
+ /* Multidimensional array 3 rows, 25 columns: 1-25 26-50 51-75 */
+array a{3,25} v1-75;  /* to access v50: a{2,25} */
+
+ /* Standard, SAS column input readable, numerics: -15, 15.4, +.05, 1.54E3, -1.54E-3  But still may be able to use formatted input, COMMA12.2 etc, for nonstandards ($ or % or ,). */
+
+ /* Ampersand informat input modifier accepts embedded space so data must be delimited by TWO or more spaces */
+input name &$12.  score1  score2;
+
+ /* Fixed fields can be readin via column input (standard data only) or formatted input (either).  Freeform fields can be readin via list (or modified list "&" ":") input */
+
+ /* Free-format input (space delimited etc) - use list input and only name each var and specify its type */
+ /* Modified list can read spaces in vars and handle non-standards like commas in numbers */
+
+ /* Canonical SAS DATETIME. format examples: */
+30May2000:10:03:17.2  DATETIME20.
+30May00 10:03:17.2    DATETIME18.
+30May2000/10:03       DATETIME15.
+ /* TIME portion must be delimited by a colon, minimum width is TIME5. */
+
+ /* Canonical DATETIME convert to human */
+data _null_; x=put(1614549716, DATETIME18.); put x=; run;
+
+ /* Default input column pointer control starts at position 1.  After reading a piece of data it rests 1 column to the right of that data. */
+ /* Column pointer controls: @n +n */
+ /* Line pointer controls: / (relative, sequential)  #n (absolute, non-sequential) */
+
+ /* _ERROR_ is a boolean */
+
+ /* Avoid proc print "ERROR: Unable to allocate sufficient memory. At least 1168534K bytes were requested. You must either increase the amount of memory available, or approach the problem differently.  ERROR: Out of memory." */
+data _null_; set _LAST_; file LOG; put (_ALL_)(=); put; run;
+
+ /* Good printf for debugging */
+data _NULL_; set _LAST_; file LOG; put '!!!DataLinkSQLPlusWSAdapterCon=================='; put (_ALL_)(=); put; run;
+
+ /* Determine how many parameters were passed in */
+%let l1=%length(&SYSPARM); %let c=%sysfunc(compress(&SYSPARM)); %let l2=%length(&c); %let csp=%eval(&l1-&l2+1);
+
+ /* Take 2nd thru last parameters passed in as a single string (to be iterated later) */
+%let sp=%str( ); %let pos=%index(%bquote(&SYSPARM), &sp); %let pxall=%substr(%bquote(&SYSPARM),&pos);
+
+ /* Enquote for oracle statement syntax */
+%let today=%str(%'%sysfunc( today(),mmddyy10. )%');
+
+%let STARTDT=%sysfunc(putn(%sysfunc(datetime()), oradtt.));
+%let today=%sysfunc(datetime());
+%let prev=%sysevalf(&today-1*24*60*60);
+%let ENDDT=%sysfunc(putn(&prev, oradtt.));
+
+ /* Convert from human to SAS datetime */
+data t; a=input("05-OCT-10 11:06:13", DATETIME18.); b=put(1601377424, DATETIME18.); run;
+
+ /* If string contains substring 'zm' - weakly regex */
+if name eq "&DESIGNATOR" and index(upcase(Value),'ZM');
+
+ /* Load a dataset into memory only when dataset is used. */
+SASFILE WORK.sample OPEN;
+
+ /* Canonical min max */
+proc sql; select min(sampcreatets), max(sampcreatets) from tmp8.lims_0002e_avandamet; quit;
+proc sql; SELECT min(resentts) format=DATETIME19., max(resentts) format=DATETIME19. FROM l.sumvaltrex01a ; quit;
+proc sql; SELECT min(ts) AS mints format=ip21dtt., max(ts) AS maxts format=ip21dtt., "&STARTDT" as startdt, "&ENDDT" as enddt, count(ts) as cnt FROM &OUTPUTFILE ; quit;
+
+ /* Simple timestamp datetime change */
+data tmp1.ip21_0001e; set tmp1.ip21_0001e; maxts='12NOV10:19:45:10'dt; baselastrun='14NOV10:21:15:20'dt; run;
+
+ /* Which files is SAS accessing?                                     ___________ _________________ */
+c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin t.sas -log t.log -nosplash -rtrace all -rtraceloc t2.log
+
+ /* Print resolved macro code */
+ /*      keyword                                      */
+filename MPRINT 'c:\temp\printMacroResolvedSAScode.sas'; options MPRINT MFILE;
+
+ /* GENMAX is the max number of datasets to rotate but each of those 7 gets an increment e.g. ip21_0002e_line8fillerBKUP#009.sas7bdat */
+echo "libname l '//Rtpsawn323/DataPost/GSK/Zebulon/MDI';libname l2 'u:/tmp';data l2.ip21_0002e_line8fillerBKUP(genmax=3);set l.ip21_0002e_line8filler;run;" >| $UTMPDIR/t.sas && $SASEXE -sysin "$UTMPDIR/t.sas" -log "$UTMPDIR/t7a.log";
+
+ /* Variable range lists: */
+var1-var999;
+_character_
+ /* More subtle variable range lists: */
+varA -character- varZ
+varP -numeric- varT
+ 
+ /* Canonical contents */
+proc datasets library=SASHELP; contents data=shoes VARNUM; run; quit;
+
+ /* Print to SAS Log without %put */
+data _null_; file print; put #3 @10 "Data set &dsn. does not exist"; run;
+
+ /* V8 undocumented informat: */
+x='2005/6/30 12:30'; ymd_no_ampm=input(x, ymddttm16.);
+ymd_ampm=input(z, ?? ymddttm18.);
+
+ /* Distributed format put statement: */
+put (mydt1 mydt2)(= DATETIME18. /);
+
+ /* What do we have for ODS HTML etc: */
+proc template; list tagsets; run;
+
+SAS/SHARE remote server (running proc server) -> local client
+SAS/CONNECT remote server (running spawner.exe) -> remote server (only the .sas file with rsubmit; endrsubmit; gets sent to server)
+
+Error "Format F_APRCLS not found or couldn't be loaded for variable APRCLASS" opening dataset for viewing can be eliminated by submitting:  options nofmterr;
+
+ /* Blank out empty wipe initialize datasets */
+data ds_SAMPLE_1; run; data ds_SAMPLE_2; run;
+
+ /* Canonical numeric array definition: */
+array temperaturehour_arr {24} temp1-temp24;
+
+DDMONYY in Oracle is DATE7 in SAS
+
+ /* Canonical for each macro foreach loop */
+%local i f; %let i=1; %do %until (%qscan(FLUTICASONECONTENTPERINHALER SALMETEROLCONTENTPERINHALER, &i)= ); %let f=%qscan(FLUTICASONECONTENTPERINHALER SALMETEROLCONTENTPERINHALER, &i); data _null_; put "!!!wtf &f"; run; %let i=%eval(&i+1); %end;
+
+ /* Macro multiple condition macro if then %if statement */
+%if &foo eq bar OR &foo eq %str(baz oom) %then ...
+
+# Google custom search SAS
+http://tx0.org/uf
+
+Enhanced Editor: Comment the selection with line comments  Ctrl + /  Undo the Comment  Ctrl + Shift + /
+
+libname RO 'c:/temp/' access=readonly;
+
+ /* Print a CNTLIN stored format: */
+proc format library=work FMTLIB; run;
+
+options NOlabel;  /* Avoid proc sql printing pretty names instead of varnames */
+
+ /* Convert SAS epoch date to human: */
+~/code/perl/datecalc 1/1/1960 19272
+
+SAS93WIN=C:/PROGRA~1/SASHome/SASFoundation/9.3/sas.exe
+
+ /* Convert character constant date to character and SAS date to number in open code (easiest date converter conversion) */
+%put %sysfunc(putn('30OCT1965'D, 8.));
+%put %sysfunc(putn(17325, DATE9.));
+ /* Convert character constant datetime to character and SAS date to number in open code (easiest datetime converter conversion) */
+%put %sysfunc(putn('30OCT1965:12:01:00'DT, 10.));  /* "10." instead of "8." to avoid "1.8399E8" */
+%put %sysfunc(putn(183988860, DATETIME14.));
+
+ /* Wrap put */
+  put "And here is how a to not line break a long 
+looooooooooooooooooooooooooooooooooooong macro string";
+
+ /* Date format distributive with seemingly misplaced "=": */
+put (ymd_no_ampm mdy_ampm)(= DATETIME18.);
+
+ /* Use text value as a market to determine where input pointer goes next: */
+input @'[' accdt DATE11.  @'GET' fnm :$20.;  /* read an Apache web log e.g. 130.192.70.235 - - [08/Jun/2004:23:51:32 -0700] "GET /rover.jpg HTTP/1.1" 200 668 */
+
+WHERE company between 1 and 5;
+WHERE company contains 'oog';
+WHERE company is null;
+WHERE company is missing;
+WHERE company like 'Go%';
+WHERE company like 'Googl_';
+
+ /* Range operator (order determined with help from proc contents;run;) */
+proc print data=sashelp.shoes(obs=5) width=minimum; var Region--Returns;run;
+proc print data=sashelp.shoes(obs=5) width=minimum; var Region-NUMERIC-Returns;run;
+proc print data=sashelp.shoes(obs=5) width=minimum; var Region-CHARACTER-Returns;run;
+
+fullname=catx(' ', fname, mname, lname);  /* gracefully concatenates missing mnames */
+
+data clear_var_format_informat_label; set SASHELP.shoes; format inventory; informat inventory; label inventory=; run; proc contents ; run;
+
+xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
 xxUNIXxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -3146,7 +3506,737 @@ sudo sed -i -e "s/# deb/deb/g" /etc/apt/sources.list
 # Avoid having to cd / to untar a cygwin package:
 tar -C / -xvf connect-proxy-1.101-1.tar.gz
 
+# Easy backup during the week using the tarball itself as a sentinel:
+cd ~ && find code/ -type f -newer c.tgz |xargs tar cvfz c.tgz
+
+# Ubuntu system information:
+$ df -h && free -m && grep name /proc/cpuinfo | uniq && lspci | grep VGA && xrandr | grep connected && uname -rms
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
+
+
+xxPERLxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
+
+$ find `perl -e 'print "@INC"'` -name '*.pm'  # which Perl modules are installed
+
+$ find /usr/lib/perl5/site_perl/5.6.1/ -name '*.pm'  # which Perl modules I installed
+
+$ perl -V  # determine the @INC path
+
+# Test perl code (or a regex) interactively in the Perl debugger:
+$ perl -de 0
+DB<1> $x='a1'; $x=~/(\d)/; print $1 <---must be on same line or lose $1
+
+# Test perl from the command line without debugger (hardcore):
+$ perl; $x='test string'; $x =~ /^(test).*/; $y=$1; print $y; <Ctr-d>
+# Better
+$x='test string'; ($y = $x) =~ s/^(test).*/$1/; print $y;
+# Best (we get readline capability)
+perl -e '$x="test string"; ($y=$x)=~ s/^(test).*/$1/;print $y;'
+
+# Simple test regex test from commandline without needing a variable:
+perl -e 'print "found" if "a"=~/[^1-9]/'
+
+# Hash slice:
+perl -e '@h{"key1", "key2"} = (1,2); print $h{key2};'
+
+# Regex to commify commafy a number (see ~/code/perl/commafy.pl)
+s/(\d{1,3})(?=(?:\d\d\d)+(?!\d))/$1,/g;
+
+# De-chomp un-chomp reverse chomp:
+for ( @lines ) { $_ .= "\n"; }
+
+# Regex to pick out the filename, i.e. basename, tail, and strip the path off:
+$basefilename = $1 if $fullyqualifiedpath =~ m|[/\\:]+([^/\\:]+)$|;
+# Pick out the fully qualified path and strip off the filename:
+$directory = $1 if $fullyqualifiedpath =~ m|(.*[/\\:])+[^/\\:]+$|;
+
+# Specify where to install Perl module (if you want a non standard directory):
+perl Makefile.PL PREFIX=~/perllib
+# then must later say  use lib '~/perllib';  or  export PERLLIB=~/perllib
+
+# Determine if singular or plural word is required:
+printf("Retrieving %d email%s...\n", $mailcount, $mailcount==1 ? "" : "s");
+my $r = $rchg!=1 ? 'records' : 'record';
+
+# Determine current day of the week:
+$current_weekday = (Sun,Mon,Tue,Wed,Thu,Fri,Sat)[localtime(6)];
+
+# Canonical directory read:
+opendir D, "$dir" or die "$!"; @FILES=grep { !/^..?$/ && !-d } map "$dir/$_", readdir D;
+# Quick directory read, skip dot files while reading directory:
+@files = grep(!/^..?$/, readdir DIR);
+
+# Put a pair of items into a hash:
+$header{$1} = $2  while /(File|Node|Prev|Next|Up):\s*([^,]*)/g;
+# Better
+%h = /^(.*?): (.*)$/gm;
+
+# Carriage return newline (i.e. linefeed) cleanup.
+s/\015\012/\n/;
+
+# chomp improvement esp. Windows, remove <CR> and/or <LF> from the end of $_
+s/[\r\n]+$//;
+
+# Cache keys in a hash (the Orcish maneuver), sort on modified time:
+@sorted = sort { ($modtimes{$a} ||= -M $a) <=> ($modtimes{$b} ||= -M $b) } @filenames;
+
+# Rewind a file handle
+seek(FILEHANDLE, 0, 0);
+
+# Cryptic OOP constructor:
+sub new { bless({}, shift); }
+
+# Do something every 5 times using modulus
+unless ( $i++ % 5 ) { print 'foo'; }
+
+# Do something every 3000 times using modulus
+print $_ if ($i++ % 3000) == 0;
+next unless ( $. % 3000 ) == 0;
+
+# Find only unique array elements:
+%seen = undef; @unique = grep(!$seen{$_}++, @thearr)
+# Better
+@unique = keys %{ { map {$_ => 1} @possibleduplicateslist } };
+
+# Remove empty or undef elements from an array:
+@x = grep { !/^$/ } @x;
+
+# Remove part of string and 'chomp' all elements in an array in one swoop.
+map{ s/.*=// && s/[\r\n]+$// } @previousrun;
+
+# Format date string (see LibC for %b, etc.).  E.g. this rets 'May 25'
+use POSIX qw(strftime);
+$fmtdt = strftime("%b %d", localtime(991422942));
+$matchdt = strftime('%Y%m%d%H%M%S', localtime(time));
+
+# Time stamp the last modified date.
+my $mtime = (stat($0))[9]; my $t = localtime $mtime; print "Last Modified $t";
+
+# Want new string substitution without clobbering original variable:
+($y = $x) =~ s/foo/bar/g;
+
+# Default (unless a 0 is a valid possibility)
+$leavealoneifset ||= $default;
+# or 
+$best_suffix ||= $soso_suffix || $notsogood_suffix || 'txt';
+
+# Replacer (recursive with backup) replace all instances of XXX (see :args :argdo or ~/bin/replace)
+$ find -name foo.txt | xargs perl -pi.bak -e 's/XXX/bobh/'
+
+# Split a scalar into an array, saving only part of the split result.
+$x = 'zero:one:two';
+@z = (split /:/, $x)[0,2]    # @z contains 'zero', 'two'
+
+# lvalue is in scalar context (right side is therefore evaluated in a scalar context, $a gets 8):
+$a = (2, 4, 6, 8); 
+
+# Prepend, concatenate, something to each element of array:
+@x = grep { s/^/foosuffix/ } @x
+
+# Input from args or stdin, smash several all parameter arguments into one:
+$_ = (join ' ', @ARGV) || <>; 
+
+# Source code passed in implicitly via standard input:
+echo "print qq(Hello @ARGV)" | perl - World
+
+exit 0  # <--- success  exit 1 <--- failure  both same as shell
+
+# Determine which compiler Perl was compiled with
+perl -e 'use Config; print "$Config{'cc'}"'
+
+use whine qw(toobusy twokids codetooscarylookin);      <---no commas!
+
+# Iterate over a loop
+for ( $i=0; $i<@colors; $i++ ) { ... }
+# or 
+for ( $i=0; $i<=$#colors; $i++ ) { ... }
+
+# Constant declaration:
+use constant SECONDS_PER_DAY => 60 * 60 * 24;       # 86400
+$delta = abs($stamp - $stamp_mirror) / SECONDS_PER_DAY;
+
+# Constant used as filehandle (must use concatenation in the open()):
+use constant OUTPUTTXTFILE => 'foo.txt';
+open FILE, '>>'.OUTPUTTXTFILE || die "$0: can't open file: $!\n";
+
+# Classes OOP
+$request->redirect($new_url)
+# same as
+Request::redirect($request, $new_url)
+
+# Thin out, print 10 random lines from a file (good for creating dummy files):
+cat smallBEN.txt | perl -e '@line=<>; for(1..9){print $line[int rand @line]}'
+
+# A subroutine's incoming parameters are held in @_  This includes flattened arrays, etc. (it may be inefficient since it is "pass by value").
+E.g. my @parms = @_;
+
+# Force, prepend, a non-standard directory onto @INC:
+unshift(@INC, '.');
+# More elegant prepending of @INC:
+use lib ".";
+
+# Don't be greedy on regex:
+$x = 'multi, comma, line'
+$x =~ /(.*,)/   <---greedily returns 'multi, comma,' in $1
+# but replacing the dot with  [^,]  i.e. what you don't want is non-greedy
+$x =~ /([^,]*,)/  <---returns 'multi,'
+
+# Regex matches floating point numbers.
+/^[+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?$/
+# or regex that matches floating point numbers less Perlishly,
+(\+|-)?([0-9]+\.?[0-9]*|\.[0-9]+)([eE](\+|-)?[0-9]+)? 
+
+# Remember not to use = when you need =~
+$x =  /foo/;  # searches $_, puts result in $x
+$x =~ /foo/;  # searches $x, discards result
+
+# Strip HTML tags from a string:
+$string =~ s/<([^>]|\n)*>//g;
+
+# Lookahead (?=) lookbehind (?!) regex assertions.
+$x = "foobar";
+$x =~ /foo(?!bar)/;  # doesn't match, 'bar' follows 'foo'
+$x =~ /foo(?!baz)/;  # matches, 'baz' doesn't follow 'foo'
+$x =~ /(?<!\s)foo/;  # matches, there is no \s before 'foo'
+
+# On the fly substitution of array scalars with hash references:
+@usernames = ('joe', 'ted', 'larry');
+map { $_ = {$_ => length} } @usernames;
+# Now @usernames is ( {'joe' => 3}, {'ted' => 3}, {'larry' => 5})
+print $usernames[0]->{joe};  # rets 3
+
+# Redirect STDERR error messages to STDOUT.
+open(STDERR, ">&" . STDOUT) or die "Cannot Redirect STDERR: $!";
+
+# Low-level alternative to print
+write(2, "I'm using STDERR", 16);
+
+# Want affirmative from user:
+die unless <STDIN> =~ /^y|^yes|^ok/i;
+# or
+<STDIN> ne "n\n" ? print "ok\n" : die "Exiting\n";
+print "keep going? "; <STDIN> eq "y\n" ? print "ok\n" : die "dead\n";
+
+# Skip the first line of a textfile:
+cat junk.txt | perl -e 'while(<STDIN>){print $_ if $.>1}'       # ok
+cat junk.txt | perl -ne 'print if $.>1'                         # best
+
+# Lowercase a word from the command line:
+$ echo ThisWord | perl -pe 's/(.*)/\L$1\E/'
+
+# Uppercase (a.k.a rightcase titlecase smartcase) first letter of word in $all_lower:
+($first_ltr_uppercased = $all_lower) =~ s/(\w+)/\u$1/g;
+
+# Delete lines containing counter.hitua.net for each file in directory:
+perl -pi.bak -e 's/.*counter.hitua.net.*//g' testch*.ht
+# Change background color of all webpages, recursively:
+find . -name '*.html' -exec perl -pi.bak -e "s/BGCOLOR=\"#ffffff\"/BGCOLOR=\"#cccccc\"/" {} \;
+# Better
+find . -name '*.html' |xargs perl -pi -e 's/BGCOLOR=\"#ffffff\"/BGCOLOR=\"#cccccc\"/'
+# Delete multiple blocks paragraphs of text (consecutive with start and finish lines):  TODO why can't use xargs (it only mods first file)??
+for f in `find . -name 'testch*.htm'`; do perl -i -e 'BEGIN{$/=undef}$x=<>;$x=~s/Ukrainian Banner Network 468x60 START.*?Ukrainian Banner Network 468x60 END/FOOZBALL/sg;END{print $x}' $f; done
+
+# Swap array elements using an array slice:
+@x = qw(a b c);
+@x[0,1] = @x[1,0];  <---holds bac now
+
+# In Perl, unlike shell and C:
+@ARGV contains the command-line arguments for the script but does not include the command name.  E.g. $ ./test.pl foo bar  <---$ARGV[0] is foo
+# Get at them like this:
+foreach $arg ( @ARGV ) { ...work on param $arg one at a time... }
+# or better:
+map { print "$_\n" } @ARGV;
+# Contrast with:
+while ( <ARGV> ) { chomp; ...work on each line of each param... }
+
+# Filter out all but plain text files from the command line parameters.
+@ARGV = grep { -f && -T } @ARGV;
+
+# Clear, initialize, the hash.
+%hash = ();  #     <---NOT  %hash = {};
+
+# Parse a date string:
+($day, $mon, $year, $yday) = (localtime())[3,4,5,7];
+
+$ perl Makefile.PL && make && make test && make install  # perl install mantra.  build module downloaded from CPAN.
+
+# Number of elements in hash:
+print scalar keys %myhash;
+
+# Perl variable heredoc
+$stuff = <<"EOT";
+# or Perl print heredoc
+print <<"EOT";
+
+# Variable interpolation of constants -- print (ugly but it works):
+use constant FOO => 0;
+print qq:The value of FOO is @{[ FOO ]}\n:;
+# Variable interpolation of constants -- regex (ugly but it works):
+use constant EXTENSION => 'PDF';
+next unless ( $d =~ /.*@{[EXTENSION]}$/ );
+
+# Search file for lines (records) containing a specific 2 digit number in a
+# specific column position, in this case 77 and 78.  Like a database query.
+$ perl -ne '/.{76}(..)/; print if $1==15' foo.txt
+# same as the verbose:
+$ perl -ne '$_ =~ m/.{76}(..)/; print "$_" if $1 == 15' foo.txt
+# or for character queries:
+perl -ne 'm/.{174}(\w)/; print if $1 eq "Y"' foo.txt
+
+# To sort on a specific column, see the Schwartzian transformation.
+
+# Slurp an entire file into a single variable -- make sure ff=unix !!
+my $str = do { local $/ = <FH> };  # slurp
+# Can use __DATA__ filehandle like SAS' CARDS; or DATALINES;
+{ local $/ = undef; $contents = <DATA>; }
+
+# Current time timestamp since the Epoch:
+print localtime();
+# Current time timestamp human-readable:
+print scalar localtime();
+
+# Current date today:
+$currentday   = (localtime())[3];
+$currentmonth = qw(January February March April May June July August September October November December)[(localtime())[4]];
+$currentyear  = (localtime())[5]+1900;
+
+# Create a unique filename based on seconds since the Epoch using Perl:
+print "foo" . time() . ".txt";
+
+# Remove quotes from each element of an array of enquoted items:
+my @fl = map /'(.*)'/, @filelist;
+
+# Create a hash using map on the fly:
+my %h = map /(BF19\.\w\wX(.*)\..*)/i, @fl;
+
+# Add the first and last columns (@F comes from using -a):
+perl -lane 'print $F[0] + $F[-1]' whitespace_separated_nums.txt
+# Thanks to the switches, this is what it's doing:
+while ( <> ) { @F = split(' '); print $F[0] + $F[-1]; } 
+# Compare with
+cat whitespace_separated_nums.txt | awk '{i = NF; print $1 + $i}'
+
+# Replace all occurences of number 55 with a random number less than 100 (TODO how to avoid .bak files?)
+perl -i.bak -pe "s/55/int rand(100)/eg"
+# Recursively for specific extensions
+perl -pi.bak -e "s/Output Compiled Data/Output_Compiled_Data/" `find . -name '*.sas'`
+
+# Simple way to comment out a block of code.
+=debugbobh  ...code...  =cut
+
+# Read user's input from the commandline:
+chomp(my $transtyp = <STDIN>);
+
+# Set a cookie (after Content-Type: line):
+print "Set-Cookie: lastused=foo; path=/; expires=$cookie_expire;\n\n";
+
+# Set a default for an undefined value (using the ternary hook operator):
+$x = ($x ? $x : 42);
+# Maximum using ternary hook:
+$max = $x > $y ? $x : $y;
+
+# Left zero pad a number:
+$j = sprintf("%02d", $i);
+
+# C's break is Perl's last.  C's continue is Perl's next.
+
+# Read or edit a Perl module:
+vi `perldoc -l net::ftp`
+
+# Syntax check a directory:
+for f in *.pl; do perl -c $f; done
+
+# Switch -n says not to autoprint -p says to print while looping foo.txt -a gives @F
+
+# Are columns 1 and 3 equal?
+perl -ne '@x=split; print if $x[0] != $x[2]' foo.txt
+
+# nl(1) number line replacement
+perl -n -e 'print "$. $_"' foo.txt
+# Better nl(1) number line replacement
+perl -pe '$_ = "$. $_"' foo.txt
+# Best nl(1) number line replacement
+perl -pe 's/^/$.: /' file1 file2 file3
+
+# Automatic LINE: label is available under -ne
+perl -ne 'next LINE unless /eplicant/; print "$. $_"' bladerun_crawl 
+# Simpler if don't need the label to break out of a nested loop:
+perl -ne 'next unless /eplicant/; print "$. $_"' bladerun_crawl 
+
+# Search a tab-delimited file
+perl -ne '@x=split /\t/; print "@x" if $x[1]=~/foundme/' foo.txt
+
+# Search a tab-delimited file after removing header line
+perl -ne '@x=split /\t/; print "$x[0] and $x[1]\n" if $.>1' *.xls |sort|uniq
+
+# Automatic command line Perl module installation:
+perl -MCPAN -e shell  # interactive mode
+perl -MCPAN -e 'install DBI'
+perl -MCPAN -e 'install DBD::mysql'
+
+# Print a random number (automatically seeded by Perl):
+perl -e 'print rand()'        <---floating point from 0 to 1
+perl -e 'print rand'          <---same
+perl -e 'print int rand 5'    <---integer from 0 to 5
+perl -e 'print int(rand(51)) + 25;'  <---integer from 25 to 75
+# Print 3 random numbers which will be 1, 2, 3 or 4
+for i in 1 2 3; do perl -e 'print int(rand(4)) + 1, "\n"'; done
+
+# Remove nulls (ASCII 0) from a file (also works as :'<,'>!perl -pe 's/\0//g')
+perl -pe 's/\0//g' 
+# Remove single quotes from a file.  Simple substitution on the fly printing
+# changes to STDOUT
+perl -pe "s/'//g" junk
+
+# Substitute, inplace edit, and make backup from command line.  NOT recursive.
+# TODO why is -p mandatory, and the -e must stand alone
+perl -pi.bak -e "s/old/new/g" *.pl
+# or
+perl -pi.bak -e  's/old/new/g' `find . -name "foo.txt"`
+
+# Replace all instances in files without backups:
+perl -pi -e "s:#\!/usr/bin/perl:#\!/usr/pkg/bin/perl:" junk
+perl -pi -e "s/REPLACEME/foo/" dhammapada.rss
+
+# Swap colon delimited items, looping over foo.txt
+perl -pe 's/(.*):(.*)/$2:$1/' foo.txt
+
+# Print capitalized words by looping over file and printing at end of file.
+perl -ne 'push @w,/(\b[A-Z]\S*?\b)/g;END{print "@w"}' file.txt
+
+# Parse a file for email address pattern (used for Palm Pilot Memo) by looping
+# over file:
+perl -ne 'print "|$1 $2" if /\w+ \w+ (.*)<(.*)>.*/' ~/.email_addr
+
+# Uppercase all letters in file (works on foreign characters) to STDOUT:
+perl -pe 's/(\w+)/\U$1/g' foo.txt
+# Lowercase all words in a file to STDOUT:
+perl -pe 's/(.*)/\L$1\E/' foo.txt
+# In-place edit to lowercase all words:
+perl -pi -e 's/(\w+)/\L$1/g' desc.LST
+
+# Current time in seconds since the epoch
+perl -e 'print time, "\n"'
+# Convert a Unix time (1970 is epoch) to RFC822 format.
+perl -e "print scalar localtime(983595600)"
+
+perl -e "print crypt('mummy','garbagesalt'),\"\n\""
+
+# Test system function outside of code to debug (Windows examples):
+perl -e 'system "attrib +R c:/temp/translate.tpg"'
+perl -e "system 'mozilla file:///C:/cygwin/tmp/junk.html'"
+
+# Extract the rightmost (last) column.  Split on whitespace.  Don't need to
+# know how many columns exist.  @F is automatic.
+perl -ane 'print pop(@F), "\n";' foo.txt
+
+# Extract the leftmost (first) column.  Split on whitespace.
+perl -ane 'print shift(@F), "\n";' foo.txt
+
+# Convert decimal to binary:
+perl -e "print unpack('B32', pack('N', 12))"
+# Convert binary to decimal:
+perl -e "print unpack('N', pack('B32', substr('0'x32 . 1100, -32)))"
+
+# Test a multi-line string using a regex:
+perl -e 'print "match!" if "This is my\nmultiline string" =~ /This.*string/s;'
+
+# Parse on specific fixed column positions -- also see parse_fixed_width.pl
+perl -ne 'push @x, unpack "@1 A36 @37 A36",$_; END{$i=1;for(@x){print "$_\t"; if(++$i%2){print "\n"' foo.txt
+
+perl -e 'BEGIN{$foo="avenue"};print "ok" if $foo=~/ave/'
+# Same
+perl -e '$foo="avenue";print "ok" if $foo=~/ave/'
+
+# Extract a section of a file where you know the start and end patterns.
+awk '/first word/, /last word/ {print}' startendpatt.txt
+# Same (don't need  while(<>){...}  when using -ne)
+perl -ne 'print if /first word/ .. /last word/' startendpatt.txt
+
+# Extract a section of a file where you know the start and end line numbers.
+perl -ne 'print if 15 .. 17' foo.txt                     # inefficient
+perl -ne 'print if $. >= 15; exit if $. >= 17;' foo.txt  # better
+
+# Print repeat string 5 times:
+perl -e 'while($i++<5){print "ok "}'
+
+# Convert ASCII num to char:
+perl -e 'print pack "C", 97'
+# Convert ASCII char to num:
+perl -e 'print unpack "C", a'
+
+# Count the exact number of occurrences of X:
+perl -e '$s="ThisXlineXhasXsomeXxsXinXit"; $x=($s =~ tr/X//);print $x;'
+
+# Print 0123456789
+perl -e 'print pack( "H2"x10, map { "3$_" } ( 0..9 ) )'
+
+# Replacement for list ls -l 
+perl -e 'print scalar localtime((stat "t.pl")[9])'
+
+# Pipe delimit a space delimited file (to STDOUT):
+perl -ne 's/ /|/g; print' foo.txt
+
+# Get info about a module using -M
+perl -MCPAN -e 'print $CPAN::VERSION'
+perl -MMail::Sendmail -e 'print $Mail::Sendmail::VERSION'
+
+# Show days between modify and access for all files in dir:
+perl -e 'map \{printf "%10.3f - $_\n",(-C)-(-A)},@ARGV' *
+
+# wc replacement:
+perl -ne '@w=split; $x+=@w; END{print $x}' foo.txt
+
+# Use capturing parentheses to swap two items:
+grep -v fips | perl -pe 's/(.*) (.*)/\2 \1/'
+
+# Is this module installed on this machine?  Does this module exist?
+perl -MImage::ExifTool -e "print 'ok'"
+
+perl -e 'print "it is now @{[scalar localtime]}"'
+perl -e 'print "it is now ", scalar localtime'
+# m/d/yyyy formatted date
+perl -e '($d,$m,$y) = (localtime)[3,4,5];print join "/", $m+1, $d, $y+1900'
+
+# Super ls list.  Don't display any file containing dontlistme in it.
+ls | perl -e 'while(<STDIN>){print $_ if grep(!/dontlistme/,$_)}'
+# Better
+ls | perl -ne 'print if grep !/dontlistme/,$_'
+ls listened/ | perl -ne 'print "$1\n" if /.*(2001_\d+).*/'
+# Compare but do so less precisely since \d doesn't exist under awk
+ls listened/ | awk '/2001_\w/{print $1}'
+
+# Parse string into an array:
+perl -e '@words = "What did he say?" =~ /([A-Za-z]+)/g; END{print "@words"}'
+
+# Find user's home directory:
+perl -e '$x=(getpwuid($<))[7];print $x'
+
+# Do something alternating days, will return '1' every other day.
+date | awk '{print $3}' | perl -e '$x = (<> % 2); END {print $x}'
+
+# Does a file exist?  Pop message box if so
+perl -e 'system msgbox if (-f "./myfile.txt")'
+perl -e 'print "ok" if (-e "./bladerun_crawl")'
+
+print "Maximum commandline index: $#ARGV\n";
+print "Last commandline argument: $ARGV[$#ARGV]\n";
+
+# Use a default if not provided on command line:
+$ARGV[0] ||= 66;
+$ARGV[0] = ($ARGV[0] ? $ARGV[0] : 66);  <---instead of this mess
+
+# Insert an array inside roughly the middle of another array:
+splice @arrayA, $#arrayA/2, 0, @arrayB;
+
+# Create a module template (we only care about MyModule.pm unless CPANing it)
+$ h2xs -AX Foo::MyModule
+
+# 'our' allows you to circumvent strict for variables you want accessible from anywhere using the $Package::variable or @MyModule::ISA notation.
+
+# Delete specific hash keys:
+delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
+
+# Pipes (can avoid using system()):
+open OUT, "|more" or *OUT = *STDOUT;
+open IN, "ps|" or die "Can't start ps";
+
+@x = split /:/,  "ab:cd:::ef:gh";  <--- two empty fields between cd and ef
+@y = split /:+/, "ab:cd:::ef:gh";  <--- one big fat delimiter between cd and ef
+
+# Find all installation directories:
+perl '-V:install.*'
+
+# Using rcs (automatically inserts revision sequence on co)
+our $VERSION = sprintf("%d.%02d", q$Revision$ =~ /(\d+)\.(\d+)/o);
+
+# Quick install: cp -i $HOME/code/perl/Irenamer.pm $HOME/perllib (or other dir on the @INC path):
+perl -MFile::Irenamer -e 'InteractiveRename(verbose,recurse)'
+
+# Reverse sort a hash:
+@files = sort { $filehash{$b} <=> $filehash{$a} } keys %filehash;
+
+# Determine a script's module dependencies (add to eof):
+END { print join( $/, values %INC ), $/ }
+
+# Social security ssn number regex:
+[0-9]\{3\}-[0-9]\{2\}-[0-9}\{4\}
+
+# Poor man's tac(1) to reverse lines in a file:
+perl -e 'print reverse <>' foo.txt
+
+# Use reverse video for debugging (this doesn't require ctrl chars, just paste)
+print "DEBUG> \e[7mUnexpected format of 'mystr':\e[m\n";
+
+pdoc -f binmode  # function perldoc
+
+# Random array element 0, 1, 2 or 3
+print $paragraphs[int rand 3];
+
+m/$foo/o  # compile interpolation pattern only once o regex switch:
+
+system('/bin/bzip2', '-k', @zipme);
+system('cp', '-i', $maxname, 'c:/cygwin/home/rheckel/tmp/foo');
+
+# Like SAS' scan()
+$x = (split / /, $x)[0];
+
+# Reference to hash of anonymous arrays (note curly braces for ref, NOT parens)
+$h = { one => [ 'a', 'b', 'c' ], two => [ 'd', 'e', 'f' ] }; 
+
+use Data::Dumper; print Dumper $myref;
+open FH, '>foo' or die "$0: $!"; use Data::Dumper; print FH Dumper @a;
+
+# Read a file into a variable:
+open PID, '/usr/local/apache/logs/httpd.pid' or die"; $pid = <PID>;  close PID;
+
+# Read a file into an array (one element per line):
+@data = <FH>;
+# Print 2nd line in that file:
+print "$data[1]";
+
+# push and pop == a stack
+# push and shift == a queue
+
+push @existingarray, 'more', 'stuff';
+
+@array = ("anicca", "dukkha", "anatta");
+%hash = (1=>'One', '2'=>'Two', '3'=>'Three');
+
+$#array is the index of the highest defined array element
+# Truncate an array
+@whatever = ();  or  $#whatever = -1;
+
+# Check webserver return code to see if it's down
+perl -MLWP::UserAgent -e '$u=new LWP::UserAgent;$r=$u->head;print $r->{_rc}'
+
+print "Content-type: text/html\n\n";  # web CGI (HTTP/1.0 at least)
+
+# Split on pipes, print field of interest:
+perl -ane '@x=split /\|/;print $x[0], "\n";' vcc.txt
+
+# Split comma-delimited string into anonymous array and show 2nd element:
+$a='one,two,three'; $aa = [ split /\s*,\s*/, $a ]; print $$aa[1];
+
+# Unbuffer, i.e. make hot, the LOG filehandle (and switch back to the original):
+select((select(LOG), $|=1)[0]);
+
+# Is timestamp recent?:
+perl -e 'print "ok" if (stat("prellg"))[9] > time-86400'
+
+# Modify CPAN module settings (perl -MCPAN -e shell) TODO 2008-08-06 not working
+cpan> o conf http_proxy http://setproxy.gsk.com/proxy.pac
+cpan> o conf urllist push ftp://myurl/'
+
+while ( ($key, $value) = each %myhash ) { ... 
+
+# Is module installed properly?:
+perl -MDBI -e 0
+
+# Append 2 hashes (leftside hash takes precedence):
+%comb = (%hashx, %hashy);
+
+die 'debug archwitutl.pm', scalar localtime;
+
+# Canonical system call
+system('mv', '-i', "$new", "$path/");
+
+print 'deleted' if unlink '/cygdrive/x/sql_loader/junk';
+
+my ($multiple, $vars, $must, $be, $parethesized);
+
+# Canonical hash:
+%hash = ("laurel" => "hardy", "nick" =>  "nora");
+# Canonical array:
+@array = (10, 20);
+
+# Toggle warnings:
+no warnings; $discSize=$W2LIni->{Recording}{mediaSize}; $mediaType=$W2LIni->{Recording}{mediaType}; use warnings;
+
+# Canonical date
+($mon, $day, $year) = (localtime())[4,3,5];
+
+# Call sub 100 times, and time it
+use Benchmark; timethis(100, "MySub()"); 
+
+# Why anonymous arrays are useful:
+@children = (\%john, \%peggy); $sues{'children'} = \@children;
+# becomes simply
+$sues{'children'} = [ \%john, \%peggy ];
+print $sues{children}->[1]->{age};  # Peggy's age
+# Same
+print $sues{children}[1]{age};
+
+# Quick dump Main (see dumpmain.pl for hash included version)
+open F, '>junkdumpmain'; for $s(sort keys %main::) { local *sym=$main::{$s}; print F "\$$s is $$s\n" if defined $sym; print F "\@$s is @$s\n" if defined @sym;}
+# Then do a >junkdumpmain to "seed" tail and...  TODO tail part not working
+$ tail -f junkdumpmain | grep -a potentialHeaderFields junkdumpmain
+
+$array[7][12]				# array of arrays
+$array[7]{string}			# array of hashes
+$hash{string}[7]			# hash of arrays
+$hash{string}{'another string'}		# hash of hashes
+$hohoh{Robot}{Santa}{Claus}='mostly harmful';  # hash of hash of hash
+
+# Parse a textfile grid:
+perl -ne 'push @AoA, [ split ];END{print "$AoA[1][1]\n"}' junk.txt
+
+# Number of elements (minus 1 so say (0 .. $#a) ) in array:
+perl -e '@a=(1,2,3);print $#a'
+
+# Round a number:
+printf("%.3f", 3.1415926535);
+
+# Convert a hash to an array to make unique eliminate duplicates:
+%hash = map { $_, 1 } @array; @unique = keys %hash;
+
+# Canonical search and replace (interactive :bufdo %s/foo/bar/gic may be better):
+$ perl -pi.bak -e "s/foo/bar/" *.sas
+
+# Canonical perl translate
+$novowels =~ tr/aeiou/!/;  # change any vowel in $novowels into !
+
+($HOST = $host) =~ tr/a-z/A-Z/;  # uppercase en passant (but it's better to use \U and \L for Unicode)
+
+# Sum the 3rd column of a file
+perl -l -a -n -e '$n+=$F[2]; END{ print $n}' threecolumnsofnumbers.txt
+
+Expressions - a sequence of literals, variables, function connected by one or more operators that evaluate to a single value-scalar or array. 
+Statements are a complete unit of instruction for the computer to process. Statement modifiers: if, unless, until, and while.
+
+# Canonical map:
+my @tripled = map { $_ * 3 } @numbers;
+
+# Canonical count number of elements in an array without a temp variable:
+$count = () = myarray();
+
+print 'hash key "c" is undefined and this will not autovivify it' if ! defined $h{c};
+
+# Canonical print an array
+@a = ('a','b','c'); print "Hello, $_" for @a;
+
+# Canonical regex en-passant - EXTRACT first name (reads left to right)
+my ($firstname) = $name =~ /($firstname_precompiledregex)/;
+# Canonical regex en-passant - MODIFY first name (reads right to left)
+(my $normalizedname = $name) =~ tr/A-Za-z//dc;
+
+# Print the longest line
+perl -ne '$l = $_ if length($_) > length($l); END { print $l }' bladerun_crawl
+
+# Print the shortest line
+perl -ne '$s = $_ if $. == 1; $s = $_ if length($_) < length($s); END { print $s }' bladerun_crawl
+
+# Random password generator
+perl -le 'print map { ("a".."z")[rand 26] } 1..8'
+
+# days from (e.g. 3 years ago)
+~/code/perl/datecalc -1080
+
+local - saves the current value somewhere, creates a new value, and arranges that the old value will be restored at the end of the current block.
+my    - lexical scope does not create an entry in the symbol table, variables that you declare in one subroutine can't be tampered with by other subroutines. 
+
+xxPERLxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
 xxCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -3320,1065 +4410,6 @@ $ gcc -mno-cygwin 99bottles.c
 xxCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
-xxSASxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
-
-V8 SAS online docs  onlinedoc documentation manual help webpages: http://v8doc.sas.com/sashtml/main.htm
-V9.1 SAS online docs http://support.sas.com/91doc/docMainpage.jsp
-
-Missing value '.' always sort lower than char or num and ._ sorts lowest of all
-SAS Special Missing Value (.A thru .Z)
-...else if comment = 'refused to answer' then age = .A;...
-...if .z < labvalue < 3 then...
-...if .z < round(labvalue,0.0001) < 3.15 then...
-
- /* Write all variables to the Log with "foo=" notation on one line: */
-put _ALL_;  /* print PDV to Log */
-put 'WARNING: ' _ALL_;
-put 'WAR' 'NING: ' _ALL_;  /* better if you're searching a Log for real WARNINGs not a SOURCE or MPRINT: */
- /* Write all variables to the Log with "foo=" notation on one line per var: */
-put (_ALL_)(=)
- /* Use anywhere but can't combine to one %put */
-%put !!!; %put _USER_;
-
- /* Macro -- no quotes! */
-%put You find yourself in a maze of %upcase(twisty SAS passages) all alike;
- /* In a DATA step -- quotes, no commas */
-put 'fname is ' fname=;
-put '!!!' _ALL_;
-
- /* Writes specific variables to the Log.  NO COMMAS. */
-put varname1= varname2=;
- /* Automatic concatenation: */   
-put 'here it is: ' varname1=;
- /* Carriage return in output: */
-put;
-put '13'x;  /* s/b the same */
- /* Alternative is to use a blank  title2;  */
-
-Runaway GUI SAS killer:
-*'; *"; */; %mend; quit; run;
-
- /* Free up space - delete datasets */
-proc datasets library=WORK; kill; QUIT;  /* !not RUN; */
-proc datasets NOlist; delete FooDS BarDS; quit;
-
-Column input with some missing data -- use truncover
-List input with some missing data at the rightmost edge -- use missover to keep SAS from trying, stupidly in most cases, the next line
-
- /* Describe paths to SAS libraries: */
-libname _ALL_ list;
-
- /* Clear libnames */
-libname _ALL_ clear;  or  libname L clear <---only one libname allowed!
-
- /* Determine where the WORK temp library is located on your system: */
-libname WORK list;
- /* or */
-%let workpath=%sysfunc(pathname(work));
-
-SAS debugger e.g. data foo / DEBUG; ...
-
-'07jul00'D              <---SAS date constant
-'07JUL2000'D            <---SAS date constant
-'04:15'T                <---SAS time constant (seconds since midnight 0-86400)
-'04:15:66pm'T           <---SAS time constant (seconds since midnight 0-86400)
-'07jul2000:04:15:00'DT  <---SAS datetime constant
-
-SAS Functions work *within* an observation.  Procedures work *across* observations.
-
- /* Increment in macro.  Like yr++ */
-%let YR1 = 2002;  %let YR2 = %eval(&YR1+1);
- /* Convert macrovariable from string to numeric (integer): */
-%let Y = 2000; %let YR = %eval(&Y+0);
- /* Convert macrovariable (always string) to numeric: */
-data _null_; age=input(symget('age'),12.); run;
-
- /* SAS X command (ok in open code): */
-x 'c:/util/vim/vim61/gvim.exe -c "set winsize=100 20" out.dat';
-
- /* Canonical generate random number between 1 and 5 */
-randomnum = ceil(ranuni(0) * 5);
- /* Generate random number between 100 and 123: */
-randomnum = 23*ranuni(-1) + 100;
-
- /* Adjust the line length (if not using JCL): */
-file OUTF LRECL=1048576 PAD;  /* mainframe max?? */
-file WSIP21C LRECL=32767;  /* Windows max */
-
-Interactive SAS on OS/390 (from TSO command line):
-==> sas options('dms')
-or
-==> sas options('dms yearcutoff=1905')
-
-Using 1920 default: 00...19 becomes 2000...2019
-
-//* Use your own SAS System Options in JCL:
-//STEP1     EXEC SAS,CONFIG='BQH0.PGM.DEV(MYCONFIG)',TIME=100, 
-//          OPTIONS='MEMSIZE=0'                                
-//...
-
- /* Actually sets the auto variable myfname, not the keyword FILENAME, to
-  * the physical name of the currently opened file.  Cowabunga! 
- */
-infile IN FILENAME=myfname;
-
- /* SAS hexadecimal tab */
-'09'x  or  '05'x  or  '3132,3334'x
-put aprclass '09'x '09'x APR_Count;
-
- /* It's an alphabetical character isalpha: */
-if ship GE 'a' and ship LE 'z' then delete;
- /* It's a numeric character isnum: */
-if indx GE '0' and indx LE '9' then delete;
- /* Keep only numbers from a mixed var (CHAR formatted).  See verify.sas */
-isnum = verify(result, '.0123456789'); ... if isnum eq 0 then put "pure numerical";
-
- /* ltrim() and rtrim() don't exist in SAS */
-trim(left(put(numericsasvari,F4.)));
-
- /* Distributive range input statement: */
-input @166 (r1-r15) ($CHAR1.);
-input @166 (c1-c15) (:$1.);
-
- /* Super input statement uses the data! to determine column position */
-input @'IP Address' n1 n2 n3 n4 3.;
-
- /* Move cursor one to the left, backspace, to squeeze colon against word: */
-put @1 myname +(-1)":"  @30 myvalue;
-
- /* Multiple datasets on the set statement: */
-data work.all; set %do j=1 %to 3; work.tmp&j %end; ; run;
-
- /* Get current year date. */
-call symput("CYR4", substr(put("&sysdate9"d,mmddyy10.),7,4));
-
- /* Increment the symput generated mvar */
-call symput('RUNME'||compress(put(_N_,5.)), executemacro);
-
- /* Equal colon -- same as using LIKE 'mormer%' in SQL. */
-if foo =: 'mormer';
-
- /* Use more than one library, look in best first, then justok if not found: */
-libname mylib (best justok);
- /* libname concatenation. Works on z/OS too. Only a WARNING: for idontexist/ */
-libname CONCAT ('c:/temp' 'c:/cygwin/tmp/' 'c:/idontexist');
-
- /* Uppercase a macrovariable: */
-%let the_type=%upcase(&the_type);
-
- /* Mainframe filename */
-filename OUT "DWJ2.DCFET03.D04NOV03" DISP=NEW UNIT=TEMP LRECL=229 BLKSIZE=229 RECFM=FB;
-
- /* Fixed length file.  Pads to 70. */
-filename f 'c:/temp/foo1' lrecl=70 recfm=f;
- /* Variable length file.  No padding. */
-filename f 'c:/temp/foo2' lrecl=70 recfm=v;
-
- /* Today's SAS epoch (range is 1582 - 20000 AD) date. Convert unix to SAS epoch date */
-$ date +%s |awk '{d=int($1/86400+3653)} END {print d}'
-
- /* Left zero pad a number: */
-zerocert=put(certificate, Z6.);
-
- /* Sum accumulator is auto-retained (but  foo = foo + 1  is not) */
-foo+1;
-
- /* Reorder the variables in a dataset (alternatively use proc report): */
-retain first second third;
-
- /* Create a C-like null terminated string: */
-substr(mystr, mylen+1) = '00'x
-
- /* Name of currently running SAS program file: (like $0 in shell): */
-%put &SYSPROCESSNAME;
-
- /* CLASS Class variables:  nums (discrete categories) or chars, identify classes
-  * or discrete categories on which calculations are done.  E.g. gender,
-  * country, state, zip
-  *
-  * VAR Analysis variables:  numbers, usually continuous, appropriate for
-  * calculating averages, sums, etc.  E.g. salary, number of orders
-  */
-
- /* Pick off the MORMER1 suffix, and ignoring trailing, trash returns "MOR" */
-%let FN=BF19.FIX0342.MORMER1;
-%let EVT=%substr(%scan(&FN, 3, '.'), 1, 3);
-
- /* SAS exponentiation */
-x = 2**3;
-
- /* Syntax check program (compile) without running or overwriting files (for debugging): */
-options obs=0 NOreplace;
- /* Syntax check datastep (compile) without running or overwriting files (for debugging): */
-run cancel;
-
- /* Do to first obs: */
-if _N_ eq 1 then put 'data step has BEGUN EXECUTING once';
- /* Do to last obs: */
-set l.sumventolin01a (obs=10) end=e; if e then put 'footer';
- /* Caution: _N_ is only counting begun iterations of the implied loop of the dataset, NOT the observations.  */
-
-Subsetting IFs can appear only in DATA steps but WHERE statements can appear in DATA or PROC steps.
-
- /* Run SAS without my ~/bin/sasrun */
-$ sas -sysin t.sas; cat t.log
-$ sas -sysin t.sas; vim -o -c '/^ERROR.*:\|^WARNING:/' t.log t.lst
-" Run a .sas from Vim on an alien box
-:!/cygdrive/c/Program\ Files\/SAS\ Instititute/SAS/V8/sas.exe -sysin %
-:!/cygdrive/c/Program\ Files\/SAS\ Instititute/SAS/V8/sas.exe -sysin % -altlog %.log -altprint %.lst
-
- /* Run Version 9 V9 SAS from commandline */
-c:/PROGRA~1/SAS/SASFoundation/9.2/sas.exe -sysin t.sas && vi *.l??
-
- /* Run Windows PC SAS from command line (often need an ENDSAS; if run via .bat) */
-$ c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin t.sas -altlog t.log -altprint t.lst
-$ /cygdrive/c/Program\ Files/SAS\ Institute/SAS/V8/sas.exe -sysin t.sas && vi -c 'map q :q!<CR>' t.log
-$ c:/PROGRA~1/SAS/SASFoundation/9.2/sas.exe -sysin t.sas && vi *.l??
- /* same */
-$ c:/Program\ Files/SAS\ Institute/SAS/V8/sas.exe -sysin t.sas -log t.log -print t.lst
- /* String foo is available in &SYSPARM */
-$ c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -nosplash -sysin t.sas -altlog Apr.log -sysparm foo
- /* Passing a comma separated list will require e.g.
-  * %let samplist=%scan(%bquote(&SYSPARM), 2, '_'); 
-  * in the code:
-  */
-$ date;c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin indsumresCI.sas -altlog 01.log -sysparm 01_231973,231591,231476
- /* Run Solaris Unix SAS from command line */
-sas -sysin t.sas; cat t.log; cat t.lst
- /* If you can't edit the command line, use these in start/end of the code to save Log and List (NEW to avoid append): */
-proc printto LOG="D:\foo.log" NEW PRINT="D:\foo.lst" NEW; run; ...code... proc printto;run;
- /* Keep GUI open during the run.  Instead of -sysin */
-c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -autoexec "\\rtpsawnv0312\pucc\Serevent_Diskus\CODE\0_MAIN_Serevent_Diskus.sas" -sysparm "\\rtpsawnv0312\pucc\Serevent_Diskus\CODE"
-
- /* Suppress discard SAS List .lst */
-c:\PROGRA~1\SASINS~1\SAS\V8\sas.exe -sysin t.sas -log t.log -NOterminal -NOprint
-
-# Cygwin
-$ echo 'proc print data=sashelp.shoes;run;' >| t.sas; c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin t.sas
-echo "options ps=max;libname l '//Rtpdsntp032/DataPostArchive/Ventolin_HFA/OUTPUT_COMPILED_DATA';proc freq data=l.ven60_analytical_individuals;table mfg_batch test;run;" >| u:/tmp/t.sas && c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin 'u:\tmp\t.sas' -log 'u:\tmp\t.log' -print 'u:\tmp\t.lst'; cat 'u:\tmp\t.lst'
-
- /* Describe option settings in effect: (also sr ~/code/sas/options.cmdl.sas linesize) */
-proc options option=&SYSPARM define value; run;
-
-format vs informat: Formats modify the external representation of a value (preexisting in a ds).  Informats convert raw data into SAS representations (to be put in a ds).
-
- /* Current dataset macrovariable formatted to "LIBRARY  DSNAME" */
-&SYSDSN
-
- /* Print quotes around a variable, in this case, myvar */
-put "!!! found " myvar $QUOTE.;
-
- /* Check if a file has a SAS extension */
-if index(upcase(file),'.sas') > 0;  /* true */
-
- /* Portability -- Use this JCL for SAS filename on MF: */
-//IN   DD DISP=SHR,DSN=BF19.MOX0401.NATMER
- /* vs. this JCL-less method on the PC via Connect: */
-filename IN 'BF19.MOX0401.NATMER' DISP=SHR;
-
- /* Include code plus display source w/o an options statment (%include is synchronous): */
-%include 'tabdelim.sas' / SOURCE2;
-
- /* Paste code between these two */
-%include "&HOME/code/sas/tabdelim.sas";
-options NOmlogic NOmprint NOsgen;%Tabdelim(WORK.tmp, 'junk.xls');
-
- /* Find max using a SAS range: */
-retain hi; hi=max(hi, DatastepVarWeWantMaxFrom);
- /* Find max using a SAS range: */
-if max(of one1-one3) < 5 then ...
-
- /* Test for oddness */
-mod(x,2) eq 1
- /* Test for eveness */
-mod(x,2) eq 0
-
- /* SAS array declare and initialize */
-array starr{*} $2 st1-st57 ('AL', 'AK', 'AR', 'AZ', 'CA', 'CO');
- /* SAS array access */
-do i=1 to dim(starr); otherarr{i} = starr{i}; end;
-
- /* Get the $HOME environment variable (Windows & Unix at least) */
-%let myhome=%sysget(HOME); %put _all_;
- /* Determine %SASROOT% */
-%let sashome=%sysget(SASROOT); %put _all_;
-
- /* Substring */
-%put %substr(2168, 3, 2);
-data _null_; x=substr('2168', 3, 2); put x=; run;
-
- /* Good demo sample template dataset: */
-proc print data=SASHELP.shoes (obs=10); var region stores sales returns; run;
-data tmp; set SASHELP.shoes; if region in:('A', 'E'); run;
-
-proc print data=MVDS1.caNEW; where acme_uc eq: 'Y'; run;
-proc print LABEL SPLIT='*' NOOBS N;
-
- /* Macro with parameters parms: */
-%macro Foo(bar, baz); %put &bar and &baz; %mend; %Foo(test ing, me);
-
- /* Avoid having SAS eliminate leading whitespace (as would $2.) */
-input foo $CHAR2.;
-
- /* Suppress any input errors in SAS Log and keep _ERROR_=0 */
-input name $8.  number  ??;
-
- /* Macro date - format today's date into a macrovar: */
-%let FDATE=%sysfunc(date(), YYMMDD10.);
-%let FDOLLARS=%sysfunc(putn(&MYNUM, DOLLAR10.));
-
- /* Operating system specific option: */
-%macro OS; %if &SYSSCP eq OS %then %str(options NOs99nomig;); %mend; %OS
-
- /* Thin out cleanout SAS Log, can use \| to get >1 line at a time */
-:g/\s*SYMB\|\s*MLOG\|\d\+\s*THE SAS/d
-
- /* Best small 10% random sample sampling: */
-data OUT.WANEW; set IN.WANEW; if uniform(0) le .01; run;
-
- /* Don't add lines with NULLs */
-if sex = '00'x||'00'x||'00'x then delete;
-
- /* Most efficient block size on mainframe: Moderate to large DASD-stored datasets s/b blocked at half a track. Small ds and catalogs s/b blocked at 6144 bytes. Tape 32760 bytes. */
-options blksize(dasd)=half;
-
- /* Perl regex in SAS */
-data; set SASHELP.shoes; if _N_ eq 1 then rc=prxparse("/ica$/"); retain rc; if prxmatch(rc,region); run;
-
- /* v9+ only I think */
-%if not %index(&endyr, 20) %then %abort;
- /* so use this (also aborts ok inside a macro): */
-data _NULL_; abort abend 008; run;
-
- /* macro in() for macro */
-%if %sysfunc(indexw(AK AR VI WV, &STATE)) %then %do; %put is in list; %end;
- /* macro not in for macro multiple values */
-%if not %sysfunc(indexw(&RANGEVARS, &VAR)) %then %do; %put is NOT in list; %end;
-
- /* Remove trailing dot */
-myvar = trim(translate(myvar, '', '.'));
-
- /* Simple datetime stamp: */
-%put %sysfunc(putn(%sysfunc(datetime()),DATETIME.));
-
- /* Print timestamp at end of job */
-%put ended %sysfunc(putn(%sysfunc(datetime()),DATETIME.));
-
- /* Time a job */
-%let _start=%sysfunc(time()); %put NOTE: %sysfunc(getoption(SYSIN)) started: %sysfunc(putn(%sysfunc(datetime()),DATETIME.));
-  ...code...
-%put NOTE: SYSCC: &SYSCC (%sysfunc(getoption(SYSIN)) ended: %sysfunc(putn(%sysfunc(datetime()),DATETIME.)) / minutes elapsed: %sysevalf((%sysfunc(time())-&_start)/60));
-
- /* Quick sample dummy dataset */
-data x; do i=1 to 5; do j=20 to 25; do k=100 to 101; output; end; end; end; run;
-
- /* Create an empty dataset */
-data work.empty; set work.sample (obs=0); run;
-data reallyempty_1obs_0vars; run;
-
- /* Search SUGI papers via Google w/o that ugly lexjansen page */
-findmystring site:www2.sas.com filetype:pdf
-
- /* BETWEEN statement is inclusive /*
-where i between 1 and 5;
-
- /* Same */
-options pagesize=32767;
-options pagesize=max;
-
- /* Comma separated, single quoted mvar SELECT...INTO :foo list in proc sql: */
-select quote(trim(mycharvar)) into :RISKVARS separated by ', '
-select froms, tos, dist into :ITEM1, :ITEM2, :ITEM3
-
- /* If you use this: */
-LIBNAME FMTLIB "DWJ2.NAT2003.FMTLIB" DISP=SHR WAIT=250;
- /* you also need this: */
-OPTIONS FMTSEARCH=(WORK FMTLIB);
-
- /* Find and use custom format aerodtt. in c:/datapost/code/formats.sas7bcat */
-options fmtsearch=(MYFMTLIB); libname MYFMTLIB 'c:/datapost/code';
-
- /* Calculate seconds since the SAS epoch */
-data _null_; when=datetime(); put when=; run;
-
- /* Get last highest -1th element of string */
-if substr(reverse(trim(revising_status)),1,1) eq 'N' ...
-
-x='8ZM1234'; if substr(x, 2, 1) eq 'Z' then ...
-
- /* Remove the last five chars of a mvar */
-%let str=%sysfunc(reverse(%substr(%sysfunc(reverse(&str)),5)));
-
-cat "//'bqh0.inc.saslog'" | vi -     # HFS
-
- /* Remove trailing comma: */
-%let YRCNTS=%substr(%bquote(&YRCNTS), 1, %length(&YRCNTS)-1);
-
- /* Count observations count without opening dataset (or if it's open in SAS GUI) */
-data _null_; rc=attrn(open('tmp1.pull_lift'), 'NOBS'); put rc=;run;
-%macro m; %put %sysfunc(attrn(%sysfunc(open(tmp1.pull_lift)), NLOBSF)); %mend;%m
-...%if %sysfunc(attrn(%sysfunc(open(_LAST_)), NLOBSF)) lt 100 %then %do; %put ok; %end;...
-
- /* Count observations without opening dataset IF GOING TO USE DS LATER */
-%let dsid=%sysfunc(open(work.foo)); %let cnt=%sysfunc(attrn(&dsid, NOBS)); %let rc=%sysfunc(close(&dsid));
-%let dsid=%sysfunc(open(work.foo)); %let cnt=%sysfunc(attrn(&dsid, NVARS));
-data _null_; dsid=open('work.tmp'); numobs=attrn(dsid, 'nobs'); rc=close(dsid); run;
-
- /* Count observations */
-data _null_; if 0 then set SASHELP.shoes nobs=count; call symput('CNTOFOBS', count); stop; run;
-
- /* Count observations */
-proc sql; select count(*) into :CNTOFOBS from SASHELP.shoes; quit; 
-
- /* Day of week number 1=Sunday 7=Saturday */
-if weekday(today()) eq 2 then put "it's Monday";
- /* Conditionally run macro if it's Wednesday */
-data _null_; if weekday(today()) eq 4 then do; call execute('%include "&CODE\PLOT_CODE\100__make_AdvHFA_STABILITY_PLOTS.sas";'); end; run;
-
-str2 = '%include "' || left(trim(product)) || '\' || left(trim(product)) || '.sas"';
-call execute(str2);
-str1 = '%mymacro(' || left(trim(product)) || ',' || left(trim(server)) || ',' || left(trim(writeoutput)) || ');' ;
-call execute(str1);
-
- /* Canonical convert datetime to human */
-data _null_; human=put(1613578239, DATETIME18.); put human=; run;
-
- /* Convert DATETIME to DATE */
-mysasdate = datepart(mysasdatetime);
- /* Convert DATE to DATETIME */
-mysasdatetime = dhms(mysasdate, 0, 0, mysastime);
-mysasdatetime = mysasdate*86400  /* seconds in a day */
-
-data _null_; myquarter =        floor((mymonthnumber-1)/3)+1; put mycurrentquarter=; run;
-data _null_; mycurrentquarter = floor((month(date())-1)/3)+1; put mycurrentquarter=; run;
-
- /* Avoid missing failure if datetime inputs are incomplete */
-mydttm = dhms(mydate, max(0,hour(mytime)), max(0,minute(mytime)), max(0,second(mytime)));
-
- /* Convert datetime floating point number to human e.g. 25AUG2005 date in open code */
-%put %sysfunc(putn(1440588139.7, datetime9.));
-%put %sysfunc(putn(1441637788, datetime14.));
-
- /* Check for success to this point before continuing to destructive section */
-%if &SYSERR eq 0 %then %do ... %end
-
- /* Speed up proc sql delete v9+ */
-libname SAND ... direct_exe=delete ...;
-
- /* Speed up proc append to database */
-libname SAND ... bulkload=yes ...;
-
- /* Count number of characters in a string v9+ */
-commas=countc(myvar, ',');
-
- /* Colon input specifier - we'll take anything between the delimiters but with a max of 40 chars: */
-input ProviderLicenseNumber :$40.;  /* no preceeding LENGTH statement needed */
-
- /* Capture part of a string */
-captureUpToDash = substr(SampName,1,index(SampName, '-')-1);
- /* Better */
-captureUpToDash2 = scan(SampName,1,'-');  /* be explicit on 2nd parm or it'll use default of split on  spaces . < ( + & ! $ * ) ; ^ - / , % | */
-
- /* If sampname is 0000345198-01 not 0000345198-890000022217-01 skip it */
-if not scan(SampName, 3, '-') then delete;
-
-Same but handle spaces differently
-http://yourserver/cgi-bin/broker?_SERVICE=default&_PROGRAM=sample.webhello.sas&person=john+doe
-http://yourserver/cgi-bin/broker?_SERVICE=default&_PROGRAM=sample.webhello.sas&person=john%20doe
-
- /* View all formats */
-proc format library=work FMTLIB; run;
-
- /* diff two datasets canonical compare */
-proc compare base=l.material_mapping_tableOLD compare=l.material_mapping_table; run;
-
-SELECT COUNT(DISTINCT samp_id)  /* good */
-SELECT DISTINCT COUNT(samp_id)  /* bad - syntax is ok but probably not what you want */
-
- /* Cannot use to rename a ds in same lib */
-proc copy in=OLDLIB out=NEWLIB memtype=data; select myds1 myds2...; run;
- /* so use this instead of proc copy */
-proc append base=newdstocreate data=olddsname FORCE; run;
- /* True append */
-proc append base=ci_oth data=ci_oth_&strength; run;
-
- /* format= relies on e.g. ls=N cannot have ls=max to pull this off */
-options ls=80; proc sql; select specname FORMAT=$20. from v ; quit;
-
-proc sql; select id, (dis-adm)+1 AS mycalc LENGTH=4 LABEL='foo' from bar; quit;
-
-libname ORA oracle user=pks password=pks path=usdev100 schema=pks;
-
- /* Fast freq */
-proc freq data=sashelp.shoes(where=(region like 'A%')); run;
-proc freq data=l.lelimsindres01a201962(where=(specname like '%2064%')); table specname*varname; run;
-proc freq; table description*market / LIST nocum norow nocol nopct; run;
-
- /* Where IntrNet keeps its datasets for a session */
-%let spath=%sysfunc(pathname(SAVE));
-
- /* Canonical IntrNet URL */
-http://myserver/cgi-bin/broker.exe?_SERVICE=default&_DEBUG=131&_PROGRAM=MYLIB.mypgm.sas&mymvar=foo
-
- /* Display SAS Intrnet ENVIRONMENT */
-http://rtpsawn321/sasweb/cgi-bin/broker.exe?_DEBUG=16384&_SERVICE=default
-
- /* Wake up, ping restarted IntrNet server */
-http://rtpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program=ping&_adminpw=
-
- /* SAS' version of Oracle's ROWNUM<5 */
-where monotonic() < 5
-
- /* E.g. C:\cygwin\home\rheckel\tmp\testing\tmpsas.5660.sas */
-%put fully qual name of the currently running pgm: %sysfunc(getoption(SYSIN));
-%put basename only of currently running pgm: &SYSPROCESSNAME
-
- /* Determine OS platform */
-%put !!!&SYSSCP;
-
- /* View all macrovariable data (GLOBAL, etc) */
-data vars; set SASHELP.vmacro; run; proc print data=_LAST_(obs=max); run;
-
- /* View created dataset */
-options noxwait;x "start lelimssumres01a&nm..sas7bdat";
-
- /* Auto-vivifies any var not read in (or worse, typo'd) */
-format matl_typ $18. batch_nbr $10.;
-
- /* Note: not 'lastobs'     ___    */
-set work.sample (firstobs=2 obs=5);
-
- /* Same as SAS sort-sort-merge.  Emulate a SAS merge without having to sort. */
-proc sql; select coalesce(one.acct, two.acct) as a, rate, balance from one FULL JOIN two  ON one.acct=two.acct ; quit;
-
-data _null_; do while ( x<3 ); put x=; x+1; end; run;
-%macro w; %let i=0; %do %while ( &i lt 3 ); %put &i; %let i=%eval(&i+1); %end; %mend; %w
-... do year=1990 to 2004 while ( capital > -1 ); ...
-... %do i=1 %to 4 %by 2; %put &minyr.&i; %end; ...  /* only 2 puts */
-
- /* run d:\sas_programs\t.sas on blade server: */
-http://rtpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program=LINKS.t.sas&UID=rsh86800&_debug=131
-
- /* Prepare single quoted date for Oracle TODO not correct */
-data _NULL_; call symput('STARTDT', "'"||put("&SYSDATE9"D-1, DATE9.)||"'"); run;
-
- /* NODUP eliminates obs that are exactly the same across ALL variables.  NODUPKEY eliminates obs that are exactly the same across *only* the BY variables. */
-proc sort data=foo out=bar NODUPKEY; by x y; run;
-
- /* proc sort alternative */
-proc sql;CREATE INDEX MYSORTEDx ON lelimsgist05e (Samp_Id, Indvl_Meth_Stage_Nm);quit;
-
-dm 'clear log; clear lst; wpgm'; 
-
-PROC SQL; CONNECT TO ORACLE(USER=gdm_zeb ORAPW=gdm123zeb45 PATH=ukprd613); CREATE TABLE foo AS SELECT * FROM CONNECTION TO ORACLE (
-  SELECT bat_num, mat_cod, work_cntr_cod, work_cntr_desc FROM gdm_dist.vw_zeb_merps_prcs_ord_material WHERE plant_cod = 'US01' and bat_num ='0ZP0029'
-); DISCONNECT FROM ORACLE; QUIT;
-
-PROC SQL; CONNECT TO ORACLE(USER=pks ORAPW=dev123dba PATH=usdev388); CREATE TABLE foo AS SELECT * FROM CONNECTION TO ORACLE ( SELECT DISTINCT barfield FROM baztbl); DISCONNECT FROM ORACLE; QUIT;
-
-LENGTH TimeNum 8 Meth_Peak $3 Indvl_Tst_Rslt_Val_Char $40;
-
- /* Specific number of random records from a dataset: */
-proc surveyselect n=10 data=tmp out=foo; run;
-data r; do i=1 to 10; obsnumiwant=ranuni(int(datetime())); set d; output; end; stop; run;
-
-attrib state length=$3 label='foo bar' format=$40.; 
-
- /* Foreach dataset in library, push names into a mvar: */
-proc sql NOPRINT; select memname into :DSETS separated by ' ' from dictionary.members where libname like 'WORK'; quit;
-options ls=180 NOlabel;proc sql;select * from dictionary.columns where libname eq 'WORK' and memname eq 'EFORMSNUMCH';quit;
-
- /* Complex oracle SEPARATED BY */
-select distinct r.sampid, s.specname, put(r.sampid,F6.)||'-'||s.specname into :RETESTSAMPIDS separated by ',', :METHS separated by ' ', :METHPAIRS separated by ' '
-
-%if %sysfunc(fileexist(&fn)) %then %put exists; %else %put no;
-
-" Convert SAS input to put statments:
-" e.g. 
-"   no_obst $ 125  amnio $ 126  elec_fet $ 127-128  ind_lab $ 129
-" becomes 
-"   @125 no_obst  @126 amnio  @127 elec_fet  @129 ind_lab
-"
-:s:\(\w\+\) \$ \(\d\+-*\d\+\):@\2 \1:gc
-
-/* Setup the default SAS System user work folder and autocall in 
- * /cygdrive/c/Program\ * Files/SAS\ Institute/SAS/V8/SASV8.CFG
- */
--WORK "E:\SAS Temporary Files\"
-...
--SET SASAUTOS  ( "d:\Auto_Call" ...
-
- /* Do not auto-delete, save WORK datasets and _TD.... in 'SAS Temporary Files' dir after run completes. Override default. */
-options NOworkterm; %put !!! WORK lib is:; libname WORK list;
-
- /* Keep temporary WORK datasets in your own dir, not in the default _TD....\ */
-libname W './workdir'; options USER=W;  /* workdir must already exist! */
-
- /* Use datasets in pwd (w/o libname prefix "L") pretending that's WORK: */
-options USER=L;
-
-/* Single quote in SAS macro requires quoting with percent sign % */
-%put this is %str(John%'s office) here;
-
- /* Read only do not modify dataset */
-options NOreplace;
- /* Read only do not modify anything in library */
-libname L 'U:\courses\PRG1\PRG1 course data' access=READONLY;
-
- /* Redirect from LOG device to PRINT device to draw line in the .lst (tilde repeats 78 times) */
-data _null_; file PRINT; put 78 * '~'; run;
-
-%local i j item;  /* no commas */
-
- /* Comma-separated SQL macrovariable */
-select distinct quote(trim(batch_nbr)), quote(trim(matl_nbr)) into :batches, :materials separated by ','
- /* But for oracle we need single not double quotes (then add a leading & trailing quote): */
-%let sq=%str(%'); %let batches=&sq&batches&sq; ...
-select batch_nbr, matl_nbr into :batches separated by "','", :materials separated by "','"
-select distinct region into :region1 thru :region3 ...
-
-x "move /Y lelimssumres01a.sas7bdat \\rtpsawn321\d\sql_loader\LeLimsSumres01a&suffix..sas7bdat";
-
- /* Tells SAS not to worry about keeping obs with the same BY variable values in the same order (for speed) */
-proc sql NOEQUAL ...
-
- /* DELETE returns to the top of the datastep w/o writing.
-  * RETURN returns to the top of the datastep with a default OUTPUT.
-  * LEAVE exits a loop.
-  * CONTINUE goes to the next iteration of the loop.
-  */
-
- /* PUT STATEMENT writes to a buffer (default: LOG) vs. INPUT statement reads from a buffer (default: CARDS)
-  *
-  * FORMAT specify how data is to be written vs. INFORMAT specify how data is to be read
-  *
-  * FUNCTION:  put(SAS data, $formats.)  vs.  input(raw data, $informats.)
-  */
-
- /* concatenate (stack) two datasets */
-... set x1 x2; ...
- /* interleave two datasets same except end up sorted */
-... set x1 x2;  by state; ...
-
-grandtot = sum(of idnum--qtr4);
-
-m=mean(of a[*]);   /* variable array */
-m=mean(of v1-v5);  /* variable list */
-
- /* Split parse string on dash taking 7ZP6699 from 7ZP6699-4148428 */
-mfg_batch=scan(mfg_batch,1,'-');
-
- /* Get every 4th obs */
-if mod(_N_, 4) eq 0; ...
- /* Get every other obs */
-if mod(_N_, 2) eq 0; ...
-
- /* Determine where WORK dir is located: */
-libname l '.'; proc contents data=l._ALL_; run;
-proc contents data=WORK._all_ NODS; run;
-proc contents data=WORK._all_; run;  /* cleaner, ds names only */
-proc contents data=L._ALL_ out=WORK.prcnts; run;
-
- /* List all vars in dataset: */
-proc sql;select name from dictionary.columns where libname eq 'L' and memname eq 'LELIMSINDRES01A210255';quit;
-
- /* Canonical do loop: */
-%do i=1 %to 5; %put here is &i; %end;
-%do i=5 %to 1 %by -1; %put here is &i; %end;
- /* Canonical do loop list: */
-data _null_; do i = 1, 2, 3; put i=; end; run;
-do i = 1, 2, 3, 'a', 'b', 'c';
-do i=1 to 3, 'cat', 20; ...; end;
-
- /* Canonical do loop until: */
-do until (n>100); ...
-do i=1 to 10 until (n>5); ...
-
-do while (1);  /* infinite loop */
-
- /* Has zero observations?: */
-  /* If don't care about closing, otherwise need to get a ds id number */
-data _null_; numobs=attrn(open('work.tmp'), 'nobs'); put "!!!" numobs=; run;
-...%let dsid=%sysfunc(open(CI_release)); %let cnt=%sysfunc(attrn(&dsid, NOBS)); %let rc=%sysfunc(close(&dsid)); %if &cnt eq 0 %then %do; %goto EXIT; %end;...
-
- /* Build tail of filename c:/foo/tmp/bar.txt */
-%let PRODUCTNAME=%substr(&DIRROOT, %eval(%index(&DIRROOT, tmp)+4));
-
- /* %global is distributive */
-%global foo bar;
-
- /* Skip first observation, get 2 3 4 5 only */
-set work.sample (firstobs=2 obs= 5);
-
-if description ne: 'al' then do; file "&DIRROOT\&SYSMACRONAME._Error.txt"; put "UNEXPECTED: &SYSDATE &SYSTIME " description=; end;
-
- /* Maximum storage size of SAS numeric using default 8. */
-9,007,199,254,740,992
-
-/* vim: set foldmethod=marker: */
-
-proc sort; by DESCENDING numb lname; run;
-
- /* View browse SASHELP library */
-options ls=180;proc contents data=SASHELP._all_ /*NODS*/;run;
-
- /* What SAS products are licensed / installed? */
-proc setinit noalias; run; 
- /* Apply setinit (to an expired license SAS - TODO does it work for a normal system?).  May be simpler just to right-click a setinit.sss file */
-C:\Program Files\SAS Institute\SAS\V8>sas.exe -setinit -sysin c:\setinit.sas -config "c:\Program Files\SAS Institute\SAS\V8\sasv8.cfg"
-
- /* Canonical read in readin infile input text CSV file: */
-data Val500_Fielder_DIVI_Granulation; infile F DLM=',' DSD MISSOVER LRECL=2600 FIRSTOBS=3; input Product :$40. mydt :DATE. ... ; run;
- /* DSD "data sensitive delimiter" treats two consecutive delimiters as a missing value and removes quotation marks from values */
-
- /* Compress spaces from a numeric macrovariable: */
-%let c = %sysfunc(compress(&c));
-
- /* Count spaces in a macrovariable by compressing them away */
-%let l1=%length(&spacey); %let c=%sysfunc(compress(&spacey)); %let l2=%length(&c); %let csp=%eval(&l1-&l2);
-
- /* Remove commas and quote delimiters from mvar */
-%let X=%sysfunc(compress(%quote(%sysfunc(translate(%quote(&S),' ',','))),'"'));
-
- /* Extract basename shortname stem from a fully qualified path: */
-%let fq = %sysfunc(reverse(&fq)); %let basename = %sysfunc(reverse(%scan(&fq, 1, '\')));
-
- /* Remove last 4 characters of sting */
-stem_with_end_removed=reverse(substr(reverse(s), 4));
-
- /* Delete specific characters, like regex s/foo// */
-phone = compress(fullphone, '()- ');
-
- /* Substitute specific characters, like regex s/-/_/g */
-sBatch1Code = translate(sBatch1Code, '_', '-');
-
- /* Substitute specific words, like regex s/foo/bar/g */
-sBatch1Code = tranwrd(sBatch1Code, 'foo', 'bar');
-sBatch1Code = tranwrd(sBatch1Code, 'foo', '');
-
- /* Canonical if then else macro: */
-%if &i eq 2 %then %do; %let fqds=8ZP2432; %end; %else %do; %let fqds=32; %end;
-
- /* Rename vars to avoid "WARNING: Variable mfg_batch already exists on file WORK.VALTREX_PRODUCTIONANDANALYTICAL." */
-proc sql; select * from sashelp.shoes (rename=(region=myyr subsidiary=mysub)) ; quit;
-data d9(drop=long_test_name rename=(long_test_name2=long_test_name)); ...
-
- /* View, display, print format permanent stored formats to .lst */
-libname l '.'; proc format library=l FMTLIB; run;
-proc format library=WORK FMTLIB; run;
-
-%let previousMonth = %sysfunc(intnx(MONTH, %sysfunc(today()), -1));
-
- /* Store as numeric */
-time_point = input(time_pointSTR, F4.);
-
- /* Fast proc means */
-proc means data=tmp; class time_point; var resultnum; run;
-
- /* Stupid SAS error message V8 at least: */
-NOTE: BY-line has been truncated at least once.  /* fix with options ls=max */
-
- /* Left align a numeric into a character */
-numlike=put(num, 6. -L); 
-
- /* View List and Log in my ;z map vim session */
-:args %:r.log %:r.lst
-
- /* Canonical SELECT (case) statement */
-select ( storeno ); when ( 81,83, 12 ) delete; when ( 73 ) put 'okthen'; otherwise; end;
-
- /* System call */
-options NOxwait; data _NULL_; x "start lelimssumres01a&nm..sas7bdat"; /* 0 for success */ %put Windows status is &SYSRC; run;
-
- /* Remove all formats in dataset */
-data foo; format _ALL_; run;
-
- /* Go back 1 year */
-%let thisyr = %sysfunc(year("&SYSDATE"d)); %let minyr = %eval(&thisyr-1);
-
-proc export data=VenHFA_analytical_individuals OUTFILE= "\\rtpsawnv0312\pucc\VENTOLIN_HFA\Output Compiled Data\CSV VenHFA_analytical_individuals.csv" DBMS=CSV replace; run;
-
-filename HERE '.'; %let pwd=%sysfunc(pathname(HERE)); 
-
-Patches installed:
-C:\Program Files\SAS Institute\SAS\V8\core\sasinst\hotfix\
-
-dataset_exists = %SYSFUNC(EXIST(mydataset));  /* 1 yes, 0 no */
-
-ods PDF file='c:/temp/t.pdf';  proc...run; ods PDF close;
-
- /* Eliminate garbage from a normally numeric field.  Keep Log clean. */
-proc format; invalue NUMONLY(UPCASE) -999999999 - 999999999 = _SAME_ OTHER = . ; run; data clean_numbers_only; input mynum NUMONLY9.; ...
-
- /* Avoid this v8 problem by not using empty parentheses on macro calls */
-180: LINE and COLUMN cannot be determined.
-
- /* Hardcoded literals in SQL select query */
-select distinct 'literal ' as hardcodedfieldname, region 'display reggy all for rows' format=$5., product from sashelp.shoes
-
- /* Macro index search */
-%if %index(&the_type, natmer) %then %put found a natmer;
-
- /* Canonical transpose, stat goes as column now */
-proc transpose data=foo; by store; id _STAT_; var totdol; run;
-
-libname INXML XML "&SYSPARM\&prodname\CODE\util\&DATASRC..xml" access=READONLY; proc contents data=INXML._all_;run; data tmp; set INXML.table; run;
-
- /* Default DM keys command line command focus SAS: <F11> PGM WPGM LOG OUT NUMS */
-
-Change default WORK location (PC SAS): edit near EOF -WORK
-C:\Program Files\SAS\SAS 9.1\nls\en\SASV9.CFG
-
-Right click C:\Program Files\SAS Institute\SAS\V8\core\sashelp\setinit.sss to install license
-
- /* Display each line of textfile as it's read-in using INPUT statement */
-put '!!!' _INFILE_;
-
- /* Submit the top n lines in SAS Editor - good for debugging like sasrun's endsas; trick */
-SUBTOP 42
-
- /* Show order by most frequent first */
-proc freq data=students order=freq; tables name / nocum; run;
-
- /* Loop all characters in dataset: */
-array cs _CHARACTER_; do over cs; if cs eq: 'foo' then cs = 'bar'; end;
-
- /* Single trailing at sign (for ID field) @ vs. Double trailing (for repeating blocks) @@ */
-@  holds record in input buffer so that logic can be used to figure out which (next) INPUT statement to us.  More than one INPUT statement exists in data step.  Releases when control returns to top of data step.
-@@ holds a record across multiple iterations of the DATA Step to allow reading multiple obs from a single line of raw data.  A single INPUT statement exists in data step.  Releases when the end of the raw RECORD is reached  or an @[@]-less INPUT statement is encountered.
-
- /* SAS Date format checker: */
-data _null_; d1 = input('01-JAN-60', DATE9.); d2 = input('01/01/2009', MMDDYY10.); put _all_; run;
-
- /* Build large dataset: */
-proc surveyselect data=SASHELP.shoes out=stacked samprate=1 reps=5; run;
-
- /* 2 years ago */
-%let thisyr = %sysfunc(year("&SYSDATE"d)); %let minyr = %eval(&thisyr-2);
-
- /* What SAS day number is one year ago from today? */
-%let mindt = %sysevalf(%sysfunc(date())-365);
-...  if test_date > &mindt; ...
-
- /* Save output as excel CSV file. v8 at least */
-ods CSVALL file='junk.csv'; proc print; run; ods CSVALL close;
-
- /* char2num canonical */
-data Material_Mapping_Table(drop=TMPmat_cod); set Material_Mapping_Table(rename=(mat_cod=TMPmat_cod)); mat_cod=input(TMPmat_cod, ? BEST. -L); run;
-
- /* char2num but suppress SAS Log "NOTE: Invalid argument to function INPUT at line..." */
-y=input(anumber, ? BEST. -L);
-
- /* char2num if you know it's coming in looking like a SAS date */
-numdollars = input(chardollars, COMMA7.);  /* 123,456 */
- /* num2char */
-devicealp = put(devicenum, 8. -L);   /* integer */
-devicealp = put(devicenum, 8.2 -L);  /* floating point */
-
- /* SAS atoi ASCII (character) to integer (numeric) conversion statement (think "I"NPUT is closer to "C"har so use that to convert a char): */
-yrtext='2003';  yrnum=input(yrtext, F4.);
-yrtext='2003';  yrnum=input(yrtext, ?? F4.);  /* avoid Log errors if char data can't convert to num */
- /* SAS itoa integer (numeric) to ASCII (character) */
-yrnum=2003; yrtext=put(yrnum, 8.);
-data v3(drop=NUM:); set v012(rename=(instance=NUMinstance)); instance = put(NUMinstance, 8.); run;
-
- /* num2char2date */
-numdate=122572;
-chardate=put(numdate,z6.);
-sasdate=input(chardate,mmddyy6.);
-
-options NOlabel;  /* prevent stupid proc sql default from displaying labels instead of varnames */
-
- /* View control and non numchar characters: */
-... c=compress(comments1159,'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');  ...
-
- /* Linehold using @ */
-data _null_;
-  file X21;
-  put 'SELECT NAME, IP_TREND_TIME, IP_TREND_VALUE FROM "23034794.Vessel.Pres.PV" WHERE IP_TREND_TIME BETWEEN ' @; *** '02-APR-10 00:00:00' AND '21-APR-10 15:00:00';
-  put "&IP21START and &IP21END";
-run;
-
- /* Convert to Oracle formatted datetime e.g. 21-MAY-98 02:30:37 is Oracle format 'DD-MON-YY HH24:MI:SS' */
-proc format; picture ORADTT other='%0d-%b-%0y %0H:%0M:%0S' (datatype=datetime);run; data; s='21May98:02:30:37'DT; call symput('IP21START',"'"||trim(left(put(s, ORADTT.)))||"'");run;
-
- /* SAS Enhanced Editor IDE F11 command shortcuts */
-out-->SAS Output  lst-->SAS Output (same)  log-->SAS Log  wpg-->Enhanced Editor
-
- /* proc sql &SQLRC is 0 when there were no errors */
-
- /* 10 seconds */
-data _null_; x=sleep(10); run;
-
-if first.storeno and last.storeno then put 'firstdot lastdot says there is only one of these unique values: ' storeno;
-
- /* Assigned automatically by SAS */
-SASUSER libname e.g.: C:\Documents and Settings\rsh86800\My Documents\My SAS Files\V8
-
- /* Display editor line numbers (Enhanced Editor etc) */
-nums
-
- /* SAS Program Editor (*not* Enhanced) where n is num of lines */
-Cn/CC copy  Dn/DD del  In insert  Mn move  Rn repeat  A after  B before  undo (in cmdline)
-
- /* View input file text file in a SAS IDE window */
-filename f 'bladerun_crawl'; proc fslist file=f;run;
-
- /* SAS Truth - True is 1 (or anything other than False), False is 0 or . */
-
- /* Distributive input statement */
-input (name1-name12) ($)  @@;
-input (Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec) (1.);  /* read raw 111222333444 */
-
-array elements{5} $2 _TEMPORARY_ ('H','He','Li','Be','B'); /* can't use '{*}' here */
- /* Multidimensional array 3 rows, 25 columns: 1-25 26-50 51-75 */
-array a{3,25} v1-75;  /* to access v50: a{2,25} */
-
- /* Standard, SAS column input readable, numerics: -15, 15.4, +.05, 1.54E3, -1.54E-3  But still may be able to use formatted input, COMMA12.2 etc, for nonstandards ($ or % or ,). */
-
- /* Ampersand informat input modifier accepts embedded space so data must be delimited by TWO or more spaces */
-input name &$12.  score1  score2;
-
- /* Fixed fields can be readin via column input (standard data only) or formatted input (either).  Freeform fields can be readin via list (or modified list "&" ":") input */
-
- /* Free-format input (space delimited etc) - use list input and only name each var and specify its type */
- /* Modified list can read spaces in vars and handle non-standards like commas in numbers */
-
- /* Canonical SAS DATETIME. format examples: */
-30May2000:10:03:17.2  DATETIME20.
-30May00 10:03:17.2    DATETIME18.
-30May2000/10:03       DATETIME15.
- /* TIME portion must be delimited by a colon, minimum width is TIME5. */
-
- /* Canonical DATETIME convert to human */
-data _null_; x=put(1614549716, DATETIME18.); put x=; run;
-
- /* Default input column pointer control starts at position 1.  After reading a piece of data it rests 1 column to the right of that data. */
- /* Column pointer controls: @n +n */
- /* Line pointer controls: / (relative, sequential)  #n (absolute, non-sequential) */
-
- /* _ERROR_ is a boolean */
-
- /* Avoid proc print "ERROR: Unable to allocate sufficient memory. At least 1168534K bytes were requested. You must either increase the amount of memory available, or approach the problem differently.  ERROR: Out of memory." */
-data _null_; set _LAST_; file LOG; put (_ALL_)(=); put; run;
-
- /* Good printf for debugging */
-data _NULL_; set _LAST_; file LOG; put '!!!DataLinkSQLPlusWSAdapterCon=================='; put (_ALL_)(=); put; run;
-
- /* Determine how many parameters were passed in */
-%let l1=%length(&SYSPARM); %let c=%sysfunc(compress(&SYSPARM)); %let l2=%length(&c); %let csp=%eval(&l1-&l2+1);
-
- /* Take 2nd thru last parameters passed in as a single string (to be iterated later) */
-%let sp=%str( ); %let pos=%index(%bquote(&SYSPARM), &sp); %let pxall=%substr(%bquote(&SYSPARM),&pos);
-
- /* Enquote for oracle statement syntax */
-%let today=%str(%'%sysfunc( today(),mmddyy10. )%');
-
-%let STARTDT=%sysfunc(putn(%sysfunc(datetime()), oradtt.));
-%let today=%sysfunc(datetime());
-%let prev=%sysevalf(&today-1*24*60*60);
-%let ENDDT=%sysfunc(putn(&prev, oradtt.));
-
- /* Convert from human to SAS datetime */
-data t; a=input("05-OCT-10 11:06:13", DATETIME18.); b=put(1601377424, DATETIME18.); run;
-
- /* If string contains substring 'zm' - weakly regex */
-if name eq "&DESIGNATOR" and index(upcase(Value),'ZM');
-
- /* Load a dataset into memory only when dataset is used. */
-SASFILE WORK.sample OPEN;
-
- /* Canonical min max */
-proc sql; select min(sampcreatets), max(sampcreatets) from tmp8.lims_0002e_avandamet; quit;
-proc sql; SELECT min(resentts) format=DATETIME19., max(resentts) format=DATETIME19. FROM l.sumvaltrex01a ; quit;
-proc sql; SELECT min(ts) AS mints format=ip21dtt., max(ts) AS maxts format=ip21dtt., "&STARTDT" as startdt, "&ENDDT" as enddt, count(ts) as cnt FROM &OUTPUTFILE ; quit;
-
- /* Simple timestamp datetime change */
-data tmp1.ip21_0001e; set tmp1.ip21_0001e; maxts='12NOV10:19:45:10'dt; baselastrun='14NOV10:21:15:20'dt; run;
-
- /* Which files is SAS accessing?                                     ___________ _________________ */
-c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin t.sas -log t.log -nosplash -rtrace all -rtraceloc t2.log
-
- /* Print resolved macro code */
- /*                     keyword                            */
-options MFILE; filename MPRINT 'printMacroResolvedSAScode.sas';
-
- /* GENMAX is the max number of datasets to rotate but each of those 7 gets an increment e.g. ip21_0002e_line8fillerBKUP#009.sas7bdat */
-echo "libname l '//Rtpsawn323/DataPost/GSK/Zebulon/MDI';libname l2 'u:/tmp';data l2.ip21_0002e_line8fillerBKUP(genmax=3);set l.ip21_0002e_line8filler;run;" >| $UTMPDIR/t.sas && $SASEXE -sysin "$UTMPDIR/t.sas" -log "$UTMPDIR/t7a.log";
-
- /* Variable range lists: */
-var1-var999;
-_character_
- /* More subtle variable range lists: */
-varA -character- varZ
-varP -numeric- varT
- 
- /* Canonical contents */
-proc datasets library=SASHELP; contents data=shoes VARNUM; run; quit;
-
- /* Print to SAS Log without %put */
-data _null_; file print; put #3 @10 "Data set &dsn. does not exist"; run;
-
- /* V8 undocumented informat: */
-x='2005/6/30 12:30'; ymd_no_ampm=input(x, ymddttm16.);
-ymd_ampm=input(z, ?? ymddttm18.);
-
- /* Distributed format put statement: */
-put (mydt1 mydt2)(= DATETIME18. /);
-
- /* What do we have for ODS HTML etc: */
-proc template; list tagsets; run;
-
-SAS/SHARE remote server (running proc server) -> local client
-SAS/CONNECT remote server (running spawner.exe) -> remote server (only the .sas file with rsubmit; endrsubmit; gets sent to server)
-
-Error "Format F_APRCLS not found or couldn't be loaded for variable APRCLASS" opening dataset for viewing can be eliminated by submitting:  options nofmterr;
-
- /* Blank out empty wipe initialize datasets */
-data ds_SAMPLE_1; run; data ds_SAMPLE_2; run;
-
- /* Canonical numeric array definition: */
-array temperaturehour_arr {24} temp1-temp24;
-
-DDMONYY in Oracle is DATE7 in SAS
-
- /* Canonical for each macro foreach loop */
-%local i f; %let i=1; %do %until (%qscan(FLUTICASONECONTENTPERINHALER SALMETEROLCONTENTPERINHALER, &i)= ); %let f=%qscan(FLUTICASONECONTENTPERINHALER SALMETEROLCONTENTPERINHALER, &i); data _null_; put "!!!wtf &f"; run; %let i=%eval(&i+1); %end;
-
- /* Macro multiple condition macro if then %if statement */
-%if &foo eq bar OR &foo eq %str(baz oom) %then ...
-
-# Google custom search SAS
-http://tx0.org/uf
-
-Enhanced Editor: Comment the selection with line comments  Ctrl + /  Undo the Comment  Ctrl + Shift + /
-
-libname RO 'c:/temp/' access=readonly;
-
- /* Print a CNTLIN stored format: */
-proc format library=work FMTLIB; run;
-
-options NOlabel;  /* Avoid proc sql printing pretty names instead of varnames */
-
- /* Convert SAS epoch date to human: */
-~/code/perl/datecalc 1/1/1960 19272
-
-SAS93WIN=C:/PROGRA~1/SASHome/SASFoundation/9.3/sas.exe
-
- /* Convert character constant date to character and SAS date to number in open code (easiest date converter conversion) */
-%put %sysfunc(putn('30OCT1965'D, 8.));
-%put %sysfunc(putn(17325, DATE9.));
- /* Convert character constant datetime to character and SAS date to number in open code (easiest datetime converter conversion) */
-%put %sysfunc(putn('30OCT1965:12:01:00'DT, 10.));  /* "10." instead of "8." to avoid "1.8399E8" */
-%put %sysfunc(putn(183988860, DATETIME14.));
-
- /* Wrap put */
-  put "And here is how a to not line break a long 
-looooooooooooooooooooooooooooooooooooong macro string";
-
-xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
-
-
 xxOTHERxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
 :: DOS directory list ls by age, order by oldest last.
@@ -4444,12 +4475,11 @@ sPlural = IIf((iFileCnt > 1), "s" & Chr(32), Chr(32))
 User settings are saved in the Registry here:
 HKEY_CURRENT_USER\Software\VB and VBA Program Settings\
 
-:: DOS BAT -- original errorlevel is always 0.
-:: Can view via cmdline:  echo %errorlevel%
-if c:/foobar exists goto foo_ok
-:: errorlevel will no longer be 0 if c:/foobar doesn't exist
+:: DOS BAT -- original errorlevel is always 0.  echo %errorlevel%
+if c:/foobar exist goto foo_ok ... :foo_ok
 :: This BAT test checks to see if the errorlevel return code is 1 OR HIGHER!
 if errorlevel 0 goto y_is_available
+if [%1] == [] echo 'no args passed to this .BAT'
 
 ' Determine which sheet you're using:
 MsgBox "'" & ActiveSheet.Name & "' is the currently active worksheet."
@@ -4477,6 +4507,7 @@ Prevent other sites displaying your pages inside their frames:
 
 Test an httpd Apache installation on localhost:
 http://localhost/cgi-bin/printenv
+http://127.0.0.1/cgi-bin/printenv
 
 RGB hex  FF=100%  CC=80%  99=60%  66=40%  33=20%  00=0%
 E.g. #00FF00 is 0% red, 100% green, 0% blue
@@ -4815,6 +4846,9 @@ select * from user_constraints where table_name = 'COUNTRIES';
 
 86400 seconds in a day
 
+// Scripting processing instruction (or use <![CDATA[ ):
+<? ... >
+
 // Javascript arrays
 coffees = ["French Roast", "Columbian", "Kona"]
 myArray = new Array("Hello", myVar, 3.14159)
@@ -4859,7 +4893,7 @@ select * from tbl where rownum<11  ' Oracle
 :: doskey in DOS == alias in Unix
 doskey vi=vim $1
 
-// Source JavaScript
+// Source an external JavaScript file:
 <script type="text/JavaScript" src="sortable.js"></script>
 
 // CSS JavaScript misc
@@ -4931,8 +4965,7 @@ Vimperator autoload Windows shortcut Properties target box:
 Windows shortcut Properties target box:
 "C:\Program Files\Vim\vim72\gvim.exe" -u u:\.vimrc
 
-XML header: <?xml version="1.0" ?>
-Same: <?xml version="1.0" encoding="UTF-8"?>
+XML declaration header: <?xml version="1.0" ?> or <?xml version="1.0" encoding="UTF-8"?>
 
 -- Oracle version:
 SELECT * FROM v$version
@@ -5140,8 +5173,11 @@ Remote Desktop C:\WINDOWS\system32\mstsc.exe /admin
 
 <?xml-stylesheet type="text/xsl" href="file:///c:/datapost/cfg/DataPost_Configuration.xslt"?>
 
-# git basics or $ git help foo
+# git basics or $ git help foo:
 git status && git diff && git add . && git commit -am 'bitfiddled'
+
+# wget-ish:
+git clone git://busybox.net/busybox.git
 
 # git new branch:
 git branch mynewbranch; git checkout mynewbranch
@@ -5512,6 +5548,31 @@ $ git branch -d experimental
 
 # Discard git discard throw away changes
 $ git checkout .   # abandon all pending changes "not staged for commit"
+
+# Test AJAX etc that won't work using file:// etc.
+$ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
+
+-- SQL Server hideous datepart splitout:
+convert(varchar,fwn.VariableStp.dtStartDateTime,101) as dtStartDate
+convert(varchar,fwn.VariableStp.dtStartDateTime,108) as dtStartTime
+
+<!-- button glow effect -->
+<A href=test.html onMouseOver='alternate(0,"exitlit.jpg")' onMouseOut='alternate(0,"exit.jpg")'><IMG src=http://triweb/CustSvcFin/images/exit.jpg></A> 
+
+<!-- Predefined character entities -->
+&lt; &gt; &quot; &amp; &apos;  &#169; or &#xA9 is copyright symbol
+
+<![CDATA[ protected stuff here ]]>
+
+<xsl:for-each select="Configuration/Extracts/Extract">
+
+<xsl:when test="contains(ExtractID,'dpv1')"><td><div id="dpv1"><xsl:value-of select="ExtractID"/></div></td></xsl:when>
+
+private static final String[] items={"java", "strings", "in", "array"};
+
+"lorem", "ipsum", "dolor", "sit", "amet", "consectetuer", "adipiscing", "elit", "morbi", "vel", "ligula", "vitae", "arcu", "aliquet", "mollis", "etiam", "vel", "erat", "placerat", "ante", "porttitor", "sodales", "pellentesque", "augue", "purus"
+
+Log.d(getClass().getSimpleName(),"my debug wtf");
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  
