@@ -3150,7 +3150,7 @@ $ rxvt -bg white -fg black -geometry 80x40+159+46 -fn "Andale Mono-12"
 START=`date +%s`;WORDS=`cat|wc -w`; STOP=`date +%s`; SPEED=`echo "$WORDS / ( ( $STOP - $START ) / 60 )"|bc`;echo "You have a typing speed of $SPEED words per minute."
 
 # Configure ssh for no password:
-ssh-keygen -t dsa  # on mario
+ssh-keygen -t dsa  # on mario but  ssh-keygen -t rsa -b 4096  is a standard for 2012
 cat /home/chronos/.ssh/id_dsa.pub | ssh rheckel@sdf.org 'cat - >> ~/.ssh/authorized_keys'
 # Better ssh no password,  Ignores mkdir if ~/.ssh/ already exists:
 ssh user@host "mkdir -p .ssh && cat >> .ssh/authorized_keys" < ~/.ssh/id_rsa.pub
