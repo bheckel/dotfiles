@@ -7,40 +7,14 @@
 #
 #           Comments are often written for searching, not proper English...
 #
+#           Some of these are obsolete...
+#
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Tue 27 Nov 2012 13:27:27 (Bob Heckel)
+# Modified: Mon 03 Dec 2012 11:18:39 (Bob Heckel)
 #
 #########################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
-
-" For each line containing USPRD372, do this substitution
-:g/USPRD372/s/rtpsduxrac21/us1sduxrac03/c
-
-" Delete line 10 and the 3 lines following it (total 4 lines deleted)
-:10d 4
-
-" Delete first replicant (only) from line 9 to end of file
-:8/replicant/
-
-" Delete line containing the *last* instance of string 'the_end' in a file:
-:1;?the_end?d
-
-" Substitute the word 'xx' for 'foo' if found in the line following one
-" containing the word 'bar':
-:/bar/+1s/foo/xx/
-
-" Delete all spaces from the lines between, but not including, Section 1 and
-" Section 2:
-:/Section 1/+,/Section 2/-s: \+::gc
-"
-" Find Section 1, then first line with Subsection, step one line down (beginning of range) and find the next line with Section 2, step one line up (end of range):
-:/Section 1/;/Subsection/+,/Section 2/-s: \+::g
-
-" Add line before line starting with 'Section' is found.
-:g/^Section/s//As you recall in&/
-" Add line after line starting with 'Section' is found.
-:g/^Section/s//&As you recall in/
 
 " Delete all empty lines
 :g/^$/d
@@ -53,30 +27,31 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 " Doublespace a file:
 :%s/$/^M/g
 
+" Insert a line, interleave, after each line in a file:
+%s/$/foo bar/gc
+
+" For each line containing USPRD37, do this substitution
+:g/USPRD37/s/rtpsduxrax/us1sduxray/c
+
+" Delete line 10 and the 3 lines following it (total 4 lines deleted)
+:10d 4
+
+" Delete all spaces from the lines between, but not including, After and Replicant:
+:g/After/+,/Replicant/- s: \+::g
+ 
 " Delete all *lines* containing the word emacs.  E.g. 'Boot the emacs OS'
 :g/\<emacs\>/d
 
-" Delete all lines NOT containing any part of these words.
-" This use of the global command uses the OR operator \| (chaining alternation):
+" Delete all lines NOT containing any part of these words.  global command uses the OR operator \| (chaining alternation):
 :g/^foo\|^bar/d
 
-" Reuse a search pattern.  Single line yanked.
-:/Yankme/y
-:/YankNextLine/+ y
+" Yank all lines containing Emily into buffer A (must use uppercase register letter or only get last yank). Clear register A before beginning:
+:let @a='' | :g/Emily/y A
+" Delete line above a blank line (e.g. last line in a block or paragraph) into register a:
+:let @a='' | :g/^$/-1 d A
 
-" Yank all *lines* containing word into buffer A (must use uppercase register letter or only get last yank). Clear register A before beginning:
-0"ay0
-:g/Emily/y A
-" Or move 'Emily' lines into a buffer for pasting somewhere else:
-0"ay
-:,$g/Emily/d A
-
-" Yank line above a blank line (e.g. last line in a block or paragraph) into
-" register a.  Good for getting the latest from ~/bin/latebf19 output.
-:g/^$/-1 y A
-
-" Visualize, view, trailing spaces (assumes highlightsearch default is off).
-:set hls<CR>/\s\+$<CR>
+" Highlight, view, trailing whitespace:
+:se hls | /\s\+$/
 
 " Strip all trailing whitespace (especially useful in MVS SAS files):
 :%s:\s\+$::gc
@@ -84,70 +59,62 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 " Surround each word with single quotes.  E.g. foo, bar, baz, boom:
 :%s/\(\w\+\)/'\1'/gc
 
-" Copy the line (or lines) *preceding* UNI to the last line in the file:
-:g/UNI/- co $
-" Go up 2 lines to do the copy:
-:g/UNI/-- co $
-
 " Find lines with 'Replicant', substitute.  Then copy those lines to the bottom of the file:
 :g/Replicant/s/were/WERE NOT/ | copy $
+
+" Move all lines containing foo to EOF:
+:g/foo/ co $
+" Copy the line (or lines) preceding foo to the last line in the file:
+:g/foo/- copy $
+" Go up 2 lines to do the copy:
+:g/foo/-- co $
 
 " Moves a section of text below another section of text.
 :g/StartOfBlockToMove/,/NextBlockStartHere/-1 mo /MoveToAboveThisLine/-1
 
-" Append all (potentially non-contiguous) lines containing 'eplicant' to
-" junk.txt.  Do NOT forget the '.' (current line address).  junk.txt must
-" exist.
-:g/eplicant/ . w >> junk.txt
+" Append all (potentially non-contiguous) lines containing foo to junk.txt.  Do NOT forget the '.' (current line address):
+:g/foo/ . w >> t.txt
 " or using marks:
-:'a,'b g/eplicant/ . w >> junk.txt
+:'a,'b g/foo/ . w >> t.txt
 
-" Specify which lines, starting with Th, should have their e turned to E.
+" Specify which lines, starting with Th, should have their e turned to E:
 :,+15g/Th/s/e/E/gc
 
-" Reverse all lines in a file (the zero is a noop where the matching lines,
-" i.e. all of them, are continually placed):
+" Reverse all lines in a file (the zero is a noop where the matching lines, i.e. all of them, are continually placed):
 :g/^/m0
 
-" Poor man's move (assumes UNI exists on lines 2 thru 4) UNI lines to EOF:
-:g/UNI/ co $ | 2,4 d
-
-" Write (append) individual lines to a file.  Don't forget the '.' 
-" The dot address in front of the write command tells it to write only
-" the line it is on
-:g/eplicant/ . w >> junk
-
-" HTMLify (htmlize htmlify).  TODO requires 2 passes.  Misses first line.
+" HTMLify (htmlize htmlify).  TODO requires 2 passes.  Misses first line:
 :g/^$/+ s/^./<P>&/
 :g/^$/- s:.$:&</P>:
 
-" Show match with context
+" Show matches with context, nondestructive:
 :g/replicant/z#.5|echo "==========" 
 
-" Confirm global :g actions:
-:g/DELME/if input("line ".line(".").":".getline(".")) == "y"|delete|endif
+" Confirm paranoia global :g actions:
+:g/global delete with prompt/ if input("del line? " . line(".") . ":" . getline(".") . " y/[n] ")=="y" | delete | endif
 
 " Delete a block range if you can determine start and end of blocks:
-:g/^\s\+The SA/;/^ProdSp/ d
+:g/^\s\+The SA/;/^ProdSp/d
+
+" Non-inclusive delete.  Only delete everything between these two lines:
+:?firstword? 1,/lastword/ -1 d
+
+" Chain two searches, find the first word peak appearing the following only AFTER the word am0908
+/am0908/;/peak info
+" Chain two searches:
 
 " Delete everything except these two strings:
-:g!/SC04\/013-25\/60-24-01\|6ZM2103/d
+:g!/SC04\/013-25\/60-24-01\|6ZM1234/d
 
-" Make 2 copies of the entire file (%) and copy the copies to EOF.
-" g/^/ means every line that has a start-of-line (which means every line).
-:1,3 g/^/ % co $
-
-" Insert specific lines of an external file at very top of your file.
+" Insert specific lines of an external file into the top of your file.
 :0r !head -n15 foo.txt
-
 " Insert specific range of an external file at very top of your file.
 :0r !awk'/start/,/end/{print}' foo.txt
 
-" Sort in plain vi (w/o my '=' sort map):
-At start of lines do ma, go to end of list, !'asort  <---go to EOL & no ':'!
+" Sort in plain vi (w/o my '=' sort map). At start of lines do ma, go to somewhere on end of your block's line, do !'asort  <---no ':'!
 
-" Delete everything prior to emacs, keep the rest of the line:
-:%s/.*\(emacs.*\)/\1/gc
+" Delete everything prior to vim, keep the rest of the line:
+:%s/.*\(vim.*\)/\1/gc
 
 " Lowercase each letter in file (use u for uppercasing):
 :%s/./\l&/gc
@@ -155,78 +122,57 @@ At start of lines do ma, go to end of list, !'asort  <---go to EOL & no ':'!
 :%s/.*/\l&/gc
 " Lowercase or uppercase with \U all single line C-style comments:
 :,$:s:\(/\*.*\*/\):\L\1:gc
-
 " Lowercase a specific word (use \U for uppercasing):
 :%s:\(LIST\):\L\1\E:gc
 " or better
 :%s:CODES:\L&\E:gc
 " or shorter
 :%s:CODES:\L&:gc
-
-" Move a non-blank line, 42, to the top of the file:
-:42 g/./m0
-" Move highlighted block to the end of the file (scratchpad):
-:'<,'>m$
-
-" Find the first word peak appearing the following only AFTER the word am0908.  I.e. find AM0908 but don't stop, keep going, to find the first PEAK INFO after that.
-/am0908/;/peak info
-
-" Non-inclusive delete.  Only delete everything between these two lines:
-:?superi? 1,/labor/ -1 d
-
-" Insert a line, interleave, after each line in a file.
-:0,$:s:$:^Mfoobar:gc
-
-" Restrict the pattern search and line marking to a stretch beginning three lines past the last previous line that starts with the string 'Exercises' and ending at the end of the file.  +++ means previous 3 lines (ie up)
-?^Exercises? +++ , $ g/foo/d
-
-" Uppercase (a.k.a rightcase) first letter of specific word
-:0,$:s:foo:\u&:gc
-" or uppercase (a.k.a rightcase) first letter of specific word if words are
-" quoted
-:0,$:s:'\(\w\):'\u\1:gc 
-" foo becomes Foo
 " Uppercase whole word
 :0,$:s:foo:\U&:gc
-" foo becomes FOO
-" Uppercase first letter of all words a.k.a titlecase.  Also see Perl solution.
+
+" Restrict the pattern search and line marking to a stretch beginning three lines past the last previous line that starts with the string 'Exercises' and ending at the end of the file.  +++ means previous 3 lines: 
+?^Exercises? +++ , $ g/foo/d
+
+" Uppercase (a.k.a propcase rightcase titlecase smartcase) first letter of specific word:
+:0,$:s:foo:\u&:gc
+" Uppercase first letter of all words:
 :%s:[^ ]*:\L\u&:g
-" or to smart-case (titlecase) all cap words as well
+" or propcase all capitalized words as well:
 :%s:\([A-Za-z]\)\([A-Za-z-]*\):\u\1\L\2:g
 
-" Search and replace across lines (eg replace Acme Distributors with Barrett...
+" The classic search and replace across lines (eg replace Acme Distributors with Barrett...):
 " First get instances not split over 2 lines---
 :%s/Acme Distributors/Barrett and Sons/g
 " Then get those split across newlines---
 :g/Acme$/+ s/^Distributors/and Sons
 :g/^and Sons/- s/Acme$/Barrett
 
-" Fix Perl comment on current line to start with a capital letter and end with
-" a period.
+" Fix Perl comment on current line to start with a capital letter and end with a period:
 :s:# \(.\):# \U\1: | s:$:\.:
 
 " Turn line containing only a url into an HREF
-:0,$:s:\(.*\):<A HREF=\1>\1</A>:gc 
+:0,$:s:\(.*\):<a href=\1>\1</A>:gc 
 
-" Put angle brackets around an email address.  E.g. <rheckel@yaho.com>
-" TODO fails on strings like rheckel@sdf.lonestr.org
+" Put angle brackets around an email address.  E.g. <rheckel@yaho.com> but not <bheckel@sdf.lonestr.org>
 :0,$:s: \(\w\+@\w\+\.\w\+\)$: \<\1>:gc
+
+" Write current line to file:
+:. w foo.txt
 
 " Write file to two different places (current dir and other) simultaneously:
 :w | :w!/home/rheckel/tmp/%:t
 
 " Quick date stamp on tail
-:w u:/%:t.YdS   <---assumes my strftime vim map is available
+:w %:t.YdS   <---assumes my strftime vim map is available
 
 " Insert date between stem and tail extension (still have to type the tail)
-:w~/projects/add_ventolin/%:t:r.oct08.sas
+:w~/projects/%:t:r.oct08.sas
 
 " Mainframe uses stem basename only (INCLUDE.sas goes as INCLUDE):
 :!bfp % 'bqh0.pgm.lib(%:t:r)'
 
 " Reorder a comma separated (CSV) file:
-:%s/\([^,]*\),\([^,]*\),\([^,]*\),\(.*\)/\1,\3 \4,\2/
-" Or slightly clearer:
 :%s:\([^,]*\),\([^,]*\),\([^,]*\),\(.*\):\1,\3 \4,\2:
 " Then remove the spaces:
 s/[ \t]*,[ \t]*/,/g
@@ -235,28 +181,20 @@ s/[ \t]*,[ \t]*/,/g
 :%s/\(really \)\(really \)*/very /
 
 " Insert a literal null (ascii 0).  In insert mode:
-Press Ctrl-v then 0
+Ctrl-v then 0
 
-" If you know the column number which you want to act on:
+" If you know the column number which you want to act on (pipe here is vim magic not normal use of it):
 " Replace columns 1 thru 70 with an X:
 v70|rX
 " or delete from current position to column 20
 v20|d
-" if you're just viewing,  :vsplit  might be better
 
 " Find parts of a word like re or retu or return:
 /\<re\%[turn]\>
 " In code:
-if wrd == "re" || wrd == "ret" || wrd == "retu" || wrd == "retur"                                
-  "do something
-endif
+if wrd == "re" || wrd == "ret" || wrd == "retu" || wrd == "retur" ...do something... endif
 " is now more cleanly represented as:
-if match(wrd, "\\<re\\%[tur]\\>") > -1
-  "do something
-endif
-
-" Extended character set for foreign characters - show defined digraphs:
-:dig[raphs]	
+if match(wrd, "\\<re\\%[tur]\\>") > -1 ...do something...  endif
 
 " Alternate foreign character digraph method (better if don't know the code):
 :dig         <---determine digraph's decimal code on (right side)
@@ -268,16 +206,7 @@ Then in insertmode (e.g copyright symbol):
 C<BS>o   <---Produces ©
 s<BS>s   <---Produces German ß 
 
-" Edit macro buffer:
-qa    <---record macro
-q     <---then you notice it's wrong, so stop
-G     
-o<ESC>
-"ap   <---then edit what you've pasted
-"ayy  <---yank the line back into buffer a
-qa    <---try again
-
-" Show where all tabs, EOLs, hidden chars, etc are on a whole a file:
+" Show where all tabs, EOLs, control, hidden chars, etc are on a whole a file:
 :se list
 
 " Scroll scrollbind windows together vertical default:
@@ -289,34 +218,34 @@ qa    <---try again
 " View this keyword anywhere in file (move cursor to word).  Think '[ is easier to reach on keyboard - lazy geek default show all'.
 [I
 
-" Substitute, search and replace, on several files in a directory (e.g. instead of using ~/bin/replace)
-" Recursively load the files (like :e *.c but that doesn't work)
+" Recursively load files matching a pattern (like :e *.c but that doesn't work)
 :args **/*.c
 :argdo %s:'\\\\rtpsawnv0312\\pucc:'C\:\\cygwin\\home\\rheckel\\projects\\datapost\\tmp:ge | update
 " Bulk update substitute single quotes for double quotes in all open buffer files
 :argdo g/libname/s/'/"/g | update
-" Bulk update convert fully qualified path to SAS macrovariable in all open buffer files ( : and & make it even messier than usual)
-:argdo %s:C\:\\cygwin\\home\\rheckel\\projects\\datapost\\tmp\\ADVAIR_HFA:\&DIRROOT:ge | update
+" Bulk update convert fully qualified path to SAS macrovariable in all open buffer files:
+:argdo %s:C\:\\cygwin\\home\\bheckel\\VAIR_HFA:\&DIRROOT:ge | update
 
-" Simple bulk - must have used :args - e in ge keeps vim quiet if no match (c confirm doesn't appear to work-THERE IS NO CONFIRMATION), do a  :vimgrep /foo/ **/*.sas  first to verify what will change.
+" Simple bulk update - must have used :args - e in ge keeps vim quiet if no match (c confirm doesn't appear to work-THERE IS NO CONFIRMATION), do a  :vimgrep /foo/ **/*.sas  first to verify what will change:
 :argdo %s/foo/bar/ge | update
 
-" Count words word count (returns e.g. '4 matches on 3 lines')
+" Count words word count (returns e.g. '4 matches on 3 lines'):
 :%:s:replicant:&:gn
 
-" DEPRECATED, use my .vimrc BuffersList() bbb cmap  instead to "bufgrep"
+" Just search all buffers. DEPRECATED: use bufgrep or my .vimrc BuffersList() bbb cmap:
 :bufdo %s/findme/&/gic
-
-" Search and replace all buffers interactively
+" Search and replace all buffers interactively:
 :bufdo %s/findme/changeme/gic
 
+" After you've forgotten to check file permissions:
+:w !sudo tee %
+
 " Search find a word and move cursor offset to one or more char positions from match.
-/myword/b     <---cursor is on m (the normal default -- beginning)
-/myword/b+1   <---cursor is on y -- beginning
+/myword/b     <---cursor is on m (default -- beginning)
+/myword/b+1   <---cursor is on y
 /myword/e     <---cursor is on d -- end (good for "delete thru this char": d /.../e )
-/myword/e-2   <---cursor is on o -- end minus 2 chars
-/myword/e+1   <---cursor is on char after myword -- end plus 1 char
-/myword/e+    <---cursor is on char after myword -- end plus 1 char
+/myword/e-2   <---cursor is on o
+/myword/e+    <---cursor is on first char after myword -- end plus 1 char
 
 " Insert date on current line:
 !!date
@@ -331,52 +260,30 @@ qa    <---try again
 " Write a specific range to a new textfile using marks a and b:
 :'a,'b w newfile.txt
 
-" Vim regex:
-" If two or more
+" Regex if two or more
 \{2,}
-" Match the previous atom from 0 to m times
+" Regex match the previous atom from 0 to m times
 \{,m}
-" Match the previous atom from 0 to m times but as little as possible i.e.
-" non-greedy
+" Regex match the previous atom from 0 to m times but as little as possible i.e. non-greedy
 \{-,m}
-" Match the previous atom n to m times but as little as possible i.e.
-" non-greedy
+" Regex match the previous atom n to m times but as little as possible i.e. non-greedy
 \{-n,m}
-" E.g. Non greedy search, match 3 to 5 a's but prefer the shortest match.
+" Non greedy search, match 3 to 5 a's but prefer the shortest match.
 /a\{-3,5}
-" Non-greedy Vim search (use :se hls to see the results better)
-" E.g. string axbxb
+" Non-greedy Vim search (use :se hls to see the results better) E.g. string axbxb
 /a.*b     <---greedy finds axbxb
 /a.\{-}b  <---non-greedy finds axb
-" Better pipe delimited non-greedy (e.g. "dod_yr|$1-4|REV|date of death" rets
-" dod_yr).  Replace the first  .*  with  [^|]*  to be non-greedy e.g.:
+" Better non-greedy (e.g. foo|bar|baz returns foo).  Replace the first  .*  with  [^|]*:
 :,$:s:\([^|]*\)|.*:\1:gc
-" or non-greedy colon
-:%s/^[^:]*://gc
+:%s/[^|]*|.*/xxx/gc
 
-" Pad a row to a specific number of columns, 97 in this case, using a macro:
-" Start on line of interest.
-qa
-O97i 0jYkR"jdd      <--- '^[' are escapes, there is a space after i
-@a
-" It finishes on next line to process.
-42@@      <---to do 42 more lines
-
-" Modeline samples.  Trailing ':' required for multiple set's.  /* vim: set tw=72 ft=sas ff=unix: */ # vim: set list syntax=off foldmarker=#{{{,#}}} foldmethod=marker tw=78:
+" Modeline.  Trailing ':' required for multiple set's.  /* vim: set tw=72 ft=sas ff=unix: */ # vim: set list syntax=off foldmarker=#{{{,#}}} foldmethod=marker tw=78:
 
 " Substitute TBE2.FINAL.BF19.DATASET using nested capturing parens:
 :0,$:s:BF19\.\(..\)\(.*\):FILENAME \12001 'BF19\.\1\2' DISP=SHR;:gc
 
 " Substitute files for //IN JCL:
 :0,$:s:\(.*\)://*IN      DD DSN=\1,DISP=SHR:gc
-
-" Rename files interactively using vi:
-vi
-:r !ls pattern*.txt
-:%s/.*/mv & &/
-:%s/tt/uu/
-:w !sh       <---run commands by writing them to the shell
-:q!
 
 " Create a unique filename based on seconds since the Epoch:
 $ vi foo`date +%s`.txt
@@ -399,24 +306,17 @@ $ vi foo`date +%s`.txt
 
 " Open file and place cursor at the search word ERROR or WARN:
 vi -c '/^ERROR\|^WARN/' foo.txt
-
-" Open a file while copying and pasting (yanking and putting) the first line
-" at the same time.
+" Open file while copying and pasting (yanking and putting) the first line at the same time.
 vi -c ':y | put' foo.txt
-
-Open Vim to last line of file, set textwidth:
+Open file to last line of file, set textwidth:
 vim -c 'set tw=68 et' +  foo.txt
 gvim -c 'set lines=20 columns=150'
 vi -c 'map q :q!<CR>' foo.txt
 vi -c 'map q :q!<CR>' -c 'map z noop' foo.txt
 
-" Add non-standard help files to Vim Help:
-cd to the .txt
-vi
-:helptags . 
+" Add non-standard help files to Vim Help 1- cd to the .txt 2- :helptags . 
 
-" To read in fewer than all lines use the shell (hard to believe :1,9r doesn't
-" work!)
+" To read in fewer than all lines use the shell:
 :r !head -n30 foo.txt
 
 " To print from GUI W32 Vim:
@@ -425,26 +325,14 @@ vi
 " Halve, cut in half the current file:
 :%norm jdd
 
-" Simple canonical increment without incpat.  Ctrl-v highlight from your start num then
-:Inc  " or <C-A> if mapped --> vnoremap <C-A> :Inc<CR>
+" Simple canonical increment depending on my custom .vimrc fn.  Ctrl-v highlight from your start num then:
+vnoremap <C-A> :Inc<CR>
+" Increment a left zero padded column of numbers (0000, 0100, 0200...), highlight them then:
+:'<,'>Inc(100)  <---Ctrl-a won't maintain the left zeros
+" Increment a pattern ('pattern' is usually '@').  My .vimrc default is just highlight and :Incpat but to override defaults:
+:1,4call IncPattern('p@','s0','i1')  <--(p)attern, (s)tart at number, (i)ncrement by 
 
-" Increment a left zero padded column of numbers (0000, 0100, 0200...), 
-" highlight them then:
-:'<,'>Inc(100)        <---Ctrl-a won't maintain the left zeros
-
-" Increment a pattern ('pattern' is usually '@')
-" My .vimrc default is just highlight and :Incpat but to override defaults:
-" e.g. :1,4call IncPattern('p@','s0','i1')  (p)attern, (s)tart at number, (i)ncrement by 
-
-" Folding by expression doesn't seem to work (2004-07-20).  Paste this Vim
-" macro into a register to fold SAS macro blocks:
-v/%mend/-1
-zf
- 
-# Upload filename without extension tail (e.g if you're editing include.sas):
-:!bfp % 'bqh0.pgm.lib(%:t:r)'
-
-" Yank the one single character that cursor is on
+" Yank the one single character that cursor is on:
 yl
 
 " Create fold zf, open fold zo, close all zx, delete zd, :set foldcolumn=2
@@ -455,8 +343,7 @@ yl
 " netrw plugin if vim already open (beware there is NO file locking here):
 :Nwrite "daeb rheckel Tistyb4p tmp/testing/junk2z"
 :Nread "mf bqh0 Tistyb4p pgm.trash(junk)"
-:Nwrite "mf bqh0 Tistyb4p pgm.trash(junk)"
-" Netrw using vim with ssh (similar using FTP):
+" Netrw using vim with ssh:
 $ vim scp://rheckel@192.94.73.4/html/index.html
 $ vi scp://rsh86800@rtpsh005//opt/QCServer/A.05.00/svr/files/Inspec_Lot-0108.log  # note no colon and double slash
 
@@ -465,8 +352,7 @@ $ vi scp://rsh86800@rtpsh005//opt/QCServer/A.05.00/svr/files/Inspec_Lot-0108.log
 " Debug perl script:
 :,$:s:\(my \(\S\+\).*\):\1print '\2 ', \2;:gc
 
-" Convert file to html (if code, it'll maintain syntax highlight coloring but
-" must change header line to this <body bgcolor="#000000" text="#ffffff">):
+" Convert file to html:
 :runtime! syntax/2html.vim
 
 " nl(1) number line replacement
@@ -474,33 +360,22 @@ $ vi scp://rsh86800@rtpsh005//opt/QCServer/A.05.00/svr/files/Inspec_Lot-0108.log
 
 " If vim -d is not available resort to:  $ diff -ybB -W160
 
-" Count delimiters quickly  :s/|//c  then undo
-
-" Turn fscking tabs into spaces (depends upon tabstop value, usually set tabstop=2 for me)
-:retab
-"
-" Find all leading tabs and replace with spaces.  Since every character in submatch(0) will be a tab we can replace each character with four spaces.
-:%s/^\t*/\=substitute(submatch(0), ".", "    ", "g")
-" Put the tabs back over the 4 spaces:
-:%s/^ \+/\=substitute(submatch(0), "....", "\t", "g")
-
 " Sort all non-blank lines from here down (alternative to visual mode & '=' ):
 :.,/^$/-1!sort
 
-" Count bytes and words to cursor
+" Count bytes and words to cursor:
 g Ctrl-g
 
-" Edit all .c files containing the word frame_counter
+" DEPRECATED. Edit all .c files containing the word frame_counter:
 vim `grep -l frame_counter *.c`
+" Recursive vim search
+:vimgrep /frame_counter/ **/*.c
 
 " Search Vim help:
 :echo $VIMRUNTIME   <---then  $ cd /usr/share/vim/vim63/doc  and grep
 " Better (no quotes or slashes used here like vimgrep !), case insensitive, :cn to iterate results
 :helpgrep holy-grail\c
 :vim[grep] /holy-grail/ /usr/share/vim/vim70/doc/*
-
-" Recursive vim search
-:vimgrep /manufactur/ **/*.sas
 
 " If you need to search but have several open files and don't want to shell out:
 :vimgrep /select.*into/ *.plsql
@@ -516,32 +391,17 @@ vim `grep -l frame_counter *.c`
 " Delete everything but the first 2 fields in a CSV
 :%s:\(.\{-}\zs,\)\{2}.*::
 
-" Delete first 2 tab delimited fields (need ctr-v tab)
-:%s/[^^I]*\{2}//gc  TODO does not work
-:,$:s:[^^I]*^I[^^I]*^I::gc
-" Alternative is to substitute the tabs for CR and do a :g!/^.../d
-
-" Substitute a CR for each comma but don't be greedy doing the whole line by
-" accident (basically replace the '.' in '.*' with '[^,]'):
-:,$:s:Section[^,]*,:&^M:gc
-
 " Canonical convert a file to HTML, opening the results in a new window:
 :1,$TOhtml
 
 " Crosshairs bullseye
 :se cuc|se cul (or better :se cuc cul )
 
-" To avoid forgetting to mkview before exiting
-:map :w :w\|mkview
-
 " View debug web page HTML/SAS Log output in Vim (using Vim instead of less)
 w3m -dump 'http://rtpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program=LINKS.bobhmenu.sas&_debug=131&_server=rtpsawn321.corpnet1.com&_port=2738&_sessionid=HrYW7jQ7K52&pecORspec=Specification&menu=LACtlTblRd&Submit=++Read+LINKS+Specification+Table'|vim -R -c "se ft=saslog|map q :q<CR>" -
 
 " Convert a comma delimited list to LIKE statements (TODO how to do IN('%ADVAIR%',...) ?
 :,$:s:'\(\w\+\)[^,],:OR prod_nm LIKE '%\1%'^M:gc
-
-" Find and edit an alias, executable, etc. wherever it is on disk:
-$ vi `type -p prellg`
 
 " Swap tab-delimited field 5 with 4 position (use :se list to view these tabs):
 ,$:s:^\([^	]*\)	\([^	]*\)	\([^	]*\)	\([^	]*\)	\([^	]*\)	\(.*\):\1	\2	\3	\5	\4	\6	:gc
@@ -553,13 +413,7 @@ vi -R foo.txt
 $ vim -c 'argdo /begin/+1,/end/-1g/^/d | update' *.c
 
 " Slow and mostly useless sed replacement
-$ vim -c 'argdo set nomore | g!/-2008/d | update' CI2003individualsRELEASE_Ven60.csv
-
-" Compare vimdiff diff two existing buffers :vert diffsplit then switch to other buffer and :diffthis then force any changes :diffupdate when done reset the diff :se nodiff
-
-" vimdiff keymaps
-do == :diffget
-dp == :diffput
+$ vim -c 'argdo set nomore | g!/-2008/d | update' foo.csv
 
 $ vim -u NONE -U NONE -N   <---no .vimrc and plugins ('clean' VIM)
 
@@ -574,17 +428,24 @@ vim -c "s/hello/goodbye cruel/" -c "wq" fun.txt
 " Matches any line meeting the constraints: 1) contains anything (.*) followed by ObjectName 2) starts (^) with something which isn't 'import' (\(import\)\@!)
 /.*ObjectName\&^\(import\)\@!
 
-" Determine length of longest maximum line (fn is custom in .vimrc):
+Finds line longer than 80 characters:
+/\%>80v.\+
+" Determine length of longest maximum line (fn is custom in my .vimrc):
 :Maxl
 :call MaxLineLen(1)
 
-:DirDiff ~/projects/datapost/tmp/valtrex_caplets/CODE //rtpsawnv0312/pucc/valtrex_caplets/CODE/
-:DirDiff . //rtpsawnv0312/pucc/VALTREX_Caplets/CODE/
+:DirDiff . //trpsawnv0312/CODE/
 " dp to 'diff put' change to the other window, arrow keys to nav (double arrow up to de-syntax)
 To synch DirDiff: s  (in bottom pane with cursor ==>)
 To synch DirDiff ranges of updates (internal DirDiff cmds like 'u' not working 2011-04-27):
 :se nu
 :5,42diffput
+
+" Compare vimdiff diff two existing buffers :vert diffsplit then switch to other buffer and :diffthis then force any changes :diffupdate when done reset the diff :se nodiff
+
+" vimdiff keymaps
+do == :diffget
+dp == :diffput
 
 " Run info(1) on word under cursor. Good demo of running an arbitrary command on the current word.
 map ;p :exe ":!info ".expand("<cword>")<CR>
@@ -593,15 +454,20 @@ map ;p :exe ":!info ".expand("<cword>")<CR>
 :set expandtab
 :retab!
 
+" Find all leading tabs and replace with spaces.  Since every character in submatch(0) will be a tab we can replace each character with four spaces.
+:%s/^\t*/\=substitute(submatch(0), ".", "    ", "g")
+" Put the tabs back over the 4 spaces:
+:%s/^ \+/\=substitute(submatch(0), "....", "\t", "g")
+
 vi -S Session.vim
 :map :w :mksession! \| :write<CR>
-
 " Do not forget to save folds etc.
 :au BufWinLeave * mkview
+" To avoid forgetting to mkview before exiting
+:map :w :w\|mkview
 
-" Insert a sequential list of numbers similar to IncPattern()
+" Insert a sequential list of numbers:
 :put =range(11,15)
-" or
 :for i in range(1,10) | put ='192.168.0.'.i | endfor
 
 " Syntax highlight %THINGS% like that in a doc
@@ -612,13 +478,6 @@ syn match TODO "%\u\+%" containedIn=ALL
 :se guifont=Andale_Mono:h9
 
 Omnicomplete default key combination using syntax files in insert mode C-X C-O
-
-Finds the next line longer than 80 characters:
-/\%>80v.\+
-
-Plugin Align comes as a vimball; vi Align.vba.gz :so %  install files correctly   !!!do not use-2011-11-03 not installing correctly Cygwin may want to just :se ts=30
-:%Align ,  " parses whole CSV file into columns (can split on tab space comma etc.)
-:'<,'>Align \t
 
 " Turn all open buffers into tabs
 :tab ball
@@ -671,19 +530,8 @@ g!/10000000059062\|10000000060721/d
 " Toggle XML flags
 %s:<\(Extract\|Transform\)Enabled>1<:<\1Enabled>0<:gc
 
-http://www.rayninfo.co.uk/vimtips.html (zzapper)
-
 " display with line numbers
 :g/Line 8/#
-
-" Maximum line length count:
-:echo max(map(range(1, line('$')), "virtcol([v:val, '$'])")
-
-" Find lines longer than 80 characters
-/\%>80v.\+
-
-" Chain two searches:
-/test 1/;/test
 
 " Highlight (via search hls) every other line greenbar
 map ,<Tab> :set hls<CR>/\\n.*\\n/<CR>
@@ -704,8 +552,10 @@ let w:check_words = exists('w:check_words') ? !w:check_words : 1
 :%sort u
 
 " Force syntax coloring
-:se ft=asp
-:so $VIMRUNTIME/syntax/aspvbs.vim
+:sy off | se ft=sas | so $VIMRUNTIME/syntax/sas.vim
+
+" Undo by time:
+:earlier 5m
 
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -1793,6 +1643,9 @@ xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxUNIXxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
+# Canonical date stamp:
+date +%d%b%y
+
 # Canonical find and then grep
 ssh rtpsh005 'find /opt/QCServer/A.05.00/svr/files -name 'Inspec_Lot-*' -mtime -3 -exec grep "Error:" {} \;'
 ssh rtpsh005 'find /opt/QCServer/A.05.00/svr/files -name 'Inspec_Lot-*' -mtime -3 -exec grep "Error:" {} \; | tail'
@@ -2159,17 +2012,6 @@ find . -newer /tmp/t1 ! -newer /tmp/t2
 # older timstamps TODO)
 touch /tmp/f1 && while true;do find /home -newer /tmp/f1 2>/dev/null;touch /tmp/f1;sleep 5;done
 
-<<<<<<< HEAD
-=======
-# Canonical touch file time stamp date stamp datestamp.
-touch -d 'May 2 2008 15:03' foo.txt
-touch -d "Sep 24 2006" foo.txt
-touch -d "Sep 24" foo.txt
-find . -not -name '*co'|xargs touch -d 'Mar 24 2011 13:26'
-touch '\\rtpsawnv0312\pucc\VALTREX_Caplets\INPUT_DATA_FILES\tmp\DPRunFlg.txt'
-touch  //rtpsawnv0312/pucc/VALTREX_Caplets/INPUT_DATA_FILES/tmp/DPRunFlg.txt
-
->>>>>>> origin/master
 # Recursive touch
 $ find . -type f -mtime -40 -name '*sas' | xargs touch
 # Recursive touch(1) for dirs that might have spaces in names
@@ -3506,11 +3348,12 @@ sudo sed -i -e "s/# deb/deb/g" /etc/apt/sources.list
 # Avoid having to cd / to untar a cygwin package:
 tar -C / -xvf connect-proxy-1.101-1.tar.gz
 
-# Easy backup during the week using the tarball itself as a sentinel:
-cd ~ && find code/ -type f -newer c.tgz |xargs tar cvfz c.tgz
-
 # Ubuntu system information:
 $ df -h && free -m && grep name /proc/cpuinfo | uniq && lspci | grep VGA && xrandr | grep connected && uname -rms
+
+# Easy backup during the week using the tarball itself as a sentinel:
+cd ~ && find code/ -type f -newer c.tgz |xargs tar cvfz c.tgz  # Cygwin
+cd ~ && find -L /code -type f -newer ~/Downloads/c.tgz |grep -v '/.git/'|grep -v '.swp'|xargs tar cvfz ~/Downloads/c  # Ubuntu
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
