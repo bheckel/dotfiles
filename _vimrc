@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Mon 26 Nov 2012 13:16:25 (Bob Heckel)
+" Modified: Thu 13 Dec 2012 09:16:48 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 "--------------------------------------------------------------------------
@@ -33,7 +33,9 @@
 """set writedelay=50
 
 let THISBOX = hostname()
-let WORKBOXES = [ 'ZEBWL06A16349', 'ZEBWD08D26987', 'ZEBWL10D43164', 'ZEBWL12H29961', 'ZEBWL12H26564' ]
+" Boxes that always have internet
+"""let WORKBOXES = [ 'ZEBWL06A16349', 'ZEBWD08D26987', 'ZEBWL10D43164', 'ZEBWL12H29961', 'ZEBWL12H26564' ]
+let WORKBOXES = [ 'ZEBWL06A16349', 'ZEBWD08D26987', 'ZEBWL10D43164', 'ZEBWL12H29961' ]
 
 " I'm usually only browsing with netrw.  Tree will be very narrow, use zz to
 " get into it to widen if desired for browsing additional files w/o :q.
@@ -54,11 +56,9 @@ au FileType NETRW map q :q<CR>
 if matchstr(WORKBOXES, THISBOX) == THISBOX
   if has('gui')
     let VTMP = 'c:/temp'
-"""    let VTMPU = 'u:/temp'
     let VTMPU = 'u:/temp'
   elseif has('win32unix')
     let VTMP = '/cygdrive/c/temp'
-"""    let VTMPU = '/cygdrive/u/temp'
     let VTMPU = '/cygdrive/u/temp'
   endif
 else  " home
@@ -250,7 +250,7 @@ endif
 " 'Ctrl-r "' pastes while in insert mode
 set esckeys
 
-" We want Unix version so make sure shell=/bin/sh
+" We want the Unix version so make sure shell=/bin/sh
 set equalprg=sort
 
 " :retab to convert tabs to 2 spaces
@@ -507,8 +507,9 @@ set wrapscan
 if matchstr(WORKBOXES, THISBOX) == THISBOX
   if has('gui')
     set viminfo='5000,\"750,nC:/temp/_viminfo
-  else
-    set viminfo='5000,\"750,n/cygdrive/c/temp/_viminfo
+    "TODO permission error
+"""  else
+"""    set viminfo='5000,\"750,n/cygdrive/c/temp/_viminfo
   endif
 endif
 
@@ -571,7 +572,7 @@ iab RuL ----+----1----+----2----+----3----+----4----+----5----+----6----+----7--
 iab ShE #!/bin/sh
 
 """""
-" Date/Time (see man strftime or date --help):
+" Date/Time (see man strftime or date --help.  Some stolen from Sven Guckes):
 
 " Default.  Overridden later in au commands.
 " E.g. Created: Tue 02 Mar 1999 11:19:32 (Bob Heckel)
@@ -594,7 +595,7 @@ cab YdG <C-R>=strftime("%d-%b-%y")<CR>
 
 """""
 " C
-iab CsW switch ( c ) {<CR>case 'a':<CR>  puts("it is a");<CR>break;<CR><Left><Left>case 'b'<CR>  puts("it is b");<CR>break;<CR><Left><Left>default:<CR>  puts("neither");<CR><Left><Left><Left><Left>}
+"""iab CsW switch ( c ) {<CR>case 'a':<CR>  puts("it is a");<CR>break;<CR><Left><Left>case 'b'<CR>  puts("it is b");<CR>break;<CR><Left><Left>default:<CR>  puts("neither");<CR><Left><Left><Left><Left>}
 
 """""
 " HTML
@@ -667,17 +668,16 @@ iab PeC sub new {<CR>  my $class = shift;<CR><CR>my $self = {};<CR>bless($self, 
 """iab PeD use Data::Dumper; print Dumper  ;<Left>
 iab PeD use Data::Dumper;print Dumper  ;<Left>
 iab PeE open F, '>junk' or die;use Data::Dumper;print F Dumper  ;<Left>
-iab PeH while ( (my $k, my $v) = each %h ) { print "$k=$v\\n"; }
 " Use PeD for hash dumping, this for everything else on symbol table
-iab PeM open F, '>junkdumpmain'; for $s(sort keys %main::) { local *sym=$main::{$s}; print F "\\$$s is $$s\\n" if defined $sym; print F "\\@$s is @$s\\n" if defined @sym;}
+iab PeF open F, '>junkdumpmain'; for $s(sort keys %main::) { local *sym=$main::{$s}; print F "\\$$s is $$s\\n" if defined $sym; print F "\\@$s is @$s\\n" if defined @sym;}
 iab PeO open FH, 'foo' or die "Error: $0: $!";<CR><CR>while ( <FH> ){<CR>}<Up>
-iab PeP warn "$ENV{fg_yellow}DEBUG$ENV{normal}>   $ENV{fg_yellow}<DEBUG$ENV{normal}";<Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>
 """if ( box == 'otaku' || box == 'sverige' || box == 'sdf' )
   """iab PeR #!/usr/pkg/bin/perl -w<CR>
 """else
   iab PeR #!/usr/bin/perl -w<CR>
 """endif
 iab PeS #!/usr/bin/perl -wT<CR><CR>use strict qw(refs subs vars);<CR># DEBUG<CR>use CGI::Carp qw(fatalsToBrowser);
+iab PeW while ( (my $k, my $v) = each %h ) { print "$k=$v\\n"; }
 
 """""
 " SAS
@@ -691,16 +691,16 @@ iab SaE %let START=%sysfunc(time());<CR>%put !!! (&SYSCC) Elapsed minutes: %syse
 iab SaL options ls=180; libname l '.';
 iab SaO filename F 'junk'; data t(rename=(PRODDESC=nm APRCLASS=class)); infile F truncover; input PRODDESC= $100. APRCLASS= $100.; run;
 iab SaP <Esc>0iproc print data=_LAST_(obs=max) width=minimum; run;
-iab SaQ <Esc>0ititle '!!!x';proc print data=_LAST_(where=(mfg_batch=:'1')) width=minimum; run;
-iab SaR <Esc>0idata _NULL_; set _LAST_(obs=100 where=(study eq:'S')); put '!!!dbg'(_all_)(=);run;
+iab SaQ <Esc>0ititle '!!!wtf';proc print data=_LAST_(where=(mfg_batch=:'1')) width=minimum; run;
+iab SaR <Esc>0idata _NULL_; set _LAST_(obs=100 where=(study eq:'S')); put '!!!wtf '(_all_)(=);run;
 iab SaS select ( myvar );<CR><Space><Space>when ( 42 ) delete;<CR><Space><Space>otherwise;<CR><Left><Left>end;
-iab SaT put '!!!wtf '(_all_)(=);
+iab SaW <Esc>0idata _NULL_; set _LAST_; put '!!!wtf '(_all_)(=);run;
 
 """""
 " Visual Basic
-iab VbF For i = LBound(myarray) To UBound(myarray)<CR>  <CR><BS><BS>Next i
-iab VbI If i <> 0 Then<CR><CR>  <CR><BS><BS>End If
-iab VbS Select Case iFoo<CR>  Case Is = 1<CR>    MsgBox "OK"<CR>  Case Else<CR>    MsgBox "Error"<CR>End Select
+"""iab VbF For i = LBound(myarray) To UBound(myarray)<CR>  <CR><BS><BS>Next i
+"""iab VbI If i <> 0 Then<CR><CR>  <CR><BS><BS>End If
+"""iab VbS Select Case iFoo<CR>  Case Is = 1<CR>    MsgBox "OK"<CR>  Case Else<CR>    MsgBox "Error"<CR>End Select
 
 " Forced syntax:
 " E.g. automation.bat is a Perl script wrapped in a .bat 
@@ -823,8 +823,8 @@ map ,b <C-W>w<C-W>_
 map ,cp ggvG"*y<Esc>:q!<CR>
 
 " Edit another file in the same directory as the current file that you
-" navigated to (without having to change pwd).  Uses expression to extract
-" path from current file's path.
+" navigated to (without having to change pwd via cd %:h).  Uses expression to
+" extract path from current file's path.
 if has('unix')
   map ,d :e <C-R>=expand("%:p:h") . "/" <CR>
 else
@@ -1234,6 +1234,9 @@ inoremap {<Space><Space> {}<Left>
 " :'<,'>Inc(100)
 vnoremap <C-A> :Inc<CR>
 
+" gvim
+nnoremap <RightMouse> <Insert>
+inoremap <RightMouse> <ESC>
 
 " end Mappings-
 
@@ -2270,7 +2273,6 @@ if !exists("autocommands_loaded")
 
   " Plus need to see coworker's wild mix of tabs with spaces
   """au BufRead *.xml set foldmethod=indent | set list
-  au BufRead *.xml set foldmethod=indent | set foldlevel=1
 """  au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
 
   " Needed for coping with coworker's inventive use of both spaces and tabs
@@ -2284,6 +2286,9 @@ if !exists("autocommands_loaded")
 
   " Browsing tarballs:
   au FileType TAR map q :q<CR>
+
+  " Act like gvim does when a file was changed behind your back
+  au WinEnter * checktime
 
   "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
@@ -2325,6 +2330,7 @@ if !exists("autocommands_loaded")
   " Do not use The Force on Test & Production
   au BufEnter [YZ]:/DataPost* set readonly
   au BufEnter /cygdrive/[yz]/DataPost* set readonly
+  au BufRead DataPost_Configuration.xml set foldmethod=indent | set foldlevel=1
   """au BufEnter $HOME/projects/datapost/tmp/ noremap :wq :w\|:mksession!\|:q
   """au BufEnter $HOME/projects/datapost/tmp/ noremap ZZ :w\|:mksession!\|:q
   "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
@@ -3820,17 +3826,20 @@ function! <SID>DirDiff(srcA, srcB)
     " \dk is enough.  Otherwise, use j,k, and enter.
 "    nnoremap <buffer> n :call <SID>DirDiffNext()<CR>
 "    nnoremap <buffer> p :call <SID>DirDiffPrev()<CR>
-    nnoremap <buffer> s :. call <SID>DirDiffSync()<CR>
-    vnoremap <buffer> s :call <SID>DirDiffSync()<CR>
-    nnoremap <buffer> u :call <SID>DirDiffUpdate()<CR>
-    nnoremap <buffer> x :call <SID>ChangeExcludes()<CR>
-    nnoremap <buffer> a :call <SID>ChangeArguments()<CR>
-    nnoremap <buffer> i :call <SID>ChangeIgnore()<CR>
-    nnoremap <buffer> q :call <SID>DirDiffQuit()<CR>
 
-    nnoremap <buffer> o    :call <SID>DirDiffOpen()<CR>
-    nnoremap <buffer> <CR>  :call <SID>DirDiffOpen()<CR>  
-    nnoremap <buffer> <2-Leftmouse> :call <SID>DirDiffOpen()<CR>
+    " 13-Dec-12 avoid messing up edits, only allow these in the bottom navigation window
+    if &filetype == ''
+      nnoremap <buffer> s     :. call <SID>DirDiffSync()<CR>
+      vnoremap <buffer> s     :call <SID>DirDiffSync()<CR>
+      nnoremap <buffer> u     :call <SID>DirDiffUpdate()<CR>
+      nnoremap <buffer> x     :call <SID>ChangeExcludes()<CR>
+      nnoremap <buffer> a     :call <SID>ChangeArguments()<CR>
+      nnoremap <buffer> i     :call <SID>ChangeIgnore()<CR>
+      nnoremap <buffer> q     :call <SID>DirDiffQuit()<CR>
+      nnoremap <buffer> o     :call <SID>DirDiffOpen()<CR>
+      nnoremap <buffer> <CR>  :call <SID>DirDiffOpen()<CR>  
+"""      nnoremap <buffer> <2-Leftmouse> :call <SID>DirDiffOpen()<CR>
+    endif
 """au BufEnter ~/tmp/v* syntax on
 """au BufLeave ~/tmp/v* syntax off
     " sets up highlight in the lower dirdiff window (only)
@@ -3838,9 +3847,8 @@ function! <SID>DirDiff(srcA, srcB)
 
     " Open the first diff
     call <SID>DirDiffNext()
-  " 2008-09-29 use less screen real estate
-  echon "<CR>=open,'s'=sync,'u'=update,'x'=set excludes,'i'=set ignore,'a'=set args"
-
+    " 13-Dec-12 custom reminders
+    echon " <CR>=open,'s'=sync,'u'=update,'x'=set excludes (or :let g:DirDiffExcludes='.xml'),'i'=set ignore,'a'=set args"
 endfunction
 
 " Set up syntax highlighing for the diff window
@@ -3855,15 +3863,12 @@ function! <SID>SetupSyntax()
     exec 'syn match DirDiffFiles              "' . s:DirDiffDifferLine .'"'
     exec 'syn match DirDiffOnly               "' . s:DirDiffDiffOnlyLine . '"'
     syn match DirDiffSelected           "^==>.*" contains=DirDiffSrcA,DirDiffSrcB
-
-    """hi def link DirDiffSrcA               Directory
     hi def link DirDiffSrcA               PreProc
     hi def link DirDiffSrcB               Type
     hi def link DirDiffUsage              Special
     hi def link DirDiffOptions            Special
     hi def link DirDiffArgs               Special
     hi def link DirDiffFiles              String
-    """hi def link DirDiffOnly               PreProc
     hi def link DirDiffOnly               ErrorMsg
     hi def link DirDiffSelected           DiffChange
   endif
@@ -4477,11 +4482,8 @@ function! <SID>GetDiffStrings()
 	call <SID>Delete(tmpdiff)
 endfunction
 
-
-" My custom excludes 16-Feb-12 
-"""let g:DirDiffExcludes = 'CVS,*.class,*.exe,.*.swp,*.sas7bdat,*.sas7bcat,*.lnk,*.bak,_ADO_*,_WS*,*Trend*.log,*Extract.l*,*Transform.l*'
-let g:DirDiffExcludes = 'CVS,*.class,*.exe,.*.swp,*.sas7bdat,*.sas7bcat,*.lnk,*.bak,*.xml,*.log,*.lst'
-
+" My custom excludes 16-Feb-12.  Override via 'x' then 'u' while in DirDiff
+let g:DirDiffExcludes = 'CVS,*.class,*.exe,.*.swp,*.sas7bdat,*.sas7bcat,*.lnk,*.bak,*.log,*.lst,*.xml'
 
 " Needed to avoid losing my cpoptions setting above
 let &cpo = s:save_cpo

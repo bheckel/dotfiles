@@ -1710,9 +1710,9 @@ ls *[^c]
 # Don't show files starting with a OR b
 ls [^ab]*
 
-# Compact move instead of the traditional  mv /usr/bin/blah /usr/bin/blah.bak 
-mv /usr/bin/{blah,blah.bak} 
-# Backup a file quickly:
+# Compact move instead of the traditional  mv /usr/bin/foo /usr/bin/foo.bak 
+mv -i /usr/bin/{foo,foo.bak} 
+# or backup a file quickly:
 cp myfilename{,.bak}
 
 # Count how many directories (not including files, don't recurse):
@@ -3351,9 +3351,9 @@ tar -C / -xvf connect-proxy-1.101-1.tar.gz
 # Ubuntu system information:
 $ df -h && free -m && grep name /proc/cpuinfo | uniq && lspci | grep VGA && xrandr | grep connected && uname -rms
 
-# Easy backup during the week using the tarball itself as a sentinel:
+# Easy GSK backup using the tarball itself as a sentinel:
 cd ~ && find code/ -type f -newer c.tgz |xargs tar cvfz c.tgz  # Cygwin
-cd ~ && find -L /code -type f -newer ~/Downloads/c.tgz |grep -v '/.git/'|grep -v '.swp'|xargs tar cvfz ~/Downloads/c  # Ubuntu
+cd ~ && find -L code/ -type f -newer c |grep -v '/.git/'|grep -v '.swp'|xargs tar cvfz c  # Ubuntu
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
