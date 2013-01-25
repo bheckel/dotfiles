@@ -2,7 +2,7 @@
 #     Name: .conkyrc
 #
 #  Created: Sat 04 Feb 2012 21:38:40 (Bob Heckel - adapted from darcon @ gmail.com)
-# Modified: Sat 15 Sep 2012 10:14:55 (Bob Heckel)
+# Modified: Sat 19 Jan 2013 11:10:09 (Bob Heckel)
 ################################################################################
 
 # set to yes if you want Conky to be forked in the background
@@ -303,11 +303,14 @@ TEXT
 ${offset 0}${color}${image /home/bheckel/misc/computer/fb-icon48x48-metal.png}
 
 
+${color dark goldenrod}${execi 2500 display-dhamma | par -w25}
+###${color dark goldenrod}${execi 1500 display-dhamma -dhp bnnp | par -w25}
+
 ###${offset 0}${font Arial Black:size=12}Sabbe dhamma${font}
 ###${offset 0}${font Arial Black:size=12}nalam abhinivesaya${font}
 ###${offset 0}${color slate grey}${time %a, } ${color }${time %e %B %G}
 ###${offset 0}${color slate grey}${time %Z,    }${color }${time %H:%M:%S}
-${nodename} ${offset 0}${color slate grey}uptime: ${color }$uptime_short
+${color}${nodename} ${offset 0}${color slate grey}uptime: ${color }$uptime_short
 
 ###${offset 0}${color slate grey}Kernel:${color }$kernel
 ###${offset 0}${color slate grey}CPU:${color } $cpu% ${acpitemp} degrees C
@@ -367,6 +370,4 @@ ${offset 0}${color slate grey}Syslog:
 ${color lightgrey}${execi 30 grep -v 'UFW BLOCK] IN=wlan0.*' /var/log/syslog | grep -v '4-way handshake' | grep -v 'Group rekeying completed' | tail -n3 | fold -s -w25}
 ###${color slate grey}/var/log/messages:
 ###${color}${exec tail -n20 /var/log/messages}
-
-###${color dark goldenrod}${execi 1500 display-dhamma | par -w25}
 

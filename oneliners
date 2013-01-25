@@ -346,6 +346,7 @@ yl
 " Netrw using vim with ssh:
 $ vim scp://rheckel@192.94.73.4/html/index.html
 $ vi scp://rsh86800@rtpsh005//opt/QCServer/A.05.00/svr/files/Inspec_Lot-0108.log  # note no colon and double slash
+$ vi scp://root@192.168.1.1:6699//var/log/messages
 
 " Debug shell script by doing an echo line below declaration:
 :,$:s:\(export \(\w\+\).*\):\1echo '\2 ' \$\2:gc
@@ -484,6 +485,7 @@ Omnicomplete default key combination using syntax files in insert mode C-X C-O
 
 " This foldmethod doesn't mod file
 :se fdm=manual
+:setlocal foldmethod=marker
 
 " Virtual edit (ctrl-v extended)
 :se ve=all
@@ -556,6 +558,12 @@ let w:check_words = exists('w:check_words') ? !w:check_words : 1
 
 " Undo by time:
 :earlier 5m
+
+:echom "Hello, " . "concatenation world"
+:mess
+
+" List all files recursively:
+:echo split(globpath('.', '**'), '\n')
 
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -732,17 +740,16 @@ substr(mystr, mylen+1) = '00'x
  /* Name of currently running SAS program file: (like $0 in shell): */
 %put &SYSPROCESSNAME;
 
- /* CLASS Class variables:  nums (discrete categories) or chars, identify classes
-  * or discrete categories on which calculations are done.  E.g. gender,
+ /* CLASS catergorical variables:  almost always stored as chars, identify
+  * classes (discrete categories) on which calculations are done.  E.g. gender,
   * country, state, zip
   *
-  * VAR Analysis variables:  numbers, usually continuous, appropriate for
+  * VAR analysis variables:  numbers, usually continuous, appropriate for
   * calculating averages, sums, etc.  E.g. salary, number of orders
   */
 
- /* Pick off the MORMER1 suffix, and ignoring trailing, trash returns "MOR" */
-%let FN=BF19.FIX0342.MORMER1;
-%let EVT=%substr(%scan(&FN, 3, '.'), 1, 3);
+ /* Pick off 'MOR' from the suffix */
+%let FN=BF19.FIX0342.MORMER1; %let EVT=%substr(%scan(&FN, 3, '.'), 1, 3);
 
  /* SAS exponentiation */
 x = 2**3;
@@ -980,10 +987,7 @@ call execute(str2);
 str1 = '%mymacro(' || left(trim(product)) || ',' || left(trim(server)) || ',' || left(trim(writeoutput)) || ');' ;
 call execute(str1);
 
- /* Canonical convert datetime to human */
-data _null_; human=put(1613578239, DATETIME18.); put human=; run;
-
- /* Convert DATETIME to DATE */
+ /* Convert DATETIME variable to DATE */
 mysasdate = datepart(mysasdatetime);
  /* Convert DATE to DATETIME */
 mysasdatetime = dhms(mysasdate, 0, 0, mysastime);
@@ -1563,9 +1567,6 @@ data _null_; file print; put #3 @10 "Data set &dsn. does not exist"; run;
 x='2005/6/30 12:30'; ymd_no_ampm=input(x, ymddttm16.);
 ymd_ampm=input(z, ?? ymddttm18.);
 
- /* Distributed format put statement: */
-put (mydt1 mydt2)(= DATETIME18. /);
-
  /* What do we have for ODS HTML etc: */
 proc template; list tagsets; run;
 
@@ -1617,7 +1618,7 @@ SAS93WIN=C:/PROGRA~1/SASHome/SASFoundation/9.3/sas.exe
 looooooooooooooooooooooooooooooooooooong macro string";
 
  /* Date format distributive with seemingly misplaced "=": */
-put (ymd_no_ampm mdy_ampm)(= DATETIME18.);
+put (mydt1 mydt1)(= DATETIME18.);
 
  /* Use text value as a market to determine where input pointer goes next: */
 input @'[' accdt DATE11.  @'GET' fnm :$20.;  /* read an Apache web log e.g. 130.192.70.235 - - [08/Jun/2004:23:51:32 -0700] "GET /rover.jpg HTTP/1.1" 200 668 */
@@ -1637,6 +1638,8 @@ proc print data=sashelp.shoes(obs=5) width=minimum; var Region-CHARACTER-Returns
 fullname=catx(' ', fname, mname, lname);  /* gracefully concatenates missing mnames */
 
 data clear_var_format_informat_label; set SASHELP.shoes; format inventory; informat inventory; label inventory=; run; proc contents ; run;
+
+if lag(foo) eq foo then put 'dup!' _all_;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -2185,7 +2188,7 @@ set scale=3
 
 # Command line bc base 10 decimal to hex conversion (bc is case sensitive for hex numbers!):
 (echo obase=16; echo 10) | bc  # A
-# Command line bc onvert hexadecimal to decimal in bc
+# Command line bc onvert hexadecimal to decimal in bc (:echo 0xDEADBEEF in Vim)
 (echo ibase=16; echo DEADBEEF) | bc  # 3735928559
 
 # Binary addition subtraction multiplication division in bc:
@@ -2584,8 +2587,9 @@ $ cat *.txt | awk '{ if (x<length()) x=length() } END{ print x }'
 # Or if want individual max line lengths:
 $ for f in *.sas; do echo $f; cat $f | awk '{ if (x<length()) x=length() } END{ print x }'; done
 
-# Tarball specific filetypes only
-$ find $x/datapost/ -name '*.sas7bdat' |xargs tar cfz ~/tmp/datapost.tgz
+# Tarball specific filetypes only:
+$ cd $z/datapost && find . -name '*.csv' -a -not -name 'TR*' |xargs tar cfz ~/tmp/datapost.tgz
+$ cd $x/datapostdemo && tar xvfz ~/tmp/datapost.tgz
 
 Get the value of the last parameter passed into a korn shell script.
 eval last=\${$#}
@@ -2687,8 +2691,8 @@ for i in 1 2 3;do echo "i am $i" >foo$i; done
 for i in `seq 5`; do mem; sleep 3; done
 
 # Monitor speed of database connections over time:
-for i in `seq 16`; do date; sqlplus -S sasreport/sasreport@usprd259 @donothing; date;date; sleep 1800; done
-for i in `seq 16`; do date; a=`date +%s`; sqlplus -S sasreport/sasreport@usprd259 @donothing; date; b=`date +%s`; c=`expr $b - $a`; if [ $c -gt 7 ];then echo $fg_redbold GT 7 SECONDS! $normal; fi; sleep 1800; done
+for i in `seq 16`; do date; sqlplus -S sasreport/sasreport@usprd25 @donothing; date;date; sleep 1800; done
+for i in `seq 16`; do date; a=`date +%s`; sqlplus -S sasreport/sasreport@usprd25 @donothing; date; b=`date +%s`; c=`expr $b - $a`; if [ $c -gt 7 ];then echo $fg_redbold GT 7 SECONDS! $normal; fi; sleep 1800; done
 
 # Display terminal output on two xterms simultaneously (untested):
 sh -c "$prog|tee -a $mytty" 1>$othertty 2>&1 0>$othertty
@@ -2778,7 +2782,7 @@ $ echo 'ok' | mailx -s 'test4' rsh86800@gsk.com
 # unless your tar can do this (-I for Solaris)!!
 cd /home; find . -name '*.PDF' -print | tar cvf pdfz.tar -T -
 # Do this instead (TODO overflow if num files is too hi??)
-cd /home; tar cvf /tmp/pdfz.tar `find . -name '*.PDF' -type f -print`
+cd /home; tar cvf /tmp/pdfz.tar `find . -name '*.PDF' -type f -print`  # Note: xargs approach is better
 
 awk '/#/ {print "Got a comment SOMEWHERE in the whole line"}' /etc/hosts
 awk '$1 == "#" {print "got a lone, leading pound sign"}' /etc/hosts
@@ -3128,6 +3132,7 @@ if [ $x != a ]; then echo not equal; fi
 
 # Is today Monday?  If today is Monday.  Use  !=  to negate.  Date filter by day of week.
 if [ `date +%a` = Mon ];then echo ok; fi
+if [ `date +%a` = Mon -o `date +%a` = Wed -o `date +%a` = Fri ];then echo ok; fi
 # Is today the 15th?  Use  !=  to negate. Date filter by day of month.
 if [ `date +%d` = 15 ];then echo ok; fi
 
@@ -3196,14 +3201,10 @@ awk -F, '{ print $1; print $2; print $3 }' t.csv
 # Count unique batches, in column 1, from CSV file
 tail +2 "/home/rheckel/projects/datapost/tmp/VALTREX_Caplets/OUTPUT_COMPILED_DATA/CSV valtrex_FreeWeigh.csv"|cut -d ',' -f1|sort|uniq|wc -l
 
-# Temporary mount:
-$ mount -f "C:\Users\rheckel_6\Documents\My Dropbox\Public\USB\cygwin\home\rheckel" /home/rheckel  # temporary
-$ mount -m  # cat the current mountpoints for pasting into /etc/fstab for permanent mount
-
 # Is database up?
-while true; do date;sqlplus -S sasreport/sasreport@usprd259 @donothing; echo 'ok';date;echo;sleep 300; done;
+while true; do date;sqlplus -S sasreport/sasreport@usprd25 @donothing; echo 'ok';date;echo;sleep 300; done;
 # Poor man's progress bar timer - how long does it take to connect to database:
-i=0;x=0;y=0;while true; do x=`date +%s`;sqlplus -S sasreport/sasreport@usprd259 @donothing; y=`date +%s`;for i in expr $y - $x; do echo -n '.'; done; echo;sleep 300; done;
+i=0;x=0;y=0;while true; do x=`date +%s`;sqlplus -S sasreport/sasreport@usprd25 @donothing; y=`date +%s`;for i in expr $y - $x; do echo -n '.'; done; echo;sleep 300; done;
 
 # Passed-in shell variable $1 starts with a dash
 ... elif [ "${1:0:1}" = '-' ];then ...
@@ -3223,8 +3224,6 @@ find . -name "*.dll" -or -name "*.exe" | xargs -r strip
 #      PID    PPID    PGID     WINPID  TTY  UID    STIME COMMAND
 #     1072    4384    1072       4948    0 1003   Feb  1 /usr/bin/bash
 ps | awk '$8 ~ /ba/' -
-
-~/bin/vscp 'rsh86800@rtpsh005:/opt/QCServer/A.05.00/svr/files/Inspec_Results-0211.log'
 
 # Choose a random line from a file (bash)
 F=dhammapada.txt;TOTLINES=`wc -l $F|awk '{print $1}'`;LINENUM=$[($RANDOM%${TOTLINES})+1]; sed -n "$LINENUM"p $F
@@ -3268,10 +3267,7 @@ ssh rheckel@sdf.org 'cat >> remotefoo' < localfoo
 
 # System monitoring tools: top iostat ps vmstat (memory) lsof (list open files)
 
-# Install debian
 sudo dpkg -i google-chrome-stable_current_i386.deb
-
-ssh rheckel@sdf.org /arpa/af/b/rheckel/bin/rss
 
 export PROMPT_COMMAND=; echo -ne "\033]0; override change rxvt window title\007"
 
@@ -3316,7 +3312,7 @@ diff -u ~/code/misccode/_bashrc <(ssh rheckel@sdf.org cat .bashrc)
 # Does vi exist on this box? (avoid which(1):
 hash vi &>/dev/null if [ $? -eq 0 ]; then export EDITOR=vi fi
 
-# Increment +1 ++ like C in bash:
+# bash.  Increment +1 ++ like C:
 i=$(($i+1))
 
 # Do these batches exist in any of these csv files? Just list filenames if so:
@@ -3329,8 +3325,8 @@ touch -d 'May 2 2008 15:03' foo.txt
 touch -d "Sep 24 2006" foo.txt
 touch -d "Sep 24" foo.txt
 find . -not -name '*co'|xargs touch -d 'Mar 24 2011 13:26'
-touch '\\rtpsawnv0312\pucc\VALTREX_Caplets\INPUT_DATA_FILES\tmp\DPRunFlg.txt'
-touch  //rtpsawnv0312/pucc/VALTREX_Caplets/INPUT_DATA_FILES/tmp/DPRunFlg.txt
+touch '\\rtpsawnv031\pucc\ALTREX_Caplets\INPUT_DATA_FILES\tmp\DPRunFlg.txt'
+touch  //rtpsawnv031/pucc/ALTREX_Caplets/INPUT_DATA_FILES/tmp/DPRunFlg.txt
 
 # Sort on column 11:
 find -ls | sort -k 11
@@ -3351,9 +3347,13 @@ tar -C / -xvf connect-proxy-1.101-1.tar.gz
 # Ubuntu system information:
 $ df -h && free -m && grep name /proc/cpuinfo | uniq && lspci | grep VGA && xrandr | grep connected && uname -rms
 
-# Easy GSK backup using the tarball itself as a sentinel:
+# Easy GSK backup using the previous tarball as a sentinel:
 cd ~ && find code/ -type f -newer c.tgz |xargs tar cvfz c.tgz  # Cygwin
 cd ~ && find -L code/ -type f -newer c |grep -v '/.git/'|grep -v '.swp'|xargs tar cvfz c  # Ubuntu
+
+$ sudo fdisk -l
+$ sudo dd if=lubuntu-desktop-12.04-1-miniand.com.img of=/dev/sdb1
+$ sudo sync
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4497,14 +4497,14 @@ Interactive but feeding it from the commandline:
 osql -n -E -w 200 -d bpms_ak -S 'W23PSQL02\PRODUCTION' -Q "select count(*) from bpmsoutliers"
 
 -- sqlserver 2005 command line, counterpart to oracle's sqlplus
-$ sqlcmd -S zebsamoc007 -d usprd1208 -i input.sql -o output.txt
+$ sqlcmd -S zebsamoc00 -d usprd120 -i input.sql -o output.txt
 
 -- ADO/SQLServer connection strings
 Provider=OraOLEDB.Oracle.1;Persist Security Info=True;User ID=ods_zeb;Password=ZEBODS_ZB842;Data Source=ukprd613;
 Provider=SQLOLEDB.1;Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=usprd1208;Data Source=zebsamoc007
 
 SQL Server 2005 (like Oracle's sqlplus, replaces osql & isql).  Must use cmd, not cygwin
-U:\>sqlcmd -S zebsamoc007 -d usprd1208
+U:\>sqlcmd -S zebsamoc00 -d usprd120
 1> select top 5 * from fwn.variablestp    2> go   ...n rows affected...   1> quit
 
 U:\>sqlcmd /?
@@ -4742,6 +4742,8 @@ doskey vi=vim $1
 // CSS JavaScript misc
 <link rel="stylesheet" type="text/css" href="crc.css"/> 
 <style="cursor:pointer; color:blue; font-family:monospace; font-style:italic; border:2px solid black; background-color:red"; border-style:solid; padding:0px 1px 0px 1px;position:absolute>
+// In HEAD
+<style type="text/css"> body { background:fixed #110110 url(../a_Cakka.gif); color:#FFFF99; } </style>
 
 // CSS inline style
 <tr style="visibility:collapse;">
@@ -4824,7 +4826,7 @@ $ ps -ef |grep lsn  # /oracle/app/oracle/product/8.0.6/bin/tnslsnr LISTENER -inh
 $ tnsping usdev100
 
 -- Oracle are you pingable?
-$ while true; do tnsping usprd259|grep OK|awk '{print $2}'|sed 's/^.//'; sleep 120; done;
+$ while true; do tnsping usprd25|grep OK|awk '{print $2}'|sed 's/^.//'; sleep 120; done;
 
 $ telnet locahost http
 # or
@@ -5040,13 +5042,14 @@ git add . && git commit -am 'another bitfiddle' && git push origin master
 # git merge:
 git checkout master && git merge mynewbranch && git branch -d mynewbranch
 
-# discard abandon all pending changes "not staged for commit"
-git checkout .
-
 # github (github is origin)
 git push origin master
 
-git stash;  git checkout master; ...  git checkout branchistashed; git stash clear;
+# discard abandon all pending changes "not staged for commit"
+git checkout .
+git stash;  # then  git stash drop  later when You Are Sure
+
+git stash; git checkout emergencybranch; ... git checkout branchistashed; git stash pop; git stash list
 
 # vifmrc
 COMMAND=st=cygstart "%f"
@@ -5340,7 +5343,7 @@ xmllint --noout Bookstore-DTD.xml
 xmllint -schema Bookstore.xsd --noout Bookstore-XSD.xml
 au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
 
-alias lims='sqlplus sasrepor/sasrepor@usprd259'
+alias lims='sqlplus sasrepor/sasrepor@usprd25'
 
 :: SELECT constant to provide an empty column 
 select '' as test_result, ...
@@ -5416,6 +5419,12 @@ private static final String[] items={"java", "strings", "in", "array"};
 "lorem", "ipsum", "dolor", "sit", "amet", "consectetuer", "adipiscing", "elit", "morbi", "vel", "ligula", "vitae", "arcu", "aliquet", "mollis", "etiam", "vel", "erat", "placerat", "ante", "porttitor", "sodales", "pellentesque", "augue", "purus"
 
 Log.d(getClass().getSimpleName(),"my debug wtf");
+
+ISO 8601 date format (UTC)
+2008-08-30T01:45:36.123Z
+
+--Count all test_end_date and non-null test_end_date at the same time:
+SELECT material_description, count(*), count(test_end_date)
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  

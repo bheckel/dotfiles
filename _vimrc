@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Thu 13 Dec 2012 09:16:48 (Bob Heckel)
+" Modified: Fri 25 Jan 2013 08:28:26 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 "--------------------------------------------------------------------------
@@ -250,7 +250,8 @@ endif
 " 'Ctrl-r "' pastes while in insert mode
 set esckeys
 
-" We want the Unix version so make sure shell=/bin/sh
+" We want the Unix version so make sure shell=/bin/sh, :se ep=  to restore
+" indent default (gg=G)
 set equalprg=sort
 
 " :retab to convert tabs to 2 spaces
@@ -481,8 +482,8 @@ set startofline
 " Depends on this being set above:
 " hi User1 term=inverse,bold cterm=inverse,bold ctermfg=red guifg=red
 " And $VIMSTATUSL being set in .bashrc 
-" E.g. t.pl [PERL,unix,b1] bqh0@rtp-bqh0-148279                    1L,1C(All)
-set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%L,%cC%V(%P)
+" E.g. ~/code/misccode/_vimrc [+,VIM,unix,b1] rsh868@ZEBWL12H99999   485/4494L,1C(10%)
+set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)
 
 set suffixes=.old,.old2,.OLD,OLD2,.o,.swp,.bak,.bak2,.BAK,.BAK2,~
 
@@ -735,15 +736,15 @@ cab SyV source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/vb/vb.vim
 """map <C-s> :w
 
 " Open a window for the file under cursor.  Think '[G]etfile [W]indow'.
-"""map gw <Esc>:sp<CR>gf
+noremap gw <Esc>:sp<CR>gf
 
 " Easily navigate wrapped '^...' long lines with arrow keys.
-map <Up> gk
-map <Down> gj
+noremap <Up> gk
+noremap <Down> gj
 
 " Quickfix output navigation
-map <F1> :cnext<CR>
-map <F2> :cprevious<CR>
+noremap <F1> :cnext<CR>
+noremap <F2> :cprevious<CR>
 
 " PASTE
 """if has('win32')
@@ -756,7 +757,7 @@ map <F2> :cprevious<CR>
 """  " Cygwin only
 """  map <F3> :r!getclip<CR>
 """endif
-map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
+noremap <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
 
 " Widen gvim to max column width
 if has('gui')
@@ -774,7 +775,7 @@ if has('win32')
 endif
 
 " Filter SAS Log for error-like lines only
-map <silent> <F8> :g!/\\C^ERROR: \\\|\\C^ERROR\\s\\+\\d\\+-\\d\\+:\\\|^WARNING: [^Compression]\\\|stopped processing this step because\\\|lines were truncated\\\|NOTE: Invalid data for\\\|NOTE: Variable\\\|NOTE\\s\\+\\d\\+-\\d\\+:/d<CR>
+noremap <silent> <F8> :g!/\\C^ERROR: \\\|\\C^ERROR\\s\\+\\d\\+-\\d\\+:\\\|^WARNING: [^Compression]\\\|stopped processing this step because\\\|lines were truncated\\\|NOTE: Invalid data for\\\|NOTE: Variable\\\|NOTE\\s\\+\\d\\+-\\d\\+:/d<CR>
 
 " View syntax group info.  Probably mostly empty if no syntax defined (e.g. .txt)
 """map <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
@@ -809,18 +810,18 @@ endif
 """"""""""""""""""""""""""
 
 " Greenbar highlight every other line.  Also see HighlightCurrentLine()
-map ,<Tab> :set hls<CR>/\\n.*\\n/<CR>
+noremap ,<Tab> :set hls<CR>/\\n.*\\n/<CR>
 
 " Must keep space between a and <ESC>.
-map ,a a <ESC>
+noremap ,a a <ESC>
 
 " Use for simple window jumping & maximizing (think '[b]ig [b]uffer' and my ;b
 " z66-like map).  Works to cycle through horizontal AND vertical split
 " windows.  Also see noremap zz to cycle windows without maximizing.
-map ,b <C-W>w<C-W>_
+noremap ,b <C-W>w<C-W>_
 
 " Quick (C)o(p)y and quit.  Gvim only
-map ,cp ggvG"*y<Esc>:q!<CR>
+noremap ,cp ggvG"*y<Esc>:q!<CR>
 
 " Edit another file in the same directory as the current file that you
 " navigated to (without having to change pwd via cd %:h).  Uses expression to
@@ -833,18 +834,18 @@ endif
 
 " Toggle between two buffers (e fails if 2+ files are opened together and have
 " never used :n)
-map ,e :e#<CR>
+noremap ,e :e#<CR>
 " TODO want to use :n only on failure of :e#
 """map ,e :e#<CR>\|:n<CR>
   
 " Re(f)low paragraph to current textwidth.  See ;f to go the opposite way -
 " reformat to tw=0
-map ,f vipgq
+noremap ,f vipgq
 
 " Split window and open file under cursor.  Usually used to view query results
 " within b(g)rep (which is why it also jumps to the last search register '/' as
 " defined by bgrep)
-map ,g <C-W>f :set winheight=9999<CR>/<C-R>/<CR>
+noremap ,g <C-W>f :set winheight=9999<CR>/<C-R>/<CR>
 
 " Copy w(h)ole buffer to Win32 Clipboard. Used mainly for VB editing.
 if has('win32')
@@ -856,29 +857,29 @@ else
 endif
 
 " (H)ighlight entire buffer (Win32 side effect is to copy to Clipboard).
-map ,H ggvG<CR>
+noremap ,H ggvG<CR>
 
 " Quickly insert a space.  Must keep space between i and <ESC>.
-map ,i i <ESC>
+noremap ,i i <ESC>
 
 " For wrapped files in which we didn't use ,w (,w sets up/down automatically)
-map ,j :map j gj<CR>
+noremap ,j :map j gj<CR>
 
-map ,k :map gk<CR>
+noremap ,k :map gk<CR>
 
 " (L)owercase a word
-map ,l mzviwu\|:echon '.vimrc: word lowercased'<CR>`z
+noremap ,l mzviwu\|:echon '.vimrc: word lowercased'<CR>`z
 
 " Comment out and yank/paste current line.  Default (may be overridden below,
 " see au commands).  TODO use FileType instead of *.foo in au commands below
-map ,m yy0I***<ESC>p
+noremap ,m yy0I***<ESC>p
 
 " Deprecated, see gn
-map ,n :bn<CR>
+noremap ,n :bn<CR>
 
-map ,o o<ESC><CR>kk
+noremap ,o o<ESC><CR>kk
 
-map ,O O<ESC><CR>
+noremap ,O O<ESC><CR>
 
 " TODO only for .pl filetype
 if has('unix')
@@ -886,34 +887,28 @@ if has('unix')
 endif
 
 " (Q)uick (C)opy to Clipboard.  Gvim only
-map ,qc ggvG"*y<Esc>:q!<CR>
+noremap ,qc ggvG"*y<Esc>:q!<CR>
 
-map ,qq :q!<CR>
+noremap ,qq :q!<CR>
 
 " Fold a SAS macro block that you're sitting in.  No mnemonic, ran out of free
 " letters.  TODO breaks on nested macros
-map ,r ?%macro \\\w\\\+;<CR>jv/%mend.*;<CR>kzf
+noremap ,r ?%macro \\\w\\\+;<CR>jv/%mend.*;<CR>kzf
 
 " Quick search template.
-"""map ,s :,$:s::gc<Left><Left><Left>
-map ,s :%s::g<Left><Left>
+noremap ,s :%s::g<Left><Left>
 
 " (T)oggle this prior to pasting with 3rd mouse button.
-map ,t :set invpaste<CR>\|:se paste?<CR>
+noremap ,t :set invpaste<CR>\|:se paste?<CR>
 
 " Uppercase a word (see also ;u) and stay on the same character.
-map ,u mzviwU\|:echon '.vimrc: word uppercased'<CR>`z
+noremap ,u mzviwU\|:echon '.vimrc: word uppercased'<CR>`z
 
 " In case I forget that  ,u  works to uppercase.
-map ,U muvawU`u
+noremap ,U muvawU`u
 
-" Fix SAS Output Window control characters (think Ctrl-v)
-map ,v :%s///g<CR>:%s/ƒ/-/g<CR>:%s/[ˆ…‹ŒŠ„†]/+/g<CR>:%s/[‚‡]/\|/g<CR>:%s/‰/+/g<CR>
-
-" Wrap long lines to fit screen.  Used by ;f map.
-map ,w :set tw=0 linebreak wrap<CR>:map j gj<CR>:map k gk<CR>
-" Toggle ,w
-map ,W :set tw=78 nolinebreak nowrap<CR>
+" Wrap long lines to 78 chars
+noremap ,w :call WrapToggle()<CR>
 
 " Comment out whole C/SAS line.  Asterisks must be escaped even when using #
 " as delimiter if using magic.  See ,3 map below to undo.
@@ -923,22 +918,22 @@ map ,W :set tw=78 nolinebreak nowrap<CR>
 """map ,x :call setline('.', Commentout(getline('.'), 'sas'))<CR>
 
 " Space out current line e.g if(foo) { ...   to  if ( foo ) { ...      
-map ,0 :s# \*(\\([^ ].*[^ ]\\))# ( \\1 )#<CR>
+noremap ,0 :s# \*(\\([^ ].*[^ ]\\))# ( \\1 )#<CR>
 
 " For systems not able to read <F12>
 """map ,1 :q<CR>
 
 " Mnemonic '3 stars'.  Undo ,x's comment out.
-map ,3 :s:\\/\\*\\*\\*\\\|\\*\\*\\*\\/::g<CR>:se nohls<CR>
+noremap ,3 :s:\\/\\*\\*\\*\\\|\\*\\*\\*\\/::g<CR>:se nohls<CR>
 
 " Single quote a word
-map ,, :let @z=substitute(expand("<cword>"),".*","'&'","g")<CR>ciw<C-R>z<ESC>
+noremap ,, :let @z=substitute(expand("<cword>"),".*","'&'","g")<CR>ciw<C-R>z<ESC>
 
 " Double quote a word
-map ,. :let @z=substitute(expand("<cword>"),".*","\\"&\\"","g")<CR>ciw<C-R>z<ESC>
+noremap ,. :let @z=substitute(expand("<cword>"),".*","\\"&\\"","g")<CR>ciw<C-R>z<ESC>
 
 " Parenthesize a word
-map ,[ :let @z=substitute(expand("<cword>"),".*","\\(&\\)","g")<CR>ciw<C-R>z<ESC>
+noremap ,[ :let @z=substitute(expand("<cword>"),".*","\\(&\\)","g")<CR>ciw<C-R>z<ESC>
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -946,16 +941,16 @@ map ,[ :let @z=substitute(expand("<cword>"),".*","\\(&\\)","g")<CR>ciw<C-R>z<ESC
 " (RSI warning: don't use uppercase, leave those contortions for emacs)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " TODO how to do > 1 line in file?
-map ;<Tab> :syn match BoldWholeLine /.*\\%#.*/<CR>
+noremap ;<Tab> :syn match BoldWholeLine /.*\\%#.*/<CR>
 " TODO doesn't unset
-map ;<Tab><Tab> :syn match BoldWholeLine "NONE"<CR>
+noremap ;<Tab><Tab> :syn match BoldWholeLine "NONE"<CR>
 
 " Comment out (using the most common comment style '###' for suffix-less files).
 " This default may be overridden by au commands below.
-map ;; :call setline('.', Commentout(getline('.'), 'default'))<CR>
+noremap ;; :call setline('.', Commentout(getline('.'), 'default'))<CR>
 
 " Uncomment, de-comment out my current line triplet convention (where Commentout function isn't aware of comment type)
-map ;/ my^3x<ESC>`yhhh
+noremap ;/ my^3x<ESC>`yhhh
 
 " Very useful with Vimium
 if has('unix')
@@ -963,37 +958,37 @@ if has('unix')
 endif
 
 " $ vi -dR 1 2
-map ;1 :%call WriteToFile(VTMP, 1, 0)<CR>
-map ;2 :%call WriteToFile(VTMP, 2, 0)<CR>
-map ;3 :%call WriteToFile(VTMP, 3, 0)<CR>
-map ;4 :%call WriteToFile(VTMP, 4, 0)<CR>
+noremap ;1 :%call WriteToFile(VTMP, 1, 0)<CR>
+noremap ;2 :%call WriteToFile(VTMP, 2, 0)<CR>
+noremap ;3 :%call WriteToFile(VTMP, 3, 0)<CR>
+noremap ;4 :%call WriteToFile(VTMP, 4, 0)<CR>
 
 " Checkpoint the file
-map ;5 :call BkupFile(VTMP)<CR>
+noremap ;5 :call BkupFile(VTMP)<CR>
 
 " Maximize window.  Alternative to z99.  <C-W>_ makes my hands hurt just
 " looking at the chording.  Same as map ,b without the jumping.  Mnemoic [b]ig
 " buffer.  Also see noremap zz for cycling windows.
-map ;b <C-W>_
+noremap ;b <C-W>_
 
-map ;c 0Di#  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>
+noremap ;c 0Di#  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>
 
 """map ;d O /*DEBUG!!!DEBUG!!!DEBUG!!!DEBUG!!!DEBUG!!!DEBUG*/<Esc>0j
 " Change (d)irectory to where the open file resides
-map ;d :call CDtoThisFilesLoc()<CR>
+noremap ;d :call CDtoThisFilesLoc()<CR>
 
 " Check for SAS Log errors (SAS' .log only so might want to au command it if
 " we run out of free semicolon maps)
 "                    __       ___ required for map
 """map ;e :set hls<CR> /\\C^ERROR:\\\|SYSCC\\\|stopped processing this step because/<CR>
-map ;e :set hls<CR> /\\C^ERROR:\\\|NOTE: SYSCC: [123456789]\\\|stopped processing this step because/<CR>
+noremap ;e :set hls<CR> /\\C^ERROR:\\\|NOTE: SYSCC: [123456789]\\\|stopped processing this step because/<CR>
 """map ;e /\\C^ERROR\\s\\+\\d\\+-\\d\\+:\\\|^WARNING:\\\|\\C^ERROR:\\\|stopped processing this step because\\\|lines were truncated\\\|NOTE: Invalid data for<CR>
 
 " (F)latten paragraph to single line - prepare text for paste into an input
 " box, etc.  See ,f to wrap to current tw.  Overridden for SAS Log
-map ;f mfvipJ`f
+noremap ;f mfvipJ`f
 " For (F)irefox add-on (f)ormatting.  Uses ,w map.
-map ;ff mfvipJ`f<Esc>,w
+noremap ;ff mfvipJ`f<Esc>,w
 
 " (G)et Windows Clipboard
 if has('win32')
@@ -1006,27 +1001,27 @@ else
 endif
 
 " Jump to leftside window without chording
-map ;h <C-W>h
+noremap ;h <C-W>h
 
 " Jump to rightside window without chording.  Non-intutitive but ';l' is
 " already taken.
-map ;i <C-W>l
+noremap ;i <C-W>l
 
 " Jump to lower window without chording
-map ;j <C-W>j
+noremap ;j <C-W>j
 
 " Jump to upper window without chording
-map ;k <C-W>k
+noremap ;k <C-W>k
 
 " Just use this for now since the problemspace is so messy
-map ;l :ls<CR>:e#
+noremap ;l :ls<CR>:e#
 
 " Same as  'ab YdM' but replaces existing Modified line first.
-map ;m 0Di# Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
+noremap ;m 0Di# Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
 
 " Simplify navigating the output of :makeprg (use :cN to reverse) when using
 " Vim as an IDE.
-map ;n :cn<CR>
+noremap ;n :cn<CR>
 
 if has('win32')
   " TODO how to remove DOS window (even w/shellcmdflag /c)??
@@ -1047,7 +1042,7 @@ endif
 """map ;p :!putclip<CR>u
 
 " Swap exchange flip two comma-separated items (foo, bar)
-map ;q viw"zxllciwhhpll"zp
+noremap ;q viw"zxllciwhhpll"zp
 
 " Transfer/read and write one block of text between vim sessions:
 " This is part 1 of the most useful map of all time.  See ;w and ;a for part 2
@@ -1058,18 +1053,18 @@ else
 endif
 
 " Quick 'comment out' for visualized area.  Default.  See au commands.
-map ;s :s/^/###<CR>
+noremap ;s :s/^/###<CR>
 
 " (T)oggle syntax
 """map ;t :if exists("syntax_on") \| syntax off \| else \| syntax on \| endif<CR>
 
-map ;t mz<Esc>:se tw=99999<CR>\|:echon '.vimrc: tw set to 99999'<CR>'z
-map ;tt mz<Esc>:se tw=78<CR>\|:echon '.vimrc: tw set to 78'<CR>'z
+noremap ;t mz<Esc>:se tw=99999<CR>\|:echon '.vimrc: tw set to 99999'<CR>'z
+noremap ;tt mz<Esc>:se tw=78<CR>\|:echon '.vimrc: tw set to 78'<CR>'z
 
 " Upload file to mainframe (basename without extension):
 """map ;u :!bfp % 'bqh0.pgm.lib(%:t:r)'<CR>
 
-map ;v :highlight Normal guibg=white guifg=black
+noremap ;v :highlight Normal guibg=white guifg=black
 
 " Transfer/read and write one block of text between vim sessions:
 """if BOX==WORKBOX1 || BOX==WORKBOX2 || BOX==WORKBOX3
@@ -1091,11 +1086,11 @@ endif
 nmap :W :w
 
 " Toggle ROT13 boss key - scramble entire file against inquiring minds that want to know.
-map ;x mzggVGg?`z
+noremap ;x mzggVGg?`z
 imap ;x <Esc>mzggVGg?`z
 
 " Default
-map ;z :echon ";z 'compile' map not implemented for this filetype"<CR>
+noremap ;z :echon ";z 'compile' map not implemented for this filetype"<CR>
 
 " Make sure arrow keys work on every box.
 """map [A k
@@ -1105,19 +1100,18 @@ map ;z :echon ";z 'compile' map not implemented for this filetype"<CR>
 
 "                                Pseudo maps 
 " (weaknesses - won't accept <CR>, can be accidentally overwritten):
-
 " Mutt on sdf
 " Treo pssh width
-let @t=':se tw=53'
+"""let @t=':se tw=53'
 " For mutt mail editing
-let @6=':se tw=68'
-let @9=':se tw=0'
+"""let @6=':se tw=68'
+"""let @9=':se tw=0'
 " Mostly for Mutt after a region has been highlighted.
-let @p='!par'
+"""let @p='!par'
 " Strip trailing spaces.
-let @s=":%:s:\\s*$::g|''"
+"""let @s=":%:s:\\s*$::g|''"
 " For SAS mf code.
-let @t=':se tw=72'
+"""let @t=':se tw=72'
 " Upload.
 """if ( box == 'IPO1')
   """let @u=':!cpsub % '
@@ -1148,6 +1142,7 @@ vnoremap <C-P> "ey:call CalcBC()<CR>
 
 " Jump to the exact position where you left, not to beginning of line.
 noremap ' `
+"""noremap ' `z.
 
 " Hack to fix the stray pixel problem with monospaced fonts under Cygwin rxvt
 noremap <Esc><Esc> <C-L>
@@ -1234,9 +1229,9 @@ inoremap {<Space><Space> {}<Left>
 " :'<,'>Inc(100)
 vnoremap <C-A> :Inc<CR>
 
-" gvim
-nnoremap <RightMouse> <Insert>
-inoremap <RightMouse> <ESC>
+" gvim - don't use, need right click for Paste on Linux (where there are multiple clipboards).
+"""nnoremap <RightMouse> <Insert>
+"""inoremap <RightMouse> <ESC>
 
 " end Mappings-
 
@@ -1336,19 +1331,6 @@ fu! FixStatusLine()  " {{{2
   highlight StatusLineNC term=reverse  cterm=reverse  gui=reverse
 endfu
 command! -nargs=0 Fix call FixStatusLine()  " }}}
-
-
-fu! SetExecutableBit()   " {{{2
-  " Set executable bit without doing  :!chmod +x %  (and losing undo history).
-  " TODO not working on sdf
-  let fname = expand("%:p")
-  :checktime
-  exec "au FileChangedShell " . fname . " :echo"
-  :silent !chmod a+rx %
-  :checktime
-  exec "au! FileChangedShell " . fname
-endfu
-command! -nargs=0 Xbit call SetExecutableBit()  " }}}
 
 
 fu! CalcBC()   " {{{2
@@ -1587,40 +1569,6 @@ fu! Commadelim()   " {{{2
 endfu  " }}}
 
 
-" TODO 2008-04-09 this is just proof-of-concept at the moment  " {{{2
-" $ cat t.txt
-" one|addr@foo.bar
-" onemore|addrmore@foo.bar
-" two|addr2@foo.bar
-"
-" Assumes set omnifunc=OmniCompleteFunc
-"""fu! OmniCompleteFunc(findstart, base)
-"""  if a:findstart
-"""    " locate start of word
-"""    let line = getline('.')
-"""    let start = col('.')-1
-"""    while start > 0 && line[start-1] =~ '\a'
-"""      let start -= 1
-"""    endwhile
-"""    return start
-"""  else
-"""    " find contact names matching 'a:base'
-"""    let res = []
-"""    " read in and sort
-"""    for m in sort(readfile('/home/bheckel/t.txt'))
-"""      if m =~ '^' . a:base
-"""        let contactinfo = split(m, '|')
-"""        " show names in list but insert address
-"""        call add(res, {'word': contactinfo[1],
-"""                       \ 'abbr': contactinfo[0] . ' <' . contactinfo[1] . '>',
-"""                       \ 'icase': 1 })
-"""      endif
-"""    endfor
-"""    return res
-"""  endif
-"""endfu  " }}}
-
-
 fu! DiffWithFileFromDisk()  " {{{2
   let fnm = expand('%')
   let diffnm = fnm . '.fileFromBuffer'
@@ -1654,60 +1602,6 @@ fu! HighlightCurrentLine()  " {{{2
     unlet g:CurrentLineUpdateTime
   endif
 endfu  " }}}
-
-
-fu! CheckForShebang()  " {{{2
-  " From vimtips
-  """map <F5> :call CheckForShebang()
-  if ( match( getline(1) , '^\#!') == 0 )
-    map <F5> :!./%<CR>
-  else
-    unmap <F5>
-  end
-endfu  " }}}
-
-
-"""function! SignPlant() {{{2
-  """execute(":sign place ".line(".")." line=".line(".")." name=piet file=".expand("%:p"))
-"""endfunction
-" TODO
-"""function! SignUnPlant()
-  """execute(":sign unplace ".line(".").")
-"""endfunction }}}
-
-
-" WordCheck() {{{2
-" http://www.ibm.com/developerworks/linux/library/l-vim-script-1/index.html?S_TACT=105AGX03&S_CMP=EDU
-" Create a text highlighting style that always stands out...
-highlight STANDOUT ctermfg=yellow term=bold cterm=bold gui=bold
-" List of troublesome words...
-let s:words = [
-             \ "it's",  "its",
-             \ "your",  "you're",
-             \ "were",  "we're",   "where",
-             \ "their", "they're", "there",
-             \ "to",    "too",     "two"
-             \ ]
-
-" Build a Vim command to match troublesome words...
-let s:words_matcher
-\ = 'match STANDOUT /\c\<\(' . join(s:words, '\|') . '\)\>/'
-
-" Toggle word checking on or off...
-function! WordCheck()
-   "Toggle the flag (or set it if it doesn't yet exist)...
-   let w:check_words = exists('w:check_words') ? !w:check_words : 1
-
-   "Turn match mechanism on/off, according to new state of flag...
-   if w:check_words
-      exec s:words_matcher
-   else
-      match none
-   endif
-endfunction
-"Use ;p to toggle checking...
-"""nmap <silent>  ;p  :call WordCheck()<CR>
-" }}}
 
 
 fu! BuffersList()  " {{{2
@@ -1832,7 +1726,7 @@ endfu
 " }}}
 
 
-fun! AlignAssignments()  " {{{2
+fu! AlignAssignments()  " {{{2
   " Adpated from Damien Conway http://www.ibm.com/developerworks/linux/library/l-vim-script-2/index.html
 
   "Patterns needed to locate assignment operators...
@@ -1958,31 +1852,35 @@ endfu
 " }}}
 
 
-" Template  {{{2
-function! Foo() range
-   let have_already_seen = {}
-   let unique_lines = []
-
-   for original_line in getline(a:firstline, a:lastline)
-     let normalized_line = '>' . original_line 
-     if !has_key(have_already_seen, normalized_line)
-       call add(unique_lines, original_line)
-       let have_already_seen[normalized_line] = 1
-     endif
-   endfor
-
-   exec a:firstline . ',' . a:lastline . 'delete'
-   call append(a:firstline-1, unique_lines)
-endfunction
-" }}}
-
-" Adapted from http://hartley.io
-function! Websearch()
+fu! Websearch()  "{{{2
+  " Adapted from http://hartley.io
+  " Depends on noremap to determine browser and search engine
   call inputsave()
-  let searchterm = input('Google: ')
+  let searchterm = input('search: ')
   call inputrestore()
   return searchterm
-endfunction
+endfu
+" }}}
+
+
+fu! WrapToggle()  " {{{2
+  if &textwidth == 0
+    setlocal textwidth=78
+    setlocal linebreak
+    setlocal wrap
+    map j gj
+    map k gk
+  else
+    setlocal textwidth=0
+    setlocal nolinebreak
+    setlocal nowrap
+    unmap j
+    unmap k
+  endif
+endfu
+" }}}
+
+
 
 " end Functions-
 
@@ -1998,18 +1896,12 @@ endfunction
 if !exists("autocommands_loaded")
   let autocommands_loaded = 1
  
-  " Start new session at line and column of last edited position.
+  " Start a returning session at the line and column of last edited position
   autocmd BufReadPost * if line("'\"") | exe "normal '\"" | endif
   " ~/bin/bgrep
   au BufRead *.grep if line("'\"") | exe "normal '\"" | endif
 
-
   " SAS:
-  " Assuming we've copied my sas.vim to $VIMRUNTIME for Cygwin & gVim
-  "
-  " SAS Logs, created under sasrun, should collapse to hide sasrun's initialization details
-"""  au BufRead */*\d\+.log set foldmethod=marker
-
   if matchstr(WORKBOXES, THISBOX) == THISBOX
     autocmd BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source u:/code/sas/saslog.vim 
   else
@@ -2025,22 +1917,19 @@ if !exists("autocommands_loaded")
     au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!c:/Progra~1/SASIns~1/SAS/V8/sas.exe -sysin %<CR>:args %:r.lst %:r.log<CR>
   else
     autocmd BufReadPre,FileReadPre *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim 
-    " Run SAS on Cygwin bash shell
+    " Run my exec SAS shell script on Cygwin
     au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!~/code/sas/sasrun %<CR>
   endif
 
-  " Close both .log and .lst (created by ~/bin/sasrun) when exiting.
+  " Close both .log and .lst (created by my ~/bin/sasrun) when exiting
   au BufRead tmpsas.*.log,tmpsas.*.lst map <F12> :qa<CR>
   au BufRead tmpsas.*.log,tmpsas.*.lst map q :qa<CR>
   au BufRead tmpsas.*.log,tmpsas.*.lst echo '.vimrc: q or <F12> to exit all'
   au BufNewFile,BufRead,BufEnter tmpsas.*.log echo '.vimrc: q or <F12> to exit all'
-  """au BufNewFile,BufRead,BufEnter *.sas map ;; mz0I***<ESC>`zlll
   au BufNewFile,BufRead,BufEnter *.sas map ;; :call setline('.', Commentout(getline('.'), 'sas'))<CR>
   au BufNewFile,BufRead,BufEnter *.sas map ;c 0Di  *  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.sas map ;m 0Di  * Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.sas map ,m yy0I***<ESC>p
-  """au BufNewFile,BufRead,BufEnter *.sas map ;s :s:^:***:<CR>
-  " TODO is *any* matchit still working? 2007-07-13 
   " Define pairs to allow the 'bounce on %' plugin to work.  Case insensitive.
   " Use K on 'match_words' or :help matchit-install for explanation.
   au BufNewFile,BufRead,BufEnter *.sas let s:SASnotend = '\%(\<end\s\+\)\@<!'
@@ -2107,8 +1996,8 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufRead,BufEnter *.cpp set makeprg=g++\ -Wall\ %
   au BufNewFile,BufRead,BufEnter *.c nmap ;z :!gcc %<CR>\|:echon 'compiled a.exe via ;z map'<CR>
 
-  """au FileType html map ;; mz0I///<ESC>`zlll
   au FileType javascript map ;; :call setline('.', Commentout(getline('.'), 'cpp'))<CR>
+  au FileType javascript :iabbrev <buffer> iff if ()<left>
 
   au BufNewFile,BufRead,BufEnter *.htm* inoremap <Tab><Tab> <C-R>=InsertCloseTag()<CR>
   au BufNewFile,BufRead,BufEnter *.htm* map ;c 0Di//  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
@@ -2300,7 +2189,6 @@ if !exists("autocommands_loaded")
   " Windows gVim SQL*Plus hack to get completion
   """au GUIEnter afiedt.buf winpos 37 55 | se lines=20 | se columns=170 | se tw=999999 | :new | silent :args c:/cygwin/home/bheckel/code/misccode/spool/links/*.LST | :hide | map :wq :wq! | noremap ZZ :wq!<CR>
   au GUIEnter afiedt.buf winpos 37 55 | se lines=20 | se columns=170 | se tw=999999 | :new | silent :args $HOME/code/misccode/spool/links/*.LST | :hide | map :wq :wq! | noremap ZZ :wq!<CR>
-  " Backup copy for pseudo Oracle SQL*Plus history TODO all empty files
   """au VimLeavePre afiedt.buf execute "w ~/tmp/afiedt.buf." . strftime("%m_%d-%H_%M_%S")
   au BufRead LimsGistTableCount.txt :se list
   """au BufRead LGI.log :se hls
@@ -2311,9 +2199,7 @@ if !exists("autocommands_loaded")
   "Activate via <C-X><C-O>
   """autocmd FileType * set omnifunc=syntaxcomplete#Complete
   " Save folds silently
-  " TODO yells when :cw
   """au BufRead */datapost/* loadview
-  " TODO yells when :cw
   """au BufWinLeave */datapost/* mkview
   au BufReadPre,FileReadPre [XYZ]:/* set noswapfile
   " Don't scare people who don't know what swapfiles are
@@ -2347,13 +2233,6 @@ endif
 " Improve portability (e.g. Cygwin vs gvim problems).  But vimballs are
 " probably easier to just install: vi Align.vba.gz then :so %
 "
-"  2007-08-08 important plugins have been inlined, only need
-"  my hacked bufexplorer.vim and DirDiff.vim in 
-"  ~/.vim/plugin/  <---cygwin symlink to ~/code/misccode is ok
-"  C:\Program Files\Vim\vim70\plugin <---shortcut to ~/code/misccode/
-"  is not ok
-"
-" 
 " Has to be located after Autocommands.
 "--------------------------------------------------------------------------
 
@@ -3425,14 +3304,10 @@ endfun /*}}}*/
 
 
 " 2010-03-04 inlined DirDiff {{{
-" FILE: "C:\Documents and Settings\William Lee\vimfiles\plugin\DirDiff.vim"
 " LAST MODIFICATION: "Wed, 22 Feb 2006 22:31:59 Central Standard Time"
-" HEADER MAINTAINED BY: N/A
-" VERSION: 1.1.0
-" (C) 2001-2006 by William Lee, <wl1012@yahoo.com>
-
+" VERSION: 1.1.0 (C) 2001-2006 by William Lee, <wl1012@yahoo.com>
+"
 " TODO how to turn off file's syntax highlight to avoid masking vimdiff's?
-" TODO what to do about having to open folds to avoid hiding diffs?
 " My version is essentially the same as William's latest 1.1.2 in 2008 but
 " has my preferred syntax and navigation features
 " Modified: Mon 29 Sep 2008 14:31:17 (Bob Heckel)
@@ -3730,7 +3605,7 @@ function! <SID>DirDiff(srcA, srcB)
     " TODO not working
     """nnoremap <buffer> <F12> :call <SID>DirDiffQuit()<CR>
     map <F12> :qa<CR>  
-    map <F1> :echon 's (sync) copies file to other side - will prompt 1st'<CR>
+    map <F1> :echon 's (sync) will prompt to copy file to other side'<CR>
 
     " Setup
     let DirDiffAbsSrcA = fnamemodify(expand(a:srcA, ":p"), ":p")
@@ -3828,7 +3703,7 @@ function! <SID>DirDiff(srcA, srcB)
 "    nnoremap <buffer> p :call <SID>DirDiffPrev()<CR>
 
     " 13-Dec-12 avoid messing up edits, only allow these in the bottom navigation window
-    if &filetype == ''
+    if &filetype == 'DIFF'
       nnoremap <buffer> s     :. call <SID>DirDiffSync()<CR>
       vnoremap <buffer> s     :call <SID>DirDiffSync()<CR>
       nnoremap <buffer> u     :call <SID>DirDiffUpdate()<CR>
@@ -3838,17 +3713,14 @@ function! <SID>DirDiff(srcA, srcB)
       nnoremap <buffer> q     :call <SID>DirDiffQuit()<CR>
       nnoremap <buffer> o     :call <SID>DirDiffOpen()<CR>
       nnoremap <buffer> <CR>  :call <SID>DirDiffOpen()<CR>  
-"""      nnoremap <buffer> <2-Leftmouse> :call <SID>DirDiffOpen()<CR>
     endif
-"""au BufEnter ~/tmp/v* syntax on
-"""au BufLeave ~/tmp/v* syntax off
     " sets up highlight in the lower dirdiff window (only)
     call <SID>SetupSyntax()
 
     " Open the first diff
     call <SID>DirDiffNext()
     " 13-Dec-12 custom reminders
-    echon " <CR>=open,'s'=sync,'u'=update,'x'=set excludes (or :let g:DirDiffExcludes='.xml'),'i'=set ignore,'a'=set args"
+    echon " <CR>=open,'s'=sync,'u'=update,'x'=set excludes (or disable via :let g:DirDiffExcludes=''),'i'=set ignore,'a'=set args"
 endfunction
 
 " Set up syntax highlighing for the diff window

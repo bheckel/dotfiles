@@ -1,5 +1,7 @@
 #!/bin/sh
 #
+# 25-Jan-13
+#
 # fluxbox startup-script:
 #
 # Lines starting with a '#' are ignored.
@@ -14,9 +16,12 @@ xmodmap "$HOME/.Xmodmap"
 # wmnd &
 # wmsmixer -w &
 # idesk &
-google-chrome &
-urxvt &
 conky -x 5 -y 0 &
+urxvt &
+google-chrome &
+ssh-agent $SHELL &
+nm-applet &
+# dropbox start
 
 # And last but not least we start fluxbox.
 # Because it is the last app you have to run it with ''exec'' before it.

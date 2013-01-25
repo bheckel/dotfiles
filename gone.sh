@@ -15,10 +15,15 @@
 #           TODO add CANONICAL switch
 #
 #  Created: Wed 20 Nov 2002 12:54:09 (Bob Heckel)
-# Modified: Sun 04 Mar 2012 14:31:37 (Bob Heckel)
+# Modified: Sat 08 Dec 2012 17:41:56 (Bob Heckel)
 ##############################################################################
   
-F="$HOME/code/misccode/oneliners"  # the "database"
+###if [ -e $HOME/misccode/oneliners ];then
+  F="$HOME/code/misccode/oneliners"
+###else  # offline
+  ###F="$HOME/oneliners.local"
+###fi
+
 IGCASE=--ignore-case  # grep's ignore case set as default
 ###CANONICAL=0
 
@@ -86,10 +91,6 @@ elif test "$2" = 's'; then
   s=sas
 elif test "$2" = 'v'; then
   s=vim
-###elif test "$2" = 'w'; then
-  ###s=powershell
-###elif test "$2" = 's'; then
-  ###s=powershell
 else
   # An incorrect section was specified (skip if no section specified)
   if [ ! -z "$2" ]; then
