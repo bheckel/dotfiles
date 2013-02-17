@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Fri 25 Jan 2013 08:28:26 (Bob Heckel)
+" Modified: Thu 31 Jan 2013 10:47:23 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 "--------------------------------------------------------------------------
@@ -44,6 +44,7 @@ if has ('win32unix')
   let g:netrw_cygwin=1
   let g:netrw_browsex_viewer='cygstart'
 endif
+let g:netrw_fastbrowse=2
 let g:netrw_browse_split=2
 let g:netrw_liststyle= 3
 let g:netrw_sort_options="i"
@@ -2144,7 +2145,7 @@ if !exists("autocommands_loaded")
   endif
 
   " DirDiff
-  au FileType diff noremap q :qa<CR>
+"""  au FileType diff noremap q :qa<CR>
 
   " Quickfix
   """ TODO need something like this to keep q from flowing to existing buffers after leaving QF: au BufLeave QF unmap q
@@ -3703,7 +3704,8 @@ function! <SID>DirDiff(srcA, srcB)
 "    nnoremap <buffer> p :call <SID>DirDiffPrev()<CR>
 
     " 13-Dec-12 avoid messing up edits, only allow these in the bottom navigation window
-    if &filetype == 'DIFF'
+    " 31-Jan-13 bottom window not always DIFF
+    if (&filetype == 'DIFF') || (&filetype == '')
       nnoremap <buffer> s     :. call <SID>DirDiffSync()<CR>
       vnoremap <buffer> s     :call <SID>DirDiffSync()<CR>
       nnoremap <buffer> u     :call <SID>DirDiffUpdate()<CR>

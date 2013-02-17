@@ -3,14 +3,15 @@
 #     Name: $HOME/code/misccode/oneliners
 #
 #  Summary: Programming and sysadmin fragments I've collected over the 
-#           years.  Searchable via my gone.sh
+#           years.  Section-searchable via my gone.sh
 #
 #           Comments are often written for searching, not proper English...
 #
-#           Some of these are obsolete...
+#           This is a smaller file than when I was less experienced  but 
+#           some of these are still obsolete...
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Mon 03 Dec 2012 11:18:39 (Bob Heckel)
+# Modified: Thu 07 Feb 2013 15:02:23 (Bob Heckel)
 #
 #########################################################################
 
@@ -93,7 +94,7 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 " Confirm paranoia global :g actions:
 :g/global delete with prompt/ if input("del line? " . line(".") . ":" . getline(".") . " y/[n] ")=="y" | delete | endif
 
-" Delete a block range if you can determine start and end of blocks:
+" Delete a block range, paragrep, if you can determine start and end of blocks:
 :g/^\s\+The SA/;/^ProdSp/d
 
 " Non-inclusive delete.  Only delete everything between these two lines:
@@ -110,8 +111,6 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 :0r !head -n15 foo.txt
 " Insert specific range of an external file at very top of your file.
 :0r !awk'/start/,/end/{print}' foo.txt
-
-" Sort in plain vi (w/o my '=' sort map). At start of lines do ma, go to somewhere on end of your block's line, do !'asort  <---no ':'!
 
 " Delete everything prior to vim, keep the rest of the line:
 :%s/.*\(vim.*\)/\1/gc
@@ -279,9 +278,6 @@ s<BS>s   <---Produces German ß
 
 " Modeline.  Trailing ':' required for multiple set's.  /* vim: set tw=72 ft=sas ff=unix: */ # vim: set list syntax=off foldmarker=#{{{,#}}} foldmethod=marker tw=78:
 
-" Substitute TBE2.FINAL.BF19.DATASET using nested capturing parens:
-:0,$:s:BF19\.\(..\)\(.*\):FILENAME \12001 'BF19\.\1\2' DISP=SHR;:gc
-
 " Substitute files for //IN JCL:
 :0,$:s:\(.*\)://*IN      DD DSN=\1,DISP=SHR:gc
 
@@ -407,9 +403,6 @@ w3m -dump 'http://rtpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program
 " Swap tab-delimited field 5 with 4 position (use :se list to view these tabs):
 ,$:s:^\([^	]*\)	\([^	]*\)	\([^	]*\)	\([^	]*\)	\([^	]*\)	\(.*\):\1	\2	\3	\5	\4	\6	:gc
 
-" vim readonly
-vi -R foo.txt
-
 " Remove blocks, paragraphs of text from a series of files. Edit multiple files:
 $ vim -c 'argdo /begin/+1,/end/-1g/^/d | update' *.c
 
@@ -460,7 +453,6 @@ map ;p :exe ":!info ".expand("<cword>")<CR>
 " Put the tabs back over the 4 spaces:
 :%s/^ \+/\=substitute(submatch(0), "....", "\t", "g")
 
-vi -S Session.vim
 :map :w :mksession! \| :write<CR>
 " Do not forget to save folds etc.
 :au BufWinLeave * mkview
@@ -505,8 +497,9 @@ vnoremap <C-P> "ey:call CalcBC()<CR>
 :args **/*.sas | args cfg/* | args **/*.map
 
 vi -u NORC               <---skip .vimrc
+vi -R foo.txt            <---readonly
 vi -V2                   <---verify runtime startup etc
-vi -S Session.vim        <---restore project folds, windows, etc.
+vi -S [Session.vim]      <---restore project folds, windows, etc. :mksession!
 K                        <---on (K)eyword for help or man etc.
 :helpgrep foo bar\c      <---then :cw[indow] to navigate results
 :h quickref              <---C-] and C-t  ctags fwd back navigation
@@ -564,6 +557,9 @@ let w:check_words = exists('w:check_words') ? !w:check_words : 1
 
 " List all files recursively:
 :echo split(globpath('.', '**'), '\n')
+
+" Convert disorganized quote separated mat codes ...foo('1234', '5678')bar... into a list:
+:%s:\v\D+:^M:g | g/^$/d
 
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -740,12 +736,9 @@ substr(mystr, mylen+1) = '00'x
  /* Name of currently running SAS program file: (like $0 in shell): */
 %put &SYSPROCESSNAME;
 
- /* CLASS catergorical variables:  almost always stored as chars, identify
-  * classes (discrete categories) on which calculations are done.  E.g. gender,
-  * country, state, zip
+ /* CLASS categorical variables:  almost always stored as chars, identify classes (discrete categories) on which calculations are done.  E.g. gender, country, state, zip.
   *
-  * VAR analysis variables:  numbers, usually continuous, appropriate for
-  * calculating averages, sums, etc.  E.g. salary, number of orders
+  * VAR analysis variables:  numbers, usually continuous, appropriate for calculating averages, sums, etc.  E.g. salary, number of orders.
   */
 
  /* Pick off 'MOR' from the suffix */
@@ -1053,10 +1046,9 @@ proc sql; select id, (dis-adm)+1 AS mycalc LENGTH=4 LABEL='foo' from bar; quit;
 
 libname ORA oracle user=pks password=pks path=usdev100 schema=pks;
 
- /* Fast freq */
+ /* Canonical freq */
 proc freq data=sashelp.shoes(where=(region like 'A%')); run;
-proc freq data=l.lelimsindres01a201962(where=(specname like '%2064%')); table specname*varname; run;
-proc freq; table description*market / LIST nocum norow nocol nopct; run;
+proc freq data=l.lelimsindres(where=(specname like '%2064%')); table specname*varname / LIST nocum norow nocol nopct; run;
 
  /* Where IntrNet keeps its datasets for a session */
 %let spath=%sysfunc(pathname(SAVE));
@@ -1070,8 +1062,9 @@ http://rtpsawn321/sasweb/cgi-bin/broker.exe?_DEBUG=16384&_SERVICE=default
  /* Wake up, ping restarted IntrNet server */
 http://rtpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program=ping&_adminpw=
 
- /* SAS' version of Oracle's ROWNUM<5 */
-where monotonic() < 5
+ /* SAS version of Oracle ROWNUM<5 */
+... WHERE monotonic() < 5 ...
+proc sql outobs=5; select * from sashelp.shoes; quit;  /* but only affects printing results, still rips thru all records */
 
  /* E.g. C:\cygwin\home\rheckel\tmp\testing\tmpsas.5660.sas */
 %put fully qual name of the currently running pgm: %sysfunc(getoption(SYSIN));
@@ -1153,7 +1146,7 @@ select distinct r.sampid, s.specname, put(r.sampid,F6.)||'-'||s.specname into :R
 -SET SASAUTOS  ( "d:\Auto_Call" ...
 
  /* Do not auto-delete, save WORK datasets and _TD.... in 'SAS Temporary Files' dir after run completes. Override default. */
-options NOworkterm; %put !!! WORK lib is:; libname WORK list;
+options NOworkterm; %put !!! Saved in WORK lib listed below...; libname WORK list;
 
  /* Keep temporary WORK datasets in your own dir, not in the default _TD....\ */
 libname W './workdir'; options USER=W;  /* workdir must already exist! */
@@ -1316,8 +1309,9 @@ proc format library=WORK FMTLIB; run;
  /* Store as numeric */
 time_point = input(time_pointSTR, F4.);
 
- /* Fast proc means */
-proc means data=tmp; class time_point; var resultnum; run;
+ /* Canonical proc means */
+proc means data=sashelp.shoes; class region; var sales; run;
+proc sql; select region, count(sales), sum(sales) format=DOLLAR16. from sashelp.shoes group by region; quit;
 
  /* Stupid SAS error message V8 at least: */
 NOTE: BY-line has been truncated at least once.  /* fix with options ls=max */
@@ -1350,6 +1344,8 @@ C:\Program Files\SAS Institute\SAS\V8\core\sasinst\hotfix\
 dataset_exists = %SYSFUNC(EXIST(mydataset));  /* 1 yes, 0 no */
 
 ods PDF file='c:/temp/t.pdf';  proc...run; ods PDF close;
+
+ods html body='t.htm'; proc print data=_LAST_; run; ods html close;
 
  /* Eliminate garbage from a normally numeric field.  Keep Log clean. */
 proc format; invalue NUMONLY(UPCASE) -999999999 - 999999999 = _SAME_ OTHER = . ; run; data clean_numbers_only; input mynum NUMONLY9.; ...
@@ -1557,8 +1553,9 @@ _character_
 varA -character- varZ
 varP -numeric- varT
  
- /* Canonical contents */
+ /* Canonical contents: */
 proc datasets library=SASHELP; contents data=shoes VARNUM; run; quit;
+proc sql; describe table SASHELP.shoes; quit;
 
  /* Print to SAS Log without %put */
 data _null_; file print; put #3 @10 "Data set &dsn. does not exist"; run;
@@ -1567,7 +1564,7 @@ data _null_; file print; put #3 @10 "Data set &dsn. does not exist"; run;
 x='2005/6/30 12:30'; ymd_no_ampm=input(x, ymddttm16.);
 ymd_ampm=input(z, ?? ymddttm18.);
 
- /* What do we have for ODS HTML etc: */
+ /* Query what layouts do we have for ODS HTML etc: */
 proc template; list tagsets; run;
 
 SAS/SHARE remote server (running proc server) -> local client
@@ -1640,6 +1637,8 @@ fullname=catx(' ', fname, mname, lname);  /* gracefully concatenates missing mna
 data clear_var_format_informat_label; set SASHELP.shoes; format inventory; informat inventory; label inventory=; run; proc contents ; run;
 
 if lag(foo) eq foo then put 'dup!' _all_;
+
+data OUTDIR.&OUTPUTFILE(compress=yes);
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3050,6 +3049,8 @@ $ p=crc;d=`date '+%Y%m%d'`;tar cfz $p.$d.tar.gz callcenter/ && cp -i $p.$d.tar.g
 # Print only a part, section, range, paragraph, of a file.  Paragrep.
 awk "/^xxSASx START/,/^xxSASx END/ {print}" ~/code/misccode/oneliners
 ipconfig /displaydns | awk "/rtpsh005/,/143.193.6.5/ {print}"
+# Paragrep xml tags that span multiple lines, looking for list of material codes:
+awk "/<ExtractString>/,/<\/ExtractString>/ {print}" cfg/DataPost_Configuration.xml | awk "/'[[:digit:]]+'/ {print}" > mats.txt
 
 # Create backup filename with today's date datestamp
 $ touch foo`date +%d%b%y`.txt
@@ -3176,7 +3177,7 @@ for file in $(find /path/to/dir -type f); do tr -d '\r' <$file >temp.$$ && mv te
 funcarr=(DPGeneral Valtrex); for f in ${funcarr[@]}; do $f; done
 
 # Determine Windows Box uptime:
-$ sz=$(systeminfo /U uxx19043 /P uxx06te /S '\\rtpsawn31'|grep 'Up Time'|awk '{print $4}')
+$ systeminfo /U 'wmservice\uxx1903' /P pw /S rtpsawn32 | grep Time
 
 # Cygwin
 $ systeminfo /U uxx40032 /P uxx06pr /S rtpsawn332
@@ -3347,13 +3348,18 @@ tar -C / -xvf connect-proxy-1.101-1.tar.gz
 # Ubuntu system information:
 $ df -h && free -m && grep name /proc/cpuinfo | uniq && lspci | grep VGA && xrandr | grep connected && uname -rms
 
-# Easy GSK backup using the previous tarball as a sentinel:
-cd ~ && find code/ -type f -newer c.tgz |xargs tar cvfz c.tgz  # Cygwin
-cd ~ && find -L code/ -type f -newer c |grep -v '/.git/'|grep -v '.swp'|xargs tar cvfz c  # Ubuntu
+# Easy GSK backup using the previous tarball as a sentinel - Cygwin:
+$ ls -l ~/c && sleep 10 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd -
+
+# Easy GSK backup using the previous tarball as a sentinel - Ubuntu:
+$ cd ~ && find -L code/ -type f -newer c |grep -v '/.git/'|grep -v '.swp'|xargs tar cvfz c  # Ubuntu manual
+$ cd && find -L code/ -type f -newer ~/Downloads/c |grep -v '/.git/' |grep -v '.swp' |xargs tar cvfz ~/Downloads/c && scp ~/Downloads/c bheckel@sdf.org: && ssh bheckel@sdf.org mailx -a c -s c rsh86800@gsk.com && cd -  # Ubuntu quicker
 
 $ sudo fdisk -l
-$ sudo dd if=lubuntu-desktop-12.04-1-miniand.com.img of=/dev/sdb1
-$ sudo sync
+$ sudo dd if=lubuntu-desktop-12.04-1-miniand.com.img of=/dev/sdb1 && sudo sync
+
+# Imagemagic PNG to PDF conversion:
+$ meth=`find /cygdrive/x/ethylcellulose/ -maxdepth 1 -name '*.png'` && convert $meth -append -compress zip /cygdrive/x/ethylcellulose/Methyl.pdf
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3490,10 +3496,12 @@ perl -e 'use Config; print "$Config{'cc'}"'
 
 use whine qw(toobusy twokids codetooscarylookin);      <---no commas!
 
-# Iterate over a loop
+# Iterate over an array:
 for ( $i=0; $i<@colors; $i++ ) { ... }
-# or 
+# or Iterate over an array:
 for ( $i=0; $i<=$#colors; $i++ ) { ... }
+# or Iterate chomp over two arrays:
+map { s/[\r\n]+$//; } @colors1, @colors2;
 
 # Constant declaration:
 use constant SECONDS_PER_DAY => 60 * 60 * 24;       # 86400
@@ -3894,7 +3902,7 @@ perl '-V:install.*'
 # Using rcs (automatically inserts revision sequence on co)
 our $VERSION = sprintf("%d.%02d", q$Revision$ =~ /(\d+)\.(\d+)/o);
 
-# Quick install: cp -i $HOME/code/perl/Irenamer.pm $HOME/perllib (or other dir on the @INC path):
+# Quick install: cp -i $HOME/code/perl/Irenamer.pm $HOME/perllib or /cp -i $HOME/code/perl/Irenamer.pm usr/lib/perl5/site_perl/5.14/i686-cygwin-threads-64int/File/
 perl -MFile::Irenamer -e 'InteractiveRename(verbose,recurse)'
 
 # Reverse sort a hash:
@@ -3922,11 +3930,11 @@ m/$foo/o  # compile interpolation pattern only once o regex switch:
 system('/bin/bzip2', '-k', @zipme);
 system('cp', '-i', $maxname, 'c:/cygwin/home/rheckel/tmp/foo');
 
-# Like SAS' scan()
+# Like SAS' scan():
 $x = (split / /, $x)[0];
 
-# Reference to hash of anonymous arrays (note curly braces for ref, NOT parens)
-$h = { one => [ 'a', 'b', 'c' ], two => [ 'd', 'e', 'f' ] }; 
+# Hash of anonymous arrays:
+%h = ( one => [ 'a', 'b', 'c' ], two => [ 'd', 'e', 'f' ] ); print $h{one}->[1];  # b
 
 use Data::Dumper; print Dumper $myref;
 open FH, '>foo' or die "$0: $!"; use Data::Dumper; print FH Dumper @a;
@@ -4078,6 +4086,14 @@ perl -le 'print map { ("a".."z")[rand 26] } 1..8'
 
 local - saves the current value somewhere, creates a new value, and arranges that the old value will be restored at the end of the current block.
 my    - lexical scope does not create an entry in the symbol table, variables that you declare in one subroutine can't be tampered with by other subroutines. 
+
+# Replicate and modify a line:
+$ find . -name '*.html' |xargs perl -pi.delete -e 's:(<link rel="stylesheet" type="text/css" href.*css/screen.css"  />):wtftodelete$1\n$1:g
+$ find . -name '*.html' |xargs perl -pi.delete -e 'next unless /wtftodelete/; s:css/screen.css:css/fonts.css:g'
+$ find . -name '*.html' |xargs perl -pi.delete -e 's:wtftodelete::g'
+
+# File into an array:
+open FH1, 'junk1.txt' or die "Error: $0: $!"; @foo = <FH1>;
 
 xxPERLxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4308,9 +4324,6 @@ HTML email link:
 <INPUT TYPE="button" VALUE="Back" onClick = "javascript:history.go(-2)">
 
 <input type="button" onclick="document.body.bgColor='lavender';" value="Change background color" />
-
-Refresh newsgroups in slrn
-/usr/bin/slrn --create -h news.cis.dfn.de -f /home/rheckel/slrn/news.cis.dfn.de jnewsrc
 
 ' Plural vs. singular display.
 sPlural = IIf((iFileCnt > 1), "s" & Chr(32), Chr(32))
@@ -4652,7 +4665,7 @@ INSERT INTO links_material (matl_desc, matl_mfg_dt, matl_exp_dt, matl_nbr, batch
 -- Oracle prompt (1st time only) for saved environment substitution variable:
 select * from tst_rslt_summary where samp_id=&&sampy;
 
-:: abort the gsk auto shutdown crap on WinXP
+:: abort auto shutdown on WinXP
 shutdown.exe -a
 :: or 
 /cygdrive/c/WINDOWS/system32/shutdown -a
@@ -4997,8 +5010,8 @@ mkdir ~/code; sudo mount -t vboxsf -o uid=1000,gid=1000 code /home/rheckel/code
 /* Linking to external CSS stylesheet: */
 <head><link rel="stylesheet" type="text/css" href="stylesheet.css" /></head>
 
-/* Embedding styles within a page: */
-<style type="text/css"> ... styles ...  </style>
+/* Embedding CSS styles within an html page: */
+<style type="text/css"> body { color: #555; font-family: Trebuchet, "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", sans-serif; font-size: 85%; margin: 0; padding: 0; } </style>
 
 /* Example of defining style for an entire page: */
 body { margin:0; padding:8px 4px 12px 4px; color:#ffbf11; background:#000000 url(images/space.gif); }
@@ -5017,42 +5030,6 @@ select 'create synonym PKS_USER.' || tname || ' for PKS.' || tname || ';' from t
 Remote Desktop C:\WINDOWS\system32\mstsc.exe /admin
 
 <?xml-stylesheet type="text/xsl" href="file:///c:/datapost/cfg/DataPost_Configuration.xslt"?>
-
-# git basics or $ git help foo:
-git status && git diff && git add . && git commit -am 'bitfiddled'
-
-# wget-ish:
-git clone git://busybox.net/busybox.git
-
-# git new branch:
-git branch mynewbranch; git checkout mynewbranch
-# or just branch and checkout in one swoop:
-git checkout -b mynewbranch
-
-# git switch branches
-git checkout master
-
-# git commit (cautious) mantra:
-git add cfg/DataPost_Configuration.xml && git commit -m 'modding one file'
-# git commit mantra (svn-ish):
-git add . && git commit -am 'another bitfiddle'
-# github commit mantra:
-git add . && git commit -am 'another bitfiddle' && git push origin master
-
-# git merge:
-git checkout master && git merge mynewbranch && git branch -d mynewbranch
-
-# github (github is origin)
-git push origin master
-
-# discard abandon all pending changes "not staged for commit"
-git checkout .
-git stash;  # then  git stash drop  later when You Are Sure
-
-git stash; git checkout emergencybranch; ... git checkout branchistashed; git stash pop; git stash list
-
-# vifmrc
-COMMAND=st=cygstart "%f"
 
 :: Delete all files in a directory using .bat
 DEL z:\Data_Trending\MDPI\*.* /Q
@@ -5355,7 +5332,7 @@ let sorted_list = reverse(sort(unsorted_list))
 " ...is almost always supposed to be:
 let sorted_list = reverse(sort(copy(unsorted_list)))
 
-Indent XML
+Pretty print indent XML
 xmllint --format t.xml
 
 -- Compare Oracle schemas
@@ -5382,18 +5359,56 @@ git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
 Windows work gvim GUI Target: icon:
 "C:\Program Files\Vim\vim73\gvim.exe" -u u:\code\misccode\_vimrc
 
-Windows commandline CPU monitor
+Windows commandline CPU monitor (must do locally, can't do it remotely with /U /P /S like systeminfo)
 c:\> wmic cpu get loadpercentage
-
-$ git ls-files  # list which files are tracked under git source control not just staged
 
 $ cygcheck -cv w3m  # is package OK?
 
-# Delete branch if (unmerged):
-$ git branch -d experimental
+# git basics:
+git status && git diff && git add . && git commit -am 'bitfiddled'
 
-# Discard git discard throw away changes
+# wget-ish:
+git clone git://busybox.net/busybox.git
+
+# git new branch:
+git branch mynewbranch; git checkout mynewbranch
+# or just branch and checkout in one swoop:
+git checkout -b mynewbranch
+
+# git switch branches
+git checkout master
+
+# git commit (cautious) mantra:
+git add cfg/DataPost_Configuration.xml && git commit -m 'modding one file'
+# git commit mantra (svn-ish):
+git add . && git commit -am 'another bitfiddle'
+# github commit mantra:
+git add . && git commit -am 'another bitfiddle' && git push origin master
+
+# git merge:
+git checkout master && git merge mynewbranch && git branch -d mynewbranch
+
+# github (github is origin)
+git push origin master
+
+# discard abandon all pending changes "not staged for commit"
+git checkout .
+# or
+git stash;  # then  git stash drop  later when You Are Sure
+
+# git canonical stash:
+git stash; git checkout emergencybranch; ... git checkout branchistashed; git stash pop; git stash list
+
+# git delete branch if (unmerged):
+$ git branch -d killme
+
+# git discard git discard throw away changes:
 $ git checkout .   # abandon all pending changes "not staged for commit"
+
+$ git ls-files  # list which files are tracked under git source control not just staged
+
+# git mantra:
+$ git add . && git commit -m 'synchronize with prod code'
 
 # Test AJAX etc that won't work using file:// etc.
 $ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
