@@ -18,8 +18,8 @@ xmodmap "$HOME/.Xmodmap"
 # idesk &
 conky -x 5 -y 0 &
 urxvt &
-google-chrome &
-ssh-agent $SHELL &
+###google-chrome &
+###ssh-agent $SHELL &
 nm-applet &
 # dropbox start
 

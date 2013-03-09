@@ -3,7 +3,7 @@
 #     Name: gone.sh (grep oneliners)
 #
 #  Summary: grep $HOME/code/misccode/oneliners, highlight the search word and 
-#           display lines surrounding each hit.  Optionally allow searching
+#           display context surrounding each hit.  Optionally allow searching
 #           only specific sections.
 #
 #           NOTE: Keep 2 blank lines before the xxFOOxx lines in oneliners
@@ -15,20 +15,16 @@
 #           TODO add CANONICAL switch
 #
 #  Created: Wed 20 Nov 2002 12:54:09 (Bob Heckel)
-# Modified: Sat 08 Dec 2012 17:41:56 (Bob Heckel)
+# Modified: Thu 21 Feb 2013 13:30:34 (Bob Heckel)
 ##############################################################################
   
-###if [ -e $HOME/misccode/oneliners ];then
-  F="$HOME/code/misccode/oneliners"
-###else  # offline
-  ###F="$HOME/oneliners.local"
-###fi
+F="$HOME/code/misccode/oneliners"
 
-IGCASE=--ignore-case  # grep's ignore case set as default
+IGCASE=--ignore-case
 ###CANONICAL=0
 
 Usage() {
-  echo "Usage: `basename $0` [-c] REGEX [c|(v)im|(s)as|(p)erl|(u)nix|(o)ther]
+  echo "Usage: `basename $0` [-c] PERLREGEX [c|(v)im|(s)as|(p)erl|(u)nix|(o)ther]
              -c   case sensitive search (default is INsensitive)
              -0   no before and after context from grep(1)
 

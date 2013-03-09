@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Thu 31 Jan 2013 10:47:23 (Bob Heckel)
+" Modified: Mon 25 Feb 2013 13:23:13 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 "--------------------------------------------------------------------------
@@ -29,19 +29,17 @@
 "--------------------------------------------------------------------------
 " DEBUG toggle.  Or use $ vim -V
 """set verbose=1
-" DEBUG toggle -- watch changes to text happen slowly.  Mostly useless.
+" DEBUG toggle -- watch changes to text happen slowly
 """set writedelay=50
 
 let THISBOX = hostname()
 " Boxes that always have internet
-"""let WORKBOXES = [ 'ZEBWL06A16349', 'ZEBWD08D26987', 'ZEBWL10D43164', 'ZEBWL12H29961', 'ZEBWL12H26564' ]
 let WORKBOXES = [ 'ZEBWL06A16349', 'ZEBWD08D26987', 'ZEBWL10D43164', 'ZEBWL12H29961' ]
 
-" I'm usually only browsing with netrw.  Tree will be very narrow, use zz to
-" get into it to widen if desired for browsing additional files w/o :q.
+" I'm usually only browsing with netrw
+au FileType NETRW map q :q<CR>
 if has ('win32unix')
-  " E.g. scp to be provided by Cygwin
-  let g:netrw_cygwin=1
+  let g:netrw_cygwin=1  " scp to be provided by Cygwin
   let g:netrw_browsex_viewer='cygstart'
 endif
 let g:netrw_fastbrowse=2
@@ -51,7 +49,6 @@ let g:netrw_sort_options="i"
 let g:netrw_use_noswf=1
 " i to iterate view
 let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
-au FileType NETRW map q :q<CR>
 
 " Setup Vim tempspace that Cygwin and gVim can share
 if matchstr(WORKBOXES, THISBOX) == THISBOX
@@ -62,7 +59,7 @@ if matchstr(WORKBOXES, THISBOX) == THISBOX
     let VTMP = '/cygdrive/c/temp'
     let VTMPU = '/cygdrive/u/temp'
   endif
-else  " home
+else  " at home
   if !has('unix') && has('gui')
     let VTMP = 'c:/temp'
   elseif has('win32unix')  " Cygwin so that vim & gvim play well together
@@ -98,13 +95,8 @@ endif
 set t_ti=7[r[?47h
 set t_te=[?47l8
 
-" Display diacriticals etc. in gVim only, buggy in rxvt
-"""set encoding=utf-8
-" TODO needed?
-"""set termencoding=latin1
 
-
-" end initialization-
+" end Initialization-
 
 "--------------------------------------------------------------------------
 "  Color Syntax- 	{{{1
@@ -121,20 +113,15 @@ if has ('syntax') && &t_Co > 1
 endif
 
 " Avoid reading text presented like it was written on a light bulb.  We're
-" relying on .Xdefaults to do wheat-on-black so some lines like this one is not necessary for
-" a xterm but it is for gvim:
+" relying on .Xdefaults to do wheat-on-black so some lines like this one is not
+" necessary for a xterm but it is for gvim:
 hi Normal                                                guifg=#F5DEB3     guibg=Black
 
-"""hi BoldWholeLine  ctermbg=Yellow                                             guibg=Yellow
-" Protect against cmd windows that have blue too dark
-"""if &term == 'xterm'
-  """hi Comment      ctermfg=DarkBlue    ctermbg=Black        guifg=LightBlue   guibg=Black
-  """hi Comment      ctermfg=DarkBlue    ctermbg=Black        guifg=LightBlue   guibg=Black
 if has ('win32unix')
-  hi Comment      ctermfg=DarkGray                         guifg=DarkGray   guibg=Black
+  hi Comment ctermfg=DarkGray guifg=DarkGray guibg=Black
 else
   " Broken urxvt
-  hi Comment      ctermfg=Black                            guifg=DarkGray   guibg=Black      cterm=bold
+  hi Comment ctermfg=Black guifg=DarkGray guibg=Black cterm=bold
 endif
 
 hi Conditional ctermfg=Green guifg=Green
@@ -214,49 +201,198 @@ endif
 
 "--------------------------------------------------------------------------
 "  Settings- 	{{{1
+"    ordered by :option convention
 "--------------------------------------------------------------------------
+"                                1 important {{{2
 " Unleash the beast VIVIVI
 set nocompatible
 
-" Just use my ;5 checkpoint map before starting important changes
-set nobackup
+" Show '$' on C and s actions, i.e. emulate vi.  Must have 
+" 'let &cpo = s:save_cpo' below in 3rd party plugin section or this is ignored.
+set cpoptions=s$
 
-" Allow backspacing in insert mode.  Make sure stty is set properly.
-set backspace=start,indent
 
-set cinwords=if,elsif,else,while,do,for,switch,unless,until,when,otherwise,BEGIN,END
+"                                2 moving around, searching and pattern {{{2
+" H, M, L, gg, etc commands move cursor to first blank in line.
+" Must use b/c ,h mapping fails if not used.
+set startofline
 
-" Maximize window for q: history
-if version > 599
-  set cmdwinheight=999
+" For gf - search pwd and subdirs
+set path=.,**/*
+
+set wrapscan
+
+" Fast terminals only.
+set incsearch
+
+set magic
+
+" Override noignorecase with /\c... but smartcase should be smart enough to
+" not require that.
+set ignorecase 
+
+" Sadly can't use smartcase because using [I while sitting on an upper or mixed
+" case word - we will not find all matches.  Use /\Cfoo for now.
+set nosmartcase
+
+
+"                                3 tags {{{2
+
+
+"                                4 displaying text {{{2
+
+set sidescroll=5
+
+set nowrap
+
+" Overriden later depending on file type.  gvim window coordinates.
+if has('gui_running')
+  winpos 295 295
+  set columns=85
+  " Most of the time we're just doing clipboard storage so make it small.
+  set lines=30
 endif
 
-" Comments default to:  sr:/*,mb:*,el:*/,://,b:#,:%,:XCOMM,n:>,fb:-
-set comments=sr:/*,mb:*,el:*/,://,b:#,b:\',b:\"
+if version > 702
+  set relativenumber
+endif
+
+set lazyredraw
+
+set nolinebreak
+
+set showbreak=^
+
+set scrollopt=hor,ver
+
+
+"                                5 syntax, highlighting and spelling {{{2
+
+" Adjusted by filetype below
+set hlsearch
+" turn off highlighted results (set nohlsearch) when pressing enter.
+" just pressing n or N will turn the highlight back again
+"""autocmd CmdwinEnter * map <buffer> <F5> <CR>q:
+"""nnoremap <CR> :nohlsearch <CR>
+" Don't interfere with normal q: usage of CR TODO not working
+"""autocmd CmdwinEnter * unmap <CR>
+
+
+"                                6 multiple windows {{{2
+
+" Mandatory for displaying a status line
+set laststatus=2
+
+" Depends on this being set above:
+" hi User1 term=inverse,bold cterm=inverse,bold ctermfg=red guifg=red
+" And $VIMSTATUSL being set in .bashrc 
+" E.g. ~/code/misccode/_vimrc [+,VIM,unix,b1] rsh868@ZEBWL12H99999   485/4494L,1C(10%)
+set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)
+
+" Use <C-W>= to force equal
+set noequalalways
+
+set helpheight=999
+
+" To prevent losing undo on buffer switch (but does create trouble with marks).
+" Allows you to switch from an unsaved buffer without saving it first. 
+set hidden
+
+set splitbelow
+
+
+"                                7 multiple tab pages {{{2
+
+
+"                                8 terminal {{{2
+
+" 'Ctrl-r "' pastes while in insert mode
+set esckeys
+
+set title
+
+set titlelen=90
+
+
+"                                9 using the mouse {{{2
+
+" Not working under Cygwin rxvt
+set mousehide
+
+" For spellchecking
+set mousemodel=popup
+
+
+"                               10 printing {{{2
+
+" Left margin is too wide by default
+set printoptions=wrap:y,left:5pc
+
+
+"                               11 messages and info {{{2
+
+set shortmess=xfilmwrItn
+
+" E.g. 111L, 15C in bottom right status bar.  I am controlling the display via
+" set statusline instead of set rulerformat
+set ruler
+
+" Shhhhhhhhhhhhhhhhhhhh people are trying to work!
+"""set visualbell
+" 05-Aug-12 can't avoid a too-long flash for visualbell so disabling
+set noerrorbells
+
+" Number of lines changed
+set report=0
+
+set showcmd
+
+set showmode
+
+
+"                               12 selecting text {{{2
+
+" Emulate xterm mouse.  Same as :behave xterm
+set selectmode=
+set keymodel=
+set selection=inclusive
+
+
+"                               13 editing text {{{2
+
+" Toggle to stop undo on massive actions (prevent memory overload).
+" set undolevels=-1
+set undolevels=5000
 
 " When using Tab, Ctr-x or Ctr-p, look in curr file and buffers. 
 " Doesn't override the default of looking in #include files for .c's because
 " that is an unchangeable 'feature' of CTRL-X CTRL-I
 set complete=.,w,b,u
 
-" Show '$' on C and s actions, i.e. emulate vi.  Must have 
-" 'let &cpo = s:save_cpo' below in 3rd party plugin section or this is ignored.
-set cpoptions=s$
+" Add angle brackets to the % functionality.
+set matchpairs+=<:>
 
-" For vimdiff
-if version > 599
-  set diffopt=filler,iwhite,vertical,icase
-endif
+set joinspaces
 
-" 'Ctrl-r "' pastes while in insert mode
-set esckeys
+" Want to avoid 0042 from being detected as octal during a Ctr-a increment.
+set nrformats-=octal
 
-" We want the Unix version so make sure shell=/bin/sh, :se ep=  to restore
-" indent default (gg=G)
-set equalprg=sort
+" Omnicomplete C-X C-O (think Battlestar Galactica)
+set omnifunc=syntaxcomplete#Complete
+
+set showmatch
+
+" ~ works like an operator.  E.g. ~fa changes case of all chars to the first
+" 'a'.  BUT this screws up normal use so leave it off.
+set notildeop
+
+
+"                               14 tabs and indenting {{{2
 
 " :retab to convert tabs to 2 spaces
 set tabstop=2
+
+set shiftwidth=2
 
 " Tabs expanded to spaces.  Replaces the tabs you create when pressing <tab>
 " with spaces (to the count of your tabstop).  Alternatively use :retab to
@@ -264,6 +400,47 @@ set tabstop=2
 " Without this, doing an 'o' on an indented line inserts a new line that
 " starts with one or more tabs (for some reason).
 set expandtab
+
+set cinwords=if,elsif,else,while,do,for,switch,unless,until,when,otherwise,BEGIN,END
+
+" Set depending up file extension below, not here anymore.  TODO overridden by
+" cindent, no?
+set nosmartindent
+
+set autoindent
+
+
+"                               15 folding {{{2
+
+set foldmethod=manual
+
+set foldopen-=search
+
+
+"                               16 diff mode {{{2
+
+if version > 599
+  set diffopt=filler,iwhite,vertical,icase
+endif
+
+
+"                               17 mapping {{{2
+
+"""if ( unixbox == 'sverige' || unixbox == 'otaku' || unixbox == 'iceland' || unixbox == 'sdf' ) 
+""""""  set ttimeoutlen=50
+"""  set nottyfast
+""""""else
+""""""  set ttimeoutlen=10
+"""endif
+
+" Mapping delay.  E.g. ,m   Also need to change HelpPager() if change this.
+set timeoutlen=300
+
+
+"                               18 reading and writing files {{{2
+
+" Allow backspacing in insert mode.  Make sure stty is set properly.
+set backspace=start,indent
 
 " TODO need an iscygwin var instead
 if has ('win32')
@@ -277,181 +454,14 @@ elseif has ('unix')
   set fileformats=unix,dos
 endif
 
-" For :au BufWinLeave * mkview
-set viewoptions=folds
-
-if has('gui')
-  set guioptions+=a
-  set guioptions+=b
-  " scrollbar right
-  set guioptions+=r
-  set guioptions-=T
-  set guioptions-=m
-endif
-
-set foldmethod=manual
-
-set foldopen-=search
-
-" Use  :set guifont=*  to browse
-if hostname() == 'ubuntu'
-  set guifont=Andale\ Mono\ 9
-elseif hostname() == 'yoniso'
-  set guifont=Andale\ Mono\ 9
-else
-  set guifont=Andale_Mono:h8,Lucida_Console:h8,Terminal:h8,Courier_new:h8,Courier:h7
-endif
-
-set helpheight=999
-
-" To prevent losing undo on buffer switch (but does create trouble with marks).
-" Allows you to switch from an unsaved buffer without saving it first. 
-set hidden
-
-" Displayed lines for :his  This affects q: and saved search patterns as well,
-" which is why I want it large. 
-set history=10000
-
-" Adjusted by filetype below
-set hlsearch
-" turn off highlighted results (set nohlsearch) when pressing enter.
-" just pressing n or N will turn the highlight back again
-"""autocmd CmdwinEnter * map <buffer> <F5> <CR>q:
-"""nnoremap <CR> :nohlsearch <CR>
-" Don't interfere with normal q: usage of CR TODO not working
-"""autocmd CmdwinEnter * unmap <CR>
-
-" Fast terminals only.
-set incsearch
-
-" Default.  K to active.  See au BufNewFile, etc. below (.vimrc, .pl .pm treated specially).
-set keywordprg=man
-
-" Quickfix.  :mak[e]  jumps to errors (use :cn :cN to navigate).  See au
-" commands for C++ files.  Warning: can't undo after make returns (may not be
-" worth using).
-"""set makeprg=make
-set makeprg=gcc\ -Wall\ %
-"""set makeprg=gcc\ -mno-cygwin\ -Wall\ %
-"""set makeprg=gcc\ -Wall\ %\ -lmenu\ -lncurses
-
-" Add angle brackets to the % functionality.
-set matchpairs+=<:>
-
-" Override noignorecase with /\c... but smartcase should be smart enough to
-" not require that.
-set ignorecase 
-" Dammit - can't use smartcase because using [I while sitting on an upper or mixed
-" case word - we will not find all matches.  Use /\Cfoo for now
-set nosmartcase
-
-set joinspaces
-
-" Overriden later depending on file type.  gvim window coordinates.
-if has('gui_running')
-  winpos 295 295
-  set columns=85
-  " Most of the time we're just doing clipboard storage so make it small.
-  set lines=30
-endif
-
-" Mandatory for displaying a status line
-set laststatus=2
-
-set lazyredraw
-
-set magic
-
-" Not working under Cygwin rxvt
-set mousehide
-
-" Use <C-W>= to force equal
-set noequalalways
-
-set nolinebreak
-
 " For security reasons, set to 'no'
 set nomodeline
 
-" For spellchecking
-set mousemodel=popup
+" Just use my ;5 checkpoint map before starting important changes
+set nobackup
 
-" Want to avoid 0042 from being detected as octal during a Ctr-a increment.
-set nrformats-=octal
 
-" Omnicomplete C-X C-O (think Battlestar Galactica)
-set ofu=syntaxcomplete#Complete
-
-" For gf - search pwd and subdirs
-set path=.,**/*
-
-" Eliminated default '%' to enable SAS macro gf functionality
-set isfname=@,48-57,/,.,-,_,+,,,#,$,~,=
-" TODO not sure this is required
-set suffixesadd=.sas
-
-" Left margin is too wide by default
-set printoptions=wrap:y,left:5pc
-
-" Number of lines changed
-set report=0
-
-" Win32 only.  Unix uses t_ti and t_te
-set restorescreen
-
-" E.g. 111L, 15C in bottom right status bar.  I am controlling the display via
-" set statusline instead of set rulerformat
-set ruler
-
-" Allow e.g. :bro e /todel/testing instead of :bro e \todel\testing
-set shellslash
-
-set shiftwidth=2
-
-set showcmd
-
-set showmatch
-
-set showmode
-
-set sidescroll=5
-
-" Set depending up file extension below, not here anymore.  TODO overridden by
-" cindent, no?
-set nosmartindent
-
-set autoindent
-
-" ~ works like an operator.  E.g. ~fa changes case of all chars to the first
-" 'a'.  BUT this screws up normal use so leave it off.
-set notildeop
-
-set title
-
-set titlelen=90
-
-" Want to emulate bash(1) tab completion
-set wildmode=list:longest
-
-" H, M, L, gg, etc commands move cursor to first blank in line.
-" Must use b/c ,h mapping fails if not used.
-set startofline
-
-set showbreak=^
-
-"""if ( unixbox == 'sverige' || unixbox == 'otaku' || unixbox == 'iceland' || unixbox == 'sdf' ) 
-""""""  set ttimeoutlen=50
-"""  set nottyfast
-""""""else
-""""""  set ttimeoutlen=10
-"""endif
-
-" Mapping delay.  E.g. ,m   Also need to change HelpPager() if change this.
-set timeoutlen=300
-
-" Toggle to stop undo on massive actions (prevent memory overload).
-" set undolevels=-1
-set undolevels=5000
+"                               19 the swap file {{{2
 
 " Write swap file to disk after each n characters
 " To disable swapfiles (and prevent opening files on servers that you have no
@@ -464,29 +474,23 @@ set undolevels=5000
 " Write swap file to disk after 30 inactive seconds
 set updatetime=30000
 
-" For easy Ctrl-v selections.  Unfortunately screws up putting cursor at end
-" of line as you 'j' or 'k' a file
-"""set virtualedit=all
 
-" For :mksession
-" TODO automate if using  $ vi -S <Session.vim> like :map :w :mksession! \| :write<CR>
-set sessionoptions=curdir,folds,slash,unix,winsize,winpos,buffers
+"                               20 command line editing {{{2
 
-set scrollopt=hor,ver
+" Displayed lines for :his  This affects q: and saved search patterns as well,
+" which is why I want it large. 
+set history=10000
 
-set shortmess=xfilmwrItn
+" Maximize window for q: history
+if version > 599
+  set cmdwinheight=999
+endif
 
-set splitbelow
+" TODO not sure this is required
+set suffixesadd=.sas
 
-set startofline
-
-" Depends on this being set above:
-" hi User1 term=inverse,bold cterm=inverse,bold ctermfg=red guifg=red
-" And $VIMSTATUSL being set in .bashrc 
-" E.g. ~/code/misccode/_vimrc [+,VIM,unix,b1] rsh868@ZEBWL12H99999   485/4494L,1C(10%)
-set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)
-
-set suffixes=.old,.old2,.OLD,OLD2,.o,.swp,.bak,.bak2,.BAK,.BAK2,~
+" Want to emulate bash(1) tab completion
+set wildmode=list:longest
 
 set wildchar=<Tab>
 
@@ -494,9 +498,48 @@ if exists("&wildignorecase")
   set wildignorecase
 endif
 
-set nowrap
+set suffixes=.old,.old2,.OLD,OLD2,.o,.swp,.bak,.bak2,.BAK,.BAK2,~
 
-set wrapscan
+
+"                               21 executing external commands {{{2
+
+" We want the Unix version so make sure shell=/bin/sh, :se ep=  to restore
+" indent default (gg=G)
+set equalprg=sort
+
+" Default.  K to active.  See au BufNewFile, etc. below (.vimrc, .pl .pm treated specially).
+set keywordprg=man
+
+
+"                               22 running make and jumping to errors {{{2
+
+" Quickfix.  :mak[e]  jumps to errors (use :cn :cN to navigate).  See au
+" commands for C++ files.  Warning: can't undo after make returns (may not be
+" worth using).
+"""set makeprg=make
+set makeprg=gcc\ -Wall\ %
+"""set makeprg=gcc\ -mno-cygwin\ -Wall\ %
+"""set makeprg=gcc\ -Wall\ %\ -lmenu\ -lncurses
+
+
+"                               23 language specific {{{2
+
+" Eliminated default '%' to enable SAS macro gf functionality
+set isfname=@,48-57,/,.,-,_,+,,,#,$,~,=
+
+"                               24 multi-byte characters {{{2
+
+
+"                               25 various {{{2
+
+" Comments default to:  sr:/*,mb:*,el:*/,://,b:#,:%,:XCOMM,n:>,fb:-
+set comments=sr:/*,mb:*,el:*/,://,b:#,b:\',b:\"
+
+" For :au BufWinLeave * mkview
+set viewoptions=folds
+
+" For :mksession
+set sessionoptions=curdir,folds,slash,unix,winsize,winpos,buffers
 
 " 5000 files of marks. 
 " 750 lines of registers.
@@ -515,22 +558,35 @@ if matchstr(WORKBOXES, THISBOX) == THISBOX
   endif
 endif
 
-" Shhhhhhhhhhhhhhhhhhhh people are trying to work!
-"""set visualbell
-" 05-Aug-12 can't avoid a too-long flash for visualbell so disabling
-set noerrorbells
-
-" Emulate xterm mouse.  Same as :behave xterm
-set selectmode=
-set keymodel=
-set selection=inclusive
-
 " For :mkview & :loadview.  Force gvim to Cygwin's default.
 set viewdir=~/.vim/view
 
-if version > 702
-  set relativenumber
+
+"                               ?? other {{{2
+if has('gui')
+  set guioptions+=a
+  set guioptions+=b
+  " scrollbar right
+  set guioptions+=r
+  set guioptions-=T
+  set guioptions-=m
 endif
+
+" Use  :set guifont=*  to browse
+if hostname() == 'ubuntu'
+  set guifont=Andale\ Mono\ 9
+elseif hostname() == 'yoniso'
+  set guifont=Andale\ Mono\ 9
+else
+  set guifont=Andale_Mono:h8,Lucida_Console:h8,Terminal:h8,Courier_new:h8,Courier:h7
+endif
+
+" Win32 only.  Unix uses t_ti and t_te
+set restorescreen
+
+" Allow e.g. :bro e /todel/testing instead of :bro e \todel\testing
+set shellslash
+
 
 " end Settings-
 
@@ -783,7 +839,8 @@ noremap <silent> <F8> :g!/\\C^ERROR: \\\|\\C^ERROR\\s\\+\\d\\+-\\d\\+:\\\|^WARNI
 
 if has('win32')
   " Avoid mswin.vim making Ctrl-v act as paste, etc.
-  noremap <C-V> <C-V>
+  " TODO not sure why this doesn't work, must remember C-Q instead of C-Y for blockwise <CR> to insert hard returns in gvim
+  """  noremap <C-V> <C-Q>
   noremap <C-A> <C-A>
 
   " Minimize gvim (like alt-spacebar-n) to taskbar
