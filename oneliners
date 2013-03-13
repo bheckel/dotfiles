@@ -1,4 +1,4 @@
-#########################################################################
+###############################################################################
 #
 #     Name: $HOME/code/misccode/oneliners
 #
@@ -7,13 +7,13 @@
 #
 #           Comments are often written for searching, not proper English...
 #
-#           This is a smaller file than when I was less experienced  but 
-#           some of these are still obsolete...
+#           This is a smaller file than when I was a beginner but it should be
+#           even smaller...
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Thu 07 Feb 2013 15:02:23 (Bob Heckel)
+# Modified: Mon 11 Mar 2013 15:36:34 (Bob Heckel)
 #
-#########################################################################
+###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
@@ -1647,6 +1647,10 @@ input 'Amount Budgeted'n 'Amount Spent'n; ...
  /* Single quotes for criteria, double for funky table naming */
 libname mydblib oracle user=u password=p path='airdata' schema=airport preserve_names=yes; proc sql dquote=ansi outobs=9;  create table mydblib."Intl Delay" as select * from mydblib.internat; quit;
 
+SAS8WIN=C:/PROGRA~1/SASINS~1/SAS/V8/sas.exe
+SAS91WIN=C:/PROGRA~1/SAS/SAS9~1.1/sas.exe
+SAS93WIN=C:/PROGRA~1/SASHome/SASFoundation/9.3/sas.exe
+
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -1776,6 +1780,8 @@ $ export DISPLAY=158.111.250.163:0.0 && mozilla&
 # Test it:
 /usr/bin/X11/xterm
 
+# crontab -e fields:  min hr day mon wkday(0=Sun)
+
 # Run cron job on last Sunday of every month (see also sunday.last.sh)
 18 * * * 0 [`date "+%d"` -gt 24] && /path/to/script
 
@@ -1793,6 +1799,15 @@ $ export DISPLAY=158.111.250.163:0.0 && mozilla&
 
 # Avoid email on cron output (use logfile instead):
 59 * * * * /usr/bin/fooprg >> /home/rheckel/fooprglog.txt 2>&1
+
+59 5 6 * * mailx -s "Automated reminder from Bob" eandbmom@yahoo.com </arpa/af/b/rheckel/mailxmsg.txt
+
+# Watch file sizes using cron and email every day at 2:05
+5 2 * * * find /apache/logs/access_log -size +10000000c  | mailx -s "file is getting too big" admin@rocket.ugu.com
+# Rotate if filesize is half a gigabyte or larger:
+15 4 * * * find /opt/apache/logs/access_log -size +500000000c && /opt/bin/rotatelog
+
+30 09,15,20 * * * grep http /home/chronos/user/Bookmarks | awk '{print $2}'| sed 's/"//g' | sed 's/$/<BR>/' >| /home/chronos/user/Dropbox/Public/Equanimity/bm.html 2>|/home/chronos/user/cron.log
 
 # Human readable disk space Solaris
 df -h
@@ -2052,9 +2067,8 @@ find / -perm 0600  -print 2>/dev/null   # not   -rw-r--r-- only finds -rw-------
 # Change permissions of specific filetypes:
 $ find -name '*.pl' -exec chmod 755 {} \;
 
-# Copy all the files in a directory tree into one, large directory, preserving their properties:
-find . -name '*.cad' -exec echo {} newdir \;  # test first
-find . -type f -exec cp -p {} /newdir \;
+# Copy all the files in a directory tree into the same, one, single, large directory, preserving their properties:
+find . -type f -exec cp -p {} newdir/ \;
 
 # Collect all user's .bash_history files
 find / -type f -name .bash_history | xargs cat > /tmp/history.txt
@@ -2450,51 +2464,46 @@ for i in `seq -w 01 57`; do echo -n $i:; sed -n "/^.\{76\}$i/p" foo.txt|wc -l; d
 # Then drill down to view subset of state 14:
 sed -n "/^.\{76\}14/p" fri2.txt >| small.txt
 
-Delete the first 42 columns from a textfile:
-sed 's/.\{42\}//' foo.txt
-1,$s/.\{42\}//              <---from within ed
+# Delete the first 42 columns from a textfile:
+sed 's/.\{42\}//' foo.txt  # 1,$s/.\{42\}//  <---or from within ed
 
-More readable environment variable output:
+# More readable environment variable output:
 echo $PATH | tr ":" "\n"
 
-Substitute only the second appearance of a string on a line:
-sed 's/replaceme/FOO/2' foo.txt     <---don't think can do in vi
+# Substitute only the second appearance of a string on a line:
+sed 's/replaceme/FOO/2' foo.txt
 
-Compress 2 or more spaces:
+# Compress 2 or more spaces into 1:
 echo 'long   str' | sed 's/ \{2,\}//'
 
 # Make sure user is root:
 val=`id | sed 's/uid=0(.*/ROOT/'`; if [ "$val" != "ROOT" ] ; then ...
 
-Translate EBCDIC to ASCII
+# Translate convert EBCDIC to ASCII
 dd if=myinfile.txt of=myoutfile.txt ibs=800 cbs=80 conv=ascii
-or maybe
 dd if=myinfile.txt of=myoutfile.txt conv=ascii
-then convert back to EBCDIC
+# Translate convert ASCII to EBCDIC
 dd if=myinfile.txt of=myoutfile.txt conv=ebcdic
-SAS Note: tabdelimited FTP transfers to mainframe do not need to be converted.
-ISPF will warn about unprintable crap but it's ok.
 
-Simple canonical zip - foo.zip comes FIRST in parameter list (original is left unchanged!):
+# Canonical zip - foo.zip comes FIRST in parameter list (original is left unchanged!):
 zip foo.zip foo.txt
 zip foo.zip *
-Simple canonical recursive zip
-zip -r foo.zip flop/
+# Canonical recursive zip:
+zip -r foodirrecursive.zip mydir/
 
 # Find longest maximum widest line length in all textfiles. Subtr 1 if ff=dos:
-$ cat *.txt | awk '{ if (x<length()) x=length() } END{ print x }' 
+cat *.txt | awk '{ if (x<length()) x=length() } END{ print x }' 
 # Or if want individual max line lengths:
-$ for f in *.sas; do echo $f; cat $f | awk '{ if (x<length()) x=length() } END{ print x }'; done
+for f in *.sas; do echo $f; cat $f | awk '{ if (x<length()) x=length() } END{ print x }'; done
 
 # Tarball specific filetypes only:
-$ cd $z/datapost && find . -name '*.csv' -a -not -name 'TR*' |xargs tar cfz ~/tmp/datapost.tgz
-$ cd $x/datapostdemo && tar xvfz ~/tmp/datapost.tgz
+cd $z/datapost && find . -name '*.csv' -a -not -name 'TR*' |xargs tar cfz ~/tmp/datapost.tgz
+cd $x/datapostdemo && tar xvfz ~/tmp/datapost.tgz
 
-Get the value of the last parameter passed into a korn shell script.
+# Get the value of the last parameter passed into a korn shell script:
 eval last=\${$#}
 
-Find the Windows PIDS (from within Cygwin), not just the Cygwin ones (good for
-using  $ winkill 123 ):
+# Find the Windows PIDS, not just the Cygwin ones (good for using  $ winkill 123 ):
 ps -W|grep -i rtv
 
 # Ignore all whitespace (the -c context is always good idea).  Best diff outside of vi -dR 1 2:
@@ -2503,15 +2512,13 @@ diff -cw f1.txt f2.txt
 # Find info on Internet ports:
 netstat -nl --inet
 
-Which modules have been compiled-in an Apache webserver:
+# Which modules have been compiled-in an Apache webserver:
 /usr/local/apache/bin/httpd -l
 
-Determine runlevel on RedHat:
-/sbin/runlevel
-Determine runlevel on Solaris:
-who -r
+/sbin/runlevel  # RedHat
+who -r  # runlevel on Solaris:
 
-Cycle among virtual consoles: Left Alt+[left or right arrow]
+# Cycle among virtual consoles: Left Alt+[left or right arrow]
 
 # Unix heredoc here doc:
 cat <<HEREDOC
@@ -2525,26 +2532,25 @@ HEREDOC
 # Find alphanumeric characters using character class:
 grep [[:alnum:]] foo.txt
 grep [A-Za-z0-9] foo.txt
-
 # Numeric character class
 echo 19 | sed 's/[[:digit:]]/x/'
 
 # Is a process running (in this case SAS)?
 while true; do ps -W | grep sas; date; sleep 3; done
 # Better
-$ sas &;  wait %1; echo "SAS process terminated"
+sas &;  wait %1; echo "SAS process terminated"
 
 # Throwaway skip delete remove first 3 lines of a file:
 tail -n +4 foo.txt
 # or 
 cat foo.txt | awk "{if(NR>3)print}"
 
-Test procmail regex:
-$ echo 'to: bhec@worldnet.att.net, bhen@att.net' | egrep '^to:.*bhe[a-zA-Z]+@(worldnet)*att.net'
+# Test procmail regex:
+echo 'to: bheckel@worldnet.att.net, bheckel@att.net' | egrep '^to:.*bhe[a-zA-Z]+@(worldnet)*att.net'
 
-scp rheckel@otaku.freeshell.org:.muttrc _muttrc.otaku
-scp rsh86800@rtpsh004://var/adm/scripts/shutlims.sh .
-scp procexp.exe rheckel@sdf.org:html/ && ssh rheckel@sdf.org chmod 755 html/procexp.exe
+scp rheckel@otaku.freeshell.org:.muttrc _muttrc.otaku  # remote to local
+scp rsh86800@rtpsh004://var/adm/scripts/shutlims.sh .  # remote to local
+scp procexp.exe rheckel@sdf.org:html/ && ssh rheckel@sdf.org chmod 755 html/procexp.exe  # local to remote
 
 # Combine mkdir with chmod:
 mkdir -m 755 foodir
@@ -2555,8 +2561,7 @@ awk '($1=="Ian") { print $3 }' foo.txt
 perl -ne '@f=split; if ($f[0] eq "Ian") { print "$f[2]\n"}' foo.txt
 perl -ane '@x=split /\|/;print $x[0], "\n";' foo.txt
 
-# Exit emacs (hopefully never to return...)
-Ctr-x Ctr-c
+Ctr-x Ctr-c  # exit emacs (hopefully never to return...)
 
 # Syntax check the Apache config file:
 /usr/local/apache/bin/apachectl configtest
@@ -2580,7 +2585,7 @@ wget -m -L --reject=gif http://www.catb.org/~esr/writings/taoup/html
 # Pretend to be IE
 wget --header="User-Agent: Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)" http://msie.only.url/here
 
-# Loop in sh shell:
+# Loop in shell:
 while : ; do echo bob; sleep 6; done
 
 # Create several simple dummy files:
@@ -2634,9 +2639,9 @@ wall < mywallmessage.txt
 /sbin/init 0  # shutdown to allow poweroff
 /sbin/init 6  # reboot w/o going to BIOS
 # or fancy assuming you have users logged in
-shutdown -g120 -i0 -y "shutting down server"   <---at least Solaris
+shutdown -g120 -i0 -y "shutting down server"  # at least Solaris
 
-# Convert DOS path to Unix path
+# Cygwin convert DOS path to Unix path
 cygpath 'c:\Documents and Settings\Bob Heckel'
 ls `cygpath 'c:\Documents and Settings\Bob Heckel'`
 vi `cygpath 'c:\temp\cygwin.txt'`
@@ -2656,20 +2661,13 @@ volcheck
 ls -l | sort +4r | grep -v "total"
 
 # Give multiple users the same group and password:
-$ useradd -g daebstat -m -p N6lPzsXhb5TLg dwj2
+useradd -g daebstat -m -p N6lPzsXhb5TLg dwj2
 
-$ mailx -s 'email subject type CTRL-D or dot on blank line to end' root@daeb
-$ mailx -s "mysubject" -r LMITHELP@cdc.gov -c 'bboswell@cdc.gov rheckel@cdc.gov' 'ckj1@cdc.gov kjk4@cdc.gov' <junk
+mailx -s 'email subject type CTRL-D or dot on blank line to end' root@daeb
+mailx -s "mysubject" -r LMITHELP@cdc.gov -c 'bboswell@cdc.gov rheckel@cdc.gov' 'ckj1@cdc.gov kjk4@cdc.gov' <junk
 ? touch *    # mark all as read and write to mbox in mailx...
 mailx -f ~/mbox   # ...and read them
 ssh rtpsh005 'ls -l /home/gaaadmin/GAAAdapter/gaa/receive/Output_Data | mailx -s 'subject' rsh86800@gsk.com'
-
-59 5 6 * * mailx -s "Automated reminder from Bob" eandbmom@yahoo.com </arpa/af/b/rheckel/mailxmsg.txt
-
-# Watch file sizes using cron and email every day at 2:05
-5 2 * * * find /apache/logs/access_log -size +10000000c  | mailx -s "file is getting too big" admin@rocket.ugu.com
-# Rotate if filesize is half a gigabyte or larger:
-15 4 * * * find /opt/apache/logs/access_log -size +500000000c && /opt/bin/rotatelog
 
 # Monitor system status (Solaris at least):
 echo `uptime|awk '{print $11 $12 $13}' && df -k|grep /data|awk '{print $5}'` | mailx -s "load and /data space [cron tstdev]" 'bqh0@cdc.gov'
@@ -2721,7 +2719,6 @@ sed -e '/./{H;$!d;}' -e 'x;/team/!d;' bladerun_crawl
 perl -ne '$/="";@p=<>;for $p(@p){print "ok $p\n" if $p=~/team/;}' <setup.ini
 
 # Debug .bashrc trouble on Cygwin without sourcing config file clean bashrc
-C:> bash -norc
 C:\cygwin\bin\bash.exe --norc
 
 # Switch uppercase to lowercase:
@@ -2747,17 +2744,16 @@ find /home -type f -name '*.PDF' -a -newer /tmp/fx -exec ls -lo {} \; 2>/dev/nul
 # Monitor a box for logons:
 while true; do last|head|grep -v rheckel; sleep 60; done
 
-# Monitor process load and get the cpu info you need that xload and uptime
-# don't tell you
+# Monitor process load and get the cpu info you need that xload and uptime don't tell you:
 top -d 2 | col -b | grep states
 
-# Print to syslog
+# Print to syslog:
 echo 'as root print this message to console' >/dev/console
 
-# Prompt user yn
+# Prompt user yn:
 read yesno; if [ $yesno = 'y' ]; then echo 'he said yes'; fi
 
-# Find ls only hidden files
+# Find ls only hidden files:
 ls -a | grep "^\."
 
 # How much disk space of quota is being used by user
@@ -2766,15 +2762,14 @@ ls -a | grep "^\."
 # Convert manpage to text:
 man lp | col -b > lp.txt
 
-# split(1) and rejoin 1MB pieces.  xaa and xab are max of 1.4MB to fit floppy.
-# Works on binaries like .xls too.(make sure no x* files already exist in the
-# directory):
+# Split into pieces.  xaa and xab are max of 1.4MB to fit floppy. Make sure no x* files already exist in the directory:
 split -b 1400000 orig.tgz
+# Unsplit rejoin the 1.4MB pieces
 cat xa* > origrebuilt.tgz
 
-# Original file is not saved.  And e.g. footext.gpg is readable in vim if use
-# passphrase
-gpg -c foofile # encrypt; gpg -d foofile # decrypt
+# Original file is not saved.  E.g. footext.gpg is readable in vim if use passphrase
+gpg -c foo.txt  # encrypt
+gpg -d foo.txt.gpg >foo.txt  # decrypt
 
 # Recursive wc recursive find - safe for Windows filenames w/ spaces (Cygwin) canonical total count lines of code (alternatively use :vimgrep /foo/ **/*.vb)
 find . -name '*.vb' -print0 | xargs -0 grep -i 'databound web'
@@ -2795,7 +2790,7 @@ while read f; do echo $f; done <myfile.txt
 # Bulk upload converting extension on the fly upload to mf (fq paths ok)
 while read f; do bfp $f "bqh0.pgm.lib(`basename $f .sas`)"; done <filelist.txt
 
-# ROT13
+# ROT13 encryption
 cat "$@" | tr 'a-zA-Z' 'n-za-mN-ZA-M'   # "a" goes to "n", "b" to "o", etc.
 
 # Primitive alarm clock
@@ -2804,8 +2799,7 @@ sleep `echo '60*2'|bc` && beep
 # Find all files opened by a process (Solaris at least):
 /usr/proc/bin/pfiles mypid
 
-# Create and upload tarballs out of just text files in ~/code (probably s/b
-# scripted)
+# Create tarballs out of just text files in multiple directories:
 for d in c html misccode perl sas vb; do cd $d && file -F '' * | grep text | awk \
 '{print $1}' |xargs tar cfz ../$d.tgz && cd - ; done
 
@@ -2831,7 +2825,7 @@ $ sudo updatedb --database-root='/home/rheckel/code' --output='/var/lib/locatedb
 # Calculate the day before assumes GNU date(1):
 date -d '20050801 2 day ago' +"%Y%m%d"
 
-Solaris 10 SMF rc file replacement
+# Solaris 10 SMF rc file replacement
 svcs -a   # which daemon services are running on Solaris 10:
 svcs -x   # which failed to start
 svcadm disable sendmail
@@ -2873,17 +2867,9 @@ BTCHS=$(find $PTHBTCH -maxdepth 1 -name '*.xls' -mtime -1) if ! [ -z "$BTCHS"  ]
 
 diskpct=$(df /cygdrive/c|tail -1|awk '{print $5}'|perl -pe 's/%//'); if [ $diskpct -gt 98 ];then echo 'may have full disk';fi
 
-crontab -e fields:  min hr day mon wkday(0=Sun)
-
-# Encrypt simple
-gpg -c foo.txt
-# Decrypt simple
-gpg -d foo.txt.gpg >foo.txt
-
 # Solaris 10 dark background and source my .bashrc (from Console)
-# /opt/sfw/bin/rxvt -rv -e bash&
-# Cygwin black text on white screen
-$ rxvt -bg white -fg black -geometry 80x40+159+46 -fn "Andale Mono-12"
+/opt/sfw/bin/rxvt -rv -e bash&
+rxvt -bg white -fg black -geometry 80x40+159+46 -fn "Andale Mono-12"
 
 # Typing speed
 START=`date +%s`;WORDS=`cat|wc -w`; STOP=`date +%s`; SPEED=`echo "$WORDS / ( ( $STOP - $START ) / 60 )"|bc`;echo "You have a typing speed of $SPEED words per minute."
@@ -2904,22 +2890,17 @@ for c in 1 2; do zip lelim$c.sas7bdat.zip lelim$c.sas7bdat && rm -v lelim$c.sas7
 # Zip and remove original file on success (better)
 for f in `find . -name '*.sas7bdat'`; do zip -mT $f.zip $f; done
 
-Human readable ctags listing:
+# Human readable ctags listing:
 $ ctags -x * > ctagsoutput.txt
 
-Create ctags (Exuberant Ctags 5.2+ - only those files whose names are mapped to
-languages will be scanned):
-$ ctags -R <---probably  $ ctags *  for other versions, not sure how to recurse
-Then Ctr-] and Ctr-t in Vim to navigate or find function whose name you only
-know part of (assumes you've run ctags *):
+# Create ctags (Exuberant Ctags 5.2+ - only those files whose names are mapped to languages will be scanned):
+ctags -R <---probably  $ ctags *  for other versions, not sure how to recurse
+# Then Ctr-] and Ctr-t in Vim to navigate or find function whose name you only know part of (assumes you've run ctags *):
 :ta[g]/iknowpartialregex
 
 # Canonical awk
-awk -F ' ' '{print $1}'  # -F ' ' is unnecesary
+awk -F ' ' '{print $1}'  # -F ' ' is unnecessary for space delimiters
 awk '{print $1}'
-
-# Use colon as awk separator instead of default whitespace
-awk -F ':' '{print $1}'
 
 time w3m -dump bashref2_05.html &>/dev/null
 
@@ -2947,11 +2928,11 @@ ipconfig /displaydns | awk "/rtpsh005/,/143.193.6.5/ {print}"
 awk "/<ExtractString>/,/<\/ExtractString>/ {print}" cfg/DataPost_Configuration.xml | awk "/'[[:digit:]]+'/ {print}" > mats.txt
 
 # Create backup filename with today's date datestamp
-$ touch foo`date +%d%b%y`.txt
-$ mv //192.168.52.128/callcenter-compile/{Custody.pl,Custody.`date +%d%b`.pl}
+touch foo`date +%d%b%y`.txt
+mv //192.168.52.128/callcenter-compile/{Custody.pl,Custody.`date +%d%b`.pl}
 
-# Toss errors to the bit bucket
-$ find / -name '*.mac' 2>/dev/null
+# Any errors to the bit bucket:
+find / -name '*.mac' 2>/dev/null
 
 # Reset, blank titlebar title bar
 unset PROMPT_COMMAND; echo -ne '\033]0;\007'
@@ -2960,15 +2941,14 @@ unset PROMPT_COMMAND; echo -ne '\033]0;ora\007'
 unset PROMPT_COMMAND; echo -ne "\033]0;${PWD}\007"
 
 # For quick email attachment transfers across boxes (head gives dividers between each file)
-$ head -n 1000000000 .inputrc .vimrc .bashrc ~/code/misccode/_vtorrc >|essential_combined.txt
-$ find . -name '*.sas'|xargs head -n 10000000 >| datapost.allcode.sas
+head -n 1000000000 .inputrc .vimrc .bashrc ~/code/misccode/_vtorrc >|essential_combined.txt
+find . -name '*.sas'|xargs head -n 10000000 >| datapost.allcode.sas
 
 # Grow enlarge a file to copies of itself (especially good if Vim's undo whacks _viminfo when it gets huge)
 for i in `seq 1 500`; do cp FW_ONLINE.txt $i; cat $i >> FW_ONLINE.big.txt; rm $i; done
 
 # Fix backspace in shell (for vi)
-$ stty erase ^H intr ^C kill ^K
-# or sometimes ^? instead of ^H
+$ stty erase ^H intr ^C kill ^K  # or sometimes ^? instead of ^H
 
 # Tampering check:
 $ md5sum * > tampering.md5                        # build
@@ -2984,10 +2964,10 @@ if [ expression ];then commands elif [ expression2 ];then commands else commands
 if [ $# = 0 ]; then ... fi
 
 # Length of string is 1 character
-if [ ${#month} -eq 1 ];then ... fi
+if [ ${#month} -eq 1 ];then echo 'jan thru sep'; fi
 
-# Shell string comparison: if [ 'x' = 'x' ]; then... fi
-# Shell integer comparison: if [ 2 -eq 2 ]; then... fi
+# Shell compare test: strangely enough,  = is for comparing literal variables and -eq for integers:
+# Shell string comparison: if [ 'x' = 'x' ]; then... fi  Shell integer comparison: if [ 2 -eq 2 ]; then... fi
 
 # Determine if a file has a certain suffix, extension (mnemonic # on keyboard is to the left, % is to the right).  Bash only.
 if [ "${1##*.}" = 'tar' ]; then ... fi
@@ -3001,11 +2981,11 @@ if [ -z "$CSVS"  ];then # string is zero length, no files meet stale criteria, s
 # Determine Cygwin version:
 $ cygcheck -c | grep ygwi
 
-Input/output IO redirection ( < and > ) connects processes with
-files, while the pipe ( | ) connects processes with other processes. 
+# Input/output IO redirection ( < and > ) connects processes with files, while the pipe ( | ) connects processes with other processes
 
-$ diff <(md5sum *.sas) <(cd tmp;md5sum *.sas)
-$ diff <(md5sum *.mp3) <(cd /cygdrive/e/Decade/Disc\ 1;md5sum *.mp3)
+diff <(sort file1) <(sort file2)
+diff <(md5sum *.sas) <(cd tmp;md5sum *.sas)
+diff <(md5sum *.mp3) <(cd /cygdrive/e/Decade/Disc\ 1;md5sum *.mp3)
 
 # Yesterday's zip file
 TODAY=`date +%b-%Y`
@@ -3036,8 +3016,6 @@ ps -ae | grep lms_nmgr | grep -v grep | read pid && echo "process found `date`" 
 
 # cal(1) for two month display
 cal 06 2009; cal 07 2009
-
-# Shell compare test: remember, strangely enough,  = is for comparing literal variables and -eq for integers.
 
 sz=$(find $PTHQT -maxdepth 1 -name '*.jpg' -print0 | xargs -0 ls -l | awk '{s+=$5}END{print int(s/1000000)}')
 
@@ -3078,9 +3056,6 @@ $ locate --ignore-case --database=/var/lib/locatedb.code foo|sed 's/^/vi /'
 
 if [ -d '\\rtpdscel01dm06\rsh86800$' ];then echo 'directory exists'; fi
 
-# bash only
-diff <(sort file1) <(sort file2)
-
 # For loop shell array
 for x in "${MAPFILES[@]}"; do ...; done
 
@@ -3117,8 +3092,8 @@ find . -name "*.dll" -or -name "*.exe" | xargs -r strip
 #     1072    4384    1072       4948    0 1003   Feb  1 /usr/bin/bash
 ps | awk '$8 ~ /ba/' -
 
-# Choose a random line from a file (bash)
-F=dhammapada.txt;TOTLINES=`wc -l $F|awk '{print $1}'`;LINENUM=$[($RANDOM%${TOTLINES})+1]; sed -n "$LINENUM"p $F
+# Choose a random line from a file (bash provides $RANDOM)
+F=dhammapada.txt; TOTLINES=`wc -l $F | awk '{print $1}'`; LINENUM=$[($RANDOM%${TOTLINES})+1]; sed -n "$LINENUM"p $F
 
 # bash ls skip do not show .orig files.  TODO not sure how robust this is - may need  $ find . -not -name '*orig'
 ls tzu!(.orig)
@@ -3131,8 +3106,6 @@ urxvt-X.exe -display 127.0.0.1:0.0 -bc -e /bin/bash --login
 
 # Create empty directories and subdirs (skip files) TODO NOT SAFE FOR DIRS WITH SPACES:
 mkdir -p $c/datapost && find * -type d | while read d; do mkdir $c/datapost/${d}; done
-
-30 09,15,20 * * * grep http /home/chronos/user/Bookmarks | awk '{print $2}'| sed 's/"//g' | sed 's/$/<BR>/' >| /home/chronos/user/Dropbox/Public/Equanimity/bm.html 2>|/home/chronos/user/cron.log
 
 # bash calculator:
 echo $[(5*3)-2]
@@ -3159,8 +3132,6 @@ ssh rheckel@sdf.org 'cat >> remotefoo' < localfoo
 
 # System monitoring tools: top iostat ps vmstat (memory) lsof (list open files)
 
-sudo dpkg -i google-chrome-stable_current_i386.deb
-
 export PROMPT_COMMAND=; echo -ne "\033]0; override change rxvt window title\007"
 
 # Is log file writeable?
@@ -3185,12 +3156,15 @@ stty -ixon
 $ PROCSFILE=$(mktemp) && echo $PROCSFILE && ps -ef >$PROCSFILE
 
 # List all installed apt-get packages:
-dpkg -l
+sudo dpkg -l
+
+# Install debian ubuntu
+sudo dpkg -i google-chrome-stable_current_i386.deb
 
 # Query apt-get
-apt-cache search vim
-apt-cache show vim
-apt-cache policy vim
+sudo apt-cache search vim
+sudo apt-cache show vim
+sudo apt-cache policy vim
 
 # See if a new Chrome is out there:
 sudo apt-get install google-chrome-stable
@@ -3237,20 +3211,22 @@ sudo sed -i -e "s/# deb/deb/g" /etc/apt/sources.list
 tar -C / -xvf connect-proxy-1.101-1.tar.gz
 
 # Ubuntu system information:
-$ df -h && free -m && grep name /proc/cpuinfo | uniq && lspci | grep VGA && xrandr | grep connected && uname -rms
+df -h && free -m && grep name /proc/cpuinfo | uniq && lspci | grep VGA && xrandr | grep connected && uname -rms
 
 # Easy GSK backup using the previous tarball as a sentinel - Cygwin:
-$ ls -l ~/c && sleep 10 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd -
+ls -l ~/c && sleep 10 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd -
 
 # Easy GSK backup using the previous tarball as a sentinel - Ubuntu:
-$ cd ~ && find -L code/ -type f -newer c |grep -v '/.git/'|grep -v '.swp'|xargs tar cvfz c  # Ubuntu manual
-$ cd && find -L code/ -type f -newer ~/Downloads/c |grep -v '/.git/' |grep -v '.swp' |xargs tar cvfz ~/Downloads/c && scp ~/Downloads/c bheckel@sdf.org: && ssh bheckel@sdf.org mailx -a c -s c rsh86800@gsk.com && cd -  # Ubuntu quicker
+cd ~ && find -L code/ -type f -newer c |grep -v '/.git/'|grep -v '.swp'|xargs tar cvfz c  # Ubuntu manual
+cd && find -L code/ -type f -newer ~/Downloads/c |grep -v '/.git/' |grep -v '.swp' |xargs tar cvfz ~/Downloads/c && scp ~/Downloads/c bheckel@sdf.org: && ssh bheckel@sdf.org mailx -a c -s c rsh86800@gsk.com && cd -  # Ubuntu quicker
 
-$ sudo fdisk -l
-$ sudo dd if=lubuntu-desktop-12.04-1-miniand.com.img of=/dev/sdb1 && sudo sync
+sudo fdisk -l
+sudo dd if=lubuntu-desktop-12.04-1-miniand.com.img of=/dev/sdb1 && sudo sync
 
 # Imagemagic PNG to PDF conversion:
-$ meth=`find /cygdrive/x/ethylcellulose/ -maxdepth 1 -name '*.png'` && convert $meth -append -compress zip /cygdrive/x/ethylcellulose/Methyl.pdf
+meth=`find /cygdrive/x/ethylcellulose/ -maxdepth 1 -name '*.png'` && convert $meth -append -compress zip /cygdrive/x/ethylcellulose/Methyl.pdf
+
+ln -s /cygdrive/c/fooreal foosymlinkedfake
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
