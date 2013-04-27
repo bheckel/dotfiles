@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Mon 25 Feb 2013 13:23:13 (Bob Heckel)
+" Modified: Fri 26 Apr 2013 15:22:48 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 "--------------------------------------------------------------------------
@@ -831,8 +831,9 @@ if has('win32')
   map <F10> :se guifont=Andale_Mono:h10<CR>z.
 endif
 
-" Filter SAS Log for error-like lines only
-noremap <silent> <F8> :g!/\\C^ERROR: \\\|\\C^ERROR\\s\\+\\d\\+-\\d\\+:\\\|^WARNING: [^Compression]\\\|stopped processing this step because\\\|lines were truncated\\\|NOTE: Invalid data for\\\|NOTE: Variable\\\|NOTE\\s\\+\\d\\+-\\d\\+:/d<CR>
+" Filter SAS Log for error-like lines (and lines that should be errors, thanks SAS...) only
+"""noremap <silent> <F8> :g!/\\C^ERROR: \\\|\\C^ERROR\\s\\+\\d\\+-\\d\\+:\\\|^WARNING: [^Compression]\\\|stopped processing this step because\\\|lines were truncated\\\|NOTE: Invalid data for\\\|NOTE: Variable\\\|NOTE\\s\\+\\d\\+-\\d\\+:/d<CR>
+noremap <silent> <F8> :g!/\\C^ERROR: \\\|\\C^ERROR\\s\\+\\d\\+-\\d\\+:\\\|^WARNING: [^Compression]\\\|stopped processing this step because\\\|lines were truncated\\\|NOTE: Invalid data for\\\|NOTE: Variable\\\|NOTE\\s\\+\\d\\+-\\d\\+:\\\WARNING: Apparent/d<CR> 
 
 " View syntax group info.  Probably mostly empty if no syntax defined (e.g. .txt)
 """map <F10> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<' \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<" \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
@@ -1959,12 +1960,13 @@ if !exists("autocommands_loaded")
   " ~/bin/bgrep
   au BufRead *.grep if line("'\"") | exe "normal '\"" | endif
 
-  " SAS:
-  if matchstr(WORKBOXES, THISBOX) == THISBOX
-    autocmd BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source u:/code/sas/saslog.vim 
-  else
-    autocmd BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim 
-  endif
+  """if ( &filetype == 'SAS' )
+    if matchstr(WORKBOXES, THISBOX) == THISBOX
+        autocmd BufNewFile,BufRead,BufEnter DataPost*.log set noswapfile | set hlsearch | source u:/code/sas/saslog.vim 
+    else
+      autocmd BufNewFile,BufRead,BufEnter DataPost*.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim 
+    endif
+  """endif
 
   if has('gui')
     " Maximize SAS Logs upon opening

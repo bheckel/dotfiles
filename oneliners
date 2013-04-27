@@ -11,7 +11,7 @@
 #           even smaller...
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Mon 11 Mar 2013 15:36:34 (Bob Heckel)
+# Modified: Fri 22 Mar 2013 11:48:20 (Bob Heckel)
 #
 ###############################################################################
 
@@ -1651,6 +1651,10 @@ SAS8WIN=C:/PROGRA~1/SASINS~1/SAS/V8/sas.exe
 SAS91WIN=C:/PROGRA~1/SAS/SAS9~1.1/sas.exe
 SAS93WIN=C:/PROGRA~1/SASHome/SASFoundation/9.3/sas.exe
 
+%let wpath=%sysfunc(pathname(WORK));
+
+%let uniqueidentifier=&SYSPROCESSID;
+
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -3084,7 +3088,7 @@ ssh rtpsh005 ps -ef | grep lms_client*|wc -l  # count LIMS users
 # Print HPUX
 lpr -dprinter_name file_name
 
-# Cygwin w3m
+# Cygwin w3m compile finish
 find . -name "*.dll" -or -name "*.exe" | xargs -r strip
 
 # Using awk tilde find the process with 'ba' in its name in column 8:
@@ -3227,6 +3231,16 @@ sudo dd if=lubuntu-desktop-12.04-1-miniand.com.img of=/dev/sdb1 && sudo sync
 meth=`find /cygdrive/x/ethylcellulose/ -maxdepth 1 -name '*.png'` && convert $meth -append -compress zip /cygdrive/x/ethylcellulose/Methyl.pdf
 
 ln -s /cygdrive/c/fooreal foosymlinkedfake
+
+# Find filetype by date:
+find $z/datapost/data/GSK/Zebulon/SolidDose/ |grep 'lims_.*t_.*sas7bdat' |xargs ls -l |awk '{print $10 "\t\t" $8 $7}'|sort
+
+# Build HREF using substitution
+find /cygdrive/c/datapost/data/GSK/Zebulon/ -name '*.pdf'|sed 's/\/cygdrive\/c//' |perl -pe 's/(.*)\/(.*)/<a href=http:\/\/zdatapostd.gsk.com\1\/\2\/>\2<\/a>/'
+
+# Cygwin X
+$ startxwin&  # ok to close xterm if one pops up and use rxvt for next cmd:
+$ ssh -X rtpsh005  # see readme.ssh.txt for switching id (su, super chemlms-shell, etc.)
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3954,10 +3968,11 @@ perl -le 'print map { ("a".."z")[rand 26] } 1..8'
 local - saves the current value somewhere, creates a new value, and arranges that the old value will be restored at the end of the current block.
 my    - lexical scope does not create an entry in the symbol table, variables that you declare in one subroutine can't be tampered with by other subroutines. 
 
-# Replicate and modify a line:
-$ find . -name '*.html' |xargs perl -pi.delete -e 's:(<link rel="stylesheet" type="text/css" href.*css/screen.css"  />):wtftodelete$1\n$1:g
-$ find . -name '*.html' |xargs perl -pi.delete -e 'next unless /wtftodelete/; s:css/screen.css:css/fonts.css:g'
-$ find . -name '*.html' |xargs perl -pi.delete -e 's:wtftodelete::g'
+# Modify all html files by inserting a similar line below:
+$ find . -name '*.html' |xargs perl -pi.delete -e 's:(<link rel="stylesheet" type="text/css" href.*css/screen.css"  />):MARKER_TO_DELETE$1\n$1:g  # replicate line but create a unique marker
+$ find . -name '*.html' |xargs perl -pi.delete -e 'next unless /MARKER_TO_DELETE/; s:css/screen.css:css/fonts.css:g'  # make change to new line
+$ find . -name '*.html' |xargs perl -pi.delete -e 's:MARKER_TO_DELETE::g'  # remove unique marker
+$ find . -name '*.delete' |xargs rm  # if successful  TODO untested
 
 # File into an array:
 open FH1, 'junk1.txt' or die "Error: $0: $!"; @foo = <FH1>;
@@ -4625,9 +4640,13 @@ doskey vi=vim $1
 // In HEAD
 <style type="text/css"> body { background:fixed #110110 url(../a_Cakka.gif); color:#FFFF99; } </style>
 
-// CSS inline style
+/* CSS inline style */
 <tr style="visibility:collapse;">
 <table style="border: 1px solid black;">
+
+/* CSS id must be unique, class does not need to be unique */
+<div id="myid">Content</div> 	#myid {css rules....}
+<div class="myclass">Content</div> 	.myclass {css rules...}
 
 <input type="button" value="On" onclick="myfn('msg',1); return false;">
 
@@ -4802,6 +4821,8 @@ set termout off
 
 <div style="font-family:arial; color:blue; text-decoration:underline; font-weight:bold; font-size:200%">Newer approach - HTML using CSS</div>
 
+@font-face { font-family: 'myf'; src: url('PRISTINA.ttf') format('truetype'); font-weight: normal; font-style: normal; }
+
 COALESCE(field1, field2) -- SQL takes the first non-null value it can find
 
 ' Vim fold folding
@@ -4819,8 +4840,7 @@ Factorial: 6! is 6*5*4*3*2*1
 
 Fibonacci each number is the sum of the preceding two: 0 1 1 2 3 5 8 13 21 ...
 
-OldNew percentage change: Take the new, "current value" and divide it by the
-old, obsolete value. Subtract 1.00 (or 100%) from the result.
+OldNew percentage change: Take the new, "current value" and divide it by the old, obsolete value. Subtract 1.00 (or 100%) from the result.
 
 Disable screensaver lock Windows XP (see also code\misccode\ScreenSaverIsSecure_Make0.reg)
 \HKCU\Software\Policies\Microsoft\Windows\ControlPanel\Desktop
@@ -4895,6 +4915,7 @@ select  'grant select,insert,update,delete on ' || tname || ' to pks_user' from 
 select 'create synonym PKS_USER.' || tname || ' for PKS.' || tname || ';' from tab
 
 Remote Desktop C:\WINDOWS\system32\mstsc.exe /admin
+Remote Desktop restore full screen from maximized window: Ctr+Alt+Break
 
 <?xml-stylesheet type="text/xsl" href="file:///c:/datapost/cfg/DataPost_Configuration.xslt"?>
 
@@ -5142,8 +5163,6 @@ PS U:\> get-process | where { $_.VS -gt 10M } | stop-process
 # Powershell Sum file sizes
 get-childitem | measure-object -Property length
 
-while ( $true ) { ... }
-
 # Powershell Switch lowercase to uppercase:
 "lowertoupper".ToUpper()
 
@@ -5266,8 +5285,8 @@ git stash;  # then  git stash drop  later when You Are Sure
 # git canonical stash:
 git stash; git checkout emergencybranch; ... git checkout branchistashed; git stash pop; git stash list
 
-# git delete branch if (unmerged):
-$ git branch -d killme
+# git delete branch if merged (-D if not):
+$ git branch -d killthisbranch
 
 # git discard git discard throw away changes:
 $ git checkout .   # abandon all pending changes "not staged for commit"
@@ -5311,6 +5330,9 @@ SELECT material_description, count(*), count(test_end_date)
 
 --Oracle select literal underscore
 WHERE UPPER(mat_desc) LIKE '%\_TH%' ESCAPE '\'
+
+// JQuery debug print
+console.log("the_form.cbo.value=%o", the_form.cbo.value);
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  

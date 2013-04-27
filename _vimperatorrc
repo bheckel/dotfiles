@@ -3,14 +3,15 @@
 "
 "  Summary: Generic Vimperator rc file
 "
-"  Windows Shortcut:
-"  C:\Progra~1\Mozill~1\firefox.exe -vimperator "+u 'c:\cygwin\home\bheckel\.vimperatorrc'"
+" C:\Program Files\Mozilla Firefox\firefox.exe" -vimperator "+u 'u:\code\misccode\_vimperatorrc'"
+" C:\Progra~1\Mozill~1\firefox.exe -vimperator "+u 'c:\cygwin\home\bheckel\.vimperatorrc'"
 "
-"  :so u:/code/misccode/_vimperatorrc
-"  :so u:\\code\\misccode\\_vimperatorrc
+" :res[tart] won't source this file so use this:
+"   :so u:/code/misccode/_vimperatorrc
+"   :so u:\\code\\misccode\\_vimperatorrc
 "
 "  Created: Mon 15 Oct 2007 11:21:26 (Bob Heckel)
-" Modified: Sat 10 Mar 2012 15:50:25 (Bob Heckel)
+" Modified: Tue 12 Mar 2013 15:51:14 (Bob Heckel)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 """""""""""""""""""""""""
@@ -24,31 +25,23 @@
 
 
 """""""""""""""""""""""""
-" SET Options
+" Options
 """""""""""""""""""""""""
-"""set complete=lsf
-"""set complete=slf
+set complete=Sfs
 """set wildmode=list:full
 
-" Avoid a google search by default
-"""set defsearch=
-
-" Make sure we're in the awesome bar when a new tab is created via Ctr-t
-set nofocuscontent
+" :mes[sages] if miss it 
+set messagetimeout=750
 
 " See ,t
 """set guioptions=TrB
 
 " Time allowed to disambiguate hint 1 vs 10, 2 vs 200 etc
-set hinttimeout=1000
+"""set hinttimeout=1000
 
 " Case sensitive if use capitals.  Must use together if using smartcase.
-set ignorecase
-set smartcase
-
-set incsearch
-
-"""set laststatus=0
+"""set ignorecase
+"""set smartcase
 
 " Open these in a new tab (but see popups)
 set newtab=addons,downloads,help,prefs
@@ -57,10 +50,6 @@ set newtab=addons,downloads,help,prefs
 
 " So that a right click in the gutter will allow a new tab w/o keyboarding
 """set showtabline=2
-
-"""set wildcase=smart
-
-"""set visualbell
 
 
 """""""""""""""""""""""""
@@ -80,16 +69,11 @@ set newtab=addons,downloads,help,prefs
     }
 EOF
 
-" Better to just use a Firefox bookmark with keyword then :o r
-""":js << EOF
-  """readability = function(){readStyle='style-apertura';readSize='size-large';readMargin='margin-wide';_readability_script=document.createElement('SCRIPT');_readability_script.type='text/javascript';_readability_script.src='http://lab.arc90.com/experiments/readability/js/readability.js?x='+(Math.random());document.getElementsByTagName('head')[0].appendChild(_readability_script);_readability_css=document.createElement('LINK');_readability_css.rel='stylesheet';_readability_css.href='http://lab.arc90.com/experiments/readability/css/readability.css';_readability_css.type='text/css';_readability_css.media='all';document.getElementsByTagName('head')[0].appendChild(_readability_css);_readability_print_css=document.createElement('LINK');_readability_print_css.rel='stylesheet';_readability_print_css.href='http://lab.arc90.com/experiments/readability/css/readability-print.css';_readability_print_css.media='print';_readability_print_css.type='text/css';document.getElementsByTagName('head')[0].appendChild(_readability_print_css);}
-"""EOF
-"""map ,r :js readability()
 
 """""""""""""""""""""""""
 " Maps
 """""""""""""""""""""""""
-map <F1> :echo ":dia history\n:dia printpreview\n:downl\n:emenu\n:mes[sages]\n:se[t] all\n:pref[erences]\n:pref!\n:res[tart]\n:addo[ns]\n:optionusage\n:dia console\nTAB and Shift-Tab to view choices"<CR>:h index
+map <F1> :echo "_vimperatorrc\n:us[age]\n:dia history\n:dia printpreview\n:downl\n:emenu\n:mes[sages]\n:se[t] all\n:pref[erences]\n:pref!\n:res[tart]\n:addo[ns]\n:dia console\nTAB and Shift-Tab to view choices, c for caret mode"<CR>
 
 " Toggle fullscreen like many other apps
 map <F11> :set invfs<CR>
@@ -99,7 +83,7 @@ map <F11> :set invfs<CR>
 " Toggle usermode CSS display
 map \\ :set invum<CR>
 
-" ALT-less arrow key navigation
+" ALT-less arrow key navigation.  Rarely need to navigate using left-right keys in a webpage.
 map <Right> gt
 map <Left>  gT
 
@@ -115,7 +99,7 @@ noremap l L
 noremap H h
 noremap L l
 
-" Speed up movements a bit
+" Speed up movements
 noremap k 2k
 noremap j 2j
 noremap <C-e> 3<C-e>
@@ -124,15 +108,13 @@ noremap <C-y> 3<C-y>
 " Too risky, will just use multiple 'd's
 map D <Nop>
 
-" Not orthogonal with Vim so eliminate
+" Not consistent with Vim so eliminate
 map M <Nop>
 
 
 """"""""""""
 " Comma Maps
 " Reserve comma maps for GUI controls
-
-map ,b :js toggle_element('PersonalToolbar')<CR>
 
 map ,c :dialog console<CR>
 
@@ -144,16 +126,36 @@ map ,d :downloads<CR>
 """map ,h :sidebar history<CR>
 map ,h :dia history<CR>
 
-" Think (m)enubar
+" Mnemonic (m)enubar
 """map <silent> ,m :js toggle_element('toolbar-menubar')<CR>
-map ,m :js toggle_element('toolbar-menubar')<CR>
+" 12-Mar-13 not working
+"""map ,m :js toggle_element('toolbar-menubar')<CR>
 
 map ,p :dia printpreview<CR>
 
-" Think (t)oggle (t)oolbar
+" Mnemonic toggle (t)oolbar
 map <silent> ,t :js toggle_element('PersonalToolbar')<CR>
 
 """"""""""""
+
+"""""""""""
+" Reserve semicolon maps for commandline controls
+
+" bmarks are hard to reach in vimperator, can't just tab to reach them
+map ;b :bmarks<CR>
+
+" Mnemonic like my vim map
+map ;l :buffers<CR>
+
+" Mnemonic like my shell 'alias cdp cd ~/code/perl':
+map ;c o file:///u:/code/c/
+map ;h o file:///u:/code/html/
+map ;m o file:///u:/code/misccode/
+map ;p o file:///u:/code/perl/
+map ;r o file:///u:/code/readme/
+map ;s o file:///u:/code/sas/
+
+"""""""""""
 
 " NEXT/PREV links
 map . ]]
@@ -163,11 +165,6 @@ map . ]]
 " :q! is actually the command when :q is used.  :wq or ZZ to save tabs for next time
 """map ,qq :quitall<CR>
 
-"""map ;c o file:///E:/cygwin/home/bheckel/code/
-
-" Like vim
-map ;l :buffers<CR>
-
 
 """""""""""""""""""""""""
 " Highlighting
@@ -175,12 +172,14 @@ map ;l :buffers<CR>
 " Replicate .vimrc where possible
 """""""""""""""""""""""""
 """highlight! Bell color:grey; background-color:grey
-"""highlight! StatusLine color:white; background-color:#0066FF; font-size:10px
-"""highlight! StatusLineSecure StatusLine color:white; background-color:#CCFFCC;font-size:10px
+"""highlight StatusLine color:white; background-color:#0066FF; font-family:monospace; font-size:10px
 """highlight! StatusLineExtended StatusLine color:white; background-color:#007700;font-size:10px
 """highlight! StatusLineBroken StatusLine color:white; background-color:#FF0066;font-size:10px
 """highlight! CmdLine color:white; background-color:black; font-family:monospace; font-size:10px
 """highlight! Hint font-family:monospace; font-size:13px; font-weight:bold; color:white; background-color:red; border-color:ButtonShadow; border-width:0px
+
+" C:\Documents and Settings\rsh86800\vimperator\colors\
+colorscheme zenburn
 
 
 """""""""""""""""""""""""
@@ -201,6 +200,10 @@ map ;l :buffers<CR>
 """""""""""""""""""""""""
 " All Google pages except Google [s]earch, [n]ews, [a]pis
 """autocmd LocationChange .* js modes.passAllKeys = /google\.com\/[^s|n|a]/.test(buffer.URL)
+autocmd LocationChange .*                             js modes.passAllKeys = false
+autocmd LocationChange mail\\.google\\.com            js modes.passAllKeys = true
+autocmd LocationChange www\\.google\\.com/calendar    js modes.passAllKeys = true
+autocmd LocationChange www\\.google\\.com/reader      js modes.passAllKeys = true
+autocmd LocationChange drive\\.google\\.com           js modes.passAllKeys = true
 
-
-echomsg '_vimperatorrc sourced'
+echomsg 'code/misccode/_vimperatorrc sourced'
