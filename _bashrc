@@ -4,7 +4,7 @@
 # Summary: bash shell config for at least Cygwin 1.3/1.5/1.7, Unix and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Fri 15 Mar 2013 14:47:57 (Bob Heckel)
+# Modified: Mon 17 Jun 2013 13:00:31 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -13,10 +13,11 @@
 # Test for an interactive shell.  There is no need to set anything
 # past this point for scp and rcp, and it's important to refrain from
 # outputting anything in those cases.
-if [[ $- != *i* ]] ; then
+###if [[ $- != *i* ]] ; then
 	# Shell is non-interactive
-	return
-fi
+###	return
+###fi
+[[ $- != *i* ]] && return
 
 # One arg per call
 set -o vi  # what's an emac...?
@@ -171,19 +172,19 @@ fix() {
 ###}
 
 
+# 'start' a file or file manager
 st() {
   if [ $# = 0 ]; then
-    ###cygstart `cygpath -w "$PWD"`
     if [ $OSTYPE = 'cygwin' ];then
       cygstart -x "$PWD"
     else
-      xfe&
+      xdg-open
     fi
   else
     if [ $OSTYPE = 'cygwin' ];then
       cygstart "$1"
     else
-      xfe "$1" &
+      xdg-open "$1" &
     fi
   fi
 }

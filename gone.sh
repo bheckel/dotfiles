@@ -15,7 +15,7 @@
 #           TODO add CANONICAL switch
 #
 #  Created: Wed 20 Nov 2002 12:54:09 (Bob Heckel)
-# Modified: Thu 21 Feb 2013 13:30:34 (Bob Heckel)
+# Modified: Fri 07 Jun 2013 13:02:25 (Bob Heckel)
 ##############################################################################
   
 F="$HOME/code/misccode/oneliners"
@@ -35,8 +35,8 @@ Usage() {
                     `basename $0` -c findme v
                     `basename $0` '\-eq'  <---needs a backslash due to dash!
 
-Searches the database (currently $F) for string matches, 
-optionally looking in a particular section.
+Searches the database (currently $F) for string
+matches, optionally looking in a particular section.
 
 MUST backslash any literal regex characters (e.g. 'sql\*plus')."
 
@@ -80,7 +80,6 @@ elif test "$2" = 'u'; then
   s=unix
 elif test "$2" = 'o'; then
   s=other
-# undocumented
 elif test "$2" = 'm'; then
   s=other
 elif test "$2" = 's'; then
@@ -90,8 +89,7 @@ elif test "$2" = 'v'; then
 else
   # An incorrect section was specified (skip if no section specified)
   if [ ! -z "$2" ]; then
-    ###echo "ERROR:  available sections are c, (v)im, (s)as, (p)erl, (u)nix, po(w)ershell, (o)ther"
-    echo "ERROR:  available sections are c, (v)im, (s)as, (p)erl, (u)nix, (o)ther"
+    echo "ERROR:  available sections are (c), (v)im, (s)as, (p)erl, (u)nix, (o)ther/(m)isc"
     exit 1
   fi
 fi

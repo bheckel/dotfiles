@@ -388,7 +388,7 @@ vim `grep -l frame_counter *.c`
 " Delete everything but the first 2 fields in a CSV
 :%s:\(.\{-}\zs,\)\{2}.*::
 
-" Canonical convert a file to HTML, opening the results in a new window:
+" Canonical vim convert a file to HTML, opening the results in a new window:
 :1,$TOhtml
 
 " Crosshairs bullseye
@@ -796,8 +796,8 @@ c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -autoexec "\\rtpsawnv0312\pucc\Serevent_Disk
  /* Suppress discard SAS List .lst */
 c:\PROGRA~1\SASINS~1\SAS\V8\sas.exe -sysin t.sas -log t.log -NOterminal -NOprint
 
-# Cygwin
-$ echo 'proc print data=sashelp.shoes;run;' >| t.sas; c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin t.sas
+# Cygwin quick dataset check:
+echo 'options ls=78;proc contents data=sashelp.shoes;run;' >| t$$.sas; c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin t$$.sas && cat t$$.lst && rm t$$.???
 echo "options ps=max;libname l '//Rtpdsntp032/DataPostArchive/Ventolin_HFA/OUTPUT_COMPILED_DATA';proc freq data=l.ven60_analytical_individuals;table mfg_batch test;run;" >| u:/tmp/t.sas && c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin 'u:\tmp\t.sas' -log 'u:\tmp\t.log' -print 'u:\tmp\t.lst'; cat 'u:\tmp\t.lst'
 
  /* Describe option settings in effect: (also sr ~/code/sas/options.cmdl.sas linesize) */
@@ -916,8 +916,10 @@ myvar = trim(translate(myvar, '', '.'));
 data x; do i=1 to 5; do j=20 to 25; do k=100 to 101; output; end; end; end; run;
 
  /* Create an empty dataset */
-data work.empty; set work.sample (obs=0); run;
-data reallyempty_1obs_0vars; run;
+data zeroobs_7vars; set SASHELP.shoes (obs=0); run;
+data zeroobs_7vars; set SASHELP.shoes; stop; run;
+data zeroobs_0vars; stop; run;  /* most empty */
+data oneobs_0vars; run;
 
  /* Search SUGI papers via Google w/o that ugly lexjansen page */
 findmystring site:www2.sas.com filetype:pdf
@@ -1016,8 +1018,14 @@ input ProviderLicenseNumber :$40.;  /* no preceeding LENGTH statement needed */
 
  /* Capture part of a string */
 captureUpToDash = substr(SampName,1,index(SampName, '-')-1);
- /* Better */
+ /* Capture part of a string - better */
 captureUpToDash2 = scan(SampName,1,'-');  /* be explicit on 2nd parm or it'll use default of split on  spaces . < ( + & ! $ * ) ; ^ - / , % | */
+
+ /* Capture part of a string ampersand delimited - complex:
+  * _service=default&_program=links.LRQUERY.sas&rpttype=RE&UID=xgw69262&UserRole=LevelB
+  *                                                            ________
+  */
+uid = substr(scan(h, 4, '&'), 5);
 
  /* If sampname is 0000345198-01 not 0000345198-890000022217-01 skip it */
 if not scan(SampName, 3, '-') then delete;
@@ -1377,9 +1385,6 @@ Right click C:\Program Files\SAS Institute\SAS\V8\core\sashelp\setinit.sss to in
  /* Display each line of textfile as it's read-in using INPUT statement */
 put '!!!' _INFILE_;
 
- /* Submit the top n lines in SAS Editor - good for debugging like sasrun's endsas; trick */
-SUBTOP 42
-
  /* Show order by most frequent first */
 proc freq data=students order=freq; tables name / nocum; run;
 
@@ -1604,8 +1609,6 @@ options NOlabel;  /* Avoid proc sql printing pretty names instead of varnames */
  /* Convert SAS epoch date to human: */
 ~/code/perl/datecalc 1/1/1960 19272
 
-SAS93WIN=C:/PROGRA~1/SASHome/SASFoundation/9.3/sas.exe
-
  /* Convert character constant date to character and SAS date to number in open code (easiest date converter conversion) */
 %put %sysfunc(putn('30OCT1965'D, 8.));
 %put %sysfunc(putn(17325, DATE9.));
@@ -1647,13 +1650,30 @@ input 'Amount Budgeted'n 'Amount Spent'n; ...
  /* Single quotes for criteria, double for funky table naming */
 libname mydblib oracle user=u password=p path='airdata' schema=airport preserve_names=yes; proc sql dquote=ansi outobs=9;  create table mydblib."Intl Delay" as select * from mydblib.internat; quit;
 
-SAS8WIN=C:/PROGRA~1/SASINS~1/SAS/V8/sas.exe
+SAS82WIN=C:/PROGRA~1/SASINS~1/SAS/V8/sas.exe
 SAS91WIN=C:/PROGRA~1/SAS/SAS9~1.1/sas.exe
 SAS93WIN=C:/PROGRA~1/SASHome/SASFoundation/9.3/sas.exe
 
 %let wpath=%sysfunc(pathname(WORK));
 
 %let uniqueidentifier=&SYSPROCESSID;
+
+ /* Macro resolution */
+grep '^MPRINT' $z/datapost/code/datapost_trend.log >| t.grep
+
+proc sql; update sched set cost = CASE when dest eq 'YYZ' then cost-1 when dest eq 'FRA' then cost+1 else cost END; ; quit;
+
+ /* proc report traffic lighting assuming proc format; value $bkres 'PASS'='Lime' 'FAIL'='Red'; run; */
+define result / style(column)={background=$bkres.};
+
+Adjust proc sql print width via:  SELECT foovar format=$5. FROM ...
+
+ /* Display Manager Enhanced Editor open: INCLUDE  save: FILE  go to Enhanced Editor wpg  go to commandline F11 */
+
+ /* Display Manager Enhanced Editor submit the top n lines in SAS Editor - good for debugging like sasrun's endsas; trick  SUBTOP 42 */
+
+ /* Simple gplot */
+goptions reset=all ftext=swissl device=png cback=white border htitle=12pt ctext=gray gsfname=outpng gsfmode=replace ypixels=750 xpixels=750; filename outpng 'junk.png'; proc gplot data=linksplot; plot cnt*dt; run;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -1745,13 +1765,12 @@ echo -n 'count me' | wc
 # Count how many Vim Scripts use ``execute''?:
 $ find /usr/local/share/vim -type f -name \*.vim -exec grep -l '\<exe\(c\(u\(te\?\)\?\)\?\)\?\>' {} \; | wc -l
 
-# When your term displays a mess/garbage) after you cat or grep a binary file, reset it: 
-echo CTRL-V ESC c 
-# or (no dash!!)
-stty sane
-# Fix a bad ^H^H^H problem (that might have been caused by the above command)
 set -o vi
-stty erase ^H
+
+# Reset terminal: 
+echo CTRL-V ESC c 
+stty sane
+stty erase ^H  # or stty ^?
 # Turn off echoing of keystrokes (stty echo to turn back on)
 stty -echo  
 
@@ -2060,16 +2079,17 @@ find . -inum 123 -exec rm -i {} \;
 # Recursively update timestamps on all files and directories from current one downward:
 find . | xargs touch
 
-# To find setuid and setgid file on your system.  Spaces around parens are mandatory, the -a isn't.
-find / -type f -a \( -perm -4000 -o -perm -2000 \) -print
 # Find test files except for test.log:
 find -name 'test????' -a ! -name '*.log'
 
+# To find setuid and setgid file on your system.  Spaces around parens are mandatory, the -a isn't.
+find / -type f -a \( -perm -4000 -o -perm -2000 \) -print
 find / -perm -0600 -print 2>/dev/null   # finds -rw-r--r--
 find / -perm 0600  -print 2>/dev/null   # not   -rw-r--r-- only finds -rw-------
 
 # Change permissions of specific filetypes:
-$ find -name '*.pl' -exec chmod 755 {} \;
+find -name '*.pl' -exec chmod 755 {} \;
+find $u/foodir -perm 000 |xargs chmod 755
 
 # Copy all the files in a directory tree into the same, one, single, large directory, preserving their properties:
 find . -type f -exec cp -p {} newdir/ \;
@@ -2084,11 +2104,6 @@ find . -type l -print | perl -nle '-e || print' | xargs rm
 
 # Non-GNU find is restricted to finding entire filenames so use this instead:
 find / -print | grep 'fin.*me'
-
-# Find files modified on May 21
-ls -Al | grep 'May 21'
-# Find files modified at 12:09
-ls -Al | grep '12:09'
 
 # Test parallel printer (as root): Use Ctr-V Ctrl-l to get the ^L.  It sends a form feed to eject the paper.  Type the quotes around it literally.
 echo "This is a test." > /dev/lp0
@@ -2150,6 +2165,9 @@ mycommand >&2   <---STDERR  same as 2> I think
 
 # mod modulus division
 bc -lwq    # if need modulus, from within bc, set scale=0
+
+# Primitive alarm clock
+sleep `echo '60*2'|bc` && beep
 
 # Run through base 2 decimal values using C-like syntax.  Prints 2, 4, 8, 16.
 for ((i=1;i<5;i++));do echo "2^$i" | bc;done
@@ -2797,9 +2815,6 @@ while read f; do bfp $f "bqh0.pgm.lib(`basename $f .sas`)"; done <filelist.txt
 # ROT13 encryption
 cat "$@" | tr 'a-zA-Z' 'n-za-mN-ZA-M'   # "a" goes to "n", "b" to "o", etc.
 
-# Primitive alarm clock
-sleep `echo '60*2'|bc` && beep
-
 # Find all files opened by a process (Solaris at least):
 /usr/proc/bin/pfiles mypid
 
@@ -3241,6 +3256,11 @@ find /cygdrive/c/datapost/data/GSK/Zebulon/ -name '*.pdf'|sed 's/\/cygdrive\/c//
 # Cygwin X
 $ startxwin&  # ok to close xterm if one pops up and use rxvt for next cmd:
 $ ssh -X rtpsh005  # see readme.ssh.txt for switching id (su, super chemlms-shell, etc.)
+
+# Build cp commands to replicate files to another tree:
+find data/gsk/zebulon -name 'ols*.sas7bdat'|sed 's/\(.*\)/cp -i \1 \/cygdrive\/x\/datapostdemo\/\1/'
+
+$$  # the process id of the current process
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3722,6 +3742,7 @@ perl -ne '@w=split; $x+=@w; END{print $x}' foo.txt
 
 # Use capturing parentheses to swap two items:
 grep -v fips | perl -pe 's/(.*) (.*)/\2 \1/'
+cat bladerun_crawl |sed 's/\(etire\)/FOO\1BAR /'
 
 # Is this module installed on this machine?  Does this module exist?
 perl -MImage::ExifTool -e "print 'ok'"
@@ -4795,7 +4816,8 @@ XML namespaces:
 <xyz xmlns:books="http://www.myco.com/books.dtd" 
      xmlns:paintings="http://www.yourco.com/paintings.xsd">
 
-<?xml-stylesheet type="text/xsl" href="hello.xsl"?>
+XML transformation/stylesheet linking .XSL(T) (other file) to the .XML doc (this one)
+<?xml-stylesheet type="text/xsl" href="DataPost_Configuration.xslt"?>
 
 <xsl:variable name="Str_OutputFilePath">
 <!-- DEBUG XSLT -->
@@ -5240,6 +5262,10 @@ CREATE TABLE user_role AS SELECT * FROM user_roleTEST;  -- ...and this
 select to_char(sysdate-2, 'DD-MON-YY') from dual
 select sysdate-2 from dual
 
+-- sqlplus show time as well as the (default) date only
+set linesize 180; set pagesize 9999; column material_description format a45;
+SELECT to_char(max(sample_creation_date),'DDMONYY HH24:MM:SS') AS sampcreatdt, count(*) FROM xdm_dist.vw_xeb_lift_rpt_results_nl ; quit;
+
 git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
 
 Windows work gvim GUI Target: icon:
@@ -5313,6 +5339,7 @@ convert(varchar,fwn.VariableStp.dtStartDateTime,108) as dtStartTime
 <squote><![CDATA[Logan's Run]]></squote>
 
 <xsl:for-each select="Configuration/Extracts/Extract">
+<xsl:for-each select="catalog/cd[artist='Bob Dylan']">
 
 <xsl:when test="contains(ExtractID,'dpv1')"><td><div id="dpv1"><xsl:value-of select="ExtractID"/></div></td></xsl:when>
 
@@ -5333,6 +5360,16 @@ WHERE UPPER(mat_desc) LIKE '%\_TH%' ESCAPE '\'
 
 // JQuery debug print
 console.log("the_form.cbo.value=%o", the_form.cbo.value);
+
+select count(distinct sampname) from result where sampcreatets between to_date('01-JAN-12','DD-MON-YY') and to_date('31-DEC-12','DD-MON-YY')
+
+:: Which version of Windows are you running?: c:\> ver
+
+ /* Javascript object */
+:javas var jedi={ name: "Yoda",age: 899,talk: function(){alert("foo");} };
+ /* Javascript object usage */
+:javas alert(jedi.age)
+:javas jedi.talk()
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  
