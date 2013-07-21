@@ -11,7 +11,7 @@
 #           even smaller...
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Fri 22 Mar 2013 11:48:20 (Bob Heckel)
+# Modified: Mon 08 Jul 2013 10:17:29 (Bob Heckel)
 #
 ###############################################################################
 
@@ -435,7 +435,7 @@ To synch DirDiff ranges of updates (internal DirDiff cmds like 'u' not working 2
 :se nu
 :5,42diffput
 
-" Compare vimdiff diff two existing buffers :vert diffsplit then switch to other buffer and :diffthis then force any changes :diffupdate when done reset the diff :se nodiff
+" Compare vimdiff diff two existing buffers :diffsplit then switch to/open other buffer and :diffthis then force any changes :diffupdate when done reset the diff :se nodiff
 
 " vimdiff keymaps
 do == :diffget
@@ -1136,6 +1136,9 @@ attrib state length=$3 label='foo bar' format=$40.;
 proc sql NOPRINT; select memname into :DSETS separated by ' ' from dictionary.members where libname like 'WORK'; quit;
 options ls=180 NOlabel;proc sql;select * from dictionary.columns where libname eq 'WORK' and memname eq 'EFORMSNUMCH';quit;
 
+ /* Canonical sql libname */
+libname GDM_DIST oracle user=&username password=&password path=&database schema=gdm_dist;
+
  /* Complex oracle SEPARATED BY */
 select distinct r.sampid, s.specname, put(r.sampid,F6.)||'-'||s.specname into :RETESTSAMPIDS separated by ',', :METHS separated by ' ', :METHPAIRS separated by ' '
 
@@ -1622,7 +1625,7 @@ looooooooooooooooooooooooooooooooooooong string";
  /* Date format distributive with seemingly misplaced "=": */
 put (mydt1 mydt1)(= DATETIME18.);
 
- /* Use text value as a market to determine where input pointer goes next: */
+ /* Use text value as a marker to determine where input pointer goes next: */
 input @'[' accdt DATE11.  @'GET' fnm :$20.;  /* read an Apache web log e.g. 130.192.70.235 - - [08/Jun/2004:23:51:32 -0700] "GET /rover.jpg HTTP/1.1" 200 668 */
 
 WHERE company between 1 and 5; WHERE company contains 'oog'; WHERE company is null; WHERE company is missing; WHERE company like 'Go%'; WHERE company like 'Googl_';
@@ -1674,6 +1677,17 @@ Adjust proc sql print width via:  SELECT foovar format=$5. FROM ...
 
  /* Simple gplot */
 goptions reset=all ftext=swissl device=png cback=white border htitle=12pt ctext=gray gsfname=outpng gsfmode=replace ypixels=750 xpixels=750; filename outpng 'junk.png'; proc gplot data=linksplot; plot cnt*dt; run;
+
+%put _all_; %goto THEEND; /*...stuff to be skipped...*/  %THEEND:
+
+ /* SQL SAS enhanced, add a single quote tick to a large number to fake out Excel */
+(CASE WHEN QURY0297.Output_MAT_COD IS NULL THEN QURY0297.Output_MAT_COD ELSE ("'"||trim(QURY0297.Output_MAT_COD)) END) FORMAT=$20. LABEL="foo" AS Output_MAT_COD,
+
+ /* Missing to zero */
+x=sum(foo, 0);
+
+ /* Count number of files in directory */
+%let rc=%sysfunc(filename(dr, 'C:/temp')); %let cnt=%sysfunc(dnum(%sysfunc(dopen(&dr)))); %put !!!&cnt;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -2208,8 +2222,7 @@ cat foo.txt | tr '[a-z]' '[A-Z]' >| foo.txt # or lowercase cat foo.txt | tr '[A-
 # Delete filenames containing spaces:
 $ rm *\ *   $ rm *' '*
 
-# Remove a file whose name is blank or weird:
-# Find inode
+# Remove a file whose name is blank or weird (find inode):
 ls -i
 # then rename using the inode (TODO can use mv {} with xargs??)
 find . -inum 41734 -exec mv {} thenrmthisfile \;
@@ -3262,6 +3275,15 @@ find data/gsk/zebulon -name 'ols*.sas7bdat'|sed 's/\(.*\)/cp -i \1 \/cygdrive\/x
 
 $$  # the process id of the current process
 
+# Calculate date that was 3 years ago from today
+~/code/perl/datecalc -1080
+# Calculate 42 days from Xmas eve
+~/code/perl/datecalc 12/24/05 +42
+~/code/perl/datecalc 12/24/05 42
+
+# Add a line to first line in each file:
+for f in ja_e_*.htm; do cp $f tmpf; echo '<link href="../ja.css" rel="stylesheet" type="text/css" />' >| $f; cat tmpf >> $f; done;
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -3982,9 +4004,6 @@ perl -ne '$s = $_ if $. == 1; $s = $_ if length($_) < length($s); END { print $s
 
 # Random password generator
 perl -le 'print map { ("a".."z")[rand 26] } 1..8'
-
-# days from (e.g. 3 years ago)
-~/code/perl/datecalc -1080
 
 local - saves the current value somewhere, creates a new value, and arranges that the old value will be restored at the end of the current block.
 my    - lexical scope does not create an entry in the symbol table, variables that you declare in one subroutine can't be tampered with by other subroutines. 
@@ -5253,6 +5272,12 @@ select count(*), object_type from dba_objects where owner='PKS' group by object_
 -- Rename oracle table
 ALTER TABLE user_role3 RENAME TO user_role2;
 
+-- Expire Oracle user password
+ALTER USER LIMSARCH PASSWORD EXPIRE;
+
+-- Change Oracle user password
+ALTER USER limsarch IDENTIFIED BY new2dayJuly;
+
 -- Oracle copy table
 CREATE TABLE user_roleTEST AS SELECT * FROM user_role;  -- do something to TEST...
 DROP TABLE user_role;  -- ...if it worked do this...
@@ -5266,61 +5291,57 @@ select sysdate-2 from dual
 set linesize 180; set pagesize 9999; column material_description format a45;
 SELECT to_char(max(sample_creation_date),'DDMONYY HH24:MM:SS') AS sampcreatdt, count(*) FROM xdm_dist.vw_xeb_lift_rpt_results_nl ; quit;
 
-git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
-
 Windows work gvim GUI Target: icon:
 "C:\Program Files\Vim\vim73\gvim.exe" -u u:\code\misccode\_vimrc
 
 Windows commandline CPU monitor (must do locally, can't do it remotely with /U /P /S like systeminfo)
 c:\> wmic cpu get loadpercentage
 
-$ cygcheck -cv w3m  # is package OK?
+cygcheck -cv w3m  # is package OK?
 
-# git basics:
-git status && git diff && git add . && git commit -am 'bitfiddled'
+git log --pretty=oneline
+git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
+git log --pretty=format:"%Cblue %h %ad | %Cgreen %s%Cblue %d [%an]" --graph --date=short  # or simply my gl alias
+
+git diff 97a158d 5e4abd2 # or git diff or git diff cfg/ or git diff cfg/DataPost_Configuration.xml or git difftool HEAD
 
 # wget-ish:
 git clone git://busybox.net/busybox.git
 
 # git new branch:
-git branch mynewbranch; git checkout mynewbranch
-# or just branch and checkout in one swoop:
-git checkout -b mynewbranch
+git branch mynewbranch; git checkout mynewbranch # or just branch and checkout in one swoop: git checkout -b mynewbranch
 
 # git switch branches
 git checkout master
 
-# git commit (cautious) mantra:
+# git mantra:
+git add . && git commit -m 'mod'  # or better  git commit -a -m 'mod'
 git add cfg/DataPost_Configuration.xml && git commit -m 'modding one file'
 # git commit mantra (svn-ish):
 git add . && git commit -am 'another bitfiddle'
 # github commit mantra:
 git add . && git commit -am 'another bitfiddle' && git push origin master
 
-# git merge:
+# git merge something into current branch:
 git checkout master && git merge mynewbranch && git branch -d mynewbranch
 
 # github (github is origin)
 git push origin master
 
-# discard abandon all pending changes "not staged for commit"
-git checkout .
-# or
-git stash;  # then  git stash drop  later when You Are Sure
+# git discard throw away changes:
+git checkout .   # abandon all pending changes "not staged for commit"
+# git discard throw away changes (better):
+git stash;  # then  $ git stash drop  or delete ALL stashes  $ git stash clear  later when You Are Sure
 
-# git canonical stash:
-git stash; git checkout emergencybranch; ... git checkout branchistashed; git stash pop; git stash list
+# git canonical stash and restore:
+git stash; git checkout emergencybranch; ...hack... ; git checkout branchistashed; git stash list; git stash pop
 
 # git delete branch if merged (-D if not):
-$ git branch -d killthisbranch
+git branch -d killthisbranch
 
-# git discard git discard throw away changes:
-$ git checkout .   # abandon all pending changes "not staged for commit"
+git ls-files  # list which files are tracked under git source control not just staged
 
-$ git ls-files  # list which files are tracked under git source control not just staged
-
-# git mantra:
-$ git add . && git commit -m 'synchronize with prod code'
+git difftool HEAD  # uses vimdiff if previously  $ git config --global merge.tool vimdiff
 
 # Test AJAX etc that won't work using file:// etc.
 $ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
@@ -5335,8 +5356,11 @@ convert(varchar,fwn.VariableStp.dtStartDateTime,108) as dtStartTime
 <!-- Predefined character entities -->
 &lt; &gt; &quot; &amp; &apos;  &#169; or &#xA9 is copyright symbol
 
-<![CDATA[ protected stuff here ]]>
-<squote><![CDATA[Logan's Run]]></squote>
+<![CDATA[ ...protected stuff goes here... ]]>
+
+<ExtractString><![CDATA[
+      foo
+]]></ExtractString>
 
 <xsl:for-each select="Configuration/Extracts/Extract">
 <xsl:for-each select="catalog/cd[artist='Bob Dylan']">
@@ -5360,6 +5384,8 @@ WHERE UPPER(mat_desc) LIKE '%\_TH%' ESCAPE '\'
 
 // JQuery debug print
 console.log("the_form.cbo.value=%o", the_form.cbo.value);
+// JQuery chainable
+$('.myclass').css('background','red'}).height(100);
 
 select count(distinct sampname) from result where sampcreatets between to_date('01-JAN-12','DD-MON-YY') and to_date('31-DEC-12','DD-MON-YY')
 
@@ -5370,6 +5396,12 @@ select count(distinct sampname) from result where sampcreatets between to_date('
  /* Javascript object usage */
 :javas alert(jedi.age)
 :javas jedi.talk()
+
+Cygwin Windows free diskspace free
+while true do; df -h '//opsawn557/e$'; sleep 60; done
+
+ /* Javascript concatenation */
+str3='<a href=http://www.dhammawheel.com/viewtopic.php?f=20&t=12345>' + rnd2 + '</a>';
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  
