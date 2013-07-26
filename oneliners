@@ -435,7 +435,7 @@ To synch DirDiff ranges of updates (internal DirDiff cmds like 'u' not working 2
 :se nu
 :5,42diffput
 
-" Compare vimdiff diff two existing buffers :diffsplit then switch to/open other buffer and :diffthis then force any changes :diffupdate when done reset the diff :se nodiff
+" Compare vimdiff diff two existing buffers :diffsplit then switch to/open other buffer and :diffthis then force any changes :diffupdate when done :diffoff
 
 " vimdiff keymaps
 do == :diffget
@@ -803,7 +803,7 @@ echo "options ps=max;libname l '//Rtpdsntp032/DataPostArchive/Ventolin_HFA/OUTPU
  /* Describe option settings in effect: (also sr ~/code/sas/options.cmdl.sas linesize) */
 proc options option=&SYSPARM define value; run;
 
-format vs informat: Formats modify the external representation of a value (preexisting in a ds).  Informats convert raw data into SAS representations (to be put in a ds).
+format vs informat: Whereas a SAS format converts an underlying data representation to a visual representation, an informat converts a visual representation into an underlying data representation.  Formats modify the external representation of a value (preexisting in a ds).  Informats convert raw data into SAS representations (to be put in a ds).
 
  /* Current dataset macrovariable formatted to "LIBRARY  DSNAME" */
 &SYSDSN
@@ -964,17 +964,6 @@ data _null_; rc=attrn(open('tmp1.pull_lift'), 'NOBS'); put rc=;run;
 %macro m; %put %sysfunc(attrn(%sysfunc(open(tmp1.pull_lift)), NLOBSF)); %mend;%m
 ...%if %sysfunc(attrn(%sysfunc(open(_LAST_)), NLOBSF)) lt 100 %then %do; %put ok; %end;...
 
- /* Count observations without opening dataset IF GOING TO USE DS LATER */
-%let dsid=%sysfunc(open(work.foo)); %let cnt=%sysfunc(attrn(&dsid, NOBS)); %let rc=%sysfunc(close(&dsid));
-%let dsid=%sysfunc(open(work.foo)); %let cnt=%sysfunc(attrn(&dsid, NVARS));
-data _null_; dsid=open('work.tmp'); numobs=attrn(dsid, 'nobs'); rc=close(dsid); run;
-
- /* Count observations */
-data _null_; if 0 then set SASHELP.shoes nobs=count; call symput('CNTOFOBS', count); stop; run;
-
- /* Count observations */
-proc sql; select count(*) into :CNTOFOBS from SASHELP.shoes; quit; 
-
  /* Day of week number 1=Sunday 7=Saturday */
 if weekday(today()) eq 2 then put "it's Monday";
  /* Conditionally run macro if it's Wednesday */
@@ -1037,7 +1026,7 @@ http://yourserver/cgi-bin/broker?_SERVICE=default&_PROGRAM=sample.webhello.sas&p
  /* View all formats */
 proc format library=work FMTLIB; run;
 
- /* diff two datasets canonical compare */
+ /* Canonical diff two datasets compare */
 proc compare base=l.material_mapping_tableOLD compare=l.material_mapping_table; run;
 
 SELECT COUNT(DISTINCT samp_id)  /* good */
@@ -1247,19 +1236,23 @@ do i=1 to 10 until (n>5); ...
 
 do while (1);  /* infinite loop */
 
- /* Has zero observations?: */
-  /* If don't care about closing, otherwise need to get a ds id number */
-data _null_; numobs=attrn(open('work.tmp'), 'nobs'); put "!!!" numobs=; run;
-...%let dsid=%sysfunc(open(CI_release)); %let cnt=%sysfunc(attrn(&dsid, NOBS)); %let rc=%sysfunc(close(&dsid)); %if &cnt eq 0 %then %do; %goto EXIT; %end;...
+ /* Count number of observations */
+proc sql; select count(*) into :CNTOFOBS from SASHELP.shoes; quit; 
 
- /* Build tail of filename c:/foo/tmp/bar.txt */
+ /* Count number of observations - efficient */
+data _null_; if 0 then set SASHELP.shoes nobs=count; call symput('CNTOFOBS', count); stop; run;
+
+ /* Count observations without opening dataset - most efficient (can also count vars with NVARS)*/
+%let dsid=%sysfunc(open(work.foo)); %let cntobs=%sysfunc(attrn(&dsid, NLOBS)); %let dsid=%sysfunc(close(&dsid));
+
+ /* Build tail of filename DIRROOT=c:/foo/tmp/bar.txt */
 %let PRODUCTNAME=%substr(&DIRROOT, %eval(%index(&DIRROOT, tmp)+4));
 
  /* %global is distributive */
 %global foo bar;
 
  /* Skip first observation, get 2 3 4 5 only */
-set work.sample (firstobs=2 obs= 5);
+set work.sample (firstobs=2 obs=5);
 
 if description ne: 'al' then do; file "&DIRROOT\&SYSMACRONAME._Error.txt"; put "UNEXPECTED: &SYSDATE &SYSTIME " description=; end;
 
@@ -1278,8 +1271,9 @@ proc setinit noalias; run;
  /* Apply setinit (to an expired license SAS - TODO does it work for a normal system?).  May be simpler just to right-click a setinit.sss file */
 C:\Program Files\SAS Institute\SAS\V8>sas.exe -setinit -sysin c:\setinit.sas -config "c:\Program Files\SAS Institute\SAS\V8\sasv8.cfg"
 
- /* Canonical read in readin infile input text CSV file: */
-data Val500_Fielder_DIVI_Granulation; infile F DLM=',' DSD MISSOVER LRECL=2600 FIRSTOBS=3; input Product :$40. mydt :DATE. ... ; run;
+ /* Canonical read in readin infile input text CSV file using combined input statement: */
+data t; infile F DLM=',' DSD MISSOVER LRECL=2600 FIRSTOBS=3; input Product :$40. mydt :DATE9.; run;
+
  /* DSD "data sensitive delimiter" treats two consecutive delimiters as a missing value and removes quotation marks from values */
 
  /* Compress spaces from a numeric macrovariable: */
@@ -1318,10 +1312,15 @@ data d9(drop=long_test_name rename=(long_test_name2=long_test_name)); ...
 libname l '.'; proc format library=l FMTLIB; run;
 proc format library=WORK FMTLIB; run;
 
-%let previousMonth = %sysfunc(intnx(MONTH, %sysfunc(today()), -1));
+ /* When you need to know how many intervals are between two dates you use intck(). When you need to create a date that is some number of intervals away from another date you use intnx(). */
+start='01jan2013'd; end='30jun2013'd; days2=intck('day', start, end);  /* days2 is 180 (180 day boundaries crossed) */
+start='31dec2013'd; end='01jan2014'd; yrs2=intck('year', start, end);  /* yrs2 is 1 (a single year boundary was crossed!) */
+start='01jan2013'd; nextweek=intnx('week', start, 1); nextweekEND=intnx('week', start, 1, 'E');  /* or 'M'iddle, 'S'ame.  nextweek is Sun. 2013-01-06 nextweekEND is Sat. 2013-01-12 */
+start='11jan2013'd; monthStart=intnx('month', start, 0, 'b'); /* first day of month: */
+start='11jan2013'd; monthEnd=intnx('month', start, 0, 'e');   /* last day of month */
+fiscalStartOct= intnx('year.10', start, 1, 'b'); fiscalEndOct = intnx('year.10', start, 1, 'e');  /* 2013-10-01, 2014-09-30 */
 
- /* Store as numeric */
-time_point = input(time_pointSTR, F4.);
+%let previousMonth = %sysfunc(intnx(MONTH, %sysfunc(today()), -1));
 
  /* Canonical proc means */
 proc means data=sashelp.shoes; class region; var sales; run;
@@ -1338,6 +1337,7 @@ numlike=put(num, 6. -L);
 
  /* Canonical SELECT (case) statement */
 select ( storeno ); when ( 81,83, 12 ) delete; when ( 73 ) put 'okthen'; otherwise; end;
+select; when (daysOld < 31) category = 'Current'; when (daysOld < 61) category = 'Over 30'; when (daysOld < 91) category = 'Over 60'; otherwise category = 'Over 90'; end;
 
  /* System call */
 options NOxwait; data _NULL_; x "start lelimssumres01a&nm..sas7bdat"; /* 0 for success */ %put Windows status is &SYSRC; run;
@@ -1408,40 +1408,34 @@ proc surveyselect data=SASHELP.shoes out=stacked samprate=1 reps=5; run;
 %let thisyr = %sysfunc(year("&SYSDATE"d)); %let minyr = %eval(&thisyr-2);
 
  /* What SAS day number is one year ago from today? */
-%let mindt = %sysevalf(%sysfunc(date())-365);
-...  if test_date > &mindt; ...
+%let yearago = %sysevalf(%sysfunc(date())-365); ...  if test_date > &yearago; ...
 
  /* Save output as excel CSV file. v8 at least */
 ods CSVALL file='junk.csv'; proc print; run; ods CSVALL close;
 
- /* char2num canonical */
-data Material_Mapping_Table(drop=TMPmat_cod); set Material_Mapping_Table(rename=(mat_cod=TMPmat_cod)); mat_cod=input(TMPmat_cod, ? BEST. -L); run;
-
- /* char2num but suppress SAS Log "NOTE: Invalid argument to function INPUT at line..." */
-y=input(anumber, ? BEST. -L);
+ /* Think "I"NPUT is closer to "C"HAR so use that to convert a char: */
+ /* Canonical char2num and suppress SAS Log "NOTE: Invalid argument to function INPUT at line..." */
+num=input(char, ? BEST. -L);
 
  /* char2num if you know it's coming in looking like a SAS date */
-numdollars = input(chardollars, COMMA7.);  /* 123,456 */
- /* num2char */
-devicealp = put(devicenum, 8. -L);   /* integer */
-devicealp = put(devicenum, 8.2 -L);  /* floating point */
+num = input(char, COMMA7.);  /* 123,456 */
 
- /* SAS atoi ASCII (character) to integer (numeric) conversion statement (think "I"NPUT is closer to "C"har so use that to convert a char): */
-yrtext='2003';  yrnum=input(yrtext, F4.);
-yrtext='2003';  yrnum=input(yrtext, ?? F4.);  /* avoid Log errors if char data can't convert to num */
- /* SAS itoa integer (numeric) to ASCII (character) */
-yrnum=2003; yrtext=put(yrnum, 8.);
-data v3(drop=NUM:); set v012(rename=(instance=NUMinstance)); instance = put(NUMinstance, 8.); run;
+ /* Canonical char2num reusing existing char var name */
+data t(drop=TMP:); set t(rename=(x=TMPx)); x=input(TMPx, BEST.); run; proc print data=_LAST_(obs=max) width=minimum; format x DATE.; var x; run;
 
- /* num2char2date */
-numdate=122572;
-chardate=put(numdate,z6.);
-sasdate=input(chardate,mmddyy6.);
+ /* Canonical num2char */
+char = put(num, F8. -L);  /* integer */
+char = put(num, 8.2 -L);  /* floating point */
 
-options NOlabel;  /* prevent stupid proc sql default from displaying labels instead of varnames */
+ /* Avoid asciibetical sort by inserting leading blanks if data is small: */
+data t; set t; region=right(region);
+ /* Avoid asciibetical sort by inserting leading blanks if data is large (single pass): */
+proc format; value $rtfunc OTHER=[right()]; run; proc freq data=t order=formatted; table region; format region $rtfunc.; run;
+
+options NOlabel; /* prevent proc sql default from displaying labels instead of varnames */
 
  /* View control and non numchar characters: */
-... c=compress(comments1159,'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');  ...
+c=compress(comments1159,'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
 
  /* Linehold using @ */
 data _null_;
@@ -1458,8 +1452,7 @@ out-->SAS Output  lst-->SAS Output (same)  log-->SAS Log  wpg-->Enhanced Editor
 
  /* proc sql &SQLRC is 0 when there were no errors */
 
- /* 10 seconds */
-data _null_; x=sleep(10); run;
+data _null_; x=sleep(10); run;  /* 10 seconds */
 
 if first.storeno and last.storeno then put 'firstdot lastdot says there is only one of these unique values: ' storeno;
 
@@ -1471,6 +1464,8 @@ nums
 
  /* SAS Program Editor (*not* Enhanced) where n is num of lines */
 Cn/CC copy  Dn/DD del  In insert  Mn move  Rn repeat  A after  B before  undo (in cmdline)
+
+ /* Display Manager Enhanced Editor open: INCLUDE  save: FILE  go to Enhanced Editor: wpg  go to commandline: F11  submit the top n lines in SAS Editor: SUBTOP 42   Commentout the selection: Ctrl + /  Undo the Comment  Ctrl + Shift +  */
 
  /* View input file text file in a SAS IDE window */
 filename f 'bladerun_crawl'; proc fslist file=f;run;
@@ -1513,7 +1508,7 @@ data _null_; x=put(1614549716, DATETIME18.); put x=; run;
  /* Avoid proc print "ERROR: Unable to allocate sufficient memory. At least 1168534K bytes were requested. You must either increase the amount of memory available, or approach the problem differently.  ERROR: Out of memory." */
 data _null_; set _LAST_; file LOG; put (_ALL_)(=); put; run;
 
- /* Good printf for debugging */
+ /* printf for debugging */
 data _NULL_; set _LAST_; file LOG; put '!!!DataLinkSQLPlusWSAdapterCon=================='; put (_ALL_)(=); put; run;
 
  /* Determine how many parameters were passed in */
@@ -1533,7 +1528,7 @@ data _NULL_; set _LAST_; file LOG; put '!!!DataLinkSQLPlusWSAdapterCon==========
  /* Convert from human to SAS datetime */
 data t; a=input("05-OCT-10 11:06:13", DATETIME18.); b=put(1601377424, DATETIME18.); run;
 
- /* If string contains substring 'zm' - weakly regex */
+ /* If string contains substring 'zm' - weak regex */
 if name eq "&DESIGNATOR" and index(upcase(Value),'ZM');
 
  /* Load a dataset into memory only when dataset is used. */
@@ -1589,10 +1584,10 @@ data ds_SAMPLE_1; run; data ds_SAMPLE_2; run;
  /* Canonical numeric array definition: */
 array temperaturehour_arr {24} temp1-temp24;
 
-DDMONYY in Oracle is DATE7 in SAS
+DDMONYY in Oracle is DATE7. in SAS
 
  /* Canonical for each macro foreach loop */
-%local i f; %let i=1; %do %until (%qscan(FLUTICASONECONTENTPERINHALER SALMETEROLCONTENTPERINHALER, &i)= ); %let f=%qscan(FLUTICASONECONTENTPERINHALER SALMETEROLCONTENTPERINHALER, &i); data _null_; put "!!!wtf &f"; run; %let i=%eval(&i+1); %end;
+%let list=foo bar baz; %let i=1; %do %until (%qscan(&list, &i)=  ); %put %qscan(&list, &i); %let i=%eval(&i+1); %end;
 
  /* Macro multiple condition macro if then %if statement */
 %if &foo eq bar OR &foo eq %str(baz oom) %then ...
@@ -1600,9 +1595,12 @@ DDMONYY in Oracle is DATE7 in SAS
 # Google custom search SAS
 http://tx0.org/uf
 
-Enhanced Editor: Comment the selection with line comments  Ctrl + /  Undo the Comment  Ctrl + Shift + /
-
 libname RO 'c:/temp/' access=readonly;
+
+ /* Build a lookup CNTLIN format: */
+data control(keep= fmtname start label hlo); set t(rename=(code=start animal=label)) end=e; retain fmtname 'ANIFMT'; output control; if e then do; hlo='o'; label='Unk'; output control; end; run;
+ /* Convert control dataset into format then do animal code lookup: */
+proc format CNTLIN=control; run;  data t2; set t; animal=put(code, ANIFMT.); run;
 
  /* Print a CNTLIN stored format: */
 proc format library=work FMTLIB; run;
@@ -1644,7 +1642,7 @@ if lag(foo) eq foo then put 'dup!' _all_;
 data OUTDIR.&OUTPUTFILE(compress=yes);
 
  /* Dataset to CSV file (macro ships with SAS) */
-%ds2csv (data=sashelp.retail, runmode=b, csvfile=c:\temp\retail.csv);
+%ds2csv(data=sashelp.retail, runmode=b, csvfile=c:\temp\retail.csv);
 
  /* Name literal e.g. SAS/ACCESS database table or Excel worksheet has spaces in name */
 data mydblib.'My Staff Table'n; ...
@@ -1671,10 +1669,6 @@ define result / style(column)={background=$bkres.};
 
 Adjust proc sql print width via:  SELECT foovar format=$5. FROM ...
 
- /* Display Manager Enhanced Editor open: INCLUDE  save: FILE  go to Enhanced Editor wpg  go to commandline F11 */
-
- /* Display Manager Enhanced Editor submit the top n lines in SAS Editor - good for debugging like sasrun's endsas; trick  SUBTOP 42 */
-
  /* Simple gplot */
 goptions reset=all ftext=swissl device=png cback=white border htitle=12pt ctext=gray gsfname=outpng gsfmode=replace ypixels=750 xpixels=750; filename outpng 'junk.png'; proc gplot data=linksplot; plot cnt*dt; run;
 
@@ -1688,6 +1682,8 @@ x=sum(foo, 0);
 
  /* Count number of files in directory */
 %let rc=%sysfunc(filename(dr, 'C:/temp')); %let cnt=%sysfunc(dnum(%sysfunc(dopen(&dr)))); %put !!!&cnt;
+
+select b.code, b.count, COALESCE(a.animal,'Unknown') as animal  /* set animal='Unknown' if missing */
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3092,7 +3088,7 @@ if [ -d '\\rtpdscel01dm06\rsh86800$' ];then echo 'directory exists'; fi
 for x in "${MAPFILES[@]}"; do ...; done
 
 # Canonical backup quick tar quick backup
-cd $c && tar cvfz /cygdrive/u/bkup/dpCdrive.`date +%d%b%y`.tgz datapost && cd -
+cd $c && tar cvfz /cygdrive/u/bkup/dpCdrive.`date +%d%b%y`.tgz datapost/ ; cd -
 
 # Comma delimited items split into lines, one item per line (convert wide to long)
 awk -F, '{ print $1; print $2; print $3 }' t.csv
@@ -4185,9 +4181,6 @@ char* mystrings[] = {"how", "now", "brown", "cow"};
 // Good declaration of an array (assumes  #define MAXSTRINGLEN 42  earlier):
 char array[MAXSTRINGLEN+1] = { 0 };
 
-Compile a Cygwin app that doesn't depend on cygwin1.dll
-$ gcc -mno-cygwin 99bottles.c
-
 xxCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -5222,7 +5215,7 @@ h4 { color:#FFFF99; font-weight:bold; font-size:110%; font-style:italic; width:7
 
 -- Be careful with asterisks if tables aren't named identically
 SELECT foo FROM tblfoo  UNION      SELECT bar FROM tblbar; -- stacks two tables and eliminates dups
-SELECT foo FROM tblfoo  UNION ALL  SELECT bar FROM tblbar; -- stacks two tables and keeps dups (rare since records are then ambigous)
+SELECT foo FROM tblfoo  UNION ALL  SELECT bar FROM tblbar; -- stacks two tables and keeps dups (rare since records are then ambiguous)
 
 --delete a method from pec database table
 DELETE FROM pks_extraction_control WHERE meth_spec_nm LIKE 'ATM02102%';
@@ -5350,9 +5343,6 @@ $ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
 convert(varchar,fwn.VariableStp.dtStartDateTime,101) as dtStartDate
 convert(varchar,fwn.VariableStp.dtStartDateTime,108) as dtStartTime
 
-<!-- button glow effect -->
-<A href=test.html onMouseOver='alternate(0,"exitlit.jpg")' onMouseOut='alternate(0,"exit.jpg")'><IMG src=http://triweb/CustSvcFin/images/exit.jpg></A> 
-
 <!-- Predefined character entities -->
 &lt; &gt; &quot; &amp; &apos;  &#169; or &#xA9 is copyright symbol
 
@@ -5402,6 +5392,8 @@ while true do; df -h '//opsawn557/e$'; sleep 60; done
 
  /* Javascript concatenation */
 str3='<a href=http://www.dhammawheel.com/viewtopic.php?f=20&t=12345>' + rnd2 + '</a>';
+
+ISO 8601 date time format: 2013-04-27T18:00:00-05:00  2013-04-27T18:00:00,1-05:00
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  
