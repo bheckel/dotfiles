@@ -22,7 +22,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Thu 25 Jul 2013 09:17:46 (Bob Heckel)
+" Modified: Fri 04 Oct 2013 13:18:24 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 "--------------------------------------------------------------------------
@@ -76,14 +76,14 @@ if has('ebcdic')
 endif
 
 " For syntax and rxvt.  Make sure this comes before the syntax area of this file.
-if has('win32unix') && has('terminfo')
+"""if has('win32unix') && has('terminfo')
   set t_Co=256
   """set t_Sb=[4%p1%dm
   """set t_Sf=[3%p1%dm
 """else
 """  " telnet, etc.
 """  set t_Co=8
-endif
+"""endif
 
 " Force vim to clear itself when exiting:
 set t_ti=7[r[?47h
@@ -122,34 +122,33 @@ else
   hi Comment ctermfg=Black guifg=DarkGray guibg=Black cterm=bold
 endif
 
-hi Conditional ctermfg=Green guifg=Green
+hi Conditional ctermfg=LightGreen guifg=LightGreen
 " for mintty
 hi DiffAdd ctermfg=Black ctermbg=Cyan
 hi Directory ctermfg=Magenta guifg=Magenta guibg=Black cterm=bold gui=bold
+" Highlight tabs other than at start of line for indenting
+"""match ErrorMsg /[^\t]\zs\t\+/
 hi ErrorMsg ctermfg=Black ctermbg=Red guifg=Black guibg=Red
+
 hi Folded ctermfg=LightGray ctermbg=Black guifg=LightGray guibg=Black cterm=bold gui=bold
 hi Function ctermfg=Yellow guifg=LightYellow guibg=Black
 hi Identifier ctermfg=LightCyan guifg=LightCyan
 hi IncSearch ctermfg=White ctermbg=Blue guifg=White guibg=#123456
-if has ('win32unix')
-  hi Search ctermfg=White ctermbg=DarkYellow guifg=White guibg=Firebrick4
-else
-  hi Search ctermfg=Black ctermbg=DarkRed guifg=White guibg=Firebrick4
-endif
 
-" Gutter :se nu
-if has ('win32unix')
-  hi LineNr ctermfg=Green ctermbg=DarkGray guifg=#DDDDDC guibg=#777777
-else
-  " Lighblue is grey on my borked linux box
-  hi LineNr ctermfg=Green ctermbg=LightBlue guifg=#DDDDDC guibg=#777777
-endif
+" :se nu
+"""if has ('win32unix')
+  hi LineNr ctermfg=Black ctermbg=DarkGray guifg=Black guibg=DarkGray
+"""else
+  " Lighblue is grey on my broken urxvt
+"""  hi LineNr ctermfg=Black ctermbg=LightBlue guifg=#DDDDDC guibg=#777777
+"""  hi LineNr ctermfg=Black ctermbg=LightBlue guifg=Black guibg=DarkGray
+"""endif
 
-"""hi MatchParen ctermfg=Cyan ctermbg=Magenta guifg=Cyan guibg=Magenta
 hi MatchParen ctermfg=White ctermbg=Blue guifg=Cyan guibg=Magenta
 hi ModeMsg ctermfg=Black ctermbg=Yellow guifg=Black guibg=Yellow
 hi MoreMsg ctermfg=Blue ctermbg=Black guifg=Blue
 hi Number ctermfg=Magenta ctermbg=Black guifg=Magenta guibg=Black
+
 " Tab completion dropdown
 if has ('win32unix')
   hi Pmenu ctermfg=Black ctermbg=Gray guifg=White guibg=Gray 
@@ -162,9 +161,30 @@ endif
 hi PmenuSel ctermfg=Blue ctermbg=Yellow guifg=Blue guibg=Yellow 
 
 hi PreProc ctermfg=LightMagenta guifg=LightMagenta guibg=Black
+
+if has ('win32unix')
+  hi Search ctermfg=White ctermbg=DarkYellow guifg=White guibg=Firebrick4
+else
+  hi Search ctermfg=Black ctermbg=DarkRed guifg=White guibg=Firebrick4
+endif
+
 hi SpecialKey ctermfg=Black ctermbg=DarkMagenta guifg=Black guibg=DarkMagenta
 hi Statement ctermfg=Yellow guifg=LightYellow guibg=Black
 hi String ctermfg=White guifg=White guibg=Black cterm=bold gui=bold
+
+" Alert if we're using older versions of Vim
+if version < 600
+  hi StatusLine ctermfg=Green ctermbg=White guifg=Green guibg=Blue
+  hi StatusLineNC ctermfg=Green ctermbg=Black guifg=Green guibg=Black gui=inverse,bold
+else
+  " For statusline setting below
+  hi User1 ctermfg=red guifg=red cterm=inverse,bold 
+  " Active status line
+  hi StatusLine ctermfg=Blue ctermbg=White guifg=Blue guibg=White
+  " Inactive status line
+  hi StatusLineNC ctermfg=Blue ctermbg=Gray guifg=Blue guibg=Gray
+endif
+
 hi TabLine ctermfg=Gray ctermbg=DarkGray
 hi TabLineSel ctermfg=White ctermbg=DarkGray
 hi TabLineFill cterm=underline ctermbg=Gray
@@ -181,22 +201,6 @@ endif
 hi WarningMsg ctermfg=Magenta ctermbg=Yellow guifg=Magenta guibg=Yellow
 " :match WhitespaceEOL /\s\+$/
 hi WhitespaceEOL ctermbg=red guibg=red
-
-" Alert if we're using older versions of Vim
-if version < 600
-  hi StatusLine ctermfg=Green ctermbg=White guifg=Green guibg=Blue
-  hi StatusLineNC ctermfg=Green ctermbg=Black guifg=Green guibg=Black gui=inverse,bold
-else
-  " For statusline setting below
-  hi User1 ctermfg=red guifg=red cterm=inverse,bold 
-  " Active status line
-  hi StatusLine ctermfg=Blue ctermbg=White guifg=Blue guibg=White
-  " Inactive status line
-  hi StatusLineNC ctermfg=Blue ctermbg=Gray guifg=Blue guibg=Gray
-endif
-
-" Highlight tabs other than at start of line for indenting
-"""match ErrorMsg /[^\t]\zs\t\+/
 
 " end Color Syntax-
 
@@ -257,6 +261,8 @@ endif
 
 if version > 702
   set relativenumber
+  " Gutter
+  set numberwidth=4
 endif
 
 set lazyredraw
@@ -605,19 +611,6 @@ iab EmA b.heckel@gmail.com
 iab PhO (919)816-2347
 
 """""
-" Dyslexic dain bramage section.  Dyslexics are teople poo.
-iab completoin completion
-iab fro for
-iab lable label
-iab Ohter Other
-iab ohter other
-iab recieved received
-iab Teh The
-iab teh the
-iab Taht That
-iab taht that
-
-"""""
 " Misc
 iab AlP ABCDEFGHIJKLMNOPQRSTUVWXYZ
 iab MoN January February March April May June July August September October November December
@@ -671,26 +664,6 @@ iab HtT <table><CR>  <tr><td> </td></tr><CR><Left><Left></table>
 """iab ;& &amp;
 """iab ;_ &nbsp;
 
-" For the iabs starting with <Backspace>, we must precede the map with a space
-" (to trigger), then the backspace readjusts that space.  There's probably a
-" better way to do this.
-"""iab ;A <A HREF=" "> </A><Left><Left><Left><Left><Left><Left><Left>
-"""iab ;B <A HREF="foo.html#sectiontojumpto">Jump Now</A>
-"""iab ;B <Backspace><B></B><Left><Left><Left><Left>
-"""iab ;C <Backspace><CENTER></CENTER><Left><Left><Left><Left><Left><Left><Left><Left>
-"""iab ;D <FORM NAME="thedropdown"><CR>  <SELECT NAME="theselect"><CR><OPTION SELECTED VALUE="my_a">my a<CR><OPTION VALUE="my_b">my b<CR></SELECT><CR><BS><BS></FORM>
-"""iab ;F <FORM ACTION=" " METHOD="POST" NAME="the_form"><CR>  <INPUT NAME="the_textbox" TYPE="text" VALUE=" "><CR><INPUT TYPE="checkbox" NAME="c1" VALUE="1">ck1<CR><INPUT NAME="the_submit" TYPE="submit"><CR><BS><BS></FORM>
-"""iab ;I <Backspace><I></I><Left><Left><Left><Left>
-"""iab ;J <SCRIPT LANGUAGE="JavaScript"><CR><CR></SCRIPT>
-"""iab ;L <LINK REL=STYLESHEET TYPE="text/css" HREF="http://foo.css">
-"""iab ;N <INPUT TYPE="text" NAME="mytextbox" VALUE="v" onSubmit="foo()">
-"""iab ;M <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><CR><HTML><CR><HEAD><CR><TITLE></TITLE><CR><META NAME="author" CONTENT="Robert S. Heckel Jr."><META NAME="generator" CONTENT="vim"/><CR></HEAD><CR><BODY><CR></BODY><CR></HTML>
-"""iab ;P <IMG SRC=" " BORDER="0"><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>i
-"""iab ;R <FORM NAME="theform"><CR>  <INPUT TYPE="radio" NAME="triangle" VALUE="sucks" CHECKED>sucks<CR><INPUT TYPE="radio" NAME="triangle" VALUE="badly">badly<CR><BS><BS></FORM>
-"""iab ;S <FORM NAME="thedropdown"><CR>  <SELECT NAME="theselect"><CR><OPTION SELECTED VALUE="my_a">my a<CR><OPTION VALUE="my_b">my b<CR></SELECT><CR><BS><BS></FORM>
-"""iab ;T <TABLE><CR>  <CAPTION> </CAPTION><CR><TR><TD><TD></TR><CR></TABLE>
-"""iab ;U <TEXTAREA ROWS="15" COLS="25" WRAP="off"></TEXTAREA>
-
 " Pali
 " A macron
 """iab paliA &#256;
@@ -714,14 +687,13 @@ iab HtT <table><CR>  <tr><td> </td></tr><CR><Left><Left></table>
 """""
 " Mutt
 """iab MuX X-message-flag: Magic 8Ball says "Outlook not so good."  Let me ask about MS Exchange Server...
-" Outlook bug, only returns Delivered: notice, not Read: notice.
-"""iab MuR Return-Receipt-To: bheckel@freeshell.org
 
 """""
 " Perl
 iab PeC sub new {<CR>  my $class = shift;<CR><CR>my $self = {};<CR>bless($self, $class);<CR><CR>return $self;<CR><BS><BS>}
 """iab PeD use Data::Dumper; print Dumper  ;<Left>
-iab PeD use Data::Dumper;print Dumper  ;<Left>
+"""iab PeD use Data::Dumper;print Dumper  ;<Left>
+iab PeD require Data::Dumper; print STDERR "DEBUG: ", Data::Dumper::Dumper( %h ),"\n";
 iab PeE open F, '>junk' or die;use Data::Dumper;print F Dumper  ;<Left>
 " Use PeD for hash dumping, this for everything else on symbol table
 iab PeF open F, '>junkdumpmain'; for $s(sort keys %main::) { local *sym=$main::{$s}; print F "\\$$s is $$s\\n" if defined $sym; print F "\\@$s is @$s\\n" if defined @sym;}
@@ -736,14 +708,14 @@ iab PeW while ( (my $k, my $v) = each %h ) { print "$k=$v\\n"; }
 
 """""
 " SAS
-" Date is used as a very weak random number generator to avoid collisions
+" Date is used as a weak random number generator to avoid collisions
 iab SaB %macro bobh<C-R>=strftime("%d%m%y%M%S")<Esc>; /* {{{ */<CR>%mend bobh<C-R>=strftime("%d%m%y%M%S")<Esc>; /* }}} */<Esc>dd
 " SAS/(C)onnect
 """iab SaC options ls=max;<CR>%include "&HOME/code/sas/connect_setup.sas";<CR>signon cdcjes2;<CR>%global CHICKENPARM;<CR>%syslput CHICKENPARM=&SYSPARM;<CR>rsubmit;<CR><CR><CR><CR><CR><CR>endrsubmit;<CR>signoff cdcjes2;
-iab SaD libname LDEBUG '.';data LDEBUG.junk42;set _LAST_;if _N_ eq 1 then put 10 * '!!!DEBUG';run;
+iab SaD libname LDEBUG '.';data LDEBUG.t;set _LAST_;if _N_ eq 1 then put 10 * '!!!DEBUG';run;
 " (E)lapsed
 iab SaE %let START=%sysfunc(time());<CR>%put !!! (&SYSCC) Elapsed minutes: %sysevalf((%sysfunc(time())-&START)/60);
-iab SaL options ls=180; libname l '.';
+iab SaL options ls=180 ps=max; libname l '.';
 iab SaO filename F 'junk'; data t(rename=(PRODDESC=nm APRCLASS=class)); infile F truncover; input PRODDESC= $100. APRCLASS= $100.; run;
 iab SaP <Esc>0iproc print data=_LAST_(obs=max) width=minimum; run;
 iab SaQ <Esc>0ititle '!!!wtf';proc print data=_LAST_(where=(mfg_batch=:'1')) width=minimum; run;
@@ -1045,7 +1017,7 @@ endif
 noremap ;q viw"zxllciwhhpll"zp
 
 " Transfer/read and write one block of text between vim sessions:
-" This is part 1 of the most useful map of all time.  See ;w and ;a for part 2
+" This is part 1.  See ;w and ;a for part 2.
 if matchstr(WORKBOXES, THISBOX) == THISBOX
   nmap ;r :call ReadFromFile(VTMPU, '.vimxfer')<CR>
 """echon VTMPU THISBOX
@@ -1259,8 +1231,7 @@ endif
 "
 " Must start with Capital Letter!  Must precede auto commands in this file.
 "
-" To execute for debugging, use a standalone file then :so % | :call MyFunc(),
-" don't use that approach with the code inside .vimrc
+" To execute for debugging, use a standalone file then :so % | :call MyFunc()
 "
 " Run from Vim commandline:  :call Helloworld()
 " or shortcut - create an EX command that will call the function.  Then just
@@ -1275,49 +1246,6 @@ endif
 "
 " echon 'debug print'
 "--------------------------------------------------------------------------
-
-function! InsertCloseTag()  " {{{2
-" TODO bug when via inoremap - why insert '0' at end of tag??
-" Inserts the appropriate closing HTML tag.  Assumes that ignorecase is set.
-" Canonical: an inoremap in insert mode
-" Use Ctrl-Break to get out if it loops.
-" Clobbers register z and mark z.
-" TODO infinite loop if wrapscan is on.
-" by Smylers 2000 Apr 28
-" Modified: Tue 08 May 2001 16:28:00 (Bob Heckel)
-  if &filetype == 'html'    " infinite loop if not used
-    " list of tags which shouldn't be closed:
-    let UnaryTags = ' area base br dd dt hr img input li link meta p param AREA BASE BR DD DT HR IMG INPUT LI LINK META P PARAM '
-    " remember current position:
-    normal mz
-    " loop backwards looking for tags:
-    let Found = 0
-    while Found == 0
-      " find the previous <, then go forwards one character and grab the first
-      " character plus the entire word:
-      execute "normal ?\<LT>\<CR>l"
-      normal "zyl
-      let Tag = expand('<cword>')
-      " if this is a closing tag, skip back to its matching opening tag:
-      if @z == '/'
-        execute "normal ?\<LT>" . Tag . "\<CR>"
-      " if this is a unary tag, then position the cursor for the next iteration:
-      elseif match(UnaryTags, ' ' . Tag . ' ') > 0
-        normal h
-      " otherwise this is the tag that needs closing:
-      else
-        let Found = 1
-      endif
-    endwhile
-    " create the closing tag and insert it:
-    let @z = '</' . Tag . '>'
-    normal `z"zp
-  else
-    echo 'InsertCloseTag: Filename must end in .html'
-    sleep
-  endif
-endfunction  " }}}
-
 
 fu! FixStatusLine()  " {{{2
   " Canonical: :call FixStatusLine() or  :Fix 
@@ -1626,12 +1554,15 @@ fu! WriteToFile(vtpth, fnm, append, ...) range  " {{{2
   let lfirst = a:firstline
   let llast = a:lastline
 
-  " ;w maps
   if (a:append == 1)
+    " ;a map
     exec(lfirst . ',' . llast . " write! >> " . a:vtpth . "/" . a:fnm)
   else
+    " ;w map
     exec(lfirst . ',' . llast . " write! " . a:vtpth . "/" . a:fnm)
   endif
+"""  let wtf = a:vtpth . "/" . a:fnm
+"""  bdelete bufnr(wtf)
 
   " Variable args processing for message to be cut 'n' pasted
   let i = 1
@@ -1702,7 +1633,9 @@ fu! Commentout(line, lang)  " {{{2
       return l2
     endif
   else
-    echon '.vimrc: unknown language, using default Commentout style'
+    if lang == 'default'
+      echon '.vimrc: unknown language: (' lang ') so using default Commentout style'
+    endif
     let marker1 = '###'
     let marker2 = ''
     if !match(line, '#')
@@ -1951,6 +1884,7 @@ if !exists("autocommands_loaded")
   if has ('unix') && version > 599
     au BufWritePost *.pl silent !chmod a+x <afile>
   endif
+  au BufNewFile,BufRead,BufEnter *.pl,*.pm map ;; :call setline('.', Commentout(getline('.'), 'perl'))<CR>
   " end Perl
 
 
@@ -1973,12 +1907,10 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufRead,BufEnter *.bat map ,m yy0I:::<ESC>p
   au BufNewFile,BufRead,BufEnter *.bat map ;s /s/^/:::/<CR>
   au BufNewFile,BufRead,BufEnter *.bat  map ;; :call setline('.', Commentout(getline('.'), 'bat'))<CR>
-  """au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;; mz0I///<ESC>`zlll
   au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;; :call setline('.', Commentout(getline('.'), 'cpp'))<CR>
   au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;c 0Di//  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;m 0Di// Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ,m yy0I///<ESC>p
-  """au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;s :s:^:///:<CR>
   au FileType sh map ;; mz0I###<ESC>`zlll
   " Default Vim make is for C, this handles C++.
   au BufNewFile,BufRead,BufEnter *.cpp set makeprg=g++\ -Wall\ %
@@ -1998,7 +1930,6 @@ if !exists("autocommands_loaded")
     au BufWritePost *.sh silent !chmod a+x <afile>
   endif
 
-
   """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
   " If stock syntax file doesn't exist or we don't have custom in ~/.vim/syntax:
   """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -2008,7 +1939,6 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufEnter */tmp/*.grep map q :q<CR>
   au BufNewFile,BufEnter */tmp/*.grep echon '.vimrc: <CR> to select file, q to quit'
   au BufEnter */tmp/*.grep set hlsearch 
-
 
   " Don't wrap these                                  bash fc temp files
   au BufRead,BufEnter *.email_addr,*.htm*,*.asp,*.cgi,*.sql,*/tmp/bash*,afiedt.buf set tw=0 wm=0
@@ -2025,7 +1955,6 @@ if !exists("autocommands_loaded")
   " TODO need to remove blank > lines instead of blank lines
   """autocmd BufRead mutt-*[0-9],.followup,.article,.letter :1,$!sed -e :a -e '/^\n*$/{$d;N;};/\n$/ba'
   " end ~/bin/bgrep
-
 
   " Vim:
   " Don't usually do anything fancy when reading Help files so simplify exit
@@ -2054,21 +1983,6 @@ if !exists("autocommands_loaded")
   " TODO allow to work under netrw e.g. Manual Data Sources for Josh Turner.doc without having to use netrw's 'x'
   au BufReadPost *.doc %!antiword "%"
   " end MS Office
-
-  " Autoload prior folds.  Assumes user has already :mkview'd after creating
-  " its folds.  Harmless if not.
-  """if version > 599
-    """au BufWinEnter *.sh silent loadview
-    """au BufWinEnter *.pl silent loadview
-    """au BufWinEnter *.bas silent loadview
-    """au BufWinEnter *.c silent loadview
-    """au BufWinEnter *.c++ silent loadview
-    """au BufWinEnter *.sas silent loadview
-  """endif
-  " Use this hack instead:
-  " :,$:s:\(%MACRO.*;\):\1 \/* {{{ \*/:gc
-  " :,$:s:\(%MEND.*;\):\1 \/* }}} \*/:gc
-
 
   " Augroups:
   " View binaries using xxd (which comes with Vim)
@@ -2130,11 +2044,10 @@ if !exists("autocommands_loaded")
   """au FileType QF map q :q!<CR>
   """au FileType QF echon '.vimrc: q to :q! this :cw'
 
-  " Plus need to see coworker's wild mix of tabs with spaces
   """au BufRead *.xml set foldmethod=indent | set list
 """  au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
 
-  au BufEnter oneliners,.vimrc,_vimrc,.bashrc,_bashrc,gsk set foldmethod=marker
+  au BufEnter oneliners,.vimrc,_vimrc,.bashrc,_bashrc set foldmethod=marker
   au BufEnter .vimrc echo ".vimrc: $MYVIMRC:" $MYVIMRC
 
   au BufRead,BufNewFile *.map set filetype=xslt
@@ -2183,6 +2096,8 @@ if !exists("autocommands_loaded")
     " Do not use The Force on Test & Production
     au BufEnter /cygdrive/[yz]/DataPost* set readonly
     au BufEnter [YZ]:/DataPost* set readonly
+
+    au BufEnter gsk,gsk_check.sh set foldmethod=marker
   endif
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 endif

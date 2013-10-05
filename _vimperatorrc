@@ -11,7 +11,7 @@
 "   :so u:\\code\\misccode\\_vimperatorrc
 "
 "  Created: Mon 15 Oct 2007 11:21:26 (Bob Heckel)
-" Modified: Tue 12 Mar 2013 15:51:14 (Bob Heckel)
+" Modified: Tue 10 Sep 2013 13:01:24 (Bob Heckel)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 """""""""""""""""""""""""
@@ -69,6 +69,21 @@ set newtab=addons,downloads,help,prefs
     }
 EOF
 
+" TODO how to call this from FF?
+"""javascript <<EOF2
+"""cbx = function () {
+"""  var allInputs = document.getElementsByTagName("input");
+"""  for (var i=0, max=allInputs.length; i<max; i++){
+"""    if (allInputs[i].type === 'checkbox')
+"""      // Toggle
+"""      if (allInputs[i].checked == false) {
+"""        allInputs[i].checked = true;
+"""      } else {
+"""        allInputs[i].checked = false;
+"""      }
+"""  }
+"""}
+"""EOF2
 
 """""""""""""""""""""""""
 " Maps
@@ -177,6 +192,7 @@ map . ]]
 """highlight! StatusLineBroken StatusLine color:white; background-color:#FF0066;font-size:10px
 """highlight! CmdLine color:white; background-color:black; font-family:monospace; font-size:10px
 """highlight! Hint font-family:monospace; font-size:13px; font-weight:bold; color:white; background-color:red; border-color:ButtonShadow; border-width:0px
+highlight! Hint font-family:monospace; font-size:14px; font-weight:bold; color:white; background-color:red; border-color:ButtonShadow; border-width:0px
 
 " C:\Documents and Settings\rsh86800\vimperator\colors\
 colorscheme zenburn

@@ -11,7 +11,7 @@
 #           even smaller...
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Mon 08 Jul 2013 10:17:29 (Bob Heckel)
+# Modified: Fri 20 Sep 2013 09:49:25 (Bob Heckel)
 #
 ###############################################################################
 
@@ -561,6 +561,8 @@ let w:check_words = exists('w:check_words') ? !w:check_words : 1
 " Convert disorganized quote separated mat codes ...foo('1234', '5678')bar... into a list:
 :%s:\v\D+:^M:g | g/^$/d
 
+echon '.vimrc: unknown language: (' mylang ') so using default Commentout style'
+
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -812,7 +814,8 @@ format vs informat: Whereas a SAS format converts an underlying data representat
 put "!!! found " myvar $QUOTE.;
 
  /* Check if a file has a SAS extension */
-if index(upcase(file),'.sas') > 0;  /* true */
+if index(lowcase(myfile),'.sas') > 0;  /* true */
+if scan(lowcase(myfile),-1,'.') eq 'sas'
 
  /* Portability -- Use this JCL for SAS filename on MF: */
 //IN   DD DISP=SHR,DSN=BF19.MOX0401.NATMER
@@ -876,8 +879,8 @@ input name $8.  number  ??;
  /* Thin out cleanout SAS Log, can use \| to get >1 line at a time */
 :g/\s*SYMB\|\s*MLOG\|\d\+\s*THE SAS/d
 
- /* Best small 10% random sample sampling: */
-data OUT.WANEW; set IN.WANEW; if uniform(0) le .01; run;
+ /* Small 5% random sample sampling, insert IF for debugging huge ds: */
+data OUT.t; set IN.t; if ranuni(123456789) <= .05; run;
 
  /* Don't add lines with NULLs */
 if sex = '00'x||'00'x||'00'x then delete;
@@ -1093,7 +1096,7 @@ data _null_; do while ( x<3 ); put x=; x+1; end; run;
 ... do year=1990 to 2004 while ( capital > -1 ); ...
 ... %do i=1 %to 4 %by 2; %put &minyr.&i; %end; ...  /* only 2 puts */
 
- /* run d:\sas_programs\t.sas on blade server: */
+ /* Run IntrNet d:\sas_programs\t.sas with debug on */
 http://rtpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program=LINKS.t.sas&UID=rsh86800&_debug=131
 
  /* Prepare single quoted date for Oracle TODO not correct */
@@ -1111,7 +1114,7 @@ PROC SQL; CONNECT TO ORACLE(USER=gdm_zeb ORAPW=gdm123zeb45 PATH=ukprd613); CREAT
   SELECT bat_num, mat_cod, work_cntr_cod, work_cntr_desc FROM gdm_dist.vw_zeb_merps_prcs_ord_material WHERE plant_cod = 'US01' and bat_num ='0ZP0029'
 ); DISCONNECT FROM ORACLE; QUIT;
 
-PROC SQL; CONNECT TO ORACLE(USER=pks ORAPW=dev123dba PATH=usdev388); CREATE TABLE foo AS SELECT * FROM CONNECTION TO ORACLE ( SELECT DISTINCT barfield FROM baztbl); DISCONNECT FROM ORACLE; QUIT;
+PROC SQL; CONNECT TO ORACLE(USER=pks ORAPW=ev123dba PATH=sdev388); CREATE TABLE foo AS SELECT * FROM CONNECTION TO ORACLE ( SELECT DISTINCT barfield FROM baztbl); DISCONNECT FROM ORACLE; QUIT;
 
 LENGTH TimeNum 8 Meth_Peak $3 Indvl_Tst_Rslt_Val_Char $40;
 
@@ -1272,7 +1275,7 @@ proc setinit noalias; run;
 C:\Program Files\SAS Institute\SAS\V8>sas.exe -setinit -sysin c:\setinit.sas -config "c:\Program Files\SAS Institute\SAS\V8\sasv8.cfg"
 
  /* Canonical read in readin infile input text CSV file using combined input statement: */
-data t; infile F DLM=',' DSD MISSOVER LRECL=2600 FIRSTOBS=3; input Product :$40. mydt :DATE9.; run;
+filename F 't.csv'; data t; infile F DLM=',' DSD MISSOVER LRECL=2600 FIRSTOBS=3; input Product :$40. mydt :DATE9.; run;
 
  /* DSD "data sensitive delimiter" treats two consecutive delimiters as a missing value and removes quotation marks from values */
 
@@ -1402,7 +1405,7 @@ array cs _CHARACTER_; do over cs; if cs eq: 'foo' then cs = 'bar'; end;
 data _null_; d1 = input('01-JAN-60', DATE9.); d2 = input('01/01/2009', MMDDYY10.); put _all_; run;
 
  /* Build large dataset: */
-proc surveyselect data=SASHELP.shoes out=stacked samprate=1 reps=5; run;
+proc surveyselect data=SASHELP.shoes out=stacked samprate=1 reps=50000000; run;
 
  /* 2 years ago */
 %let thisyr = %sysfunc(year("&SYSDATE"d)); %let minyr = %eval(&thisyr-2);
@@ -1411,7 +1414,7 @@ proc surveyselect data=SASHELP.shoes out=stacked samprate=1 reps=5; run;
 %let yearago = %sysevalf(%sysfunc(date())-365); ...  if test_date > &yearago; ...
 
  /* Save output as excel CSV file. v8 at least */
-ods CSVALL file='junk.csv'; proc print; run; ods CSVALL close;
+ods CSVALL file='t.csv'; proc print NOobs; run; ods CSVALL close;
 
  /* Think "I"NPUT is closer to "C"HAR so use that to convert a char: */
  /* Canonical char2num and suppress SAS Log "NOTE: Invalid argument to function INPUT at line..." */
@@ -1538,6 +1541,8 @@ SASFILE WORK.sample OPEN;
 proc sql; select min(sampcreatets), max(sampcreatets) from tmp8.lims_0002e_avandamet; quit;
 proc sql; SELECT min(resentts) format=DATETIME19., max(resentts) format=DATETIME19. FROM l.sumvaltrex01a ; quit;
 proc sql; SELECT min(ts) AS mints format=ip21dtt., max(ts) AS maxts format=ip21dtt., "&STARTDT" as startdt, "&ENDDT" as enddt, count(ts) as cnt FROM &OUTPUTFILE ; quit;
+ /* Canonical min max date */
+...  retain _maxdt; format _maxdt DATE9.; set t; _maxdt = max(of _maxdt dt); call symput('MAXDT', _maxdt); ...
 
  /* Simple timestamp datetime change */
 data tmp1.ip21_0001e; set tmp1.ip21_0001e; maxts='12NOV10:19:45:10'dt; baselastrun='14NOV10:21:15:20'dt; run;
@@ -1669,6 +1674,9 @@ define result / style(column)={background=$bkres.};
 
 Adjust proc sql print width via:  SELECT foovar format=$5. FROM ...
 
+ /* proc sql number like SAS obs NOobs */
+proc sql; select monotonic() as Obs, * from foo; quit;
+
  /* Simple gplot */
 goptions reset=all ftext=swissl device=png cback=white border htitle=12pt ctext=gray gsfname=outpng gsfmode=replace ypixels=750 xpixels=750; filename outpng 'junk.png'; proc gplot data=linksplot; plot cnt*dt; run;
 
@@ -1679,11 +1687,22 @@ goptions reset=all ftext=swissl device=png cback=white border htitle=12pt ctext=
 
  /* Missing to zero */
 x=sum(foo, 0);
+ /* Missing to zero */
+data t; set t; array nums _numeric_; do over nums; if nums eq . then nums=0; end; iacthr97 = emhrsi97 + cohrsi97 + vehrsi97; run;
 
  /* Count number of files in directory */
 %let rc=%sysfunc(filename(dr, 'C:/temp')); %let cnt=%sysfunc(dnum(%sysfunc(dopen(&dr)))); %put !!!&cnt;
 
 select b.code, b.count, COALESCE(a.animal,'Unknown') as animal  /* set animal='Unknown' if missing */
+
+ /* Iterate over an array: */
+array a[*] foovar barvar bazvar; do i=1 to dim(a); if a[i]>maxn then maxn=a[i]; end;
+
+ /* Enhanced date format 20131004.  B blank C colon D dash N none P period S slash */
+data _null_; d='04oct13'd; put d yymmddN8.;run;
+
+ /* Determine what is two days after a given date */
+date2=intnx('day',date1,2,"sameday");
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -1705,6 +1724,7 @@ ssh -l root 192.168.0.108
 
 # grep but skip, ignore, the string 'foo' if in the same line:
 grep findme * | grep -v foo
+find . -name '*.sas7bdat' -a -not -name '*tr_*' |xargs \ls -l
 
 # Look in Julie chats for password related info (with context)
 find . -name '*Julie*.txt' -print0 | xargs -0 grep -3 -i 'password'
@@ -2991,11 +3011,14 @@ if [ expression ];then commands elif [ expression2 ];then commands else commands
 [ $# -eq 1 ] || echo "Usage: $0 arg1" && exit 1
 if [ $# = 0 ]; then ... fi
 
-# Length of string is 1 character
-if [ ${#month} -eq 1 ];then echo 'jan thru sep'; fi
+# Length of string is 1 character:
+if [ ${#month} -eq 1 ];then echo 'ok'; fi
 
-# Shell compare test: strangely enough,  = is for comparing literal variables and -eq for integers:
-# Shell string comparison: if [ 'x' = 'x' ]; then... fi  Shell integer comparison: if [ 2 -eq 2 ]; then... fi
+if [ 'foo' = 'bar' ]; then... fi  # shell string comparison
+if [ 2 -eq 42 ]; then... fi  # shell integer comparison
+
+# Shell arithmetic addition:
+$increment = `expr 42 + 1`
 
 # Determine if a file has a certain suffix, extension (mnemonic # on keyboard is to the left, % is to the right).  Bash only.
 if [ "${1##*.}" = 'tar' ]; then ... fi
@@ -3010,7 +3033,6 @@ if [ -z "$CSVS"  ];then # string is zero length, no files meet stale criteria, s
 $ cygcheck -c | grep ygwi
 
 # Input/output IO redirection ( < and > ) connects processes with files, while the pipe ( | ) connects processes with other processes
-
 diff <(sort file1) <(sort file2)
 diff <(md5sum *.sas) <(cd tmp;md5sum *.sas)
 diff <(md5sum *.mp3) <(cd /cygdrive/e/Decade/Disc\ 1;md5sum *.mp3)
@@ -3033,6 +3055,9 @@ if [ $x != a ]; then echo not equal; fi
 
 # ksh commandline completion - In vi-mode use <ESC> to control mode and then \ to complete or = to list.
 
+# If stuck with csh use this to escape (an improved $ /bin/ksh )
+exec ksh -o vi
+
 # Is today Monday?  If today is Monday.  Use  !=  to negate.  Date filter by day of week.
 if [ `date +%a` = Mon ];then echo ok; fi
 if [ `date +%a` = Mon -o `date +%a` = Wed -o `date +%a` = Fri ];then echo ok; fi
@@ -3041,9 +3066,6 @@ if [ `date +%d` = 15 ];then echo ok; fi
 
 # Watch for process, send warning email if it's not there
 ps -ae | grep lms_nmgr | grep -v grep | read pid && echo "process found `date`" || echo "Subject: LIMS down on ushp9h" | mail lmswatch@ussung9
-
-# cal(1) for two month display
-cal 06 2009; cal 07 2009
 
 sz=$(find $PTHQT -maxdepth 1 -name '*.jpg' -print0 | xargs -0 ls -l | awk '{s+=$5}END{print int(s/1000000)}')
 
@@ -3060,15 +3082,12 @@ export PS1='\u@\h\$ '
 export PS1=`whoami`'@'`hostname`' '
 
 # Barebones modified /Cygwin.bat (DO NOT specify  -fg white, rely on .Xdefaults):
-rxvt -sl 10000 +j +sk +si -bg black -fn "Andale Mono-13" -e bash --login -i
-# Normal Cygwin.bat in a single line
+$ rxvt -sl 10000 +j +sk +si -bg black -fn "Andale Mono-13" -e bash --login -i
+# Normal Cygwin.bat rxvt in a single line:
 @echo off & C: & chdir C:\cygwin\bin & start /B rxvt.exe -geometry 80x45+295+135 -fn "Andale Mono-13" -sl 10000 -sr -bg black -fg wheat -e /bin/bash --login -i
 
 # Escape second and higher spaces (echo "cd /fo o/ba r" | sed 's/ /\\ /2' only gets 2nd one)
 echo "cd /fo o/ba r" | sed -e 's/ /\\ /g' -e 's/cd\\/cd/g'
-
-# Shell arithmetic addition:
-$increment = `expr 42 + 1`
 
 # For each file, do something to it like remove carriage returns using temp files:
 for file in $(find /path/to/dir -type f); do tr -d '\r' <$file >temp.$$ && mv temp.$$ $file; done
@@ -3280,20 +3299,30 @@ $$  # the process id of the current process
 # Add a line to first line in each file:
 for f in ja_e_*.htm; do cp $f tmpf; echo '<link href="../ja.css" rel="stylesheet" type="text/css" />' >| $f; cat tmpf >> $f; done;
 
+# Search a webpage for text string:
+w3m -dump file:///C:/datapost/cfg/Data.xml|grep foo
+
+# Exclude TR* from find but do include OLS*:
+find datapost/ -name '*.csv' -a -not -name 'TR*.csv'|grep OLS
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
 xxPERLxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
-$ find `perl -e 'print "@INC"'` -name '*.pm'  # which Perl modules are installed
+# Commandline switch -n says not to autoprint, -p says to print while looping, -a autosplits $_ into @F
 
-$ find /usr/lib/perl5/site_perl/5.6.1/ -name '*.pm'  # which Perl modules I installed
+# Perl as a filter so you don't need to worry about sed & awk regex syntax:
+ssh trpsh005 ps -ef | grep lms_client*| perl -ne 'print if $_ =~ /\d?\d:\d\d:\d\d/'
 
-$ perl -V  # determine the @INC path
+perl -V  # determine the @INC path
+
+find `perl -e 'print "@INC"'` -name '*.pm'  # which Perl modules are installed
+find /usr/lib/perl5/site_perl/5.6.1/ -name '*.pm'  # which Perl modules I installed
 
 # Test perl code (or a regex) interactively in the Perl debugger:
 $ perl -de 0
-DB<1> $x='a1'; $x=~/(\d)/; print $1 <---must be on same line or lose $1
+DB<1> $x='a1'; $x=~/(\d)/; print $1 # must be on same line or lose $1
 
 # Test perl from the command line without debugger (hardcore):
 $ perl; $x='test string'; $x =~ /^(test).*/; $y=$1; print $y; <Ctr-d>
@@ -3307,12 +3336,6 @@ perl -e 'print "found" if "a"=~/[^1-9]/'
 
 # Hash slice:
 perl -e '@h{"key1", "key2"} = (1,2); print $h{key2};'
-
-# Regex to commify commafy a number (see ~/code/perl/commafy.pl)
-s/(\d{1,3})(?=(?:\d\d\d)+(?!\d))/$1,/g;
-
-# De-chomp un-chomp reverse chomp:
-for ( @lines ) { $_ .= "\n"; }
 
 # Regex to pick out the filename, i.e. basename, tail, and strip the path off:
 $basefilename = $1 if $fullyqualifiedpath =~ m|[/\\:]+([^/\\:]+)$|;
@@ -3340,38 +3363,28 @@ $header{$1} = $2  while /(File|Node|Prev|Next|Up):\s*([^,]*)/g;
 # Better
 %h = /^(.*?): (.*)$/gm;
 
-# Carriage return newline (i.e. linefeed) cleanup.
-s/\015\012/\n/;
-
-# chomp improvement esp. Windows, remove <CR> and/or <LF> from the end of $_
-s/[\r\n]+$//;
-
 # Cache keys in a hash (the Orcish maneuver), sort on modified time:
 @sorted = sort { ($modtimes{$a} ||= -M $a) <=> ($modtimes{$b} ||= -M $b) } @filenames;
 
-# Rewind a file handle
+# Rewind a file handle:
 seek(FILEHANDLE, 0, 0);
 
 # Cryptic OOP constructor:
 sub new { bless({}, shift); }
 
-# Do something every 5 times using modulus
+# Do something every 5 times using modulus:
 unless ( $i++ % 5 ) { print 'foo'; }
-
-# Do something every 3000 times using modulus
+# Do something every 3000 times using modulus:
 print $_ if ($i++ % 3000) == 0;
 next unless ( $. % 3000 ) == 0;
 
 # Find only unique array elements:
 %seen = undef; @unique = grep(!$seen{$_}++, @thearr)
-# Better
+# Better:
 @unique = keys %{ { map {$_ => 1} @possibleduplicateslist } };
 
 # Remove empty or undef elements from an array:
 @x = grep { !/^$/ } @x;
-
-# Remove part of string and 'chomp' all elements in an array in one swoop.
-map{ s/.*=// && s/[\r\n]+$// } @previousrun;
 
 # Format date string (see LibC for %b, etc.).  E.g. this rets 'May 25'
 use POSIX qw(strftime);
@@ -3390,13 +3403,13 @@ $leavealoneifset ||= $default;
 $best_suffix ||= $soso_suffix || $notsogood_suffix || 'txt';
 
 # Replacer (recursive with backup) replace all instances of XXX (see :args :argdo or ~/bin/replace)
-$ find -name foo.txt | xargs perl -pi.bak -e 's/XXX/bobh/'
+find -name foo.txt | xargs perl -pi.bak -e 's/XXX/bobh/'
 
 # Split a scalar into an array, saving only part of the split result.
 $x = 'zero:one:two';
 @z = (split /:/, $x)[0,2]    # @z contains 'zero', 'two'
 
-# lvalue is in scalar context (right side is therefore evaluated in a scalar context, $a gets 8):
+# lvalue is in scalar context (right side is therefore evaluated in a scalar context, $a gets 8 !!!):
 $a = (2, 4, 6, 8); 
 
 # Prepend, concatenate, something to each element of array:
@@ -3413,7 +3426,7 @@ exit 0  # <--- success  exit 1 <--- failure  both same as shell
 # Determine which compiler Perl was compiled with
 perl -e 'use Config; print "$Config{'cc'}"'
 
-use whine qw(toobusy twokids codetooscarylookin);      <---no commas!
+use whine qw(toobusy twokids codetooscarylookin);  # no commas!
 
 # Iterate over an array:
 for ( $i=0; $i<@colors; $i++ ) { ... }
@@ -3423,7 +3436,7 @@ for ( $i=0; $i<=$#colors; $i++ ) { ... }
 map { s/[\r\n]+$//; } @colors1, @colors2;
 
 # Constant declaration:
-use constant SECONDS_PER_DAY => 60 * 60 * 24;       # 86400
+use constant SECONDS_PER_DAY => 60 * 60 * 24;       # 86400 seconds
 $delta = abs($stamp - $stamp_mirror) / SECONDS_PER_DAY;
 
 # Constant used as filehandle (must use concatenation in the open()):
@@ -3435,11 +3448,8 @@ $request->redirect($new_url)
 # same as
 Request::redirect($request, $new_url)
 
-# Thin out, print 10 random lines from a file (good for creating dummy files):
-cat smallBEN.txt | perl -e '@line=<>; for(1..9){print $line[int rand @line]}'
-
 # A subroutine's incoming parameters are held in @_  This includes flattened arrays, etc. (it may be inefficient since it is "pass by value").
-E.g. my @parms = @_;
+my @parms = @_;
 
 # Force, prepend, a non-standard directory onto @INC:
 unshift(@INC, '.');
@@ -3523,11 +3533,8 @@ while ( <ARGV> ) { chomp; ...work on each line of each param... }
 # Filter out all but plain text files from the command line parameters.
 @ARGV = grep { -f && -T } @ARGV;
 
-# Clear, initialize, the hash.
-%hash = ();  #     <---NOT  %hash = {};
-
-# Parse a date string:
-($day, $mon, $year, $yday) = (localtime())[3,4,5,7];
+# Clear, initialize, a hash:
+%hash = ();  # NOT  %hash = {};
 
 $ perl Makefile.PL && make && make test && make install  # perl install mantra.  build module downloaded from CPAN.
 
@@ -3546,8 +3553,7 @@ print qq:The value of FOO is @{[ FOO ]}\n:;
 use constant EXTENSION => 'PDF';
 next unless ( $d =~ /.*@{[EXTENSION]}$/ );
 
-# Search file for lines (records) containing a specific 2 digit number in a
-# specific column position, in this case 77 and 78.  Like a database query.
+# Search file for lines containing a specific 2 digit number in a specific column position, in this case 77 and 78
 $ perl -ne '/.{76}(..)/; print if $1==15' foo.txt
 # same as the verbose:
 $ perl -ne '$_ =~ m/.{76}(..)/; print "$_" if $1 == 15' foo.txt
@@ -3587,16 +3593,10 @@ while ( <> ) { @F = split(' '); print $F[0] + $F[-1]; }
 # Compare with
 cat whitespace_separated_nums.txt | awk '{i = NF; print $1 + $i}'
 
-# Replace all occurences of number 55 with a random number less than 100 (TODO how to avoid .bak files?)
-perl -i.bak -pe "s/55/int rand(100)/eg"
-# Recursively for specific extensions
-perl -pi.bak -e "s/Output Compiled Data/Output_Compiled_Data/" `find . -name '*.sas'`
-
-# Simple way to comment out a block of code.
+# Simple debug comment out a large block of code:
 =debugbobh  ...code...  =cut
 
-# Read user's input from the commandline:
-chomp(my $transtyp = <STDIN>);
+require Data::Dumper; print STDERR "DEBUG: ", Data::Dumper::Dumper( %h ), "\n";
 
 # Set a cookie (after Content-Type: line):
 print "Set-Cookie: lastused=foo; path=/; expires=$cookie_expire;\n\n";
@@ -3616,8 +3616,6 @@ vi `perldoc -l net::ftp`
 
 # Syntax check a directory:
 for f in *.pl; do perl -c $f; done
-
-# Switch -n says not to autoprint -p says to print while looping foo.txt -a gives @F
 
 # Are columns 1 and 3 equal?
 perl -ne '@x=split; print if $x[0] != $x[2]' foo.txt
@@ -3645,14 +3643,6 @@ perl -MCPAN -e shell  # interactive mode
 perl -MCPAN -e 'install DBI'
 perl -MCPAN -e 'install DBD::mysql'
 
-# Print a random number (automatically seeded by Perl):
-perl -e 'print rand()'        <---floating point from 0 to 1
-perl -e 'print rand'          <---same
-perl -e 'print int rand 5'    <---integer from 0 to 5
-perl -e 'print int(rand(51)) + 25;'  <---integer from 25 to 75
-# Print 3 random numbers which will be 1, 2, 3 or 4
-for i in 1 2 3; do perl -e 'print int(rand(4)) + 1, "\n"'; done
-
 # Remove nulls (ASCII 0) from a file (also works as :'<,'>!perl -pe 's/\0//g')
 perl -pe 's/\0//g' 
 # Remove single quotes from a file.  Simple substitution on the fly printing
@@ -3660,7 +3650,7 @@ perl -pe 's/\0//g'
 perl -pe "s/'//g" junk
 
 # Substitute, inplace edit, and make backup from command line.  NOT recursive.
-# TODO why is -p mandatory, and the -e must stand alone
+# TODO why must -e stand alone
 perl -pi.bak -e "s/old/new/g" *.pl
 # or
 perl -pi.bak -e  's/old/new/g' `find . -name "foo.txt"`
@@ -3675,8 +3665,7 @@ perl -pe 's/(.*):(.*)/$2:$1/' foo.txt
 # Print capitalized words by looping over file and printing at end of file.
 perl -ne 'push @w,/(\b[A-Z]\S*?\b)/g;END{print "@w"}' file.txt
 
-# Parse a file for email address pattern (used for Palm Pilot Memo) by looping
-# over file:
+# Parse a file for email address pattern (used for Palm Pilot Memo) by looping over file:
 perl -ne 'print "|$1 $2" if /\w+ \w+ (.*)<(.*)>.*/' ~/.email_addr
 
 # Uppercase all letters in file (works on foreign characters) to STDOUT:
@@ -3781,6 +3770,9 @@ ls listened/ | awk '/2001_\w/{print $1}'
 # Parse string into an array:
 perl -e '@words = "What did he say?" =~ /([A-Za-z]+)/g; END{print "@words"}'
 
+# Parse a date string:
+($mon, $day, $year) = (localtime())[4,3,5];
+
 # Find user's home directory:
 perl -e '$x=(getpwuid($<))[7];print $x'
 
@@ -3813,8 +3805,8 @@ delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
 open OUT, "|more" or *OUT = *STDOUT;
 open IN, "ps|" or die "Can't start ps";
 
-@x = split /:/,  "ab:cd:::ef:gh";  <--- two empty fields between cd and ef
-@y = split /:+/, "ab:cd:::ef:gh";  <--- one big fat delimiter between cd and ef
+@x = split /:/,  "ab:cd:::ef:gh";  # two empty fields between cd and ef
+@y = split /:+/, "ab:cd:::ef:gh";  # one big fat delimiter between cd and ef
 
 # Find all installation directories:
 perl '-V:install.*'
@@ -3840,10 +3832,7 @@ perl -e 'print reverse <>' foo.txt
 # Use reverse video for debugging (this doesn't require ctrl chars, just paste)
 print "DEBUG> \e[7mUnexpected format of 'mystr':\e[m\n";
 
-pdoc -f binmode  # function perldoc
-
-# Random array element 0, 1, 2 or 3
-print $paragraphs[int rand 3];
+perldoc -f binmode  # function perldoc
 
 m/$foo/o  # compile interpolation pattern only once o regex switch:
 
@@ -3925,9 +3914,6 @@ my ($multiple, $vars, $must, $be, $parethesized);
 # Toggle warnings:
 no warnings; $discSize=$W2LIni->{Recording}{mediaSize}; $mediaType=$W2LIni->{Recording}{mediaType}; use warnings;
 
-# Canonical date
-($mon, $day, $year) = (localtime())[4,3,5];
-
 # Call sub 100 times, and time it
 use Benchmark; timethis(100, "MySub()"); 
 
@@ -3998,9 +3984,6 @@ perl -ne '$l = $_ if length($_) > length($l); END { print $l }' bladerun_crawl
 # Print the shortest line
 perl -ne '$s = $_ if $. == 1; $s = $_ if length($_) < length($s); END { print $s }' bladerun_crawl
 
-# Random password generator
-perl -le 'print map { ("a".."z")[rand 26] } 1..8'
-
 local - saves the current value somewhere, creates a new value, and arranges that the old value will be restored at the end of the current block.
 my    - lexical scope does not create an entry in the symbol table, variables that you declare in one subroutine can't be tampered with by other subroutines. 
 
@@ -4012,6 +3995,51 @@ $ find . -name '*.delete' |xargs rm  # if successful  TODO untested
 
 # File into an array:
 open FH1, 'junk1.txt' or die "Error: $0: $!"; @foo = <FH1>;
+
+# In one file not in another symmetrical difference:
+vi ~/code/perl/compare.pl
+
+# Thin out, print 10 random lines from a file (good for creating dummy files):
+cat smallBEN.txt | perl -e '@line=<>; for(1..9){print $line[int rand @line]}'
+
+# Replace all occurences of number 55 with a random number less than 100 (TODO how to avoid .bak files?)
+perl -i.bak -pe "s/55/int rand(100)/eg"
+# Recursively for specific extensions
+perl -pi.bak -e "s/Output Compiled Data/Output_Compiled_Data/" `find . -name '*.sas'`
+
+# Print a random number (automatically seeded by Perl):
+perl -e 'print rand()'        <---floating point from 0 to 1
+perl -e 'print rand'          <---same
+perl -e 'print int rand 5'    <---integer from 0 to 5
+perl -e 'print int(rand(51)) + 25;'  <---integer from 25 to 75
+# Print 3 random numbers which will be 1, 2, 3 or 4
+for i in 1 2 3; do perl -e 'print int(rand(4)) + 1, "\n"'; done
+
+# Random array element 0, 1, 2 or 3
+print $paragraphs[int rand 3];
+
+# Random password generator
+perl -le 'print map { ("a".."z")[rand 26] } 1..8'
+
+# De-chomp un-chomp reverse chomp:
+for ( @lines ) { $_ .= "\n"; }
+
+# chomp improvement esp. Windows, remove <CR> and/or <LF> from the end of $_
+s/[\r\n]+$//;
+
+# Remove part of string and 'chomp' all elements in an array in one swoop.
+map{ s/.*=// && s/[\r\n]+$// } @previousrun;
+
+# Read user's input from the commandline:
+chomp(my $transtyp = <STDIN>);
+
+# Carriage return newline (i.e. linefeed) cleanup:
+s/\015\012/\n/;
+
+# Print hash:
+while ( (my $k, my $v) = each %h ) { print "$k=$v"; }
+# Print sort hash:
+foreach my $k ( sort keys %h ) { print "$k=$h{$k}\n"; }
 
 xxPERLxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4529,6 +4557,8 @@ select TO_DATE('15-may-2006 16:00:01','dd-mon-yyyy hh24:mi:ss') from dual; -- 15
 
 -- Oracle date between
 AND SS.EntryTs >= TO_DATE('01-JAN-05','DD-MON-YY') AND SS.EntryTs <= TO_DATE('31-DEC-05','DD-MON-YY')
+-- SQL Server date between
+WHERE batch_time >= {ts '2011-01-03 00:00:00'} and batch_time <= {ts '2011-01-04 00:00:00'}
 
 -- Oracle spool (Windows).  Save Oracle SQL*Plus output to file foo.LST
 sql> spool %TEMP%/foo
@@ -4543,16 +4573,23 @@ sql> show all
 sql> set linesize 1000;
 sql> set pagesize 9999;
 
--- Oracle high level view all database tables in current schema (may need sqlplus set pause ON)
+-- Oracle high level view all database tables you own (current schema)
 SQL> SELECT table_name FROM user_tables;
+
 -- Oracle high level view all database tables all available schema
-SQL> SELECT table_name FROM all_tables;
+SQL> SELECT owner, table_name FROM all_tables;
+
 -- Oracle list all schemas:
 SQL> SELECT username FROM all_users ORDER BY username;
+
 -- Oracle select top 10 rows of a table in order:
 SQL> SELECT * FROM (SELECT * FROM t ORDER BY c) WHERE ROWNUM <= 10;
+
 -- Oracle describe table
 SQL> desc mytable
+
+-- Oracle what are the view names
+SQL> select * from all_views where view_name like '%SPEC%'
 
 ' Debug ASP debugging:
 response.write "mfg" & Request("Mfg_Shift") & <br><br>""
@@ -4596,9 +4633,9 @@ set termout off; set linesize 2000; set pagesize 9999; spool u:/serevent.out; ..
 spool u:/ahfa60stab.out;
 
 -- userid/password@hostname
-$ sqlplus pks/dev123dba@usdev388
-$ sqlplus pks/dev123dba@usdev388 @c:/cygwin//home/rheckel/code/misccode/_sqlplusrc.sql
-$ sqlplus pks/dev123dba@usdev388 @t.sql --need an exit; in t.sql to run standalone
+$ sqlplus pks/ev123dba@sdev388
+$ sqlplus pks/ev123dba@sdev388 @c:/cygwin//home/rheckel/code/misccode/_sqlplusrc.sql
+$ sqlplus pks/ev123dba@sdev388 @t.sql --need an exit; in t.sql to run standalone
 
 SQL> define_editor='c:/program files/vim/vim70/gvim -c "set filetype=sql"'
 SQL> set linesize 1000;  -- avoid truncation of results
@@ -4787,7 +4824,14 @@ net config workstation
 ' VB date constant
 Dim date1 As Date = #4/10/2008 6:30AM#
 
-=WORKDAY(TODAY(),B17)  where B17 is number of business days into the future
+=WORKDAY(TODAY(),B17)  ' Excel where B17 is number of business days into the future
+
+-- Oracle calculate business non-weekdays days:
+(TO_CHAR(b.sample_status_date,'J')-TO_CHAR(b.sample_received_date,'J'))+1 - ((((TRUNC(b.sample_status_date,'D'))-(TRUNC(b.sample_received_date,'D')))/7)*2) -
+  (CASE WHEN TO_CHAR(b.sample_received_date,'DY')='SUN' THEN 1 ELSE 0 END) - (CASE WHEN TO_CHAR(b.sample_status_date,'DY')='SAT' THEN 1 ELSE 0 END) as BusinessDays
+
+-- Oracle if then else
+(CASE WHEN TO_CHAR(b.sample_status_date,'DY')='SAT' THEN 1 ELSE 0 END)
 
 ' Excel count workdays date range only (e.g. custom format '03-Apr-09 16:00 06-Apr-09 10:30 spans wkend and returns 0.77
 =NETWORKDAYS(C2,D2)-1-MOD(C2,1)+MOD(D2,1)
@@ -4828,14 +4872,24 @@ XML namespaces:
 <xyz xmlns:books="http://www.myco.com/books.dtd" 
      xmlns:paintings="http://www.yourco.com/paintings.xsd">
 
+<xsl:for-each select="Configuration/Extracts/Extract">
+<xsl:for-each select="catalog/cd[artist='Bob Dylan']">
+
+<xsl:when test="contains(ExtractID,'dpv1')"><td><div id="dpv1"><xsl:value-of select="ExtractID"/></div></td></xsl:when>
+
 XML transformation/stylesheet linking .XSL(T) (other file) to the .XML doc (this one)
 <?xml-stylesheet type="text/xsl" href="DataPost_Configuration.xslt"?>
+<?xml-stylesheet type="text/xsl" href="file:///c:/datapost/cfg/DataPost_Configuration.xslt"?>
 
 <xsl:variable name="Str_OutputFilePath">
 <!-- DEBUG XSLT -->
 <xsl:message>!X!<xsl:copy-of select="$addresses"/>!Y!</xsl:message>
 
 <xsl:if test="ExecuteFrequency != 'sunday'">
+<xsl:if test="ExtractEnabled &gt; 0 and Folder='LIFT'"> 
+
+Given this xml for xslt to evaluate: <poem author="jm" year="1667">
+<xsl:template match="poem"> <xsl:if test="@author='jm'"> 1. The poem's author is jm.  </xsl:if> </xsl:template>
 
 :: Run checkdisk check disk on USB drive E: without rebooting:
 chkdsk /f e:
@@ -4950,8 +5004,6 @@ select 'create synonym PKS_USER.' || tname || ' for PKS.' || tname || ';' from t
 
 Remote Desktop C:\WINDOWS\system32\mstsc.exe /admin
 Remote Desktop restore full screen from maximized window: Ctr+Alt+Break
-
-<?xml-stylesheet type="text/xsl" href="file:///c:/datapost/cfg/DataPost_Configuration.xslt"?>
 
 :: Delete all files in a directory using .bat
 DEL z:\Data_Trending\MDPI\*.* /Q
@@ -5270,6 +5322,7 @@ ALTER USER LIMSARCH PASSWORD EXPIRE;
 
 -- Change Oracle user password
 ALTER USER limsarch IDENTIFIED BY new2dayJuly;
+ALTER USER limsarch IDENTIFIED BY "new2dayJuly" REPLACE "oldpw";
 
 -- Oracle copy table
 CREATE TABLE user_roleTEST AS SELECT * FROM user_role;  -- do something to TEST...
@@ -5352,11 +5405,6 @@ convert(varchar,fwn.VariableStp.dtStartDateTime,108) as dtStartTime
       foo
 ]]></ExtractString>
 
-<xsl:for-each select="Configuration/Extracts/Extract">
-<xsl:for-each select="catalog/cd[artist='Bob Dylan']">
-
-<xsl:when test="contains(ExtractID,'dpv1')"><td><div id="dpv1"><xsl:value-of select="ExtractID"/></div></td></xsl:when>
-
 private static final String[] items={"java", "strings", "in", "array"};
 
 "lorem", "ipsum", "dolor", "sit", "amet", "consectetuer", "adipiscing", "elit", "morbi", "vel", "ligula", "vitae", "arcu", "aliquet", "mollis", "etiam", "vel", "erat", "placerat", "ante", "porttitor", "sodales", "pellentesque", "augue", "purus"
@@ -5394,6 +5442,13 @@ while true do; df -h '//opsawn557/e$'; sleep 60; done
 str3='<a href=http://www.dhammawheel.com/viewtopic.php?f=20&t=12345>' + rnd2 + '</a>';
 
 ISO 8601 date time format: 2013-04-27T18:00:00-05:00  2013-04-27T18:00:00,1-05:00
+
+Exceed Hummingbird replacement is Cygwin X (CDE desktop access):
+$ XWin.exe -query rtpsh005
+
+-- PL/SQL Developer user prompt msgbox:
+... AND UPPER(a.sample_id) like &< name = "Sample Id or mask.  Wildcard is %" hint = "Entry not required" type = "string" uppercase = "yes" default = "%" ifempty = "%" > ...
+
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  
