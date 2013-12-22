@@ -11,7 +11,7 @@
 #           even smaller...
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Fri 20 Sep 2013 09:49:25 (Bob Heckel)
+# Modified: Sun 22 Dec 2013 10:58:39 (Bob Heckel)
 #
 ###############################################################################
 
@@ -139,6 +139,9 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 :%s:[^ ]*:\L\u&:g
 " or propcase all capitalized words as well:
 :%s:\([A-Za-z]\)\([A-Za-z-]*\):\u\1\L\2:g
+
+" Search across linebreaks
+/the\nword
 
 " The classic search and replace across lines (eg replace Acme Distributors with Barrett...):
 " First get instances not split over 2 lines---
@@ -275,6 +278,10 @@ s<BS>s   <---Produces German ß
 " Better non-greedy (e.g. foo|bar|baz returns foo).  Replace the first  .*  with  [^|]*:
 :,$:s:\([^|]*\)|.*:\1:gc
 :%s/[^|]*|.*/xxx/gc
+
+" For non-greedy .* becomes '[^']* to return 'foo' and 'bar' from this string:
+"   This matches 'foo' and 'bar', including the quotes.
+/'[^']*'
 
 " Modeline.  Trailing ':' required for multiple set's.  /* vim: set tw=72 ft=sas ff=unix: */ # vim: set list syntax=off foldmarker=#{{{,#}}} foldmethod=marker tw=78:
 
@@ -435,7 +442,8 @@ To synch DirDiff ranges of updates (internal DirDiff cmds like 'u' not working 2
 :se nu
 :5,42diffput
 
-" Compare vimdiff diff two existing buffers :diffsplit then switch to/open other buffer and :diffthis then force any changes :diffupdate when done :diffoff
+" vimdiff one existing buffer, foo.c: :[vert] diffsplit foo.c~
+" vimdiff two existing buffers :diffsplit then switch to/open other buffer and :diffthis then force any changes :diffupdate when done :diffoff
 
 " vimdiff keymaps
 do == :diffget
@@ -506,7 +514,7 @@ K                        <---on (K)eyword for help or man etc.
 :h function-list
 :mes[sage]               <---show previous messages, errors, etc.
 :echo loaded_matchit     <---1 if plugin is loaded (and 'let loaded_matchit=1' is in matchit.vim)
-:scriptnames             <---or verify all plugins
+:scriptnames             <---or verify all plugins and .vimrc location
 :echo has('foo')         <---test existence of Vim variables
 :echo &modifiable        <---boolean checking (scripts mainly)
 :echo $VIMRUNTIME        <---determine Vim's location
@@ -525,8 +533,8 @@ g!/10000000059062\|10000000060721/d
 " Toggle XML flags
 %s:<\(Extract\|Transform\)Enabled>1<:<\1Enabled>0<:gc
 
-" display with line numbers
-:g/Line 8/#
+" display search results with their line numbers
+:g/Line/#
 
 " Highlight (via search hls) every other line greenbar
 map ,<Tab> :set hls<CR>/\\n.*\\n/<CR>
@@ -562,6 +570,9 @@ let w:check_words = exists('w:check_words') ? !w:check_words : 1
 :%s:\v\D+:^M:g | g/^$/d
 
 echon '.vimrc: unknown language: (' mylang ') so using default Commentout style'
+
+" From inside Gvim fix authentication problem at work:
+:!c:/cygwin/bin/chmod 755 /cygdrive/u/temp/.vimxfer
 
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -602,14 +613,16 @@ put '13'x;  /* s/b the same */
  /* Alternative is to use a blank  title2;  */
 
 Runaway GUI SAS killer:
-*'; *"; */; %mend; quit; run;
+/* '; * "; */; %mend; quit; run;
 
  /* Free up space - delete datasets */
 proc datasets library=WORK; kill; QUIT;  /* !not RUN; */
 proc datasets NOlist; delete FooDS BarDS; quit;
 
-Column input with some missing data -- use truncover
-List input with some missing data at the rightmost edge -- use missover to keep SAS from trying, stupidly in most cases, the next line
+ /* Column input with some missing data -- use TRUNCOVER List input with some
+  * missing data at the rightmost edge -- use MISSOVER to keep SAS from trying
+  * the next line (e.g. when you're not using @@ and want it to keep going)
+  */
 
  /* Describe paths to SAS libraries: */
 libname _ALL_ list;
@@ -630,7 +643,7 @@ SAS debugger e.g. data foo / DEBUG; ...
 '04:15:66pm'T           <---SAS time constant (seconds since midnight 0-86400)
 '07jul2000:04:15:00'DT  <---SAS datetime constant
 
-SAS Functions work *within* an observation.  Procedures work *across* observations.
+SAS Functions work *within* an observation. SAS Procedures work *across* observations.
 
  /* Increment in macro.  Like yr++ */
 %let YR1 = 2002;  %let YR2 = %eval(&YR1+1);
@@ -663,10 +676,8 @@ Using 1920 default: 00...19 becomes 2000...2019
 //          OPTIONS='MEMSIZE=0'                                
 //...
 
- /* Actually sets the auto variable myfname, not the keyword FILENAME, to
-  * the physical name of the currently opened file.  Cowabunga! 
- */
-infile IN FILENAME=myfname;
+ /* Sets the auto variable myfname, not the keyword FILENAME, to the physical name of the currently opened file! */
+infile IN FILENAME=myfname;  /* lvalue assigns rvalue ! */
 
  /* SAS hexadecimal tab */
 '09'x  or  '05'x  or  '3132,3334'x
@@ -685,6 +696,9 @@ trim(left(put(numericsasvari,F4.)));
  /* Distributive range input statement: */
 input @166 (r1-r15) ($CHAR1.);
 input @166 (c1-c15) (:$1.);
+
+ /* Distributive put statement */
+put (ymd_no_ampm mdy_ampm ymd_ampm mdy_noampm)(= DATETIME18.);
 
  /* Super input statement uses the data! to determine column position */
 input @'IP Address' n1 n2 n3 n4 3.;
@@ -797,6 +811,12 @@ c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -autoexec "\\rtpsawnv0312\pucc\Serevent_Disk
 
  /* Suppress discard SAS List .lst */
 c:\PROGRA~1\SASINS~1\SAS\V8\sas.exe -sysin t.sas -log t.log -NOterminal -NOprint
+
+ /* Communicate with SAS in a Windows .bat batchfile */
+set sasexe="D:\SAS Institute\SAS\V8\sas.exe"
+set dpv2root=E:\DataPost
+set sascode=%dpv2root%\code
+%sasexe% -WORK 'c:\temp\sas' -nosplash -sysin %sascode%\DataPost_Transform.sas -log %sascode%\DataPost_Transform.log -print %sascode%\DataPost_Transform.lst -sysparm "%dpv2root%"
 
 # Cygwin quick dataset check:
 echo 'options ls=78;proc contents data=sashelp.shoes;run;' >| t$$.sas; c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin t$$.sas && cat t$$.lst && rm t$$.???
@@ -924,15 +944,10 @@ data zeroobs_7vars; set SASHELP.shoes; stop; run;
 data zeroobs_0vars; stop; run;  /* most empty */
 data oneobs_0vars; run;
 
- /* Search SUGI papers via Google w/o that ugly lexjansen page */
-findmystring site:www2.sas.com filetype:pdf
-
  /* BETWEEN statement is inclusive /*
 where i between 1 and 5;
 
- /* Same */
-options pagesize=32767;
-options pagesize=max;
+options pagesize=32767; options pagesize=max;  /* same */
 
  /* Comma separated, single quoted mvar SELECT...INTO :foo list in proc sql: */
 select quote(trim(mycharvar)) into :RISKVARS separated by ', '
@@ -1050,8 +1065,9 @@ proc sql; select id, (dis-adm)+1 AS mycalc LENGTH=4 LABEL='foo' from bar; quit;
 libname ORA oracle user=pks password=pks path=usdev100 schema=pks;
 
  /* Canonical freq */
-proc freq data=sashelp.shoes(where=(region like 'A%')); run;
-proc freq data=l.lelimsindres(where=(specname like '%2064%')); table specname*varname / LIST nocum norow nocol nopct; run;
+proc freq data=SASHELP.shoes(where=(region like 'A%')); run;
+proc freq data=t(where=(specname like '%2064%')); table specname*varname / LIST nocum norow nocol nopct; run;
+proc freq data=t order=freq; tables name / nocum; run;  /* show order by most frequent first */
 
  /* Where IntrNet keeps its datasets for a session */
 %let spath=%sysfunc(pathname(SAVE));
@@ -1110,11 +1126,7 @@ proc sql;CREATE INDEX MYSORTEDx ON lelimsgist05e (Samp_Id, Indvl_Meth_Stage_Nm);
 
 dm 'clear log; clear lst; wpgm'; 
 
-PROC SQL; CONNECT TO ORACLE(USER=gdm_zeb ORAPW=gdm123zeb45 PATH=ukprd613); CREATE TABLE foo AS SELECT * FROM CONNECTION TO ORACLE (
-  SELECT bat_num, mat_cod, work_cntr_cod, work_cntr_desc FROM gdm_dist.vw_zeb_merps_prcs_ord_material WHERE plant_cod = 'US01' and bat_num ='0ZP0029'
-); DISCONNECT FROM ORACLE; QUIT;
-
-PROC SQL; CONNECT TO ORACLE(USER=pks ORAPW=ev123dba PATH=sdev388); CREATE TABLE foo AS SELECT * FROM CONNECTION TO ORACLE ( SELECT DISTINCT barfield FROM baztbl); DISCONNECT FROM ORACLE; QUIT;
+proc sql; CONNECT TO ORACLE(USER=u ORAPW=p PATH=db); CREATE TABLE sasds AS SELECT * FROM CONNECTION TO ORACLE ( SELECT * FROM oratbl); DISCONNECT FROM ORACLE; quit;
 
 LENGTH TimeNum 8 Meth_Peak $3 Indvl_Tst_Rslt_Val_Char $40;
 
@@ -1136,23 +1148,13 @@ select distinct r.sampid, s.specname, put(r.sampid,F6.)||'-'||s.specname into :R
 
 %if %sysfunc(fileexist(&fn)) %then %put exists; %else %put no;
 
-" Convert SAS input to put statments:
-" e.g. 
-"   no_obst $ 125  amnio $ 126  elec_fet $ 127-128  ind_lab $ 129
-" becomes 
-"   @125 no_obst  @126 amnio  @127 elec_fet  @129 ind_lab
-"
-:s:\(\w\+\) \$ \(\d\+-*\d\+\):@\2 \1:gc
-
-/* Setup the default SAS System user work folder and autocall in 
- * /cygdrive/c/Program\ * Files/SAS\ Institute/SAS/V8/SASV8.CFG
- */
+/* Setup the default SAS System user work folder and autocall in /cygdrive/c/Program\ Files/SAS\ Institute/SAS/V8/SASV8.CFG */
 -WORK "E:\SAS Temporary Files\"
-...
 -SET SASAUTOS  ( "d:\Auto_Call" ...
 
- /* Do not auto-delete, save WORK datasets and _TD.... in 'SAS Temporary Files' dir after run completes. Override default. */
-options NOworkterm; %put !!! Saved in WORK lib listed below...; libname WORK list;
+ /* Do not auto-delete WORK library, save WORK datasets and _TD.... in 'SAS Temporary Files' dir after run completes. Override default. */
+options NOworkterm; %put !!! Saved in WORK lib: ; libname WORK list;
+sas.exe -WORK 'c:\temp\sas' -NOWORKTERM -sysin t.sas -log t.log -print t.lst -sysparm "%dpv2root%"
 
  /* Keep temporary WORK datasets in your own dir, not in the default _TD....\ */
 libname W './workdir'; options USER=W;  /* workdir must already exist! */
@@ -1191,11 +1193,9 @@ proc sql NOEQUAL ...
   * CONTINUE goes to the next iteration of the loop.
   */
 
- /* PUT STATEMENT writes to a buffer (default: LOG) vs. INPUT statement reads from a buffer (default: CARDS)
-  *
+ /* PUT STATEMENT writes to a buffer (default: LOG) vs. INPUT statement reads from a buffer (default: CARDS) */
   * FORMAT specify how data is to be written vs. INFORMAT specify how data is to be read
-  *
-  * FUNCTION:  put(SAS data, $formats.)  vs.  input(raw data, $informats.)
+  * formattedpartdescription=put(SAS_data, $myformat.)  vs.  sasdate=input(raw_char_data, $sasinformat.)
   */
 
  /* concatenate (stack) two datasets */
@@ -1203,10 +1203,9 @@ proc sql NOEQUAL ...
  /* interleave two datasets same except end up sorted */
 ... set x1 x2;  by state; ...
 
-grandtot = sum(of idnum--qtr4);
-
-m=mean(of a[*]);   /* variable array */
-m=mean(of v1-v5);  /* variable list */
+sumof=sum(of idnum--qtr4 of x1-x42);  /* same */
+sumof=sum(of idnum--qtr4 x1-x42);  /* same */
+meanof=mean(of a[*]);   /* variable array */
 
  /* Split parse string on dash taking 7ZP6699 from 7ZP6699-4148428 */
 mfg_batch=scan(mfg_batch,1,'-');
@@ -1276,6 +1275,7 @@ C:\Program Files\SAS Institute\SAS\V8>sas.exe -setinit -sysin c:\setinit.sas -co
 
  /* Canonical read in readin infile input text CSV file using combined input statement: */
 filename F 't.csv'; data t; infile F DLM=',' DSD MISSOVER LRECL=2600 FIRSTOBS=3; input Product :$40. mydt :DATE9.; run;
+filename F 't.csv'; data t; infile F DLM=',' DSD TRUNCOVER LRECL=2600 FIRSTOBS=3; input Product :$40. mydt :DATE9.; run;
 
  /* DSD "data sensitive delimiter" treats two consecutive delimiters as a missing value and removes quotation marks from values */
 
@@ -1327,13 +1327,12 @@ fiscalStartOct= intnx('year.10', start, 1, 'b'); fiscalEndOct = intnx('year.10',
 
  /* Canonical proc means */
 proc means data=sashelp.shoes; class region; var sales; run;
+proc means data=sashelp.shoes NOprint; output out=t; class region; var sales; run;
+proc summary data=sashelp.shoes PRINT; class region; var sales; run;
 proc sql; select region, count(sales), sum(sales) format=DOLLAR16. from sashelp.shoes group by region; quit;
 
  /* Stupid SAS error message V8 at least: */
 NOTE: BY-line has been truncated at least once.  /* fix with options ls=max */
-
- /* Left align a numeric into a character */
-numlike=put(num, 6. -L); 
 
  /* View List and Log in my ;z map vim session */
 :args %:r.log %:r.lst
@@ -1351,7 +1350,8 @@ data foo; format _ALL_; run;
  /* Go back 1 year */
 %let thisyr = %sysfunc(year("&SYSDATE"d)); %let minyr = %eval(&thisyr-1);
 
-proc export data=VenHFA_analytical_individuals OUTFILE= "\\rtpsawnv0312\pucc\VENTOLIN_HFA\Output Compiled Data\CSV VenHFA_analytical_individuals.csv" DBMS=CSV replace; run;
+  /* Output CSV format: */
+proc export data=VenHFA_analytical_individuals OUTFILE= "\\trpsawnv0312\pucc\VENTOLIN_HFA\Output Compiled Data\CSV VenHFA_analytical.csv" DBMS=CSV replace; run;
 
 filename HERE '.'; %let pwd=%sysfunc(pathname(HERE)); 
 
@@ -1362,6 +1362,7 @@ dataset_exists = %SYSFUNC(EXIST(mydataset));  /* 1 yes, 0 no */
 
 ods PDF file='c:/temp/t.pdf';  proc...run; ods PDF close;
 
+ods html file='myrpt' style=HtmlBlue; proc print data=_LAST_; run; ods html close;
 ods html body='t.htm'; proc print data=_LAST_; run; ods html close;
 
  /* Eliminate garbage from a normally numeric field.  Keep Log clean. */
@@ -1376,12 +1377,14 @@ select distinct 'literal ' as hardcodedfieldname, region 'display reggy all for 
  /* Macro index search */
 %if %index(&the_type, natmer) %then %put found a natmer;
 
- /* Canonical transpose, stat goes as column now */
-proc transpose data=foo; by store; id _STAT_; var totdol; run;
+ /* Canonical transpose, sex goes as column now */
+proc transpose data=tmp out=tmp2(drop= _NAME_ _LABEL_) prefix=Sx; by state; id sex; var result; copy comment1 comment2; run;
 
 libname INXML XML "&SYSPARM\&prodname\CODE\util\&DATASRC..xml" access=READONLY; proc contents data=INXML._all_;run; data tmp; set INXML.table; run;
 
- /* Default DM keys command line command focus SAS: <F11> PGM WPGM LOG OUT NUMS */
+ /* Default keyboard shortcut DMKEYS */
+key command line commandline focus SAS: <F11>
+KEYS PGM WPGM WPG LOG OUTPUT OUT NUMS ZOOM
 
 Change default WORK location (PC SAS): edit near EOF -WORK
 C:\Program Files\SAS\SAS 9.1\nls\en\SASV9.CFG
@@ -1390,9 +1393,6 @@ Right click C:\Program Files\SAS Institute\SAS\V8\core\sashelp\setinit.sss to in
 
  /* Display each line of textfile as it's read-in using INPUT statement */
 put '!!!' _INFILE_;
-
- /* Show order by most frequent first */
-proc freq data=students order=freq; tables name / nocum; run;
 
  /* Loop all characters in dataset: */
 array cs _CHARACTER_; do over cs; if cs eq: 'foo' then cs = 'bar'; end;
@@ -1416,19 +1416,19 @@ proc surveyselect data=SASHELP.shoes out=stacked samprate=1 reps=50000000; run;
  /* Save output as excel CSV file. v8 at least */
 ods CSVALL file='t.csv'; proc print NOobs; run; ods CSVALL close;
 
- /* Think "I"NPUT is closer to "C"HAR so use that to convert a char: */
+ /* Think "I"NPUT is closer to "C"HAR so use that to convert a character to a numeric: */
  /* Canonical char2num and suppress SAS Log "NOTE: Invalid argument to function INPUT at line..." */
-num=input(char, ? BEST. -L);
+chartonum = input(mychar, ? BEST. -L);
+chartonum = input(mychar, COMMA7.);  /* 123,456 */
 
- /* char2num if you know it's coming in looking like a SAS date */
-num = input(char, COMMA7.);  /* 123,456 */
+ /* Canonical num2char (-L to left align) */
+numtochar = put(num, F8. -L);  /* integer */
+numtochar = put(num, 8.2 -L);  /* floating point */
 
  /* Canonical char2num reusing existing char var name */
-data t(drop=TMP:); set t(rename=(x=TMPx)); x=input(TMPx, BEST.); run; proc print data=_LAST_(obs=max) width=minimum; format x DATE.; var x; run;
+data t(drop=TMP:); set t(rename=(x=TMPx)); x=input(TMPx, BEST.); run;
 
- /* Canonical num2char */
-char = put(num, F8. -L);  /* integer */
-char = put(num, 8.2 -L);  /* floating point */
+do i=1 to input(mycountch, 8.);  /* char2num */
 
  /* Avoid asciibetical sort by inserting leading blanks if data is small: */
 data t; set t; region=right(region);
@@ -1493,11 +1493,11 @@ input name &$12.  score1  score2;
  /* Free-format input (space delimited etc) - use list input and only name each var and specify its type */
  /* Modified list can read spaces in vars and handle non-standards like commas in numbers */
 
- /* Canonical SAS DATETIME. format examples: */
-30May2000:10:03:17.2  DATETIME20.
-30May00 10:03:17.2    DATETIME18.
-30May2000/10:03       DATETIME15.
- /* TIME portion must be delimited by a colon, minimum width is TIME5. */
+ /* Canonical DATETIME. format examples. TIME portion must be delimited by
+  * a colon, minimum width is TIME5. x=1000000
+  */
+put x DATETIME.;    /* 12JAN60:13:46:40 */
+put x DATETIME10.;  /* 12JAN60:13 */
 
  /* Canonical DATETIME convert to human */
 data _null_; x=put(1614549716, DATETIME18.); put x=; run;
@@ -1575,7 +1575,8 @@ data _null_; file print; put #3 @10 "Data set &dsn. does not exist"; run;
 x='2005/6/30 12:30'; ymd_no_ampm=input(x, ymddttm16.);
 ymd_ampm=input(z, ?? ymddttm18.);
 
- /* Query what layouts do we have for ODS HTML etc: */
+ /* Query what do we have for ODS HTML etc: */
+proc template; list styles; run;
 proc template; list tagsets; run;
 
 SAS/SHARE remote server (running proc server) -> local client
@@ -1703,6 +1704,30 @@ data _null_; d='04oct13'd; put d yymmddN8.;run;
 
  /* Determine what is two days after a given date */
 date2=intnx('day',date1,2,"sameday");
+
+do j=1 to 4; subj(j)=''; score(j)=.; end;  /* initialize array v8 */
+call missing(of subj(*), of score(*));     /* initialize array v9 */
+
+ /* Exponentiation scientific notation: 1.257E+03 */
+
+ /* ODS toggle (remove 'close' to re-enable) */
+ods listing close;
+
+ /* Canonical proc format */
+proc format; value traffic LOW-10='red'  11-20='yellow'  21-HIGH='green'; run;
+
+ /* Speed up Oracle SAS/ACCESS */
+libname DGM_DIST oracle user=&username password=&password path=&database schema=dgm_dist readbuff=10000;
+select * from ora_sas.customers(readbuff=10000);
+
+ /* String concatenation */
+combined = fname || lname || numb;
+
+ /* Version a dataset */
+data t(genmax=3); ...
+
+%let cnt=1234; %put %sysfunc(putn(&cnt, comma.));  /* 1,234 */
+%let cntfmtd=%sysfunc(putn(&cnt, comma.));
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -2252,7 +2277,11 @@ for f in `echo *.shn`; do shorten -x $f; done
 for f in *.shn; do shorten -x $f; done
 
 # Find multiple pattern filenames and open all in vi
-vi `find . -name '*merge*' -o -name '*join*'`
+vi `find . -name '*merge*' -o -name '*join*'`  # DON'T USE ...| xargs vi
+# Find and edit vb source files in one swoop - good for code review:
+find -mtime -7 -type f -name '*.vb' -print0 | xargs -0 vi  # DON'T USE ...| xargs vi -
+# May be easier to edit the .tgz in vim:
+find -mtime -7 -type f -name '*.vb' -print0 | xargs -0 tar cvfz junk.tgz
 
 # Simple find and edit search string "bobh" in one swoop (like my bgrep but without duplicate filenames):
 vi `find . -name "*" -exec grep -l "bobh" {} \;`
@@ -2262,15 +2291,8 @@ find . -name 'dlt*' -o -name 'tst*' -exec grep -l REVISER {} \;
 vi `find . -type f -name "*.html" -print | (xargs grep -il "b[a-z]bh" 2>/dev/null)`
 vi `grep -[r]il findthisstring *.html 2>/dev/null`
 
-# Find and edit vb source files in one swoop - good for code review:
-find -mtime -7 -type f -name '*.vb' -print0 | xargs -0 vi  # DON'T USE ...| xargs vi -
-# May be easier to edit the .tgz in vim:
-find -mtime -7 -type f -name '*.vb' -print0 | xargs -0 tar cvfz junk.tgz
-
 # Find newish files without a 'generated' string and prepare them for a code review form e.g. LotTracking/LotTracking/ASPNETWebApplication/Banner.ascx.vb,Jul-29-2009 13:47
 $ find LotTracking/ -name '*.vb' -mtime -90 -print0 |xargs -0 grep -RZL 'This code was generated by a tool' | xargs -0 ls -l | awk '{print $9","$6"-"$7"-2009 "$8}'
-
-$ rsh hp10 ls /tmp  # assumes hp8.cs.ucdavis.edu  <---fully qualified, is in ~/.rhosts in your home directory at hp10
 
 # Change owner and group simultaneously:
 chown oracle.dba /u01  # (or oracle:dba)
@@ -2278,7 +2300,9 @@ chown oracle.dba /u01  # (or oracle:dba)
 # Mount CDROM
 mount -t iso9660 /dev/cdrom /mnt/cdrom
 # Mount Android
-sudo mount -t vfat /dev/sdb /media/Nexus -o uid=1000,gid=1000,utf8,dmask=027,fmask=137; ...;  sudo umount /media/Nexus
+sudo mount -t vfat /dev/sdb /media/Nexus -o uid=1000,gid=1000,utf8,dmask=027,fmask=137
+# Unmount Android
+sudo umount /media/Nexus
 
 # To pad with leading zeroes:
 gawk 'BEGIN {printf "%10.0g\n",3.14; exit}'
@@ -2863,12 +2887,10 @@ BAR=notemptylikeFOOis; echo ${FOO-$BAR}  # use $bar if $foo doesn't exist
 # Determine file size in bytes
 filesize=$(find $1 -printf "%s" )
 
-# use locate(1) to search, this to create (findutils package):
-$ updatedb --prunepaths='/cygdrive /proc /tmp /var /home/rheckel/tmp'
-# Canonical updatedb.  alias loc='locate --ignore-case --database=/var/lib/locatedb.code '
+# Canonical Cygwin updatedb.  alias loc='locate --ignore-case --database=/var/lib/locatedb.code '
 $ /bin/updatedb --localpaths='/home/rsh86800/code' --prunepaths='/home/rsh86800/code/misccode/.git' --output='/var/lib/locatedb.code'
-# Linux
-$ sudo updatedb --database-root='/home/rheckel/code' --output='/var/lib/locatedb.code'
+# Canonical Linux
+$ sudo updatedb --database-root='/home/bheckel/code' --output='/var/lib/locatedb.code'
 
 # Calculate the day before assumes GNU date(1):
 date -d '20050801 2 day ago' +"%Y%m%d"
@@ -3103,7 +3125,9 @@ $ locate --ignore-case --database=/var/lib/locatedb.code foo|sed 's/^/vi /'
 
 if [ -d '\\rtpdscel01dm06\rsh86800$' ];then echo 'directory exists'; fi
 
-# For loop shell array
+# bash for loop 
+ for i in 1 2 3; do echo 'foo'; done;
+# bash for loop shell array
 for x in "${MAPFILES[@]}"; do ...; done
 
 # Canonical backup quick tar quick backup
@@ -3120,8 +3144,8 @@ while true; do date;sqlplus -S sasreport/sasreport@usprd25 @donothing; echo 'ok'
 # Poor man's progress bar timer - how long does it take to connect to database:
 i=0;x=0;y=0;while true; do x=`date +%s`;sqlplus -S sasreport/sasreport@usprd25 @donothing; y=`date +%s`;for i in expr $y - $x; do echo -n '.'; done; echo;sleep 300; done;
 
-# Passed-in shell variable $1 starts with a dash
-... elif [ "${1:0:1}" = '-' ];then ...
+# Passed-in shell variable $1 starts with 'http'
+... elif [ "${1:0:4}" = 'http' ];then ...
 
 # Iterate shell array list of filenames (bash only?)
 dotfiles=( .bashrc .vimrc ); for f in ${dotfiles[@]}; do echo $f; done
@@ -3276,14 +3300,17 @@ meth=`find /cygdrive/x/ethylcellulose/ -maxdepth 1 -name '*.png'` && convert $me
 ln -s /cygdrive/c/fooreal foosymlinkedfake
 
 # Find filetype by date:
-find $z/datapost/data/GSK/Zebulon/SolidDose/ |grep 'lims_.*t_.*sas7bdat' |xargs ls -l |awk '{print $10 "\t\t" $8 $7}'|sort
+find $z/datapost/dataDose/ |grep 'lims_.*t_.*sas7bdat' |xargs ls -l |awk '{print $10 "\t\t" $8 $7}'|sort
 
 # Build HREF using substitution
 find /cygdrive/c/datapost/data/GSK/Zebulon/ -name '*.pdf'|sed 's/\/cygdrive\/c//' |perl -pe 's/(.*)\/(.*)/<a href=http:\/\/zdatapostd.gsk.com\1\/\2\/>\2<\/a>/'
 
 # Cygwin X
-$ startxwin&  # ok to close xterm if one pops up and use rxvt for next cmd:
-$ ssh -X rtpsh005  # see readme.ssh.txt for switching id (su, super chemlms-shell, etc.)
+$ startxwin&  # ok to close xterm if one pops up and use it or rxvt for next cmd:
+$ ssh -X rtpsh005  # see readme.ssh.txt if need id switching (su, super chemlms-shell, etc.)
+
+# Exceed Hummingbird replacement is Cygwin X (for CDE desktop access):
+$ XWin.exe -query trpsh005  # don't use startxwin unless want commandline only
 
 # Build cp commands to replicate files to another tree:
 find data/gsk/zebulon -name 'ols*.sas7bdat'|sed 's/\(.*\)/cp -i \1 \/cygdrive\/x\/datapostdemo\/\1/'
@@ -3304,6 +3331,15 @@ w3m -dump file:///C:/datapost/cfg/Data.xml|grep foo
 
 # Exclude TR* from find but do include OLS*:
 find datapost/ -name '*.csv' -a -not -name 'TR*.csv'|grep OLS
+
+# 607378 /cygdrive/z/datapost/data/SGK/eZbulon/DMPI/dAvairiDskus/OLS_0016T_dAvairiDskus   607379 /cygdrive/z/datapost/data/SGK/eZbulon/DMPI/dAvairiDskus/OLS_0016T_dAvairiDskus
+x=`diff -ybB -W180 $u/tmp/{ols_PREV.txt,ols_CURR.txt} |perl -pe 's/(^\d+) [^\d+]*(\d+)[^\d+]*(\d+).*/$3-$1/e'`
+[[ $x -lt 0 ]] && echo 'FAIL - reduced record count'; [[ $x -ge 0 ]] && echo 'ok'
+
+# Multiple if then choices:
+... elif [[ "$HOSTNAME" = 'EZBWL12H26564' || "$HOSTNAME" = 'EZBWD12H01067' ]]; then ...
+
+echo "${fg_redbold}SERIOUS FAILURE - GDM has reduced record count${normal}"
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3394,7 +3430,7 @@ $matchdt = strftime('%Y%m%d%H%M%S', localtime(time));
 # Time stamp the last modified date.
 my $mtime = (stat($0))[9]; my $t = localtime $mtime; print "Last Modified $t";
 
-# Want new string substitution without clobbering original variable:
+# Want new string substitution without clobbering whacking original variable:
 ($y = $x) =~ s/foo/bar/g;
 
 # Default (unless a 0 is a valid possibility)
@@ -3508,21 +3544,30 @@ $ echo ThisWord | perl -pe 's/(.*)/\L$1\E/'
 # Uppercase (a.k.a rightcase titlecase smartcase) first letter of word in $all_lower:
 ($first_ltr_uppercased = $all_lower) =~ s/(\w+)/\u$1/g;
 
-# Delete lines containing counter.hitua.net for each file in directory:
+# Delete lines containing counter.hitua.net for each file in current directory:
 perl -pi.bak -e 's/.*counter.hitua.net.*//g' testch*.ht
 # Change background color of all webpages, recursively:
 find . -name '*.html' -exec perl -pi.bak -e "s/BGCOLOR=\"#ffffff\"/BGCOLOR=\"#cccccc\"/" {} \;
 # Better
 find . -name '*.html' |xargs perl -pi -e 's/BGCOLOR=\"#ffffff\"/BGCOLOR=\"#cccccc\"/'
+# Then if all is well:
+find -name '*.bak'|xargs rm
+
 # Delete multiple blocks paragraphs of text (consecutive with start and finish lines):  TODO why can't use xargs (it only mods first file)??
-for f in `find . -name 'testch*.htm'`; do perl -i -e 'BEGIN{$/=undef}$x=<>;$x=~s/Ukrainian Banner Network 468x60 START.*?Ukrainian Banner Network 468x60 END/FOOZBALL/sg;END{print $x}' $f; done
+for f in `find . -name 'testch*.htm'`; do perl -i -e 'BEGIN{$/=undef}$x=<>;$x=~s/Ukrainian Banner START.*?Ukrainian Banner END/FOOZBALL/sg;END{print $x}' $f; done
+
+# Modify all html files by inserting a similar line below:
+$ find . -name '*.html' |xargs perl -pi.delete -e 's:(<link rel="stylesheet" type="text/css" href.*css/screen.css"  />):MARKER_TO_DELETE$1\n$1:g  # 1-replicate line but create unique marker
+$ find . -name '*.html' |xargs perl -pi.delete -e 'next unless /MARKER_TO_DELETE/; s:css/screen.css:css/fonts.css:g'  # 2-make change to new line
+$ find . -name '*.html' |xargs perl -pi.delete -e 's:MARKER_TO_DELETE::g'  # 3-remove unique marker
+$ find . -name '*.delete' |xargs rm  # 4-if successful
 
 # Swap array elements using an array slice:
 @x = qw(a b c);
 @x[0,1] = @x[1,0];  <---holds bac now
 
 # In Perl, unlike shell and C:
-@ARGV contains the command-line arguments for the script but does not include the command name.  E.g. $ ./test.pl foo bar  <---$ARGV[0] is foo
+@ARGV contains the command-line arguments for the script but does not include the command name.  E.g. $ ./test.pl foo bar  <---$ARGV[0] is foo and $0 is test.pl
 # Get at them like this:
 foreach $arg ( @ARGV ) { ...work on param $arg one at a time... }
 # or better:
@@ -3536,7 +3581,7 @@ while ( <ARGV> ) { chomp; ...work on each line of each param... }
 # Clear, initialize, a hash:
 %hash = ();  # NOT  %hash = {};
 
-$ perl Makefile.PL && make && make test && make install  # perl install mantra.  build module downloaded from CPAN.
+perl Makefile.PL && make && make test && make install  # perl install mantra - build module downloaded from CPAN
 
 # Number of elements in hash:
 print scalar keys %myhash;
@@ -3987,12 +4032,6 @@ perl -ne '$s = $_ if $. == 1; $s = $_ if length($_) < length($s); END { print $s
 local - saves the current value somewhere, creates a new value, and arranges that the old value will be restored at the end of the current block.
 my    - lexical scope does not create an entry in the symbol table, variables that you declare in one subroutine can't be tampered with by other subroutines. 
 
-# Modify all html files by inserting a similar line below:
-$ find . -name '*.html' |xargs perl -pi.delete -e 's:(<link rel="stylesheet" type="text/css" href.*css/screen.css"  />):MARKER_TO_DELETE$1\n$1:g  # replicate line but create a unique marker
-$ find . -name '*.html' |xargs perl -pi.delete -e 'next unless /MARKER_TO_DELETE/; s:css/screen.css:css/fonts.css:g'  # make change to new line
-$ find . -name '*.html' |xargs perl -pi.delete -e 's:MARKER_TO_DELETE::g'  # remove unique marker
-$ find . -name '*.delete' |xargs rm  # if successful  TODO untested
-
 # File into an array:
 open FH1, 'junk1.txt' or die "Error: $0: $!"; @foo = <FH1>;
 
@@ -4040,6 +4079,9 @@ s/\015\012/\n/;
 while ( (my $k, my $v) = each %h ) { print "$k=$v"; }
 # Print sort hash:
 foreach my $k ( sort keys %h ) { print "$k=$h{$k}\n"; }
+
+# Calculate record count change using eval:
+diff -ybB -W180 $UTMPDIR/{ols_PREV.txt,ols_CURR.txt} |perl -pe 's/(^\d+)[^\d]*(\d+).*/$1-$2/eg'
 
 xxPERLxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4510,13 +4552,18 @@ WHERE prod_sel_dt BETWEEN TO_DATE('01-JAN-10','DD-MON-YY') AND TO_DATE('31-JAN-1
 -- Oracle last few days search (if activity_dt is DATE formatted):
 select count(*) from activity_log where activity_dt > (SYSDATE-3);
 
+-- Gsk standard SAS DATE9.
+select trunc(sysdate) from dual
+
 -- Oracle date only this month:
 WHERE order_dt > TRUNC(SYSDATE, 'MONTH')
 
 select * from retain.fnsh_prod where prod_sel='Y' and trunc(prod_sel_dt)=trunc(sysdate);
 
 -- Oracle generate random positive integer:
-select ABS(round(dbms_random.normal*100,-1))  from dual;
+select ABS(round(dbms_random.normal*100,-1)) from dual;
+
+select rpad('Melanie', 10, '*') Melanie, lpad('Caffrey', 10, '.') Caffrey
 
 -- Oracle update query samples: 
 update pks_extraction_control set pks_level='' where pks_level='.';
@@ -4975,7 +5022,7 @@ application/xhtml+xml
 <html lang="en"> ... </html>
 
 -- Oracle regex - returns 250/50 MCG
-select regexp_substr(upper('Advair Diskus Inh Pwdr 250/50 mcg 60D'),'\d+/[^/]* *MCG') as strength2 from dual
+select regexp_substr(upper('A Disk Inh Pwdr 250/50 mcg 60D'),'\d+/[^/]* *MCG') as strength2 from dual
 
 Virtual Box after setting \code (put the mount cmd in /etc/rc.local for debian distros)
 mkdir ~/code; sudo mount -t vboxsf -o uid=1000,gid=1000 code /home/rheckel/code
@@ -5011,11 +5058,13 @@ DEL z:\Data_Trending\MDPI\*.* /Q
 -- SQL Server
 WHERE datepart(year,insert_date)='2005' AND datepart(month,insert_date)='7' AND datepart(day,insert_date)='31'
 
-Powershell help e.g.:
+# Powershell help e.g.:
 help csv
 Get-Help * | Format-Table * -auto
 ###Get-Help * | Format-Table * -wrap | Out-File env:TEMP/tmp.txt; gvim env:TEMP\tmp.txt
 Get-Help * | Format-Table * -wrap | Out-File tmp.txt; gvim tmp.txt
+
+# Powershell escape char is ` backtick not \ slash
 
 # Powershell's which(1) or type(1):
 Get-Command ls  # or  gcm ls
@@ -5089,7 +5138,7 @@ $hash = @{Name = "PC01"; IP="10.10.10.10"; User="Tobias Weltner"}
 dir | Sort-Object length | Select-Object name, length | ConvertTo-Html | Out-File junk.htm
 ./junk.htm  # view it in browser
 
-# Canonical sort and find largest file
+# Powershell canonical sort and find largest file
 $a = dir | sort -property length -descending | select-object -first 1
 
 # Powershell query an object:
@@ -5233,9 +5282,10 @@ param($name='world')  # must be 1st executable line in script
 # Powershell All programs and date of installation:
 get-wmiobject -class "win32reg_addremoveprograms" -namespace "root\cimv2" | select-object -property Displayname,Installdate
 
-function cd.. { cd .. }  # convenience like cmd.exe
+# Powershell create convenience alias like cmd.exe
+function cd.. { cd .. }
 
-# DEBUG debugging printing:
+# Powershell debug debugging printing:
 $host.ui.writeline("red","green", "Hi there")
 
 # Powershell Command line prompt customization override
@@ -5376,8 +5426,8 @@ git push origin master
 
 # git discard throw away changes:
 git checkout .   # abandon all pending changes "not staged for commit"
-# git discard throw away changes (better):
-git stash;  # then  $ git stash drop  or delete ALL stashes  $ git stash clear  later when You Are Sure
+# git discard throw away whatif changes (better):
+git stash;  # then  $ git stash drop  or to delete ALL stashes later when You Are Sure: $ git stash clear 
 
 # git canonical stash and restore:
 git stash; git checkout emergencybranch; ...hack... ; git checkout branchistashed; git stash list; git stash pop
@@ -5442,9 +5492,6 @@ while true do; df -h '//opsawn557/e$'; sleep 60; done
 str3='<a href=http://www.dhammawheel.com/viewtopic.php?f=20&t=12345>' + rnd2 + '</a>';
 
 ISO 8601 date time format: 2013-04-27T18:00:00-05:00  2013-04-27T18:00:00,1-05:00
-
-Exceed Hummingbird replacement is Cygwin X (CDE desktop access):
-$ XWin.exe -query rtpsh005
 
 -- PL/SQL Developer user prompt msgbox:
 ... AND UPPER(a.sample_id) like &< name = "Sample Id or mask.  Wildcard is %" hint = "Entry not required" type = "string" uppercase = "yes" default = "%" ifempty = "%" > ...

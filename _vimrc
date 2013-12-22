@@ -22,7 +22,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Fri 04 Oct 2013 13:18:24 (Bob Heckel)
+" Modified: Sun 22 Dec 2013 10:40:45 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 "--------------------------------------------------------------------------
@@ -34,7 +34,7 @@
 """set writedelay=5
 
 let THISBOX = hostname()
-let WORKBOXES = [ 'ZEBWL06A16349', 'ZEBWD08D26987', 'ZEBWL10D43164', 'ZEBWL12H29961', 'ZEBWL12H26564' ]
+let WORKBOXARRAY = [ 'ZEBWL06A16349', 'ZEBWD08D26987', 'ZEBWL10D43164', 'ZEBWL12H29961', 'ZEBWL12H26564', 'ZEBWD12H01067' ]
 
 " I'm usually only browsing with netrw:
 au FileType NETRW map q :q<CR>
@@ -51,7 +51,7 @@ let g:netrw_use_noswf=1
 let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
 
 " Setup Vim tempspace that Cygwin and gVim can share:
-if matchstr(WORKBOXES, THISBOX) == THISBOX  " at work
+if matchstr(WORKBOXARRAY, THISBOX) == THISBOX  " at work
   if has('gui')
     let VTMP = 'c:/temp'
     let VTMPU = 'u:/temp'
@@ -135,14 +135,13 @@ hi Function ctermfg=Yellow guifg=LightYellow guibg=Black
 hi Identifier ctermfg=LightCyan guifg=LightCyan
 hi IncSearch ctermfg=White ctermbg=Blue guifg=White guibg=#123456
 
-" :se nu
-"""if has ('win32unix')
-  hi LineNr ctermfg=Black ctermbg=DarkGray guifg=Black guibg=DarkGray
-"""else
+" :se rnu
+if hostname() == 'yoniso'
   " Lighblue is grey on my broken urxvt
-"""  hi LineNr ctermfg=Black ctermbg=LightBlue guifg=#DDDDDC guibg=#777777
-"""  hi LineNr ctermfg=Black ctermbg=LightBlue guifg=Black guibg=DarkGray
-"""endif
+  hi LineNr ctermfg=Black ctermbg=LightBlue guifg=Black guibg=DarkGray
+else
+  hi LineNr ctermfg=Black ctermbg=DarkGray guifg=Black guibg=DarkGray
+endif
 
 hi MatchParen ctermfg=White ctermbg=Blue guifg=Cyan guibg=Magenta
 hi ModeMsg ctermfg=Black ctermbg=Yellow guifg=Black guibg=Yellow
@@ -427,7 +426,8 @@ set foldopen-=search
 "                               16 diff mode {{{2
 
 if version > 599
-  set diffopt=filler,iwhite,vertical,icase
+"""  set diffopt=filler,iwhite,vertical,icase
+  set diffopt=filler,vertical
 endif
 
 
@@ -470,16 +470,8 @@ set nobackup
 
 "                               19 the swap file {{{2
 
-" Write swap file to disk after each n characters
-" To disable swapfiles (and prevent opening files on servers that you have no
-" delete permission, leaving .foo.swp files behind when you exit), use -n
-"""set updatecount=50
-
-" 05-Aug-12 Employer autorebooting boxes causes a swapfile mess.  Disabling for now.  TODO only disable for workboxes.
-"""set noswapfile
-
-" Write swap file to disk after 30 inactive seconds
-set updatetime=30000
+" Write swap file to disk after 60 inactive seconds
+set updatetime=60000
 
 
 "                               20 command line editing {{{2
@@ -511,7 +503,7 @@ set suffixes=.old,.old2,.OLD,OLD2,.o,.swp,.bak,.bak2,.BAK,.BAK2,~
 " indent default (gg=G)
 set equalprg=sort
 
-" Default.  K to active.  See au BufNewFile, etc. below (.vimrc, .pl .pm treated specially).
+" Default.  K to activate.  See au BufNewFile, etc. below (.vimrc, .pl .pm treated specially).
 set keywordprg=man
 
 
@@ -553,7 +545,7 @@ set sessionoptions=curdir,folds,slash,unix,winsize,winpos,buffers
 " because it's confusing as hell with BufExplorer.
 " TODO how to resolve VTMP in a SET statement?
 " Make sure _viminfo file is ff=unix
-if matchstr(WORKBOXES, THISBOX) == THISBOX
+if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
   if has('gui')
     set viminfo='5000,\"750,nC:/temp/_viminfo
     "TODO permission error
@@ -869,7 +861,7 @@ noremap ,g <C-W>f :set winheight=9999<CR>/<C-R>/<CR>
 " (H)ighlight entire buffer (Win32 side effect is to copy to Clipboard)
 noremap ,H ggvG<CR>
 
-" Copy w(h)ole buffer to Win32 Clipboard. Used mainly for VB editing.
+" Copy w(h)ole buffer to Win32 Clipboard
 if has('win32')
   map ,h mz<ESC>ggvG"*Y`z
 elseif has('win32unix')
@@ -1018,9 +1010,11 @@ noremap ;q viw"zxllciwhhpll"zp
 
 " Transfer/read and write one block of text between vim sessions:
 " This is part 1.  See ;w and ;a for part 2.
-if matchstr(WORKBOXES, THISBOX) == THISBOX
+if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
   nmap ;r :call ReadFromFile(VTMPU, '.vimxfer')<CR>
 """echon VTMPU THISBOX
+  " Temporary ugly hack for XP vs. Win7 Cygwin permission battle
+"""  nmap ;rx :!chmod 755 $u/temp/.vimxfer
 else
   nmap ;r :call ReadFromFile(VTMP, '.vimxfer')<CR>
 endif
@@ -1042,7 +1036,7 @@ noremap ;v :highlight Normal guibg=white guifg=black
 
 " Transfer/read and write one block of text between vim sessions:
 """if BOX==WORKBOX1 || BOX==WORKBOX2 || BOX==WORKBOX3
-if matchstr(WORKBOXES, THISBOX) == THISBOX
+if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
   nmap ;a :call WriteToFile(VTMPU, '.vimxfer', 1)<CR>
   vmap ;a :call WriteToFile(VTMPU, '.vimxfer', 1)<CR>
   nmap ;w :call WriteToFile(VTMPU, '.vimxfer', 0)<CR>
@@ -1084,8 +1078,6 @@ noremap ;z :echon ";z 'compile' map not implemented for this filetype"<CR>
 """else
   """let @u=":!bfp % 'bqh0.pgm.lib(%:t:r)'"
 """endif
-
-"""imap <silent> <C-C><C-R>=string(eval(input("Calculate: ")))<CR>
 
 " Resize window with number keypad
 if bufwinnr(1)
@@ -1468,17 +1460,13 @@ endfu  " }}}
 
 
 fu! Commadelim()   " {{{2
-  " Assumes we'll highlight rows to be modified
-  " Canonical: 
+  " Assumes we'll highlight rows to be modified:
   " :'<,'>call Commadelim()
-  "
+   
   " Automatically loops lines
   let e = a:lastline
-
   let l = getline('.')
-
   let m = substitute(l, "^", "'", "g")
-
   let curr = line('.')
 
   if curr == e
@@ -1561,8 +1549,6 @@ fu! WriteToFile(vtpth, fnm, append, ...) range  " {{{2
     " ;w map
     exec(lfirst . ',' . llast . " write! " . a:vtpth . "/" . a:fnm)
   endif
-"""  let wtf = a:vtpth . "/" . a:fnm
-"""  bdelete bufnr(wtf)
 
   " Variable args processing for message to be cut 'n' pasted
   let i = 1
@@ -1655,7 +1641,7 @@ endfu
 
 
 fu! AlignAssignments()  " {{{2
-  " Adpated from Damien Conway http://www.ibm.com/developerworks/linux/library/l-vim-script-2/index.html
+  " Adapated from Damien Conway http://www.ibm.com/developerworks/linux/library/l-vim-script-2/index.html
 
   "Patterns needed to locate assignment operators...
   let ASSIGN_OP   = '[-+*/%|&]\?=\@<!=[=~]\@!'
@@ -1824,10 +1810,8 @@ if !exists("autocommands_loaded")
  
   " Start a returning session at the line and column of last edited position
   autocmd BufReadPost * if line("'\"") | exe "normal '\"" | endif
-  " ~/bin/bgrep
-"""  au BufRead *.grep if line("'\"") | exe "normal '\"" | endif
 
-  if matchstr(WORKBOXES, THISBOX) == THISBOX
+  if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
       autocmd BufNewFile,BufRead,BufEnter DataPost*.log set noswapfile | set hlsearch | source u:/code/sas/saslog.vim 
   else
     autocmd BufNewFile,BufRead,BufEnter DataPost*.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim 
@@ -1856,12 +1840,11 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufRead,BufEnter *.sas map ;m 0Di  * Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.sas map ,m yy0I***<ESC>p
   " Define pairs to allow the 'bounce on %' plugin to work.  Case insensitive.
-  " Use K on 'match_words' or :help matchit-install for explanation.
   au BufNewFile,BufRead,BufEnter *.sas let s:SASnotend = '\%(\<end\s\+\)\@<!'
   " No spaces between pairs!
   au BufNewFile,BufRead,BufEnter *.sas let b:match_words = s:SASnotend . '\<do\>:\<end\>,\<data\s\+\w\+:\<run\;,%macro.*\;:\<mend\>.*\;,\<proc sql:\<quit;'
 
-  " Delete the warning lines that appear when SAS License is about to expire.  TOGGLE YEARLY!!!
+  " TOGGLE. Delete the warning lines that appear when SAS License is about to expire.
   """au BufRead *.log :g/^WARNING: The Base Product\|installation repres/d
   """au BufRead *.log :g/^WARNING: Your system is scheduled to expire on/d
   """au BufRead *.log :g/Please contact your SAS/d
@@ -1873,13 +1856,10 @@ if !exists("autocommands_loaded")
   " Perl:
   au BufNewFile,BufRead,BufEnter *.pl nmap ,p :!perl -c %<CR>
   au BufNewFile,BufRead,BufEnter *.pl nmap ;z :!echo && echo && perl %<CR>
-"""  au BufNewFile,BufRead,BufEnter *.t set filetype=perl
 """  au BufNewFile,BufRead,BufEnter *.pl set makeprg=$VIMRUNTIME/tools/efm_perl.pl\ -c\ %\ $*
   " Alternate help files via 'K'.  Default s/b set above as keywordprg=man
   au BufNewFile,BufRead,BufEnter *.p[lm] set keywordprg=perldoc\ -f
 
-"""  au BufNewFile,BufRead,BufEnter *.p[lm] map ,m yy0I###<ESC>p
-"""  au BufNewFile,BufRead,BufEnter *.p[lm] set commentstring=#%s
   au BufNewFile,BufRead,BufEnter *.pl map ,3 :s:^###::g<CR>:se nohls<CR>
   if has ('unix') && version > 599
     au BufWritePost *.pl silent !chmod a+x <afile>
@@ -1890,9 +1870,7 @@ if !exists("autocommands_loaded")
 
   au BufNewFile,BufRead,BufEnter *.bas syntax off|source ~/code/vb/vb.vim
   au BufLeave *.bas syntax on  " prevent others syntax colored files from remaining with syntax off
-"""  au BufNewFile,BufRead,BufEnter *.ps1 syntax off|source $HOME/code/misccode/ps1.vim
   au BufLeave *.ps1 syntax on  " prevent others syntax colored files from remaining with syntax off
-"""  au BufNewFile,BufRead,BufEnter *.sh map ,m yy0I###<ESC>p
   au BufNewFile,BufRead,BufEnter *.sh set fileformat=unix
   " Comment-out a line
   au FileType basic map ;; :call setline('.', Commentout(getline('.'), 'vb'))<CR>
@@ -1961,8 +1939,9 @@ if !exists("autocommands_loaded")
   au BufEnter $VIMRUNTIME/doc/*.txt noremap q :q<CR>
   au BufLeave $VIMRUNTIME/doc/*.txt unmap q
 
-  " S/b empty to default to Vim's :h help.
+  " Empty to default to Vim's :h help.
   au BufNewFile,BufRead,BufEnter *.vim,.vimrc,*.htm,*.html,*_vimrc set keywordprg=
+  au FileType HELP set keywordprg=
 
   au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;; :call setline('.', Commentout(getline('.'), 'vim'))<CR>
   au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;c 0Di"  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
@@ -2036,9 +2015,6 @@ if !exists("autocommands_loaded")
     set guifont=Andale_Mono:h7
   endif
 
-  " DirDiff
-"""  au FileType diff noremap q :qa<CR>
-
   " Quickfix
   """ TODO need something like this to keep q from flowing to existing buffers after leaving QF: au BufLeave QF unmap q
   """au FileType QF map q :q!<CR>
@@ -2064,7 +2040,7 @@ if !exists("autocommands_loaded")
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
   "
   " Temporary project-specific hacks to normalize messy problem-spaces:
-  if matchstr(WORKBOXES, THISBOX) == THISBOX
+  if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
     au BufRead LELimsGist.sas :se tw=0
     au BufRead LimsGistTableCount.txt :se list
     au GUIEnter oracle_queries.sql,update.sql winpos 37 55 | se lines=20 | se columns=170 | se wrap | map j gj
@@ -2089,9 +2065,12 @@ if !exists("autocommands_loaded")
     au BufRead //rtpsawnv0312/* hi StatusLine ctermfg=DarkGray ctermbg=White guifg=DarkGray guibg=White gui=inverse,bold
     au BufRead //rtpdsntp032/*  hi StatusLine ctermfg=Red ctermbg=Black guifg=Red      guibg=Black gui=inverse,bold
 
-    au BufReadPre,FileReadPre [XYZ]:/* set noswapfile
-    " Avoid frightening people who don't know what swapfiles are
-    au BufReadPre,FileReadPre /cygdrive/[xyz]/* set noswapfile
+    "                 Dev, Dev, Test, Prod
+    au BufReadPre,FileReadPre [WXYZ]:/* set noswapfile
+    " 1-Avoid frightening people who don't know what swapfiles are
+    " or
+    " 2-Creating undeletable files on boxes built by frightened people
+    au BufReadPre,FileReadPre /cygdrive/[wxyz]/* set noswapfile
 
     " Do not use The Force on Test & Production
     au BufEnter /cygdrive/[yz]/DataPost* set readonly
@@ -5192,9 +5171,3 @@ let &cpo = s:save_cpo
 if filereadable(glob("~/.vimrc.local")) 
   source ~/.vimrc.local
 endif
-
-
-
-" 2011-02-26 ignored:
-" vim: set foldmethod=marker:
-
