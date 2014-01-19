@@ -1,12 +1,12 @@
 #!/bin/sh
 #
-# 25-Jan-13
+# Modified: Sun 12 Jan 2014 10:20:35 (Bob Heckel)
 #
 # fluxbox startup-script:
 #
 # Lines starting with a '#' are ignored.
 
-# Change your keymap:
+# Change keymap:
 xmodmap "$HOME/.Xmodmap"
 
 # Applications you want to run with fluxbox.
@@ -17,11 +17,11 @@ xmodmap "$HOME/.Xmodmap"
 # wmsmixer -w &
 # idesk &
 conky -x 5 -y 0 &
-urxvt &
+urxvt -icon /usr/share/icons/Faenza/apps/32/xterm_32x32.xpm &
 ###google-chrome &
 ###ssh-agent $SHELL &
 nm-applet &
-# dropbox start
+dropbox start &
 
 # And last but not least we start fluxbox.
 # Because it is the last app you have to run it with ''exec'' before it.

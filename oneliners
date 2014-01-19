@@ -1,5 +1,4 @@
 ###############################################################################
-#
 #     Name: $HOME/code/misccode/oneliners
 #
 #  Summary: Programming and sysadmin fragments I've collected over the 
@@ -11,16 +10,17 @@
 #           even smaller...
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Sun 22 Dec 2013 10:58:39 (Bob Heckel)
-#
+# Modified: Sat 28 Dec 2013 10:22:04 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
-" Delete all empty lines
+" Delete all blank empty lines:
 :g/^$/d
+" Delete all blank empty lines (including nonprinting characters):
+:g/^\W\+$/d
 
-" Thin out a file by deleting every other line
+" Thin out a file by deleting every other line:
 :g/^/ + d 
 " or to delete 2/3 of the file:
 :g/^/ +, ++ d 
@@ -94,7 +94,7 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 " Confirm paranoia global :g actions:
 :g/global delete with prompt/ if input("del line? " . line(".") . ":" . getline(".") . " y/[n] ")=="y" | delete | endif
 
-" Delete a block range, paragrep, if you can determine start and end of blocks:
+" Delete a block range, paragrep, if you can determine start and end of blocks (must use slashes):
 :g/^\s\+The SA/;/^ProdSp/d
 
 " Non-inclusive delete.  Only delete everything between these two lines:
@@ -560,7 +560,7 @@ let w:check_words = exists('w:check_words') ? !w:check_words : 1
 " Undo by time:
 :earlier 5m
 
-:echom "Hello, " . "concatenation world"
+:echom "Hello, " . "Vim concatenation world"
 :mess
 
 " List all files recursively:
@@ -573,6 +573,9 @@ echon '.vimrc: unknown language: (' mylang ') so using default Commentout style'
 
 " From inside Gvim fix authentication problem at work:
 :!c:/cygwin/bin/chmod 755 /cygdrive/u/temp/.vimxfer
+
+' Vim fold folding
+:se fdm=manual
 
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -1720,7 +1723,7 @@ proc format; value traffic LOW-10='red'  11-20='yellow'  21-HIGH='green'; run;
 libname DGM_DIST oracle user=&username password=&password path=&database schema=dgm_dist readbuff=10000;
 select * from ora_sas.customers(readbuff=10000);
 
- /* String concatenation */
+ /* SAS string concatenation */
 combined = fname || lname || numb;
 
  /* Version a dataset */
@@ -2221,6 +2224,11 @@ mycommand >&2   <---STDERR  same as 2> I think
 # mod modulus division
 bc -lwq    # if need modulus, from within bc, set scale=0
 
+# mod modulus division
+if (num % i == 0) { isPrime = false; }
+E.g. 3 % 2 = 1    i.e. flip it 2/3 taking the remainder which is 1
+E.g. 2 % 3 = 2    i.e. flip it 3/2 taking the remainder which is 2
+
 # Primitive alarm clock
 sleep `echo '60*2'|bc` && beep
 
@@ -2235,9 +2243,9 @@ set scale=3
 # Command line on the fly bc calculation
 (echo scale=5; echo 6954/10) | bc
 
-# Command line bc base 10 decimal to hex conversion (bc is case sensitive for hex numbers!):
+# Canonical bc convert base 10 decimal to hex (bc is case sensitive for hex numbers!):
 (echo obase=16; echo 10) | bc  # A
-# Command line bc onvert hexadecimal to decimal in bc (:echo 0xDEADBEEF in Vim)
+# Canonical bc convert hexadecimal to decimal in bc:
 (echo ibase=16; echo DEADBEEF) | bc  # 3735928559
 
 # Binary addition subtraction multiplication division in bc:
@@ -2481,10 +2489,6 @@ eject floppy                     <---when done, don't need volume manager GUI
 
 # Combine and compress two files (better compression than using -c)
 cat doserr2bat.sh open_write.c | gzip >foo.gz
-
-# mod modulus division
-E.g. 3 % 2 = 1    i.e. flip it 2/3 taking the remainder which is 1
-E.g. 2 % 3 = 2    i.e. flip it 3/2 taking the remainder which is 2
 
 # Rename files with spaces in their names:
 for i in *; do mv "$i" `echo $i | sed 's/ /_/g'`; done
@@ -2796,7 +2800,7 @@ perl -ne '$/="";@p=<>;for $p(@p){print "ok $p\n" if $p=~/team/;}' <setup.ini
 # Debug .bashrc trouble on Cygwin without sourcing config file clean bashrc
 C:\cygwin\bin\bash.exe --norc
 
-# Switch uppercase to lowercase:
+# Convert uppercase to lowercase:
 echo UPPERTOLOWER | tr [A-Z] [a-z]
 echo UPPERTOLOWER | tr 'A-Z' 'a-z'
 echo "THIS is a STRIng to be LOWErcased" | tr [:lower:] [:upper:]
@@ -3284,12 +3288,12 @@ tar -C / -xvf connect-proxy-1.101-1.tar.gz
 # Ubuntu system information:
 df -h && free -m && grep name /proc/cpuinfo | uniq && lspci | grep VGA && xrandr | grep connected && uname -rms
 
-# Easy GSK backup using the previous tarball as a sentinel - Cygwin:
+# Easy GSK synch backup using the previous tarball as a sentinel - Cygwin:
 ls -l ~/c && sleep 10 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd -
 
-# Easy GSK backup using the previous tarball as a sentinel - Ubuntu:
-cd ~ && find -L code/ -type f -newer c |grep -v '/.git/'|grep -v '.swp'|xargs tar cvfz c  # Ubuntu manual
-cd && find -L code/ -type f -newer ~/Downloads/c |grep -v '/.git/' |grep -v '.swp' |xargs tar cvfz ~/Downloads/c && scp ~/Downloads/c bheckel@sdf.org: && ssh bheckel@sdf.org mailx -a c -s c rsh86800@gsk.com && cd -  # Ubuntu quicker
+# Easy GSK synch backup using the previous tarball as a sentinel - Ubuntu:
+cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV |grep -v '/.git/'|grep -v '.swp'|xargs tar cvfz ~/Downloads/c.NEW  # Ubuntu simple synch
+cd && find -L code/ -type f -newer ~/Downloads/c.PREV |grep -v '/.git/' |grep -v '.swp' |xargs tar cvfz ~/Downloads/c.NEW && scp ~/Downloads/c bheckel@sdf.org: && ssh bheckel@sdf.org mailx -a c -s c rsh86800@gsk.com && cd -  # Ubuntu complex synch
 
 sudo fdisk -l
 sudo dd if=lubuntu-desktop-12.04-1-miniand.com.img of=/dev/sdb1 && sudo sync
@@ -3340,6 +3344,28 @@ x=`diff -ybB -W180 $u/tmp/{ols_PREV.txt,ols_CURR.txt} |perl -pe 's/(^\d+) [^\d+]
 ... elif [[ "$HOSTNAME" = 'EZBWL12H26564' || "$HOSTNAME" = 'EZBWD12H01067' ]]; then ...
 
 echo "${fg_redbold}SERIOUS FAILURE - GDM has reduced record count${normal}"
+
+# Insert a CSS include:
+perl -pi.bak -e 's#</head>#<link href="../english.css" rel="stylesheet" type="text/css" /></head>#g' *.html
+
+# Frequency count:
+egrep -o "(replic|was)" bladerun_crawl |sort|uniq -c|sort -r
+
+Pico save and exit immediately: Ctrl-x
+
+Set up ssh ssl tunnel:
+ssh -f -L 110:localhost:110 -l rheckel mail.freeshell.org
+
+# Sum column of a CSV file:
+awk -F"," '{x+=$2}END{print x}' t.csv
+awk -F"," '{x+=$2;print}END{print "Total,"x}' t.csv
+# Sum column of a CSV file for only myItem1:
+awk -F, '$1=="myItem1"{x+=$2;}END{print x}' t.csv
+# Unique values of the first column:
+awk -F, '{a[$1];}END{for (i in a)print i;}' t.csv
+
+# Are we on Cygwin?:
+$ x=`uname`; if [ ${x:0:6} = CYGWIN ];then echo ok; fi
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4039,9 +4065,10 @@ open FH1, 'junk1.txt' or die "Error: $0: $!"; @foo = <FH1>;
 vi ~/code/perl/compare.pl
 
 # Thin out, print 10 random lines from a file (good for creating dummy files):
-cat smallBEN.txt | perl -e '@line=<>; for(1..9){print $line[int rand @line]}'
+cat bladerun_crawl | perl -e '@line=<>; for(1..9){print $line[int rand @line]}'
+perl -e '@line=<>; for(1..9){print $line[int rand @line]}' bladerun_crawl
 
-# Replace all occurences of number 55 with a random number less than 100 (TODO how to avoid .bak files?)
+# Replace all occurences of number 55 with a random number less than 100
 perl -i.bak -pe "s/55/int rand(100)/eg"
 # Recursively for specific extensions
 perl -pi.bak -e "s/Output Compiled Data/Output_Compiled_Data/" `find . -name '*.sas'`
@@ -4271,7 +4298,7 @@ Speed of a T1 line is 1.5MB/second  Speed of a T3 line is 45MB/second
 
 :: Find your MAC address on W2K (via the network, not the card itself).
 > netstat -r
-:: Find your W2K MAC address (I think it's directly from the card itself).
+:: Find your W2K MAC address (I think it's directly from the card itself)
 > nbtstat -A 47.143.210.171
 :: or
 > ipconfig /all
@@ -4287,7 +4314,7 @@ net use * /delete
 :: Browse current connections (need single quotes only on Cygwin)
 net view '\\emiake'
 
-PrtScn copies the whole desktop, Alt-PrtScn copies just the app with focus.
+PrtScn copies the whole desktop, Alt-PrtScn copies just the app with focus
 
 Register a DLL on WinXP
 c:\WINDOWS\system32\regsvr32.exe c:\WINDOWS\system32\MSRDO20.DLL
@@ -4325,12 +4352,8 @@ if [%1] == [] echo 'no args passed to this .BAT'
 ' Determine which sheet you're using:
 MsgBox "'" & ActiveSheet.Name & "' is the currently active worksheet."
 
-Pico save and exit immediately: Ctrl-x
-
 Add directory to DOS path:
 set PATH=d:\newpath;%PATH%
-
-Orthogonality -- the degree to which different features follow the same underlying principles in a programming language.
 
 ' Find last used cell in an Excel worksheet:
 Sheets("Centura").Cells.SpecialCells(xlCellTypeLastCell).Row
@@ -4403,9 +4426,6 @@ c:> nslookup 158.111.250.165
 
 Pop up new window using only HTML
 <A HREF="http://www.cdc.gov" TARGET=_BLANK>Spawn new window
-
-Set up ssh ssl tunnel:
-ssh -f -L 110:localhost:110 -l rheckel mail.freeshell.org
 
 Mozilla cookies:
 /c/Documents\ and\ Settings/bqh0/Application\ Data/Mozilla/Profiles/default/
@@ -4482,7 +4502,7 @@ EXEC sp_help lu_prescriber
 -- or less helpfully
 EXEC sp_columns lu_prescriber
 
--- whoami
+-- SQL Server whoami
 select user_name()
 
 SQL Server < 2005 alternative to Microsoft SQL Server Management Studio
@@ -4526,7 +4546,7 @@ DROP TABLE bobhlm;
 --Get Oracle database instance version rack etc information v9+
 select * from v$instance;
 
-Works under Cygwin rxvt too
+:: cron for Windows:
 at 20:42 /interactive notepad
 
 ' Do not prompt user before overwriting:
@@ -4783,7 +4803,7 @@ $ ~/bin/msgbox "my title" "my body" error
 ' Autorun an Excel VBA macro:
 Private Sub Workbook_Open() ...
 
-:: Windows Desktop path:
+:: Windows XP Desktop path:
 C:\Documents and Settings\rsh86800\Desktop
 
 # uptime for Windows 
@@ -4960,9 +4980,6 @@ set termout off
 
 COALESCE(field1, field2) -- SQL takes the first non-null value it can find
 
-' Vim fold folding
-:se fdm=manual
-
 <script type="text/javascript">document.getElementById('txtCDInfo').innerHTML="new text!";</script>
 
  /* CSS */
@@ -4988,19 +5005,14 @@ WinXP icons
 %SystemRoot%\system32\SHELL32.dll
 
 :: Google DNS
-nslookup hostname 8.8.8.8
-nslookup hostname 8.8.4.4
-:: Level 3 DNS
-nslookup hostname 4.2.2.1
-nslookup hostname 4.2.2.2
+nslookup hostname 8.8.8.8  or  nslookup hostname 8.8.4.4
 :: OpenDNS
-nslookup hostname 208.67.222.222
-nslookup hostname 208.67.220.220
+nslookup hostname 208.67.222.222  or  nslookup hostname 208.67.220.220
 tracert -d 8.8.8.8
 
 DNS test http://18.62.0.96/
 
-:: Windows - what runs at startup etc.
+:: Windows - determine what runs at startup etc.
 msconfig
 
 # Benchmark a network speed problem
@@ -5347,7 +5359,8 @@ alias lims='sqlplus sasrepor/sasrepor@usprd25'
 :: SELECT constant to provide an empty column 
 select '' as test_result, ...
 
-Ubuntu purple color #290020
+Ubuntu purple color hex: #290020  RGB: 41 00 32
+Ubuntu brown color hex: #965224  or RGB: 150 82 36
 
 " Vimscript's wacky by-ref...:
 let sorted_list = reverse(sort(unsorted_list))
@@ -5395,6 +5408,10 @@ c:\> wmic cpu get loadpercentage
 
 cygcheck -cv w3m  # is package OK?
 
+git config user.name  # whoami
+cat ~/.gitconfig # whoami
+git config user.email
+
 git log --pretty=oneline
 git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
 git log --pretty=format:"%Cblue %h %ad | %Cgreen %s%Cblue %d [%an]" --graph --date=short  # or simply my gl alias
@@ -5439,6 +5456,12 @@ git ls-files  # list which files are tracked under git source control not just s
 
 git difftool HEAD  # uses vimdiff if previously  $ git config --global merge.tool vimdiff
 
+# Edit git existing commit messages:
+git commit --amend -m 'this changes your last, wrong, commit message to this'
+
+# List git branch dates sorted descending
+git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)"
+
 # Test AJAX etc that won't work using file:// etc.
 $ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
 
@@ -5457,6 +5480,7 @@ convert(varchar,fwn.VariableStp.dtStartDateTime,108) as dtStartTime
 
 private static final String[] items={"java", "strings", "in", "array"};
 
+Canonical test lorem ipsum string
 "lorem", "ipsum", "dolor", "sit", "amet", "consectetuer", "adipiscing", "elit", "morbi", "vel", "ligula", "vitae", "arcu", "aliquet", "mollis", "etiam", "vel", "erat", "placerat", "ante", "porttitor", "sodales", "pellentesque", "augue", "purus"
 
 Log.d(getClass().getSimpleName(),"my debug wtf");
@@ -5489,13 +5513,41 @@ Cygwin Windows free diskspace free
 while true do; df -h '//opsawn557/e$'; sleep 60; done
 
  /* Javascript concatenation */
-str3='<a href=http://www.dhammawheel.com/viewtopic.php?f=20&t=12345>' + rnd2 + '</a>';
+strcat = '<a href=http://www.dhammawheel.com/viewtopic.php?f=20&t=>' + rnd2 + '</a>';
 
 ISO 8601 date time format: 2013-04-27T18:00:00-05:00  2013-04-27T18:00:00,1-05:00
 
 -- PL/SQL Developer user prompt msgbox:
 ... AND UPPER(a.sample_id) like &< name = "Sample Id or mask.  Wildcard is %" hint = "Entry not required" type = "string" uppercase = "yes" default = "%" ifempty = "%" > ...
 
+-- Exit sqlite3: .q
+-- View attached sqlite3 databases: .databases
+-- View available sqlite3 tables: .tables
+-- View various sqlite3 settings: .show
+-- View field names sqlite3: .schema mytbl
+$ sqlite3 test.db "SELECT * FROM Cars;"
+
+Modulo finds the remainder of division of one number by another:
+11 % 3, is 2, because 3 goes into 11 three times with a remainder of 2.
+
+-- Cartesian inner join:
+SELECT Name, Day FROM Customers, Reservations;
+
+http://simplynoise.com/classic/noiseVol.swf
+
+There are two cscript.exe in the 64-bit OSes. One is located at
+%WINDOWS%\System32, other one is located at %WINDOWS%\SysWOW64.  The one under
+System32, is a 64-bit version. The one under SysWOW64 is the 32-bit version.
+
+" VBA concatenation:
+Obj_ADOTrns.ConnectionString = Wscript.Arguments(0) & "_ADO_" & Wscript.Arguments(1) & ".con"
+
+// Java concatenation
+System.out.println("Hello " + name);
+System.out.println("Return".concat(" of").concat(" the king."));
+
+// Java array
+int[] array = new int[5] { 1, 2, 3, 4, 5 };
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  

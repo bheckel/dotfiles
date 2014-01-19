@@ -22,7 +22,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Sun 22 Dec 2013 10:40:45 (Bob Heckel)
+" Modified: Wed 08 Jan 2014 14:10:39 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 "--------------------------------------------------------------------------
@@ -115,15 +115,15 @@ endif
 " sometimes relying on .Xdefaults to do wheat-on-black so this is only for gvim.
 hi Normal guifg=#F5DEB3 guibg=Black
 
-if has ('win32unix')
-  hi Comment ctermfg=DarkGray guifg=DarkGray guibg=Black
+if hostname() == 'yoniso'
+  " Broken(?) urxvt using t_Co=256
+  hi Comment ctermfg=Black cterm=bold guifg=DarkGray guibg=Black
 else
-  " Broken urxvt
-  hi Comment ctermfg=Black guifg=DarkGray guibg=Black cterm=bold
+  hi Comment ctermfg=DarkGray guifg=DarkGray guibg=Black
 endif
 
 hi Conditional ctermfg=LightGreen guifg=LightGreen
-" for mintty
+" For mintty
 hi DiffAdd ctermfg=Black ctermbg=Cyan
 hi Directory ctermfg=Magenta guifg=Magenta guibg=Black cterm=bold gui=bold
 " Highlight tabs other than at start of line for indenting
@@ -962,9 +962,8 @@ noremap ;f mfvipJ`f
 " For (F)irefox add-on (f)ormatting.  Uses ,w map.
 noremap ;ff mfvipJ`f<Esc>,w
 
-" (G)et Windows Clipboard
+" (G)et Clipboard
 if has('win32')
-  """map ;g :r!c:/cygwin/bin/getclip<CR>
   :map ;g "*p<ESC> 
 elseif has('win32unix')
   map ;g :r!/bin/getclip<CR>
