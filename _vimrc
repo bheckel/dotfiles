@@ -42,12 +42,14 @@ if has ('win32unix')
   let g:netrw_cygwin=1  " scp to be provided by Cygwin
   let g:netrw_browsex_viewer='cygstart'
 endif
-let g:netrw_fastbrowse=2
-let g:netrw_browse_split=2
+" Tree view
 let g:netrw_liststyle= 3
+" Refresh dir listings only if dir not seen before
+let g:netrw_fastbrowse=2
+" <CR> opens in new tab
+let g:netrw_browse_split=3
+" Ignore case for sort order
 let g:netrw_sort_options="i"
-let g:netrw_use_noswf=1
-" i to iterate view
 let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
 
 " Setup Vim tempspace that Cygwin and gVim can share:

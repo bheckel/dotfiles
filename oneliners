@@ -6,18 +6,15 @@
 #
 #           Comments are often written for searching, not proper English...
 #
-#           This is a smaller file than when I was a beginner but it should be
-#           even smaller...
-#
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
 # Modified: Sat 28 Dec 2013 10:22:04 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
-" Delete all blank empty lines:
+" Delete blank empty lines:
 :g/^$/d
-" Delete all blank empty lines (including nonprinting characters):
+" Delete blank empty lines (including nonprinting characters):
 :g/^\W\+$/d
 
 " Thin out a file by deleting every other line:
@@ -2396,15 +2393,14 @@ rpm -Uvh foo.rpm          # install
 rpm -qa | grep -i pine    # determine if a pine RPM has been installed
 rpm -e emacs              # remove
 
+Athena scrollbars        middle mouse to drag the scroll bar up and down
 Athena scrollbars High   left mouse scrolls one line up
 Athena scrollbars Low    left mouse scrolls one page up
 Athena scrollbars High   right mouse scrolls one line down
 Athena scrollbars Low    right mouse scrolls one page down
-Athena scrollbars        middle mouse to drag the scroll bar up and down
 
 # Checkout a repository on a remote machine:
-export CVSROOT=:ext:rheckel@parsifal:/home/rheckel/repository
-cvs co eandb
+export CVSROOT=:ext:rheckel@parsifal:/home/rheckel/repository && cvs co eandb
 
 # Debian (at least) date undocumented set time (as root):
 $ date --set=17:03:01
@@ -3162,11 +3158,6 @@ lpr -dprinter_name file_name
 # Cygwin w3m compile finish
 find . -name "*.dll" -or -name "*.exe" | xargs -r strip
 
-# Using awk tilde find the process with 'ba' in its name in column 8:
-#      PID    PPID    PGID     WINPID  TTY  UID    STIME COMMAND
-#     1072    4384    1072       4948    0 1003   Feb  1 /usr/bin/bash
-ps | awk '$8 ~ /ba/' -
-
 # Choose a random line from a file (bash provides $RANDOM)
 F=dhammapada.txt; TOTLINES=`wc -l $F | awk '{print $1}'`; LINENUM=$[($RANDOM%${TOTLINES})+1]; sed -n "$LINENUM"p $F
 
@@ -3345,7 +3336,7 @@ x=`diff -ybB -W180 $u/tmp/{ols_PREV.txt,ols_CURR.txt} |perl -pe 's/(^\d+) [^\d+]
 
 echo "${fg_redbold}SERIOUS FAILURE - GDM has reduced record count${normal}"
 
-# Insert a CSS include:
+# Insert a CSS include before the closing HEAD tag:
 perl -pi.bak -e 's#</head>#<link href="../english.css" rel="stylesheet" type="text/css" /></head>#g' *.html
 
 # Frequency count:
@@ -3353,19 +3344,25 @@ egrep -o "(replic|was)" bladerun_crawl |sort|uniq -c|sort -r
 
 Pico save and exit immediately: Ctrl-x
 
-Set up ssh ssl tunnel:
+# Set up ssh ssl tunnel:
 ssh -f -L 110:localhost:110 -l rheckel mail.freeshell.org
+
+#     1072    4384    1072       4948    0 1003   Feb  1 /usr/bin/bash
+ps | awk '$8 ~ /bash/' -
 
 # Sum column of a CSV file:
 awk -F"," '{x+=$2}END{print x}' t.csv
 awk -F"," '{x+=$2;print}END{print "Total,"x}' t.csv
 # Sum column of a CSV file for only myItem1:
 awk -F, '$1=="myItem1"{x+=$2;}END{print x}' t.csv
-# Unique values of the first column:
+
+# Unique values of the first column (SELECT DISTINCT * FROM COL1). awk database:
 awk -F, '{a[$1];}END{for (i in a)print i;}' t.csv
+# Only list 2014 dates (SELECT DISTINCT * FROM COL28 WHERE COL28 LIKE '%2014%'):
+awk -F, '$28 ~ /2014/ {a[$28]} END{for (i in a) print i}' mondayOLS_0016T_vairDiskus.csv |sort |tail -n20| tac
 
 # Are we on Cygwin?:
-$ x=`uname`; if [ ${x:0:6} = CYGWIN ];then echo ok; fi
+x=`uname`; if [ ${x:0:6} = CYGWIN ];then echo isCygwin; fi
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5420,6 +5417,7 @@ git diff 97a158d 5e4abd2 # or git diff or git diff cfg/ or git diff cfg/DataPost
 
 # wget-ish:
 git clone git://busybox.net/busybox.git
+git clone git://github.com/bheckel/dotfiles.git
 
 # git new branch:
 git branch mynewbranch; git checkout mynewbranch # or just branch and checkout in one swoop: git checkout -b mynewbranch
@@ -5427,13 +5425,19 @@ git branch mynewbranch; git checkout mynewbranch # or just branch and checkout i
 # git switch branches
 git checkout master
 
-# git mantra:
+# git commit mantra:
 git add . && git commit -m 'mod'  # or better  git commit -a -m 'mod'
-git add cfg/DataPost_Configuration.xml && git commit -m 'modding one file'
+git add cfg/DataPost_Configuration.xml && git commit -m 'mod single file'
+
 # git commit mantra (svn-ish):
-git add . && git commit -am 'another bitfiddle'
+git add . && git commit -am 'bitfiddle'
+
 # github commit mantra:
-git add . && git commit -am 'another bitfiddle' && git push origin master
+git add . && git commit -am 'bitfiddle' && git push origin master
+
+# github commit mantra:
+gs |grep modified
+git add _bashrc _conkyrc _vimrc fluxbox.menu fluxbox.startup oneliners && git commit -m 'mod' && git push origin master
 
 # git merge something into current branch:
 git checkout master && git merge mynewbranch && git branch -d mynewbranch
