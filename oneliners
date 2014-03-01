@@ -1207,7 +1207,7 @@ sumof=sum(of idnum--qtr4 of x1-x42);  /* same */
 sumof=sum(of idnum--qtr4 x1-x42);  /* same */
 meanof=mean(of a[*]);   /* variable array */
 
- /* Split parse string on dash taking 7ZP6699 from 7ZP6699-4148428 */
+ /* Split parse string on dash taking 8ZP6699 from 8ZP6699-4148428 */
 mfg_batch=scan(mfg_batch,1,'-');
 
  /* Get every 4th obs */
@@ -1555,7 +1555,7 @@ c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin t.sas -log t.log -nosplash -rtrace al
 filename MPRINT 'c:\temp\printMacroResolvedSAScode.sas'; options MPRINT MFILE;
 
  /* GENMAX is the max number of datasets to rotate but each of those 7 gets an increment e.g. ip21_0002e_line8fillerBKUP#009.sas7bdat */
-echo "libname l '//Rtpsawn323/DataPost/GSK/Zebulon/MDI';libname l2 'u:/tmp';data l2.ip21_0002e_line8fillerBKUP(genmax=3);set l.ip21_0002e_line8filler;run;" >| $UTMPDIR/t.sas && $SASEXE -sysin "$UTMPDIR/t.sas" -log "$UTMPDIR/t7a.log";
+echo "libname l '//tpsawn323/DataPost/SGK/Zebulon/MDI';libname l2 'u:/tmp';data l2.ip21_0002e_line8fillerBKUP(genmax=3);set l.ip21_0002e_line8filler;run;" >| $UTMPDIR/t.sas && $SASEXE -sysin "$UTMPDIR/t.sas" -log "$UTMPDIR/t7a.log";
 
  /* Variable range lists: */
 var1-var999;
@@ -1967,6 +1967,8 @@ chmod +s anyonecanrunthisvirus
 chmod 4755 anyonecanrunthisvirus
 # Enable all world to run command:
 chmod a+x runvirus.sh
+# Recursive:
+chmod -R 755 .
 
 # Use a remote file as a template:
 #             -------remote----------   --local--
@@ -2742,13 +2744,13 @@ mailx -s 'email subject type CTRL-D or dot on blank line to end' root@daeb
 mailx -s "mysubject" -r LMITHELP@cdc.gov -c 'bboswell@cdc.gov rheckel@cdc.gov' 'ckj1@cdc.gov kjk4@cdc.gov' <junk
 ? touch *    # mark all as read and write to mbox in mailx...
 mailx -f ~/mbox   # ...and read them
-ssh rtpsh005 'ls -l /home/gaaadmin/GAAAdapter/gaa/receive/Output_Data | mailx -s 'subject' rsh86800@gsk.com'
+ssh rtpsh005 'ls -l /home/gaaadmin/GAAAdapter/gaa/receive/Output_Data | mailx -s 'subject' rsh86800@sgk.com'
 
 # Monitor system status (Solaris at least):
 echo `uptime|awk '{print $11 $12 $13}' && df -k|grep /data|awk '{print $5}'` | mailx -s "load and /data space [cron tstdev]" 'bqh0@cdc.gov'
 
 # Without an external file redirected in:
-$ echo 'ok' | mailx -s 'test4' rsh86800@gsk.com
+$ echo 'ok' | mailx -s 'test4' rsh86800@sgk.com
 
 # Group specific files for move to another machine.  Don't use find before tar
 # unless your tar can do this (-I for Solaris)!!
@@ -3211,6 +3213,8 @@ lsb_release -a
 # Canonical date(1) formatting
 date +'%a %d%b%y %02k:%M'
 
+$ 7z a Android-4.4.pdf.7z Android-4.4.pdf
+
 # Unzip 7zip
 $ 7z x proust.7z
 $ ~/Dropbox/Public/misc/computer/Linux/7za e ~/proust.7z
@@ -3279,12 +3283,12 @@ tar -C / -xvf connect-proxy-1.101-1.tar.gz
 # Ubuntu system information:
 df -h && free -m && grep name /proc/cpuinfo | uniq && lspci | grep VGA && xrandr | grep connected && uname -rms
 
-# Easy GSK synch backup using the previous tarball as a sentinel - Cygwin:
+# Easy work synch backup using the previous tarball as a sentinel - Cygwin:
 ls -l ~/c && sleep 10 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd -
 
-# Easy GSK synch backup using the previous tarball as a sentinel - Ubuntu:
+# Easy work synch backup using the previous tarball as a sentinel - Ubuntu:
 cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV |grep -v '/.git/'|grep -v '.swp'|xargs tar cvfz ~/Downloads/c.NEW  # Ubuntu simple synch
-cd && find -L code/ -type f -newer ~/Downloads/c.PREV |grep -v '/.git/' |grep -v '.swp' |xargs tar cvfz ~/Downloads/c.NEW && scp ~/Downloads/c bheckel@sdf.org: && ssh bheckel@sdf.org mailx -a c -s c rsh86800@gsk.com && cd -  # Ubuntu complex synch
+cd && find -L code/ -type f -newer ~/Downloads/c.PREV |grep -v '/.git/' |grep -v '.swp' |xargs tar cvfz ~/Downloads/c.NEW && scp ~/Downloads/c bheckel@sdf.org: && ssh bheckel@sdf.org mailx -a c -s c rsh86800@sgk.com && cd -  # Ubuntu complex synch
 
 sudo fdisk -l
 sudo dd if=lubuntu-desktop-12.04-1-miniand.com.img of=/dev/sdb1 && sudo sync
@@ -3298,7 +3302,7 @@ ln -s /cygdrive/c/fooreal foosymlinkedfake
 find $z/datapost/dataDose/ |grep 'lims_.*t_.*sas7bdat' |xargs ls -l |awk '{print $10 "\t\t" $8 $7}'|sort
 
 # Build HREF using substitution
-find /cygdrive/c/datapost/data/GSK/Zebulon/ -name '*.pdf'|sed 's/\/cygdrive\/c//' |perl -pe 's/(.*)\/(.*)/<a href=http:\/\/zdatapostd.gsk.com\1\/\2\/>\2<\/a>/'
+find /cygdrive/c/datapost/data/SGK/Zebulon/ -name '*.pdf'|sed 's/\/cygdrive\/c//' |perl -pe 's/(.*)\/(.*)/<a href=http:\/\/zdatapostd.sgk.com\1\/\2\/>\2<\/a>/'
 
 # Cygwin X
 $ startxwin&  # ok to close xterm if one pops up and use it or rxvt for next cmd:
@@ -3308,7 +3312,7 @@ $ ssh -X rtpsh005  # see readme.ssh.txt if need id switching (su, super chemlms-
 $ XWin.exe -query trpsh005  # don't use startxwin unless want commandline only
 
 # Build cp commands to replicate files to another tree:
-find data/gsk/zebulon -name 'ols*.sas7bdat'|sed 's/\(.*\)/cp -i \1 \/cygdrive\/x\/datapostdemo\/\1/'
+find data/sgk/zebulon -name 'ols*.sas7bdat'|sed 's/\(.*\)/cp -i \1 \/cygdrive\/x\/datapostdemo\/\1/'
 
 $$  # the process id of the current process
 
@@ -3357,12 +3361,19 @@ awk -F"," '{x+=$2;print}END{print "Total,"x}' t.csv
 awk -F, '$1=="myItem1"{x+=$2;}END{print x}' t.csv
 
 # Unique values of the first column (SELECT DISTINCT * FROM COL1). awk database:
-awk -F, '{a[$1];}END{for (i in a)print i;}' t.csv
+head -n1 t.csv |sed 's/,/\n/g' |nl  # determine field nums
+awk -F, '{a[$1];}END{for (i in a)print i;}' t.csv  # filter only that field
 # Only list 2014 dates (SELECT DISTINCT * FROM COL28 WHERE COL28 LIKE '%2014%'):
 awk -F, '$28 ~ /2014/ {a[$28]} END{for (i in a) print i}' mondayOLS_0016T_vairDiskus.csv |sort |tail -n20| tac
+# Find test dates for this mat cod:
+grep 100000089317 t.csv | awk -F, '{a[$19];}END{for (i in a)print i;}' - |uniq |sort
 
 # Are we on Cygwin?:
 x=`uname`; if [ ${x:0:6} = CYGWIN ];then echo isCygwin; fi
+
+# awk vs. cut:
+git show-ref --heads |cut -d' ' -f2
+git show-ref --heads |awk 'print{$2}'
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3954,7 +3965,7 @@ select((select(LOG), $|=1)[0]);
 perl -e 'print "ok" if (stat("prellg"))[9] > time-86400'
 
 # Modify CPAN module settings (perl -MCPAN -e shell) TODO 2008-08-06 not working
-cpan> o conf http_proxy http://setproxy.gsk.com/proxy.pac
+cpan> o conf http_proxy http://setproxy.sgk.com/proxy.pac
 cpan> o conf urllist push ftp://myurl/'
 
 while ( ($key, $value) = each %myhash ) { ... 
@@ -4569,7 +4580,7 @@ WHERE prod_sel_dt BETWEEN TO_DATE('01-JAN-10','DD-MON-YY') AND TO_DATE('31-JAN-1
 -- Oracle last few days search (if activity_dt is DATE formatted):
 select count(*) from activity_log where activity_dt > (SYSDATE-3);
 
--- Gsk standard SAS DATE9.
+-- Same as standard SAS DATE9.
 select trunc(sysdate) from dual
 
 -- Oracle date only this month:
@@ -4875,7 +4886,7 @@ Windows Task Manager alternative key combination: Ctrl+Shift+Esc
 Open Windows Event Viewer from command line:  eventvwr
 
 <!-- Redirect moved forward new address, 0 indicates immediately -->
-<meta http-equiv="refresh" content="10; url=https://connect.gsk.com/Pages/Default.aspx">
+<meta http-equiv="refresh" content="10; url=https://connect.sgk.com/Pages/Default.aspx">
 
 Windows Task Manager: Ctrl+Shift+Esc 
 
@@ -5334,7 +5345,7 @@ DELETE FROM pks_extraction_control WHERE meth_spec_nm LIKE 'ATM02102%';
 Excel uses exponentiation e.g. 1E+13 for large numbers - avoid by Format Cells : Custom : Enter "#" in Type field
 
 :: Find DNS info for a site (or IP)
-nslookup zdatapost.gsk.com
+nslookup zdatapost.sgk.com
 
 What version of java are you running:
 c:\> java -fullversion
@@ -5552,6 +5563,8 @@ System.out.println("Return".concat(" of").concat(" the king."));
 
 // Java array
 int[] array = new int[5] { 1, 2, 3, 4, 5 };
+
+mintty Ctrl+ Ctrl- font size
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  

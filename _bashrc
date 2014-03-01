@@ -4,7 +4,7 @@
 # Summary: bash shell config for at least Cygwin 1.3/1.5/1.7, Unix and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Mon 20 Jan 2014 08:25:21 (Bob Heckel)
+# Modified: Thu 27 Feb 2014 09:47:04 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -30,6 +30,9 @@ stty -ixon
 # Generic Export  #{{{2
 #-----------------------
 export EDITOR=vi
+# For git PS1 function
+export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+export GIT_CEILING_DIRECTORIES=/home
 export HISTFILESIZE=50000  # max lines in $HISTFILE
 export HISTIGNORE='f:fg:l:ls:la:cd:h:ll::d:by:&'  # '&' supposedly same as HISTCONTROL=ignoredups - consecutive dups that is
 # No duplicates, no same successive entries ('&' HISTIGNORE doesn't work 2007-11-18)
@@ -99,9 +102,10 @@ alias daystil32=$HOME/code/misccode/daystil32.exe
 alias daystil64=$HOME/code/misccode/daystil64.exe
 alias f='fg'  # jobs -s  to list what's suspended
 alias g=$HOME/code/misccode/gone.sh
+# Can't use sed to eliminate leading spaces or it breaks coloring
 alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
 # * e853f54 1 year, 4 months ago | 1st commit  [Bob Heckel]
-alias gl='git log --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %d [%an]" --graph --date=short'
+alias gl='git log --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %d [%an]" --graph --date=short |sed "s/^\* //g"'
 alias gs='git status'
 alias h='history|tail -20'  # history 20 is better if it exists
 alias iv=vi
@@ -109,8 +113,7 @@ alias j="jobs -s"  # only show STOPPED (i.e. skip RUNNING blink.exe's) jobs
 alias l='ls'
 # Overridden later if non-GNU ls is present.  Do not move.
 alias la='ls -FA --color=auto'
-###alias ls='ls --color --group-directories-first'
-###alias ll='ls -lh'
+alias ls='ls --color --group-directories-first'
 alias ll='ls -gGh --color --group-directories-first'
 # If ls -lS isn't available:
 ###alias lls='ls -l | sort +4r | grep -v "total"'  # sort descending on size
@@ -527,6 +530,7 @@ parse_git_dirty() {
   [[ $(git status 2> /dev/null | tail -n1) != "nothing to commit (working directory clean)" ]] && echo "*"
 }
 parse_git_branch() {
+  # Assumes  export GIT_DISCOVERY_ACROSS_FILESYSTEM=1  to avoid slowness on network drives
   git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e "s/* \(.*\)/[\1$(parse_git_dirty)]/"
 }
 
@@ -620,19 +624,14 @@ case "$OSTYPE" in
     export PATH=$HOME/bin:/usr/bin:/bin:$PATH
     export PERLLIB=$HOME/perllib
     export LANG=en_US
-    # Lowercase the fscking Windows generated uppercase hostname.
+    # Lowercase the fscking Windows uppercase hostname.
     ###export LCHOSTNAME="`echo ${HOSTNAME} | perl -ne 's/(.*)/\L$1\E/;print'`"
     export LCHOSTNAME="`echo ${HOSTNAME} | tr [A-Z] [a-z]`"
     # The echo -ne "\033]0;${PWD}\007" causes rxvt titlebar to show PWD.
     # '\[ ... \]' says "ignore this material while calculating the size of the prompt".
-    # We only want hostname's first 4 chars to avoid cluttering the titlebar.
-    # Calling stoppedjobs() is too expensive on parsifal
-    ###export PROMPT_COMMAND='echo -ne "\033]0;${LCHOSTNAME:0:4}:${PWD}\007";'
-    ###export PROMPT_COMMAND='history -a;set_prompt_colors; echo -ne "\033]0;${LCHOSTNAME:0:4}:${PWD}\007";'
-    # Needed to display path in menu titlebar.  TODO still need the history hack?
     # Want our history appended (-a) and other term's history merged into ours (-n)
-    ###export PROMPT_COMMAND='history -a; history -n; echo -ne "\033]0;${LCHOSTNAME:0:4}:${PWD}\007";'
-    export PROMPT_COMMAND='history -a; echo -ne "\033]0;${LCHOSTNAME:0:4}:${PWD}\007";'
+###    export PROMPT_COMMAND='history -a; echo -ne "\033]0;${LCHOSTNAME:0:4}:${PWD}\007";'
+    export PROMPT_COMMAND='history -a; echo -ne "\033]0;${PWD}\007";'
     # Triple clickable noop prompt.  WinXP==CYGWIN_NT-5.1 W2K==5.0 
     ###if [ "${OSTYPE}" = 'CYGWIN_NT-5.1' ]; then
       ###export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${LCHOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
@@ -645,6 +644,7 @@ case "$OSTYPE" in
       # to remove the '\['s
       ###export PS1=': `stoppedjobs`\[${prompt_beg}\]${USERNAME}@${LCHOSTNAME:0:8}\[${prompt_end}\]; '
     ###fi
+    # 0 rsh86800@ZEBWL12H26564[master] datapost/ Thu Feb 20 13:41:16
     export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${LCHOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
     export PS2=' '  # allow multiple line copy to clipboard 
     export TEMP=/cygdrive/c/temp
@@ -900,12 +900,12 @@ case "$OSTYPE" in
 ###    alias vig='rxvt -geometry 80x50+250+50 +sb -fn "Andale Mono-12" -e vi -c start&'
 
     # See gskto gskfrom
-    if [ $HOSTNAME = 'ZEBWL12H29961' ]; then
+    if [ $HOSTNAME = 'ZEBWL12H29961' -o $HOSTNAME = 'ZEBWL12H26564' ]; then
       # Assumes we have manually downloaded the weekend work attachment as
       # ~/c.NEW
-      homefrom='cd ~; ls -l c.NEW && sleep 6; tar xvfz c.NEW'
+      alias homefrom='cd ~; ls -l c.NEW && sleep 6; tar xvfz c.NEW'
       # Friday run usually
-      hometo='ls -l ~/c && sleep 6 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd - && st ~'
+      alias hometo='ls -l ~/c && sleep 6 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd - && st ~'
     fi
 
     # Avoid nullglob or e.g. ls k* will show all files if no k* files exist.
@@ -1091,9 +1091,9 @@ case "$OSTYPE" in
 
       # TODO if not running (via fluxbox) start dropbox and nm-applet
       if [ $HOSTNAME = 'yoniso' ]; then
-        # Assumes we have downloaded the gsk attachment as ~/Downloads/c
+        # Assumes we have downloaded the gsk attachment as ~/Downloads/c.   See homefrom hometo. 
         alias gskfrom='cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && find -L ~/code -perm 000|xargs chmod 755'
-        # Assumes we have recent work ready to tar and mail to gsk as c.NEW
+        # Assumes we have recent work ready to tar and mail to gsk as c.NEW.  See homefrom hometo. 
         alias gskto='cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV |grep -v '/.git/'|grep -v '.swp'|xargs tar cvfz ~/Downloads/c.NEW'
         alias nexus='sudo mount -t vfat /dev/sdb /media/Nexus -o uid=1000,gid=1000,utf8,dmask=027,fmask=137; mount|grep "^/dev/sd"; echo "sudo umount /media/Nexus"'
       fi
@@ -1238,7 +1238,9 @@ case "$OSTYPE" in
 esac #}}}
 #}}}1
 
+# Project-specific or security related additions
 if [ -e $HOME/code/misccode/_project.bashrc ]; then
-  # Project-specific or security related additions
   source $HOME/code/misccode/_project.bashrc
+elif [ -e $HOME/code/misccode/.project.bashrc ]; then
+  source $HOME/code/misccode/.project.bashrc
 fi
