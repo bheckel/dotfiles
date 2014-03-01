@@ -8,15 +8,15 @@
 #           $ man fluxbox-keys
 #
 #  Created: Mon 12 Jan 2012 17:59:26 (Bob Heckel)
-# Modified: Mon 31 Dec 2012 08:31:07 (Bob Heckel)
+# Modified: Sat 01 Mar 2014 15:13:23 (Bob Heckel)
 ##############################################################################
 
-# click on the desktop to get menus
+# Right-click on the desktop to get menus
 OnDesktop Mouse1 :HideMenus
 OnDesktop Mouse2 :WorkspaceMenu
 OnDesktop Mouse3 :RootMenu
 
-# scroll on the desktop to change workspaces
+# Scroll on the desktop to change workspaces
 OnDesktop Mouse4 :PrevWorkspace
 OnDesktop Mouse5 :NextWorkspace
 
@@ -38,18 +38,18 @@ OnRightGrip Move1 :StartResizing bottomright
 # control-click a window's titlebar and drag to attach windows
 ###OnTitlebar Control Mouse1 :StartTabbing
 
-# double click on the titlebar to shade
+# Double click on the titlebar to shade
 ###OnTitlebar Double Mouse1 :Shade
 OnTitlebar Double Mouse1  :Maximize
 
-# left click on the titlebar to move the window
+# Left click on the titlebar to move the window
 OnTitlebar Mouse1 :MacroCmd {Raise} {Focus} {ActivateTab}
 OnTitlebar Move1  :StartMoving
 
-# middle click on the titlebar to lower
+# Middle click on the titlebar to lower
 OnTitlebar Mouse2 :Lower
 
-# right click on the titlebar for a menu of options
+# Right click on the titlebar for a menu of options
 OnTitlebar Mouse3 :WindowMenu
 
 # alt-tab
@@ -57,13 +57,13 @@ Mod1 Tab :NextWindow {groups} (workspace=[current])
 Mod1 Shift Tab :PrevWindow {groups} (workspace=[current])
 # 2012-12-31 conflicts with browser tab switching
 # If any xterm windows are open, cycle through them. If none are open, open one
-###Control Tab :If {Some Matches (urxvt)} {NextWindow (urxvt) (workspace=[current])} {Exec urxvt}
+Control Tab :If {Some Matches (urxvt)} {NextWindow (urxvt) (workspace=[current])} {Exec urxvt}
 
-# cycle through tabs in the current window
+# Cycle through tabs in the current window
 ###Mod4 Tab :NextTab
 ###Mod4 Shift Tab :PrevTab
 
-# go to a specific tab in the current window
+# Go to a specific tab in the current window
 ###Mod4 1 :Tab 1
 ###Mod4 2 :Tab 2
 ###Mod4 3 :Tab 3
@@ -77,16 +77,16 @@ Mod4 t   :If {Some Matches (urxvt)} {NextWindow (urxvt) (workspace=[current])} {
 Mod4 v   :Exec urxvt -name alsa -e alsamixer
 Mod4 x   :If {Some Matches (thunar)} {NextWindow (thunar) (workspace=[current])} {Exec /usr/bin/thunar}
 
-# open a dialog to run programs
+# Open a dialog to run programs
 Mod4 F2 :Exec fbrun
 
-# volume settings, using common keycodes
+# Volume settings, using common keycodes
 # if these don't work, use xev to find out your real keycodes
 ###176 :Exec amixer sset Master,0 1+
 ###174 :Exec amixer sset Master,0 1-
 ###160 :Exec amixer sset Master,0 toggle
 
-# current window commands
+# Current window commands
 Mod1 F4 :Close
 ###Mod1 F5 :Kill
 ###Mod1 F9 :Minimize
@@ -94,38 +94,38 @@ Mod1 F4 :Close
 ###Mod4 F11 :Fullscreen
 F11 :Fullscreen
 
-# open the window menu
+# Open the window menu
 Mod1 space :WindowMenu
 Mod4 space :RootMenu
 
-# exit fluxbox
+# Exit fluxbox
 ###Control Mod1 Delete :Exit
 
-# change to previous/next workspace
+# Change to previous/next workspace
 ###Control Mod4 Left :PrevWorkspace
 Mod4 Left :PrevWorkspace
 ###Control Mod1 Right :NextWorkspace
 Mod4 Right :NextWorkspace
 
-# send the current window to previous/next workspace
+# Send the current window to previous/next workspace
 ###Control Mod4 Left :SendToPrevWorkspace
 ###Control Mod4 Right :SendToNextWorkspace
 
-# send the current window and follow it to previous/next workspace
+# Send the current window and follow it to previous/next workspace
 ###Control Mod4 Left :TakeToPrevWorkspace
 ###Control Mod4 Right :TakeToNextWorkspace
 
-# change to a specific workspace
+# Change to a specific workspace
 ###Mod4 F1 :Workspace 1
 ###Mod4 F2 :Workspace 2
 ###Mod4 F3 :Workspace 3
 
-# send the current window to a specific workspace
+# Send the current window to a specific workspace
 ###Mod4 F1 :SendToWorkspace 1
 ###Mod4 F2 :SendToWorkspace 2
 ###Mod4 F3 :SendToWorkspace 3
 
-# send the current window and change to a specific workspace
+# Send the current window and change to a specific workspace
 ###Control Mod4 F1 :TakeToWorkspace 1
 ###Control Mod4 F2 :TakeToWorkspace 2
 ###Control Mod4 F3 :TakeToWorkspace 3
