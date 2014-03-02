@@ -7,7 +7,7 @@
 #           Comments are often written for searching, not proper English...
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Sat 28 Dec 2013 10:22:04 (Bob Heckel)
+# Modified: Sun 02 Mar 2014 08:31:06 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -28,8 +28,8 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 " Insert a line, interleave, after each line in a file:
 %s/$/foo bar/gc
 
-" For each line containing USPRD37, do this substitution
-:g/USPRD37/s/rtpsduxrax/us1sduxray/c
+" For each line containing UPRD37, do this substitution
+:g/SPRD37/s/rtpsduxrax/us1sduxray/c
 
 " Delete line 10 and the 3 lines following it (total 4 lines deleted)
 :10d 4
@@ -153,7 +153,7 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 " Turn line containing only a url into an HREF
 :0,$:s:\(.*\):<a href=\1>\1</A>:gc 
 
-" Put angle brackets around an email address.  E.g. <rheckel@yaho.com> but not <bheckel@sdf.lonestr.org>
+" Put angle brackets around an email address.  E.g. <rheckel@yaho.com> but not <bheckel@dsf.lonestr.org>
 :0,$:s: \(\w\+@\w\+\.\w\+\)$: \<\1>:gc
 
 " Write current line to file:
@@ -345,7 +345,7 @@ yl
 :Nread "mf bqh0 Tistyb4p pgm.trash(junk)"
 " Netrw using vim with ssh:
 $ vim scp://rheckel@192.94.73.4/html/index.html
-$ vi scp://rsh86800@rtpsh005//opt/QCServer/A.05.00/svr/files/Inspec_Lot-0108.log  # note no colon and double slash
+$ vi scp://rsh8680@tpsh005//opt/QCServer/A.05.00/svr/files/Inspec_Lot-0108.log  # note no colon and double slash
 $ vi scp://root@192.168.1.1:6699//var/log/messages
 
 " Debug shell script by doing an echo line below declaration:
@@ -727,7 +727,7 @@ libname CONCAT ('c:/temp' 'c:/cygwin/tmp/' 'c:/idontexist');
 %let the_type=%upcase(&the_type);
 
  /* Mainframe filename */
-filename OUT "DWJ2.DCFET03.D04NOV03" DISP=NEW UNIT=TEMP LRECL=229 BLKSIZE=229 RECFM=FB;
+filename OUT "DWJ.DCFET03.D04NOV03" DISP=NEW UNIT=TEMP LRECL=229 BLKSIZE=229 RECFM=FB;
 
  /* Fixed length file.  Pads to 70. */
 filename f 'c:/temp/foo1' lrecl=70 recfm=f;
@@ -954,7 +954,7 @@ select quote(trim(mycharvar)) into :RISKVARS separated by ', '
 select froms, tos, dist into :ITEM1, :ITEM2, :ITEM3
 
  /* If you use this: */
-LIBNAME FMTLIB "DWJ2.NAT2003.FMTLIB" DISP=SHR WAIT=250;
+LIBNAME FMTLIB "DWJ.NAT2003.FMTLIB" DISP=SHR WAIT=250;
  /* you also need this: */
 OPTIONS FMTSEARCH=(WORK FMTLIB);
 
@@ -1113,7 +1113,7 @@ data _null_; do while ( x<3 ); put x=; x+1; end; run;
 ... %do i=1 %to 4 %by 2; %put &minyr.&i; %end; ...  /* only 2 puts */
 
  /* Run IntrNet d:\sas_programs\t.sas with debug on */
-http://rtpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program=LINKS.t.sas&UID=rsh86800&_debug=131
+http://rtpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program=LINKS.t.sas&UID=rsh8680&_debug=131
 
  /* Prepare single quoted date for Oracle TODO not correct */
 data _NULL_; call symput('STARTDT', "'"||put("&SYSDATE9"D-1, DATE9.)||"'"); run;
@@ -1460,7 +1460,7 @@ data _null_; x=sleep(10); run;  /* 10 seconds */
 if first.storeno and last.storeno then put 'firstdot lastdot says there is only one of these unique values: ' storeno;
 
  /* Assigned automatically by SAS */
-SASUSER libname e.g.: C:\Documents and Settings\rsh86800\My Documents\My SAS Files\V8
+SASUSER libname e.g.: C:\Documents and Settings\rsh8680\My Documents\My SAS Files\V8
 
  /* Display editor line numbers (Enhanced Editor etc) */
 nums
@@ -1738,11 +1738,11 @@ xxUNIXxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 date +%d%b%y
 
 # Canonical find and then grep
-ssh rtpsh005 'find /opt/QCServer/A.05.00/svr/files -name 'Inspec_Lot-*' -mtime -3 -exec grep "Error:" {} \;'
-ssh rtpsh005 'find /opt/QCServer/A.05.00/svr/files -name 'Inspec_Lot-*' -mtime -3 -exec grep "Error:" {} \; | tail'
+ssh tpsh005 'find /opt/QCServer/A.05.00/svr/files -name 'Inspec_Lot-*' -mtime -3 -exec grep "Error:" {} \;'
+ssh tpsh005 'find /opt/QCServer/A.05.00/svr/files -name 'Inspec_Lot-*' -mtime -3 -exec grep "Error:" {} \; | tail'
 
 # Find newish file that is not empty:
-ssh rtpsh005 find /home/gaaadmin/GAAAdapter/gaa/logs -name 'InspectionRes*error*' -mtime -7 -a -size +0
+ssh tpsh005 find /home/gaaadmin/GAAAdapter/gaa/logs -name 'InspectionRes*error*' -mtime -7 -a -size +0
 
 # Specify user to login as:
 ssh -l root 192.168.0.108
@@ -2626,7 +2626,7 @@ cat foo.txt | awk "{if(NR>3)print}"
 echo 'to: bheckel@worldnet.att.net, bheckel@att.net' | egrep '^to:.*bhe[a-zA-Z]+@(worldnet)*att.net'
 
 scp rheckel@otaku.freeshell.org:.muttrc _muttrc.otaku  # remote to local
-scp rsh86800@rtpsh004://var/adm/scripts/shutlims.sh .  # remote to local
+scp rsh8680@tpsh004://var/adm/scripts/shutlims.sh .  # remote to local
 scp procexp.exe rheckel@sdf.org:html/ && ssh rheckel@sdf.org chmod 755 html/procexp.exe  # local to remote
 
 # Combine mkdir with chmod:
@@ -2672,8 +2672,8 @@ for i in 1 2 3;do echo "i am $i" >foo$i; done
 for i in `seq 5`; do mem; sleep 3; done
 
 # Monitor speed of database connections over time:
-for i in `seq 16`; do date; sqlplus -S sasreport/sasreport@usprd25 @donothing; date;date; sleep 1800; done
-for i in `seq 16`; do date; a=`date +%s`; sqlplus -S sasreport/sasreport@usprd25 @donothing; date; b=`date +%s`; c=`expr $b - $a`; if [ $c -gt 7 ];then echo $fg_redbold GT 7 SECONDS! $normal; fi; sleep 1800; done
+for i in `seq 16`; do date; sqlplus -S sasreport/sasreport@sprd25 @donothing; date;date; sleep 1800; done
+for i in `seq 16`; do date; a=`date +%s`; sqlplus -S sasreport/sasreport@sprd25 @donothing; date; b=`date +%s`; c=`expr $b - $a`; if [ $c -gt 7 ];then echo $fg_redbold GT 7 SECONDS! $normal; fi; sleep 1800; done
 
 # Display terminal output on two xterms simultaneously (untested):
 sh -c "$prog|tee -a $mytty" 1>$othertty 2>&1 0>$othertty
@@ -2730,7 +2730,7 @@ ufsdump 9uf /dev/rmt/0ubn /home  <---incremental
 
 # Solaris Volume Management:  $ eject cdrom  If used paperclip must:
 /etc/init.d/volmgt stop; /etc/init.d/volmgt start
-# Insertion of a floppy disk (UNIX® or MS-DOS format) has to be communicated
+# Insertion of a floppy disk (UNIX or MS-DOS format) has to be communicated
 # to the Volume Manager manually:
 volcheck
 
@@ -2738,25 +2738,19 @@ volcheck
 ls -l | sort +4r | grep -v "total"
 
 # Give multiple users the same group and password:
-useradd -g daebstat -m -p N6lPzsXhb5TLg dwj2
+useradd -g daebstat -m -p N6lPzsXhb5TLg dwj
 
 mailx -s 'email subject type CTRL-D or dot on blank line to end' root@daeb
-mailx -s "mysubject" -r LMITHELP@cdc.gov -c 'bboswell@cdc.gov rheckel@cdc.gov' 'ckj1@cdc.gov kjk4@cdc.gov' <junk
+mailx -s "mysubject" -r LMITHELP@cdc.gov -c 'boswell@cdc.gov rheckel@cdc.gov' 'ck@cdc.gov kj@cdc.gov' <junk
 ? touch *    # mark all as read and write to mbox in mailx...
 mailx -f ~/mbox   # ...and read them
-ssh rtpsh005 'ls -l /home/gaaadmin/GAAAdapter/gaa/receive/Output_Data | mailx -s 'subject' rsh86800@sgk.com'
+ssh tpsh005 'ls -l /home/gaaadmin/GAAAdapter/gaa/receive/Output_Data | mailx -s 'subject' rsh8680@sgk.com'
 
 # Monitor system status (Solaris at least):
 echo `uptime|awk '{print $11 $12 $13}' && df -k|grep /data|awk '{print $5}'` | mailx -s "load and /data space [cron tstdev]" 'bqh0@cdc.gov'
 
 # Without an external file redirected in:
-$ echo 'ok' | mailx -s 'test4' rsh86800@sgk.com
-
-# Group specific files for move to another machine.  Don't use find before tar
-# unless your tar can do this (-I for Solaris)!!
-cd /home; find . -name '*.PDF' -print | tar cvf pdfz.tar -T -
-# Do this instead (TODO overflow if num files is too hi??)
-cd /home; tar cvf /tmp/pdfz.tar `find . -name '*.PDF' -type f -print`  # Note: xargs approach is better
+$ echo 'ok' | mailx -s 'test4' rsh8680@sgk.com
 
 awk '/#/ {print "Got a comment SOMEWHERE in the whole line"}' /etc/hosts
 awk '$1 == "#" {print "got a lone, leading pound sign"}' /etc/hosts
@@ -2808,7 +2802,7 @@ mv FOO.txt `echo FOO.txt | tr A-Z a-z`
 
 # Lowercase an environment variable.  E.g.  export PS1=BAR  already set:
 export PS1=`echo $PS1 | tr A-Z a-z`
-export PS1=`echo "$LOGNAME@CDCJES2$ " | tr A-Z a-z `
+export PS1=`echo "$LOGNAME@CDCJES$ " | tr A-Z a-z `
 
 # Uppercase all directories (assumes no files in the dir):
 for d in *; do mv $d `echo $d | tr a-z A-Z`; done
@@ -2890,7 +2884,7 @@ BAR=notemptylikeFOOis; echo ${FOO-$BAR}  # use $bar if $foo doesn't exist
 filesize=$(find $1 -printf "%s" )
 
 # Canonical Cygwin updatedb.  alias loc='locate --ignore-case --database=/var/lib/locatedb.code '
-$ /bin/updatedb --localpaths='/home/rsh86800/code' --prunepaths='/home/rsh86800/code/misccode/.git' --output='/var/lib/locatedb.code'
+$ /bin/updatedb --localpaths='/home/rsh8680/code' --prunepaths='/home/rsh8680/code/misccode/.git' --output='/var/lib/locatedb.code'
 # Canonical Linux
 $ sudo updatedb --database-root='/home/bheckel/code' --output='/var/lib/locatedb.code'
 
@@ -2995,7 +2989,7 @@ $ p=crc;d=`date '+%Y%m%d'`;tar cfz $p.$d.tar.gz callcenter/ && cp -i $p.$d.tar.g
 
 # Print only a part, section, range, paragraph, of a file.  Paragrep.
 awk "/^xxSASx START/,/^xxSASx END/ {print}" ~/code/misccode/oneliners
-ipconfig /displaydns | awk "/rtpsh005/,/143.193.6.5/ {print}"
+ipconfig /displaydns | awk "/tpsh005/,/143.193.6.5/ {print}"
 # Paragrep xml tags that span multiple lines, looking for list of material codes:
 awk "/<ExtractString>/,/<\/ExtractString>/ {print}" cfg/DataPost_Configuration.xml | awk "/'[[:digit:]]+'/ {print}" > mats.txt
 
@@ -3125,7 +3119,7 @@ $ systeminfo /U 'wmservice\uxx1903' /P pw /S rtpsawn32 | grep Time
 # Prepend 'vi' to beginning of line:
 $ locate --ignore-case --database=/var/lib/locatedb.code foo|sed 's/^/vi /'
 
-if [ -d '\\rtpdscel01dm06\rsh86800$' ];then echo 'directory exists'; fi
+if [ -d '\\rtpdscel01dm06\rsh8680$' ];then echo 'directory exists'; fi
 
 # bash for loop 
  for i in 1 2 3; do echo 'foo'; done;
@@ -3142,9 +3136,9 @@ awk -F, '{ print $1; print $2; print $3 }' t.csv
 tail +2 "/home/rheckel/projects/datapost/tmp/VALTREX_Caplets/OUTPUT_COMPILED_DATA/CSV valtrex_FreeWeigh.csv"|cut -d ',' -f1|sort|uniq|wc -l
 
 # Is database up?
-while true; do date;sqlplus -S sasreport/sasreport@usprd25 @donothing; echo 'ok';date;echo;sleep 300; done;
+while true; do date;sqlplus -S sasreport/sasreport@sprd25 @donothing; echo 'ok';date;echo;sleep 300; done;
 # Poor man's progress bar timer - how long does it take to connect to database:
-i=0;x=0;y=0;while true; do x=`date +%s`;sqlplus -S sasreport/sasreport@usprd25 @donothing; y=`date +%s`;for i in expr $y - $x; do echo -n '.'; done; echo;sleep 300; done;
+i=0;x=0;y=0;while true; do x=`date +%s`;sqlplus -S sasreport/sasreport@sprd25 @donothing; y=`date +%s`;for i in expr $y - $x; do echo -n '.'; done; echo;sleep 300; done;
 
 # Passed-in shell variable $1 starts with 'http'
 ... elif [ "${1:0:4}" = 'http' ];then ...
@@ -3152,7 +3146,7 @@ i=0;x=0;y=0;while true; do x=`date +%s`;sqlplus -S sasreport/sasreport@usprd25 @
 # Iterate shell array list of filenames (bash only?)
 dotfiles=( .bashrc .vimrc ); for f in ${dotfiles[@]}; do echo $f; done
 
-ssh rtpsh005 ps -ef | grep lms_client*|wc -l  # count LIMS users
+ssh tpsh005 ps -ef | grep lms_client*|wc -l  # count LIMS users
 
 # Print HPUX
 lpr -dprinter_name file_name
@@ -3288,7 +3282,7 @@ ls -l ~/c && sleep 10 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c &
 
 # Easy work synch backup using the previous tarball as a sentinel - Ubuntu:
 cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV |grep -v '/.git/'|grep -v '.swp'|xargs tar cvfz ~/Downloads/c.NEW  # Ubuntu simple synch
-cd && find -L code/ -type f -newer ~/Downloads/c.PREV |grep -v '/.git/' |grep -v '.swp' |xargs tar cvfz ~/Downloads/c.NEW && scp ~/Downloads/c bheckel@sdf.org: && ssh bheckel@sdf.org mailx -a c -s c rsh86800@sgk.com && cd -  # Ubuntu complex synch
+cd && find -L code/ -type f -newer ~/Downloads/c.PREV |grep -v '/.git/' |grep -v '.swp' |xargs tar cvfz ~/Downloads/c.NEW && scp ~/Downloads/c bheckel@dsf.org: && ssh bheckel@dsf.org mailx -a c -s c rsh8680@sgk.com && cd -  # Ubuntu complex synch
 
 sudo fdisk -l
 sudo dd if=lubuntu-desktop-12.04-1-miniand.com.img of=/dev/sdb1 && sudo sync
@@ -3306,7 +3300,7 @@ find /cygdrive/c/datapost/data/SGK/Zebulon/ -name '*.pdf'|sed 's/\/cygdrive\/c//
 
 # Cygwin X
 $ startxwin&  # ok to close xterm if one pops up and use it or rxvt for next cmd:
-$ ssh -X rtpsh005  # see readme.ssh.txt if need id switching (su, super chemlms-shell, etc.)
+$ ssh -X tpsh005  # see readme.ssh.txt if need id switching (su, super chemlms-shell, etc.)
 
 # Exceed Hummingbird replacement is Cygwin X (for CDE desktop access):
 $ XWin.exe -query trpsh005  # don't use startxwin unless want commandline only
@@ -4455,15 +4449,15 @@ VB Date is 8 byte floating point value.  Integer portion is days since Dec 30,
 E.g. 5/22/97 at 3:00pm is 35572.625
 
 Copy cp entire dir from MVS (Z/OS) to HFS (hfsdir must already exist):
-cp "//'dwj2.vscp.pgmlib'" dwjlib/
+cp "//'dwj.vscp.pgmlib'" dwjlib/
 Copy single file from MVS (Z/OS) to HFS mainframe.  Mainframe copy cp.
 cp "//'BQH0.INC.SASLOG'" ~/tmp/testing/junk.sas && vi ~/tmp/testing/junk.sas
 Copy cp single file from HFS to MVS (Z/OS)
 cp tryaccess.sas "//'bqh0.pgm.trash(tryacc)'"
 FTP navigation on MVS:
-cd "//'dwj2.util.library'"
+cd "//'dwj.util.library'"
 FTP deletion on MVS (note fscked up quotes, must be "'... ):
-del "'DWJ2.FLNAT04.USRES'"
+del "'DWJ.FLNAT04.USRES'"
 
 Unpack a normal unix tarball on EBCDIC HFS without tar:
 pax -rvkf vim-6.0-rt2.tar -o from=ISO8859-1,to=IBM-1047
@@ -4523,14 +4517,14 @@ Interactive but feeding it from the commandline:
 osql -n -E -w 200 -d bpms_ak -S 'W23PSQL02\PRODUCTION' -Q "select count(*) from bpmsoutliers"
 
 -- sqlserver 2005 command line, counterpart to oracle's sqlplus
-$ sqlcmd -S zebsamoc00 -d usprd120 -i input.sql -o output.txt
+$ sqlcmd -S zebsamoc00 -d uprd120 -i input.sql -o output.txt
 
 -- ADO/SQLServer connection strings
 Provider=OraOLEDB.Oracle.1;Persist Security Info=True;User ID=ods_zeb;Password=ZEBODS_ZB842;Data Source=ukprd613;
-Provider=SQLOLEDB.1;Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=usprd1208;Data Source=zebsamoc007
+Provider=SQLOLEDB.1;Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=sprd1208;Data Source=zebsamoc007
 
 SQL Server 2005 (like Oracle's sqlplus, replaces osql & isql).  Must use cmd, not cygwin
-U:\>sqlcmd -S zebsamoc00 -d usprd120
+U:\>sqlcmd -S zebsamoc00 -d sprd120
 1> select top 5 * from fwn.variablestp    2> go   ...n rows affected...   1> quit
 
 U:\>sqlcmd /?
@@ -4812,7 +4806,7 @@ $ ~/bin/msgbox "my title" "my body" error
 Private Sub Workbook_Open() ...
 
 :: Windows XP Desktop path:
-C:\Documents and Settings\rsh86800\Desktop
+C:\Documents and Settings\rsh8680\Desktop
 
 # uptime for Windows 
 $ systeminfo|grep 'Up T'
@@ -4870,7 +4864,7 @@ $ ps -ef |grep lsn  # /oracle/app/oracle/product/8.0.6/bin/tnslsnr LISTENER -inh
 $ tnsping usdev100
 
 -- Oracle are you pingable?
-$ while true; do tnsping usprd25|grep OK|awk '{print $2}'|sed 's/^.//'; sleep 120; done;
+$ while true; do tnsping sprd25|grep OK|awk '{print $2}'|sed 's/^.//'; sleep 120; done;
 
 $ telnet locahost http
 # or
@@ -5167,7 +5161,7 @@ Get-Process | Where-Object { $_.company -like 'micro*' } | Format-Table name, de
 Get-WmiObject Win32_Service | ? {($_.Started -eq $false) -and ($_.StartMode -eq "Auto")} | Format-Table
 Get-WmiObject Win32_Service | ? {($_.Started -eq $false) -and ($_.StartMode -eq "Auto")} | Format-Table name, startmode, pathname
 
-# Powershell rc .rc profile file C:\Documents and Settings\rsh86800\My Documents\WindowsPowerShell\
+# Powershell rc .rc profile file C:\Documents and Settings\rsh8680\My Documents\WindowsPowerShell\
 gvim $((Split-Path $profile -Parent) + "\profile.ps1")
 
 # Powershell's Option Explicit
@@ -5354,7 +5348,7 @@ c:\> java -fullversion
 select column_name, data_type || '(' || data_length || ')' as fancy_type
 
 :: Which Windows files are open on server?:
-psfile '\\kopsawn557' -u uxx1903 -p uxx06tes
+psfile '\\okpsawn557' -u uxx1903 -p uxx06tes
 :: Force Windows unlock open file closed (stupid reverse paramter required for closing a file):
 $ psfile '\\rtpaswn321' -u uxx1903 -p uxx06tes 25060 -c
 
@@ -5362,7 +5356,7 @@ xmllint --noout Bookstore-DTD.xml
 xmllint -schema Bookstore.xsd --noout Bookstore-XSD.xml
 au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
 
-alias lims='sqlplus sasrepor/sasrepor@usprd25'
+alias lims='sqlplus sasrepor/sasrepor@sprd25'
 
 :: SELECT constant to provide an empty column 
 select '' as test_result, ...
