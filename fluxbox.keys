@@ -1,5 +1,6 @@
 ##############################################################################
-#     Name: .fluxbox/keys
+#     Name: .fluxbox/keys (symlinked from ~/code/misccode/fluxbox.keys to
+#           ~/.fluxbox/keys)
 #
 #  Summary: Customized keybindings for fluxbox
 #
