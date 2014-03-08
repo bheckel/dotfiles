@@ -4,23 +4,20 @@
 # Summary: bash shell config for at least Cygwin 1.3/1.5/1.7, Unix and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Sat 01 Mar 2014 17:32:05 (Bob Heckel)
+# Modified: Thu 06 Mar 2014 09:39:53 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
 # Generic  #{{{1 
 #----------------
-# Test for an interactive shell.  There is no need to set anything
-# past this point for scp and rcp, and it's important to refrain from
-# outputting anything in those cases.
-###if [[ $- != *i* ]] ; then
-	# Shell is non-interactive
-###	return
-###fi
+# Test for an interactive shell.  There is no need to set anything past this
+# point for scp and rcp, and it's important to refrain from outputting anything
+# in those cases.
 [[ $- != *i* ]] && return
 
 # One arg per call
-set -o vi  # what's an emac...?
+# If you change this to emacs a kitten will die
+set -o vi
 set -o noclobber
 
 # C-S suspended C-Q released fix
@@ -105,8 +102,9 @@ alias g=$HOME/code/misccode/gone.sh
 # Can't use sed to eliminate leading spaces or it breaks coloring
 alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
 # * e853f54 1 year, 4 months ago | 1st commit  [Bob Heckel]
-alias gl='git log --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %d [%an]" --graph --date=short |sed "s/^\* //g"'
+alias gl='git log --since="9 months ago" --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %d [%an]" --graph --date=short |sed "s/^\* //g"; echo'
 alias gs='git status'
+alias gss='git status -s'
 alias h='history|tail -20'  # history 20 is better if it exists
 alias iv=vi
 alias j="jobs -s"  # only show STOPPED (i.e. skip RUNNING blink.exe's) jobs
@@ -901,10 +899,10 @@ case "$OSTYPE" in
 
     # See gskto gskfrom
     if [ $HOSTNAME = 'ZEBWL12H29961' -o $HOSTNAME = 'ZEBWL12H26564' ]; then
-      # Assumes we have manually downloaded the weekend work attachment as
-      # ~/c.NEW
+      # Assumes we have manually downloaded the weekend work attachment as ~/c.NEW.
+      # Monday morning run usually.
       alias homefrom='cd ~; ls -l c.NEW && sleep 6; tar xvfz c.NEW'
-      # Friday run usually
+      # Friday afternoon run usually
       alias hometo='ls -l ~/c && sleep 6 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd - && st ~'
     fi
 
@@ -912,14 +910,12 @@ case "$OSTYPE" in
     shopt -s cdspell checkhash checkwinsize cmdhist huponexit \
              histappend cdable_vars
 
-    # Needed for `stty sane` and possibly for older versions of Cygwin to
-    # avoid messing up Vim.
     ###stty erase ^H intr ^C kill ^K
     # Tab completion after typing 'cd ' should show dirs only.  See also
     # FIGNORE for related completion restrictions.
     complete -d cd
 
-    ###umask 022
+###    umask 022
   ;; # end Cygwin
 
    #------------------
@@ -1085,9 +1081,11 @@ case "$OSTYPE" in
 
       # TODO if not running (via fluxbox) start dropbox and nm-applet
       if [ $HOSTNAME = 'yoniso' ]; then
-        # Assumes we have downloaded the gsk attachment as ~/Downloads/c.   See homefrom hometo. 
+        # Assumes we have downloaded the gsk attachment as ~/Downloads/c.   See
+        # homefrom hometo.  Friday night run usually.
         alias gskfrom='cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && find -L ~/code -perm 000|xargs chmod 755'
-        # Assumes we have recent work ready to tar and mail to gsk as c.NEW.  See homefrom hometo. 
+        # Assumes we have recent work ready to tar and mail to gsk as c.NEW.
+        # See homefrom hometo.  Sunday evening run usually.
         alias gskto='cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV |grep -v '/.git/'|grep -v '.swp'|xargs tar cvfz ~/Downloads/c.NEW'
         alias nexus='sudo mount -t vfat /dev/sdb /media/Nexus -o uid=1000,gid=1000,utf8,dmask=027,fmask=137; mount|grep "^/dev/sd"; echo "sudo umount /media/Nexus"'
       fi
@@ -1122,7 +1120,7 @@ case "$OSTYPE" in
       ###alias moz='export DISPLAY=158.111.250.170:0.0; mozilla&'
       alias usb='sudo fdisk -l; mount|grep "^/dev/sd"; echo; echo "sudo mount -t vfat /dev/??? /media/generic -o uid=1000,gid=1000,utf8,dmask=027,fmask=137"; echo; echo "sudo umount /media/generic"'
 
-      shopt -s cdspell checkhash cmdhist dotglob histappend
+      shopt -s cdspell checkhash checkwinsize cmdhist dotglob histappend 
 
       stty erase ^? intr ^C kill ^K
 
@@ -1234,6 +1232,6 @@ esac #}}}
 #}}}1
 
 # Project-specific or security related additions:
-if [ -e $HOME/.project.bashrc ]; then
-  source $HOME/.project.bashrc
+if [ -e $HOME/.bashrc.project ]; then
+  source $HOME/.bashrc.project
 fi

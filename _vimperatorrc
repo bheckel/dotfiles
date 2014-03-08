@@ -3,15 +3,16 @@
 "
 "  Summary: Generic Vimperator rc file
 "
-" C:\Program Files\Mozilla Firefox\firefox.exe" -vimperator "+u 'u:\code\misccode\_vimperatorrc'"
 " C:\Progra~1\Mozill~1\firefox.exe -vimperator "+u 'c:\cygwin\home\bheckel\.vimperatorrc'"
+" C:\Program Files\Mozilla Firefox\firefox.exe" -vimperator "+u 'u:\code\misccode\_vimperatorrc'"
+" C:\Program Files (x86)\Mozilla Firefox\firefox.exe" -vimperator "+u 'u:\code\misccode\_vimperatorrc'"
 "
 " :res[tart] won't source this file so use this:
 "   :so u:/code/misccode/_vimperatorrc
 "   :so u:\\code\\misccode\\_vimperatorrc
 "
 "  Created: Mon 15 Oct 2007 11:21:26 (Bob Heckel)
-" Modified: Tue 10 Sep 2013 13:01:24 (Bob Heckel)
+" Modified: Wed 05 Mar 2014 12:58:12 (Bob Heckel)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 """""""""""""""""""""""""
@@ -22,7 +23,6 @@
 """cabbrev g open google
 """cabbrev w open wikipedia
 """cabbrev y open yahoo
-
 
 """""""""""""""""""""""""
 " Options
@@ -50,7 +50,6 @@ set newtab=addons,downloads,help,prefs
 
 " So that a right click in the gutter will allow a new tab w/o keyboarding
 """set showtabline=2
-
 
 """""""""""""""""""""""""
 " JavaScript
@@ -126,7 +125,6 @@ map D <Nop>
 " Not consistent with Vim so eliminate
 map M <Nop>
 
-
 """"""""""""
 " Comma Maps
 " Reserve comma maps for GUI controls
@@ -151,9 +149,6 @@ map ,p :dia printpreview<CR>
 " Mnemonic toggle (t)oolbar
 map <silent> ,t :js toggle_element('PersonalToolbar')<CR>
 
-""""""""""""
-
-"""""""""""
 " Reserve semicolon maps for commandline controls
 
 " bmarks are hard to reach in vimperator, can't just tab to reach them
@@ -170,8 +165,6 @@ map ;p o file:///u:/code/perl/
 map ;r o file:///u:/code/readme/
 map ;s o file:///u:/code/sas/
 
-"""""""""""
-
 " NEXT/PREV links
 map . ]]
 """map ,n ]]
@@ -179,7 +172,6 @@ map . ]]
 
 " :q! is actually the command when :q is used.  :wq or ZZ to save tabs for next time
 """map ,qq :quitall<CR>
-
 
 """""""""""""""""""""""""
 " Highlighting
@@ -195,14 +187,12 @@ map . ]]
 highlight! Hint font-family:monospace; font-size:14px; font-weight:bold; color:white; background-color:red; border-color:ButtonShadow; border-width:0px
 
 " C:\Documents and Settings\rsh86800\vimperator\colors\
-colorscheme zenburn
-
+"""colorscheme zenburn
 
 """""""""""""""""""""""""
 " Commands
 """""""""""""""""""""""""
 """command -nargs=* Goo open google <args>
-
 
 """""""""""""""""""""""""
 " about:config overrides
@@ -210,16 +200,16 @@ colorscheme zenburn
 """set! browser.urlbar.maxRichResults=6
 """set! keywordlURL="http://www.google.com/search?ie=UTF-8&oe=UTF-8&sourceid=navclient&gfns=1&q="
 
-
 """""""""""""""""""""""""
 " Autocommands
 """""""""""""""""""""""""
 " All Google pages except Google [s]earch, [n]ews, [a]pis
 """autocmd LocationChange .* js modes.passAllKeys = /google\.com\/[^s|n|a]/.test(buffer.URL)
-autocmd LocationChange .*                             js modes.passAllKeys = false
-autocmd LocationChange mail\\.google\\.com            js modes.passAllKeys = true
-autocmd LocationChange www\\.google\\.com/calendar    js modes.passAllKeys = true
-autocmd LocationChange www\\.google\\.com/reader      js modes.passAllKeys = true
-autocmd LocationChange drive\\.google\\.com           js modes.passAllKeys = true
+autocmd LocationChange .*                          js modes.passAllKeys = false
+autocmd LocationChange mail\\.google\\.com         js modes.passAllKeys = true
+autocmd LocationChange www\\.google\\.com/calendar js modes.passAllKeys = true
+autocmd LocationChange www\\.google\\.com/reader   js modes.passAllKeys = true
+autocmd LocationChange drive\\.google\\.com        js modes.passAllKeys = true
+autocmd LocationChange koding\\.com\Terminal       js modes.passAllKeys = true
 
 echomsg 'code/misccode/_vimperatorrc sourced'

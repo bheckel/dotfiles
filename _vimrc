@@ -22,7 +22,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Wed 08 Jan 2014 14:10:39 (Bob Heckel)
+" Modified: Sat 08 Mar 2014 13:51:10 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 "--------------------------------------------------------------------------
@@ -88,14 +88,16 @@ endif
 """endif
 
 " Force vim to clear itself when exiting:
-set t_ti=7[r[?47h
-set t_te=[?47l8
+"""set t_ti=7[r[?47h
+"""set t_te=[?47l8
 
 " Change cursor in insert mode (mintty at least):
 let &t_ti.="\e[1 q"
 let &t_SI.="\e[5 q"
 let &t_EI.="\e[1 q"
 let &t_te.="\e[0 q"
+
+set encoding=utf-8
 
 " end Initialization-
 
@@ -117,16 +119,20 @@ endif
 " sometimes relying on .Xdefaults to do wheat-on-black so this is only for gvim.
 hi Normal guifg=#F5DEB3 guibg=Black
 
-if hostname() == 'yoniso'
+"""if hostname() == 'yoniso'
   " Broken(?) urxvt using t_Co=256
-  hi Comment ctermfg=Black cterm=bold guifg=DarkGray guibg=Black
-else
+"""  hi Comment ctermfg=Black cterm=bold guifg=DarkGray guibg=Black
+"""else
   hi Comment ctermfg=DarkGray guifg=DarkGray guibg=Black
-endif
+"""endif
 
 hi Conditional ctermfg=LightGreen guifg=LightGreen
-" For mintty
-hi DiffAdd ctermfg=Black ctermbg=Cyan
+
+hi DiffAdd ctermfg=Black ctermbg=Cyan guifg=Black guibg=Cyan
+hi DiffChange ctermfg=Black ctermbg=LightYellow guifg=Black guibg=LightYellow
+hi DiffDelete ctermbg=DarkCyan guibg=DarkCyan
+hi DiffText ctermfg=Black guifg=Black
+
 hi Directory ctermfg=Magenta guifg=Magenta guibg=Black cterm=bold gui=bold
 " Highlight tabs other than at start of line for indenting
 """match ErrorMsg /[^\t]\zs\t\+/
@@ -138,12 +144,12 @@ hi Identifier ctermfg=LightCyan guifg=LightCyan
 hi IncSearch ctermfg=White ctermbg=Blue guifg=White guibg=#123456
 
 " :se rnu
-if hostname() == 'yoniso'
+"""if hostname() == 'yoniso'
   " Lighblue is grey on my broken urxvt
-  hi LineNr ctermfg=Black ctermbg=LightBlue guifg=Black guibg=DarkGray
-else
+"""  hi LineNr ctermfg=Black ctermbg=LightBlue guifg=Black guibg=DarkGray
+"""else
   hi LineNr ctermfg=Black ctermbg=DarkGray guifg=Black guibg=DarkGray
-endif
+"""endif
 
 hi MatchParen ctermfg=White ctermbg=Blue guifg=Cyan guibg=Magenta
 hi ModeMsg ctermfg=Black ctermbg=Yellow guifg=Black guibg=Yellow
@@ -163,11 +169,11 @@ hi PmenuSel ctermfg=Blue ctermbg=Yellow guifg=Blue guibg=Yellow
 
 hi PreProc ctermfg=LightMagenta guifg=LightMagenta guibg=Black
 
-if has ('win32unix')
-  hi Search ctermfg=White ctermbg=DarkYellow guifg=White guibg=Firebrick4
-else
-  hi Search ctermfg=Black ctermbg=DarkRed guifg=White guibg=Firebrick4
-endif
+"""if has ('win32unix')
+"""  hi Search ctermfg=White ctermbg=DarkYellow guifg=White guibg=Firebrick4
+"""else
+  hi Search ctermfg=Black ctermbg=LightGreen guifg=Black guibg=LightGreen
+"""endif
 
 hi SpecialKey ctermfg=Black ctermbg=DarkMagenta guifg=Black guibg=DarkMagenta
 hi Statement ctermfg=Yellow guifg=LightYellow guibg=Black
@@ -1805,28 +1811,37 @@ endfu
 "  No spaces between comma-delimited file lists!
 "--------------------------------------------------------------------------
 
-" Avoid double sourcing.
+" Avoid double sourcing
 if !exists("autocommands_loaded")
   let autocommands_loaded = 1
  
-  " Start a returning session at the line and column of last edited position
-  autocmd BufReadPost * if line("'\"") | exe "normal '\"" | endif
+  " TODO always gets 1
+  " We always edit this one from 1L,1C
+  """autocmd FileType GITCOMMIT let b:gitcommit = 1
+  """autocmd BufReadPre FileType GITCOMMIT echo 'foo'
+"""  autocmd BufReadPre .git/COMMIT_EDITMSG  let g:gitcommit = 1
+
+  if "g:gitcommit" != 1
+"""echo 'reach'
+    " Start a returning session at the line and column of last edited position
+    au BufReadPost * if line("'\"") | exe "normal '\"" | endif
+  endif
 
   if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
-      autocmd BufNewFile,BufRead,BufEnter DataPost*.log set noswapfile | set hlsearch | source u:/code/sas/saslog.vim 
+      au BufNewFile,BufRead,BufEnter DataPost*.log set noswapfile | set hlsearch | source u:/code/sas/saslog.vim 
   else
-    autocmd BufNewFile,BufRead,BufEnter DataPost*.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim 
+    au BufNewFile,BufRead,BufEnter DataPost*.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim 
   endif
 
   if has('gui')
     " Maximize SAS Logs upon opening
-    autocmd GUIEnter *.log simalt ~x
+    au GUIEnter *.log simalt ~x
     " Run SAS on current .sas file:
     " TODO figure out how to use :makeprg (set makeprg=file://c:/Program\ Files/SAS\ Institute/SAS/V8/sas.exe\ -sysin\ % doesnt work 2008-09-04)
     " gvim knows nothing about SAS
     au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!c:/Progra~1/SASIns~1/SAS/V8/sas.exe -sysin %<CR>:args %:r.lst %:r.log<CR>
   else
-    autocmd BufReadPre,FileReadPre *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim 
+    au BufReadPre,FileReadPre *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim 
     " Run my exec SAS shell script on Cygwin
     au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!~/code/sas/sasrun %<CR>
   endif

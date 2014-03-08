@@ -70,11 +70,11 @@ Rxvt*color15: #ffffff
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! URxvt (usually Ubuntu)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!URxvt*termName: rxvt-256color
 ! Black
-URxvt*background: #000000
+!!!URxvt*background: #000000
+! Ubuntu purple
+URxvt*background: #290020
 URxvt*cutchars: `"'()*,;<>[]{|}@
-!!!URxvt*cursorColor: #00ff00
 URxvt*cursorColor: Wheat
 URxvt*foreground: White
 URxvt*saveLines: 2048
@@ -83,7 +83,7 @@ URxvt*scrollBar:true
 ! Athena
 URxvt*scrollstyle:xterm
 URxvt*scrollBar_right: on
-URxvt*termName: xterm
+URxvt*termName: rxvt-unicode
 URxvt*visualBell: on
 URxvt*font: xft:Andale Mono-9:antialias=true
 !!!URxvt*font: xft:Bitstream Vera Sans Mono:pixelsize=11
@@ -133,9 +133,5 @@ URxvt*color15: #ffffff
 !!!URxvt*shading:40
 ! Ubuntu purple
 !!!URxvt*tintColor:#290020
-URxvt*background: #290020
-!!!URxvt*tintColor:green
-!!!URxvt*shading:70
 URxvt.cursorBlink: on
 URxvt*geometry: 85x35
-!!!URxvt.termName: rxvt-unicode
