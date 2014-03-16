@@ -3,16 +3,17 @@
 "
 "  Summary: Generic Vimperator rc file
 "
+"           Replicate .vimrc where possible
+"
 " C:\Progra~1\Mozill~1\firefox.exe -vimperator "+u 'c:\cygwin\home\bheckel\.vimperatorrc'"
 " C:\Program Files\Mozilla Firefox\firefox.exe" -vimperator "+u 'u:\code\misccode\_vimperatorrc'"
 " C:\Program Files (x86)\Mozilla Firefox\firefox.exe" -vimperator "+u 'u:\code\misccode\_vimperatorrc'"
 "
-" :res[tart] won't source this file so use this:
 "   :so u:/code/misccode/_vimperatorrc
 "   :so u:\\code\\misccode\\_vimperatorrc
 "
 "  Created: Mon 15 Oct 2007 11:21:26 (Bob Heckel)
-" Modified: Wed 05 Mar 2014 12:58:12 (Bob Heckel)
+" Modified: Sun 09 Mar 2014 20:15:45 (Bob Heckel)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 """""""""""""""""""""""""
@@ -20,7 +21,7 @@
 " E.g. :o g searchme
 """""""""""""""""""""""""
 """cabbrev b open bing
-"""cabbrev g open google
+cabbrev g open google
 """cabbrev w open wikipedia
 """cabbrev y open yahoo
 
@@ -106,6 +107,7 @@ map <S-Right> :tabmove! +1<CR>
 map <C-Right> :tabmove! +1<CR>
 map <S-Left>  :tabmove! -1<CR>
 map <C-Left>  :tabmove! -1<CR>
+map <C-Q> :echomsg 'noop'<CR>
 
 " Easier navigation (but harder left-right page scrolling)
 noremap h H
@@ -176,15 +178,14 @@ map . ]]
 """""""""""""""""""""""""
 " Highlighting
 " hi[ghlight] clear {group}
-" Replicate .vimrc where possible
 """""""""""""""""""""""""
 """highlight! Bell color:grey; background-color:grey
-"""highlight StatusLine color:white; background-color:#0066FF; font-family:monospace; font-size:10px
-"""highlight! StatusLineExtended StatusLine color:white; background-color:#007700;font-size:10px
-"""highlight! StatusLineBroken StatusLine color:white; background-color:#FF0066;font-size:10px
-"""highlight! CmdLine color:white; background-color:black; font-family:monospace; font-size:10px
-"""highlight! Hint font-family:monospace; font-size:13px; font-weight:bold; color:white; background-color:red; border-color:ButtonShadow; border-width:0px
-highlight! Hint font-family:monospace; font-size:14px; font-weight:bold; color:white; background-color:red; border-color:ButtonShadow; border-width:0px
+highlight StatusLine color:gray; background-color:#0066FF; font-family:monospace; font-size:11px
+" 'Executing Location Change' etc.
+highlight InfoMsg color:white; background-color:gray; font-family:monospace; font-size:12px
+highlight CmdLine color:white; background-color:black; font-family:monospace; font-size:11px
+"""highlight Hint font-family:monospace; font-size:13px; font-weight:bold; color:white; background-color:red; border-color:ButtonShadow; border-width:0px
+"""highlight Hint font-family:monospace; font-size:14px; font-weight:bold; color:white; background-color:red; border-color:ButtonShadow; border-width:0px
 
 " C:\Documents and Settings\rsh86800\vimperator\colors\
 """colorscheme zenburn
@@ -210,6 +211,6 @@ autocmd LocationChange mail\\.google\\.com         js modes.passAllKeys = true
 autocmd LocationChange www\\.google\\.com/calendar js modes.passAllKeys = true
 autocmd LocationChange www\\.google\\.com/reader   js modes.passAllKeys = true
 autocmd LocationChange drive\\.google\\.com        js modes.passAllKeys = true
-autocmd LocationChange koding\\.com\Terminal       js modes.passAllKeys = true
+autocmd LocationChange koding\\.com/Terminal       js modes.passAllKeys = true
 
 echomsg 'code/misccode/_vimperatorrc sourced'

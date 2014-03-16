@@ -17,7 +17,7 @@ xmodmap "$HOME/.Xmodmap"
 # wmsmixer -w &
 # idesk &
 conky -x 5 -y 0 &
-urxvt -icon /usr/share/icons/Faenza/apps/32/xterm_32x32.xpm &
+rxvt-unicode -icon /usr/share/icons/Faenza/apps/32/xterm_32x32.xpm &
 ###google-chrome &
 ###ssh-agent $SHELL &
 nm-applet &

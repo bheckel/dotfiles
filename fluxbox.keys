@@ -6,10 +6,12 @@
 #
 #           Control=Ctrl Mod1==Alt, Mod4=WindowsKey
 #
+#           Alt + RightClick to resize other than via bottom corners
+#
 #           $ man fluxbox-keys
 #
 #  Created: Mon 12 Jan 2012 17:59:26 (Bob Heckel)
-# Modified: Sat 01 Mar 2014 15:13:23 (Bob Heckel)
+# Modified: Sun 09 Mar 2014 10:42:13 (Bob Heckel)
 ##############################################################################
 
 # Right-click on the desktop to get menus
@@ -58,7 +60,8 @@ Mod1 Tab :NextWindow {groups} (workspace=[current])
 Mod1 Shift Tab :PrevWindow {groups} (workspace=[current])
 # 2012-12-31 conflicts with browser tab switching
 # If any xterm windows are open, cycle through them. If none are open, open one
-Control Tab :If {Some Matches (urxvt)} {NextWindow (urxvt) (workspace=[current])} {Exec urxvt}
+###Control Tab :If {Some Matches (urxvt)} {NextWindow (urxvt) (workspace=[current])} {Exec urxvt}
+Control Tab :If {Some Matches (rxvt-unicode)} {NextWindow (rxvt-unicode) (workspace=[current])} {Exec rxvt-unicode}
 
 # Cycle through tabs in the current window
 ###Mod4 Tab :NextTab

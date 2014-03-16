@@ -22,7 +22,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Sat 08 Mar 2014 13:51:10 (Bob Heckel)
+" Modified: Sun 16 Mar 2014 08:34:36 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 "--------------------------------------------------------------------------
@@ -123,14 +123,15 @@ hi Normal guifg=#F5DEB3 guibg=Black
   " Broken(?) urxvt using t_Co=256
 """  hi Comment ctermfg=Black cterm=bold guifg=DarkGray guibg=Black
 """else
+  """hi Comment cterm=italic ctermfg=DarkGray guifg=DarkGray guibg=Black
   hi Comment ctermfg=DarkGray guifg=DarkGray guibg=Black
 """endif
 
 hi Conditional ctermfg=LightGreen guifg=LightGreen
 
-hi DiffAdd ctermfg=Black ctermbg=Cyan guifg=Black guibg=Cyan
+hi DiffAdd ctermfg=Black ctermbg=LightGreen guifg=Black guibg=LightGreen
 hi DiffChange ctermfg=Black ctermbg=LightYellow guifg=Black guibg=LightYellow
-hi DiffDelete ctermbg=DarkCyan guibg=DarkCyan
+hi DiffDelete ctermbg=DarkGreen guibg=DarkGreen
 hi DiffText ctermfg=Black guifg=Black
 
 hi Directory ctermfg=Magenta guifg=Magenta guibg=Black cterm=bold gui=bold
@@ -141,7 +142,7 @@ hi ErrorMsg ctermfg=Black ctermbg=Red guifg=Black guibg=Red
 hi Folded ctermfg=LightGray ctermbg=Black guifg=LightGray guibg=Black cterm=bold gui=bold
 hi Function ctermfg=Yellow guifg=LightYellow guibg=Black
 hi Identifier ctermfg=LightCyan guifg=LightCyan
-hi IncSearch ctermfg=White ctermbg=Blue guifg=White guibg=#123456
+hi IncSearch ctermfg=White ctermbg=LightBlue guifg=White guibg=LightBlue
 
 " :se rnu
 """if hostname() == 'yoniso'
@@ -169,11 +170,7 @@ hi PmenuSel ctermfg=Blue ctermbg=Yellow guifg=Blue guibg=Yellow
 
 hi PreProc ctermfg=LightMagenta guifg=LightMagenta guibg=Black
 
-"""if has ('win32unix')
-"""  hi Search ctermfg=White ctermbg=DarkYellow guifg=White guibg=Firebrick4
-"""else
-  hi Search ctermfg=Black ctermbg=LightGreen guifg=Black guibg=LightGreen
-"""endif
+hi Search  ctermfg=Black ctermbg=LightGreen guifg=Black guibg=LightGreen
 
 hi SpecialKey ctermfg=Black ctermbg=DarkMagenta guifg=Black guibg=DarkMagenta
 hi Statement ctermfg=Yellow guifg=LightYellow guibg=Black
@@ -198,12 +195,7 @@ hi TabLineFill cterm=underline ctermbg=Gray
 hi Title ctermfg=White ctermbg=Magenta guifg=White guibg=Purple
 hi Todo cterm=undercurl gui=undercurl 
 
-if has ('win32unix')
-  hi Visual ctermfg=Black ctermbg=LightMagenta guifg=Black guibg=LightMagenta
-else
-  " Workaround urxvt's 88 colors
-  hi Visual ctermfg=Magenta ctermbg=Black guifg=Black guibg=LightMagenta
-endif
+hi Visual ctermfg=Black ctermbg=LightMagenta guifg=Black guibg=LightMagenta
 
 hi WarningMsg ctermfg=Magenta ctermbg=Yellow guifg=Magenta guibg=Yellow
 " :match WhitespaceEOL /\s\+$/
@@ -414,7 +406,7 @@ set shiftwidth=2
 " replace tabs with spaces.
 " Without this, doing an 'o' on an indented line inserts a new line that
 " starts with one or more tabs (for some reason).
-set expandtab
+"""set expandtab
 
 set cinwords=if,elsif,else,while,do,for,switch,unless,until,when,otherwise,BEGIN,END
 
@@ -578,11 +570,13 @@ endif
 
 " Use  :set guifont=*  to browse
 if hostname() == 'ubuntu'
-  set guifont=Andale\ Mono\ 9
+  """set guifont=Andale\ Mono\ 9
+  set guifont=Consolas\ 9
 elseif hostname() == 'yoniso'
-  set guifont=Andale\ Mono\ 9
+  """set guifont=Andale\ Mono\ 9
+  set guifont=Consolas\ 9
 else
-  set guifont=Andale_Mono:h8,Lucida_Console:h8,Terminal:h8,Courier_new:h8,Courier:h7
+  set guifont=Consolas:h9,Andale_Mono:h8,Lucida_Console:h8,Terminal:h8,Courier_new:h8,Courier:h7
 endif
 
 " Win32 only.  Unix uses t_ti and t_te
@@ -783,15 +777,15 @@ if has('gui')
   map <F4><F4> :call SetOpt('columns', 80)<CR>
 endif
 
-if has('win32')
-  map <F6> :se guifont=Andale_Mono:h5<CR>z.
-  map <F7> :se guifont=Andale_Mono:h7<CR>z.
+"""if has('win32')
+  map <F6> :se guifont=Consolas:h5<CR>z.
+  map <F7> :se guifont=Consolas:h7<CR>z.
   " <F8> is occasionally consumed by .sas aucommands
-  map <F8> :se guifont=Andale_Mono:h8<CR>z.
+  map <F8> :se guifont=Consolas:h8<CR>z.
   " normal size
-  map <F9> :se guifont=Andale_Mono:h9<CR>z.
-  map <F10> :se guifont=Andale_Mono:h10<CR>z.
-endif
+  map <F9> :se guifont=Consolas:h9<CR>z.
+  map <F10> :se guifont=Consolas:h10<CR>z.
+"""endif
 
 " Filter SAS Log for error-like lines (and lines that should be errors) only
 noremap <silent> <F8> :g!/^ERROR: \\|^ERROR\\s\\+\\d\\+-\\d\\+:\\|^WARNING: [^Compression]\\|stopped processing this step because\\|lines were truncated\\|NOTE: Invalid data for\\|NOTE: Variable\\|NOTE\\s\\+\\d\\+-\\d\\+:\\|WARNING: Apparent/d<CR> 
@@ -1167,8 +1161,9 @@ inoremap <C-K> <C-X><C-K>
 
 " Remap <TAB> for smart completion on various characters
 """inoremap <silent> <TAB> <C-R>=SmartComplete()<CR>
-" Find (p)revious completions.  See set complete.
-"""inoremap <silent> <TAB> <C-P>
+
+" Tab completion.  Find (p)revious completions.  See set complete.
+inoremap <silent> <TAB> <C-P>
 
 " Without the spaces, other macros get fsckd
 inoremap (<Space><Space> ()<Left>
@@ -1815,17 +1810,8 @@ endfu
 if !exists("autocommands_loaded")
   let autocommands_loaded = 1
  
-  " TODO always gets 1
-  " We always edit this one from 1L,1C
-  """autocmd FileType GITCOMMIT let b:gitcommit = 1
-  """autocmd BufReadPre FileType GITCOMMIT echo 'foo'
-"""  autocmd BufReadPre .git/COMMIT_EDITMSG  let g:gitcommit = 1
-
-  if "g:gitcommit" != 1
-"""echo 'reach'
-    " Start a returning session at the line and column of last edited position
-    au BufReadPost * if line("'\"") | exe "normal '\"" | endif
-  endif
+	" Start a returning session at the line and column of last edited position
+	autocmd BufReadPost * if line("'\"") | exe "normal '\"" | endif
 
   if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
       au BufNewFile,BufRead,BufEnter DataPost*.log set noswapfile | set hlsearch | source u:/code/sas/saslog.vim 
@@ -1910,7 +1896,7 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufRead,BufEnter *.cpp set makeprg=g++\ -Wall\ %
   au BufNewFile,BufRead,BufEnter *.c nmap ;z :!gcc %<CR>\|:echon 'compiled a.exe via ;z map'<CR>
   au FileType javascript map ;; :call setline('.', Commentout(getline('.'), 'cpp'))<CR>
-  au FileType javascript :iabbrev <buffer> iff if ()<left>
+"""  au FileType javascript :iabbrev <buffer> iff if ()<left>
 """  au BufNewFile,BufRead,BufEnter *.htm* inoremap <Tab><Tab> <C-R>=InsertCloseTag()<CR>
   au BufNewFile,BufRead,BufEnter *.htm* map ;c 0Di//  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.htm* map ;m 0Di// Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
@@ -1919,7 +1905,7 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufRead,BufEnter *.asp,*.bas let s:VBnotend = '\%(\<end\s\+\)\@<!'
   au BufNewFile,BufRead,BufEnter *.asp,*.bas let b:match_words = s:VBnotend . '\<if\>:\<end\s\+if\>'
   " Automatically flow text (good for composing email)
-  autocmd BufReadPre,FileReadPre      *.email set formatoptions=a
+  au BufReadPre,FileReadPre      *.email set formatoptions=a
   if has ('unix') && version > 599
     au BufWritePost *.sh silent !chmod a+x <afile>
   endif
@@ -1999,26 +1985,26 @@ if !exists("autocommands_loaded")
     autocmd BufReadPre,FileReadPre      *.gpg set ff=unix
     " First make sure nothing is written to ~/.viminfo while editing
     " an encrypted file.
-    autocmd BufReadPre,FileReadPre      *.gpg set viminfo=
+    au BufReadPre,FileReadPre      *.gpg set viminfo=
     " We don't want a swap file for GNUPg b/c it writes unencrypted data to
     " disk.  Don't want SAS tempfile swaps for speed on F8.
     " TODO use this for very large files
-    autocmd BufReadPre,FileReadPre      *.gpg set noswapfile
+    au BufReadPre,FileReadPre      *.gpg set noswapfile
     " Switch to binary mode to read the encrypted file
-    autocmd BufReadPre,FileReadPre      *.gpg set bin
-    autocmd BufReadPre,FileReadPre      *.gpg let ch_save = &ch|set ch=2
-    autocmd BufReadPost,FileReadPost    *.gpg '[,']!gpg --decrypt 2> /dev/null
+    au BufReadPre,FileReadPre      *.gpg set bin
+    au BufReadPre,FileReadPre      *.gpg let ch_save = &ch|set ch=2
+    au BufReadPost,FileReadPost    *.gpg '[,']!gpg --decrypt 2> /dev/null
     " Switch to normal mode for editing
-    autocmd BufReadPost,FileReadPost    *.gpg set nobin
-    autocmd BufReadPost,FileReadPost    *.gpg let &ch = ch_save|unlet ch_save
-    autocmd BufReadPost,FileReadPost    *.gpg execute ":doautocmd BufReadPost " . expand("%:r")
+    au BufReadPost,FileReadPost    *.gpg set nobin
+    au BufReadPost,FileReadPost    *.gpg let &ch = ch_save|unlet ch_save
+    au BufReadPost,FileReadPost    *.gpg execute ":doautocmd BufReadPost " . expand("%:r")
 
     " Convert all text to encrypted text before writing
     """autocmd BufWritePre,FileWritePre    *.gpg   '[,']!gpg --default-recipient-self -ae 2>/dev/null
-    autocmd BufWritePre,FileWritePre    *.gpg '[,']!gpg -ca 2>/dev/null
+    au BufWritePre,FileWritePre    *.gpg '[,']!gpg -ca 2>/dev/null
     " Undo the encryption so we are back in the normal text, directly
     " after the file has been written.
-    autocmd BufWritePost,FileWritePost    *.gpg u
+    au BufWritePost,FileWritePost    *.gpg u
   augroup END
 
   " This block must be placed near end of au commands for syntax coloring to
@@ -2027,8 +2013,9 @@ if !exists("autocommands_loaded")
     " Don't interfere with diff's syntax
     au BufNewFile,BufRead,BufEnter * syntax off
     " Always maximize gvim when using vimdiff
-    autocmd GUIEnter * simalt ~x
-    set guifont=Andale_Mono:h7
+    au GUIEnter * simalt ~x
+    """set guifont=Andale_Mono:h7
+    set guifont=Consolas:h7
   endif
 
   " Quickfix
@@ -2049,8 +2036,15 @@ if !exists("autocommands_loaded")
   " Browsing tarballs:
   au FileType TAR map q :q<CR>
 
-  " Act like gvim does when a file was changed behind your back:
+  " Act like gvim when a file was changed behind your back:
   au WinEnter * checktime
+
+  " Always edit git commit messages at 1L,1C
+  au FileType GITCOMMIT :1
+
+  " Without this, NetRW loses its place when returning to the tree:
+	au BufLeave NetrwTreeListing mz
+	au BufEnter NetrwTreeListing `z
 
   "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
@@ -2071,21 +2065,21 @@ if !exists("autocommands_loaded")
 
     " Platform warning indicators:
     " Gvim
-    au BufRead X:/*             hi StatusLine guifg=Green guibg=Black gui=inverse,bold
+    au BufRead,BufWinEnter X:/*             hi StatusLine guifg=Green guibg=Black gui=inverse,bold
+    au BufRead,BufWinEnter Y:/*             hi StatusLine guifg=Yellow guibg=Black gui=inverse,bold
+    au BufRead,BufWinEnter Z:/*             hi StatusLine guifg=Red guibg=Black gui=inverse,bold
     " Cygwin
-    au BufRead /cygdrive/x/*    hi StatusLine ctermfg=Green ctermbg=Black 
-    au BufRead Y:/*             hi StatusLine guifg=Yellow guibg=Black gui=inverse,bold
-    au BufRead /cygdrive/y/*    hi StatusLine ctermfg=Yellow ctermbg=Black
-    au BufRead Z:/*             hi StatusLine guifg=Red guibg=Black gui=inverse,bold
-    au BufRead /cygdrive/z/*    hi StatusLine ctermfg=Red ctermbg=Black
-    au BufRead //rtpsawnv0312/* hi StatusLine ctermfg=DarkGray ctermbg=White guifg=DarkGray guibg=White gui=inverse,bold
-    au BufRead //rtpdsntp032/*  hi StatusLine ctermfg=Red ctermbg=Black guifg=Red      guibg=Black gui=inverse,bold
+    au BufRead,BufWinEnter /cygdrive/c/*    hi StatusLine ctermfg=Blue ctermbg=White
+    au BufRead,BufWinEnter /cygdrive/x/*    hi StatusLine ctermfg=Green ctermbg=Black 
+    au BufRead,BufWinEnter /cygdrive/y/*    hi StatusLine ctermfg=Yellow ctermbg=Black
+    au BufRead,BufWinEnter /cygdrive/z/*    hi StatusLine ctermfg=Red ctermbg=Black
+    au BufRead,BufWinEnter //rtpsawnv0312/* hi StatusLine ctermfg=DarkGray ctermbg=White guifg=DarkGray guibg=White gui=inverse,bold
+    au BufRead,BufWinEnter //rtpsawn321/*   hi StatusLine ctermfg=Red ctermbg=Black guifg=Red guibg=Black gui=inverse,bold
 
-    "                 Dev, Dev, Test, Prod
-    au BufReadPre,FileReadPre [WXYZ]:/* set noswapfile
     " 1-Avoid frightening people who don't know what swapfiles are
     " or
     " 2-Creating undeletable files on boxes built by frightened people
+    au BufReadPre,FileReadPre [WXYZ]:/* set noswapfile
     au BufReadPre,FileReadPre /cygdrive/[wxyz]/* set noswapfile
 
     " Do not use The Force on Test & Production
@@ -2094,6 +2088,7 @@ if !exists("autocommands_loaded")
 
     au BufEnter gsk,gsk_check.sh set foldmethod=marker
   endif
+  " end Temporary project-specific hacks to normalize messy problem-spaces
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 endif
 
@@ -4303,881 +4298,6 @@ function s:PreserveWindowLayout()
         endif
     endif
 endfunction  " /*}}}*/
-
-" 2013-07-23 inlined SuperTab {{{
-" Author: Eric Van Dewoestine <ervandew@gmail.com>
-"         Original concept and versions up to 0.32 written by
-"         Gergely Kontra <kgergely@mcl.hu>
-" Version: 2.0
-" GetLatestVimScripts: 1643 1 :AutoInstall: supertab.vim
-"
-" Description: {{{
-"   Use your tab key to do all your completion in insert mode!
-"   You can cycle forward and backward with the <Tab> and <S-Tab> keys
-"   Note: you must press <Tab> once to be able to cycle back
-"
-"   http://www.vim.org/scripts/script.php?script_id=1643
-" }}}
-"
-" License: {{{
-"   Copyright (c) 2002 - 2012
-"   All rights reserved.
-"
-"   Redistribution and use of this software in source and binary forms, with
-"   or without modification, are permitted provided that the following
-"   conditions are met:
-"
-"   * Redistributions of source code must retain the above
-"     copyright notice, this list of conditions and the
-"     following disclaimer.
-"
-"   * Redistributions in binary form must reproduce the above
-"     copyright notice, this list of conditions and the
-"     following disclaimer in the documentation and/or other
-"     materials provided with the distribution.
-"
-"   * Neither the name of Gergely Kontra or Eric Van Dewoestine nor the names
-"   of its contributors may be used to endorse or promote products derived
-"   from this software without specific prior written permission of Gergely
-"   Kontra or Eric Van Dewoestine.
-"
-"   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
-"   IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-"   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-"   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-"   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-"   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-"   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-"   PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-"   LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-"   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-"   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-" }}}
-"
-" Testing Info: {{{
-"   Running vim + supertab with the absolute bar minimum settings:
-"     $ vim -u NONE -U NONE -c "set nocp | runtime plugin/supertab.vim"
-" }}}
-
-if v:version < 700
-  finish
-endif
-
-if exists('complType') " Integration with other completion functions.
-  finish
-endif
-
-let s:save_cpo=&cpo
-set cpo&vim
-
-" Global Variables {{{
-
-  if !exists("g:SuperTabDefaultCompletionType")
-    let g:SuperTabDefaultCompletionType = "<c-p>"
-  endif
-
-  if !exists("g:SuperTabContextDefaultCompletionType")
-    let g:SuperTabContextDefaultCompletionType = "<c-p>"
-  endif
-
-  if !exists("g:SuperTabCompletionContexts")
-    let g:SuperTabCompletionContexts = ['s:ContextText']
-  endif
-
-  if !exists("g:SuperTabRetainCompletionDuration")
-    let g:SuperTabRetainCompletionDuration = 'insert'
-  endif
-
-  if !exists("g:SuperTabNoCompleteBefore")
-    " retain backwards compatability
-    if exists("g:SuperTabMidWordCompletion") && !g:SuperTabMidWordCompletion
-      let g:SuperTabNoCompleteBefore = ['\k']
-    else
-      let g:SuperTabNoCompleteBefore = []
-    endif
-  endif
-
-  if !exists("g:SuperTabNoCompleteAfter")
-    " retain backwards compatability
-    if exists("g:SuperTabLeadingSpaceCompletion") && g:SuperTabLeadingSpaceCompletion
-      let g:SuperTabNoCompleteAfter = []
-    else
-      let g:SuperTabNoCompleteAfter = ['\s']
-    endif
-  endif
-
-  if !exists("g:SuperTabMappingForward")
-    let g:SuperTabMappingForward = '<tab>'
-  endif
-  if !exists("g:SuperTabMappingBackward")
-    let g:SuperTabMappingBackward = '<s-tab>'
-  endif
-
-  if !exists("g:SuperTabMappingTabLiteral")
-    let g:SuperTabMappingTabLiteral = '<c-tab>'
-  endif
-
-  if !exists("g:SuperTabLongestEnhanced")
-    let g:SuperTabLongestEnhanced = 0
-  endif
-
-  if !exists("g:SuperTabLongestHighlight")
-    let g:SuperTabLongestHighlight = 0
-  endif
-
-  if !exists("g:SuperTabCrMapping")
-    let g:SuperTabCrMapping = 1
-  endif
-
-  if !exists("g:SuperTabClosePreviewOnPopupClose")
-    let g:SuperTabClosePreviewOnPopupClose = 0
-  endif
-
-" }}}
-
-" Script Variables {{{
-
-  " construct the help text.
-  let s:tabHelp =
-    \ "Hit <CR> or CTRL-] on the completion type you wish to switch to.\n" .
-    \ "Use :help ins-completion for more information.\n" .
-    \ "\n" .
-    \ "|<c-n>|      - Keywords in 'complete' searching down.\n" .
-    \ "|<c-p>|      - Keywords in 'complete' searching up (SuperTab default).\n" .
-    \ "|<c-x><c-l>| - Whole lines.\n" .
-    \ "|<c-x><c-n>| - Keywords in current file.\n" .
-    \ "|<c-x><c-k>| - Keywords in 'dictionary'.\n" .
-    \ "|<c-x><c-t>| - Keywords in 'thesaurus', thesaurus-style.\n" .
-    \ "|<c-x><c-i>| - Keywords in the current and included files.\n" .
-    \ "|<c-x><c-]>| - Tags.\n" .
-    \ "|<c-x><c-f>| - File names.\n" .
-    \ "|<c-x><c-d>| - Definitions or macros.\n" .
-    \ "|<c-x><c-v>| - Vim command-line.\n" .
-    \ "|<c-x><c-u>| - User defined completion.\n" .
-    \ "|<c-x><c-o>| - Omni completion.\n" .
-    \ "|<c-x>s|     - Spelling suggestions."
-
-  " set the available completion types and modes.
-  let s:types =
-    \ "\<c-e>\<c-y>\<c-l>\<c-n>\<c-k>\<c-t>\<c-i>\<c-]>" .
-    \ "\<c-f>\<c-d>\<c-v>\<c-n>\<c-p>\<c-u>\<c-o>\<c-n>\<c-p>s"
-  let s:modes = '/^E/^Y/^L/^N/^K/^T/^I/^]/^F/^D/^V/^P/^U/^O/s'
-  let s:types = s:types . "np"
-  let s:modes = s:modes . '/n/p'
-
-" }}}
-
-" SuperTabSetDefaultCompletionType(type) {{{
-" Globally available function that users can use to set the default
-" completion type for the current buffer, like in an ftplugin.
-function! SuperTabSetDefaultCompletionType(type)
-  " init hack for <c-x><c-v> workaround.
-  let b:complCommandLine = 0
-
-  let b:SuperTabDefaultCompletionType = a:type
-
-  " set the current completion type to the default
-  call SuperTabSetCompletionType(b:SuperTabDefaultCompletionType)
-endfunction " }}}
-
-" SuperTabSetCompletionType(type) {{{
-" Globally available function that users can use to create mappings to quickly
-" switch completion modes.  Useful when a user wants to restore the default or
-" switch to another mode without having to kick off a completion of that type
-" or use SuperTabHelp.  Note, this function only changes the current
-" completion type, not the default, meaning that the default will still be
-" restored once the configured retension duration has been met (see
-" g:SuperTabRetainCompletionDuration).  To change the default for the current
-" buffer, use SuperTabDefaultCompletionType(type) instead.  Example mapping to
-" restore SuperTab default:
-"   nmap <F6> :call SetSuperTabCompletionType("<c-p>")<cr>
-function! SuperTabSetCompletionType(type)
-  call s:InitBuffer()
-  exec "let b:complType = \"" . escape(a:type, '<') . "\""
-endfunction " }}}
-
-" SuperTabAlternateCompletion(type) {{{
-" Function which can be mapped to a key to kick off an alternate completion
-" other than the default.  For instance, if you have 'context' as the default
-" and want to map ctrl+space to issue keyword completion.
-" Note: due to the way vim expands ctrl characters in mappings, you cannot
-" create the alternate mapping like so:
-"    imap <c-space> <c-r>=SuperTabAlternateCompletion("<c-p>")<cr>
-" instead, you have to use \<lt> to prevent vim from expanding the key
-" when creating the mapping.
-"    gvim:
-"      imap <c-space> <c-r>=SuperTabAlternateCompletion("\<lt>c-p>")<cr>
-"    console:
-"      imap <nul> <c-r>=SuperTabAlternateCompletion("\<lt>c-p>")<cr>
-function! SuperTabAlternateCompletion(type)
-  call SuperTabSetCompletionType(a:type)
-  " end any current completion before attempting to start the new one.
-  " use feedkeys to prevent possible remapping of <c-e> from causing issues.
-  "call feedkeys("\<c-e>", 'n')
-  " ^ since we can't detect completion mode vs regular insert mode, we force
-  " vim into keyword completion mode and end that mode to prevent the regular
-  " insert behavior of <c-e> from occurring.
-  call feedkeys("\<c-x>\<c-p>\<c-e>", 'n')
-  call feedkeys(b:complType, 'n')
-  return ''
-endfunction " }}}
-
-" SuperTabLongestHighlight(dir) {{{
-" When longest highlight is enabled, this function is used to do the actual
-" selection of the completion popup entry.
-function! SuperTabLongestHighlight(dir)
-  if !pumvisible()
-    return ''
-  endif
-  return a:dir == -1 ? "\<up>" : "\<down>"
-endfunction " }}}
-
-" s:Init {{{
-" Global initilization when supertab is loaded.
-function! s:Init()
-  " Setup mechanism to restore original completion type upon leaving insert
-  " mode if configured to do so
-  if g:SuperTabRetainCompletionDuration == 'insert'
-    augroup supertab_retain
-      autocmd!
-      autocmd InsertLeave * call s:SetDefaultCompletionType()
-    augroup END
-  endif
-endfunction " }}}
-
-" s:InitBuffer {{{
-" Per buffer initilization.
-function! s:InitBuffer()
-  if exists('b:SuperTabNoCompleteBefore')
-    return
-  endif
-
-  let b:complReset = 0
-  let b:complTypeManual = !exists('b:complTypeManual') ? '' : b:complTypeManual
-  let b:complTypeContext = ''
-
-  " init hack for <c-x><c-v> workaround.
-  let b:complCommandLine = 0
-
-  if !exists('b:SuperTabNoCompleteBefore')
-    let b:SuperTabNoCompleteBefore = g:SuperTabNoCompleteBefore
-  endif
-  if !exists('b:SuperTabNoCompleteAfter')
-    let b:SuperTabNoCompleteAfter = g:SuperTabNoCompleteAfter
-  endif
-
-  if !exists('b:SuperTabDefaultCompletionType')
-    let b:SuperTabDefaultCompletionType = g:SuperTabDefaultCompletionType
-  endif
-
-  " set the current completion type to the default
-  call SuperTabSetCompletionType(b:SuperTabDefaultCompletionType)
-
-  " hack to programatically revert a change to snipmate that breaks supertab
-  " but which the new maintainers don't care about:
-  " http://github.com/garbas/vim-snipmate/issues/37
-  let snipmate = maparg('<tab>', 'i')
-  if snipmate =~ '<C-G>u' && g:SuperTabMappingForward =~? '<tab>'
-    let snipmate = substitute(snipmate, '<C-G>u', '', '')
-    iunmap <tab>
-    exec "inoremap <silent> <tab> " . snipmate
-  endif
-endfunction " }}}
-
-" s:ManualCompletionEnter() {{{
-" Handles manual entrance into completion mode.
-function! s:ManualCompletionEnter()
-  if &smd
-    echo '' | echohl ModeMsg | echo '-- ^X++ mode (' . s:modes . ')' | echohl None
-  endif
-  let complType = nr2char(getchar())
-  if stridx(s:types, complType) != -1
-    let b:supertab_close_preview = 1
-
-    if stridx("\<c-e>\<c-y>", complType) != -1 " no memory, just scroll...
-      return "\<c-x>" . complType
-    elseif stridx('np', complType) != -1
-      let complType = nr2char(char2nr(complType) - 96)
-    else
-      let complType = "\<c-x>" . complType
-    endif
-
-    let b:complTypeManual = complType
-
-    if index(['insert', 'session'], g:SuperTabRetainCompletionDuration) != -1
-      let b:complType = complType
-    endif
-
-    " Hack to workaround bug when invoking command line completion via <c-r>=
-    if complType == "\<c-x>\<c-v>"
-      return s:CommandLineCompletion()
-    endif
-
-    " optionally enable enhanced longest completion
-    if g:SuperTabLongestEnhanced && &completeopt =~ 'longest'
-      call s:EnableLongestEnhancement()
-    endif
-
-    if g:SuperTabLongestHighlight &&
-     \ &completeopt =~ 'longest' &&
-     \ &completeopt =~ 'menu' &&
-     \ !pumvisible()
-      let dir = (complType == "\<c-x>\<c-p>") ? -1 : 1
-      call feedkeys("\<c-r>=SuperTabLongestHighlight(" . dir . ")\<cr>", 'n')
-    endif
-
-    return complType
-  endif
-
-  echohl "Unknown mode"
-  return complType
-endfunction " }}}
-
-" s:SetCompletionType() {{{
-" Sets the completion type based on what the user has chosen from the help
-" buffer.
-function! s:SetCompletionType()
-  let chosen = substitute(getline('.'), '.*|\(.*\)|.*', '\1', '')
-  if chosen != getline('.')
-    let winnr = b:winnr
-    close
-    exec winnr . 'winc w'
-    call SuperTabSetCompletionType(chosen)
-  endif
-endfunction " }}}
-
-function! s:SetDefaultCompletionType() " {{{
-  if exists('b:SuperTabDefaultCompletionType') &&
-  \ (!exists('b:complCommandLine') || !b:complCommandLine)
-    call SuperTabSetCompletionType(b:SuperTabDefaultCompletionType)
-  endif
-endfunction " }}}
-
-" s:SuperTab(command) {{{
-" Used to perform proper cycle navigation as the user requests the next or
-" previous entry in a completion list, and determines whether or not to simply
-" retain the normal usage of <tab> based on the cursor position.
-function! s:SuperTab(command)
-  if exists('b:SuperTabDisabled') && b:SuperTabDisabled
-    return "\<tab>"
-  endif
-
-  call s:InitBuffer()
-
-  if s:WillComplete()
-    let b:supertab_close_preview = 1
-
-    " optionally enable enhanced longest completion
-    if g:SuperTabLongestEnhanced && &completeopt =~ 'longest'
-      call s:EnableLongestEnhancement()
-    endif
-
-    if !pumvisible()
-      let b:complTypeManual = ''
-    endif
-
-    " exception: if in <c-p> mode, then <c-n> should move up the list, and
-    " <c-p> down the list.
-    if a:command == 'p' && !b:complReset &&
-      \ (b:complType == "\<c-p>" ||
-      \   (b:complType == 'context' &&
-      \    b:complTypeManual == '' &&
-      \    b:complTypeContext == "\<c-p>"))
-      return "\<c-n>"
-
-    elseif a:command == 'p' && !b:complReset &&
-      \ (b:complType == "\<c-n>" ||
-      \   (b:complType == 'context' &&
-      \    b:complTypeManual == '' &&
-      \    b:complTypeContext == "\<c-n>"))
-      return "\<c-p>"
-
-    " already in completion mode and not resetting for longest enhancement, so
-    " just scroll to next/previous
-    elseif pumvisible() && !b:complReset
-      let type = b:complType == 'context' ? b:complTypeContext : b:complType
-      if a:command == 'n'
-        return type == "\<c-p>" ? "\<c-p>" : "\<c-n>"
-      endif
-      return type == "\<c-p>" ? "\<c-n>" : "\<c-p>"
-    endif
-
-    " handle 'context' completion.
-    if b:complType == 'context'
-      let complType = s:ContextCompletion()
-      if complType == ''
-        exec "let complType = \"" .
-          \ escape(g:SuperTabContextDefaultCompletionType, '<') . "\""
-      endif
-      let b:complTypeContext = complType
-
-    " Hack to workaround bug when invoking command line completion via <c-r>=
-    elseif b:complType == "\<c-x>\<c-v>"
-      let complType = s:CommandLineCompletion()
-    else
-      let complType = b:complType
-    endif
-
-    " highlight first result if longest enabled
-    if g:SuperTabLongestHighlight &&
-     \ &completeopt =~ 'longest' &&
-     \ &completeopt =~ 'menu' &&
-     \ (!pumvisible() || b:complReset)
-      let dir = (complType == "\<c-p>") ? -1 : 1
-      call feedkeys("\<c-r>=SuperTabLongestHighlight(" . dir . ")\<cr>", 'n')
-    endif
-
-    if b:complReset
-      let b:complReset = 0
-      " not an accurate condition for everyone, but better than sending <c-e>
-      " at the wrong time.
-      if pumvisible()
-        return "\<c-e>" . complType
-      endif
-    endif
-
-    return complType
-  endif
-
-  return "\<tab>"
-endfunction " }}}
-
-" s:SuperTabHelp() {{{
-" Opens a help window where the user can choose a completion type to enter.
-function! s:SuperTabHelp()
-  let winnr = winnr()
-  if bufwinnr("SuperTabHelp") == -1
-    botright split SuperTabHelp
-
-    setlocal noswapfile
-    setlocal buftype=nowrite
-    setlocal bufhidden=delete
-
-    let saved = @"
-    let @" = s:tabHelp
-    silent put
-    call cursor(1, 1)
-    silent 1,delete
-    call cursor(4, 1)
-    let @" = saved
-    exec "resize " . line('$')
-
-    syntax match Special "|.\{-}|"
-
-    setlocal readonly
-    setlocal nomodifiable
-
-    nmap <silent> <buffer> <cr> :call <SID>SetCompletionType()<cr>
-    nmap <silent> <buffer> <c-]> :call <SID>SetCompletionType()<cr>
-  else
-    exec bufwinnr("SuperTabHelp") . "winc w"
-  endif
-  let b:winnr = winnr
-endfunction " }}}
-
-" s:WillComplete() {{{
-" Determines if completion should be kicked off at the current location.
-function! s:WillComplete()
-  if pumvisible()
-    return 1
-  endif
-
-  let line = getline('.')
-  let cnum = col('.')
-
-  " Start of line.
-  if line =~ '^\s*\%' . cnum . 'c'
-    return 0
-  endif
-
-  " honor SuperTabNoCompleteAfter
-  let pre = line[:cnum - 2]
-  for pattern in b:SuperTabNoCompleteAfter
-    if pre =~ pattern . '$'
-      return 0
-    endif
-  endfor
-
-  " honor SuperTabNoCompleteBefore
-  " Within a word, but user does not have mid word completion enabled.
-  let post = line[cnum - 1:]
-  for pattern in b:SuperTabNoCompleteBefore
-    if post =~ '^' . pattern
-      return 0
-    endif
-  endfor
-
-  return 1
-endfunction " }}}
-
-function! s:EnableLongestEnhancement() " {{{
-  augroup supertab_reset
-    autocmd!
-    autocmd InsertLeave,CursorMovedI <buffer>
-      \ call s:ReleaseKeyPresses() | autocmd! supertab_reset
-  augroup END
-  call s:CaptureKeyPresses()
-endfunction " }}}
-
-function! s:CompletionReset(char) " {{{
-  let b:complReset = 1
-  return a:char
-endfunction " }}}
-
-function! s:CaptureKeyPresses() " {{{
-  if !exists('b:capturing') || !b:capturing
-    let b:capturing = 1
-    " save any previous mappings
-    " TODO: capture additional info provided by vim 7.3.032 and up.
-    let b:captured = {
-        \ '<bs>': maparg('<bs>', 'i'),
-        \ '<c-h>': maparg('<c-h>', 'i'),
-      \ }
-    " TODO: use &keyword to get an accurate list of chars to map
-    for c in split('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_', '.\zs')
-      exec 'imap <buffer> ' . c . ' <c-r>=<SID>CompletionReset("' . c . '")<cr>'
-    endfor
-    imap <buffer> <bs> <c-r>=<SID>CompletionReset("\<lt>bs>")<cr>
-    imap <buffer> <c-h> <c-r>=<SID>CompletionReset("\<lt>c-h>")<cr>
-  endif
-endfunction " }}}
-
-function! s:ClosePreview() " {{{
-  if exists('b:supertab_close_preview') && b:supertab_close_preview
-    let preview = 0
-    for bufnum in tabpagebuflist()
-      if getwinvar(bufwinnr(bufnum), '&previewwindow')
-        let preview = 1
-        break
-      endif
-    endfor
-    if preview
-      pclose
-    endif
-    unlet b:supertab_close_preview
-  endif
-endfunction " }}}
-
-function! s:ReleaseKeyPresses() " {{{
-  if exists('b:capturing') && b:capturing
-    let b:capturing = 0
-    for c in split('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_', '.\zs')
-      exec 'iunmap <buffer> ' . c
-    endfor
-
-    iunmap <buffer> <bs>
-    iunmap <buffer> <c-h>
-
-    " restore any previous mappings
-    for [key, rhs] in items(b:captured)
-      if rhs != ''
-        let args = substitute(rhs, '.*\(".\{-}"\).*', '\1', '')
-        if args != rhs
-          let args = substitute(args, '<', '<lt>', 'g')
-          let expr = substitute(rhs, '\(.*\)".\{-}"\(.*\)', '\1%s\2', '')
-          let rhs = printf(expr, args)
-        endif
-        exec printf("imap <silent> %s %s", key, rhs)
-      endif
-    endfor
-    unlet b:captured
-
-    if mode() == 'i' && &completeopt =~ 'menu'
-      " force full exit from completion mode (don't exit insert mode since
-      " that will break repeating with '.')
-      call feedkeys("\<space>\<bs>", 'n')
-    endif
-  endif
-endfunction " }}}
-
-" s:CommandLineCompletion() {{{
-" Hack needed to account for apparent bug in vim command line mode completion
-" when invoked via <c-r>=
-function! s:CommandLineCompletion()
-  " This hack will trigger InsertLeave which will then invoke
-  " s:SetDefaultCompletionType.  To prevent default completion from being
-  " restored prematurely, set an internal flag for s:SetDefaultCompletionType
-  " to check for.
-  let b:complCommandLine = 1
-  return "\<c-\>\<c-o>:call feedkeys('\<c-x>\<c-v>\<c-v>', 'n') | " .
-    \ "let b:complCommandLine = 0\<cr>"
-endfunction " }}}
-
-function! s:ContextCompletion() " {{{
-  let contexts = exists('b:SuperTabCompletionContexts') ?
-    \ b:SuperTabCompletionContexts : g:SuperTabCompletionContexts
-
-  for context in contexts
-    try
-      let Context = function(context)
-      let complType = Context()
-      unlet Context
-      if type(complType) == 1 && complType != ''
-        return complType
-      endif
-    catch /E700/
-      echohl Error
-      echom 'supertab: no context function "' . context . '" found.'
-      echohl None
-    endtry
-  endfor
-  return ''
-endfunction " }}}
-
-function! s:ContextDiscover() " {{{
-  let discovery = exists('g:SuperTabContextDiscoverDiscovery') ?
-    \ g:SuperTabContextDiscoverDiscovery : []
-
-  " loop through discovery list to find the default
-  if !empty(discovery)
-    for pair in discovery
-      let var = substitute(pair, '\(.*\):.*', '\1', '')
-      let type = substitute(pair, '.*:\(.*\)', '\1', '')
-      exec 'let value = ' . var
-      if value !~ '^\s*$' && value != '0'
-        exec "let complType = \"" . escape(type, '<') . "\""
-        return complType
-      endif
-    endfor
-  endif
-endfunction " }}}
-
-function! s:ContextText() " {{{
-  let exclusions = exists('g:SuperTabContextTextFileTypeExclusions') ?
-    \ g:SuperTabContextTextFileTypeExclusions : []
-
-  if index(exclusions, &ft) == -1
-    let curline = getline('.')
-    let cnum = col('.')
-    let synname = synIDattr(synID(line('.'), cnum - 1, 1), 'name')
-    if curline =~ '.*/\w*\%' . cnum . 'c' ||
-      \ ((has('win32') || has('win64')) && curline =~ '.*\\\w*\%' . cnum . 'c')
-      return "\<c-x>\<c-f>"
-
-    elseif curline =~ '.*\(\w\|[\])]\)\(\.\|::\|->\)\w*\%' . cnum . 'c' &&
-      \ synname !~ '\(String\|Comment\)'
-      let omniPrecedence = exists('g:SuperTabContextTextOmniPrecedence') ?
-        \ g:SuperTabContextTextOmniPrecedence : ['&completefunc', '&omnifunc']
-
-      for omniFunc in omniPrecedence
-        if omniFunc !~ '^&'
-          let omniFunc = '&' . omniFunc
-        endif
-        if getbufvar(bufnr('%'), omniFunc) != ''
-          return omniFunc == '&omnifunc' ? "\<c-x>\<c-o>" : "\<c-x>\<c-u>"
-        endif
-      endfor
-    endif
-  endif
-endfunction " }}}
-
-function! s:ExpandMap(map) " {{{
-  let map = a:map
-  if map =~ '<Plug>'
-    let plug = substitute(map, '.\{-}\(<Plug>\w\+\).*', '\1', '')
-    let plug_map = maparg(plug, 'i')
-    let map = substitute(map, '.\{-}\(<Plug>\w\+\).*', plug_map, '')
-  endif
-  return map
-endfunction " }}}
-
-function! SuperTabChain(completefunc, completekeys) " {{{
-  let b:SuperTabChain = [a:completefunc, a:completekeys]
-  setlocal completefunc=SuperTabCodeComplete
-endfunction " }}}
-
-function! SuperTabCodeComplete(findstart, base) " {{{
-  if !exists('b:SuperTabChain')
-    echoe 'No completion chain has been set.'
-    return -2
-  endif
-
-  if len(b:SuperTabChain) != 2
-    echoe 'Completion chain can only be used with 1 completion function ' .
-        \ 'and 1 fallback completion key binding.'
-    return -2
-  endif
-
-  let Func = function(b:SuperTabChain[0])
-
-  if a:findstart
-    let start = Func(a:findstart, a:base)
-    if start >= 0
-      return start
-    endif
-
-    return col('.') - 1
-  endif
-
-  let results = Func(a:findstart, a:base)
-  if len(results)
-    return results
-  endif
-
-  exec 'let keys = "' . escape(b:SuperTabChain[1], '<') . '"'
-  call feedkeys("\<c-e>" . keys, 'nt')
-  return []
-endfunction " }}}
-
-" Autocmds {{{
-  if g:SuperTabClosePreviewOnPopupClose
-    augroup supertab_close_preview
-      autocmd!
-      autocmd InsertLeave,CursorMovedI * call s:ClosePreview()
-    augroup END
-  endif
-" }}}
-
-" Key Mappings {{{
-  " map a regular tab to ctrl-tab (note: doesn't work in console vim)
-  exec 'inoremap ' . g:SuperTabMappingTabLiteral . ' <tab>'
-
-  imap <c-x> <c-r>=<SID>ManualCompletionEnter()<cr>
-
-  imap <script> <Plug>SuperTabForward <c-r>=<SID>SuperTab('n')<cr>
-  imap <script> <Plug>SuperTabBackward <c-r>=<SID>SuperTab('p')<cr>
-
-  exec 'imap ' . g:SuperTabMappingForward . ' <Plug>SuperTabForward'
-  exec 'imap ' . g:SuperTabMappingBackward . ' <Plug>SuperTabBackward'
-
-  " After hitting <Tab>, hitting it once more will go to next match
-  " (because in XIM mode <c-n> and <c-p> mappings are ignored)
-  " and wont start a brand new completion
-  " The side effect, that in the beginning of line <c-n> and <c-p> inserts a
-  " <Tab>, but I hope it may not be a problem...
-  let ctrl_n = maparg('<c-n>', 'i')
-  if ctrl_n != ''
-    let ctrl_n = substitute(ctrl_n, '<', '<lt>', 'g')
-    exec 'imap <c-n> <c-r>=<SID>ForwardBack("n", "' . ctrl_n . '")<cr>'
-  else
-    imap <c-n> <Plug>SuperTabForward
-  endif
-  let ctrl_p = maparg('<c-p>', 'i')
-  if ctrl_p != ''
-    let ctrl_p = substitute(ctrl_p, '<', '<lt>', 'g')
-    exec 'imap <c-p> <c-r>=<SID>ForwardBack("p", "' . ctrl_p . '")<cr>'
-  else
-    imap <c-p> <Plug>SuperTabBackward
-  endif
-  function! s:ForwardBack(command, map)
-    exec "let map = \"" . escape(a:map, '<') . "\""
-    return pumvisible() ? s:SuperTab(a:command) : map
-  endfunction
-
-  if g:SuperTabCrMapping
-    let expr_map = 0
-    try
-      let map_dict = maparg('<cr>', 'i', 0, 1)
-      let expr_map = map_dict.expr
-    catch
-      let expr_map = maparg('<cr>', 'i') =~? '\<cr>'
-    endtry
-
-    if expr_map
-      " Not compatible w/ expr mappings. This is most likely a user mapping,
-      " typically with the same functionality anyways.
-    elseif maparg('<CR>', 'i') =~ '<Plug>delimitMateCR'
-      " Not compatible w/ delimitMate since it doesn't play well with others
-      " and will always return a <cr> which we don't want when selecting a
-      " completion.
-    elseif maparg('<CR>','i') =~ '<CR>'
-      let map = maparg('<cr>', 'i')
-      let cr = (map =~? '\(^\|[^)]\)<cr>')
-      let map = s:ExpandMap(map)
-      exec "inoremap <script> <cr> <c-r>=<SID>SelectCompletion(" . cr . ")<cr>" . map
-    else
-      inoremap <cr> <c-r>=<SID>SelectCompletion(1)<cr>
-    endif
-    function! s:SelectCompletion(cr)
-      " selecting a completion
-      if pumvisible()
-        " ugly hack to let other <cr> mappings for other plugins cooperate
-        " with supertab
-        let b:supertab_pumwasvisible = 1
-
-        " close the preview window if configured to do so
-        if &completeopt =~ 'preview' && g:SuperTabClosePreviewOnPopupClose
-          let b:supertab_close_preview = 1
-          call s:ClosePreview()
-        endif
-
-        return "\<c-y>"
-      endif
-
-      " only needed when chained with other mappings and one of them will
-      " issue a <cr>.
-      if exists('b:supertab_pumwasvisible') && !a:cr
-        unlet b:supertab_pumwasvisible
-        return ''
-      endif
-
-      " not so pleasant hack to keep <cr> working for abbreviations
-      let word = substitute(getline('.'), '^.*\s\+\(.*\%' . col('.') . 'c\).*', '\1', '')
-      let result = maparg(word, 'i', 1)
-      if result != ''
-        let bs = ""
-        let i = 0
-        while i < len(word)
-          let bs .= "\<bs>"
-          let i += 1
-        endwhile
-        return bs . result . (a:cr ? "\<cr>" : "")
-      endif
-
-      " only return a cr if nothing else is mapped to it since we don't want
-      " to duplicate a cr returned by another mapping.
-      return a:cr ? "\<cr>" : ""
-    endfunction
-  endif
-" }}}
-
-" Command Mappings {{{
-  if !exists(":SuperTabHelp")
-    command SuperTabHelp :call <SID>SuperTabHelp()
-  endif
-" }}}
-
-call s:Init()
-
-function! TestSuperTabCodeComplete(findstart, base) " {{{
-  " Test supertab completion chaining w/ a minimal vim environment:
-  " $ vim -u NONE -U NONE \
-  "   --cmd "set nocp | sy on" \
-  "   -c "so ~/.vim/plugin/supertab.vim" \
-  "   -c "let g:SuperTabDefaultCompletionType = '<c-x><c-u>'" \
-  "   -c "set completefunc=TestSuperTabCodeComplete" \
-  "   -c "call SuperTabChain(&completefunc, '<c-p>')"
-  if a:findstart
-    let line = getline('.')
-    let start = col('.') - 1
-    if line[start] =~ '\.'
-      let start -= 1
-    endif
-    while start > 0 && line[start - 1] =~ '\w'
-      let start -= 1
-    endwhile
-    return start
-  else
-    let completions = []
-    if getline('.') =~ 'TestC'
-      call add(completions, {
-          \ 'word': 'test1(',
-          \ 'kind': 'm',
-          \ 'menu': 'test1(...)',
-        \ })
-      call add(completions, {
-          \ 'word': 'testing2(',
-          \ 'kind': 'm',
-          \ 'menu': 'testing2(...)',
-        \ })
-    endif
-
-    return completions
-  endif
-endfunction " }}}
-
-let &cpo = s:save_cpo
-" }}}
 
 
 " end 3rd Party Plugins

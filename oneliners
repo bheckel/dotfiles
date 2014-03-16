@@ -7,7 +7,7 @@
 #           Comments are often written for searching, not proper English...
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Sun 02 Mar 2014 09:04:52 (Bob Heckel)
+# Modified: Sat 15 Mar 2014 07:43:35 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -3369,6 +3369,9 @@ x=`uname`; if [ ${x:0:6} = CYGWIN ];then echo isCygwin; fi
 git show-ref --heads |cut -d' ' -f2
 git show-ref --heads |awk 'print{$2}'
 
+# Calculate mirror size 4884 1.0123+10 is 10GB in 4884 files
+curl -s ftp://mirror.cs.vt.edu/pub/cygwin/cygwin/x86/setup.ini | awk '/^install: / { T = T + $3 ; N++ }; END { print N, T }'
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -4244,9 +4247,8 @@ movies->title   // same as the ugly (*movies).title
 // Value pointed to by element 'title' of structure 'movies'
 *movies.title   // same as the ugly *(movies.title) 
 
-You can find out what shared libraries a program requires by using ldd (List
-Dynamic Dependencies) 
-$ ldd /usr/bin/lynx
+Find out which shared libraries a program requires (List Dynamic Dependencies):
+$ ldd /usr/bin/w3m
 
 External (global) variables initialize to 0. Local variables init to garbage.
 
@@ -5416,7 +5418,7 @@ git config user.email
 
 git log --pretty=oneline
 git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
-git log --pretty=format:"%Cblue %h %ad | %Cgreen %s%Cblue %d [%an]" --graph --date=short  # or simply my gl alias
+git log --since="3 months ago" --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %d [%an]" --graph --date=short
 
 git diff 97a158d 5e4abd2 # or git diff or git diff cfg/ or git diff cfg/DataPost_Configuration.xml or git difftool HEAD
 
@@ -5470,6 +5472,9 @@ git commit --amend -m 'this changes your last, wrong, commit message to this'
 
 # List git branch dates sorted descending
 git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)"
+
+# View git old version of file from different branch (in pager):
+git show eacbd91:code/ods_0002e.sas
 
 # Test AJAX etc that won't work using file:// etc.
 $ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
@@ -5558,7 +5563,7 @@ System.out.println("Return".concat(" of").concat(" the king."));
 // Java array
 int[] array = new int[5] { 1, 2, 3, 4, 5 };
 
-mintty Ctrl+ Ctrl- font size
+Administrator cmd.exe: Run / type cmd / Ctrl-Shift-Enter
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  

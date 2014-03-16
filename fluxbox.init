@@ -1,3 +1,5 @@
+# Modified: Sat 15 Mar 2014 17:52:48 (Bob Heckel)
+# Must Reconfigure after any changes
 session.screen0.clientMenu.usePixmap:	true
 session.screen0.window.focus.alpha:	255
 session.screen0.window.unfocus.alpha:	255
@@ -32,7 +34,8 @@ session.screen0.toolbar.height:	0
 session.screen0.tab.placement:	TopLeft
 session.screen0.tab.width:	64
 session.screen0.windowPlacement:	RowMinOverlapPlacement
-session.screen0.strftimeFormat:	%a %d%b%y %02k:%M
+# Date
+session.screen0.strftimeFormat:	%a %d-%b %02k:%M
 session.screen0.allowRemoteActions:	false
 session.screen0.windowMenu:	/home/bheckel/.fluxbox/windowmenu
 session.screen0.tabFocusModel:	ClickToTabFocus
@@ -68,7 +71,7 @@ session.ignoreBorder:	false
 session.cacheLife:	5
 session.autoRaiseDelay:	250
 session.appsFile:	/home/bheckel/.fluxbox/apps
-session.styleFile:	/home/bheckel/.fluxbox/styles/magni
+session.styleFile:	/home/bheckel/code/misccode/fluxbox.theme.cfg
 session.slitlistFile:	/home/bheckel/.fluxbox/slitlist
 session.styleOverlay:	/home/bheckel/.fluxbox/overlay
 session.tabPadding:	0
