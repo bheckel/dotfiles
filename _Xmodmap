@@ -1,5 +1,5 @@
 !
-! Modified: Mon 31 Dec 2012 09:06:54 (Bob Heckel)
+! Modified: Sat 22 Mar 2014 08:17:21 (Bob Heckel)
 !
 ! $ ln -s ~/code/misccode/_Xmodmap ~/.Xmodmap
 !
@@ -13,9 +13,10 @@
 ! $ xmodmap -e "keycode 104 = Return"
 
 ! Lefty mouse
+! left button / wheel click / right button / wheel hold & scroll / wheel scroll
 pointer = 3 2 1 4 5
 
-! Capslock is next to tab .So make Capslock act like Tab.
+! Make Capslock act like Tab
 keycode 66 = Tab
 clear lock
 

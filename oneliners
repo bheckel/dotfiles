@@ -574,6 +574,8 @@ echon '.vimrc: unknown language: (' mylang ') so using default Commentout style'
 ' Vim fold folding
 :se fdm=manual
 
+if hostname() == 'yoniso' ... else ... endif
+
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -1350,9 +1352,6 @@ data foo; format _ALL_; run;
  /* Go back 1 year */
 %let thisyr = %sysfunc(year("&SYSDATE"d)); %let minyr = %eval(&thisyr-1);
 
-  /* Output CSV format: */
-proc export data=VenHFA_analytical_individuals OUTFILE= "\\trpsawnv0312\pucc\VENTOLIN_HFA\Output Compiled Data\CSV VenHFA_analytical.csv" DBMS=CSV replace; run;
-
 filename HERE '.'; %let pwd=%sysfunc(pathname(HERE)); 
 
 Patches installed:
@@ -1413,8 +1412,9 @@ proc surveyselect data=SASHELP.shoes out=stacked samprate=1 reps=50000000; run;
  /* What SAS day number is one year ago from today? */
 %let yearago = %sysevalf(%sysfunc(date())-365); ...  if test_date > &yearago; ...
 
- /* Save output as excel CSV file. v8 at least */
+ /* Write output save Excel as CSV */
 ods CSVALL file='t.csv'; proc print NOobs; run; ods CSVALL close;
+proc export data=VenHFA_analytical_individuals OUTFILE= "\\trpsawnv0312\pucc\VENTOLIN_HFA\Output Compiled Data\CSV VenHFA_analytical.csv" DBMS=CSV replace; run;
 
  /* Think "I"NPUT is closer to "C"HAR so use that to convert a character to a numeric: */
  /* Canonical char2num and suppress SAS Log "NOTE: Invalid argument to function INPUT at line..." */
@@ -1728,6 +1728,9 @@ data t(genmax=3); ...
 
 %let cnt=1234; %put %sysfunc(putn(&cnt, comma.));  /* 1,234 */
 %let cntfmtd=%sysfunc(putn(&cnt, comma.));
+
+ /* Oracle libname */
+libname DGM_DIST oracle user=&username password=&password path=&database schema=dgm_dist readbuff=10000;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 

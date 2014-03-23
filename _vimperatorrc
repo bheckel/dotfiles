@@ -115,9 +115,9 @@ noremap l L
 noremap H h
 noremap L l
 
-" Speed up movements
-noremap k 2k
-noremap j 2j
+" Speed up movements, we don't need precision in a browser like we do in vim
+noremap k 3k
+noremap j 3j
 noremap <C-e> 3<C-e>
 noremap <C-y> 3<C-y>
 

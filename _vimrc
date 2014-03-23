@@ -22,7 +22,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Sun 16 Mar 2014 08:34:36 (Bob Heckel)
+" Modified: Wed 19 Mar 2014 09:59:32 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 "--------------------------------------------------------------------------
@@ -115,17 +115,14 @@ if has ('syntax') && &t_Co > 1
   syntax enable
 endif
 
+" Override .Xdefaults
+"""hi Cursor ctermfg=Red ctermbg=Red
+
 " Avoid reading text presented like it was written on a light bulb.  We're
 " sometimes relying on .Xdefaults to do wheat-on-black so this is only for gvim.
 hi Normal guifg=#F5DEB3 guibg=Black
 
-"""if hostname() == 'yoniso'
-  " Broken(?) urxvt using t_Co=256
-"""  hi Comment ctermfg=Black cterm=bold guifg=DarkGray guibg=Black
-"""else
-  """hi Comment cterm=italic ctermfg=DarkGray guifg=DarkGray guibg=Black
-  hi Comment ctermfg=DarkGray guifg=DarkGray guibg=Black
-"""endif
+hi Comment ctermfg=DarkGray guifg=DarkGray guibg=Black
 
 hi Conditional ctermfg=LightGreen guifg=LightGreen
 
@@ -145,12 +142,7 @@ hi Identifier ctermfg=LightCyan guifg=LightCyan
 hi IncSearch ctermfg=White ctermbg=LightBlue guifg=White guibg=LightBlue
 
 " :se rnu
-"""if hostname() == 'yoniso'
-  " Lighblue is grey on my broken urxvt
-"""  hi LineNr ctermfg=Black ctermbg=LightBlue guifg=Black guibg=DarkGray
-"""else
-  hi LineNr ctermfg=Black ctermbg=DarkGray guifg=Black guibg=DarkGray
-"""endif
+hi LineNr ctermfg=Black ctermbg=DarkGray guifg=Black guibg=DarkGray
 
 hi MatchParen ctermfg=White ctermbg=Blue guifg=Cyan guibg=Magenta
 hi ModeMsg ctermfg=Black ctermbg=Yellow guifg=Black guibg=Yellow
@@ -158,14 +150,9 @@ hi MoreMsg ctermfg=Blue ctermbg=Black guifg=Blue
 hi Number ctermfg=Magenta ctermbg=Black guifg=Magenta guibg=Black
 
 " Tab completion dropdown
-if has ('win32unix')
-  hi Pmenu ctermfg=Black ctermbg=Gray guifg=White guibg=Gray 
-  hi PmenuSbar ctermfg=Black ctermbg=Gray guifg=White guibg=Black 
-else
-  " Lightblue is gray on borked linux box
-  hi Pmenu ctermfg=Black ctermbg=LightBlue guifg=White guibg=Gray 
-  hi PmenuSbar ctermfg=Black ctermbg=Gray guifg=White guibg=Black 
-endif
+hi Pmenu ctermfg=Black ctermbg=Gray guifg=White guibg=Gray 
+hi PmenuSbar ctermfg=Black ctermbg=Gray guifg=White guibg=Black 
+
 hi PmenuSel ctermfg=Blue ctermbg=Yellow guifg=Blue guibg=Yellow 
 
 hi PreProc ctermfg=LightMagenta guifg=LightMagenta guibg=Black
@@ -329,6 +316,15 @@ set mousehide
 " For spellchecking
 set mousemodel=popup
 
+" 16-Mar-14 trying to get vim to mouse scroll - not working
+map <M-Esc>[62~ <ScrollWheelUp>
+map! <M-Esc>[62~ <ScrollWheelUp>
+map <M-Esc>[63~ <ScrollWheelDown>
+map! <M-Esc>[63~ <ScrollWheelDown>
+map <M-Esc>[64~ <S-ScrollWheelUp>
+map! <M-Esc>[64~ <S-ScrollWheelUp>
+map <M-Esc>[65~ <S-ScrollWheelDown>
+map! <M-Esc>[65~ <S-ScrollWheelDown>
 
 "                               10 printing {{{2
 
@@ -574,9 +570,9 @@ if hostname() == 'ubuntu'
   set guifont=Consolas\ 9
 elseif hostname() == 'yoniso'
   """set guifont=Andale\ Mono\ 9
-  set guifont=Consolas\ 9
+  set guifont=Consolas\ 10
 else
-  set guifont=Consolas:h9,Andale_Mono:h8,Lucida_Console:h8,Terminal:h8,Courier_new:h8,Courier:h7
+  set guifont=Consolas:h10,Andale_Mono:h8,Lucida_Console:h8,Terminal:h8,Courier_new:h8,Courier:h7
 endif
 
 " Win32 only.  Unix uses t_ti and t_te
@@ -633,7 +629,7 @@ iab YdS <C-R>=strftime("%Y-%m-%d")<CR>
 
 " Glaxo GSK style
 iab YdG <C-R>=strftime("%d-%b-%y")<CR>
-cab YdG <C-R>=strftime("%d-%b-%y")<CR>
+"""cab YdG <C-R>=strftime("%d-%b-%y")<CR>
 
 """""
 " C
@@ -646,7 +642,6 @@ cab YdG <C-R>=strftime("%d-%b-%y")<CR>
 " -Anonymous
 iab CoN Content-type: text/html
 iab HtA <a href="http://example.com">example link</a>
-iab HtB <INPUT NAME="the_submit" TYPE="submit">
 iab HtM <html><CR>  <head><title></title></head><CR><body></body><CR><Left><Left></html>
 iab HtJ <script language="JavaScript"><CR><CR></script>
 iab HtT <table><CR>  <tr><td> </td></tr><CR><Left><Left></table>
@@ -685,18 +680,12 @@ iab HtT <table><CR>  <tr><td> </td></tr><CR><Left><Left></table>
 """""
 " Perl
 iab PeC sub new {<CR>  my $class = shift;<CR><CR>my $self = {};<CR>bless($self, $class);<CR><CR>return $self;<CR><BS><BS>}
-"""iab PeD use Data::Dumper; print Dumper  ;<Left>
-"""iab PeD use Data::Dumper;print Dumper  ;<Left>
 iab PeD require Data::Dumper; print STDERR "DEBUG: ", Data::Dumper::Dumper( %h ),"\n";
 iab PeE open F, '>junk' or die;use Data::Dumper;print F Dumper  ;<Left>
 " Use PeD for hash dumping, this for everything else on symbol table
 iab PeF open F, '>junkdumpmain'; for $s(sort keys %main::) { local *sym=$main::{$s}; print F "\\$$s is $$s\\n" if defined $sym; print F "\\@$s is @$s\\n" if defined @sym;}
 iab PeO open FH, 'foo' or die "Error: $0: $!";<CR><CR>while ( <FH> ){<CR>}<Up>
-"""if ( box == 'otaku' || box == 'sverige' || box == 'sdf' )
-  """iab PeR #!/usr/pkg/bin/perl -w<CR>
-"""else
-  iab PeR #!/usr/bin/perl -w<CR>
-"""endif
+iab PeR #!/usr/bin/perl -w<CR>
 iab PeS #!/usr/bin/perl -wT<CR><CR>use strict qw(refs subs vars);<CR># DEBUG<CR>use CGI::Carp qw(fatalsToBrowser);
 iab PeW while ( (my $k, my $v) = each %h ) { print "$k=$v\\n"; }
 
@@ -733,7 +722,6 @@ iab SaW <Esc>0idata _NULL_; set _LAST_; put '!!!wtf '(_all_)(=);run;
 cab Sy0 source $VIMRUNTIME/syntax/nosyntax.vim
 cab SyH source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/html.vim
 cab SyJ source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/javascript.vim
-cab SyK source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/ksh.vim 
 cab SyL source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/sas/saslog.vim
 " Powershell
 cab SyP source $HOME/code/misccode/ps1.vim
@@ -754,11 +742,10 @@ cab SyV source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/vb/vb.vim
 
 map <C-S> :w
 
-" Highlight last paste - like gv for yank register
-"""nnoremap gp `[v`]
+" Highlight last paste.  Think [g]et [p]aste.
 nnoremap <expr> gp '`[' . strpart(getregtype(), 0, 1) . '`]'
 
-" Open a window for the file under cursor.  Think '[G]etfile [W]indow'.
+" Open a window for the file under cursor.  Think [g]etfile [w]indow.
 noremap gw <Esc>:sp<CR>gf
 
 " Easily navigate wrapped '^...' long lines with arrow keys
@@ -777,24 +764,15 @@ if has('gui')
   map <F4><F4> :call SetOpt('columns', 80)<CR>
 endif
 
-"""if has('win32')
-  map <F6> :se guifont=Consolas:h5<CR>z.
-  map <F7> :se guifont=Consolas:h7<CR>z.
-  " <F8> is occasionally consumed by .sas aucommands
-  map <F8> :se guifont=Consolas:h8<CR>z.
-  " normal size
-  map <F9> :se guifont=Consolas:h9<CR>z.
-  map <F10> :se guifont=Consolas:h10<CR>z.
-"""endif
-
-" Filter SAS Log for error-like lines (and lines that should be errors) only
-noremap <silent> <F8> :g!/^ERROR: \\|^ERROR\\s\\+\\d\\+-\\d\\+:\\|^WARNING: [^Compression]\\|stopped processing this step because\\|lines were truncated\\|NOTE: Invalid data for\\|NOTE: Variable\\|NOTE\\s\\+\\d\\+-\\d\\+:\\|WARNING: Apparent/d<CR> 
+map <F6> :se guifont=Consolas:h5<CR>z.
+map <F7> :se guifont=Consolas:h7<CR>z.
+" <F8> is occasionally consumed by .sas aucommands
+map <F8> :se guifont=Consolas:h8<CR>z.
+" normal size
+map <F9> :se guifont=Consolas:h9<CR>z.
+map <F10> :se guifont=Consolas:h10<CR>z.
 
 if has('win32')
-  " Avoid mswin.vim making Ctrl-v act as paste, etc.
-  noremap <C-V> <C-Q>
-  noremap <C-A> <C-A>
-
   " Minimize gvim (like alt-spacebar-n) to taskbar
   """map <F2> :simalt ~n<CR>
   " Maximize gvim
@@ -804,6 +782,15 @@ if has('win32')
 endif
 
 map <F12> :q<CR>  
+
+" Filter SAS Log for error-like lines (and lines that should be errors) only
+noremap <silent> <F8> :g!/^ERROR: \\|^ERROR\\s\\+\\d\\+-\\d\\+:\\|^WARNING: [^Compression]\\|stopped processing this step because\\|lines were truncated\\|NOTE: Invalid data for\\|NOTE: Variable\\|NOTE\\s\\+\\d\\+-\\d\\+:\\|WARNING: Apparent/d<CR> 
+
+if has('win32')
+  " Avoid mswin.vim making Ctrl-v act as paste, etc.
+  noremap <C-V> <C-Q>
+  noremap <C-A> <C-A>
+endif
 
 """"""""""""""""""""""""""
 " Begin ',' comma mapping
@@ -829,7 +816,7 @@ noremap ,[ :let @z=substitute(expand("<cword>"),".*","\\(&\\)","g")<CR>ciw<C-R>z
 " Must keep space between a and <ESC>
 noremap ,a a <ESC>
 
-" Use for simple window jumping & maximizing (think '[b]ig [b]uffer' and my ;b
+" Use for simple window jumping & maximizing (think [b]ig [b]uffer and my ;b
 " z66-like map).  Works to cycle through horizontal AND vertical split
 " windows.  Also see noremap zz to cycle windows without maximizing.
 noremap ,b <C-W>w<C-W>_
@@ -2049,6 +2036,7 @@ if !exists("autocommands_loaded")
   "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
   "
+	" TODO move to ~/.vimrc.project
   " Temporary project-specific hacks to normalize messy problem-spaces:
   if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
     au BufRead LELimsGist.sas :se tw=0
@@ -2065,16 +2053,21 @@ if !exists("autocommands_loaded")
 
     " Platform warning indicators:
     " Gvim
-    au BufRead,BufWinEnter X:/*             hi StatusLine guifg=Green guibg=Black gui=inverse,bold
-    au BufRead,BufWinEnter Y:/*             hi StatusLine guifg=Yellow guibg=Black gui=inverse,bold
-    au BufRead,BufWinEnter Z:/*             hi StatusLine guifg=Red guibg=Black gui=inverse,bold
+    au BufRead,BufWinEnter X:/*             hi StatusLine   guifg=Green guibg=Black gui=inverse,bold
+    au BufRead,BufWinLeave X:/*             hi StatusLineNC guifg=Green guibg=DarkGray gui=inverse,bold
+    au BufRead,BufWinEnter Y:/*             hi StatusLine   guifg=Yellow guibg=Black gui=inverse,bold
+    au BufRead,BufWinLeave Y:/*             hi StatusLineNC guifg=Yellow guibg=DarkGray gui=inverse,bold
+    au BufRead,BufWinEnter Z:/*             hi StatusLine   guifg=Red guibg=Black gui=inverse,bold
+    au BufRead,BufWinLeave Z:/*             hi StatusLineNC guifg=Red guibg=DarkGray gui=inverse,bold
     " Cygwin
-    au BufRead,BufWinEnter /cygdrive/c/*    hi StatusLine ctermfg=Blue ctermbg=White
-    au BufRead,BufWinEnter /cygdrive/x/*    hi StatusLine ctermfg=Green ctermbg=Black 
-    au BufRead,BufWinEnter /cygdrive/y/*    hi StatusLine ctermfg=Yellow ctermbg=Black
-    au BufRead,BufWinEnter /cygdrive/z/*    hi StatusLine ctermfg=Red ctermbg=Black
-    au BufRead,BufWinEnter //rtpsawnv0312/* hi StatusLine ctermfg=DarkGray ctermbg=White guifg=DarkGray guibg=White gui=inverse,bold
-    au BufRead,BufWinEnter //rtpsawn321/*   hi StatusLine ctermfg=Red ctermbg=Black guifg=Red guibg=Black gui=inverse,bold
+    au BufRead,BufWinEnter /cygdrive/c/*    hi StatusLine   ctermfg=Blue ctermbg=White
+    au BufRead,BufWinLeave /cygdrive/c/*    hi StatusLineNC ctermfg=Blue ctermbg=DarkGray gui=inverse,bold
+    au BufRead,BufWinEnter /cygdrive/x/*    hi StatusLine   ctermfg=Green ctermbg=Black 
+    au BufRead,BufWinLeave /cygdrive/x/*    hi StatusLineNC ctermfg=Green ctermbg=DarkGray gui=inverse,bold
+    au BufRead,BufWinEnter /cygdrive/y/*    hi StatusLine   ctermfg=Yellow ctermbg=Black
+    au BufRead,BufWinLeave /cygdrive/y/*    hi StatusLineNC ctermfg=Yellow ctermbg=DarkGray gui=inverse,bold
+    au BufRead,BufWinEnter /cygdrive/z/*    hi StatusLine   ctermfg=Red ctermbg=Black
+    au BufRead,BufWinLeave /cygdrive/z/*    hi StatusLineNC ctermfg=Red ctermbg=DarkGray gui=inverse,bold
 
     " 1-Avoid frightening people who don't know what swapfiles are
     " or
@@ -2088,7 +2081,7 @@ if !exists("autocommands_loaded")
 
     au BufEnter gsk,gsk_check.sh set foldmethod=marker
   endif
-  " end Temporary project-specific hacks to normalize messy problem-spaces
+  " end Temporary project-specific
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 endif
 
