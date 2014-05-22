@@ -98,7 +98,7 @@ map <F11> :set invfs<CR>
 " Toggle usermode CSS display
 map \\ :set invum<CR>
 
-" ALT-less arrow key navigation.  Rarely need to navigate using left-right keys in a webpage.
+" ALT-less arrow key navigation.  I rarely need to navigate using left-right keys in a webpage.
 map <Right> gt
 map <Left>  gT
 
@@ -151,6 +151,10 @@ map ,p :dia printpreview<CR>
 " Mnemonic toggle (t)oolbar
 map <silent> ,t :js toggle_element('PersonalToolbar')<CR>
 
+" TODO hostname detection
+"""map <silent> ,s :source $HOME/code/misccode/_vimperatorrc
+map <silent> ,s :source u:/code/misccode/_vimperatorrc
+
 " Reserve semicolon maps for commandline controls
 
 " bmarks are hard to reach in vimperator, can't just tab to reach them
@@ -180,7 +184,7 @@ map . ]]
 " hi[ghlight] clear {group}
 """""""""""""""""""""""""
 """highlight! Bell color:grey; background-color:grey
-highlight StatusLine color:gray; background-color:#0066FF; font-family:monospace; font-size:11px
+highlight StatusLine color:white; background-color:#0066FF; font-family:monospace; font-size:11px
 " 'Executing Location Change' etc.
 highlight InfoMsg color:white; background-color:gray; font-family:monospace; font-size:12px
 highlight CmdLine color:white; background-color:black; font-family:monospace; font-size:11px

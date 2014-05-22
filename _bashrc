@@ -4,7 +4,7 @@
 # Summary: bash shell config for at least Cygwin 1.3/1.5/1.7, Unix and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Sun 16 Mar 2014 08:28:48 (Bob Heckel)
+# Modified: Tue 29 Apr 2014 16:21:32 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -20,7 +20,7 @@
 set -o vi
 set -o noclobber
 
-# C-S suspended C-Q released fix
+# C-S=suspended C-Q=released fix
 stty -ixon 
 
 #-----------------------
@@ -95,15 +95,10 @@ alias cdv="cd $HOME/code/vb"
 alias cdvb="cd $HOME/code/vb"
 alias cls=clear  # like Windows
 alias datecalc=$HOME/code/perl/datecalc
-alias daystil32=$HOME/code/misccode/daystil32.exe
-alias daystil64=$HOME/code/misccode/daystil64.exe
 alias f='fg'  # jobs -s  to list what's suspended
 alias g=$HOME/code/misccode/gone.sh
 # Can't use sed to eliminate leading spaces or it breaks coloring
 alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
-# * e853f54 1 year, 4 months ago | 1st commit  [Bob Heckel]
-###alias gl='git log --since="9 months ago" --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %d [%an]" --graph --date=short |sed "s/^\* //g"; echo'
-alias gl='git log --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %d [%an]" --graph --date=short |sed "s/^\* //g" |head -n10; echo -n;echo "${fg_darkgray} ...displaying last 10"'
 alias gs='git status'
 alias gss='git status -s'
 alias h='history|tail -20'  # history 20 is better if it exists
@@ -123,13 +118,11 @@ alias locate='locate -i'
 alias one="vi $HOME/code/misccode/oneliners"
 # Case insensitive search for module:
 ###alias pdoc='perldoc -i'     
-alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
+###alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
 alias q=$HOME/code/misccode/q.sh
 alias qr=$HOME/code/misccode/quickref_find.sh
 alias rme=$HOME/code/misccode/rme
-###alias r='fc -s'  # reexecute last command beginning with $1
 alias robots="export ROBOTOPTS=moveheaps,showscores,screwdriver,fastrobots; robots"
-# sdf.freeshell.org
 alias sdf='ssh -l bheckel sdf.org; date'
 alias sl='ls --color=none'  # dyslexic daim branage
 alias sr="$HOME/code/sas/sasrun"
@@ -511,17 +504,17 @@ lt() {
 #  note: /cygdrive/u/temp/.vimxfer loaded  # then fc and ;w to reach one of these dirs
 # 
 # May be easier just to "tag" a dir via $ cd /foo  # my foo breadcrumb
-to() {
-  local VXFER
-
-  if [ $HOSTNAME = 'ZEBWL10D43164' ];then
-    VXFER=$u/temp/.vimxfer
-  else
-    VXFER=$HOME/tmp/.vimxfer
-  fi
-  #                                                                           only absolute paths                          comment out for fc                    uncomment out for doubleclick
-  history | grep -i "$1" | sed 's/#\+//' | grep 'cd ' | awk '{print $2, $3}' | grep '^cd [~/\$]' | tail -50 | sort | uniq | sed 's/^/#/' >| $VXFER | cat $VXFER | sed 's/^#//' ; echo "   note: $VXFER loaded"
-}
+###to() {
+###  local VXFER
+###
+###  if [ $HOSTNAME = 'ZEBWL10D43164' ];then
+###    VXFER=$u/temp/.vimxfer
+###  else
+###    VXFER=$HOME/tmp/.vimxfer
+###  fi
+###  #                                                                           only absolute paths                          comment out for fc                    uncomment out for doubleclick
+###  history | grep -i "$1" | sed 's/#\+//' | grep 'cd ' | awk '{print $2, $3}' | grep '^cd [~/\$]' | tail -50 | sort | uniq | sed 's/^/#/' >| $VXFER | cat $VXFER | sed 's/^#//' ; echo "   note: $VXFER loaded"
+###}
 
 
 # For PS1
@@ -534,57 +527,77 @@ parse_git_branch() {
 }
 
 
-# Assumes $ /bin/updatedb --localpaths='/home/rsh86800/code' --prunepaths='/home/rsh86800/code/misccode/.git' --output='/var/lib/locatedb.code'
+# Search ~/code
 loc() {
+  # Assumes  /bin/updatedb --localpaths="$HOME/code" --prunepaths="$HOME/code/misccode/.git" --output='/var/lib/locatedb.code'
+	# has been run recently.
   local cmd='locate --ignore-case --database=/var/lib/locatedb.code'
-  local emsg="nothing found ($cmd)"
-  local cnt=
+  local foundnothing="nothing found in $2 ($cmd $1)"
+  local foundatleast1=
   local grepme=
 
   if [ -z "$1" ];then
-    echo '.bashrc usage: loc searchstr [(p)erl | (s)as | (o)ther code] [any_char_spawns_vim]'
+		echo '.bashrc: Use locate(1) to find items in ~/code'
+		echo '         Optionally search by section.  Optionally edit all results.'
+    echo 'usage: loc searchstr [(p)erl | (s)as | (o)ther code | (v)im] [(v)im edit]'
   elif [ -z "$2" -a -z "$3" ];then
     $cmd "$1"
   elif [ -z "$3" ];then
-    # Like my 'gone' utility
+    # Same lettering convention as my 'gone' utility
     if [ "$2" = p ];then
       grepme=perl
     elif [ "$2" = s ];then
       grepme=sas
     elif [ "$2" = o ];then
-      grepme=misccode  # dummy to search all and allow any_char_here_spawns_vim
+      grepme=misccode
     else
       grepme=$2
     fi
-    cnt=$($cmd "$1" | grep $grepme)
-    if [ ! -z "$cnt" ]; then
+    foundatleast1=$($cmd "$1" | grep $grepme)
+    if [ ! -z "$foundatleast1" ]; then
       $cmd "$1" | grep $grepme
     else
-      echo $emsg
+      echo $foundnothing
     fi
   else
-    # Like my 'gone' utility
     if [ "$2" = p ];then
       grepme=perl
     elif [ "$2" = s ];then
       grepme=sas
     elif [ "$2" = o ];then
-      grepme=misccode  # dummy to search all and allow any_char_here_spawns_vim
+      grepme=misccode
     else
       grepme=$2
     fi
-    cnt=$($cmd "$1" | grep $grepme)
-    if [ ! -z "$cnt" ]; then
-      vi -p `$cmd "$1" | grep $grepme`
+    foundatleast1=$($cmd "$1" | grep $grepme)
+    if [ ! -z "$foundatleast1" ]; then
+      $EDITOR -p `$cmd "$1" | grep $grepme`
     else
-      echo $emsg
+      echo $foundnothing
     fi
   fi
 }
 
 
-function encode() { echo -n $@ | perl -pe's/([^-_.~A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg'; }
-function google() { w3m http://www.google.com/search?hl=en#q="`encode $@`" ;}
+function urlencode() { echo -n $@ | perl -pe's/([^-_.~A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg'; }
+function google() { w3m http://www.google.com/search?hl=en#q="`urlencode $@`" ;}
+
+
+# Git Log
+# TODO fix "[main] -bash 40036 sig_send: error sending signal -66 to pid 40036, pipe handle 0x84, Win32 error 0"
+function gl() {
+  # e.g. gl mybranch 20
+	local branch=$1
+  test  "x$branch" = "x" && branch='CURRENT BRANCH'
+  local days=$2
+  test  "x$days" = "x" && days=10
+  git log --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %d [%an]" \
+	        --graph \
+					--date=short $1 \
+					|sed "s/^\* //g" \
+					|head -n$days; \
+					echo -n; echo; echo "${fg_darkgray} ...displaying last $days $branch";
+}
 
 # Generic Functions end
 
@@ -619,36 +632,23 @@ case "$OSTYPE" in
     export z=/cygdrive/z
     export CYGWIN=nodosfilewarning  # MS-DOS style path detected: u:/tmp/bdfCURR.rtpsh005
     export CVSROOT=$HOME/repository
+		export EDITOR=vim
     # Must not be in General section b/c SunOS cron.
     export PATH=$HOME/bin:/usr/bin:/bin:$PATH
     export PERLLIB=$HOME/perllib
     export LANG=en_US
-    # Lowercase the fscking Windows uppercase hostname.
+    # Lowercase the fscking Windows uppercase hostname
     ###export LCHOSTNAME="`echo ${HOSTNAME} | perl -ne 's/(.*)/\L$1\E/;print'`"
     export LCHOSTNAME="`echo ${HOSTNAME} | tr [A-Z] [a-z]`"
     # The echo -ne "\033]0;${PWD}\007" causes rxvt titlebar to show PWD.
     # '\[ ... \]' says "ignore this material while calculating the size of the prompt".
     # Want our history appended (-a) and other term's history merged into ours (-n)
-###    export PROMPT_COMMAND='history -a; echo -ne "\033]0;${LCHOSTNAME:0:4}:${PWD}\007";'
     export PROMPT_COMMAND='history -a; echo -ne "\033]0;${PWD}\007";'
-    # Triple clickable noop prompt.  WinXP==CYGWIN_NT-5.1 W2K==5.0 
-    ###if [ "${OSTYPE}" = 'CYGWIN_NT-5.1' ]; then
-      ###export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${LCHOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
-    ###export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${LCHOSTNAME}${fg_darkgray} \W/ \d \t ${normal} \n\$ '
-    ###else
-      # Not sure why the escapes break WinXP.
-      # TODO won't go to 2nd line using this
-      ###export PS1=': `stoppedjobs`${prompt_beg}${USERNAME}@${LCHOSTNAME:0:8}${prompt_end}; '
-      # TODO gets repeated chars during backspacing under tab completion, have
-      # to remove the '\['s
-      ###export PS1=': `stoppedjobs`\[${prompt_beg}\]${USERNAME}@${LCHOSTNAME:0:8}\[${prompt_end}\]; '
-    ###fi
     # 0 rsh86800@ZEBWL12H26564[master] datapost/ Thu Feb 20 13:41:16
     export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${LCHOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
     export PS2=' '  # allow multiple line copy to clipboard 
+    export SENSIBLE_BROWSER='/cygdrive/c/Program\ Files/mozilla\ firefox/firefox.exe'
     export TEMP=/cygdrive/c/temp
-    ###export TERM=rxvt  # for cygwin 1.3.10 so that w3m restores upon exiting
-    ###export TERM=cygwin
     export VIMSTATUSL="${USERNAME}@`echo ${HOSTNAME} | tr [A-Z] [a-z]`"
 
     #-------------------
@@ -669,7 +669,7 @@ case "$OSTYPE" in
     alias d123="(cd $TEMP;vi -d 1 2 3)"
     alias d34="(cd $TEMP;vi -d 3 4)"
     alias datecalc=$HOME/code/perl/datecalc
-    alias daystil=$HOME/code/misccode/daystil
+    alias daystil=$HOME/code/misccode/daystil64.exe
 ###    alias =clear
     alias cygwin=$HOME/code/misccode/cygwin.bat  # norc bat version must be doubleclicked
     # rsynch of tobuddha/ will *copy* files symlinks point to from parsifal.
@@ -683,7 +683,7 @@ case "$OSTYPE" in
     alias h='history|tail -20'
     alias l='ls -GFw80 --color=none'   # for speed in Cygwin
     # Elim . .., owner and group info on Cygwin.
-    alias ll='ls -FloGg --color=auto'
+    alias ll='ls -FloGgh --color=auto'
     alias lla='ls -FlAo --color=auto'
     # Long prompt, search match from near top, search skip screen, statusline,
     # pickup ANSI colors, search ignores case
@@ -701,7 +701,6 @@ case "$OSTYPE" in
     ###alias sas9="c:/Program\ Files/SAS/SAS\ 9.1/sas.exe"
 ###    alias sasdate=$HOME/code/misccode/sasdate
     alias sasrun=$HOME/code/misccode/sasrun
-    alias sensible-browser="/cygdrive/c/Program\ Files/mozilla\ firefox/firefox.exe"
 ###    alias tree=$HOME/code/misccode/tree
 ###    alias usb="$HOME/bin/USB_Disk_Eject /removename '*LEXAR'"
 ###    alias usbe="$HOME/bin/USB_Disk_Eject /removeletter E"
@@ -903,7 +902,8 @@ case "$OSTYPE" in
         # Assumes we have recent work ready to tar and mail to gsk as c.NEW.
         # See homefrom hometo.  Sunday evening run usually.
         alias gskto='cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV |grep -v '/.git/'|grep -v '.swp'|xargs tar cvfz ~/Downloads/c.NEW'
-        alias nexus='sudo mount -t vfat /dev/sdb /media/Nexus -o uid=1000,gid=1000,utf8,dmask=027,fmask=137; mount|grep "^/dev/sd"; echo "sudo umount /media/Nexus"'
+        alias kindle='sudo mount -t vfat /dev/sdb /media/kindle -o uid=1000,gid=1000,utf8,dmask=027,fmask=137; mount|grep "^/dev/sd"; echo "sudo umount /media/kindle"'
+        alias nexus='sudo mount -t vfat /dev/sdb /media/nexus -o uid=1000,gid=1000,utf8,dmask=027,fmask=137; mount|grep "^/dev/sd"; echo "sudo umount /media/nexus"'
 				alias systeminfo='df -h && echo && free -m && echo && grep --color="never" name /proc/cpuinfo | uniq && echo && lspci | grep --color="never" VGA && echo && xrandr | grep --color="never" connected && echo && uname -rms'
       fi
 
@@ -933,8 +933,9 @@ case "$OSTYPE" in
       alias d13="(cd ~/tmp; vi -d 1 3)"
       alias d123="(cd ~/tmp; vi -d 1 2 3)"
       alias d34="(cd ~/tmp; vi -d 3 4)"
-      ###alias sqlplus=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/sqlplus
       ###alias moz='export DISPLAY=158.111.250.170:0.0; mozilla&'
+			alias ll='ls -FloGgh --color=auto'
+      ###alias sqlplus=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/sqlplus
       alias usb='sudo fdisk -l; mount|grep "^/dev/sd"; echo; echo "sudo mount -t vfat /dev/??? /media/generic -o uid=1000,gid=1000,utf8,dmask=027,fmask=137"; echo; echo "sudo umount /media/generic"'
 
       shopt -s cdspell checkhash checkwinsize cmdhist dotglob histappend 

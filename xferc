@@ -1,23 +1,22 @@
 [OPTIONS]
+height=809
 toolstoolbar=1
 panel_view=3
 width=1224
-confirm_drag_and_drop=1
 use_startup_notification=1
 treetwopanels_tree_pct=0.2401960784313726
 confirm_delete=0
 use_sudo=0
-ypos=26
+ypos=15
 use_trash_can=1
-confirm_quit=0
+auto_save_layout=1
 use_trash_bypass=1
 mount_warn=0
 treepanel_tree_pct=0.3013245033112583
-auto_save_layout=1
 confirm_overwrite=1
 paneltoolbar=1
 confirm_delete_emptydir=1
-root_mode=1
+confirm_quit=0
 ask_before_copy=0
 mount_messages=1
 locationbar=1
@@ -26,24 +25,15 @@ root_warn=0
 confirm_trash=0
 treetwopanels_lpanel_pct=0.3717320261437909
 status=1
+root_mode=1
 generaltoolbar=1
-xpos=351
-height=809
+xpos=344
+confirm_drag_and_drop=1
 
 [HISTORY]
-open=/usr/bin/xfview:/usr/bin/gimp:/usr/bin/gvim:/usr/bin/libreoffice --calc:/usr/bin/xfimage:/home/bheckel/bin/iview:/home/bheckel/bin/7zip:/usr/bin/7zr:
+open=/usr/bin/vlc:/usr/bin/xfview:/usr/bin/gimp:/usr/bin/gvim:/usr/bin/libreoffice --calc:/usr/bin/xfimage:/home/bheckel/bin/iview:/home/bheckel/bin/7zip:/usr/bin/7zr:
 run=mount -t vfat /dev/sdb /media/Nexus -o uid=1000,gid=1000,utf8,dmask=027,fmask=137:
 filter=*:
-
-[bookmarks]
-BOOKMARK8=/media/Nexus/Download
-BOOKMARK4=/home/bheckel/Downloads
-BOOKMARK5=/home/bheckel/misc/toread
-BOOKMARK6=/home/bheckel/too_big_for_dropbox
-BOOKMARK7=/home/bheckel/.wine/drive_c/users/bheckel/Temp
-BOOKMARK1=/home/bheckel
-BOOKMARK2=/home/bheckel/code
-BOOKMARK3=/home/bheckel/Desktop
 
 [KEYBINDINGS]
 search_prev=Shift-Ctrl-G
@@ -125,24 +115,28 @@ deldate_size=200
 origpath_size=200
 liststyle=0
 attr_size=261
-size_size=71
 user_size=133
+hiddenfiles=1
 dirs_first=1
 ext_size=0
 grou_size=133
 modd_size=394
 ignore_case=1
-sort_func=ascendingCase
+sort_func=ascendingTime
 showthumbnails=1
 name_size=251
-hiddenfiles=1
+size_size=71
+
+[DIR PANEL]
+hidden_dir=0
+sort_func=ascendingCase
 
 [PROGS]
 archiver=7zip
-txteditor=gvim
 xterm=urxvt -icon /usr/share/icons/Faenza/apps/32/xterm_32x32.xpm
-pdfviewer=acroread
 imgviewer=xfview
+pdfviewer=acroread
+txteditor=gvim
 videoviewer=vlc
 audioviewer=vlc
 
@@ -152,8 +146,8 @@ deldate_size=200
 origpath_size=200
 liststyle=4194304
 attr_size=152
-size_size=71
 user_size=75
+hiddenfiles=0
 dirs_first=1
 ext_size=0
 grou_size=73
@@ -162,7 +156,7 @@ ignore_case=1
 sort_func=ascendingCase
 showthumbnails=1
 name_size=186
-hiddenfiles=0
+size_size=71
 
 [SETTINGS]
 listforecolor=Black
@@ -176,10 +170,10 @@ activecolorpane=1
 font=Droid Sans [unknown],90,normal,regular
 listbackcolor=#c5c2c5
 shadowcolor=Gray28
+file_tooltips=1
 tippause=500
 forecolor=AntiqueWhite
 basecolor=Gray40
-show_pathlinker=1
 relative_resize=1
 selbackcolor=#528194
 wheellines=5
@@ -191,7 +185,7 @@ tiptime=10000
 selforecolor=Gray100
 pbarcolor=#528194
 save_win_pos=1
-file_tooltips=1
+show_pathlinker=1
 
 [FILETYPES]
 ogm=vlc,vlc,;OggMedia Video;video_32x32.png;video_16x16.png;;
@@ -407,7 +401,14 @@ modd_size=150
 name_size=200
 size_size=60
 
-[DIR PANEL]
-hidden_dir=0
-sort_func=ascendingCase
+[bookmarks]
+BOOKMARK8=/home/bheckel/.wine/drive_c/users/bheckel/Temp
+BOOKMARK9=/media/nexus/Download
+BOOKMARK4=/home/bheckel/Desktop
+BOOKMARK5=/home/bheckel/Downloads
+BOOKMARK6=/home/bheckel/misc/toread
+BOOKMARK7=/home/bheckel/too_big_for_dropbox
+BOOKMARK1=/home/bheckel/misc
+BOOKMARK2=/home/bheckel
+BOOKMARK3=/home/bheckel/code
 

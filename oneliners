@@ -4,10 +4,10 @@
 #  Summary: Programming and sysadmin fragments I've collected over the 
 #           years.  Section-searchable via my gone.sh
 #
-#           Comments are often written for searching, not proper English...
+#           Comments are often written for searching, not proper English
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Sat 15 Mar 2014 07:43:35 (Bob Heckel)
+# Modified: Thu 15 May 2014 09:44:28 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -26,7 +26,7 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 :%s/$/^M/g
 
 " Insert a line, interleave, after each line in a file:
-%s/$/foo bar/gc
+%s/$/^Mfoo bar/gc  <--^M is control char Ctr+v + Return
 
 " For each line containing UPRD37, do this substitution
 :g/SPRD37/s/rtpsduxrax/us1sduxray/c
@@ -40,7 +40,7 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 " Delete all *lines* containing the word emacs.  E.g. 'Boot the emacs OS'
 :g/\<emacs\>/d
 
-" Delete all lines NOT containing any part of these words.  global command uses the OR operator \| (chaining alternation):
+" Delete all lines NOT containing any part of either of these words.  global command uses the OR operator \| (chaining alternation multiple conditions):
 :g/^foo\|^bar/d
 
 " Yank all lines containing Emily into buffer A (must use uppercase register letter or only get last yank). Clear register A before beginning:
@@ -91,7 +91,7 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 " Confirm paranoia global :g actions:
 :g/global delete with prompt/ if input("del line? " . line(".") . ":" . getline(".") . " y/[n] ")=="y" | delete | endif
 
-" Delete a block range, paragrep, if you can determine start and end of blocks (must use slashes):
+" Delete a block range, sort of like paragrep, if you can determine start and end of blocks (must use slashes):
 :g/^\s\+The SA/;/^ProdSp/d
 
 " Non-inclusive delete.  Only delete everything between these two lines:
@@ -269,15 +269,15 @@ s<BS>s   <---Produces German ß
 \{-n,m}
 " Non greedy search, match 3 to 5 a's but prefer the shortest match.
 /a\{-3,5}
-" Non-greedy Vim search (use :se hls to see the results better) E.g. string axbxb
-/a.*b     <---greedy finds axbxb
+" Non-greedy Vim search (use :se hls to see the results better):
+/a.*b     <--- E.g. string axbxb greedy finds axbxb
 /a.\{-}b  <---non-greedy finds axb
 " Better non-greedy (e.g. foo|bar|baz returns foo).  Replace the first  .*  with  [^|]*:
 :,$:s:\([^|]*\)|.*:\1:gc
 :%s/[^|]*|.*/xxx/gc
 
 " For non-greedy .* becomes '[^']* to return 'foo' and 'bar' from this string:
-"   This matches 'foo' and 'bar', including the quotes.
+"   Match 'foo' and 'bar', including the quotes.
 /'[^']*'
 
 " Modeline.  Trailing ':' required for multiple set's.  /* vim: set tw=72 ft=sas ff=unix: */ # vim: set list syntax=off foldmarker=#{{{,#}}} foldmethod=marker tw=78:
@@ -439,8 +439,8 @@ To synch DirDiff ranges of updates (internal DirDiff cmds like 'u' not working 2
 :se nu
 :5,42diffput
 
-" vimdiff one existing buffer, foo.c: :[vert] diffsplit foo.c~
-" vimdiff two existing buffers :diffsplit then switch to/open other buffer and :diffthis then force any changes :diffupdate when done :diffoff
+" vimdiff one existing buffer with its backup file: :vert diffsplit foo.c~
+" vimdiff two existing buffers :diffsplit then switch to/open other buffer and :diffthis then force any changes :diffupdate when done reset :diffoff
 
 " vimdiff keymaps
 do == :diffget
@@ -717,7 +717,8 @@ call symput("CYR4", substr(put("&sysdate9"d,mmddyy10.),7,4));
  /* Increment the symput generated mvar */
 call symput('RUNME'||compress(put(_N_,5.)), executemacro);
 
- /* Equal colon -- same as using LIKE 'mormer%' in SQL. */
+ /* Wild equal colon -- same as using LIKE 'mormer%' in SQL. */
+set t(where=(region in:('As')));
 if foo =: 'mormer';
 
  /* Use more than one library, look in best first, then justok if not found: */
@@ -1651,8 +1652,11 @@ data OUTDIR.&OUTPUTFILE(compress=yes);
 %ds2csv(data=sashelp.retail, runmode=b, csvfile=c:\temp\retail.csv);
 
  /* Name literal e.g. SAS/ACCESS database table or Excel worksheet has spaces in name */
+options validvarname=any;
 data mydblib.'My Staff Table'n; ...
-input 'Amount Budgeted'n 'Amount Spent'n; ...
+input 'Amount Budgeted'n 'Amount Spent'n ...
+ /* Name literal non pass-through: */
+libname GDM_DIST oracle user=dgm_dist_R password=ead path=kuprd613 schema=gdm_dist readbuff=10000 preserve_col_names=yes; ... select t1.mat as 'Mat. Doc'N ...
 
  /* Single quotes for criteria, double for funky table naming */
 libname mydblib oracle user=u password=p path='airdata' schema=airport preserve_names=yes; proc sql dquote=ansi outobs=9;  create table mydblib."Intl Delay" as select * from mydblib.internat; quit;
@@ -1731,6 +1735,12 @@ data t(genmax=3); ...
 
  /* Oracle libname */
 libname DGM_DIST oracle user=&username password=&password path=&database schema=dgm_dist readbuff=10000;
+
+ /* List datasets and details in library (directory) */
+proc contents data=MYLIB._ALL_; run;
+
+ /* Find multiple search pattern */
+/foo \| bar
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -1960,9 +1970,10 @@ dd if=/dev/zero of=biggarbage bs=10000 count=10000
 
 # chmod: 4 Read  2 Write  1 eXecute  (User, Group, Others (neither U nor G), All)
 # For directories, 'read' permission is necessary to ls directory's contents.
-# For directories, 'write' permission permits adding, removing, and renaming files in that directory, if you only want to permit adding, set the sticky bit:
+# For directories, 'write' permission permits adding, removing, and renaming files in that directory
 chmod +t pub/  # assumes  chmod o+x pub/  happened earlier
 # For directories, 'execute' permission is sometimes called 'search' permission and is necessary to actually cd to it. Others must know the name of the file.
+# You can ordinarily delete a file if you have write access to the directory that contains it, even if you are not the file's owner - if you only want to permit adding or deleting of a user's own files, set the poorly-named sticky bit (common for /tmp):
 chmod 701 semiprivate/  # drwx-----x so ls -l semiprivate/ fails but ls -l semiprivate/foo.txt works
 # Set UID, setuid.  As root:
 chmod +s anyonecanrunthisvirus
@@ -2157,12 +2168,10 @@ find . -type f -exec cp -p {} newdir/ \;
 # Collect all user's .bash_history files
 find / -type f -name .bash_history | xargs cat > /tmp/history.txt
 
-# Find all dead symlinks:
-find . -type l -print | perl -nle '-e || print'
-# or remove them
+# Find all dead symlinks and remove them:
 find . -type l -print | perl -nle '-e || print' | xargs rm
 
-# Non-GNU find is restricted to finding entire filenames so use this instead:
+# Non-GNU find is restricted to finding entire filenames so use this:
 find / -print | grep 'fin.*me'
 
 # Test parallel printer (as root): Use Ctr-V Ctrl-l to get the ^L.  It sends a form feed to eject the paper.  Type the quotes around it literally.
@@ -2338,9 +2347,6 @@ sed 's/day/night/' <old.txt >new.txt
 
 # Remove all double quote quotation marks.
 sed 's/"//g' foo.txt > dequoted.txt
-
-# Delete entire lines.  Inplace edit:
-$ sed '/retirem/d' foo.txt|tee foo.txt  >/dev/null 2>&1
 
 # sed acts like grep but just prints the line to terminal
 sed -n '/LADE/p' bladerun_crawl
@@ -2787,10 +2793,10 @@ showrev -p
 # Nested for loop to build test directories:
 for y in 2003 2004 2005; do for e in NAT MOR FET; do mkdir -p mvds/$e/$y; done;
 
-# Print select paragraph (separated by blank lines) if word is found:
-sed -e '/./{H;$!d;}' -e 'x;/team/!d;' bladerun_crawl
-# Less unintelligible:
-perl -ne '$/="";@p=<>;for $p(@p){print "ok $p\n" if $p=~/team/;}' <setup.ini
+# Paragrep.  Print select blank line separated paragraph if word is found:
+sed -e '/./{H;$!d;}' -e 'x;/illegal/!d;' bladerun_crawl
+# Less unintelligible but ff=unix is mandatory:
+perl -ne '$/="";@p=<>;for $p(@p){print "$p\n" if $p=~/illegal/;}' <bladerun_crawl
 
 # Debug .bashrc trouble on Cygwin without sourcing config file clean bashrc
 C:\cygwin\bin\bash.exe --norc
@@ -2990,10 +2996,10 @@ $ cp '\\rtpsawn323\SQL_Loader\Logs\LGI.log' LGI$(date +%Y%m%d%S).log; zip -ru lo
 $ p=ven;d=`date '+%Y%m%d'`;tar cfz $p.$d.tar.gz add_ventolin/ && cp -i $p.$d.tar.gz /cygdrive/u/ && rmv $p.$d.tar.gz
 $ p=crc;d=`date '+%Y%m%d'`;tar cfz $p.$d.tar.gz callcenter/ && cp -i $p.$d.tar.gz /cygdrive/u/ && rmv $p.$d.tar.gz
 
-# Print only a part, section, range, paragraph, of a file.  Paragrep.
+# Print only a part, section, range, paragraph, of a file. Sort of like paragrep.
 awk "/^xxSASx START/,/^xxSASx END/ {print}" ~/code/misccode/oneliners
 ipconfig /displaydns | awk "/tpsh005/,/143.193.6.5/ {print}"
-# Paragrep xml tags that span multiple lines, looking for list of material codes:
+# Scan xml tags that span multiple lines, looking for list of material codes. Sort of like paragrep:
 awk "/<ExtractString>/,/<\/ExtractString>/ {print}" cfg/DataPost_Configuration.xml | awk "/'[[:digit:]]+'/ {print}" > mats.txt
 
 # Create backup filename with today's date datestamp
@@ -3269,10 +3275,12 @@ lsof -i :80
 # shows pid 25226
 ls -l /proc/25226/exe
 
-# Inplace edit (without vi) remove #
+# Inplace edit (without vi):
 sudo sed -i -e "s/# deb/deb/g" /etc/apt/sources.list
+sed -i '/ifwordonline/s/changeme/tothis/' t.pl
 
-# Bash switchout command temporarily cmd1<C-U>cmd2<C-Y>cmd1
+# Delete entire lines.  Inplace edit without -i:
+sed '/retirem/d' foo.txt|tee foo.txt  >/dev/null 2>&1
 
 # Avoid having to cd / to untar a cygwin package:
 tar -C / -xvf connect-proxy-1.101-1.tar.gz
@@ -3375,6 +3383,23 @@ git show-ref --heads |awk 'print{$2}'
 # Calculate mirror size 4884 1.0123+10 is 10GB in 4884 files
 curl -s ftp://mirror.cs.vt.edu/pub/cygwin/cygwin/x86/setup.ini | awk '/^install: / { T = T + $3 ; N++ }; END { print N, T }'
 
+# Open most recent file:
+vim $( ls /tmp/*.__* | sort -r | head -n 1 )
+
+# Default an empty missing bash environment variable:
+test "x$no_of_days" = "x" && no_of_days=10
+
+# Check for any default pararmeters arguments passed:
+[ -z "$1" ] && echo "No argument supplied" && exit 1
+
+# Don't complain if file does not exist:
+[ -e $1.txt ] && rm -i $1.txt
+
+git stash && git stash apply  # git snapshot
+
+# Check for stale (week old+) image files:
+find /cygdrive/z/DataPost/data/SGK/Zebulon/ -name '*.png' -mtime +7 |xargs ls -gGh
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -3400,9 +3425,6 @@ $ perl; $x='test string'; $x =~ /^(test).*/; $y=$1; print $y; <Ctr-d>
 $x='test string'; ($y = $x) =~ s/^(test).*/$1/; print $y;
 # Best (we get readline capability)
 perl -e '$x="test string"; ($y=$x)=~ s/^(test).*/$1/;print $y;'
-
-# Simple test regex test from commandline without needing a variable:
-perl -e 'print "found" if "a"=~/[^1-9]/'
 
 # Hash slice:
 perl -e '@h{"key1", "key2"} = (1,2); print $h{key2};'
@@ -3433,6 +3455,9 @@ $header{$1} = $2  while /(File|Node|Prev|Next|Up):\s*([^,]*)/g;
 # Better
 %h = /^(.*?): (.*)$/gm;
 
+# Orcish maneuver v5.10 returns the value from the hash, if it exists. Otherwise, it calculates, caches, and returns the value:
+my $id = shift; $user_cache{$id} //= create_user($id);
+
 # Cache keys in a hash (the Orcish maneuver), sort on modified time:
 @sorted = sort { ($modtimes{$a} ||= -M $a) <=> ($modtimes{$b} ||= -M $b) } @filenames;
 
@@ -3448,10 +3473,12 @@ unless ( $i++ % 5 ) { print 'foo'; }
 print $_ if ($i++ % 3000) == 0;
 next unless ( $. % 3000 ) == 0;
 
-# Find only unique array elements:
-%seen = undef; @unique = grep(!$seen{$_}++, @thearr)
-# Better:
-@unique = keys %{ { map {$_ => 1} @possibleduplicateslist } };
+# Only unique array elements:
+%seen = undef; @uniques = grep(!$seen{$_}++, @items)
+# Only unique array elements:
+@uniques = keys %{ { map {$_ => 1} @items } };
+# Only unique array elements:
+undef @uniq{ @items }; @uniques = keys %uniq;  # best?
 
 # Remove empty or undef elements from an array:
 @x = grep { !/^$/ } @x;
@@ -3464,7 +3491,7 @@ $matchdt = strftime('%Y%m%d%H%M%S', localtime(time));
 # Time stamp the last modified date.
 my $mtime = (stat($0))[9]; my $t = localtime $mtime; print "Last Modified $t";
 
-# Want new string substitution without clobbering whacking original variable:
+# Inplace string substitution without clobbering whacking original variable:
 ($y = $x) =~ s/foo/bar/g;
 
 # Default (unless a 0 is a valid possibility)
@@ -3530,7 +3557,8 @@ use lib ".";
 $x = 'multi, comma, line'
 $x =~ /(.*,)/   <---greedily returns 'multi, comma,' in $1
 # but replacing the dot with  [^,]  i.e. what you don't want is non-greedy
-$x =~ /([^,]*,)/  <---returns 'multi,'
+$x =~ /([^,]*,)/  <---$1 is "multi,"
+$x =~ /(,[^,]*,)/;   <---$1 is ", comma,"
 
 # Regex matches floating point numbers.
 /^[+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?$/
@@ -3591,13 +3619,13 @@ find -name '*.bak'|xargs rm
 for f in `find . -name 'testch*.htm'`; do perl -i -e 'BEGIN{$/=undef}$x=<>;$x=~s/Ukrainian Banner START.*?Ukrainian Banner END/FOOZBALL/sg;END{print $x}' $f; done
 
 # Modify all html files by inserting a similar line below:
-$ find . -name '*.html' |xargs perl -pi.delete -e 's:(<link rel="stylesheet" type="text/css" href.*css/screen.css"  />):MARKER_TO_DELETE$1\n$1:g  # 1-replicate line but create unique marker
-$ find . -name '*.html' |xargs perl -pi.delete -e 'next unless /MARKER_TO_DELETE/; s:css/screen.css:css/fonts.css:g'  # 2-make change to new line
-$ find . -name '*.html' |xargs perl -pi.delete -e 's:MARKER_TO_DELETE::g'  # 3-remove unique marker
-$ find . -name '*.delete' |xargs rm  # 4-if successful
+find . -name '*.html' |xargs perl -pi.bak -e 's:(<link rel="stylesheet" type="text/css" href.*css/screen.css"  />):MARKER_TO_DELETE$1\n$1:g  # 1-replicate line and prepend unique marker
+find . -name '*.html' |xargs perl -pi.bak -e 'next unless /MARKER_TO_DELETE/; s:css/screen.css:css/fonts.css:g'  # 2-make change to new line
+find . -name '*.html' |xargs perl -pi.bak -e 's:MARKER_TO_DELETE::g'  # 3-remove unique marker
+find . -name '*html.bak' |xargs rm  # 4-if successful
 
 # Swap array elements using an array slice:
-@x = qw(a b c);
+@x = qw(a b c);  # produce a list of strings
 @x[0,1] = @x[1,0];  <---holds bac now
 
 # In Perl, unlike shell and C:
@@ -3612,6 +3640,8 @@ while ( <ARGV> ) { chomp; ...work on each line of each param... }
 # Filter out all but plain text files from the command line parameters.
 @ARGV = grep { -f && -T } @ARGV;
 
+# Clear, initialize, an array:
+@arr = ();  # assign an empty list to the array
 # Clear, initialize, a hash:
 %hash = ();  # NOT  %hash = {};
 
@@ -3621,9 +3651,9 @@ perl Makefile.PL && make && make test && make install  # perl install mantra - b
 print scalar keys %myhash;
 
 # Perl variable heredoc
-$stuff = <<"EOT";
+$stuff = <<"EOT"; ... EOT
 # or Perl print heredoc
-print <<"EOT";
+print <<"EOT"; ... EOT
 
 # Variable interpolation of constants -- print (ugly but it works):
 use constant FOO => 0;
@@ -3642,9 +3672,9 @@ perl -ne 'm/.{174}(\w)/; print if $1 eq "Y"' foo.txt
 # To sort on a specific column, see the Schwartzian transformation.
 
 # Slurp an entire file into a single variable -- make sure ff=unix !!
-my $str = do { local $/ = <FH> };  # slurp
-# Can use __DATA__ filehandle like SAS' CARDS; or DATALINES;
-{ local $/ = undef; $contents = <DATA>; }
+my $contents = do { local $/ = <$fh> };
+# Can use __DATA__ filehandle like SAS' CARDS; or DATALINES to slurp;
+my $contents; { local $/ = undef; $contents = <DATA>; }
 
 # Current time timestamp since the Epoch:
 print localtime();
@@ -3675,7 +3705,8 @@ cat whitespace_separated_nums.txt | awk '{i = NF; print $1 + $i}'
 # Simple debug comment out a large block of code:
 =debugbobh  ...code...  =cut
 
-require Data::Dumper; print STDERR "DEBUG: ", Data::Dumper::Dumper( %h ), "\n";
+require Data::Dumper;
+print STDERR "HASH DEBUG:\n", Data::Dumper::Dumper( %h ), "\n";
 
 # Set a cookie (after Content-Type: line):
 print "Set-Cookie: lastused=foo; path=/; expires=$cookie_expire;\n\n";
@@ -3692,12 +3723,17 @@ $j = sprintf("%02d", $i);
 
 # Read or edit a Perl module:
 vi `perldoc -l net::ftp`
+# Documentation for a Perl function:
+perldoc -f binmode
+# FAQ search:
+perldoc -q sort
 
 # Syntax check a directory:
 for f in *.pl; do perl -c $f; done
 
 # Are columns 1 and 3 equal?
 perl -ne '@x=split; print if $x[0] != $x[2]' foo.txt
+perl -ane 'print if $F[0] != $F[2]' foo.txt  # same, automatic @F instead of @x
 
 # nl(1) number line replacement
 perl -n -e 'print "$. $_"' foo.txt
@@ -3711,11 +3747,10 @@ perl -ne 'next LINE unless /eplicant/; print "$. $_"' bladerun_crawl
 # Simpler if don't need the label to break out of a nested loop:
 perl -ne 'next unless /eplicant/; print "$. $_"' bladerun_crawl 
 
-# Search a tab-delimited file
+# Search a tab-delimited file (may want to use -a)
 perl -ne '@x=split /\t/; print "@x" if $x[1]=~/foundme/' foo.txt
-
-# Search a tab-delimited file after removing header line
-perl -ne '@x=split /\t/; print "$x[0] and $x[1]\n" if $.>1' *.xls |sort|uniq
+# Search a tab-delimited file after removing header line (may want to use -a)
+perl -ne '@x=split /\t/; print "$x[0] and $x[1]\n" if $.>1' *.xls
 
 # Automatic command line Perl module installation:
 perl -MCPAN -e shell  # interactive mode
@@ -3729,7 +3764,6 @@ perl -pe 's/\0//g'
 perl -pe "s/'//g" junk
 
 # Substitute, inplace edit, and make backup from command line.  NOT recursive.
-# TODO why must -e stand alone
 perl -pi.bak -e "s/old/new/g" *.pl
 # or
 perl -pi.bak -e  's/old/new/g' `find . -name "foo.txt"`
@@ -3751,7 +3785,7 @@ perl -ne 'print "|$1 $2" if /\w+ \w+ (.*)<(.*)>.*/' ~/.email_addr
 perl -pe 's/(\w+)/\U$1/g' foo.txt
 # Lowercase all words in a file to STDOUT:
 perl -pe 's/(.*)/\L$1\E/' foo.txt
-# In-place edit to lowercase all words:
+# Inplace edit to lowercase all words:
 perl -pi -e 's/(\w+)/\L$1/g' desc.LST
 
 # Current time in seconds since the epoch
@@ -3765,11 +3799,9 @@ perl -e "print crypt('mummy','garbagesalt'),\"\n\""
 perl -e 'system "attrib +R c:/temp/translate.tpg"'
 perl -e "system 'mozilla file:///C:/cygwin/tmp/junk.html'"
 
-# Extract the rightmost (last) column.  Split on whitespace.  Don't need to
-# know how many columns exist.  @F is automatic.
+# Extract the rightmost (last) column.  Split on whitespace.  Don't need to know how many columns exist.  @F is automatic via -a:
 perl -ane 'print pop(@F), "\n";' foo.txt
-
-# Extract the leftmost (first) column.  Split on whitespace.
+# Extract the leftmost (first) column.  Split on whitespace:
 perl -ane 'print shift(@F), "\n";' foo.txt
 
 # Convert decimal to binary:
@@ -3777,24 +3809,24 @@ perl -e "print unpack('B32', pack('N', 12))"
 # Convert binary to decimal:
 perl -e "print unpack('N', pack('B32', substr('0'x32 . 1100, -32)))"
 
+# Simple test regex test from commandline without needing a variable:
+perl -e 'print "found" if "a"=~/[^1-9]/'
 # Test a multi-line string using a regex:
 perl -e 'print "match!" if "This is my\nmultiline string" =~ /This.*string/s;'
+perl -e 'BEGIN{$foo="avenue"};print "ok" if $foo=~/ave/'
+perl -e '$foo="avenue";print "ok" if $foo=~/ave/'  # same
 
 # Parse on specific fixed column positions -- also see parse_fixed_width.pl
 perl -ne 'push @x, unpack "@1 A36 @37 A36",$_; END{$i=1;for(@x){print "$_\t"; if(++$i%2){print "\n"' foo.txt
-
-perl -e 'BEGIN{$foo="avenue"};print "ok" if $foo=~/ave/'
-# Same
-perl -e '$foo="avenue";print "ok" if $foo=~/ave/'
 
 # Extract a section of a file where you know the start and end patterns.
 awk '/first word/, /last word/ {print}' startendpatt.txt
 # Same (don't need  while(<>){...}  when using -ne)
 perl -ne 'print if /first word/ .. /last word/' startendpatt.txt
 
-# Extract a section of a file where you know the start and end line numbers.
-perl -ne 'print if 15 .. 17' foo.txt                     # inefficient
-perl -ne 'print if $. >= 15; exit if $. >= 17;' foo.txt  # better
+# Extract print a section of a file where you know the start and end line numbers:
+perl -ne 'print if 15 .. 17' foo.txt  # inefficient but simple
+perl -ne 'print if $. >= 15; exit if $. >= 17;' foo.txt  # efficient but complex
 
 # Print repeat string 5 times:
 perl -e 'while($i++<5){print "ok "}'
@@ -3807,16 +3839,17 @@ perl -e 'print unpack "C", a'
 # Count the exact number of occurrences of X:
 perl -e '$s="ThisXlineXhasXsomeXxsXinXit"; $x=($s =~ tr/X//);print $x;'
 
-# Print 0123456789
+# Print 0123456789:
 perl -e 'print pack( "H2"x10, map { "3$_" } ( 0..9 ) )'
 
-# Replacement for list ls -l 
+# Replacement for ls -l:
 perl -e 'print scalar localtime((stat "t.pl")[9])'
 
-# Pipe delimit a space delimited file (to STDOUT):
+# Convert a space delimited file to a pipe delimited (to STDOUT):
 perl -ne 's/ /|/g; print' foo.txt
+perl -pne 's/ /|/g' foo.txt > foopipes.txt
 
-# Get info about a module using -M
+# Get info about a perl module using -M
 perl -MCPAN -e 'print $CPAN::VERSION'
 perl -MMail::Sendmail -e 'print $Mail::Sendmail::VERSION'
 
@@ -3825,29 +3858,26 @@ perl -e 'map \{printf "%10.3f - $_\n",(-C)-(-A)},@ARGV' *
 
 # wc replacement:
 perl -ne '@w=split; $x+=@w; END{print $x}' foo.txt
+perl -ane '$x+=@F; END{print $x}' foo.txt  # same
+
+perl -e 'print "it is now @{[scalar localtime]}"'
+perl -e 'print "it is now ", scalar localtime'
+# m/d/yyyy formatted date like unix date +%m/%d/%Y
+perl -e '($d,$m,$y) = (localtime)[3,4,5];print join "/", $m+1, $d, $y+1900'
+
+# Parse string into an array:
+perl -e '@words = "What did he say?" =~ /([A-Za-z]+)/g; END{print "@words"}'
 
 # Use capturing parentheses to swap two items:
 grep -v fips | perl -pe 's/(.*) (.*)/\2 \1/'
 cat bladerun_crawl |sed 's/\(etire\)/FOO\1BAR /'
 
-# Is this module installed on this machine?  Does this module exist?
-perl -MImage::ExifTool -e "print 'ok'"
-
-perl -e 'print "it is now @{[scalar localtime]}"'
-perl -e 'print "it is now ", scalar localtime'
-# m/d/yyyy formatted date
-perl -e '($d,$m,$y) = (localtime)[3,4,5];print join "/", $m+1, $d, $y+1900'
-
-# Super ls list.  Don't display any file containing dontlistme in it.
+# Filter ls list.  Don't display any file containing dontlistme in it.
 ls | perl -e 'while(<STDIN>){print $_ if grep(!/dontlistme/,$_)}'
-# Better
-ls | perl -ne 'print if grep !/dontlistme/,$_'
-ls listened/ | perl -ne 'print "$1\n" if /.*(2001_\d+).*/'
+ls | perl -ne 'print if grep !/dontlistme/,$_'  # better
+ls | perl -ne 'print "$1\n" if /.*(2001_\d+).*/'
 # Compare but do so less precisely since \d doesn't exist under awk
-ls listened/ | awk '/2001_\w/{print $1}'
-
-# Parse string into an array:
-perl -e '@words = "What did he say?" =~ /([A-Za-z]+)/g; END{print "@words"}'
+ls | awk '/2001_\w/{print $1}'
 
 # Parse a date string:
 ($mon, $day, $year) = (localtime())[4,3,5];
@@ -3911,8 +3941,6 @@ perl -e 'print reverse <>' foo.txt
 # Use reverse video for debugging (this doesn't require ctrl chars, just paste)
 print "DEBUG> \e[7mUnexpected format of 'mystr':\e[m\n";
 
-perldoc -f binmode  # function perldoc
-
 m/$foo/o  # compile interpolation pattern only once o regex switch:
 
 system('/bin/bzip2', '-k', @zipme);
@@ -3923,6 +3951,8 @@ $x = (split / /, $x)[0];
 
 # Hash of anonymous arrays:
 %h = ( one => [ 'a', 'b', 'c' ], two => [ 'd', 'e', 'f' ] ); print $h{one}->[1];  # b
+# Anonymous hash of anonymous arrays:
+$h = { one => [ 'a', 'b', 'c' ], two => [ 'd', 'e', 'f' ] }; print $$h{one}->[1];  # b
 
 use Data::Dumper; print Dumper $myref;
 open FH, '>foo' or die "$0: $!"; use Data::Dumper; print FH Dumper @a;
@@ -3938,6 +3968,8 @@ print "$data[1]";
 # push and pop == a stack
 # push and shift == a queue
 
+push @meals, @breakfast, @lunch, @dinner;  # can push multiple lists, but pop one at a time
+
 push @existingarray, 'more', 'stuff';
 
 @array = ("anicca", "dukkha", "anatta");
@@ -3951,9 +3983,6 @@ $#array is the index of the highest defined array element
 perl -MLWP::UserAgent -e '$u=new LWP::UserAgent;$r=$u->head;print $r->{_rc}'
 
 print "Content-type: text/html\n\n";  # web CGI (HTTP/1.0 at least)
-
-# Split on pipes, print field of interest:
-perl -ane '@x=split /\|/;print $x[0], "\n";' vcc.txt
 
 # Split comma-delimited string into anonymous array and show 2nd element:
 $a='one,two,three'; $aa = [ split /\s*,\s*/, $a ]; print $$aa[1];
@@ -4060,6 +4089,9 @@ my ($firstname) = $name =~ /($firstname_precompiledregex)/;
 # Print the longest line
 perl -ne '$l = $_ if length($_) > length($l); END { print $l }' bladerun_crawl
 
+# Print the 3rd line in file:
+while ( <FH> ){ print if $. == 3; }
+
 # Print the shortest line
 perl -ne '$s = $_ if $. == 1; $s = $_ if length($_) < length($s); END { print $s }' bladerun_crawl
 
@@ -4082,15 +4114,15 @@ perl -i.bak -pe "s/55/int rand(100)/eg"
 perl -pi.bak -e "s/Output Compiled Data/Output_Compiled_Data/" `find . -name '*.sas'`
 
 # Print a random number (automatically seeded by Perl):
-perl -e 'print rand()'        <---floating point from 0 to 1
-perl -e 'print rand'          <---same
-perl -e 'print int rand 5'    <---integer from 0 to 5
+perl -e 'print rand()'               <---floating point from 0 to 1
+perl -e 'print int rand 5'           <---integer from 0 to 5
+perl -e 'print int(rand(4)) + 1'     <---integer from 1 to 4
 perl -e 'print int(rand(51)) + 25;'  <---integer from 25 to 75
 # Print 3 random numbers which will be 1, 2, 3 or 4
 for i in 1 2 3; do perl -e 'print int(rand(4)) + 1, "\n"'; done
 
-# Random array element 0, 1, 2 or 3
-print $paragraphs[int rand 3];
+# Choose a random array value (int is optional):
+$surprise = $files[int rand @files];
 
 # Random password generator
 perl -le 'print map { ("a".."z")[rand 26] } 1..8'
@@ -4098,7 +4130,7 @@ perl -le 'print map { ("a".."z")[rand 26] } 1..8'
 # De-chomp un-chomp reverse chomp:
 for ( @lines ) { $_ .= "\n"; }
 
-# chomp improvement esp. Windows, remove <CR> and/or <LF> from the end of $_
+# chomp improvement for Windows, remove <CR> and/or <LF> from the end of $_
 s/[\r\n]+$//;
 
 # Remove part of string and 'chomp' all elements in an array in one swoop.
@@ -4117,6 +4149,22 @@ foreach my $k ( sort keys %h ) { print "$k=$h{$k}\n"; }
 
 # Calculate record count change using eval:
 diff -ybB -W180 $UTMPDIR/{ols_PREV.txt,ols_CURR.txt} |perl -pe 's/(^\d+)[^\d]*(\d+).*/$1-$2/eg'
+
+# Install CPAN replacement to /usr/local/bin using itself (CHECK CODE MANUALLY 1ST):
+curl -L http://cpanmin.us | perl - --sudo App::cpanminus
+sudo cpanm Modern::Perl
+
+print "$_" for 1 .. 10;  # horizontal listing of topic variable 
+use v5.10; say "$_" for 1 .. 10;  # vertical listing of topic variable 
+
+@chars = 'a' .. 'z';  @nums = 1 .. 10;  # range operator
+
+undef is always false
+
+# Initialize an array from a list:
+@a = ('one', 'two', 'three');
+
+my ($pkg, $file, $line) = caller(); print "DEBUG: this sub was called from $pkg in $file:$line\n";
 
 xxPERLxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4376,14 +4424,17 @@ For Each c In [b1:b400]
 Prevent other sites displaying your pages inside their frames:
 <META HTTP-EQUIV="Window-target" CONTENT="_top">
 
-Test an httpd Apache installation on localhost:
+<!-- HTML comment -->
+
+<!-- Avoid console errors -->
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+<!--Test an httpd Apache installation on localhost:-->
 http://localhost/cgi-bin/printenv
 http://127.0.0.1/cgi-bin/printenv
 
-RGB hex  FF=100%  CC=80%  99=60%  66=40%  33=20%  00=0%
+RGB hex  FF=100% (white)  CC=80%  99=60%  66=40%  33=20%  00=0% (black)
 E.g. #00FF00 is 0% red, 100% green, 0% blue
-or RGB:
-00 is no color (black #000000), FF is full color (white #FFFFFF)
 
 Byte size increments: mega, giga, tera, peta, exa, zetta, yotta
 
@@ -5070,6 +5121,7 @@ select 'create synonym PKS_USER.' || tname || ' for PKS.' || tname || ';' from t
 
 Remote Desktop C:\WINDOWS\system32\mstsc.exe /admin
 Remote Desktop restore full screen from maximized window: Ctr+Alt+Break
+Remote Desktop Ctr+Alt+End is Ctr+Alt+Del
 
 :: Delete all files in a directory using .bat
 DEL z:\Data_Trending\MDPI\*.* /Q
@@ -5423,8 +5475,6 @@ git log --pretty=oneline
 git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
 git log --since="3 months ago" --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %d [%an]" --graph --date=short
 
-git diff 97a158d 5e4abd2 # or git diff or git diff cfg/ or git diff cfg/DataPost_Configuration.xml or git difftool HEAD
-
 # wget-ish:
 git clone git://busybox.net/busybox.git
 git clone git://github.com/bheckel/dotfiles.git
@@ -5455,36 +5505,49 @@ git checkout master && git merge mynewbranch && git branch -d mynewbranch
 # github (github is origin)
 git push origin master
 
-# git discard throw away changes:
+# git discard throw away trash changes:
+git checkout -- DataPost_Configuration.map  # BEST single file trash changes
 git checkout .   # abandon all pending changes "not staged for commit"
-# git discard throw away whatif changes (better):
-git stash;  # then  $ git stash drop  or to delete ALL stashes later when You Are Sure: $ git stash clear 
+
+# git whatif changes:
+git stash
+git stash save 'saved because too lazy to branch';  # then  $ git stash drop  or to delete ALL stashes later when You Are Sure: $ git stash clear 
 
 # git canonical stash and restore:
 git stash; git checkout emergencybranch; ...hack... ; git checkout branchistashed; git stash list; git stash pop
+
+# git stash restore
+git stash apply stash@{1}
+# Throw away a restored stash (or any changes really):
+git checkout .
 
 # git delete branch if merged (-D if not):
 git branch -d killthisbranch
 
 git ls-files  # list which files are tracked under git source control not just staged
 
-git difftool HEAD  # uses vimdiff if previously  $ git config --global merge.tool vimdiff
-
-# Edit git existing commit messages:
+# Edit git existing previous git commit messages:
 git commit --amend -m 'this changes your last, wrong, commit message to this'
 
 # List git branch dates sorted descending
 git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)"
 
+# Diff anything uncommitted:
+git diff 97a158d 5e4abd2 # or git diff (assumes HEAD) or git diff cfg/ or git diff cfg/DataPost_Configuration.xml
+git difftool  # uses vimdiff if previously  $ git config --global merge.tool vimdiff
+
+# Diff with last commit:
+git show
 # View git old version of file from different branch (in pager):
 git show eacbd91:code/ods_0002e.sas
+# View git old version of file from different branch (in editor):
+git show master:cfg/DataPost_Configuration.html |vi -
 
 # Test AJAX etc that won't work using file:// etc.
 $ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
 
--- SQL Server hideous datepart splitout:
-convert(varchar,fwn.VariableStp.dtStartDateTime,101) as dtStartDate
-convert(varchar,fwn.VariableStp.dtStartDateTime,108) as dtStartTime
+-- SQL Server hideous datepart splitout complement of Oracle TRUNC:
+dateadd(dd,0, datediff(dd,0, fwn.VariableStp.dtSplTakenTime)) as dt
 
 <!-- Predefined character entities -->
 &lt; &gt; &quot; &amp; &apos;  &#169; or &#xA9 is copyright symbol
@@ -5568,8 +5631,14 @@ int[] array = new int[5] { 1, 2, 3, 4, 5 };
 
 Administrator cmd.exe: Run / type cmd / Ctrl-Shift-Enter
 
+:: Win7 slow network (as Administrator):
+netsh interface tcp show global
+netsh interface tcp set global autotuning=disabled
+:: restore
+netsh interface tcp set global autotuninglevel=normal
+
+:: Force delete remove rm Windows hidden file that Cygwin can't rm:
+u:\misc> del /A:H Thumbs.db
+
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  
-
-
-  # vim: set hlsearch foldmethod=marker tw=0 ft=CONF : 

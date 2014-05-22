@@ -6,12 +6,13 @@
 #
 #           Control=Ctrl Mod1==Alt, Mod4=WindowsKey
 #
+#           Alt + LeftClick to drag from anywhere in window
 #           Alt + RightClick to resize other than via bottom corners
 #
 #           $ man fluxbox-keys
 #
 #  Created: Mon 12 Jan 2012 17:59:26 (Bob Heckel)
-# Modified: Sun 09 Mar 2014 10:42:13 (Bob Heckel)
+# Modified: Sat 29 Mar 2014 10:41:01 (Bob Heckel)
 ##############################################################################
 
 # Right-click on the desktop to get menus
@@ -74,15 +75,12 @@ Control Tab :If {Some Matches (rxvt-unicode)} {NextWindow (rxvt-unicode) (worksp
 
 # Synchronize these with  vi ~/.fluxbox/menu
 Mod4 c   :If {Some Matches (google-chrome)} {NextWindow (google-chrome) (workspace=[current])} {Exec /opt/google/chrome/google-chrome}
-Mod4 f   :Exec firefox
 Mod4 g   :Exec gvim
-Mod4 m   :Exec midori
 Mod4 t   :If {Some Matches (urxvt)} {NextWindow (urxvt) (workspace=[current])} {Exec urxvt}
 Mod4 v   :Exec urxvt -name alsa -e alsamixer
-Mod4 x   :If {Some Matches (thunar)} {NextWindow (thunar) (workspace=[current])} {Exec /usr/bin/thunar}
 
 # Open a dialog to run programs
-Mod4 F2 :Exec fbrun
+Mod4 r :Exec fbrun
 
 # Volume settings, using common keycodes
 # if these don't work, use xev to find out your real keycodes
@@ -98,18 +96,20 @@ Mod1 F4 :Close
 ###Mod4 F11 :Fullscreen
 F11 :Fullscreen
 
-# Open the window menu
-Mod1 space :WindowMenu
-Mod4 space :RootMenu
+# Open the Window Menu
+# Not practical because the key overrides all other Winkey maps
+###Super_L :RootMenu
 
 # Exit fluxbox
 ###Control Mod1 Delete :Exit
 
 # Change to previous/next workspace
-###Control Mod4 Left :PrevWorkspace
 Mod4 Left :PrevWorkspace
-###Control Mod1 Right :NextWorkspace
+# VirtuaWin Windows 7 adaptation
+Mod1 Mod4 Left :PrevWorkspace
 Mod4 Right :NextWorkspace
+# VirtuaWin Windows 7 adaptation
+Mod1 Mod4 Right :NextWorkspace
 
 # Send the current window to previous/next workspace
 ###Control Mod4 Left :SendToPrevWorkspace
@@ -140,6 +140,3 @@ Print :ExecCommand gnome-screenshot
 # TODO use these instead to be gnome-independent
 ###Print  :ExecCommand import -window root -quality 75 `date +shot-%Y-%m-%d-%H%M%S.jpg`
 ###Mod1 Print  :ExecCommand import -quality 75 `date +window-%Y-%m-%d-%H%M%S.jpg`
-
-# Drag without being over the titlebar
-OnWindow Mod4 Mouse1 :StartMoving

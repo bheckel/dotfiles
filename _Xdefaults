@@ -2,14 +2,16 @@
 !     Name: .Xdefaults
 !
 !           Often symlinked as ~/code/misccode/_Xdefaults
-!           See (u)rxvt --help for items available
+!
+!           There is no man Xdefaults
+!           See rxvt-unicode --help for items available
 !
 !  Created: Thu 10 Jan 2002 08:56:11 (Bob Heckel)
-! Modified: Fri 14 Mar 2014 17:36:09 (Bob Heckel)
+! Modified: Sat 29 Mar 2014 09:13:10 (Bob Heckel)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Rxvt (usually Cygwin)
+! Rxvt
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Black
 Rxvt*background: #000000
@@ -60,18 +62,19 @@ Rxvt*color12: DodgerBlue3
 Rxvt*color13: #ff00ff
 ! Bright cyan
 Rxvt*color14: #00ffff
-! This is not foreground color!
 ! Bright white
 Rxvt*color15: #ffffff
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! URxvt
+! URxvt and rxvt-unicode
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Ubuntu purple
 URxvt*background: #290020
+URxvt*cursorBlink: on
+URxvt*cursorUnderline: true
 URxvt*cutchars: `"'()*,;<>[]{|}@
-URxvt*cursorColor: Wheat
-URxvt*foreground: White
+URxvt*cursorColor: Grey
+URxvt*foreground: Wheat
 URxvt*saveLines: 2048
 URxvt*scrollColor: Grey26
 URxvt*scrollBar:true
@@ -80,13 +83,13 @@ URxvt*scrollstyle:xterm
 URxvt*scrollBar_right: on
 URxvt*termName: rxvt-unicode
 URxvt*visualBell: on
+URxvt*urlLauncher: /usr/bin/firefox
 !!!URxvt*font: xft:Andale Mono-9:antialias=true
 URxvt*font: xft:Consolas-9:antialias=true
 !!!URxvt*font: xft:Bitstream Vera Sans Mono:pixelsize=11
 !!!URxvt*boldFont: xft:Bitstream Vera Sans Mono:bold:pixelsize=11
 !!!URxvt*font:-*-courier-medium-r-normal-*-*-140-*-*-*-*-iso8859-1
 !!!URxvt*boldFont:-*-courier-bold-r-normal-*-*-140-*-*-*-*-iso8859-1
-!!!URxvt*font: xft:Terminus-8:antialias=true
 !!!URxvt*backgroundPixmap:/home/bqh0/code/misccode/pattern.xpm
 ! Black
 URxvt*color0: #000000
@@ -123,5 +126,12 @@ URxvt*color15: #ffffff
 !!!URxvt*transparent:true
 !!!URxvt*tintColor:blue
 !!!URxvt*shading:40
-URxvt.cursorBlink: on
 URxvt*geometry: 85x35
+!!! 16-Mar-14 trying to get vim to mouse scroll - not working
+URxvt*Translations:		#override \n\
+	s<Btn4Down>: string("0x9b") string("[64~") \n\
+	s<Btn5Down>: string("0x9b") string("[65~") \n\
+	<Btn4Down>: string("0x9b") string("[62~") \n\
+	<Btn5Down>: string("0x9b") string("[63~") \n\
+	<Btn4Up>: \n\
+	<Btn5Up>:
