@@ -7,7 +7,7 @@
 #           Comments are often written for searching, not proper English
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Thu 15 May 2014 09:44:28 (Bob Heckel)
+# Modified: Thu 29 May 2014 13:16:25 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -373,7 +373,7 @@ vim `grep -l frame_counter *.c`
 :vimgrep /frame_counter/ **/*.c
 
 " Search Vim help:
-:echo $VIMRUNTIME   <---then  $ cd /usr/share/vim/vim63/doc  and grep
+:echo $VIMRUNTIME   # e.g. /usr/share/vim/vim74
 " Better (no quotes or slashes used here like vimgrep !), case insensitive, :cn to iterate results
 :helpgrep holy-grail\c
 :vim[grep] /holy-grail/ /usr/share/vim/vim70/doc/*
@@ -3276,11 +3276,9 @@ lsof -i :80
 ls -l /proc/25226/exe
 
 # Inplace edit (without vi):
-sudo sed -i -e "s/# deb/deb/g" /etc/apt/sources.list
-sed -i '/ifwordonline/s/changeme/tothis/' t.pl
-
-# Delete entire lines.  Inplace edit without -i:
-sed '/retirem/d' foo.txt|tee foo.txt  >/dev/null 2>&1
+sudo sed -i -e "s/# deb/deb/g" /etc/apt/sources.list  # caution sed will turn ff=unix
+sed -i '/ifwordonline/s/changeme/tothis/' t.pl  # caution sed will turn ff=unix
+sed -i '/polic/s/squad/pod/' bladerun_crawl
 
 # Avoid having to cd / to untar a cygwin package:
 tar -C / -xvf connect-proxy-1.101-1.tar.gz
@@ -3427,7 +3425,9 @@ $x='test string'; ($y = $x) =~ s/^(test).*/$1/; print $y;
 perl -e '$x="test string"; ($y=$x)=~ s/^(test).*/$1/;print $y;'
 
 # Hash slice:
-perl -e '@h{"key1", "key2"} = (1,2); print $h{key2};'
+perl -e '@h{key1, key2} = (1,2); print $h{key2};'
+# Copy hash h2 into hash h1 (silently overwrites any dups):
+@h1{ keys %h2 } = values %h2;
 
 # Regex to pick out the filename, i.e. basename, tail, and strip the path off:
 $basefilename = $1 if $fullyqualifiedpath =~ m|[/\\:]+([^/\\:]+)$|;
@@ -3440,6 +3440,8 @@ perl Makefile.PL PREFIX=~/perllib
 
 # Determine if singular or plural word is required:
 printf("Retrieving %d email%s...\n", $mailcount, $mailcount==1 ? "" : "s");
+
+# Hook operator:
 my $r = $rchg!=1 ? 'records' : 'record';
 
 # Determine current day of the week:
@@ -3598,7 +3600,8 @@ print "keep going? "; <STDIN> eq "y\n" ? print "ok\n" : die "dead\n";
 
 # Skip the first line of a textfile:
 cat junk.txt | perl -e 'while(<STDIN>){print $_ if $.>1}'       # ok
-cat junk.txt | perl -ne 'print if $.>1'                         # best
+cat junk.txt | perl -ne 'print if $.>1'                         # better
+perl -ne 'print if $.>1'  junk.txt                              # best
 
 # Lowercase a word from the command line:
 $ echo ThisWord | perl -pe 's/(.*)/\L$1\E/'
@@ -3606,8 +3609,6 @@ $ echo ThisWord | perl -pe 's/(.*)/\L$1\E/'
 # Uppercase (a.k.a rightcase titlecase smartcase) first letter of word in $all_lower:
 ($first_ltr_uppercased = $all_lower) =~ s/(\w+)/\u$1/g;
 
-# Delete lines containing counter.hitua.net for each file in current directory:
-perl -pi.bak -e 's/.*counter.hitua.net.*//g' testch*.ht
 # Change background color of all webpages, recursively:
 find . -name '*.html' -exec perl -pi.bak -e "s/BGCOLOR=\"#ffffff\"/BGCOLOR=\"#cccccc\"/" {} \;
 # Better
@@ -3672,9 +3673,11 @@ perl -ne 'm/.{174}(\w)/; print if $1 eq "Y"' foo.txt
 # To sort on a specific column, see the Schwartzian transformation.
 
 # Slurp an entire file into a single variable -- make sure ff=unix !!
-my $contents = do { local $/ = <$fh> };
+my $contents = do { local $/ = <$fh> };  # old style
 # Can use __DATA__ filehandle like SAS' CARDS; or DATALINES to slurp;
-my $contents; { local $/ = undef; $contents = <DATA>; }
+my $contents; { local $/ = undef; $contents = <DATA>; }  # old style
+# Slurp an entire file into a single variable -- make sure ff=unix !!
+my $contents = do { local $/=undef; open my $fh, '<', 'foo.txt' or die; <$fh>;};  # new style
 
 # Current time timestamp since the Epoch:
 print localtime();
@@ -3731,6 +3734,13 @@ perldoc -q sort
 # Syntax check a directory:
 for f in *.pl; do perl -c $f; done
 
+# Print field 3 like awk:
+perl -F'\|' -lane 'print $F[2]' pipedelimited.data
+# perl -l  # add a newline to results
+# perl -a  # use @F which splits on whitespace
+# perl -n  # while(<>){...} loop - use -p instead to print
+# perl -e  # command line perl code in one line
+
 # Are columns 1 and 3 equal?
 perl -ne '@x=split; print if $x[0] != $x[2]' foo.txt
 perl -ane 'print if $F[0] != $F[2]' foo.txt  # same, automatic @F instead of @x
@@ -3763,12 +3773,7 @@ perl -pe 's/\0//g'
 # changes to STDOUT
 perl -pe "s/'//g" junk
 
-# Substitute, inplace edit, and make backup from command line.  NOT recursive.
-perl -pi.bak -e "s/old/new/g" *.pl
-# or
-perl -pi.bak -e  's/old/new/g' `find . -name "foo.txt"`
-
-# Replace all instances in files without backups:
+# Replace all instances in files (without backups):
 perl -pi -e "s:#\!/usr/bin/perl:#\!/usr/pkg/bin/perl:" junk
 perl -pi -e "s/REPLACEME/foo/" dhammapada.rss
 
@@ -4086,9 +4091,6 @@ my ($firstname) = $name =~ /($firstname_precompiledregex)/;
 # Canonical regex en-passant - MODIFY first name (reads right to left)
 (my $normalizedname = $name) =~ tr/A-Za-z//dc;
 
-# Print the longest line
-perl -ne '$l = $_ if length($_) > length($l); END { print $l }' bladerun_crawl
-
 # Print the 3rd line in file:
 while ( <FH> ){ print if $. == 3; }
 
@@ -4104,28 +4106,42 @@ open FH1, 'junk1.txt' or die "Error: $0: $!"; @foo = <FH1>;
 # In one file not in another symmetrical difference:
 vi ~/code/perl/compare.pl
 
-# Thin out, print 10 random lines from a file (good for creating dummy files):
+# Thin out, print 10 random lines from a file (good for creating small dummy files):
 cat bladerun_crawl | perl -e '@line=<>; for(1..9){print $line[int rand @line]}'
 perl -e '@line=<>; for(1..9){print $line[int rand @line]}' bladerun_crawl
 
+# Simple canonical inplace edit replace like vim :g/trendid_/d or sed -i -e '/trendid_/d' foo.txt (caution: sed will turn ff=unix)
+perl -i.bak -ne 'next if /trendid_/' foo.txt
 # Replace all occurences of number 55 with a random number less than 100
 perl -i.bak -pe "s/55/int rand(100)/eg"
 # Recursively for specific extensions
 perl -pi.bak -e "s/Output Compiled Data/Output_Compiled_Data/" `find . -name '*.sas'`
+# Substitute, inplace edit, and make backup from command line.  NOT recursive.
+perl -pi.bak -e "s/old/new/g" *.pl
+perl -pi.bak -e  's/old/new/g' `find . -name "foo.txt"`
 
 # Print a random number (automatically seeded by Perl):
-perl -e 'print rand()'               <---floating point from 0 to 1
-perl -e 'print int rand 5'           <---integer from 0 to 5
-perl -e 'print int(rand(4)) + 1'     <---integer from 1 to 4
-perl -e 'print int(rand(51)) + 25;'  <---integer from 25 to 75
+perl -e 'print rand()'               # <---floating point from 0 to 1
+perl -e 'print int rand 5'           # <---integer from 0 to 5
+perl -e 'print int(rand(4)) + 1'     # <---integer from 1 to 4
+perl -e 'print int(rand(51)) + 25;'  # <---integer from 25 to 75
 # Print 3 random numbers which will be 1, 2, 3 or 4
 for i in 1 2 3; do perl -e 'print int(rand(4)) + 1, "\n"'; done
 
-# Choose a random array value (int is optional):
-$surprise = $files[int rand @files];
-
 # Random password generator
 perl -le 'print map { ("a".."z")[rand 26] } 1..8'
+
+# Print the longest line
+perl -ne '$l = $_ if length($_) > length($l); END { print $l }' bladerun_crawl
+
+# Paragrep - delete entire paragraph if word found in it:
+perl -00 -lne 'unless (/genetic/) {print}' bladerun_crawl
+
+# Word frequency counter:
+perl -0777 -lape's/\s+/\n/g' bladerun_crawl | sort | uniq -c | sort -nr
+
+# Choose a random array value (int is optional):
+$surprise = $files[int rand @files];
 
 # De-chomp un-chomp reverse chomp:
 for ( @lines ) { $_ .= "\n"; }
@@ -4604,7 +4620,7 @@ DROP TABLE bobhlm;
 --Get Oracle database instance version rack etc information v9+
 select * from v$instance;
 
-:: cron for Windows:
+:: AT command cron for Windows:
 at 20:42 /interactive notepad
 
 ' Do not prompt user before overwriting:
@@ -5026,8 +5042,8 @@ To see logged on users in Windows 2003 - "Computer Management" "Shared Folders" 
 
 ^ is DOS cmd line continuation... like a backslash at the end of the line in unix
 
--- Pass a parameter to sqlplus (see ~/misccode/oracle_process_id.sql or wantsampid*)
-... AND    spid = '&1'; ...
+-- Pass a parameter to sqlplus
+... AND spid='&1'; ...
 
 -- Oracle sqlplus do not display query results (usually when sending output to .out file)
 set termout off
