@@ -13,7 +13,7 @@
 "   :so u:\\code\\misccode\\_vimperatorrc
 "
 "  Created: Mon 15 Oct 2007 11:21:26 (Bob Heckel)
-" Modified: Sun 09 Mar 2014 20:15:45 (Bob Heckel)
+" Modified: Sun 13 Jul 2014 13:14:17 (Bob Heckel)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 """""""""""""""""""""""""
@@ -204,6 +204,42 @@ highlight CmdLine color:white; background-color:black; font-family:monospace; fo
 """""""""""""""""""""""""
 """set! browser.urlbar.maxRichResults=6
 """set! keywordlURL="http://www.google.com/search?ie=UTF-8&oe=UTF-8&sourceid=navclient&gfns=1&q="
+
+
+"""""""""""""""""""""""""
+" Hide statusbar
+"""""""""""""""""""""""""
+noremap <silent> <F8> :js toggle_bottombar()<CR>
+noremap : :js toggle_bottombar('on')<CR>:
+noremap o :js toggle_bottombar('on')<CR>o
+noremap O :js toggle_bottombar('on')<CR>O
+noremap t :js toggle_bottombar('on')<CR>t
+noremap T :js toggle_bottombar('on')<CR>t
+noremap / :js toggle_bottombar('on')<CR>/
+cnoremap <CR> <CR>:js toggle_bottombar('off')<CR>
+cnoremap <Esc> <Esc>:js toggle_bottombar('off')<CR>
+
+:js << EOF
+function toggle_bottombar(p) {
+    var bb = document.getElementById('liberator-bottombar');
+    if (!bb)
+        return;
+    if (p == 'on'){
+        bb.style.height = '';
+        bb.style.overflow = '';
+        return;
+    }
+    if (p == 'off'){
+        bb.style.height = '0px';
+        bb.style.overflow = 'hidden';
+        return;
+    }
+    bb.style.height = (bb.style.height == '') ? '0px' : '';
+    bb.style.overflow = (bb.style.height == '') ? '' : 'hidden';
+}
+toggle_bottombar();
+EOF
+
 
 """""""""""""""""""""""""
 " Autocommands

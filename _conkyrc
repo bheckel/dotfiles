@@ -1,12 +1,14 @@
 ################################################################################
 #     Name: .conkyrc
 #
+#           $ conky -d -x 40 -y 10
+#
 #  Created: Sat 04 Feb 2012 21:38:40 (Bob Heckel - adapted from darcon at gmail.com)
-# Modified: Tue 24 Dec 2013 10:42:41 (Bob Heckel)
+# Modified: Sat 14 Jun 2014 11:51:05 (Bob Heckel)
 ################################################################################
 
 # set to yes if you want Conky to be forked in the background
-background no
+background yes
 
 # X font when Xft is disabled, you can pick one with program xfontsel
 #font 5x7
@@ -22,7 +24,7 @@ use_xft yes
 
 # Xft font when Xft is enabled
 #xftfont Bitstream Vera Sans Mono:size=8
-xftfont Terminus:size=10
+xftfont Consolas:size=7
 
 # Text alpha when using Xft
 xftalpha 0.8
@@ -41,7 +43,12 @@ update_interval 2.0
 total_run_times 0
 
 # Create own window instead of using desktop (required in nautilus)
-own_window no
+own_window yes
+
+# Transparency
+own_window_argb_visual yes
+# 0 - 255
+own_window_argb_value 200
 
 # Use double buffering (reduces flicker, may not work for everyone)
 double_buffer yes
@@ -49,7 +56,10 @@ double_buffer yes
 # Minimum size of text area
 minimum_size 1000 5
 
-text_buffer_size 1000
+# Wrap lines
+max_text_width 150
+# Has to be > 1000 as of 15-Jun-14
+text_buffer_size 2048
 
 # Draw shades?
 draw_shades yes
@@ -300,21 +310,18 @@ override_utf8_locale no
 
 TEXT
 
-${offset 0}${color}${image /home/bheckel/misc/computer/fb-icon48x48-metal.png}
-
-
-${color dark goldenrod}${execi 2500 display-dhamma | par -w25}
-###${color dark goldenrod}${execi 1500 display-dhamma -dhp bnnp | par -w25}
-
+###${offset 0}${font Consolas:size=10}Sabbe dhamma${font}
+###${offset 0}${color}${image /home/bheckel/misc/computer/fb-icon48x48-metal.png}
+###${color dark goldenrod}${execi 2500 display-dhamma | par -w25}
+###${color goldenrod}${execi 1500 ~/bin/display-dhamma -dhp bnnp | par -w75}
+${color goldenrod}${execi 1500 ~/bin/display-dhamma -dhp bn | par -w80}
 ###${offset 0}${font Arial Black:size=12}Sabbe dhamma${font}
 ###${offset 0}${font Arial Black:size=12}nalam abhinivesaya${font}
 ###${offset 0}${color slate grey}${time %a, } ${color }${time %e %B %G}
 ###${offset 0}${color slate grey}${time %Z,    }${color }${time %H:%M:%S}
-${color}${nodename} ${color lightgrey}${offset 0}uptime: $uptime_short
-###${offset 0}${color slate grey}Kernel:${color }$kernel
-###${offset 0}${color slate grey}CPU:${color } $cpu% ${acpitemp} degrees C
-${offset 0}Load: $loadavg
-${color lightgrey}${execi 1200 sensors -f|grep 'Temp'|grep -v Core | cut -c -25}
+${color}${nodename} ${color slate grey}${offset 0}Kernel:${color}$kernel ${color slate grey}Uptime:${color} $uptime_short ${color slate grey}Load:${color} $loadavg
+###${color lightgrey}${execi 1200 sensors -f|grep 'Temp'|grep -v Core | cut -c -25}
+${execi 1200 sensors -f|grep Core | cut -c -19}
 
 ###${offset 0}${color slate grey}Processes/Running: ${color}$processes/${color}$running_processes
 ${offset 0}${color slate grey}Processes: ${color}$running_processes/${color}$processes
@@ -354,9 +361,8 @@ ${offset 0}${fs_bar 3,100 /home}
 ###${offset 0}${fs_bar 3,100 /mnt/slack}
 ###${offset 0}${color slate grey}NET: ${color}${addr wlan0}
 
-${offset 0}${color slate grey}Mounts: 
-${color lightgrey}${execi 60 mount|grep '^/dev' | fold -s -w25}
-
+###${offset 0}${color slate grey}Mounts: 
+###${color lightgrey}${execi 60 mount|grep '^/dev' | fold -s -w25}
 ${offset 0}${color slate grey}Wifi: ${color lightgrey}${wireless_link_qual_perc wlan0}%
 ###${offset 0}${color}Up: ${color }${upspeed vlan1}
 ###${offset 0}${upspeedgraph vlan1 20,130 ffffff cc4444 -t}
@@ -371,10 +377,12 @@ ${offset 0}${downspeedgraph wlan0 20,130 ffffff cc4444 -t}
 
 ###${offset 0}${color slate grey}SENSORS: 
 ###${color lightgrey}${execi 1200 sensors -f|grep '^C'|grep -v Core | cut -c -25}
-${offset 0}${color slate grey}Syslog: 
+###${offset 0}${color slate grey}Syslog: 
 ###${color lightgrey}${execi 30 tail -n3 /var/log/syslog | fold -s -w25}
 ###${color lightgrey}${execi 30 tail -n3 /var/log/syslog | grep -v 'UFW BLOCK] IN=wlan0.*' | fold -s -w25}
-${color lightgrey}${execi 30 grep -v 'UFW BLOCK] IN=wlan0.*' /var/log/syslog | grep -v '4-way handshake' | grep -v 'Group rekeying completed' | tail -n3 | fold -s -w25}
+###${color lightgrey}${execi 30 grep -v 'UFW BLOCK] IN=wlan0.*' /var/log/syslog | grep -v '4-way handshake' | grep -v 'Group rekeying completed' | tail -n3 | fold -s -w25}
 ###${color slate grey}/var/log/messages:
 ###${color}${exec tail -n20 /var/log/messages}
+###${color lightgrey}${execi 30 tail /var/log/syslog }
+${color lightgrey}${exec tail -n23 /var/log/syslog }
 

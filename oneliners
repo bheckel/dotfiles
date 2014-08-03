@@ -195,7 +195,7 @@ if wrd == "re" || wrd == "ret" || wrd == "retu" || wrd == "retur" ...do somethin
 " is now more cleanly represented as:
 if match(wrd, "\\<re\\%[tur]\\>") > -1 ...do something...  endif
 
-" Alternate foreign character digraph method (better if don't know the code):
+" Alternate unicode foreign character digraph method (better if don't know the code):
 :dig         <---determine digraph's decimal code on (right side)
 Ctrl-v 174   <---in insertmode e.g. copyright © symbol is 169
 To do unicode, must do this first:
@@ -1050,6 +1050,7 @@ proc format library=work FMTLIB; run;
  /* Canonical diff two datasets compare */
 proc compare base=l.material_mapping_tableOLD compare=l.material_mapping_table; run;
 
+ /* Oracle count function */
 SELECT COUNT(DISTINCT samp_id)  /* good */
 SELECT DISTINCT COUNT(samp_id)  /* bad - syntax is ok but probably not what you want */
 
@@ -1640,7 +1641,7 @@ proc print data=sashelp.shoes(obs=5) width=minimum; var Region--Returns;run;
 proc print data=sashelp.shoes(obs=5) width=minimum; var Region-NUMERIC-Returns;run;
 proc print data=sashelp.shoes(obs=5) width=minimum; var Region-CHARACTER-Returns;run;
 
-fullname=catx(' ', fname, mname, lname);  /* gracefully concatenates missing mnames */
+fullname=catx(' ', fname, mname, lname);  /* gracefully concatenates any missing mnames */
 
 data clear_var_format_informat_label; set SASHELP.shoes; format inventory; informat inventory; label inventory=; run; proc contents ; run;
 
@@ -1741,6 +1742,9 @@ proc contents data=MYLIB._ALL_; run;
 
  /* Find multiple search pattern */
 /foo \| bar
+
+ /* Replace special chars with space */
+do aa= 1 to 29 , 31 , 127 , 129 , 141 to 144 , 157 , 158; var1=tranwrd(var1,byte(aa), ' '); end; 
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3135,14 +3139,15 @@ if [ -d '\\rtpdscel01dm06\rsh8680$' ];then echo 'directory exists'; fi
 # bash for loop shell array
 for x in "${MAPFILES[@]}"; do ...; done
 
-# Canonical backup quick tar quick backup
-cd $c && tar cvfz /cygdrive/u/bkup/dpCdrive.`date +%d%b%y`.tgz datapost/ ; cd -
+# Canonical timestamped backup quick tar quick backup:
+cd $c && tar cvfz /cygdrive/u/bkup/dpCdrive.`date +%d%b%y`.tgz datapost/ ; cd -  # use "datapost/" instead of "/cygdrive/c/datapost" for easier untarring
+tar cvfz /cygdrive/u/bkup/retain.`date +%d%b%y`.tgz $y/retainsamp_sas/
 
 # Comma delimited items split into lines, one item per line (convert wide to long)
 awk -F, '{ print $1; print $2; print $3 }' t.csv
 
-# Count unique batches, in column 1, from CSV file
-tail +2 "/home/rheckel/projects/datapost/tmp/VALTREX_Caplets/OUTPUT_COMPILED_DATA/CSV valtrex_FreeWeigh.csv"|cut -d ',' -f1|sort|uniq|wc -l
+# Count unique batches, in column 1, from CSV file:
+tail +2 "CSV vlatrex_FreeWeigh.csv"|cut -d ',' -f1|sort|uniq|wc -l
 
 # Is database up?
 while true; do date;sqlplus -S sasreport/sasreport@sprd25 @donothing; echo 'ok';date;echo;sleep 300; done;
@@ -3245,8 +3250,11 @@ sudo apt-get install google-chrome-stable
 # Debian, Ubuntu full update (not dist upgrade):
 sudo apt-get update && sudo apt-get upgrade
 
-# Process substitution diff
+# Process substitution diff across network:
 diff -u ~/code/misccode/_bashrc <(ssh rheckel@sdf.org cat .bashrc)
+
+# Diff two files across the network:
+ssh user@remote "cat /path/to/remote/file" | diff - /path/to/local/file
 
 # Does vi exist on this box? (avoid which(1):
 hash vi &>/dev/null if [ $? -eq 0 ]; then export EDITOR=vi fi
@@ -4697,7 +4705,8 @@ select * from activity_log where trunc(activity_dt)=TO_DATE('16-JAN-06','DD-MON-
 select TO_DATE('15-may-2006 16:00:01','dd-mon-yyyy hh24:mi:ss') from dual; -- 15-May-06 04:00:01 PM
 
 -- Oracle date between
-AND SS.EntryTs >= TO_DATE('01-JAN-05','DD-MON-YY') AND SS.EntryTs <= TO_DATE('31-DEC-05','DD-MON-YY')
+(TEST_END_DATE BETWEEN TO_DATE('2012-09-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE('2014-06-13 23:59:59', 'YYYY-MM-DD HH24:MI:SS'))
+SS.EntryTs >= TO_DATE('01-JAN-05','DD-MON-YY') AND SS.EntryTs <= TO_DATE('31-DEC-05','DD-MON-YY')
 -- SQL Server date between
 WHERE batch_time >= {ts '2011-01-03 00:00:00'} and batch_time <= {ts '2011-01-04 00:00:00'}
 
@@ -4845,15 +4854,18 @@ doskey vi=vim $1
 // Source an external JavaScript file:
 <script type="text/JavaScript" src="sortable.js"></script>
 
-// CSS JavaScript misc
+// CSS import
 <link rel="stylesheet" type="text/css" href="crc.css"/> 
-<style="cursor:pointer; color:blue; font-family:monospace; font-style:italic; border:2px solid black; background-color:red"; border-style:solid; padding:0px 1px 0px 1px;position:absolute>
-// In HEAD
-<style type="text/css"> body { background:fixed #110110 url(../a_Cakka.gif); color:#FFFF99; } </style>
 
-/* CSS inline style */
-<tr style="visibility:collapse;">
-<table style="border: 1px solid black;">
+// inline CSS inline
+<div style="color:orange; font-size:150%; font-weight:bold; padding:10px 1px 1px 50px; border:0px dashed">Loading Data Explorer...</div>
+                    top  right bot left
+<div style="padding:40px 500px 1px 80px;"><image src='../PublishingImages/datapost128.png'/></div>
+<div style="color:blue; font-family:monospace; font-style:italic; border:2px solid black; background-color:red; border-style:solid; padding:0px 1px 0px 1px;">foo</div>
+<style="cursor:pointer; color:blue; font-family:monospace; font-style:italic; border:2px solid black; background-color:red; border-style:solid; padding:0px 1px 0px 1px;position:absolute">
+
+// CSS in HEAD
+<style type="text/css"> body { background:fixed #110110 url(../a_Cakka.gif); color:#FFFF99; } </style>
 
 /* CSS id must be unique, class does not need to be unique */
 <div id="myid">Content</div> 	#myid {css rules....}
@@ -4861,14 +4873,8 @@ doskey vi=vim $1
 
 <input type="button" value="On" onclick="myfn('msg',1); return false;">
 
-Google Chart API
-http://chart.apis.google.com/chart?cht=lc&chs=200x125&chd=s:helloWorld&chxt=x,y&chxl=0:|Mar|Apr|May|June|July|1:||50+Kb
-<img src="http://chart.apis.google.com/chart?chs=200x125&amp;chd=s:helloWorld&amp;cht=lc&amp;chxt=x,y&amp;chxl=0:|Mar|Apr|May|June|July|1:||50+Kb"alt="Sample chart" />
-
 Browser HTML File URL
 file:///c:/cygwin/home/rheckel/tmp
-
-$ ~/bin/msgbox "my title" "my body" error
 
 ' Autorun VBA macro - create empty workbook, add code via Alt-F11, click
 ' Window : Hide, save as bob.xls in 
@@ -5023,14 +5029,21 @@ XML transformation/stylesheet linking .XSL(T) (other file) to the .XML doc (this
 <?xml-stylesheet type="text/xsl" href="file:///c:/datapost/cfg/DataPost_Configuration.xslt"?>
 
 <xsl:variable name="Str_OutputFilePath">
-<!-- DEBUG XSLT -->
+
+<!-- DEBUG XSLT 2.0 -->
 <xsl:message>!X!<xsl:copy-of select="$addresses"/>!Y!</xsl:message>
+<xsl:copy-of select="$DataPostServerURL"/>
 
 <xsl:if test="ExecuteFrequency != 'sunday'">
 <xsl:if test="ExtractEnabled &gt; 0 and Folder='LIFT'"> 
 
 Given this xml for xslt to evaluate: <poem author="jm" year="1667">
 <xsl:template match="poem"> <xsl:if test="@author='jm'"> 1. The poem's author is jm.  </xsl:if> </xsl:template>
+
+Traditional languages: y = f(x); are this XSLT v1.0:
+<xsl:variable name="y"><xsl:call-template name="f"><xsl:with-param name="x"/></xsl:call-template></xsl:variable>
+XSLT v2.0 (assumes <xsl:function>... somewhere):
+<xsl:variable name="y" select="f($x)"/>
 
 :: Run checkdisk check disk on USB drive E: without rebooting:
 chkdsk /f e:
@@ -5559,6 +5572,16 @@ git show eacbd91:code/ods_0002e.sas
 # View git old version of file from different branch (in editor):
 git show master:cfg/DataPost_Configuration.html |vi -
 
+# git edit modify rewrite previous existing git commit message:
+git commit --amend -m 'change your previous, last, wrong, commit message to this'
+
+# git compare a file from another branch:
+git difftool anotherbranch code/DataPost_Trend.sas  # see what's different, if that's ok then...
+git checkout anotherbranch code/DataPost_Trend.sas  # ...replace the current branch's file
+
+# Rename branch local (current) branch:
+git branch -m mynewbranchname
+
 # Test AJAX etc that won't work using file:// etc.
 $ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
 
@@ -5576,7 +5599,7 @@ dateadd(dd,0, datediff(dd,0, fwn.VariableStp.dtSplTakenTime)) as dt
 
 private static final String[] items={"java", "strings", "in", "array"};
 
-Canonical test lorem ipsum string
+Canonical test lorem ipsum debug string
 "lorem", "ipsum", "dolor", "sit", "amet", "consectetuer", "adipiscing", "elit", "morbi", "vel", "ligula", "vitae", "arcu", "aliquet", "mollis", "etiam", "vel", "erat", "placerat", "ante", "porttitor", "sodales", "pellentesque", "augue", "purus"
 
 Log.d(getClass().getSimpleName(),"my debug wtf");
@@ -5592,6 +5615,8 @@ WHERE UPPER(mat_desc) LIKE '%\_TH%' ESCAPE '\'
 
 // JQuery debug print
 console.log("the_form.cbo.value=%o", the_form.cbo.value);
+var foo="hello"; var bar="world"; console.log(foo + " " + bar);
+
 // JQuery chainable
 $('.myclass').css('background','red'}).height(100);
 
@@ -5655,6 +5680,21 @@ netsh interface tcp set global autotuninglevel=normal
 
 :: Force delete remove rm Windows hidden file that Cygwin can't rm:
 u:\misc> del /A:H Thumbs.db
+
+-- Oracle set zero to null:
+to_char(CASE WHEN a.result_number=0 THEN null ELSE a.result_number END) as result_number
+
+Javascript floating point numbers:
+var n1 = 100.12
+
+# Read a csv file in R language:
+d <- read.table('/home/rsh86800/t.csv',header=TRUE,sep=',')
+d2 <- read.csv(file="readfile.csv.r.txt",head=TRUE,sep=",")  # same
+
+-- Oracle count function 
+COUNT(*)                returns the number of rows in a table
+COUNT(DISTINCT ColName) returns the number of unique values for column ColName
+COUNT(ColName)          returns the number of rows that have a non null value for ColName
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  

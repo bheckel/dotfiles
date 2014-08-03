@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Fri 30 May 2014 13:16:15 (Bob Heckel)
+" Modified: Tue 22 Jul 2014 13:08:35 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -81,11 +81,13 @@ set t_Co=256
 " Force vim to clear itself when exiting:
 """set t_ti=7[r[?47h
 """set t_te=[?47l8
-" Change cursor in insert mode (mintty at least):
-let &t_ti.="\e[1 q"
-let &t_SI.="\e[5 q"
-let &t_EI.="\e[1 q"
-let &t_te.="\e[0 q"
+" Change cursor in insert mode for mintty:
+if has('win32unix')
+  let &t_ti.="\e[1 q"
+  let &t_SI.="\e[5 q"
+  let &t_EI.="\e[1 q"
+  let &t_te.="\e[0 q"
+endif
 
 set encoding=utf-8
 
@@ -530,13 +532,9 @@ if has('gui')
 endif
 
 " Use  :set guifont=*  to browse
-if hostname() == 'ubuntu'
-  """set guifont=Andale\ Mono\ 9
+if matchstr(HOMEBOXARRAY, THISBOX) == THISBOX
   set guifont=Consolas\ 9
-elseif hostname() == 'yoniso'
-  """set guifont=Andale\ Mono\ 9
-  set guifont=Consolas\ 10
-else
+elseif has ('win32')
   set guifont=Consolas:h8,Andale_Mono:h8,Lucida_Console:h8,Terminal:h8,Courier_new:h8,Courier:h7
 endif
 
@@ -603,10 +601,8 @@ iab YdG <C-R>=strftime("%d-%b-%y")<CR>
 " HTML (also see :TOhtml)
 " 'It takes more time working around the annoying pathologies of web authoring
 " tools than it takes to just write the thing in html source to begin with.' ~ Anonymous
-iab CoN Content-type: text/html
 iab HtA <a href="http://example.com">example link</a>
-iab HtM <html><CR>  <head><title></title></head><CR><body></body><CR><Left><Left></html>
-iab HtJ <script language="JavaScript"><CR><CR></script>
+iab HtM <!doctype html><CR><html><CR>  <head><title></title></head><CR><body></body><CR><Left><Left></html>
 iab HtT <table><CR>  <tr><td> </td></tr><CR><Left><Left></table>
 " Character entities:
 """iab ;< &lt;
@@ -669,6 +665,8 @@ iab SaP <Esc>0iproc print data=_LAST_(obs=max) width=minimum; run;
 iab SaQ options ls=max;<Esc>0idata _NULL_; set _LAST_(obs=100 where=(myid in:('foo'))); put '!!!wtf '(_ALL_)(=);run;
 iab SaS select ( myvar );<CR><Space><Space>when ( 42 ) delete;<CR><Space><Space>otherwise;<CR><Left><Left>end;
 
+" TODO do for gvim on u:
+cab SyL source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/sas/saslog.vim
 cab Sy0 source $VIMRUNTIME/syntax/nosyntax.vim
 cab SyH source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/html.vim
 cab SyJ source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/javascript.vim
@@ -1409,7 +1407,7 @@ fu! Commentout(line, lang)  " {{{2
     echon '.vimrc: html Commentout'
     let marker1 = '<!--'
     let marker2 = '-->'
-    if !match(line, '^<')
+    if !match(line, '^<!--')
       echon '.vimrc: remove html comment'
       let l1 = substitute(line, '^<!--', '', 'g')
       let l2 = substitute(l1, '-->$', '', 'g')
@@ -1448,9 +1446,9 @@ fu! Commentout(line, lang)  " {{{2
       return l2
     endif
   else
-    if lang == 'default'
-      echon '.vimrc: unknown language: (' lang ') so using default Commentout style'
-    endif
+"""    if lang == 'default'
+"""      echon '.vimrc: unknown language: (' lang ') so using default Commentout style'
+"""    endif
     let marker1 = '###'
     let marker2 = ''
     if !match(line, '#')
@@ -1666,6 +1664,8 @@ if !exists("autocommands_loaded")
   " Filter SAS Log for error-like lines (and lines that should be errors) only
 """au BufNewFile,BufRead,BufEnter *.log noremap <silent> <F8> :g!/^ERROR: \\|^ERROR\\s\\+\\d\\+-\\d\\+:\\|^WARNING: [^Compression]\\|stopped processing this step because\\|lines were truncated\\|NOTE: Invalid data for\\|NOTE: Variable\\|NOTE\\s\\+\\d\\+-\\d\\+:\\|WARNING: Apparent/d<CR> 
   au BufNewFile,BufRead,BufEnter *.log noremap <silent> <F8> :g!/^ERROR:\\\|^WARNING:\\\|lines were truncated\\\|^NOTE: Invalid data for\\\|^NOTE: Variable/d<CR>
+  au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR<CR>
+  au BufNewFile,BufRead,BufEnter *.log set guifont=Consolas:h8
 
   " TOGGLE. Delete the yearly warning lines that appear when SAS License is about to expire
   """au BufRead *.log :g/^WARNING: The Base Product\|installation repres/d
@@ -1704,7 +1704,7 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufRead,BufEnter *.cpp set makeprg=g++\ -Wall\ %
   au BufNewFile,BufRead,BufEnter *.c nmap ;z :!gcc %<CR>\|:echon 'compiled a.exe via ;z map'<CR>
   au FileType javascript map ;; :call setline('.', Commentout(getline('.'), 'cpp'))<CR>
-  au BufNewFile,BufRead,BufEnter *.htm* map ;; :call setline('.', Commentout(getline('.'), 'html'))<CR>
+  au BufNewFile,BufRead,BufEnter *.htm*,*xsl* map ;; :call setline('.', Commentout(getline('.'), 'html'))<CR>
   au BufNewFile,BufRead,BufEnter *.htm* map ,m yy0I///<ESC>p
   au BufNewFile,BufRead,BufEnter *.asp,*.bas let s:VBnotend = '\%(\<end\s\+\)\@<!'
   au BufNewFile,BufRead,BufEnter *.asp,*.bas let b:match_words = s:VBnotend . '\<if\>:\<end\s\+if\>'
