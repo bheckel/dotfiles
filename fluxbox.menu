@@ -1,16 +1,25 @@
 [begin] (fluxbox)
 [include] (/etc/X11/fluxbox/fluxbox-menu)
   [separator] () {} 
-  [exec] (Chrome       Mod4+c) {/opt/google/chrome/google-chrome} </opt/google/chrome/product_logo_32.xpm>
-/*  [exec] (Eclipse           ) {/home/bheckel/adt-bundle-linux-x86/eclipse/eclipse} </home/bheckel/adt-bundle-linux-x86/eclipse/icon.xpm> */
-  [exec] (Firefox      Mod4+f) {/usr/bin/firefox} </home/bheckel/misc/computer/firefox.png>
+  [exec] (Firefox      Mod4+f) {/usr/bin/firefox} </usr/share/pixmaps/firefox.png>
   [exec] (Gvim         Mod4+g) {/usr/bin/vim.gnome -g -f} </usr/share/pixmaps/vim-32.xpm>
-  [exec] (Iview        Mod4+i) {/home/bheckel/bin/iview} </usr/share/pixmaps/playonlinux.png>
-  [exec] (Midori       Mod4+m) {/usr/bin/midori} </usr/share/icons/hicolor/32x32/apps/midori.png>
-  [exec] (Xfe          Mod4+x) {/usr/bin/xfe} </usr/share/xfe/icons/xfe-theme/xfe.png>
-  [exec] (rxvt-unicode Mod4+t) {rxvt-unicode -icon /usr/share/icons/Faenza/apps/32/xterm_32x32.xpm} </usr/share/icons/Faenza/apps/32/xterm_32x32.xpm>
-  [exec] (VirtualBox)         {/usr/bin/virtualbox} </usr/share/icons/hicolor/32x32/apps/virtualbox.png>
-  [exec] (Volume       Mod4+v) {urxvt -name alsa -e alsamixer} </usr/share/icons/gnome/32x32/status/stock_volume.png>
+  [exec] (lxterm       Mod4+t) {/usr/bin/lxterm} </usr/share/pixmaps/lxterminal.xpm>
+  [exec] (Midori)              {/usr/bin/midori} </usr/share/icons/hicolor/32x32/apps/midori.png>
+  [exec] (Thunar)              {/usr/bin/thunar} </usr/share/icons/hicolor/64x64/apps/Thunar.png>
+  [separator] ()              {} 
+  [submenu] (yoniso)
+    [exec] (Firefox      Mod4+f) {/opt/firefox/firefox} </home/bheckel/misc/computer/firefox.png>
+    [exec] (Iview        Mod4+i) {/home/bheckel/bin/iview} </usr/share/pixmaps/playonlinux.png>
+    [exec] (rxvt-unicode)        {rxvt-unicode -icon /usr/share/icons/Faenza/apps/32/xterm_32x32.xpm} </usr/share/icons/Faenza/apps/32/xterm_32x32.xpm>
+  [end]
+  [submenu] (misc)
+    [exec] (Calibre )            {/usr/bin/calibre} </usr/share/calibre/images/lt.png>
+    [exec] (Chrome)              {/usr/bin/google-chrome} </opt/google/chrome/product_logo_256.png>
+    [exec] (gnome-disks)         {gnome-disks} <>
+    [exec] (mtpaint)             {/usr/bin/mtpaint} <>
+    [exec] (VirtualBox)          {/usr/bin/virtualbox} </usr/share/icons/hicolor/32x32/apps/virtualbox.png>
+  [end]
+  /*[exec] (Volume       Mod4+v) {urxvt -name alsa -e alsamixer} </usr/share/icons/gnome/32x32/status/stock_volume.png>*/
   [separator] ()              {} 
   [exec] (Suspend)            {sleep 90 && sudo /usr/sbin/pm-suspend}
   [exec] (About)              {(fluxbox -v; fluxbox -info | sed 1d) 2>/dev/null | xmessage -file - -center}

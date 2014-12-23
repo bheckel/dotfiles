@@ -214,6 +214,9 @@ s<BS>s   <---Produces German ß
 :se sbo=hor
 :se scb   <---each window
 
+" Change width of vertically split windows:
+:vert resize 80
+
 " View this keyword anywhere in file (move cursor to word).  Think '[ is easier to reach on keyboard - lazy geek default show all'.
 [I
 
@@ -440,11 +443,14 @@ To synch DirDiff ranges of updates (internal DirDiff cmds like 'u' not working 2
 :5,42diffput
 
 " vimdiff one existing buffer with its backup file: :vert diffsplit foo.c~
-" vimdiff two existing buffers :diffsplit then switch to/open other buffer and :diffthis then force any changes :diffupdate when done reset :diffoff
+" vimdiff two existing buffers :diffsplit then switch to/open other buffer and :diffthis then force any changes :diffupdate when done reset :diffoff (:diffthis to restart vimdiff)
 
 " vimdiff keymaps
 do == :diffget
 dp == :diffput
+
+" Synch whole file
+:%diffput
 
 " Run info(1) on word under cursor. Good demo of running an arbitrary command on the current word.
 map ;p :exe ":!info ".expand("<cword>")<CR>
@@ -822,7 +828,8 @@ set sascode=%dpv2root%\code
 %sasexe% -WORK 'c:\temp\sas' -nosplash -sysin %sascode%\DataPost_Transform.sas -log %sascode%\DataPost_Transform.log -print %sascode%\DataPost_Transform.lst -sysparm "%dpv2root%"
 
 # Cygwin quick dataset check:
-echo 'options ls=78;proc contents data=sashelp.shoes;run;' >| t$$.sas; c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin t$$.sas && cat t$$.lst && rm t$$.???
+echo 'options ls=180;proc contents data=?;run;' >| t$$.sas; c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin t$$.sas && cat t$$.lst && rm t$$.???
+echo 'options ls=180;proc contents data=?;run;' >| t$$.sas; C:/PROGRA~1/SASHome/SASFoundation/9.3/sas.exe -sysin t$$.sas && cat t$$.lst && rm t$$.???
 echo "options ps=max;libname l '//Rtpdsntp032/DataPostArchive/Ventolin_HFA/OUTPUT_COMPILED_DATA';proc freq data=l.ven60_analytical_individuals;table mfg_batch test;run;" >| u:/tmp/t.sas && c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin 'u:\tmp\t.sas' -log 'u:\tmp\t.log' -print 'u:\tmp\t.lst'; cat 'u:\tmp\t.lst'
 
  /* Describe option settings in effect: (also sr ~/code/sas/options.cmdl.sas linesize) */
@@ -902,8 +909,8 @@ input name $8.  number  ??;
  /* Thin out cleanout SAS Log, can use \| to get >1 line at a time */
 :g/\s*SYMB\|\s*MLOG\|\d\+\s*THE SAS/d
 
- /* Small 5% random sample sampling, insert IF for debugging huge ds: */
-data OUT.t; set IN.t; if ranuni(123456789) <= .05; run;
+ /* Small shrink ds to 5% random sample sampling for debugging huge ds to subset dataset: */
+data OUT.t; set IN.t; if ranuni(0) <= .05; run;
 
  /* Don't add lines with NULLs */
 if sex = '00'x||'00'x||'00'x then delete;
@@ -949,6 +956,7 @@ data oneobs_0vars; run;
 
  /* BETWEEN statement is inclusive /*
 where i between 1 and 5;
+if 1 <= (dosedate-sampdate) <= 5 then ...
 
 options pagesize=32767; options pagesize=max;  /* same */
 
@@ -1048,7 +1056,7 @@ http://yourserver/cgi-bin/broker?_SERVICE=default&_PROGRAM=sample.webhello.sas&p
 proc format library=work FMTLIB; run;
 
  /* Canonical diff two datasets compare */
-proc compare base=l.material_mapping_tableOLD compare=l.material_mapping_table; run;
+proc compare base=l.materialOLD compare=l.material BRIEFSUMMARY out=t; run;
 
  /* Oracle count function */
 SELECT COUNT(DISTINCT samp_id)  /* good */
@@ -1089,9 +1097,8 @@ http://rtpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program=ping&_admi
 ... WHERE monotonic() < 5 ...
 proc sql outobs=5; select * from sashelp.shoes; quit;  /* but only affects printing results, still rips thru all records */
 
- /* E.g. C:\cygwin\home\rheckel\tmp\testing\tmpsas.5660.sas */
-%put fully qual name of the currently running pgm: %sysfunc(getoption(SYSIN));
-%put basename only of currently running pgm: &SYSPROCESSNAME
+%put fully qualified name of the currently running program: %sysfunc(getoption(SYSIN));
+%put basename only of currently running program: &SYSPROCESSNAME
 
  /* Determine OS platform */
 %put !!!&SYSSCP;
@@ -1105,6 +1112,7 @@ options noxwait;x "start lelimssumres01a&nm..sas7bdat";
  /* Auto-vivifies any var not read in (or worse, typo'd) */
 format matl_typ $18. batch_nbr $10.;
 
+ /* Want total 5 obs but start at 2nd obs so you won't get 5 you get 4.  E.g. 2, 3, 4, 5 */
  /* Note: not 'lastobs'     ___    */
 set work.sample (firstobs=2 obs=5);
 
@@ -1256,9 +1264,6 @@ data _null_; if 0 then set SASHELP.shoes nobs=count; call symput('CNTOFOBS', cou
 
  /* %global is distributive */
 %global foo bar;
-
- /* Skip first observation, get 2 3 4 5 only */
-set work.sample (firstobs=2 obs=5);
 
 if description ne: 'al' then do; file "&DIRROOT\&SYSMACRONAME._Error.txt"; put "UNEXPECTED: &SYSDATE &SYSTIME " description=; end;
 
@@ -1745,6 +1750,17 @@ proc contents data=MYLIB._ALL_; run;
 
  /* Replace special chars with space */
 do aa= 1 to 29 , 31 , 127 , 129 , 141 to 144 , 157 , 158; var1=tranwrd(var1,byte(aa), ' '); end; 
+
+ /* Named macro call with good defaults: */
+%macro long2wide(data=_LAST_, by=, vars=, out=_DATA_);
+
+options fullstimer bufsize=8K bufno=5000;
+
+ /* Sortable timestamp e.g. 20120507_1329 */
+%let x=%sysfunc(compress(%sysfunc(today(),yymmddN8.)_%sysfunc(time(),hhmm6.), ': ')); 
+
+ /* Canonical input statement  e.g.:  1 100 98 75  A A B 10jul2014 12jul2014 11aug2014 */
+input id (apple orange banana) (:8.) (loc1-loc5) (:$1.) (mydate1-mydate5) (:date9.);
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3401,10 +3417,11 @@ test "x$no_of_days" = "x" && no_of_days=10
 # Don't complain if file does not exist:
 [ -e $1.txt ] && rm -i $1.txt
 
-git stash && git stash apply  # git snapshot
-
 # Check for stale (week old+) image files:
 find /cygdrive/z/DataPost/data/SGK/Zebulon/ -name '*.png' -mtime +7 |xargs ls -gGh
+
+# Extract .xz file
+tar xvfJ foo.xz
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4823,7 +4840,7 @@ C:\Program Files\Vim\vim70\gvim.exe
 
 On Error Resume Next  ' VB/ASP execute next line of code following the error
 
-Dim multiple, vars, are, ok, singleline
+Dim multiple, vars, are, ok, onasingleline
 
 ASP multiple statments on one line
 <% x=3 : y=25 : z=x-y : y=x*z : z=x*x-z+y : y=5*3*z*2/x %>
@@ -4834,6 +4851,7 @@ ASP shorthand alternative to Response.Write(Date())
 SELECT * FROM funds ORDER BY transdt DESC  -- ASC is default
 
 Foreign Key is that same value stored within MULTIPLE rows of the "detail" table
+CREATE TABLE foo ( ..., employee_id INTEGER NOT NULL REFERENCES employee(employee_id), ... );
 
 c:> echo %random%
 
@@ -5484,10 +5502,6 @@ CREATE TABLE user_role AS SELECT * FROM user_roleTEST;  -- ...and this
 select to_char(sysdate-2, 'DD-MON-YY') from dual
 select sysdate-2 from dual
 
--- sqlplus show time as well as the (default) date only
-set linesize 180; set pagesize 9999; column material_description format a45;
-SELECT to_char(max(sample_creation_date),'DDMONYY HH24:MM:SS') AS sampcreatdt, count(*) FROM xdm_dist.vw_xeb_lift_rpt_results_nl ; quit;
-
 Windows work gvim GUI Target: icon:
 "C:\Program Files\Vim\vim73\gvim.exe" -u u:\code\misccode\_vimrc
 
@@ -5495,6 +5509,8 @@ Windows commandline CPU monitor (must do locally, can't do it remotely with /U /
 c:\> wmic cpu get loadpercentage
 
 cygcheck -cv w3m  # is package OK?
+
+git stash && git stash apply  # git snapshot
 
 git config user.name  # whoami
 cat ~/.gitconfig # whoami
@@ -5519,10 +5535,10 @@ git add . && git commit -m 'mod'  # or better  git commit -a -m 'mod'
 git add cfg/DataPost_Configuration.xml && git commit -m 'mod single file'
 
 # git commit mantra (svn-ish):
-git add . && git commit -am 'bitfiddle'
+git add . && git commit -am 'mod'
 
 # github commit mantra:
-git add . && git commit -am 'bitfiddle' && git push origin master
+git add . && git commit -am 'mod' && git push origin master
 
 # github commit mantra:
 gs |grep modified
@@ -5577,10 +5593,17 @@ git commit --amend -m 'change your previous, last, wrong, commit message to this
 
 # git compare a file from another branch:
 git difftool anotherbranch code/DataPost_Trend.sas  # see what's different, if that's ok then...
+git fshow anotherbranch  # see just the last mod filenames in anotherbranch
 git checkout anotherbranch code/DataPost_Trend.sas  # ...replace the current branch's file
+# Compare old version of file from different commit to this commit - current (hash-less) commit must come 2nd!!:
+git difftool eacbd91:code/ods_0002e.sas code/ods_0002e.sas
 
 # Rename branch local (current) branch:
 git branch -m mynewbranchname
+
+git branch mynewbranch master  # copy branch from a specific branch, in this case master, to new branch
+
+git add README  # use git add -f README to force add if it's excluded by .gitignore
 
 # Test AJAX etc that won't work using file:// etc.
 $ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
@@ -5691,10 +5714,24 @@ var n1 = 100.12
 d <- read.table('/home/rsh86800/t.csv',header=TRUE,sep=',')
 d2 <- read.csv(file="readfile.csv.r.txt",head=TRUE,sep=",")  # same
 
--- Oracle count function 
+-- Canonical SQL count function 
 COUNT(*)                returns the number of rows in a table
 COUNT(DISTINCT ColName) returns the number of unique values for column ColName
 COUNT(ColName)          returns the number of rows that have a non null value for ColName
+
+-- Only those columns explicitly listed in the GROUP BY clause may appear un-aggregated (i.e. not as a parameter of an aggregate function) in the SELECT or HAVING clauses.  Or put negatively, it is prohibited to use an un-aggregated column in the SELECT or HAVING clauses unless it is explicitly listed in the GROUP BY clause.  That usually means the SELECT is equal or shorter to the GROUP BY.
+
+UPDATE Professor SET Salary=Salary*1.1, Dept="IT" WHERE Dept='555';
+
+<iframe src="https://zdatapostd.gsk.com/datapostDEMO/DataPost_Results.html" width="850px" height="10000px" frameborder="0"> <p>Your browser does not support iframes.</p></iframe>
+
+&#171;, «, a left-pointing double angle html entity
+
+
+<!-- xslt if AND -->
+<xsl:if test="ExtractEnabled &gt; 0 and Folder='LIFT'"> 
+<!-- xslt if AND LIKE -->
+<xsl:if test="TrendEnabled &gt; 0 and contains(TrendDescription, 'HFA')"> 
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  

@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Tue 22 Jul 2014 13:08:35 (Bob Heckel)
+" Modified: Fri 12 Dec 2014 13:52:10 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -533,7 +533,7 @@ endif
 
 " Use  :set guifont=*  to browse
 if matchstr(HOMEBOXARRAY, THISBOX) == THISBOX
-  set guifont=Consolas\ 9
+  set guifont=Consolas\ 8
 elseif has ('win32')
   set guifont=Consolas:h8,Andale_Mono:h8,Lucida_Console:h8,Terminal:h8,Courier_new:h8,Courier:h7
 endif
@@ -602,7 +602,7 @@ iab YdG <C-R>=strftime("%d-%b-%y")<CR>
 " 'It takes more time working around the annoying pathologies of web authoring
 " tools than it takes to just write the thing in html source to begin with.' ~ Anonymous
 iab HtA <a href="http://example.com">example link</a>
-iab HtM <!doctype html><CR><html><CR>  <head><title></title></head><CR><body></body><CR><Left><Left></html>
+iab HtM <!DOCTYPE html><CR><html><CR>  <head><title></title></head><CR><body></body><CR><Left><Left></html>
 iab HtT <table><CR>  <tr><td> </td></tr><CR><Left><Left></table>
 " Character entities:
 """iab ;< &lt;
@@ -777,6 +777,9 @@ endif
 
 " Toggle between two buffers (e fails if 2+ files are opened together and have never used :n)
 noremap ,e :e#<CR>
+
+" Auto reflow text:
+noremap ,f :set formatoptions=aw2tq<CR>
   
 " Split window and open file under cursor.  Usually used to view query results
 " within my b(g)rep (which is why it also jumps to the last search register '/' as

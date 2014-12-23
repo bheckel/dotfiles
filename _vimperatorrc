@@ -118,6 +118,7 @@ noremap L l
 " Speed up movements, we don't need precision in a browser like we do in vim
 noremap k 3k
 noremap j 3j
+noremap T :tabduplicate
 noremap <C-e> 3<C-e>
 noremap <C-y> 3<C-y>
 
@@ -251,6 +252,7 @@ autocmd LocationChange mail\\.google\\.com         js modes.passAllKeys = true
 autocmd LocationChange www\\.google\\.com/calendar js modes.passAllKeys = true
 autocmd LocationChange www\\.google\\.com/reader   js modes.passAllKeys = true
 autocmd LocationChange drive\\.google\\.com        js modes.passAllKeys = true
+autocmd LocationChange docs\\.google\\.com        js modes.passAllKeys = true
 autocmd LocationChange koding\\.com/Terminal       js modes.passAllKeys = true
 
 echomsg 'code/misccode/_vimperatorrc sourced'
