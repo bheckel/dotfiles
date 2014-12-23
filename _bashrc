@@ -520,7 +520,7 @@ lt() {
 
 # For PS1
 parse_git_dirty() {
-  [[ $(git status 2> /dev/null | tail -n1) != "nothing to commit (working directory clean)" ]] && echo "*"
+  [[ $(git status 2> /dev/null | tail -n1) != "nothing to commit, working directory clean" ]] && echo "*"
 }
 parse_git_branch() {
   # Assumes  export GIT_DISCOVERY_ACROSS_FILESYSTEM=1  to avoid slowness on network drives
