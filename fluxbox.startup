@@ -1,17 +1,14 @@
 #!/bin/sh
 #
-# Modified: Sun 05 Oct 2014 14:40:03 (Bob Heckel)
+# Modified: Sat 17 Jan 2015 09:09:04 (Bob Heckel)
 #
-# fluxbox startup-script:
+# fluxbox startup-script
 #
-# Lines starting with a '#' are ignored.
-
-# Change keymap:
-xmodmap "$HOME/.Xmodmap"
 
 # Applications you want to run with fluxbox.
-# MAKE SURE THAT APPS THAT KEEP RUNNING HAVE AN ''&'' AT THE END.
-#
+# MAKE SURE THAT APPS THAT KEEP RUNNING HAVE AN ''&'' AT THE END!
+ 
+xmodmap "$HOME/.Xmodmap"  # keymap for lefty
 ###unclutter -idle 5 &
 # wmnd &
 # wmsmixer -w &
@@ -22,11 +19,14 @@ conky -x 5 -y 0 &
 ###ssh-agent $SHELL &
 nm-applet &
 dropbox start &
+redshift-gtk &
 ###wmmoonclock &
 ###wmweather -s KRDU &
+xset dpms 1200 1500 1800  # monitor DPMS timeouts in seconds
+xset s off  # disable screensaver
+anoise &
 
-# And last but not least we start fluxbox.
-# Because it is the last app you have to run it with ''exec'' before it.
+# Because fluxbox is the last app you have to run it with ''exec'' before it
 exec fluxbox
 # or if you want to keep a log:
 # exec fluxbox -log "/home/bheckel/.fluxbox/log"

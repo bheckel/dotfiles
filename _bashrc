@@ -46,13 +46,13 @@ export TMP=$HOME/tmp
 # Default "unknown host" indicator for my .vimrc statusline
 export VIMSTATUSL='?@?'
 
-GREP_OPTIONS=
-if grep --help | grep -- --exclude-dir &>/dev/null; then
-  for PATTERN in .cvs .git .hg .svn; do
-    GREP_OPTIONS="$GREP_OPTIONS --exclude-dir=$PATTERN"
-  done
-fi
-export GREP_OPTIONS
+#GREP_OPTIONS=
+#if grep --help | grep -- --exclude-dir &>/dev/null; then
+#  for PATTERN in .cvs .git .hg .svn; do
+#    GREP_OPTIONS="$GREP_OPTIONS --exclude-dir=$PATTERN"
+#  done
+#fi
+#export GREP_OPTIONS
 
 # Used by at least PS1, also good for use in shell scripts.  But bad for when printing env
 # Ctrl-v escape to insert the ^[
@@ -627,6 +627,7 @@ case "$OSTYPE" in
     export f=/cygdrive/f
     export g=/cygdrive/g
     export h=/cygdrive/h
+    export m=/cygdrive/m
     export u=/cygdrive/u
     export x=/cygdrive/x
     export y=/cygdrive/y
@@ -713,13 +714,13 @@ case "$OSTYPE" in
 
     # Poor-man's file sync.  See gskto gskfrom.  Using suffix-less tarball to
 		# discourage email parsing/snooping.
-    if [ $HOSTNAME = 'ZEBWL12H29961' -o $HOSTNAME = 'ZEBWL12H26564' ]; then
+###    if [ $HOSTNAME = 'ZEBWL12H29961' -o $HOSTNAME = 'ZEBWL12H26564' ]; then
       # Assumes we have manually downloaded the weekend work attachment as ~/c.NEW.
       # Monday morning run usually.
       alias homefrom='cd ~; ls -l c.NEW && sleep 6; tar xvfz c.NEW'
       # Friday afternoon run usually
       alias hometo='ls -l ~/c && echo "...files newer than ^^^this^^^ one will be added to tarball..." && sleep 5 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd - && st ~'
-    fi
+###    fi
 
     # Avoid nullglob or e.g. ls k* will show all files if no k* files exist.
     shopt -s cdspell checkhash checkwinsize cmdhist huponexit \

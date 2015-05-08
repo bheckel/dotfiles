@@ -3,7 +3,7 @@
   [separator] () {} 
   [exec] (Firefox      Mod4+f) {/usr/bin/firefox} </usr/share/pixmaps/firefox.png>
   [exec] (Gvim         Mod4+g) {/usr/bin/vim.gnome -g -f} </usr/share/pixmaps/vim-32.xpm>
-  [exec] (lxterm       Mod4+t) {/usr/bin/lxterm} </usr/share/pixmaps/lxterminal.xpm>
+  [exec] (lxterm       Mod4+t) {/usr/bin/lxterm -C} </usr/share/pixmaps/lxterminal.xpm>
   [exec] (Midori)              {/usr/bin/midori} </usr/share/icons/hicolor/32x32/apps/midori.png>
   [exec] (Thunar)              {/usr/bin/thunar} </usr/share/icons/hicolor/64x64/apps/Thunar.png>
   [separator] ()              {} 
@@ -17,6 +17,7 @@
     [exec] (Chrome)              {/usr/bin/google-chrome} </opt/google/chrome/product_logo_256.png>
     [exec] (gnome-disks)         {gnome-disks} <>
     [exec] (mtpaint)             {/usr/bin/mtpaint} <>
+    [exec] (okular)              {/usr/bin/okular} <>
     [exec] (VirtualBox)          {/usr/bin/virtualbox} </usr/share/icons/hicolor/32x32/apps/virtualbox.png>
   [end]
   /*[exec] (Volume       Mod4+v) {urxvt -name alsa -e alsamixer} </usr/share/icons/gnome/32x32/status/stock_volume.png>*/

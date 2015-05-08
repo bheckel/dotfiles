@@ -436,14 +436,16 @@ Finds line longer than 80 characters:
 :call MaxLineLen(1)
 
 :DirDiff . //trpsawnv0312/CODE/
+:DirDiff $y/datapost/code $z/datapost/code  ' not to be confused with vimdiff
 " dp to 'diff put' change to the other window, arrow keys to nav (double arrow up to de-syntax)
 To synch DirDiff: s  (in bottom pane with cursor ==>)
 To synch DirDiff ranges of updates (internal DirDiff cmds like 'u' not working 2011-04-27):
 :se nu
 :5,42diffput
 
-" vimdiff one existing buffer with its backup file: :vert diffsplit foo.c~
+" vimdiff one existing buffer with its backup file: :vert diffsplit foo.c~  (use :diffoff to reset when done)
 " vimdiff two existing buffers :diffsplit then switch to/open other buffer and :diffthis then force any changes :diffupdate when done reset :diffoff (:diffthis to restart vimdiff)
+
 
 " vimdiff keymaps
 do == :diffget
@@ -625,7 +627,7 @@ Runaway GUI SAS killer:
 
  /* Free up space - delete datasets */
 proc datasets library=WORK; kill; QUIT;  /* !not RUN; */
-proc datasets NOlist; delete FooDS BarDS; quit;
+proc datasets NOlist; delete Foo_DS Bar_DS; quit;
 
  /* Column input with some missing data -- use TRUNCOVER List input with some
   * missing data at the rightmost edge -- use MISSOVER to keep SAS from trying
@@ -707,6 +709,10 @@ input @166 (c1-c15) (:$1.);
 
  /* Distributive put statement */
 put (ymd_no_ampm mdy_ampm ymd_ampm mdy_noampm)(= DATETIME18.);
+put one_two= / trip= / (cat1-cat4)(= /);  /* slash insert newlines */
+
+ /* Distributive length statement */
+length foo $2  car1-car4 $9;
 
  /* Super input statement uses the data! to determine column position */
 input @'IP Address' n1 n2 n3 n4 3.;
@@ -1072,7 +1078,7 @@ proc append base=ci_oth data=ci_oth_&strength; run;
  /* format= relies on e.g. ls=N cannot have ls=max to pull this off */
 options ls=80; proc sql; select specname FORMAT=$20. from v ; quit;
 
-proc sql; select id, (dis-adm)+1 AS mycalc LENGTH=4 LABEL='foo' from bar; quit;
+proc sql NOprint; select id, (dis-adm)+1 AS mycalc LENGTH=4 LABEL='foo' from bar; quit;
 
 libname ORA oracle user=pks password=pks path=usdev100 schema=pks;
 
@@ -1138,7 +1144,8 @@ proc sql;CREATE INDEX MYSORTEDx ON lelimsgist05e (Samp_Id, Indvl_Meth_Stage_Nm);
 
 dm 'clear log; clear lst; wpgm'; 
 
-proc sql; CONNECT TO ORACLE(USER=u ORAPW=p PATH=db); CREATE TABLE sasds AS SELECT * FROM CONNECTION TO ORACLE ( SELECT * FROM oratbl); DISCONNECT FROM ORACLE; quit;
+ /* SAS/ACCESS oracle sandwich */
+proc sql; CONNECT TO ORACLE(USER=u ORAPW=p PATH=db); CREATE TABLE t AS SELECT * FROM CONNECTION TO ORACLE ( select * from my.oratbl ); DISCONNECT FROM ORACLE; quit;
 
 LENGTH TimeNum 8 Meth_Peak $3 Indvl_Tst_Rslt_Val_Char $40;
 
@@ -1222,6 +1229,9 @@ meanof=mean(of a[*]);   /* variable array */
  /* Split parse string on dash taking 8ZP6699 from 8ZP6699-4148428 */
 mfg_batch=scan(mfg_batch,1,'-');
 
+ /* Goes right to left, fixes problem of names with middle names */
+lastname=scan(fullname, -1 ' ');
+
  /* Get every 4th obs */
 if mod(_N_, 4) eq 0; ...
  /* Get every other obs */
@@ -1272,6 +1282,9 @@ if description ne: 'al' then do; file "&DIRROOT\&SYSMACRONAME._Error.txt"; put "
 
 /* vim: set foldmethod=marker: */
 
+ /* Fold a file using my TODO [ ] convention */
+:se fdm=indent
+
 proc sort; by DESCENDING numb lname; run;
 
  /* View browse SASHELP library */
@@ -1302,6 +1315,9 @@ filename F 't.csv'; data t; infile F DLM=',' DSD TRUNCOVER LRECL=2600 FIRSTOBS=3
 
  /* Remove last 4 characters of sting */
 stem_with_end_removed=reverse(substr(reverse(s), 4));
+
+ /* Use substr as lvalue: */
+substr(ssnum, 1, 6) = '******';
 
  /* Delete specific characters, like regex s/foo// */
 phone = compress(fullphone, '()- ');
@@ -1371,6 +1387,30 @@ ods PDF file='c:/temp/t.pdf';  proc...run; ods PDF close;
 ods html file='myrpt' style=HtmlBlue; proc print data=_LAST_; run; ods html close;
 ods html body='t.htm'; proc print data=_LAST_; run; ods html close;
 
+ /* ODS toggle (remove 'close' to re-enable) */
+ods listing close;
+
+ods rtf file='report1.rtf' newfile=bygroup;
+
+ /* Write output save Excel as CSV */
+ods CSVALL file='t.csv'; proc print NOobs; run; ods CSVALL close;
+proc export data=VenHFA_analytical_individuals OUTFILE= "\\trpsawnv0312\pucc\VENTOLIN_HFA\Output Compiled Data\CSV VenHFA_analytical.csv" DBMS=CSV replace; run;
+
+ /* Query what do we have for ODS HTML etc: */
+proc template; list styles; run;
+proc template; list tagsets; run;
+
+ /* Multiple ODS destinations e.g. multiple styles for a single proc's output or one copy to local, one to network drive */
+ods html(id=1) file='file1.html' style=sasweb; ods html(id=two) file='file2.html' style=ocean;
+...proc...
+ods html(two) close;
+...proc...
+ods html(id=1) close;
+
+ /* Multiple ODS destinations */
+ods csv file="csv.csv"; 
+ods csv(2) file="csvsemi.csv" options(Delimiter=';'); 
+
  /* Eliminate garbage from a normally numeric field.  Keep Log clean. */
 proc format; invalue NUMONLY(UPCASE) -999999999 - 999999999 = _SAME_ OTHER = . ; run; data clean_numbers_only; input mynum NUMONLY9.; ...
 
@@ -1419,14 +1459,11 @@ proc surveyselect data=SASHELP.shoes out=stacked samprate=1 reps=50000000; run;
  /* What SAS day number is one year ago from today? */
 %let yearago = %sysevalf(%sysfunc(date())-365); ...  if test_date > &yearago; ...
 
- /* Write output save Excel as CSV */
-ods CSVALL file='t.csv'; proc print NOobs; run; ods CSVALL close;
-proc export data=VenHFA_analytical_individuals OUTFILE= "\\trpsawnv0312\pucc\VENTOLIN_HFA\Output Compiled Data\CSV VenHFA_analytical.csv" DBMS=CSV replace; run;
-
  /* Think "I"NPUT is closer to "C"HAR so use that to convert a character to a numeric: */
  /* Canonical char2num and suppress SAS Log "NOTE: Invalid argument to function INPUT at line..." */
 chartonum = input(mychar, ? BEST. -L);
-chartonum = input(mychar, COMMA7.);  /* 123,456 */
+chartonum = input(mychar, COMMA7.);  /* take char string 123,456 and store as a num 123456 */
+mynum = input( substr(id,3,2), 4. );  /* substr alone produces a char */
 
  /* Canonical num2char (-L to left align) */
 numtochar = put(num, F8. -L);  /* integer */
@@ -1444,15 +1481,8 @@ proc format; value $rtfunc OTHER=[right()]; run; proc freq data=t order=formatte
 
 options NOlabel; /* prevent proc sql default from displaying labels instead of varnames */
 
- /* View control and non numchar characters: */
+ /* View control and non numchar characters (v8): */
 c=compress(comments1159,'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
-
- /* Linehold using @ */
-data _null_;
-  file X21;
-  put 'SELECT NAME, IP_TREND_TIME, IP_TREND_VALUE FROM "23034794.Vessel.Pres.PV" WHERE IP_TREND_TIME BETWEEN ' @; *** '02-APR-10 00:00:00' AND '21-APR-10 15:00:00';
-  put "&IP21START and &IP21END";
-run;
 
  /* Convert to Oracle formatted datetime e.g. 21-MAY-98 02:30:37 is Oracle format 'DD-MON-YY HH24:MI:SS' */
 proc format; picture ORADTT other='%0d-%b-%0y %0H:%0M:%0S' (datatype=datetime);run; data; s='21May98:02:30:37'DT; call symput('IP21START',"'"||trim(left(put(s, ORADTT.)))||"'");run;
@@ -1469,9 +1499,6 @@ if first.storeno and last.storeno then put 'firstdot lastdot says there is only 
  /* Assigned automatically by SAS */
 SASUSER libname e.g.: C:\Documents and Settings\rsh8680\My Documents\My SAS Files\V8
 
- /* Display editor line numbers (Enhanced Editor etc) */
-nums
-
  /* SAS Program Editor (*not* Enhanced) where n is num of lines */
 Cn/CC copy  Dn/DD del  In insert  Mn move  Rn repeat  A after  B before  undo (in cmdline)
 
@@ -1480,13 +1507,14 @@ Cn/CC copy  Dn/DD del  In insert  Mn move  Rn repeat  A after  B before  undo (i
  /* View input file text file in a SAS IDE window */
 filename f 'bladerun_crawl'; proc fslist file=f;run;
 
- /* SAS Truth - True is 1 (or anything other than False), False is 0 or . */
+ /* SAS conception of Truth is anything other than False, False is 0 or . */
 
  /* Distributive input statement */
+input (Date1 Date2)(:MMDDYY10.) mon dy yr;
 input (name1-name12) ($)  @@;
 input (Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec) (1.);  /* read raw 111222333444 */
 
-array elements{5} $2 _TEMPORARY_ ('H','He','Li','Be','B'); /* can't use '{*}' here */
+array elements{5} $2 _TEMPORARY_ ('H','He','Li','Be','B'); /* cannot use '{*}' here */
  /* Multidimensional array 3 rows, 25 columns: 1-25 26-50 51-75 */
 array a{3,25} v1-75;  /* to access v50: a{2,25} */
 
@@ -1508,6 +1536,7 @@ put x DATETIME10.;  /* 12JAN60:13 */
 
  /* Canonical DATETIME convert to human */
 data _null_; x=put(1614549716, DATETIME18.); put x=; run;
+data _null_; x=put(20188, DATE9.); put x=; run;
 
  /* Default input column pointer control starts at position 1.  After reading a piece of data it rests 1 column to the right of that data. */
  /* Column pointer controls: @n +n */
@@ -1582,10 +1611,6 @@ data _null_; file print; put #3 @10 "Data set &dsn. does not exist"; run;
 x='2005/6/30 12:30'; ymd_no_ampm=input(x, ymddttm16.);
 ymd_ampm=input(z, ?? ymddttm18.);
 
- /* Query what do we have for ODS HTML etc: */
-proc template; list styles; run;
-proc template; list tagsets; run;
-
 SAS/SHARE remote server (running proc server) -> local client
 SAS/CONNECT remote server (running spawner.exe) -> remote server (only the .sas file with rsubmit; endrsubmit; gets sent to server)
 
@@ -1622,6 +1647,8 @@ options NOlabel;  /* Avoid proc sql printing pretty names instead of varnames */
 
  /* Convert SAS epoch date to human: */
 ~/code/perl/datecalc 1/1/1960 19272
+ /* Convert SAS epoch date to human - Excel (must convert num result to Date): */
+=DATEVALUE("1/1/1960")+19272
 
  /* Convert character constant date to character and SAS date to number in open code (easiest date converter conversion) */
 %put %sysfunc(putn('30OCT1965'D, 8.));
@@ -1715,13 +1742,10 @@ data _null_; d='04oct13'd; put d yymmddN8.;run;
  /* Determine what is two days after a given date */
 date2=intnx('day',date1,2,"sameday");
 
-do j=1 to 4; subj(j)=''; score(j)=.; end;  /* initialize array v8 */
-call missing(of subj(*), of score(*));     /* initialize array v9 */
+do j=1 to 4; subj(j)=''; score(j)=.; end;  /* initialize array set to missing v8 */
+call missing(of subj(*), of score(*));     /* initialize array set to missing v9 - don't care if NUM or CHAR */
 
  /* Exponentiation scientific notation: 1.257E+03 */
-
- /* ODS toggle (remove 'close' to re-enable) */
-ods listing close;
 
  /* Canonical proc format */
 proc format; value traffic LOW-10='red'  11-20='yellow'  21-HIGH='green'; run;
@@ -1743,7 +1767,7 @@ data t(genmax=3); ...
 libname DGM_DIST oracle user=&username password=&password path=&database schema=dgm_dist readbuff=10000;
 
  /* List datasets and details in library (directory) */
-proc contents data=MYLIB._ALL_; run;
+proc contents data=L._ALL_; run;
 
  /* Find multiple search pattern */
 /foo \| bar
@@ -1761,6 +1785,38 @@ options fullstimer bufsize=8K bufno=5000;
 
  /* Canonical input statement  e.g.:  1 100 98 75  A A B 10jul2014 12jul2014 11aug2014 */
 input id (apple orange banana) (:8.) (loc1-loc5) (:$1.) (mydate1-mydate5) (:date9.);
+
+ /* Simpler if then else */
+x2=ifc(x='Y', 'yes', ' ');
+if x='Y' then x2='yes'; else x2=' ';
+
+ /* Standardize addresses */
+addr = tranwrd(addr, 'Street', 'St.');
+addr = tranwrd(addr, 'Address', 'Ave.'); /* ... */
+
+ods trace on / listing;
+ods output Freq.Table1.OneWayFreqs=l.t; ...; ods output close;
+ods trace off;
+
+proc import datafile="t.xlsx" dbms=xlsx out=t REPLACE; sheet='Sheet1'n; getnames=yes; run;
+
+ /* 20150428 */
+%let STARTDATE=%sysfunc(intnx(week.2,%sysfunc(today()),-1,b),yymmddn8.);
+
+ /* Character to date e.g. 20150504 */
+filerecdate=input("&CURRDT", YYMMDD8.);
+
+ /* Force macro lib to close */
+proc catalog c=work.sasmac1 force kill;quit;
+
+ /* Choose default if better not available (or both exist) */
+%let name=%sysfunc(coalescec(&default., &better.));
+
+ /* Calculate person's age: */
+age = int((intck('YEAR', today(), dateofbirth)))*-1;
+
+ /* Last day of previous month (31dec1999): */
+past = intnx('month', '01jan2000'D, -1, 'E');
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -2053,6 +2109,10 @@ $ echo "debug ${dirnm}${basenm}"
 # or a replacement for 'basename'
 the_var=foo.txt; echo ${the_var%.*}      <---returns foo
 
+# Get basename
+foo=file.tar.gz
+echo ${foo%.*}  <---returns file.tar
+
 # Test availability of all hosts:
 grep -v "#" /etc/hosts | awk '{print $1}' | xargs ping -c 1
 # Contrast with (better if doing more than just a single command):
@@ -2333,6 +2393,8 @@ vi `grep -[r]il findthisstring *.html 2>/dev/null`
 # Find newish files without a 'generated' string and prepare them for a code review form e.g. LotTracking/LotTracking/ASPNETWebApplication/Banner.ascx.vb,Jul-29-2009 13:47
 $ find LotTracking/ -name '*.vb' -mtime -90 -print0 |xargs -0 grep -RZL 'This code was generated by a tool' | xargs -0 ls -l | awk '{print $9","$6"-"$7"-2009 "$8}'
 
+# Change owner from me to you:
+chown yourid myfile.txt
 # Change owner and group simultaneously:
 chown oracle.dba /u01  # (or oracle:dba)
 
@@ -3346,7 +3408,6 @@ $$  # the process id of the current process
 # Calculate date that was 3 years ago from today
 ~/code/perl/datecalc -1080
 # Calculate 42 days from Xmas eve
-~/code/perl/datecalc 12/24/05 +42
 ~/code/perl/datecalc 12/24/05 42
 
 # Add a line to first line in each file:
@@ -4038,7 +4099,11 @@ perl -MDBI -e 0
 die 'debug archwitutl.pm', scalar localtime;
 
 # Canonical system call
+system("/bin/ls  $_") if $. eq 1;
 system('mv', '-i', "$new", "$path/");
+
+# Check return status of system call:
+if ( system("cd $basedir") != 0 ) { die "\n\n\nERROR: can't cd to $basedir\n\n\n" };
 
 print 'deleted' if unlink '/cygdrive/x/sql_loader/junk';
 
@@ -4754,6 +4819,10 @@ SQL> SELECT * FROM (SELECT * FROM t ORDER BY c) WHERE ROWNUM <= 10;
 
 -- Oracle describe table
 SQL> desc mytable
+
+-- Postgres describe table (no schema prefix)
+select column_name, data_type, character_maximum_length
+from INFORMATION_SCHEMA.COLUMNS where table_name='mytbl'
 
 -- Oracle what are the view names
 SQL> select * from all_views where view_name like '%SPEC%'
@@ -5654,7 +5723,7 @@ select count(distinct sampname) from result where sampcreatets between to_date('
 :javas jedi.talk()
 
 Cygwin Windows free diskspace free
-while true do; df -h '//opsawn557/e$'; sleep 60; done
+while true; do df -h '//opsawn557/e$'; sleep 60; done
 
  /* Javascript concatenation */
 strcat = '<a href=http://www.dhammawheel.com/viewtopic.php?f=20&t=>' + rnd2 + '</a>';
@@ -5732,6 +5801,30 @@ UPDATE Professor SET Salary=Salary*1.1, Dept="IT" WHERE Dept='555';
 <xsl:if test="ExtractEnabled &gt; 0 and Folder='LIFT'"> 
 <!-- xslt if AND LIKE -->
 <xsl:if test="TrendEnabled &gt; 0 and contains(TrendDescription, 'HFA')"> 
+
+-- Edit a Windows file using UNC path under Cygwin
+vi '\\okpsawn557\d$\oracle\ora81\network\ADMIN\Tnsnames.ora'
+
+=VLOOKUP(B11, A2:B4, 2, FALSE)
+' B11 holds a code you do not understand, a2:b4 is the lookup "table" whose 1st
+' col contains B11, its 2nd col contains the lookup value to put in the current
+' cell.  "2" indicates the table lookup value is in the 2nd column.  FALSE=not
+' sorted
+
+' Excel difference in cell values
+=IF(A6<>BD6, "yes", "no")
+
+' Sum count a group flag SQL:
+sum(case when status = 'CANCEL' then 1 else 0 end) as CANCEL
+
+' Postgres dates:
+where storeid in(&SID) and created > date('now') - interval '1 year'
+
+' Postgres jobs status of jobs I am running:
+select current_query from pg_stat_activity where usename='bheckel'
+
+' Postgres change datatype:
+select stre_id as stid, cast (value as integer) as Waitime ...
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  

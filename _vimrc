@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Fri 12 Dec 2014 13:52:10 (Bob Heckel)
+" Modified: Fri 06 Mar 2015 10:35:46 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -34,7 +34,7 @@
 """set writedelay=5
 
 let THISBOX = hostname()
-let WORKBOXARRAY = [ 'ZEBWL06A16349', 'ZEBWD08D26987', 'ZEBWL10D43164', 'ZEBWL12H29961', 'ZEBWL12H26564', 'ZEBWD12H01067' ]
+let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWD08D26987', 'ZEBWL10D43164', 'ZEBWL12H29961', 'ZEBWL12H26564', 'ZEBWD12H01067', 'ZEBWL14H50510' ]
 let HOMEBOXARRAY = [ 'yoniso', 'appa' ]
 
 if has ('win32unix')
@@ -654,15 +654,15 @@ iab PeW while ( (my $k, my $v) = each %h ) { print "$k=$v\\n"; }
 iab SaB %macro bobh<C-R>=strftime("%d%m%y%M%S")<Esc>; /* {{{ */<CR>%mend bobh<C-R>=strftime("%d%m%y%M%S")<Esc>; /* }}} */<Esc>dd
 " SAS/(C)onnect
 """iab SaC options ls=max;<CR>%include "&HOME/code/sas/connect_setup.sas";<CR>signon cdcjes2;<CR>%global CHICKENPARM;<CR>%syslput CHICKENPARM=&SYSPARM;<CR>rsubmit;<CR><CR><CR><CR><CR><CR>endrsubmit;<CR>signoff cdcjes2;
-iab SaD libname LDEBUG '.';data LDEBUG.t;set _LAST_;if _N_ eq 1 then put 10 * '!!!DEBUG';run;
+" Debug Log inline, best:
+iab SaD options ls=max;<Esc>0idata _NULL_; set _LAST_(obs=100 where=(myid in:('foo'))); put '!!!wtf '(_ALL_)(=);run;
 " (E)lapsed
 iab SaE %let START=%sysfunc(time());<CR>%put !!! (&SYSCC) Elapsed minutes: %sysevalf((%sysfunc(time())-&START)/60);
 iab SaL options ls=180 ps=max; libname l '.';
 iab SaO filename F 'junk'; data t(rename=(PRODDESC=nm APRCLASS=class)); infile F truncover; input PRODDESC= $100. APRCLASS= $100.; run;
 iab SaP <Esc>0iproc print data=_LAST_(obs=max) width=minimum; run;
 """iab SaQ <Esc>0ititle '!!!wtf';proc print data=_LAST_(where=(mfg_batch=:'1')) width=minimum; run;
-" Debug Log inline, best:
-iab SaQ options ls=max;<Esc>0idata _NULL_; set _LAST_(obs=100 where=(myid in:('foo'))); put '!!!wtf '(_ALL_)(=);run;
+iab SaQ libname LDEBUG '.';data LDEBUG.t;set _LAST_;if _N_ eq 1 then put 10 * '!!!DEBUG';run;
 iab SaS select ( myvar );<CR><Space><Space>when ( 42 ) delete;<CR><Space><Space>otherwise;<CR><Left><Left>end;
 
 " TODO do for gvim on u:
@@ -901,7 +901,7 @@ noremap ;q viw"zxllciwhhpll"zp
 
 " Pt. 1 Transfer/read and write one block of text between vim sessions/terminals:
 if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
-  nmap ;r :call ReadFromFile(VTMPU, '.vimxfer')<CR>
+  nmap ;r :call ReadFromFile(VTMP, '.vimxfer')<CR>
 """echon VTMPU THISBOX
   " Temporary ugly hack for XP vs. Win7 Cygwin permission battle
 """  nmap ;rx :!chmod 755 $u/temp/.vimxfer
@@ -911,17 +911,17 @@ endif
 
 " Pt. 2 Transfer/read and write one block of text between vim sessions:
 """if BOX==WORKBOX1 || BOX==WORKBOX2 || BOX==WORKBOX3
-if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
-  nmap ;a :call WriteToFile(VTMPU, '.vimxfer', 1)<CR>
-  vmap ;a :call WriteToFile(VTMPU, '.vimxfer', 1)<CR>
-  nmap ;w :call WriteToFile(VTMPU, '.vimxfer', 0)<CR>
-  vmap ;w :call WriteToFile(VTMPU, '.vimxfer', 0)<CR>
-else
+"""if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
+"""  nmap ;a :call WriteToFile(VTMPU, '.vimxfer', 1)<CR>
+"""  vmap ;a :call WriteToFile(VTMPU, '.vimxfer', 1)<CR>
+"""  nmap ;w :call WriteToFile(VTMPU, '.vimxfer', 0)<CR>
+"""  vmap ;w :call WriteToFile(VTMPU, '.vimxfer', 0)<CR>
+"""else
   nmap ;a :call WriteToFile(VTMP, '.vimxfer', 1)<CR>
   vmap ;a :call WriteToFile(VTMP, '.vimxfer', 1)<CR>
   nmap ;w :call WriteToFile(VTMP, '.vimxfer', 0)<CR>
   vmap ;w :call WriteToFile(VTMP, '.vimxfer', 0)<CR>
-endif
+"""endif
 
 " Quick 'comment out' for visualized area.  Default, see au commands:
 """noremap ;s :s/^/###<CR>
@@ -1689,9 +1689,6 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufRead,BufEnter *.pl,*.pm map ;; :call setline('.', Commentout(getline('.'), 'perl'))<CR>
   " end Perl
 
-  au BufNewFile,BufRead,BufEnter *.bas syntax off|source ~/code/vb/vb.vim
-  au BufLeave *.bas syntax on  " prevent others syntax colored files from remaining off
-  au BufLeave *.ps1 syntax on  " prevent others syntax colored files from remaining off
   au FileType sh set fileformat=unix
   au FileType basic map ;; :call setline('.', Commentout(getline('.'), 'vb'))<CR>
   au FileType basic map ,m yy0I'''<ESC>p
@@ -1872,8 +1869,8 @@ if !exists("autocommands_loaded")
     " 1-Avoid frightening people who don't know what swapfiles are
     " or
     " 2-Creating undeletable files on boxes built by frightened people
-    au BufReadPre,FileReadPre [WXYZ]:/* set noswapfile
-    au BufReadPre,FileReadPre /cygdrive/[wxyz]/* set noswapfile
+    au BufReadPre,FileReadPre [MSWXYZ]:/* set noswapfile
+    au BufReadPre,FileReadPre /cygdrive/[mswxyz]/* set noswapfile
 
     " Do not use The Force on Test & Production
     au BufEnter [YZ]:/DataPost* set readonly
