@@ -7,7 +7,7 @@
 #           Comments are often written for searching, not proper English
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Thu 29 May 2014 13:16:25 (Bob Heckel)
+# Modified: Fri 29 May 2015 14:28:27 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -619,8 +619,8 @@ put varname1= varname2=;
 put 'here it is: ' varname1=;
  /* Carriage return in output: */
 put;
-put '13'x;  /* s/b the same */
- /* Alternative is to use a blank  title2;  */
+put '0D'x;  /* s/b the same */
+put '0D0A'x;  /* carriage return line feed */
 
 Runaway GUI SAS killer:
 /* '; * "; */; %mend; quit; run;
@@ -700,7 +700,7 @@ if indx GE '0' and indx LE '9' then delete;
  /* Keep only numbers from a mixed var (CHAR formatted).  See verify.sas */
 isnum = verify(result, '.0123456789'); ... if isnum eq 0 then put "pure numerical";
 
- /* ltrim() and rtrim() don't exist in SAS */
+ /* ltrim() and rtrim() don't exist in SAS so use strip() or: */
 trim(left(put(numericsasvari,F4.)));
 
  /* Distributive range input statement: */
@@ -882,10 +882,10 @@ do i=1 to dim(starr); otherarr{i} = starr{i}; end;
 
  /* Get the $HOME environment variable (Windows & Unix at least) */
 %let myhome=%sysget(HOME); %put _all_;
- /* Determine %SASROOT% */
-%let sashome=%sysget(SASROOT); %put _all_;
+%let sasroot=%sysget(SASROOT); %put _all_;
+%let sashome=%sysget(SASHOME); %put _all_;
 
- /* Substring */
+ /* Substring (if argument might contain a special character or mnemonic operator use %qsubstr()) */
 %put %substr(2168, 3, 2);
 data _null_; x=substr('2168', 3, 2); put x=; run;
 
@@ -1099,7 +1099,7 @@ http://rtpsawn321/sasweb/cgi-bin/broker.exe?_DEBUG=16384&_SERVICE=default
  /* Wake up, ping restarted IntrNet server */
 http://rtpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program=ping&_adminpw=
 
- /* SAS version of Oracle ROWNUM<5 */
+ /* SAS version of Oracle ROWNUM<5 or Postgres LIMIT 5 */
 ... WHERE monotonic() < 5 ...
 proc sql outobs=5; select * from sashelp.shoes; quit;  /* but only affects printing results, still rips thru all records */
 
@@ -1818,6 +1818,31 @@ age = int((intck('YEAR', today(), dateofbirth)))*-1;
  /* Last day of previous month (31dec1999): */
 past = intnx('month', '01jan2000'D, -1, 'E');
 
+%let newdir=%sysfunc(dcreate(testdir, /home/bheckel/));
+
+ /* Avoid EG overwhelm bug: */
+ods _ALL_ close; ods noresults; ods PDF file='t.pdf'; ...; ods PDF close;
+
+ /* Skip non-PDF files */
+if reverse(upcase(left(trim(myf)))) eq: 'FDP';
+
+ /* Clean out delete WORK */
+/usr/local/SAS94/sashome/SASFoundation/9.4/utilities/bin/cleanwork /workspace
+
+ /* String is quoted: */
+%if (%qsubstr(%nrbquote(&file.), 1, 1) eq %str(%')) %then %do;
+
+%let x=%nrstr(&a &b); %put &x;  /* &a &b */
+
+ /* Reverse two names */
+name=prxchange('s/(\w+), (\w+)/$2 $1/', -1, name);
+
+select trim(leading '0' from clientstoreid) as storeid ...
+
+ /* Count days */
+sum(case when date(pickeduptimestamp) between '01MAR2015' and '31MAR2015' then 1 else 0 end) as Mar2015,...
+sum(case when status='OPTOUT' then 1 else 0 end)/count(*) OPTOUT format percent8.2 as opt_rate
+
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -2140,7 +2165,7 @@ find . -size 42c                # files exactly 42 bytes
 find . -maxdepth 1              # only look in CWD, do not recurse
 find . -path '*bqh0'            # directories with the word 'bqh0' at the end
 
-# Canonical Cygwin-safe find - what changed during the last week?
+# Canonical Cygwin-safe spaces safe find - what changed during the last week?
 find . -mtime -7 -type f -print0 | xargs -0 ls -lt
 
 #                               important
@@ -2156,6 +2181,10 @@ find -name 'junk*' ! -type d -exec find {} \;
 find . -name '??03*' | xargs ls -l | awk '{s+=$5}END{print s}'
 # Sum file sizes using awk - safe for spaces in filenames
 find . -maxdepth 1 -name '*.xls' -print0 | xargs -0 ls -l | awk '{s+=$5}END{print s}'
+
+# Recursively delete files older than 2 weeks old - spaces in name safe:
+find . -mtime +14 -print0 | xargs -0 rm
+
 # Sum file sizes WITHOUT using awk.  Shell's SET creates numbered variables for each whitespace-separated element, size happens to be in position $3
 t=0; for f in $(ls); do set -- $(ls -lgo $f); ((t=$t+$3)); done; echo $t
 
@@ -5825,6 +5854,12 @@ select current_query from pg_stat_activity where usename='bheckel'
 
 ' Postgres change datatype:
 select stre_id as stid, cast (value as integer) as Waitime ...
+
+' Postgres commandline
+isql -v jaspre bheckel mypw
+
+:: Send To folder c:\temp
+%APPDATA%\Microsoft\Windows\SendTo
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  

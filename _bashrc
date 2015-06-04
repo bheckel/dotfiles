@@ -4,7 +4,7 @@
 # Summary: bash shell config for at least Cygwin 1.3/1.5/1.7, Unix and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Sat 14 Jun 2014 15:41:55 (Bob Heckel)
+# Modified: Fri 29 May 2015 11:07:54 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -38,14 +38,17 @@ export HISTTIMEFORMAT='%F %T '
 export IGNOREEOF=1  # require 2 ctr-d to exit
 # More portable than the cleaner  if [ "${OSTYPE:0:6}" = 'CYGWIN' ]; then ...
 ###export ISCYG=`echo ${OSTYPE} | /usr/bin/perl -pe 's/(.{6}).*/$1/'`
-# Prevent ugly default bolding
-export LS_COLORS='*.swp=00;35:*.swo=00;35:*.bak=00;35:ex=00;32:*.java=00;32:*.pm=00;32:no=00:fi=00:di=01;34:ln=00;36:*.lnk=00;36:*.gz=00;31:*.bz2=00;31:*.zip=00;31:*.tgz=00;31:*.7z=00;31'
+###export LS_COLORS='*.swp=00;35:*.swo=00;35:*.bak=00;35:ex=00;32:*.java=00;32:*.pm=00;32:no=00:fi=00:di=01;34:ln=00;36:*.lnk=00;36:*.gz=00;31:*.bz2=00;31:*.zip=00;31:*.tgz=00;31:*.7z=00;31'
+# ex= prevent ugly default bolding
+# ow= avoid hard-to-read gray on green for rwxrwxrwx files
+export LS_COLORS='ow=30;42:*.swp=00;35:*.swo=00;35:*.bak=00;35:ex=00;32'
 export PAGER=less  # for man(1)
 export PARINIT='rTbgqR B=.?_A_a Q=_s>| w65'  # par formatter
 export TMP=$HOME/tmp
 # Default "unknown host" indicator for my .vimrc statusline
 export VIMSTATUSL='?@?'
 
+# Deprecated
 #GREP_OPTIONS=
 #if grep --help | grep -- --exclude-dir &>/dev/null; then
 #  for PATTERN in .cvs .git .hg .svn; do
@@ -901,7 +904,7 @@ case "$OSTYPE" in
       export VIMSTATUSL="${USER}@`echo ${HOSTNAME}`"
 
       #----------------
-      # Alias linux  #{{{2 
+      # Alias Linux  #{{{2 
       #----------------
 
       # TODO if not running (via fluxbox) start dropbox and nm-applet
@@ -964,14 +967,9 @@ case "$OSTYPE" in
       export LANG=en_US.UTF-8
       export LC_TYPE=en_US.UTF-8
       export MAILCHECK=5
-###      export PATH=$HOME/bin:$PATH
       export PATH=$HOME/bin:$PATH:/usr/pkg/bin
       # TODO colors force lines to not wrap to new line
-      ###export PS1='\[${fg_darkgray}\]:\[${normal}\]`stoppedjobs`\[${prompt_beg}\]$(whoami)@${HOSTNAME:0:8}\[${prompt_end}\]${fg_lightgray}\]\$${fg_darkgray}\];\[${normal}\] '
-      ###export PS1=': `stoppedjobs`$(whoami)@${HOSTNAME:0:8}$ '
-      ###export PS1='${fg_darkgray}`stoppedjobs` ${fg_whitebold}\u@${HOSTNAME}${fg_darkgray} \W/ \d \t ${normal} \n\$ '
       export PS1='${fg_darkgray}\j ${fg_whitebold}\u@${HOSTNAME}${fg_darkgray} \W/ \d \t ${normal} \n\$ '
-###      export PROMPT_COMMAND='set_prompt_colors; echo -ne "\033]0;`stoppedjobs`${HOSTNAME:0:6}:${PWD}\007"'
       export PROMPT_COMMAND='echo -ne "\033]0;`stoppedjobs`${HOSTNAME:0:6}:${PWD}\007"'
       export SURFRAW_text_browser=w3m
       export WWW_HOME=http://www.google.com
@@ -980,12 +978,8 @@ case "$OSTYPE" in
       #----------------
       # Alias NetBSD  #{{{2 
       #----------------
-      alias bak=~/bin/bak
       # TODO if sdf boxes only
-      alias crontab=mkcron
-      # Mnemonic 'after my alias "f" to fg'
-      ###alias g='screen -r'
-      ###alias got='go -t '
+###      alias crontab=mkcron
       alias jam='ps -aux | grep $USER'
       alias la='\ls -la'
       alias ls='\ls -F'

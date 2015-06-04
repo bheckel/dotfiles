@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Fri 06 Mar 2015 10:35:46 (Bob Heckel)
+" Modified: Thu 28 May 2015 16:08:18 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -410,7 +410,7 @@ set foldopen-=search
 
 "                               16 diff mode {{{2
 
-set diffopt=filler,vertical
+set diffopt=filler,vertical,iwhite
 
 
 "                               17 mapping {{{2
@@ -1756,16 +1756,16 @@ if !exists("autocommands_loaded")
   " TODO check for existence of antiword, otherwise use cygstart
   au BufReadPost *.doc %!antiword "%"
 
-  " View binaries using xxd
+  " View binaries, PDFs using xxd
   augroup Binary
     au!
-    au BufReadPre  *.exe let &bin=1
-    au BufReadPost *.exe if &bin | %!xxd
-    au BufReadPost *.exe set ft=xxd | endif
-    au BufWritePre *.exe if &bin | %!xxd -r
-    au BufWritePre *.exe endif
-    au BufWritePost *.exe if &bin | %!xxd
-    au BufWritePost *.exe set nomod | endif
+    au BufReadPre  *.exe,*.pdf let &bin=1
+    au BufReadPost *.exe,*.pdf if &bin | %!xxd
+    au BufReadPost *.exe,*.pdf set ft=xxd | endif
+    au BufWritePre *.exe,*.pdf if &bin | %!xxd -r
+    au BufWritePre *.exe,*.pdf endif
+    au BufWritePost *.exe,*.pdf if &bin | %!xxd
+    au BufWritePost *.exe,*.pdf set nomod | endif
   augroup END
 
   augroup encrypted
