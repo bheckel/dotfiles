@@ -4,7 +4,7 @@
 #           $ conky -d -x 40 -y 10
 #
 #  Created: Sat 04 Feb 2012 21:38:40 (Bob Heckel - adapted from darcon at gmail.com)
-# Modified: Sun 25 Jan 2015 10:25:18 (Bob Heckel)
+# Modified: Thu 04 Jun 2015 07:48:02 (Bob Heckel)
 ################################################################################
 
 # set to yes if you want Conky to be forked in the background
