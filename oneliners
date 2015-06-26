@@ -642,11 +642,11 @@ libname _ALL_ clear;  or  libname L clear <---only one libname allowed!
 
  /* Determine where the WORK temp library is located on your system: */
 libname WORK list;
- /* or */
+
+ /* Determine where the WORK temp library is located on your system via macro: */
 %let workpath=%sysfunc(pathname(work));
 
 SAS debugger e.g. data foo / DEBUG; ...
-
 '07jul00'D              <---SAS date constant
 '07JUL2000'D            <---SAS date constant
 '04:15'T                <---SAS time constant (seconds since midnight 0-86400)
@@ -697,8 +697,10 @@ put aprclass '09'x '09'x APR_Count;
 if ship GE 'a' and ship LE 'z' then delete;
  /* It's a numeric character isnum: */
 if indx GE '0' and indx LE '9' then delete;
- /* Keep only numbers from a mixed var (CHAR formatted).  See verify.sas */
-isnum = verify(result, '.0123456789'); ... if isnum eq 0 then put "pure numerical";
+ /* Keep only numbers from a mixed CHAR variable: */
+isnum = verify(compress(storeid), '.0123456789'); if isnum eq 0 then put "pure numerical";
+ /* Keep only numbers from a mixed CHAR variable: */
+isalpha = verify(compress(storeid), '.0123456789'); if isalpha then do; put _all_; delete; end;
 
  /* ltrim() and rtrim() don't exist in SAS so use strip() or: */
 trim(left(put(numericsasvari,F4.)));
@@ -997,7 +999,7 @@ cat "//'bqh0.inc.saslog'" | vi -     # HFS
  /* Count observations count without opening dataset (or if it's open in SAS GUI) */
 data _null_; rc=attrn(open('tmp1.pull_lift'), 'NOBS'); put rc=;run;
 %macro m; %put %sysfunc(attrn(%sysfunc(open(tmp1.pull_lift)), NLOBSF)); %mend;%m
-...%if %sysfunc(attrn(%sysfunc(open(_LAST_)), NLOBSF)) lt 100 %then %do; %put ok; %end;...
+%if %sysfunc(attrn(%sysfunc(open(_LAST_)), NLOBSF)) lt 100 %then %do; %put ok; %end;
 
  /* Day of week number 1=Sunday 7=Saturday */
 if weekday(today()) eq 2 then put "it's Monday";
@@ -1375,8 +1377,6 @@ data foo; format _ALL_; run;
  /* Go back 1 year */
 %let thisyr = %sysfunc(year("&SYSDATE"d)); %let minyr = %eval(&thisyr-1);
 
-filename HERE '.'; %let pwd=%sysfunc(pathname(HERE)); 
-
 Patches installed:
 C:\Program Files\SAS Institute\SAS\V8\core\sasinst\hotfix\
 
@@ -1698,8 +1698,6 @@ SAS82WIN=C:/PROGRA~1/SASINS~1/SAS/V8/sas.exe
 SAS91WIN=C:/PROGRA~1/SAS/SAS9~1.1/sas.exe
 SAS93WIN=C:/PROGRA~1/SASHome/SASFoundation/9.3/sas.exe
 
-%let wpath=%sysfunc(pathname(WORK));
-
 %let uniqueidentifier=&SYSPROCESSID;
 
  /* Macro resolution */
@@ -1818,6 +1816,7 @@ age = int((intck('YEAR', today(), dateofbirth)))*-1;
  /* Last day of previous month (31dec1999): */
 past = intnx('month', '01jan2000'D, -1, 'E');
 
+ /* mkdir -p /home/bheckel/testdir  No quotes! */
 %let newdir=%sysfunc(dcreate(testdir, /home/bheckel/));
 
  /* Avoid EG overwhelm bug: */
@@ -1837,11 +1836,24 @@ if reverse(upcase(left(trim(myf)))) eq: 'FDP';
  /* Reverse two names */
 name=prxchange('s/(\w+), (\w+)/$2 $1/', -1, name);
 
+if prxmatch('/toyota|kia|honda/i', text) then type='Import';
+
+ /* Remove leading zeros */
 select trim(leading '0' from clientstoreid) as storeid ...
+substr(bin, verify(bin,'0')) in ('4336')
 
  /* Count days */
 sum(case when date(pickeduptimestamp) between '01MAR2015' and '31MAR2015' then 1 else 0 end) as Mar2015,...
 sum(case when status='OPTOUT' then 1 else 0 end)/count(*) OPTOUT format percent8.2 as opt_rate
+
+ /* Do something every 5 days: */
+%let mod=%sysfunc(mod((%sysfunc(today())-"17JUN2015"d),5));  %if &mod eq 0 %then ...
+
+ /* Create dir if not exist, alternative to dcreate() */
+options dlcreatedir; libname l '/Drugs/Immunizations/bobh';
+
+ /* Where are SAS configuration files located: */
+proc options option=config; run;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -2064,10 +2076,9 @@ for p in `pgrep smbd`; do kill -9 $p; done
 # Kill fscking Norton antivirus
 winkill `ps -W | grep rtvscan | head -n1 | awk '{print $1}'`
 
-# Create a 100MB (100,000,000 bytes) dummy file of garbage (like mkfile) that
-# is a specific size in bytes (~/code/perl/megfile alternative):
+# Create a ~500MB (~500,000,000 bytes) dummy file of garbage (like mkfile) that is a specific size in bytes:
 #                             ea block   num blocks
-dd if=/dev/zero of=biggarbage bs=10000 count=10000
+dd if=/dev/zero of=biggarbage bs=50000 count=10000
 
 # chmod: 4 Read  2 Write  1 eXecute  (User, Group, Others (neither U nor G), All)
 # For directories, 'read' permission is necessary to ls directory's contents.
@@ -2628,6 +2639,10 @@ sed 's/[)(]//g' junk | awk '{print $2}' | sort | xargs | sed 's/ /+/g' | bc
 df | tail -6 | awk '{print $4}' |  xargs | sed 's/ /+/g' | bc
 # Best summing of single column (elim trailing '+' problem):
 du -sk  *.sas7bdat|awk '{sum += $1} END {print sum}'
+find . -name '*sas' | xargs du -sk|awk '{sum += $1} END {print sum}'
+# If spaces in filenames:
+find . -name '*sas' -print0 | xargs -0 du -sk|awk '{sum += $1} END {print sum}'
+
 # or not summing all lines:
 cat foo.txt | awk '/OnlyTheseLines/{t+=$1} END{print t}'
 # or sum list
@@ -2981,6 +2996,9 @@ while read f; do echo $f; done <myfile.txt
 # Bulk upload converting extension on the fly upload to mf (fq paths ok)
 while read f; do bfp $f "bqh0.pgm.lib(`basename $f .sas`)"; done <filelist.txt
 
+# Combine all users crons in .txt cron into a new .txt:
+while read f; do echo "---$f---"; crontab -l -u $f; done </mnt/nfs/home/bheckel/users.txt >/mnt/nfs/home/bheckel/crontabs20150619.txt
+
 # ROT13 encryption
 cat "$@" | tr 'a-zA-Z' 'n-za-mN-ZA-M'   # "a" goes to "n", "b" to "o", etc.
 
@@ -3001,7 +3019,7 @@ KNOPPIX_DIR=${1:-/home/rheckel/tmp}
 BAR=notemptylikeFOOis; echo ${FOO-$BAR}  # use $bar if $foo doesn't exist
 
 # Determine file size in bytes
-filesize=$(find $1 -printf "%s" )
+filesize=$(find $1 -printf "%s")
 
 # Canonical Cygwin updatedb.  alias loc='locate --ignore-case --database=/var/lib/locatedb.code '
 $ /bin/updatedb --localpaths='/home/rsh8680/code' --prunepaths='/home/rsh8680/code/misccode/.git' --output='/var/lib/locatedb.code'
@@ -3512,6 +3530,21 @@ find /cygdrive/z/DataPost/data/SGK/Zebulon/ -name '*.png' -mtime +7 |xargs ls -g
 
 # Extract .xz file
 tar xvfJ foo.xz
+
+# Does file exist?:
+$ [ -e t.sh ] && ( echo file exists; exit 1 )
+
+# if then using only brackets:
+[ -e /rugs/eports/Health\ Plans/Archive/foo.txt ] && echo file exists
+
+# Add user to another group:
+usermod -a -G sas bheckel
+
+# Recursive scp:
+scp -r /Drugs/Drugs/AcmeControl bheckel@sas-01.twa.ateb.com:tmp/
+
+# Send email without an input file as body:
+0 * * * * echo 'ok' | mailx bob.heckel@taeb.com > /dev/null 2>&1
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4131,8 +4164,8 @@ die 'debug archwitutl.pm', scalar localtime;
 system("/bin/ls  $_") if $. eq 1;
 system('mv', '-i', "$new", "$path/");
 
-# Check return status of system call:
-if ( system("cd $basedir") != 0 ) { die "\n\n\nERROR: can't cd to $basedir\n\n\n" };
+# Check return status of system call before proceeding:
+if ( system("du -sh $basedir") != 0 ) { die "\n\n\nERROR: can't du $basedir\n\n\n" };
 
 print 'deleted' if unlink '/cygdrive/x/sql_loader/junk';
 

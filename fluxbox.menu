@@ -19,7 +19,9 @@
     [exec] (Chrome)              {/usr/bin/google-chrome} </opt/google/chrome/product_logo_256.png>
     [exec] (gnome-disks)         {gnome-disks} <>
     [exec] (mtpaint)             {/usr/bin/mtpaint} <>
+    [exec] (netExtenderGui )     {/usr/bin/netExtenderGui} <>
     [exec] (okular)              {/usr/bin/okular} <>
+    [exec] (remmina)             {/usr/bin/remmina} <>
     [exec] (VirtualBox)          {/usr/bin/virtualbox} </usr/share/icons/hicolor/32x32/apps/virtualbox.png>
   [end]
   /*[exec] (Volume       Mod4+v) {urxvt -name alsa -e alsamixer} </usr/share/icons/gnome/32x32/status/stock_volume.png>*/

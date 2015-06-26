@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Thu 28 May 2015 16:08:18 (Bob Heckel)
+" Modified: Tue 16 Jun 2015 08:15:41 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -68,6 +68,8 @@ elseif matchstr(HOMEBOXARRAY, THISBOX) == THISBOX
   else
     let VTMP = '~/tmp'
   endif
+else
+  let VTMP = '~/tmp'
 endif
 
 " Fix leftward movement problem on mainframe z/OS:
@@ -570,7 +572,7 @@ iab MoN January February March April May June July August September October Nove
 iab MoO Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
 iab NuM 1234567890123456789012345678901234567890123456789012345678901234567890
 iab RuL ----+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8----+----9----+----0
-iab ShE #!/bin/sh
+iab ShE #!/bin/bash
 
 """""
 " Date/Time (see man strftime or date --help.  Convention stolen from Sven Guckes):

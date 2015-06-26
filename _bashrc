@@ -4,7 +4,7 @@
 # Summary: bash shell config for at least Cygwin 1.3/1.5/1.7, Unix and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Fri 29 May 2015 11:07:54 (Bob Heckel)
+# Modified: Mon 15 Jun 2015 07:52:49 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -38,8 +38,8 @@ export HISTTIMEFORMAT='%F %T '
 export IGNOREEOF=1  # require 2 ctr-d to exit
 # More portable than the cleaner  if [ "${OSTYPE:0:6}" = 'CYGWIN' ]; then ...
 ###export ISCYG=`echo ${OSTYPE} | /usr/bin/perl -pe 's/(.{6}).*/$1/'`
+# Prevent ugly default bolding
 ###export LS_COLORS='*.swp=00;35:*.swo=00;35:*.bak=00;35:ex=00;32:*.java=00;32:*.pm=00;32:no=00:fi=00:di=01;34:ln=00;36:*.lnk=00;36:*.gz=00;31:*.bz2=00;31:*.zip=00;31:*.tgz=00;31:*.7z=00;31'
-# ex= prevent ugly default bolding
 # ow= avoid hard-to-read gray on green for rwxrwxrwx files
 export LS_COLORS='ow=30;42:*.swp=00;35:*.swo=00;35:*.bak=00;35:ex=00;32'
 export PAGER=less  # for man(1)
@@ -105,6 +105,11 @@ alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate ref
 alias gs='git status'
 alias gss='git status -s'
 alias h='history|tail -20'  # history 20 is better if it exists
+# Poor-man's file sync.  See gskto gskfrom.  Using suffix-less tarball to
+# discourage email parsing/snooping.
+# Assumes we have manually downloaded the weekend work attachment as ~/c.NEW.
+# Monday morning run usually.
+alias homefrom='cd ~; ls -l c.NEW && sleep 6; tar xvfz c.NEW'
 alias iv=vi
 alias j="jobs -s"  # only show STOPPED (i.e. skip RUNNING blink.exe's) jobs
 alias l='ls'
@@ -174,19 +179,19 @@ fix() {
 ###}
 
 
-# 'start' a file or file manager
+# 'Windows-ish Start' a file or file manager
 st() {
   if [ $# = 0 ]; then
     if [ $OSTYPE = 'cygwin' ];then
       cygstart -x "$PWD"
     else
-      xdg-open
+      thunar
     fi
   else
     if [ $OSTYPE = 'cygwin' ];then
       cygstart "$1"
     else
-      xdg-open "$1" &
+      thunar "$1" &
     fi
   fi
 }
@@ -686,6 +691,8 @@ case "$OSTYPE" in
     # Allow output to be triple clicked as a noop.
     ###alias h='history|tail -20|perl -pe "s/(\d+)(.*)/: \1; \2/"'
     alias h='history|tail -20'
+    # Friday afternoon run usually
+    alias hometo='ls -l ~/c && echo "...files newer than ^^^this^^^ one will be added to tarball..." && sleep 5 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd - && st ~'
     alias l='ls -GFw80 --color=none'   # for speed in Cygwin
     # Elim . .., owner and group info on Cygwin.
     alias ll='ls -FloGgh --color=auto'
@@ -714,16 +721,6 @@ case "$OSTYPE" in
     alias vi=vim
     # Poor-man's gvim in an xterm.
 ###    alias vig='rxvt -geometry 80x50+250+50 +sb -fn "Andale Mono-12" -e vi -c start&'
-
-    # Poor-man's file sync.  See gskto gskfrom.  Using suffix-less tarball to
-		# discourage email parsing/snooping.
-###    if [ $HOSTNAME = 'ZEBWL12H29961' -o $HOSTNAME = 'ZEBWL12H26564' ]; then
-      # Assumes we have manually downloaded the weekend work attachment as ~/c.NEW.
-      # Monday morning run usually.
-      alias homefrom='cd ~; ls -l c.NEW && sleep 6; tar xvfz c.NEW'
-      # Friday afternoon run usually
-      alias hometo='ls -l ~/c && echo "...files newer than ^^^this^^^ one will be added to tarball..." && sleep 5 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd - && st ~'
-###    fi
 
     # Avoid nullglob or e.g. ls k* will show all files if no k* files exist.
     shopt -s cdspell checkhash checkwinsize cmdhist huponexit \
@@ -897,6 +894,18 @@ case "$OSTYPE" in
         alias vi='vim -u ~/code/misccode/_vimrc'
       fi #}}}
 
+      # CentOS  # {{{2
+      # locate failing with permission errors, using this weak alternative
+      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com']; then
+        alias vi=vim
+        # For crontab -e to succeed
+        export VISUAL=vim
+
+        function loc() {
+          find $HOME/code |grep -i $1
+        }
+      fi #}}}
+
       export PATH=$PATH:~/bin
       export PROMPT_COMMAND='history -a; echo -ne "\033]0;${HOSTNAME:0:4}:${PWD}\007";'
       export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
@@ -907,6 +916,8 @@ case "$OSTYPE" in
       # Alias Linux  #{{{2 
       #----------------
 
+      alias ll='\ls -Fl --color=auto'
+
       # TODO if not running (via fluxbox) start dropbox and nm-applet
       if [ $HOSTNAME = 'yoniso' ]; then
         alias cdrom='sudo mount -t iso9660 /dev/cdrom /media/cdrom; mount|grep "^/dev/cd"; echo "sudo umount /media/cdrom"'
@@ -915,13 +926,37 @@ case "$OSTYPE" in
 				alias systeminfo='df -h && echo && free -m && echo && grep --color="never" name /proc/cpuinfo | uniq && echo && lspci | grep --color="never" VGA && echo && xrandr | grep --color="never" connected && echo && uname -rms'
       fi
 
-      if [ $HOSTNAME = 'yoniso' ]; then 
+#      if [ $HOSTNAME = 'talon3.ateb.com' ]; then
+#        alias bak="/mnt/nfs/home/bheckel/bheckel_moya/code/misccode/bak"
+#        alias be="vi /mnt/nfs/home/bheckel/bheckel_moya/code/misccode/_bashrc"
+#        alias bgrep="/mnt/nfs/home/bheckel/bheckel_moya/code/perl/bgrep"
+#        alias cdc="cd /mnt/nfs/home/bheckel/bheckel_moya/code/c"
+#        alias cdh="cd /mnt/nfs/home/bheckel/bheckel_moya/code/html"
+#        alias cdm="cd /mnt/nfs/home/bheckel/bheckel_moya/code/misccode"
+#        alias cdp="cd /mnt/nfs/home/bheckel/bheckel_moya/code/perl"
+#        alias cdpl="cd /mnt/nfs/home/bheckel/bheckel_moya/code/perl"
+#        alias cds="cd /mnt/nfs/home/bheckel/bheckel_moya/code/sas"
+#        alias cdt="cd /mnt/nfs/home/bheckel/bheckel_moya/tmp"
+#        alias cdvb="cd /mnt/nfs/home/bheckel/bheckel_moya/code/vb"
+#        alias cdv="cd /mnt/nfs/home/bheckel/bheckel_moya/code/vb"
+#        alias datecalc=/mnt/nfs/home/bheckel/bheckel_moya/code/perl/datecalc
+#        alias g=/mnt/nfs/home/bheckel/bheckel_moya/code/misccode/gone.sh
+#        alias one="vi /mnt/nfs/home/bheckel/bheckel_moya/code/misccode/oneliners"
+#        alias q=/mnt/nfs/home/bheckel/bheckel_moya/code/misccode/q.sh
+#        alias qr=/mnt/nfs/home/bheckel/bheckel_moya/code/misccode/quickref_find.sh
+#        alias rme=/mnt/nfs/home/bheckel/bheckel_moya/code/misccode/rme
+#        alias srcb="source /mnt/nfs/home/bheckel/bheckel_moya/code/misccode/_bashrc"
+#        alias sr="/mnt/nfs/home/bheckel/bheckel_moya/code/sas/sasrun"
+#        alias unbak="/mnt/nfs/home/bheckel/bheckel_moya/code/misccode/bak -u "
+#        alias ve="vi /mnt/nfs/home/bheckel/bheckel_moya/code/misccode/_vimrc"
+#      fi
+###      if [ $HOSTNAME = 'yoniso' ]; then 
         ###if [ -z "$(pgrep conky)" ]; then
           ###conky -x 5 -y 0 &
         ###fi
         ###alias sb='sudo mount -t vfat /dev/sdb1 /media/Lexar -o uid=1000,gid=1000,utf8,dmask=027,fmask=137 && mount|grep "^/dev/sd" && sleep 5 && echo && SyncBackSE.exe && sleep 5 && echo && sudo umount /media/Lexar && mount|grep "^/dev/sd"'
-        alias tide="~/adt-bundle-linux-x86/sdk/platform-tools/adb -d forward tcp:8080 tcp:8080 && telnet -e '' 127.0.0.1 8080"
-      fi
+###        alias tide="~/adt-bundle-linux-x86/sdk/platform-tools/adb -d forward tcp:8080 tcp:8080 && telnet -e '' 127.0.0.1 8080"
+###      fi
 
       alias d12="(cd ~/tmp; vi -d 1 2)"
       alias d13="(cd ~/tmp; vi -d 1 3)"
@@ -934,10 +969,13 @@ case "$OSTYPE" in
       # Assumes we have recent work ready to tar and mail to gsk as c.NEW.
       # See homefrom hometo.  Sunday evening run usually.
       alias gskto='cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV |grep -v '/.git/'|grep -v '.swp'|xargs tar cvfz ~/Downloads/c.NEW'
+      alias hometo='ls -l ~/c && echo "...files newer than ^^^this^^^ one will be added to tarball..." && sleep 5 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd -'
       ###alias moz='export DISPLAY=158.111.250.170:0.0; mozilla&'
 			alias ll='ls -FloGgh --color=auto'
       ###alias sqlplus=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/sqlplus
-      alias usb='sudo fdisk -l; mount|grep "^/dev/sd"; echo; echo "sudo mount -t vfat /dev/??? /media/generic -o uid=1000,gid=1000,utf8,dmask=027,fmask=137"; echo; echo "sudo umount /media/generic"'
+      # $ pwd|sed 's/\//\\/g'" before vim backslashitis requirements
+      alias pwwd="pwd|sed 's/\\//\\\\/g'"
+###      alias usb='sudo fdisk -l; mount|grep "^/dev/sd"; echo; echo "sudo mount -t vfat /dev/??? /media/generic -o uid=1000,gid=1000,utf8,dmask=027,fmask=137"; echo; echo "sudo umount /media/generic"'
 
       shopt -s cdspell checkhash checkwinsize cmdhist dotglob histappend 
 
