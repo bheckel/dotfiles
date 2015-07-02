@@ -1654,8 +1654,8 @@ if !exists("autocommands_loaded")
 
   " Handle my ~/bin/sasrun script files
   au BufRead tmpsas.*.log,tmpsas.*.lst map <F12> :qa<CR>
-  au BufRead tmpsas.*.log,tmpsas.*.lst map q :qa<CR>
-  au BufRead tmpsas.*.log,tmpsas.*.lst echo '.vimrc: q or <F12> to exit all'
+  au BufRead tmpsas.*.log,tmpsas.*.lst map q :qa!<CR>
+  au BufRead tmpsas.*.log,tmpsas.*.lst echo '.vimrc: q to exit all'
   au BufRead tmpsas.*.log,tmpsas.*.lst source $HOME/code/sas/saslog.vim | set noswapfile
 
   au BufNewFile,BufRead,BufEnter *.sas map ;; :call setline('.', Commentout(getline('.'), 'sas'))<CR>

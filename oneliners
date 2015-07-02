@@ -99,7 +99,6 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
 " Chain two searches, find the first word peak appearing the following only AFTER the word am0908
 /am0908/;/peak info
-" Chain two searches:
 
 " Delete everything except these two strings:
 :g!/SC04\/013-25\/60-24-01\|6ZM1234/d
@@ -1855,6 +1854,11 @@ options dlcreatedir; libname l '/Drugs/Immunizations/bobh';
  /* Where are SAS configuration files located: */
 proc options option=config; run;
 
+ /* Convert multiple spaces to single: */
+cityst = prxchange('s/\s+/ /', -1, TMPcityst);
+
+/sas/sashome/SASFoundation/9.4/perl/bin/perl -v
+
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -3546,6 +3550,8 @@ scp -r /Drugs/Drugs/AcmeControl bheckel@sas-01.twa.ateb.com:tmp/
 # Send email without an input file as body:
 0 * * * * echo 'ok' | mailx bob.heckel@taeb.com > /dev/null 2>&1
 
+yum install vim-enhanced.x86_64
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -5214,7 +5220,7 @@ set termout off
 
 @font-face { font-family: 'myf'; src: url('PRISTINA.ttf') format('truetype'); font-weight: normal; font-style: normal; }
 
-COALESCE(field1, field2) -- SQL takes the first non-null value it can find
+COALESCE(field1, field2) -- checks the value of each column in the order in which they are listed and returns the first nonmissing value. If only one column is listed, return the value of that column. If all the values of all arguments are missing, return a missing value
 
 <script type="text/javascript">document.getElementById('txtCDInfo').innerHTML="new text!";</script>
 
