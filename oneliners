@@ -668,6 +668,8 @@ x 'c:/util/vim/vim61/gvim.exe -c "set winsize=100 20" out.dat';
 randomnum = ceil(ranuni(0) * 5);
  /* Generate random number between 100 and 123: */
 randomnum = 23*ranuni(-1) + 100;
+ /* Generate random number between 0 and 1: */
+randomnum = round(1*ranuni(-1) + 0);
 
  /* Adjust the line length (if not using JCL): */
 file OUTF LRECL=1048576 PAD;  /* mainframe max?? */
@@ -1859,6 +1861,13 @@ cityst = prxchange('s/\s+/ /', -1, TMPcityst);
 
 /sas/sashome/SASFoundation/9.4/perl/bin/perl -v
 
+select a.*, case when b.chronic='Y' then 'Y' else 'N' end as chronic
+
+put 'ERROR: dups exist ' name= (myvars:)(=);
+
+# Start restart SASApp server
+$ sudo su - sas; /sas/config/Lev1/sas.servers status  # start
+
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -2257,6 +2266,7 @@ find -type f -mtime -1|xargs tar cvfz foo/t.tar.gz && scp foo/t.tar.gz rheckel@d
 find . -name '*.h' -exec grep -H foostring {} \;
 # or better recursive grep
 find . -type f -print | xargs grep foo
+find /Drugs/Cron -type f -print0 |xargs -0 grep -i Weekly_Detail
 # or                                   discard STDERR
 find . -type f -print | xargs grep foo 2> /dev/null
 # or all text _without_ specifying which file(s) the text came from:
