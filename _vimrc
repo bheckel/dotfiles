@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Thu 09 Jul 2015 15:11:38 (Bob Heckel)
+" Modified: Fri 17 Jul 2015 08:30:39 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -662,7 +662,7 @@ iab SaD options ls=max;<Esc>0idata _NULL_; set _LAST_(obs=100 where=(myid in:('f
 iab SaE %let START=%sysfunc(time());<CR>%put !!! (&SYSCC) Elapsed minutes: %sysevalf((%sysfunc(time())-&START)/60);
 iab SaL options ls=180 ps=max; libname l '.';
 iab SaO filename F 'junk'; data t(rename=(PRODDESC=nm APRCLASS=class)); infile F truncover; input PRODDESC= $100. APRCLASS= $100.; run;
-iab SaP <Esc>0ititle "ds:&SYSDSN";proc print data=_LAST_(obs=max) width=minimum; run;
+iab SaP <Esc>0ititle "ds:&SYSDSN";proc print data=_LAST_(obs=max) width=minimum; run;title;
 """iab SaQ <Esc>0ititle '!!!wtf';proc print data=_LAST_(where=(mfg_batch=:'1')) width=minimum; run;
 iab SaQ libname LDEBUG '.';data LDEBUG.t;set _LAST_;if _N_ eq 1 then put 10 * '!!!DEBUG';run;
 iab SaS select ( myvar );<CR><Space><Space>when ( 42 ) delete;<CR><Space><Space>otherwise;<CR><Left><Left>end;
@@ -1814,6 +1814,7 @@ if !exists("autocommands_loaded")
   au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
   au BufEnter oneliners,.vimrc,_vimrc,.bashrc,_bashrc set foldmethod=marker
   au BufEnter .vimrc echo ".vimrc: $MYVIMRC:" $MYVIMRC
+  au BufEnter readme.txt :set tw=99999
 
   " We'll probably never need to edit a tarball:
   au FileType TAR map q :q<CR>

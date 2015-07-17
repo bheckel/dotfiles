@@ -24,7 +24,7 @@ redshift-gtk &
 ###wmweather -s KRDU &
 xset dpms 1200 1500 1800  # monitor DPMS timeouts in seconds
 xset s off  # disable screensaver
-anoise &
+###anoise &
 
 # Because fluxbox is the last app you have to run it with ''exec'' before it
 exec fluxbox

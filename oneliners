@@ -442,9 +442,11 @@ To synch DirDiff ranges of updates (internal DirDiff cmds like 'u' not working 2
 :se nu
 :5,42diffput
 
-" vimdiff one existing buffer with its backup file: :vert diffsplit foo.c~  (use :diffoff to reset when done)
-" vimdiff two existing buffers :diffsplit then switch to/open other buffer and :diffthis then force any changes :diffupdate when done reset :diffoff (:diffthis to restart vimdiff)
+" Diff this vimdiff one existing buffer with its backup file:
+:vert diffsplit foo.c~  (use :diffoff to reset when done)
 
+" Diff this vimdiff two existing buffers
+:diffsplit then switch to/open other buffer and :diffthis then force any changes :diffupdate when done reset :diffoff (:diffthis to restart vimdiff)
 
 " vimdiff keymaps
 do == :diffget
@@ -1866,7 +1868,12 @@ select a.*, case when b.chronic='Y' then 'Y' else 'N' end as chronic
 put 'ERROR: dups exist ' name= (myvars:)(=);
 
 # Start restart SASApp server
-$ sudo su - sas; /sas/config/Lev1/sas.servers status  # start
+$ sudo su - sas; /sas/config/Lev1/sas.servers status  # or start or stop 
+
+%put ERROR: using DEBUG code;
+
+ /* Use mine first in the autocall hierarchy */
+options mautosource sasautos=('.' '/Drugs/Macros', sasautos);
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5909,6 +5916,9 @@ isql -v jaspre bheckel mypw
 
 :: Send To folder c:\temp
 %APPDATA%\Microsoft\Windows\SendTo
+
+-- Group by count
+select patientid, count(*) from analytics.health group by patientid having count(*)>1
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  
