@@ -885,39 +885,9 @@ case "$OSTYPE" in
         source ~/code/misccode/_bashrc
       fi  ##}}}
 
-      # CR48  # {{{2
-      if [ $HOSTNAME = 'ubuntu' ]; then
-        ###export PATH=$PATH:/home/ubuntu/android_sdk_linux_m3-rc22a/tools
-        # Don't want autostart so that at least this box won't start modifying immediately in case of trouble.
-        alias dropbox='~/.dropbox-dist/dropboxd &'
-        alias vi='vim -u ~/code/misccode/_vimrc'
-      fi #}}}
-
-      # yoniso  # {{{2
-      # TODO if not running (via fluxbox) start dropbox and nm-applet
-      if [ $HOSTNAME = 'yoniso' ]; then
-        alias cdrom='sudo mount -t iso9660 /dev/cdrom /media/cdrom; mount|grep "^/dev/cd"; echo "sudo umount /media/cdrom"'
-        alias kindle='sudo mount -t vfat /dev/sdb /media/kindle -o uid=1000,gid=1000,utf8,dmask=027,fmask=137; mount|grep "^/dev/sd"; echo "sudo umount /media/kindle"'
-        alias nexus='sudo mount -t vfat /dev/sdb /media/nexus -o uid=1000,gid=1000,utf8,dmask=027,fmask=137; mount|grep "^/dev/sd"; echo "sudo umount /media/nexus"'
-				alias systeminfo='df -h && echo && free -m && echo && grep --color="never" name /proc/cpuinfo | uniq && echo && lspci | grep --color="never" VGA && echo && xrandr | grep --color="never" connected && echo && uname -rms'
-      fi
-      #}}}
-
       # CentOS  # {{{2
-      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'talon4.ateb.com' ]; then
-        alias vi=vim
-
+      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'talon4.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ]; then
         # locate() is failing with permission errors, using this weak alternative
-        function loc() {
-          find $HOME/code |grep -i $1
-        }
-
-        umask 037  # 022 is 755, 037 is 740
-      fi
-
-      if [ $HOSTNAME = 'sas-01.twa.ateb.com' ]; then
-        alias vi=$HOME/usr/local/bin/vim
-
         function loc() {
           find $HOME/code |grep -i $1
         }
@@ -948,17 +918,40 @@ case "$OSTYPE" in
       # Poor-man's file sync:
       # Assumes we've downloaded the gsk attachment as ~/Downloads/c.   See
       # homefrom hometo.  Friday night run usually.
-      alias gskfrom='cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && find -L ~/code -perm 000|xargs chmod 755'
+      alias gskfrom='cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && find -L ~/code -perm 000|xargs chmod 755; cd ~/code/misccode; gs'
       # Assumes we have recent work ready to tar and mail to gsk as c.NEW.
       # See homefrom hometo.  Sunday evening run usually.
       alias gskto='cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV |grep -v '/.git/'|grep -v '.swp'|xargs tar cvfz ~/Downloads/c.NEW'
-      alias hometo='ls -l ~/c && echo "...files newer than ^^^this^^^ one will be added to tarball..." && sleep 5 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd -'
+      alias hometo='ls -l ~/c && echo "...files newer than ^^^this^^^ one will be added to tarball..." && sleep 5 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cp c ~/bheckel_moya/ && cd -'
       ###alias moz='export DISPLAY=158.111.250.170:0.0; mozilla&'
       alias ll='\ls -Fl --color=auto'
       ###alias sqlplus=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/sqlplus
-      # $ pwd|sed 's/\//\\/g'" before vim backslashitis requirements
+      # Command is $ pwd|sed 's/\//\\/g'" before vim backslashitis
       alias pwwd="pwd|sed 's/\\//\\\\/g'"
-###      alias usb='sudo fdisk -l; mount|grep "^/dev/sd"; echo; echo "sudo mount -t vfat /dev/??? /media/generic -o uid=1000,gid=1000,utf8,dmask=027,fmask=137"; echo; echo "sudo umount /media/generic"'
+
+      # CR48  # {{{2
+      if [ $HOSTNAME = 'ubuntu' ]; then
+        ###export PATH=$PATH:/home/ubuntu/android_sdk_linux_m3-rc22a/tools
+        # Don't want autostart so that at least this box won't start modifying immediately in case of trouble.
+        alias dropbox='~/.dropbox-dist/dropboxd &'
+        alias vi='vim -u ~/code/misccode/_vimrc'
+      fi #}}}
+
+      # yoniso  # {{{2
+      # TODO if not running (via fluxbox) start dropbox and nm-applet
+      if [ $HOSTNAME = 'yoniso' ]; then
+        alias cdrom='sudo mount -t iso9660 /dev/cdrom /media/cdrom; mount|grep "^/dev/cd"; echo "sudo umount /media/cdrom"'
+        alias kindle='sudo mount -t vfat /dev/sdb /media/kindle -o uid=1000,gid=1000,utf8,dmask=027,fmask=137; mount|grep "^/dev/sd"; echo "sudo umount /media/kindle"'
+        alias nexus='sudo mount -t vfat /dev/sdb /media/nexus -o uid=1000,gid=1000,utf8,dmask=027,fmask=137; mount|grep "^/dev/sd"; echo "sudo umount /media/nexus"'
+				alias systeminfo='df -h && echo && free -m && echo && grep --color="never" name /proc/cpuinfo | uniq && echo && lspci | grep --color="never" VGA && echo && xrandr | grep --color="never" connected && echo && uname -rms'
+        alias usb='sudo fdisk -l; mount|grep "^/dev/sd"; echo; echo "sudo mount -t vfat /dev/??? /media/generic -o uid=1000,gid=1000,utf8,dmask=027,fmask=137"; echo; echo "sudo umount /media/generic"'
+      fi
+      #}}}
+
+      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'talon4.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ]; then
+        alias hometo='ls -l ~/c && echo "...files newer than ^^^this^^^ one will be added to tarball..." && sleep 5 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd -; cp ~/c ~/bheckel_moya/'
+        alias vi=$HOME/usr/local/bin/vim
+      fi
 
       shopt -s cdspell checkhash checkwinsize cmdhist dotglob histappend 
 

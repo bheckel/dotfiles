@@ -904,7 +904,7 @@ proc print LABEL SPLIT='*' NOOBS N;
  /* Macro with parameters parms: */
 %macro Foo(bar, baz); %put &bar and &baz; %mend; %Foo(test ing, me);
 
- /* Avoid having SAS eliminate leading whitespace (as would $2.) */
+ /* Preserve leading whitespace (as would $2.) */
 input foo $CHAR2.;
 
  /* Suppress any input errors in SAS Log and keep _ERROR_=0 */
@@ -1874,6 +1874,10 @@ $ sudo su - sas; /sas/config/Lev1/sas.servers status  # or start or stop
 
  /* Use mine first in the autocall hierarchy */
 options mautosource sasautos=('.' '/Drugs/Macros', sasautos);
+
+proc means data=sashelp.shoes MEDIAN; var sales; run;
+
+select count(distinct cats(storeid,masked_patientkey)) as UPID
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5913,6 +5917,9 @@ select stre_id as stid, cast (value as integer) as Waitime ...
 
 ' Postgres commandline
 isql -v jaspre bheckel mypw
+
+' Postgres empty table
+TRUNCATE bigtable, fattable;
 
 :: Send To folder c:\temp
 %APPDATA%\Microsoft\Windows\SendTo

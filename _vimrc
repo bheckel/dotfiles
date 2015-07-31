@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Fri 17 Jul 2015 08:30:39 (Bob Heckel)
+" Modified: Thu 23 Jul 2015 14:26:28 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -34,7 +34,7 @@
 """set writedelay=5
 
 let THISBOX = hostname()
-let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWD08D26987', 'ZEBWL10D43164', 'ZEBWL12H29961', 'ZEBWL12H26564', 'ZEBWD12H01067', 'ZEBWL14H50510' ]
+let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWD08D26987', 'ZEBWD12H01067', 'ZEBWL14H50510' ]
 let HOMEBOXARRAY = [ 'yoniso', 'appa' ]
 
 if has ('win32unix')
@@ -406,7 +406,8 @@ set autoindent
 "                               15 folding {{{2
 
 set foldmethod=manual
-
+" Fold on paragraphs
+set foldexpr=getline(v:lnum)=~'^\\s*$'&&getline(v:lnum+1)=~'\\S'?'<1':1
 set foldopen-=search
 
 
@@ -902,14 +903,15 @@ endif
 noremap ;q viw"zxllciwhhpll"zp
 
 " Pt. 1 Transfer/read and write one block of text between vim sessions/terminals:
-if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
-  nmap ;r :call ReadFromFile(VTMP, '.vimxfer')<CR>
-"""echon VTMPU THISBOX
+"""if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
+"""  nmap ;r :call ReadFromFile(VTMP, '.vimxfer')<CR>
+"""  echon VTMP 'x' THISBOX
   " Temporary ugly hack for XP vs. Win7 Cygwin permission battle
 """  nmap ;rx :!chmod 755 $u/temp/.vimxfer
-else
+"""else
   nmap ;r :call ReadFromFile(VTMP, '.vimxfer')<CR>
-endif
+"""  echon VTMP 'x' THISBOX
+"""endif
 
 " Pt. 2 Transfer/read and write one block of text between vim sessions:
 """if BOX==WORKBOX1 || BOX==WORKBOX2 || BOX==WORKBOX3
@@ -928,8 +930,9 @@ endif
 " Quick 'comment out' for visualized area.  Default, see au commands:
 """noremap ;s :s/^/###<CR>
 
-noremap ;t mz<Esc>:se tw=99999<CR>\|:echon '.vimrc: tw set to 99999'<CR>'z
-noremap ;tt mz<Esc>:se tw=78<CR>\|:echon '.vimrc: tw set to 78'<CR>'z
+"""noremap ;t mz<Esc>:se tw=99999<CR>\|:echon '.vimrc: tw set to 99999'<CR>'z
+"""noremap ;tt mz<Esc>:se tw=78<CR>\|:echon '.vimrc: tw set to 78'<CR>'z
+noremap ;t :set nornu<CR>
 
 " Upload file to mainframe (basename without extension):
 """map ;u :!bfp % 'bqh0.pgm.lib(%:t:r)'<CR>
@@ -1113,6 +1116,13 @@ endfu
 command! -nargs=0 Fix call FixStatusLine()  " }}}
 
 
+fu! SASrunSelection()  " {{{2
+  '<,'>write! ~/tmp/t.sas | !~/code/sas/sasrun ~/tmp/t.sas
+" TODO
+"""  '<,'>write! s:vt/t.sas | !~/code/sas/sasrun s:vt/t.sas
+endfu  " }}}
+
+
 fu! CalcBC()   " {{{2
   " Highlight a calculation that has a trailing '=' and this will fill in the
   " answer or echo the result if no '='.  Requires that bc(1) is available on
@@ -1123,6 +1133,7 @@ fu! CalcBC()   " {{{2
   "
   let has_equal = 0
 
+  " If buffer does not hold plus signs
   if @e =~ "[^+]$"
     " Add implied plus signs so they don't have to be literally in the file.
     " Assumes numbers are in a column.
@@ -1648,7 +1659,7 @@ if !exists("autocommands_loaded")
     " gvim knows nothing about SAS
     au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!c:/Progra~1/SASIns~1/SAS/V8/sas.exe -sysin %<CR>:args %:r.lst %:r.log<CR>
   else
-    " Run my execute SAS shell script on Cygwin:
+    " Run my execute SAS shell script:
     au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!~/code/sas/sasrun %<CR>
   endif
 
@@ -1669,7 +1680,8 @@ if !exists("autocommands_loaded")
   " Filter SAS Log for error-like lines (and lines that should be errors) only
 """au BufNewFile,BufRead,BufEnter *.log noremap <silent> <F8> :g!/^ERROR: \\|^ERROR\\s\\+\\d\\+-\\d\\+:\\|^WARNING: [^Compression]\\|stopped processing this step because\\|lines were truncated\\|NOTE: Invalid data for\\|NOTE: Variable\\|NOTE\\s\\+\\d\\+-\\d\\+:\\|WARNING: Apparent/d<CR> 
   au BufNewFile,BufRead,BufEnter *.log noremap <silent> <F8> :g!/^ERROR:\\\|^WARNING:\\\|lines were truncated\\\|^NOTE: Invalid data for\\\|^NOTE: Variable/d<CR>
-  au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR<CR>
+  " 4 backslashes required here instead of 1 on commandline
+  au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\\\|^WARNING:/<CR>
   au BufNewFile,BufRead,BufEnter *.log set guifont=Consolas:h8
 
   " TOGGLE. Delete the yearly warning lines that appear when SAS License is about to expire
@@ -1869,9 +1881,6 @@ if !exists("autocommands_loaded")
     au BufRead,BufWinEnter /cygdrive/z/*    hi StatusLine   ctermfg=Red ctermbg=Black
     au BufRead,BufWinLeave /cygdrive/z/*    hi StatusLineNC ctermfg=Red ctermbg=Gray gui=inverse,bold
 
-    " 1-Avoid frightening people who don't know what swapfiles are
-    " or
-    " 2-Creating undeletable files on boxes built by frightened people
     au BufReadPre,FileReadPre [MSWXYZ]:/* set noswapfile
     au BufReadPre,FileReadPre /cygdrive/[mswxyz]/* set noswapfile
 
