@@ -1867,7 +1867,7 @@ select a.*, case when b.chronic='Y' then 'Y' else 'N' end as chronic
 
 put 'ERROR: dups exist ' name= (myvars:)(=);
 
-# Start restart SASApp server
+# Start restart SASApp server. " - " = login as user sas with his environment.
 $ sudo su - sas; /sas/config/Lev1/sas.servers status  # or start or stop 
 
 %put ERROR: using DEBUG code;
@@ -1878,6 +1878,16 @@ options mautosource sasautos=('.' '/Drugs/Macros', sasautos);
 proc means data=sashelp.shoes MEDIAN; var sales; run;
 
 select count(distinct cats(storeid,masked_patientkey)) as UPID
+
+# Who is using up all WORK?:
+sudo du -h /workspace |sort -h| ls -l  # largest offender on bottom
+
+ /* Blank label */
+data p10j; set p10b p10c; label _TEMA001='00'x; run; proc print data=p10j LABEL; run;
+
+proc sql noprint; select distinct cats('"',put(patient_dob,date9.),'"d') into :dob1 -  :dob&ndob.  from subset_hp_npi; quit;
+
+if region eq 'Asia' then put 'foo'; else put 'bar';
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3573,6 +3583,14 @@ scp -r /Drugs/Drugs/AcmeControl bheckel@sas-01.twa.ateb.com:tmp/
 
 yum install vim-enhanced.x86_64
 
+# Parse extract tail of string e.g. s='/Drugs/bheckel/TMM13_Census_loop.sas -sysparm 21'
+CLIENTNUM="${s##*sysparm }"
+
+# Sync a remote directory to the local system.  -a syncs recursively, preserves symlinks, special and device files, modification times, group, owner, and permissions, -P gives progress bar for the transfers and allows resume interrupted transfers
+rsync --dry-run -avP bheckel@talon3://mnt/nfs/home/bheckel/tmp/1440187439_21Aug15/dir1/ dir1  # pull - trailing slash important
+rsync -avP dir1/ bheckel@talon3://mnt/nfs/home/bheckel/tmp/1440187439_21Aug15/dir1/  # push
+rsync -avP --delete dir1/ bheckel@talon3://mnt/nfs/home/bheckel/tmp/1440187439_21Aug15/dir1/  # true sync - also rm remote files like local ones already deleted manually
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -4103,7 +4121,7 @@ perl '-V:install.*'
 # Using rcs (automatically inserts revision sequence on co)
 our $VERSION = sprintf("%d.%02d", q$Revision$ =~ /(\d+)\.(\d+)/o);
 
-# Quick install: cp -i $HOME/code/perl/Irenamer.pm $HOME/perllib or /cp -i $HOME/code/perl/Irenamer.pm usr/lib/perl5/site_perl/5.14/i686-cygwin-threads-64int/File/
+# Quick install: mkdir -p $HOME/perllib/File && cp -i $HOME/code/perl/Irenamer.pm $HOME/perllib/File/
 perl -MFile::Irenamer -e 'InteractiveRename(verbose,recurse)'
 
 # Reverse sort a hash:
@@ -5926,6 +5944,9 @@ TRUNCATE bigtable, fattable;
 
 -- Group by count
 select patientid, count(*) from analytics.health group by patientid having count(*)>1
+
+-- SQL sum pickeduptimestamp if picked up in a during month, a range of dates:
+sum(case when date(pickeduptimestamp) between '01MAY2015' and '31MAY2015' then 1 else 0 end) as May2015, ...
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  

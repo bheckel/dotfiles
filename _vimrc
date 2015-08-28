@@ -288,7 +288,8 @@ set helpheight=999
 " Allows you to switch from an unsaved buffer without saving it first. 
 set hidden
 
-set splitbelow
+" no = continue edits in the top window
+set nosplitbelow
 
 
 "                                7 multiple tab pages {{{2
@@ -663,7 +664,7 @@ iab SaD options ls=max;<Esc>0idata _NULL_; set _LAST_(obs=100 where=(myid in:('f
 iab SaE %let START=%sysfunc(time());<CR>%put !!! (&SYSCC) Elapsed minutes: %sysevalf((%sysfunc(time())-&START)/60);
 iab SaL options ls=180 ps=max; libname l '.';
 iab SaO filename F 'junk'; data t(rename=(PRODDESC=nm APRCLASS=class)); infile F truncover; input PRODDESC= $100. APRCLASS= $100.; run;
-iab SaP <Esc>0ititle "ds:&SYSDSN";proc print data=_LAST_(obs=max) width=minimum; run;title;
+iab SaP <Esc>0ititle "ds:&SYSDSN";proc print data=_LAST_(obs=max) width=minimum heading=H; run;title;
 """iab SaQ <Esc>0ititle '!!!wtf';proc print data=_LAST_(where=(mfg_batch=:'1')) width=minimum; run;
 iab SaQ libname LDEBUG '.';data LDEBUG.t;set _LAST_;if _N_ eq 1 then put 10 * '!!!DEBUG';run;
 iab SaS select ( myvar );<CR><Space><Space>when ( 42 ) delete;<CR><Space><Space>otherwise;<CR><Left><Left>end;
@@ -1266,7 +1267,8 @@ fu! MaxLineLen(printmaxlen)  " {{{2
 
   " Don't count all lines in case of huge files
   """for s:l in readfile('externalfile.txt', '', 5000)
-  for s:l in getline(1, 50000)
+  for s:l in getline(1, 5000)
+    " TODO check if rnu is set, then add 3
     if len(s:l) > s:m
       let s:m = len(s:l)
     endif

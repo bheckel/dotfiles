@@ -44,6 +44,7 @@ export IGNOREEOF=1  # require 2 ctr-d to exit
 export LS_COLORS='ow=30;42:*.swp=00;35:*.swo=00;35:*.bak=00;35:ex=00;32'
 export PAGER=less  # for man(1)
 export PARINIT='rTbgqR B=.?_A_a Q=_s>| w65'  # par formatter
+export PERLLIB=$HOME/perllib
 export TMP=$HOME/tmp
 # Default "unknown host" indicator for my .vimrc statusline
 export VIMSTATUSL='?@?'
@@ -138,6 +139,7 @@ alias sr="$HOME/code/sas/sasrun"
 alias srcb="source $HOME/code/misccode/_bashrc"
 alias unbak="$HOME/code/misccode/bak -u "
 alias ve="vi $HOME/code/misccode/_vimrc"
+alias vis="vi -S"
 alias wget='wget -c'  # continue failures
 
 #-----------------------------------
@@ -646,7 +648,6 @@ case "$OSTYPE" in
 		export EDITOR=vim
     # Must not be in General section b/c SunOS cron.
     export PATH=$HOME/bin:/usr/bin:/bin:$PATH
-    export PERLLIB=$HOME/perllib
     export LANG=en_US
     # Lowercase the fscking Windows uppercase hostname
     ###export LCHOSTNAME="`echo ${HOSTNAME} | perl -ne 's/(.*)/\L$1\E/;print'`"
@@ -898,6 +899,15 @@ case "$OSTYPE" in
       #----------------
       # Export Linux  #{{{2 
       #----------------
+
+      # CentOS  # {{{2
+      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'talon4.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ]; then
+        alias sas0='ssh -l bheckel sas-01.twa.ateb.com'
+        alias tal='ssh -l bheckel talon3.dep.ateb.com'
+
+        # This keeps irenamer and fc from failing when it finds the minimal vim installed as vi
+        export EDITOR=/mnt/nfs/home/bheckel/usr/local/bin/vim
+      fi #}}}
 
       export PATH=$PATH:~/bin
       export PROMPT_COMMAND='history -a; echo -ne "\033]0;${HOSTNAME:0:4}:${PWD}\007";'
