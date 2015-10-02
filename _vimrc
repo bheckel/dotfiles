@@ -79,6 +79,7 @@ endif
 
 " Make sure this comes before the syntax area of this file:
 set t_Co=256
+"""set t_ut=
 
 " Force vim to clear itself when exiting:
 """set t_ti=7[r[?47h

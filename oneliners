@@ -391,6 +391,9 @@ vim `grep -l frame_counter *.c`
 " Alternatively on systems with grep(1) - faster but won't recurse, use vimgrep:
 :grep -i unexpected *.sas 
 
+" Search across buffers (then :cw) if :vvs vimgrep map fails because files aren't in pwd:
+:call setqflist([]) | bufdo grepadd! foo %
+
 " Delete everything but the first 2 fields in a CSV
 :%s:\(.\{-}\zs,\)\{2}.*::
 
@@ -580,7 +583,7 @@ echon '.vimrc: unknown language: (' mylang ') so using default Commentout style'
 " From inside Gvim fix authentication problem at work:
 :!c:/cygwin/bin/chmod 755 /cygdrive/u/temp/.vimxfer
 
-' Vim fold folding
+" Vim fold folding
 :se fdm=manual
 
 if hostname() == 'yoniso' ... else ... endif
@@ -904,7 +907,7 @@ proc print LABEL SPLIT='*' NOOBS N;
  /* Macro with parameters parms: */
 %macro Foo(bar, baz); %put &bar and &baz; %mend; %Foo(test ing, me);
 
- /* Preserve leading whitespace (as would $2.) */
+ /* Preserve leading whitespace ($2. would not) */
 input foo $CHAR2.;
 
  /* Suppress any input errors in SAS Log and keep _ERROR_=0 */
@@ -1089,7 +1092,7 @@ libname ORA oracle user=pks password=pks path=usdev100 schema=pks;
 
  /* Canonical freq */
 proc freq data=SASHELP.shoes(where=(region like 'A%')); run;
-proc freq data=t(where=(specname like '%2064%')); table specname*varname / LIST nocum norow nocol nopct; run;
+proc freq data=t(where=(specname like '%2064%')); table specname*varname / LIST NOCUM NOROW NOCOL NOPCT; run;
 proc freq data=t order=freq; tables name / nocum; run;  /* show order by most frequent first */
 
  /* Where IntrNet keeps its datasets for a session */
@@ -1465,7 +1468,9 @@ proc surveyselect data=SASHELP.shoes out=stacked samprate=1 reps=50000000; run;
  /* Think "I"NPUT is closer to "C"HAR so use that to convert a character to a numeric: */
  /* Canonical char2num and suppress SAS Log "NOTE: Invalid argument to function INPUT at line..." */
 chartonum = input(mychar, ? BEST. -L);
+data numds(drop=TMP:); set chards(rename=(clientid=TMPclientid)); clientid = input(TMPclientid, ? BEST. -L); run;
 chartonum = input(mychar, COMMA7.);  /* take char string 123,456 and store as a num 123456 */
+
 mynum = input( substr(id,3,2), 4. );  /* substr alone produces a char */
 
  /* Canonical num2char (-L to left align) */
@@ -1879,6 +1884,9 @@ proc means data=sashelp.shoes MEDIAN; var sales; run;
 
 select count(distinct cats(storeid,masked_patientkey)) as UPID
 
+ /* Concatenate: use a delimiter - CATX is different in that it skips missing values.  Old version would do e.g. foo,,bar */
+mycsv = catx(',', c1, c2, c3);
+
 # Who is using up all WORK?:
 sudo du -h /workspace |sort -h| ls -l  # largest offender on bottom
 
@@ -1888,6 +1896,8 @@ data p10j; set p10b p10c; label _TEMA001='00'x; run; proc print data=p10j LABEL;
 proc sql noprint; select distinct cats('"',put(patient_dob,date9.),'"d') into :dob1 -  :dob&ndob.  from subset_hp_npi; quit;
 
 if region eq 'Asia' then put 'foo'; else put 'bar';
+
+rc=system("/Drugs/EGP/cho.sh fyu:sas &converted_change_perms 2>/Drugs/Personnel/bob/foo/wtf");
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -2079,6 +2089,7 @@ ifconfig | grep "inet addr" |  grep -v "127.0.0.1" | awk '{print $2;}' |  awk -F
 
 # Start (stop, restart) Samba on RedHat:
 /etc/rc.d/init.d/smb start
+/sbin/service smb status
 
 # Restart Apache if can't find apachectl
 kill -HUP `cat /apache/logs/httpd.pid`
@@ -2099,7 +2110,7 @@ for p in `pgrep httpd`; do kill -9 $p; done
 ps | grep httpd | awk '{print $1}' | xargs kill -9
 
 # Kill all LIMS users:
-ps -es | grep lms_client_techops | while read pid do echo $pid kill -9 $pid done
+ps -es | grep lms_client_techops | while read pid; do echo $pid kill -9 $pid; done
 
 # Instead of doing a ps -ef to know the pid and kill it manually every time:
 $ kill `ps -ef | grep \`whoami\` | grep myProcess | grep -v grep | awk '{print $2}'` 
@@ -2262,8 +2273,9 @@ $ find from -print0 |xargs -0 touch
 
 # Troubleshoot a disk full error (find the largest big offending file):
 find / -type f -size +1000000c -exec ls -l {} \; 2>/dev/null | grep -v "/proc"
-# or find largest file:
-find / -xdev -size +1024 -ls | sort -r +b
+find /workspace -type f -size +50G -exec ls -lh {} \;
+# Troubleshoot find largest file:
+find ~/tmp -size +1M | xargs ls -lh | awk '{print$5,$3,$4,$6,$7,$8,$9}' | sort -rh
 
 # Find files in the /tmp directory that are larger than 10 megabytes (10 million bytes) that have not been modified in the last 48 hours:
 find /tmp -size +10000000c -and -mtime +2
@@ -3031,6 +3043,9 @@ while read f; do echo $f; done <myfile.txt
 # Bulk upload converting extension on the fly upload to mf (fq paths ok)
 while read f; do bfp $f "bqh0.pgm.lib(`basename $f .sas`)"; done <filelist.txt
 
+find . -name '*DEL' | while read fn; do echo "found file $fn"; done
+find . -type d  | while read dn; do echo "found dir $dn"; done
+
 # Combine all users crons in .txt cron into a new .txt:
 while read f; do echo "---$f---"; crontab -l -u $f; done </mnt/nfs/home/bheckel/users.txt >/mnt/nfs/home/bheckel/crontabs20150619.txt
 
@@ -3410,8 +3425,9 @@ sudo apt-get install google-chrome-stable
 # Debian, Ubuntu full update (not dist upgrade):
 sudo apt-get update && sudo apt-get upgrade
 
-# Process substitution diff across network:
-diff -u ~/code/misccode/_bashrc <(ssh rheckel@sdf.org cat .bashrc)
+# Process substitution ssh diff across network:
+vi -d <(ssh bheckel@sas-01.twa.taeb.com "cat /Drugs/Personnel/bob/t.sas") <(cat /Drugs/bheckel/t.sas)
+vi -d <(ssh bheckel@atlon3 "cat /Drugs/EGP/Humana_weekly_task_Freds.sas") <(cat Freds_priority_enrollment.orig.sas)
 
 # Diff two files across the network:
 ssh user@remote "cat /path/to/remote/file" | diff - /path/to/local/file
@@ -5901,8 +5917,8 @@ UPDATE Professor SET Salary=Salary*1.1, Dept="IT" WHERE Dept='555';
 
 <iframe src="https://zdatapostd.gsk.com/datapostDEMO/DataPost_Results.html" width="850px" height="10000px" frameborder="0"> <p>Your browser does not support iframes.</p></iframe>
 
-&#171;, «, a left-pointing double angle html entity
-
+<!--  «  a left-pointing double angle html entity -->
+&#171;
 
 <!-- xslt if AND -->
 <xsl:if test="ExtractEnabled &gt; 0 and Folder='LIFT'"> 
@@ -5912,13 +5928,11 @@ UPDATE Professor SET Salary=Salary*1.1, Dept="IT" WHERE Dept='555';
 -- Edit a Windows file using UNC path under Cygwin
 vi '\\okpsawn557\d$\oracle\ora81\network\ADMIN\Tnsnames.ora'
 
+' Excel:
 =VLOOKUP(B11, A2:B4, 2, FALSE)
-' B11 holds a code you do not understand, a2:b4 is the lookup "table" whose 1st
-' col contains B11, its 2nd col contains the lookup value to put in the current
-' cell.  "2" indicates the table lookup value is in the 2nd column.  FALSE=not
-' sorted
+' B11 holds a code you dont understand, A2:B4 is the lookup "table" whose 1st col contains B11, its 2nd col contains the lookup value to put in the current cell. "2" indicates the table lookup value is in the 2nd column. FALSE=not sorted.
 
-' Excel difference in cell values
+' Excel difference in cell values:
 =IF(A6<>BD6, "yes", "no")
 
 ' Sum count a group flag SQL:
@@ -5926,6 +5940,8 @@ sum(case when status = 'CANCEL' then 1 else 0 end) as CANCEL
 
 ' Postgres dates:
 where storeid in(&SID) and created > date('now') - interval '1 year'
+' Postgres data from last 2 days:
+select clientid, taskdate, hpprogramid, count(*) from naalytics.ehalthplanpatients_test where taskdate > date('now')-interval '2 day' group by clientid, taskdate, hpprogramid order by taskdate desc
 
 ' Postgres jobs status of jobs I am running:
 select current_query from pg_stat_activity where usename='bheckel'
@@ -5933,10 +5949,13 @@ select current_query from pg_stat_activity where usename='bheckel'
 ' Postgres change datatype:
 select stre_id as stid, cast (value as integer) as Waitime ...
 
-' Postgres commandline
+' Postgres commandline ODBC:
 isql -v jaspre bheckel mypw
 
-' Postgres empty table
+' Postgres commandline:
+psql -h ajsperdb1.edp.atbe.com TEBMART
+
+' Postgres empty a table:
 TRUNCATE bigtable, fattable;
 
 :: Send To folder c:\temp
@@ -5947,6 +5966,16 @@ select patientid, count(*) from analytics.health group by patientid having count
 
 -- SQL sum pickeduptimestamp if picked up in a during month, a range of dates:
 sum(case when date(pickeduptimestamp) between '01MAY2015' and '31MAY2015' then 1 else 0 end) as May2015, ...
+
+-- Set binary date flags in SQL:
+sum(case when date(pickeduptimestamp) between '01MAR2015' and '31MAR2015' then 1 else 0 end) as Mar2015
+
+-- Terminate query, self-kill a Postgres kill query:
+select current_query, procpid from pg_stat_activity where usename = 'bheckel'
+select pg_cancel_backend(8501);
+
+-- SQL to find 01, 1, 03, 3:
+where trim(leading '0' from roleoftherapycode) in ('1','3')
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
  

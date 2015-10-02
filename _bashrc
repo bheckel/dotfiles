@@ -4,7 +4,7 @@
 # Summary: bash shell config for at least Cygwin 1.3/1.5/1.7, Unix and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Fri 10 Jul 2015 14:40:22 (Bob Heckel)
+# Modified: Thu 01 Oct 2015 10:44:33 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -16,12 +16,15 @@
 [[ $- != *i* ]] && return
 
 # One arg per call
-# If you change this to emacs a kitten will die
+# If you change this to "emacs" a kitten will die:
 set -o vi
 set -o noclobber
 
 # C-S=suspended C-Q=released fix
 stty -ixon 
+
+# Tab completion after typing 'cd ' show dirs only.  See also FIGNORE for related completion restrictions.
+complete -d cd
 
 #-----------------------
 # Generic Export  #{{{2
@@ -728,9 +731,6 @@ case "$OSTYPE" in
              histappend cdable_vars
 
     ###stty erase ^H intr ^C kill ^K
-    # Tab completion after typing 'cd ' should show dirs only.  See also
-    # FIGNORE for related completion restrictions.
-    complete -d cd
 
 ###    umask 022
   ;; # end Cygwin
@@ -932,7 +932,7 @@ case "$OSTYPE" in
       # Assumes we have recent work ready to tar and mail to gsk as c.NEW.
       # See homefrom hometo.  Sunday evening run usually.
       alias gskto='cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV |grep -v '/.git/'|grep -v '.swp'|xargs tar cvfz ~/Downloads/c.NEW'
-      alias hometo='ls -l ~/c && echo "...files newer than ^^^this^^^ one will be added to tarball..." && sleep 5 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cp c ~/bheckel_moya/ && cd -'
+      alias hometo='ls -l ~/c && echo "...files newer than ^^^this^^^ one will be added to tarball..." && sleep 5 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd -'
       ###alias moz='export DISPLAY=158.111.250.170:0.0; mozilla&'
       alias ll='\ls -Fl --color=auto'
       ###alias sqlplus=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/sqlplus
@@ -959,7 +959,7 @@ case "$OSTYPE" in
       #}}}
 
       if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'talon4.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ]; then
-        alias hometo='ls -l ~/c && echo "...files newer than ^^^this^^^ one will be added to tarball..." && sleep 5 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd -; cp ~/c ~/bheckel_moya/'
+        alias hometo='ls -l ~/c && echo "...files newer than ^^^this^^^ one will be added to tarball..." && sleep 5 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd -; cp ~/c ~/bob/'
         alias vi=$HOME/usr/local/bin/vim
       fi
 
