@@ -588,6 +588,9 @@ echon '.vimrc: unknown language: (' mylang ') so using default Commentout style'
 
 if hostname() == 'yoniso' ... else ... endif
 
+" Share ;w across network
+scp bheckel@sas-01.twa.taeb.com://mnt/nfs/home/bheckel/tmp/.vimxfer ~/tmp 
+
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -638,7 +641,7 @@ proc datasets NOlist; delete Foo_DS Bar_DS; quit;
   * the next line (e.g. when you're not using @@ and want it to keep going)
   */
 
- /* Describe paths to SAS libraries: */
+ /* List describe paths to SAS libraries: */
 libname _ALL_ list;
 
  /* Clear libnames */
@@ -1474,13 +1477,13 @@ chartonum = input(mychar, COMMA7.);  /* take char string 123,456 and store as a 
 mynum = input( substr(id,3,2), 4. );  /* substr alone produces a char */
 
  /* Canonical num2char (-L to left align) */
-numtochar = put(num, F8. -L);  /* integer */
-numtochar = put(num, 8.2 -L);  /* floating point */
+numtochar = put(num, BEST. -L);  /* integer */
+numtochar = put(num, 12.2 -L);  /* floating point */
 
  /* Canonical char2num reusing existing char var name */
 data t(drop=TMP:); set t(rename=(x=TMPx)); x=input(TMPx, BEST.); run;
 
-do i=1 to input(mycountch, 8.);  /* char2num */
+do i=1 to input(mycountch, BEST.);  /* char2num */
 
  /* Avoid asciibetical sort by inserting leading blanks if data is small: */
 data t; set t; region=right(region);
@@ -1847,7 +1850,9 @@ name=prxchange('s/(\w+), (\w+)/$2 $1/', -1, name);
 if prxmatch('/toyota|kia|honda/i', text) then type='Import';
 
  /* Remove leading zeros */
+clientstoreidNOZERO = substr(clientstoreidCHAR, verify(clientstoreidCHAR, '0'));
 select trim(leading '0' from clientstoreid) as storeid ...
+ /* Remove leading zeros */
 substr(bin, verify(bin,'0')) in ('4336')
 
  /* Count days */
@@ -5977,5 +5982,6 @@ select pg_cancel_backend(8501);
 -- SQL to find 01, 1, 03, 3:
 where trim(leading '0' from roleoftherapycode) in ('1','3')
 
+where listdate = (select max(listdate) from test.master_npi)
+
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
- 

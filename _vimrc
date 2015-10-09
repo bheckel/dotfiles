@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Thu 23 Jul 2015 14:26:28 (Bob Heckel)
+" Modified: Fri 09 Oct 2015 09:31:08 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -109,6 +109,7 @@ endif
 
 " Avoid reading text presented like it was written on a light bulb.  We're
 " sometimes relying on .Xdefaults to do wheat-on-black so this is only for gvim.
+" ~/code/misccode/vim_colors.txt
 hi Normal guifg=#F5DEB3 guibg=Black
 
 hi Comment ctermfg=DarkGray guifg=DarkGray guibg=Black
@@ -142,8 +143,8 @@ hi ModeMsg ctermfg=Black ctermbg=Yellow guifg=Black guibg=Yellow
 hi MoreMsg ctermfg=Blue ctermbg=Black guifg=Blue
 
 hi Number ctermfg=Magenta ctermbg=Black guifg=Magenta guibg=Black
-" :se rnu gutter
-hi LineNr ctermfg=Black ctermbg=DarkGray guifg=Black guibg=DarkGray
+" :se rnu relative number gutter
+hi LineNr ctermfg=Black ctermbg=238 guifg=Black guibg=#444444
 
 " Tab completion dropdown
 hi Pmenu ctermfg=Black ctermbg=Gray guifg=White guibg=Gray 
@@ -169,9 +170,9 @@ else
   " For statusline setting below
   hi User1 ctermfg=red guifg=red cterm=inverse,bold 
   " Active status line
-  hi StatusLine ctermfg=Blue ctermbg=White guifg=Blue guibg=White
+  hi StatusLine ctermfg=23 ctermbg=White guifg=#005f5f guibg=White
   " Inactive status line
-  hi StatusLineNC ctermfg=Blue ctermbg=Gray guifg=Blue guibg=Gray
+  hi StatusLineNC ctermfg=23 ctermbg=Gray guifg=#005f5f guibg=Gray
 endif
 
 hi TabLine ctermfg=Gray ctermbg=DarkGray

@@ -124,14 +124,13 @@ alias ll='ls -gGh --color --group-directories-first'
 # If ls -lS isn't available:
 ###alias lls='ls -l | sort +4r | grep -v "total"'  # sort descending on size
 alias lsd='find . -type d'
-alias lsdtree="\ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
-alias locate='locate -i'
+###alias locate='locate -i'
 ###alias m=more
 alias one="vi $HOME/code/misccode/oneliners"
 # Case insensitive search for module:
 ###alias pdoc='perldoc -i'     
 ###alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
-alias q=$HOME/code/misccode/q.sh
+###alias q=$HOME/code/misccode/q.sh
 alias qr=$HOME/code/misccode/quickref_find.sh
 alias rme=$HOME/code/misccode/rme
 alias robots="export ROBOTOPTS=moveheaps,showscores,screwdriver,fastrobots; robots"
@@ -140,9 +139,9 @@ alias sdf='ssh -l bheckel sdf.org; date'
 alias sl='ls --color=none'  # dyslexic daim branage
 alias sr="$HOME/code/sas/sasrun"
 alias srcb="source $HOME/code/misccode/_bashrc"
+alias tree="\ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
 alias unbak="$HOME/code/misccode/bak -u "
 alias ve="vi $HOME/code/misccode/_vimrc"
-alias vis="vi -S"
 alias wget='wget -c'  # continue failures
 
 #-----------------------------------
