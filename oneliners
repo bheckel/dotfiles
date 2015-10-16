@@ -641,7 +641,7 @@ proc datasets NOlist; delete Foo_DS Bar_DS; quit;
   * the next line (e.g. when you're not using @@ and want it to keep going)
   */
 
- /* List describe paths to SAS libraries: */
+ /* Print list describe paths to SAS libname libraries: */
 libname _ALL_ list;
 
  /* Clear libnames */
@@ -917,8 +917,9 @@ input foo $CHAR2.;
 input name $8.  number  ??;
 
  /* Macro date - format today's date into a macrovar: */
-%let FDATE=%sysfunc(date(), YYMMDD10.);
-%let FDOLLARS=%sysfunc(putn(&MYNUM, DOLLAR10.));
+%let formatteddate=%sysfunc(date(), YYMMDD10.);
+
+%let formatteddollars=%sysfunc(putn(&MYNUM, DOLLAR10.));
 
  /* Operating system specific option: */
 %macro OS; %if &SYSSCP eq OS %then %str(options NOs99nomig;); %mend; %OS
@@ -926,8 +927,8 @@ input name $8.  number  ??;
  /* Thin out cleanout SAS Log, can use \| to get >1 line at a time */
 :g/\s*SYMB\|\s*MLOG\|\d\+\s*THE SAS/d
 
- /* Small shrink ds to 5% random sample sampling for debugging huge ds to subset dataset: */
-data OUT.t; set IN.t; if ranuni(0) <= .05; run;
+ /* Small shrink ds to 5% random sample sampling for debugging huge ds to subset dataset (different result each run): */
+data t2; set t; if ranuni(0) <= .05; run;
 
  /* Don't add lines with NULLs */
 if sex = '00'x||'00'x||'00'x then delete;
@@ -1296,7 +1297,7 @@ if description ne: 'al' then do; file "&DIRROOT\&SYSMACRONAME._Error.txt"; put "
  /* Fold a file using my TODO [ ] convention */
 :se fdm=indent
 
-proc sort; by DESCENDING numb lname; run;
+proc sort data=sashelp.shoes out=t; by region DESCENDING sales; run;
 
  /* View browse SASHELP library */
 options ls=180;proc contents data=SASHELP._all_ /*NODS*/;run;
@@ -1351,15 +1352,29 @@ data d9(drop=long_test_name rename=(long_test_name2=long_test_name)); ...
 libname l '.'; proc format library=l FMTLIB; run;
 proc format library=WORK FMTLIB; run;
 
- /* When you need to know how many intervals are between two dates you use intck(). When you need to create a date that is some number of intervals away from another date you use intnx(). */
+ /* When you need to know how many intervals are between two dates use intck(). When you need to create a date that is some number of intervals away from another date use intnx(). */
 start='01jan2013'd; end='30jun2013'd; days2=intck('day', start, end);  /* days2 is 180 (180 day boundaries crossed) */
 start='31dec2013'd; end='01jan2014'd; yrs2=intck('year', start, end);  /* yrs2 is 1 (a single year boundary was crossed!) */
 start='01jan2013'd; nextweek=intnx('week', start, 1); nextweekEND=intnx('week', start, 1, 'E');  /* or 'M'iddle, 'S'ame.  nextweek is Sun. 2013-01-06 nextweekEND is Sat. 2013-01-12 */
 start='11jan2013'd; monthStart=intnx('month', start, 0, 'b'); /* first day of month: */
 start='11jan2013'd; monthEnd=intnx('month', start, 0, 'e');   /* last day of month */
-fiscalStartOct= intnx('year.10', start, 1, 'b'); fiscalEndOct = intnx('year.10', start, 1, 'e');  /* 2013-10-01, 2014-09-30 */
 
 %let previousMonth = %sysfunc(intnx(MONTH, %sysfunc(today()), -1));
+
+ /* Macro date - change format reformat date into a macrovar: */
+%let mydt='30OCT2015'; %let newdt=%sysfunc(putn("&mydt"D, YYMMDD10.));
+%let mydt='30OCT2015'; %let mydtplusone=%sysfunc(intnx(day, "&maxdate"D, 1, b), YYMMDD10.);
+
+ /* Shifted index - when is next election day?: */
+%let nextelectionday=%sysfunc(intnx(year4.11, '01OCT2015'd, 1), DATE9.);
+ /* Shifted index - when is the next election day after the upcoming one?: */
+%let nextelectionday=%sysfunc(intnx(year4.11, %sysfunc(today()), 2), DATE9.);
+
+ /* fiscalStart=01OCT2016 fiscalEnd=30SEP2017 */
+data; format fiscalStart fiscalEnd date9.; fiscalStart= intnx('year.10', '03OCT15'd, 1, 'b'); fiscalEnd= intnx('year.10', '01OCT15'd, 1, 'e'); run;
+
+ /* Last day of previous month (31dec1999): */
+past = intnx('month', '01jan2000'D, -1, 'E');
 
  /* Canonical proc means */
 proc means data=sashelp.shoes; class region; var sales; run;
@@ -1367,7 +1382,7 @@ proc means data=sashelp.shoes NOprint; output out=t; class region; var sales; ru
 proc summary data=sashelp.shoes PRINT; class region; var sales; run;
 proc sql; select region, count(sales), sum(sales) format=DOLLAR16. from sashelp.shoes group by region; quit;
 
- /* Stupid SAS error message V8 at least: */
+ /* SAS error message V8 at least: */
 NOTE: BY-line has been truncated at least once.  /* fix with options ls=max */
 
  /* View List and Log in my ;z map vim session */
@@ -1389,7 +1404,7 @@ data foo; format _ALL_; run;
 Patches installed:
 C:\Program Files\SAS Institute\SAS\V8\core\sasinst\hotfix\
 
-dataset_exists = %SYSFUNC(EXIST(mydataset));  /* 1 yes, 0 no */
+dataset_exists = %sysfunc(EXIST(mydataset));  /* 1 yes, 0 no */
 
 ods PDF file='c:/temp/t.pdf';  proc...run; ods PDF close;
 
@@ -1745,11 +1760,9 @@ select b.code, b.count, COALESCE(a.animal,'Unknown') as animal  /* set animal='U
  /* Iterate over an array: */
 array a[*] foovar barvar bazvar; do i=1 to dim(a); if a[i]>maxn then maxn=a[i]; end;
 
- /* Enhanced date format 20131004.  B blank C colon D dash N none P period S slash */
+ /* Enhanced date format 20131004.  B blank  C colon  D dash  N none  P period  S slash.  Default YYMMDD10. inserts dashes. */
 data _null_; d='04oct13'd; put d yymmddN8.;run;
-
- /* Determine what is two days after a given date */
-date2=intnx('day',date1,2,"sameday");
+%let maxdate2=%sysfunc(putn("&maxdate"d, YYMMDDN8.));
 
 do j=1 to 4; subj(j)=''; score(j)=.; end;  /* initialize array set to missing v8 */
 call missing(of subj(*), of score(*));     /* initialize array set to missing v9 - don't care if NUM or CHAR */
@@ -1809,9 +1822,6 @@ ods trace off;
 
 proc import datafile="t.xlsx" dbms=xlsx out=t REPLACE; sheet='Sheet1'n; getnames=yes; run;
 
- /* 20150428 */
-%let STARTDATE=%sysfunc(intnx(week.2,%sysfunc(today()),-1,b),yymmddn8.);
-
  /* Character to date e.g. 20150504 */
 filerecdate=input("&CURRDT", YYMMDD8.);
 
@@ -1823,9 +1833,6 @@ proc catalog c=work.sasmac1 force kill;quit;
 
  /* Calculate person's age: */
 age = int((intck('YEAR', today(), dateofbirth)))*-1;
-
- /* Last day of previous month (31dec1999): */
-past = intnx('month', '01jan2000'D, -1, 'E');
 
  /* mkdir -p /home/bheckel/testdir  No quotes! */
 %let newdir=%sysfunc(dcreate(testdir, /home/bheckel/));
@@ -1903,6 +1910,23 @@ proc sql noprint; select distinct cats('"',put(patient_dob,date9.),'"d') into :d
 if region eq 'Asia' then put 'foo'; else put 'bar';
 
 rc=system("/Drugs/EGP/cho.sh fyu:sas &converted_change_perms 2>/Drugs/Personnel/bob/foo/wtf");
+
+ /* Convert Unix path space to backslash space via regex: */
+%let reportlocationconverted=%sysfunc(prxchange(s/ /\\ /, -1, &reportlocation));
+
+ /* Parse search replace capture first part of string via regex: */
+%let clientname=%sysfunc(prxchange(s/(.*) - .*$/$1/, -1, &clientfolder));
+
+ /* Does a dataset exist?: */
+%let dsexist=%sysfunc(EXIST(sashelp.zipcode));
+
+%let thispgm=%sysfunc(getoption(SYSIN));
+
+ /* Zero pad a char that looks like a number to 4 leading zeros: */
+data _null_; x='04'; y= put(input(x, BEST. -L), Z4.); put y=; run;
+
+ /* Canonical email send: */
+filename MAILTHIS email ("&mailto") cc="&user@foo.com" subject="&clientname (clientid-&clid) Checklist attach=("&loc/&fn" "&loc/&fn2"); data _null_; file MAILTHIS; put 'ok'; put; run;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -2175,7 +2199,7 @@ for i in *; do du -sk $i; done | sort -n
 # data loss across the network.
 tar cf - tar_me | rsh theotherserver '( cd /home/rheckel/todel; tar xvfB - )'
 
-# Backup workbox code changes each weekday (where code/ is mounted, not symlinked)
+# Backup workbox code changes each weekday (where code/ is mounted, not symlinked) using a sentinel:
 (cd; touch .ts -d 'last monday 7am'; find code -type f -not -name '*.sw[op]' -daystart -newer .ts | xargs tar cvfz ${HOSTNAME}.tgz)
 # Update code from emailed tgz on one of the homeboxes
 (cd; tar --extract --verbose --gzip --keep-newer-files --file=ZEBWL10D43164.tgz)
@@ -2654,7 +2678,7 @@ cat /proc/filesystems
 ping daeb
 arp -a
 
-# Don't copy backup .bak files
+# Don't copy exclude from copy all .bak files:
 cp OpenRefreshSave.*[^bak] ~/code/vb/
 
 # To format floppy:
@@ -3075,6 +3099,7 @@ BAR=notemptylikeFOOis; echo ${FOO-$BAR}  # use $bar if $foo doesn't exist
 
 # Determine file size in bytes
 filesize=$(find $1 -printf "%s")
+if [ $filesize -lt 200000000 ];then echo bigger than 2MB; fi
 
 # Canonical Cygwin updatedb.  alias loc='locate --ignore-case --database=/var/lib/locatedb.code '
 $ /bin/updatedb --localpaths='/home/rsh8680/code' --prunepaths='/home/rsh8680/code/misccode/.git' --output='/var/lib/locatedb.code'
@@ -3176,9 +3201,6 @@ $ date +'%Y%m%d' # print formatted date (e.g. 20010622)
 $ date +%s -d'Jul 7 2000'
 # Make a local timestamped copy and zip only that new file
 $ cp '\\rtpsawn323\SQL_Loader\Logs\LGI.log' LGI$(date +%Y%m%d%S).log; zip -ru log.zip . -i \*.log
-# Backup a project to a share
-$ p=ven;d=`date '+%Y%m%d'`;tar cfz $p.$d.tar.gz add_ventolin/ && cp -i $p.$d.tar.gz /cygdrive/u/ && rmv $p.$d.tar.gz
-$ p=crc;d=`date '+%Y%m%d'`;tar cfz $p.$d.tar.gz callcenter/ && cp -i $p.$d.tar.gz /cygdrive/u/ && rmv $p.$d.tar.gz
 
 # Print only a part, section, range, paragraph, of a file. Sort of like paragrep.
 awk "/^xxSASx START/,/^xxSASx END/ {print}" ~/code/misccode/oneliners
@@ -3611,6 +3633,9 @@ CLIENTNUM="${s##*sysparm }"
 rsync --dry-run -avP bheckel@talon3://mnt/nfs/home/bheckel/tmp/1440187439_21Aug15/dir1/ dir1  # pull - trailing slash important
 rsync -avP dir1/ bheckel@talon3://mnt/nfs/home/bheckel/tmp/1440187439_21Aug15/dir1/  # push
 rsync -avP --delete dir1/ bheckel@talon3://mnt/nfs/home/bheckel/tmp/1440187439_21Aug15/dir1/  # true sync - also rm remote files like local ones already deleted manually
+
+# Megfile about 100MB
+dd if=/dev/zero of=biggarbage bs=10000 count=10000
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 

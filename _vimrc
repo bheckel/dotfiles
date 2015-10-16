@@ -508,7 +508,7 @@ set isfname=@,48-57,/,.,-,_,+,,,#,$,~,=
 "                               24 multi-byte characters {{{2
 
 
-"                               25 various {{{2
+"                               25 other {{{2
 
 " Comments default to:  sr:/*,mb:*,el:*/,://,b:#,:%,:XCOMM,n:>,fb:-
 set comments=sr:/*,mb:*,el:*/,://,b:#,b:\',b:\"
@@ -526,8 +526,9 @@ set viminfo='1000,\"750,:5000
 " For :mkview & :loadview.  Force gvim to Cygwin's default.
 set viewdir=~/.vim/view
 
+" Copy to Linux clipboard
+set clipboard=unnamed
 
-"                               ?? other {{{2
 if has('gui')
   set guioptions+=a
   set guioptions+=b
