@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Fri 09 Oct 2015 09:31:08 (Bob Heckel)
+" Modified: Tue 20 Oct 2015 16:28:27 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -101,6 +101,8 @@ set encoding=utf-8
 "
 "  View current highlighting:  :hi or  :so $VIMRUNTIME/syntax/hitest.vim
 "  To test term:  :runtime syntax/colortest.vim
+"
+"  ~/code/misccode/print_all_terminal_colors.sh
 "--------------------------------------------------------------------------
 
 if has ('syntax') && &t_Co > 1
@@ -527,7 +529,7 @@ set viminfo='1000,\"750,:5000
 set viewdir=~/.vim/view
 
 " Copy to Linux clipboard
-set clipboard=unnamed
+"""set clipboard=unnamed
 
 if has('gui')
   set guioptions+=a

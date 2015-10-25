@@ -728,7 +728,7 @@ length foo $2  car1-car4 $9;
  /* Super input statement uses the data! to determine column position */
 input @'IP Address' n1 n2 n3 n4 3.;
 
- /* Move cursor one to the left, backspace, to squeeze colon against word: */
+ /* Move cursor one to the left, put a backspace, to squeeze colon against word: */
 put @1 myname +(-1)":"  @30 myvalue;
 
  /* Multiple datasets on the set statement: */
@@ -978,7 +978,7 @@ if 1 <= (dosedate-sampdate) <= 5 then ...
 
 options pagesize=32767; options pagesize=max;  /* same */
 
- /* Comma separated, single quoted mvar SELECT...INTO :foo list in proc sql: */
+ /* Comma separated, double quoted mvar SELECT...INTO :foo list in proc sql: */
 select quote(trim(mycharvar)) into :RISKVARS separated by ', '
 select froms, tos, dist into :ITEM1, :ITEM2, :ITEM3
 
@@ -1144,9 +1144,6 @@ data _null_; do while ( x<3 ); put x=; x+1; end; run;
 
  /* Run IntrNet d:\sas_programs\t.sas with debug on */
 http://rtpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program=LINKS.t.sas&UID=rsh8680&_debug=131
-
- /* Prepare single quoted date for Oracle TODO not correct */
-data _NULL_; call symput('STARTDT', "'"||put("&SYSDATE9"D-1, DATE9.)||"'"); run;
 
  /* NODUP eliminates obs that are exactly the same across ALL variables.  NODUPKEY eliminates obs that are exactly the same across *only* the BY variables. */
 proc sort data=foo out=bar NODUPKEY; by x y; run;
@@ -1927,6 +1924,10 @@ data _null_; x='04'; y= put(input(x, BEST. -L), Z4.); put y=; run;
 
  /* Canonical email send: */
 filename MAILTHIS email ("&mailto") cc="&user@foo.com" subject="&clientname (clientid-&clid) Checklist attach=("&loc/&fn" "&loc/&fn2"); data _null_; file MAILTHIS; put 'ok'; put; run;
+
+ /* Build a single quoted string for Oracle, Postgres etc (but FAILS with leading zero numbers, see alternative build_db_query_list_via_macro.sas): */
+proc sql; select ndc into :medlist separated by ',' from l.t; quit;
+data _null_; call symput('medlist2', catq('1AC', &medlist)); run;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
