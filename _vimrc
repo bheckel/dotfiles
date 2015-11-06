@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Tue 20 Oct 2015 16:28:27 (Bob Heckel)
+" Modified: Mon 02 Nov 2015 09:58:43 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -478,6 +478,8 @@ set wildchar=<Tab>
 if exists("&wildignorecase")
   set wildignorecase
 endif
+
+set wildmenu
 
 set suffixes=.old,.old2,.OLD,OLD2,.o,.swp,.bak,.bak2,.BAK,.BAK2,~
 
