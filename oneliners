@@ -447,6 +447,7 @@ To synch DirDiff ranges of updates (internal DirDiff cmds like 'u' not working 2
 
 " Diff this vimdiff one existing buffer with its backup file:
 :vert diffsplit foo.c~  (use :diffoff to reset when done)
+:rightbelow vert diffsplit /my/file/tomodify/alwayson/rightside.txt
 
 " Diff this vimdiff two existing buffers
 :diffsplit then switch to/open other buffer and :diffthis then force any changes :diffupdate when done reset :diffoff (:diffthis to restart vimdiff)
@@ -1294,6 +1295,7 @@ if description ne: 'al' then do; file "&DIRROOT\&SYSMACRONAME._Error.txt"; put "
  /* Fold a file using my TODO [ ] convention */
 :se fdm=indent
 
+proc sort data=sashelp.shoes out=t NOEQUALS; by DESCENDING region sales; run;
 proc sort data=sashelp.shoes out=t NOEQUALS; by region DESCENDING sales; run;
 
  /* View browse SASHELP library */
@@ -1859,8 +1861,7 @@ if prxmatch('/toyota|kia|honda/i', text) then type='Import';
 
  /* Remove leading zeros */
 clientstoreidNOZERO = substr(clientstoreidCHAR, verify(clientstoreidCHAR, '0'));
-select trim(leading '0' from clientstoreid) as storeid ...
- /* Remove leading zeros */
+ /* Remove leading zeros before comparing */
 substr(bin, verify(bin,'0')) in ('4336')
 
  /* Count days */
@@ -1935,6 +1936,11 @@ data _null_; call symput('medlist2', catq('1AC', &medlist)); run;
 
  /* Determine yesterday date in macro */
 %let yesterday=%sysfunc(intnx(day, "&SYSDATE"D, -1, b), YYMMDD10.);
+
+ /* Rename a dataset's variable: */
+proc datasets lib=work; modify stores; rename clients_fkid=clientid; run;
+
+ODS PATH work.templat(update) sasuser.templat(read) sashelp.tmplmst(read);
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -2807,6 +2813,7 @@ diff -cw f1.txt f2.txt
 
 # Find info on Internet ports:
 netstat -nl --inet
+netstat -af  # Windows (can't use Cygwin)
 
 # Which modules have been compiled-in an Apache webserver:
 /usr/local/apache/bin/httpd -l
@@ -3637,9 +3644,6 @@ scp -r /Drugs/Drugs/AcmeControl bheckel@sas-01.twa.ateb.com:tmp/
 
 yum install vim-enhanced.x86_64
 
-# Parse extract tail of string e.g. s='/Drugs/bheckel/TMM13_Census_loop.sas -sysparm 21'
-CLIENTNUM="${s##*sysparm }"
-
 # Sync a remote directory to the local system.  -a syncs recursively, preserves symlinks, special and device files, modification times, group, owner, and permissions, -P gives progress bar for the transfers and allows resume interrupted transfers
 rsync --dry-run -avP bheckel@talon3://mnt/nfs/home/bheckel/tmp/1440187439_21Aug15/dir1/ dir1  # pull - trailing slash important
 rsync -avP dir1/ bheckel@talon3://mnt/nfs/home/bheckel/tmp/1440187439_21Aug15/dir1/  # push
@@ -3652,7 +3656,18 @@ dd if=/dev/zero of=biggarbage bs=10000 count=10000
 if [[ "$f" == *"elet"* ]]; then  # wildcard
 if [[ $string =~ .*My.* ]]; then  # regex
 
-ODS PATH work.templat(update) sasuser.templat(read) sashelp.tmplmst(read);
+# Shell parse string suffix capture text from 'average:' to end of string:
+MYUP=`uptime`
+LOAD="${MYUP##*average:}"
+
+# Shell parse string suffix capture text from space to end of string:
+JOB='clients.sas -foo 256'
+CLIENTID="${JOB##*foo }"  # 256
+
+tmux list-sessions  # we see sas0-ses2 is not '(attached)'
+tmux -2 a -t sas0-ses2  # attach if session exists, note sas0-ses2 may be a digit if originally created anonymously
+tmux -2 a  # if only one exists to reattach to
+tmux -2 new -s sas0-ses3  # if we need a new session
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5494,7 +5509,6 @@ $hash = @{Name = "PC01"; IP="10.10.10.10"; User="Tobias Weltner"}
 
 # Powershell pipeline:
 dir | Sort-Object length | Select-Object name, length | ConvertTo-Html | Out-File junk.htm
-./junk.htm  # view it in browser
 
 # Powershell canonical sort and find largest file
 $a = dir | sort -property length -descending | select-object -first 1
@@ -5686,7 +5700,7 @@ Excel uses exponentiation e.g. 1E+13 for large numbers - avoid by Format Cells :
 nslookup zdatapost.sgk.com
 
 What version of java are you running:
-c:\> java -fullversion
+c:\> C:\ProgramData\Oracle\Java\javapath\java -fullversion
 
 -- Oracle concatenation
 select column_name, data_type || '(' || data_length || ')' as fancy_type
@@ -5789,6 +5803,7 @@ git checkout master && git merge mynewbranch && git branch -d mynewbranch
 
 # github (github is origin)
 git push origin master
+git pull origin master
 
 # git discard throw away trash changes:
 git checkout -- DataPost_Configuration.map  # BEST single file trash changes
@@ -5862,7 +5877,7 @@ dateadd(dd,0, datediff(dd,0, fwn.VariableStp.dtSplTakenTime)) as dt
 
 private static final String[] items={"java", "strings", "in", "array"};
 
-Canonical test lorem ipsum debug string
+Canonical test lorem ipsum debug string:
 "lorem", "ipsum", "dolor", "sit", "amet", "consectetuer", "adipiscing", "elit", "morbi", "vel", "ligula", "vitae", "arcu", "aliquet", "mollis", "etiam", "vel", "erat", "placerat", "ante", "porttitor", "sodales", "pellentesque", "augue", "purus"
 
 Log.d(getClass().getSimpleName(),"my debug wtf");
@@ -5935,7 +5950,7 @@ int[] array = new int[5] { 1, 2, 3, 4, 5 };
 
 Administrator cmd.exe: Run / type cmd / Ctrl-Shift-Enter
 
-:: Win7 slow network (as Administrator):
+:: Win7 slow network debug (as Administrator):
 netsh interface tcp show global
 netsh interface tcp set global autotuning=disabled
 :: restore
@@ -5973,7 +5988,7 @@ UPDATE Professor SET Salary=Salary*1.1, Dept="IT" WHERE Dept='555';
 <!-- xslt if AND LIKE -->
 <xsl:if test="TrendEnabled &gt; 0 and contains(TrendDescription, 'HFA')"> 
 
--- Edit a Windows file using UNC path under Cygwin
+# Edit a Windows file using UNC path under Cygwin
 vi '\\okpsawn557\d$\oracle\ora81\network\ADMIN\Tnsnames.ora'
 
 ' Excel:
@@ -5983,28 +5998,32 @@ vi '\\okpsawn557\d$\oracle\ora81\network\ADMIN\Tnsnames.ora'
 ' Excel difference in cell values:
 =IF(A6<>BD6, "yes", "no")
 
-' SQL Sum count a group flag:
-sum(case when status = 'CANCEL' then 1 else 0 end) as CANCEL
+-- SQL sum count a group flag:
+sum(case when status = 'CANCEL' then 1 else 0 end) as cancelflag
 
-' Postgres dates:
+-- Postgres dates:
 where storeid in(&SID) and created > date('now') - interval '1 year'
 ' Postgres data from last 2 days:
 select clientid, taskdate, hpprogramid, count(*) from naalytics.ehalthplanpatients_test where taskdate > date('now')-interval '2 day' group by clientid, taskdate, hpprogramid order by taskdate desc
 
-' Postgres jobs status of jobs I am running:
+-- Postgres jobs status of jobs I am running:
 select current_query from pg_stat_activity where usename='bheckel'
 
-' Postgres change datatype:
+-- Postgres change datatype:
 select stre_id as stid, cast (value as integer) as Waitime ...
 
-' Postgres commandline ODBC:
+-- Postgres commandline ODBC:
 isql -v jaspre bheckel mypw
 
-' Postgres commandline:
+-- Postgres commandline:
 psql -h ajsperdb1.edp.atbe.com TEBMART
+psql -U atbleau -h db-02.twa.taeb.com teb
 
-' Postgres empty a table:
+-- Postgres empty a table:
 TRUNCATE bigtable, fattable;
+
+-- Postgres remove leading zeros to find 01, 1, 03, 3:
+where trim(leading '0' from roleoftherapycode) in ('1','3')
 
 :: Send To folder c:\temp
 %APPDATA%\Microsoft\Windows\SendTo
@@ -6022,9 +6041,6 @@ sum(case when date(pickeduptimestamp) between '01MAR2015' and '31MAR2015' then 1
 select current_query, procpid from pg_stat_activity where usename = 'bheckel'
 select pg_cancel_backend(8501);
 
--- SQL to find 01, 1, 03, 3:
-where trim(leading '0' from roleoftherapycode) in ('1','3')
-
 -- SQL take only the highest value:
 where listdate = (select max(listdate) from test.master_npi)
 
@@ -6033,5 +6049,8 @@ filldate > date('now') - interval '1 year'  and  patientdob < date('now') - inte
 
 -- Postgres determine age range:
 case when extract(years FROM age(patientdob))>=90 then 90 else extract(years FROM age(patientdob)) end as age
+
+-- Postgres date truncate:
+date_trunc('day', etl_ts)
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

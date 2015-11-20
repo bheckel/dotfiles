@@ -1894,12 +1894,12 @@ if !exists("autocommands_loaded")
     au BufReadPre,FileReadPre /cygdrive/[mswxyz]/* set noswapfile
 
     " Do not use The Force on Test & Production
-    au BufEnter [YZ]:/DataPost* set readonly
-    au BufEnter /cygdrive/[yz]/DataPost* set readonly
+    """au BufEnter [YZ]:/DataPost* set readonly
+    """au BufEnter /cygdrive/[yz]/DataPost* set readonly
 
-    au BufEnter gsk,gsk_check.sh set foldmethod=marker
-		au BufNewFile,BufRead,BufEnter DataPost*.log set noswapfile | set hlsearch | source u:/code/sas/saslog.vim 
-		au BufRead,BufNewFile *.map set filetype=xslt
+    """au BufEnter gsk,gsk_check.sh set foldmethod=marker
+		"""au BufNewFile,BufRead,BufEnter DataPost*.log set noswapfile | set hlsearch | source u:/code/sas/saslog.vim 
+		"""au BufRead,BufNewFile *.map set filetype=xslt
   endif
 
   " end Temporary project-specific

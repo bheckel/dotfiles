@@ -86,7 +86,7 @@ export normal="[0m"
 #-----------------------
 alias ..='cd ..'
 alias bc="bc -lq"  # allow floating point calcs
-alias be="vi $HOME/code/misccode/_bashrc"
+alias be="vi $HOME/.bashrc"
 alias bak="$HOME/code/misccode/bak"
 alias bgrep="$HOME/code/perl/bgrep"
 alias by=exit  # like bye in FTP and SAS
@@ -142,7 +142,7 @@ alias sr="$HOME/code/sas/sasrun"
 alias srcb="source $HOME/code/misccode/_bashrc"
 alias tree="\ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
 alias unbak="$HOME/code/misccode/bak -u "
-alias ve="vi $HOME/code/misccode/_vimrc"
+alias ve="vi $HOME/.vimrc"
 alias wget='wget -c'  # continue failures
 
 #-----------------------------------
@@ -897,7 +897,7 @@ case "$OSTYPE" in
           find $HOME/code |grep -i $1
         }
 
-        umask 037  # 022 is 755, 037 is 740
+        #umask 022  # 022 is 755, 037 is 740
       fi #}}}
 
       #----------------
@@ -933,7 +933,7 @@ case "$OSTYPE" in
       # Assumes we've downloaded the gsk attachment as ~/Downloads/c.   See
       # homefrom hometo.  Friday night run usually.
 ###      alias gskfrom='cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && find -L ~/code -perm 000|xargs chmod 755; cd ~/code/misccode; gs'
-      alias gskfrom='cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && cd ~/code/misccode; gs'
+      alias gskfrom='cd ~ && tar xvfz ~/Downloads/c && cp ~/Downloads/{c,c.PREV} && cd ~/code/misccode; gs'
       # Assumes we have recent work ready to tar and mail to gsk as c.NEW.
       # See homefrom hometo.  Sunday evening run usually:
       alias gskto="cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV | grep -v '/.git/' | grep -v '.swp' | xargs tar cvfz ~/Downloads/c.NEW"
