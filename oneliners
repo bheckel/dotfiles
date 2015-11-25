@@ -1270,8 +1270,8 @@ do i=1 to 10 until (n>5); ...
 
 do while (1);  /* infinite loop */
 
- /* Count number of observations */
-proc sql; select count(*) into :CNTOFOBS from SASHELP.shoes; quit; 
+ /* Count max number of fills per member into macrovariable: */
+proc sql NOprint; select left(put(max(nfills),8.)) into :MAXNFILLS from (select count(*) as nfills from t group by member_id); quit;
 
  /* Count number of observations - efficient */
 data _null_; if 0 then set SASHELP.shoes nobs=count; call symput('CNTOFOBS', count); stop; run;
@@ -1289,11 +1289,6 @@ if description ne: 'al' then do; file "&DIRROOT\&SYSMACRONAME._Error.txt"; put "
 
  /* Maximum storage size of SAS numeric using default 8. */
 9,007,199,254,740,992
-
-/* vim: set foldmethod=marker: */
-
- /* Fold a file using my TODO [ ] convention */
-:se fdm=indent
 
 proc sort data=sashelp.shoes out=t NOEQUALS; by DESCENDING region sales; run;
 proc sort data=sashelp.shoes out=t NOEQUALS; by region DESCENDING sales; run;
@@ -1327,7 +1322,7 @@ filename F 't.csv'; data t; infile F DLM=',' DSD TRUNCOVER LRECL=2600 FIRSTOBS=3
  /* Remove last 4 characters of sting */
 stem_with_end_removed=reverse(substr(reverse(s), 4));
 
- /* Use substr as lvalue: */
+ /* Use substr as lvalue to mask a value: */
 substr(ssnum, 1, 6) = '******';
 
  /* Delete specific characters, like regex s/foo// */
@@ -1357,8 +1352,6 @@ start='31dec2013'd; end='01jan2014'd; yrs2=intck('year', start, end);  /* yrs2 i
 start='01jan2013'd; nextweek=intnx('week', start, 1); nextweekEND=intnx('week', start, 1, 'E');  /* or 'M'iddle, 'S'ame.  nextweek is Sun. 2013-01-06 nextweekEND is Sat. 2013-01-12 */
 start='11jan2013'd; monthStart=intnx('month', start, 0, 'b'); /* first day of month: */
 start='11jan2013'd; monthEnd=intnx('month', start, 0, 'e');   /* last day of month */
-
-%let previousMonth = %sysfunc(intnx(MONTH, %sysfunc(today()), -1));
 
  /* Macro date - change format reformat date into a macrovar: */
 %let mydt='30OCT2015'; %let newdt=%sysfunc(putn("&mydt"D, YYMMDD10.));
@@ -1399,6 +1392,10 @@ data foo; format _ALL_; run;
 
  /* Go back 1 year */
 %let thisyr = %sysfunc(year("&SYSDATE"d)); %let minyr = %eval(&thisyr-1);
+%let previousMonth = %sysfunc(intnx(MONTH, "&SYSDATE"d, -1));
+
+ /* What SAS day number is one year ago from today? */
+%let yearago = %sysevalf(%sysfunc(date())-365); ...  if test_date > &yearago; ...
 
 Patches installed:
 C:\Program Files\SAS Institute\SAS\V8\core\sasinst\hotfix\
@@ -1478,12 +1475,6 @@ data _null_; d1 = input('01-JAN-60', DATE9.); d2 = input('01/01/2009', MMDDYY10.
 
  /* Build large dataset: */
 proc surveyselect data=SASHELP.shoes out=stacked samprate=1 reps=50000000; run;
-
- /* 2 years ago */
-%let thisyr = %sysfunc(year("&SYSDATE"d)); %let minyr = %eval(&thisyr-2);
-
- /* What SAS day number is one year ago from today? */
-%let yearago = %sysevalf(%sysfunc(date())-365); ...  if test_date > &yearago; ...
 
  /* Think "I"NPUT is closer to "C"HAR so use that to convert a character to a numeric: */
  /* Canonical char2num and suppress SAS Log "NOTE: Invalid argument to function INPUT at line..." */
@@ -1891,8 +1882,9 @@ $ sudo su - sas; /sas/config/Lev1/sas.servers status  # or start or stop
 
 %put ERROR: using DEBUG code;
 
- /* Use mine first in the autocall hierarchy */
-options mautosource sasautos=('.' '/Drugs/Macros', sasautos);
+ /*                                                SASROOT _______________________________          */
+ /* Use mine first in the autocall hierarchy.  SASAUTOS is /sas/sashome/SASFoundation/9.4/sasautos/ */
+options mautosource sasautos=('.' '/Drugs/Macros', SASAUTOS);
 
 proc means data=sashelp.shoes MEDIAN; var sales; run;
 
@@ -1941,6 +1933,15 @@ data _null_; call symput('medlist2', catq('1AC', &medlist)); run;
 proc datasets lib=work; modify stores; rename clients_fkid=clientid; run;
 
 ODS PATH work.templat(update) sasuser.templat(read) sashelp.tmplmst(read);
+
+ /* List all filename reference filerefs: */
+filename _ALL_ list;
+
+/sas/sashome/SASFoundation/9.4/autoexec.sas
+/sas/config/Lev1/SASApp/appserver_autoexec_usermods.sas
+
+ /* Is phone number valid flag: */
+select patientphonenbr, case when length(patientphonenbr)=10 then 1 else 0 end as validPhoneFlag from t;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
