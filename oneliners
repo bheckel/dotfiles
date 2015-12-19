@@ -592,6 +592,9 @@ if hostname() == 'yoniso' ... else ... endif
 " Share ;w across network
 scp bheckel@sas-01.twa.taeb.com://mnt/nfs/home/bheckel/tmp/.vimxfer ~/tmp 
 
+# Share vimxfer file across machines:
+alias xfer='scp ~/tmp/.vimxfer bheckel@talon3:tmp/.vimxfer'
+
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -1027,6 +1030,10 @@ mysasdate = datepart(mysasdatetime);
  /* Convert DATE to DATETIME */
 mysasdatetime = dhms(mysasdate, 0, 0, mysastime);
 mysasdatetime = mysasdate*86400  /* seconds in a day */
+ /* Alternative to datepart(): 
+  * ANYDTDTE informat extracts the date part: e.g. mydt='January 1, 2012' is 18993 using this: */
+input mydt anydtdte21.;
+ /* ANYDTDTM informat extracts the datetime part  ANYDTTME informat extracts the time part */
 
 data _null_; myquarter =        floor((mymonthnumber-1)/3)+1; put mycurrentquarter=; run;
 data _null_; mycurrentquarter = floor((month(date())-1)/3)+1; put mycurrentquarter=; run;
@@ -1368,6 +1375,12 @@ data; format fiscalStart fiscalEnd date9.; fiscalStart= intnx('year.10', '03OCT1
  /* Last day of previous month (31dec1999): */
 past = intnx('month', '01jan2000'D, -1, 'E');
 
+ /* Calculate yesterday date in macro date calculation: */
+%let yesterday=%sysfunc(intnx(day, "&SYSDATE"D, -1, b), YYMMDD10.);
+%let yesterday=%sysevalf("&SYSDATE"D-1);
+%let firstdayoflastmonth=%sysfunc(intnx(month, "&SYSDATE"D, -1, b), YYMMDD10.);
+%let onemonthagotoday=%sysfunc(intnx(month, "&SYSDATE"D, -1, s), YYMMDD10.);
+
  /* Canonical proc means */
 proc means data=sashelp.shoes; class region; var sales; run;
 proc means data=sashelp.shoes NOprint; output out=t; class region; var sales; run;
@@ -1389,10 +1402,6 @@ options NOxwait; data _NULL_; x "start lelimssumres01a&nm..sas7bdat"; /* 0 for s
 
  /* Remove all formats in dataset */
 data foo; format _ALL_; run;
-
- /* Go back 1 year */
-%let thisyr = %sysfunc(year("&SYSDATE"d)); %let minyr = %eval(&thisyr-1);
-%let previousMonth = %sysfunc(intnx(MONTH, "&SYSDATE"d, -1));
 
  /* What SAS day number is one year ago from today? */
 %let yearago = %sysevalf(%sysfunc(date())-365); ...  if test_date > &yearago; ...
@@ -1583,8 +1592,9 @@ data _NULL_; set _LAST_; file LOG; put '!!!DataLinkSQLPlusWSAdapterCon==========
 %let prev=%sysevalf(&today-1*24*60*60);
 %let ENDDT=%sysfunc(putn(&prev, oradtt.));
 
- /* Convert from human to SAS datetime */
+ /* Convert from human to SAS datetime (epoch number returned): */
 data t; a=input("05-OCT-10 11:06:13", DATETIME18.); b=put(1601377424, DATETIME18.); run;
+%let epochnum=%sysevalf("05OCT2010"d);
 
  /* If string contains substring 'zm' - weak regex */
 if name eq "&DESIGNATOR" and index(upcase(Value),'ZM');
@@ -1740,6 +1750,8 @@ goptions reset=all ftext=swissl device=png cback=white border htitle=12pt ctext=
  /* SQL SAS enhanced, add a single quote tick to a large number to fake out Excel */
 (CASE WHEN QURY0297.Output_MAT_COD IS NULL THEN QURY0297.Output_MAT_COD ELSE ("'"||trim(QURY0297.Output_MAT_COD)) END) FORMAT=$20. LABEL="foo" AS Output_MAT_COD,
 
+select a.*, (CASE WHEN b.TotalEnrolledLst30 ne . THEN b.TotalEnrolledLst30 ELSE 0 END) as TotalEnrolledLst30
+
  /* Missing to zero */
 x=sum(foo, 0);
  /* Missing to zero */
@@ -1773,8 +1785,8 @@ select * from ora_sas.customers(readbuff=10000);
  /* SAS string concatenation */
 combined = fname || lname || numb;
 
- /* Version a dataset */
-data t(genmax=3); ...
+ /* Version a dataset, up to 3 copies, then view the previous version */
+data t(genmax=3); ...;   proc print data=t(gennum=-1); run;
 
 %let cnt=1234; %put %sysfunc(putn(&cnt, comma.));  /* 1,234 */
 %let cntfmtd=%sysfunc(putn(&cnt, comma.));
@@ -1926,9 +1938,6 @@ filename MAILTHIS email ("&mailto") cc="&user@foo.com" subject="&clientname (cli
 proc sql; select ndc into :medlist separated by ',' from l.t; quit;
 data _null_; call symput('medlist2', catq('1AC', &medlist)); run;
 
- /* Determine yesterday date in macro */
-%let yesterday=%sysfunc(intnx(day, "&SYSDATE"D, -1, b), YYMMDD10.);
-
  /* Rename a dataset's variable: */
 proc datasets lib=work; modify stores; rename clients_fkid=clientid; run;
 
@@ -1937,11 +1946,32 @@ ODS PATH work.templat(update) sasuser.templat(read) sashelp.tmplmst(read);
  /* List all filename reference filerefs: */
 filename _ALL_ list;
 
+ /* Find these via $ sas ... -rtrace all -rtracelog myrtrace.log */
 /sas/sashome/SASFoundation/9.4/autoexec.sas
 /sas/config/Lev1/SASApp/appserver_autoexec_usermods.sas
 
  /* Is phone number valid flag: */
 select patientphonenbr, case when length(patientphonenbr)=10 then 1 else 0 end as validPhoneFlag from t;
+
+ /* Indicates your .map file is missing: ERROR: XML describe error: . */
+
+ /* Only dates in the last year: */
+where mydate >= date()-365
+
+ /* Canonical macro list loop: */
+%let i=1; %let clid=%qscan(&clientid_ind, &i, %str( )); %do %while ( &clid ne %str( ) ); ...  %let i=%eval(&i+1); %let clid=%qscan(&clientid_ind, &i, %str( ));
+
+ /* Loop a range of dates: */
+%let start=%sysfunc(inputn(12DEC2015,ANYDTDTE9.)); %let end=%sysfunc(inputn(14DEC2015,ANYDTDTE9.)); %let nday=%eval(&end-&start); %do j=0 %to &nday; ... %end;
+
+ /* '2015-12-13' */
+%let singlequotedfordatabase=%bquote(')%sysfunc(putn("&measuredt"d, YYMMDD10.))%bquote(');
+
+ /* Missing dot to zero: */
+select a.*, (case when b.TotalEnrolledLst30 ne . then b.TotalEnrolledLst30 else 0 end) as TotalEnrolledLst30 from t1 a LEFT JOIN totenr30 b on a.clientid=b.clientid
+
+ /* Database trace: */
+option SASTRACE=",,,d" no$stsuffix SASTRACELOC=saslog; 
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4923,7 +4953,7 @@ WHERE prod_sel_dt BETWEEN TO_DATE('01-JAN-10','DD-MON-YY') AND TO_DATE('31-JAN-1
 -- Oracle last few days search (if activity_dt is DATE formatted):
 select count(*) from activity_log where activity_dt > (SYSDATE-3);
 
--- Same as standard SAS DATE9.
+-- Oracle same as standard SAS DATE9.
 select trunc(sysdate) from dual
 
 -- Oracle date only this month:
@@ -6053,5 +6083,9 @@ case when extract(years FROM age(patientdob))>=90 then 90 else extract(years FRO
 
 -- Postgres date truncate:
 date_trunc('day', etl_ts)
+
+-- Postgres date selection, capture all activity for the 14th
+select * from generate_series('2015-12-13'::timestamp without time zone, '2015-12-15'::timestamp without time zone, '1 second'::interval)
+where date(generate_series) <= date('2015-12-14')
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

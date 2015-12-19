@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Mon 02 Nov 2015 09:58:43 (Bob Heckel)
+" Modified: Thu 10 Dec 2015 10:40:53 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -34,7 +34,7 @@
 """set writedelay=5
 
 let THISBOX = hostname()
-let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWD08D26987', 'ZEBWD12H01067', 'ZEBWL14H50510' ]
+let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWL14H50510', 'sas-01.twa.ateb.com' ]
 let HOMEBOXARRAY = [ 'yoniso', 'appa' ]
 
 if has ('win32unix')
@@ -61,6 +61,9 @@ if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
   elseif has('win32unix')
     let VTMP = '/cygdrive/c/temp'
     let VTMPU = '/cygdrive/u/temp'
+  else
+    let VTMP = '~/tmp'
+    let VTMPU = '~/tmp'
   endif
 elseif matchstr(HOMEBOXARRAY, THISBOX) == THISBOX
   if has('win32unix')
@@ -672,7 +675,8 @@ iab SaE %let START=%sysfunc(time());<CR>%put !!! (&SYSCC) Elapsed minutes: %syse
 iab SaL options ls=180 ps=max; libname l '.';
 iab SaO filename F 'junk'; data t(rename=(PRODDESC=nm APRCLASS=class)); infile F truncover; input PRODDESC= $100. APRCLASS= $100.; run;
 iab SaP <Esc>0ititle "&SYSDSN";proc print data=_LAST_(obs=10) width=minimum heading=H;run;title; data;file PRINT;put '~~~~~~~~~~~~~~~~~~~~~~';put;run;
-iab SaQ libname LDEBUG '.';data LDEBUG.t;set _LAST_;if _N_ eq 1 then put 10 * '!!!DEBUG';run;
+"""iab SaQ libname LDEBUG '.';data LDEBUG.t;set _LAST_;if _N_ eq 1 then put 10 * '!!!DEBUG';run;
+iab SaQ proc sql; create table t as select count(*) from t0 where x=1 group by y; quit;proc print;run;<Esc><CR>
 iab SaS select ( myvar );<CR><Space><Space>when ( 42 ) delete;<CR><Space><Space>otherwise;<CR><Left><Left>end;
 
 cab Sy0 source $VIMRUNTIME/syntax/nosyntax.vim
@@ -1860,34 +1864,34 @@ if !exists("autocommands_loaded")
   " Temporary project-specific hacks to normalize messy problem-spaces:
 
   if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
-    au BufRead LimsGistTableCount.txt :se list
-    au GUIEnter oracle_queries.sql,update.sql winpos 37 55 | se lines=20 | se columns=170 | se wrap | map j gj
+"""    au BufRead LimsGistTableCount.txt :se list
+"""    au GUIEnter oracle_queries.sql,update.sql winpos 37 55 | se lines=20 | se columns=170 | se wrap | map j gj
     " SQL*Plus hack to get table/field name completion
     au BufRead afiedt.buf winpos 37 55 | se lines=20 | se columns=170 | se tw=999999 | :new | silent :args $HOME/code/misccode/spool/links/*.LST | :hide | map :wq :wq! | noremap ZZ :wq!<CR>
     """au VimLeavePre afiedt.buf execute "w ~/tmp/afiedt.buf." . strftime("%m_%d-%H_%M_%S")
 
-    au BufRead DataPost_Configuration.xml set foldmethod=indent | set foldlevel=1
+"""    au BufRead DataPost_Configuration.xml set foldmethod=indent | set foldlevel=1
 
     " Platform warning indicators:
     " Gvim
-    au BufRead,BufWinEnter X:/*             hi StatusLine   guifg=Green guibg=Black gui=inverse,bold
-    au BufRead,BufWinLeave X:/*             hi StatusLineNC guifg=Green guibg=Gray gui=inverse,bold
-    au BufRead,BufWinEnter Y:/*             hi StatusLine   guifg=Yellow guibg=Black gui=inverse,bold
-    au BufRead,BufWinLeave Y:/*             hi StatusLineNC guifg=Yellow guibg=Gray gui=inverse,bold
-    au BufRead,BufWinEnter Z:/*             hi StatusLine   guifg=Red guibg=Black gui=inverse,bold
-    au BufRead,BufWinLeave Z:/*             hi StatusLineNC guifg=Red guibg=Gray gui=inverse,bold
-    " Cygwin
-    au BufRead,BufWinEnter /cygdrive/c/*    hi StatusLine   ctermfg=Blue ctermbg=White
-    au BufRead,BufWinLeave /cygdrive/c/*    hi StatusLineNC ctermfg=Blue ctermbg=Gray gui=inverse,bold
-    au BufRead,BufWinEnter /cygdrive/x/*    hi StatusLine   ctermfg=Green ctermbg=Black 
-    au BufRead,BufWinLeave /cygdrive/x/*    hi StatusLineNC ctermfg=Green ctermbg=Gray gui=inverse,bold
-    au BufRead,BufWinEnter /cygdrive/y/*    hi StatusLine   ctermfg=Yellow ctermbg=Black
-    au BufRead,BufWinLeave /cygdrive/y/*    hi StatusLineNC ctermfg=Yellow ctermbg=Gray gui=inverse,bold
-    au BufRead,BufWinEnter /cygdrive/z/*    hi StatusLine   ctermfg=Red ctermbg=Black
-    au BufRead,BufWinLeave /cygdrive/z/*    hi StatusLineNC ctermfg=Red ctermbg=Gray gui=inverse,bold
+"""    au BufRead,BufWinEnter X:/*             hi StatusLine   guifg=Green guibg=Black gui=inverse,bold
+"""    au BufRead,BufWinLeave X:/*             hi StatusLineNC guifg=Green guibg=Gray gui=inverse,bold
+"""    au BufRead,BufWinEnter Y:/*             hi StatusLine   guifg=Yellow guibg=Black gui=inverse,bold
+"""    au BufRead,BufWinLeave Y:/*             hi StatusLineNC guifg=Yellow guibg=Gray gui=inverse,bold
+"""    au BufRead,BufWinEnter Z:/*             hi StatusLine   guifg=Red guibg=Black gui=inverse,bold
+"""    au BufRead,BufWinLeave Z:/*             hi StatusLineNC guifg=Red guibg=Gray gui=inverse,bold
+"""    " Cygwin
+"""    au BufRead,BufWinEnter /cygdrive/c/*    hi StatusLine   ctermfg=Blue ctermbg=White
+"""    au BufRead,BufWinLeave /cygdrive/c/*    hi StatusLineNC ctermfg=Blue ctermbg=Gray gui=inverse,bold
+"""    au BufRead,BufWinEnter /cygdrive/x/*    hi StatusLine   ctermfg=Green ctermbg=Black 
+"""    au BufRead,BufWinLeave /cygdrive/x/*    hi StatusLineNC ctermfg=Green ctermbg=Gray gui=inverse,bold
+"""    au BufRead,BufWinEnter /cygdrive/y/*    hi StatusLine   ctermfg=Yellow ctermbg=Black
+"""    au BufRead,BufWinLeave /cygdrive/y/*    hi StatusLineNC ctermfg=Yellow ctermbg=Gray gui=inverse,bold
+"""    au BufRead,BufWinEnter /cygdrive/z/*    hi StatusLine   ctermfg=Red ctermbg=Black
+"""    au BufRead,BufWinLeave /cygdrive/z/*    hi StatusLineNC ctermfg=Red ctermbg=Gray gui=inverse,bold
 
-    au BufReadPre,FileReadPre [MSWXYZ]:/* set noswapfile
-    au BufReadPre,FileReadPre /cygdrive/[mswxyz]/* set noswapfile
+"""    au BufReadPre,FileReadPre [MSWXYZ]:/* set noswapfile
+"""    au BufReadPre,FileReadPre /cygdrive/[mswxyz]/* set noswapfile
 
     " Do not use The Force on Test & Production
     """au BufEnter [YZ]:/DataPost* set readonly
@@ -1896,6 +1900,8 @@ if !exists("autocommands_loaded")
     """au BufEnter gsk,gsk_check.sh set foldmethod=marker
 		"""au BufNewFile,BufRead,BufEnter DataPost*.log set noswapfile | set hlsearch | source u:/code/sas/saslog.vim 
 		"""au BufRead,BufNewFile *.map set filetype=xslt
+
+    au BufNewFile,BufRead,BufEnter *.log    source $VIMRUNTIME/syntax/nosyntax.vim | source $HOME/code/sas/saslog.vim
   endif
 
   " end Temporary project-specific
