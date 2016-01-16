@@ -95,6 +95,7 @@ if has('win32unix')
   let &t_te.="\e[0 q"
 endif
 
+"""scriptencoding utf-8
 set encoding=utf-8
 
 " end Initialization
@@ -462,6 +463,8 @@ set nobackup
 
 "                               19 the swap file {{{2
 
+"""set directory=/Drugs/Personnel/bob/
+set directory=~/tmp/
 " Write swap file to disk after 60 inactive seconds
 set updatetime=60000
 
@@ -1676,7 +1679,6 @@ if !exists("autocommands_loaded")
   au BufRead tmpsas.*.log,tmpsas.*.lst map <F12> :qa<CR>
   au BufRead tmpsas.*.log,tmpsas.*.lst map q :qa!<CR>
   au BufRead tmpsas.*.log,tmpsas.*.lst echo '.vimrc: q to exit all'
-  au BufRead tmpsas.*.log,tmpsas.*.lst source $HOME/code/sas/saslog.vim | set noswapfile
 
   au BufNewFile,BufRead,BufEnter *.sas map ;; :call setline('.', Commentout(getline('.'), 'sas'))<CR>
   au BufNewFile,BufRead,BufEnter *.sas map ;c 0Di  *  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
@@ -1901,7 +1903,13 @@ if !exists("autocommands_loaded")
 		"""au BufNewFile,BufRead,BufEnter DataPost*.log set noswapfile | set hlsearch | source u:/code/sas/saslog.vim 
 		"""au BufRead,BufNewFile *.map set filetype=xslt
 
-    au BufNewFile,BufRead,BufEnter *.log    source $VIMRUNTIME/syntax/nosyntax.vim | source $HOME/code/sas/saslog.vim
+		au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim 
+
+"""    au BufReadPre,FileReadPre /Drugs/Macros/* set noswapfile
+"""    au BufReadPre,FileReadPre /Drugs/Cron/* set directory=/Drugs/Personnel/bob/
+"""    au BufReadPre,FileReadPre /Drugs/RFD/* set noswapfile
+"""    au BufReadPre,FileReadPre /Drugs/HealthPlans/* set noswapfile
+"""    au BufReadPre,FileReadPre /Drugs/TMMEligibility/* set noswapfile
   endif
 
   " end Temporary project-specific

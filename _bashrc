@@ -113,7 +113,7 @@ alias h='history|tail -20'  # history 20 is better if it exists
 # discourage email parsing/snooping.
 # Assumes we have manually downloaded the weekend work attachment as ~/c.NEW.
 # Monday morning run usually.
-alias homefrom='cd ~; ls -l c.NEW && sleep 6; tar xvfz c.NEW'
+alias homefrom='cd ~; ls -l ~/transfer/c.NEW && sleep 6; tar xvfz ~/transfer/c.NEW'
 alias iv=vi
 alias j="jobs -s"  # only show STOPPED (i.e. skip RUNNING blink.exe's) jobs
 alias l='ls'
@@ -930,14 +930,13 @@ case "$OSTYPE" in
       alias d123="(cd ~/tmp; vi -d 1 2 3)"
       alias d34="(cd ~/tmp; vi -d 3 4)"
       # Poor-man's file sync:
-      # Assumes we've downloaded the gsk attachment as ~/Downloads/c.   See
+      # Assumes we've downloaded the gsk tarball as ~/Downloads/c.  home* are un on workbox, gsk* are run on homebox. See
       # homefrom hometo.  Friday night run usually.
 ###      alias gskfrom='cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && find -L ~/code -perm 000|xargs chmod 755; cd ~/code/misccode; gs'
       alias gskfrom='cd ~ && tar xvfz ~/Downloads/c && cp ~/Downloads/{c,c.PREV} && cd ~/code/misccode; gs'
       # Assumes we have recent work ready to tar and mail to gsk as c.NEW.
       # See homefrom hometo.  Sunday evening run usually:
       alias gskto="cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV | grep -v '/.git/' | grep -v '.swp' | xargs tar cvfz ~/Downloads/c.NEW"
-###      alias hometo='ls -l ~/c && echo "...files newer than ^^^this^^^ one will be added to tarball..." && sleep 5 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd -'
       # Next do  $ git add c && git commit -m'mod' && git push origin master
       alias hometo="ls -l ~/transfer/c && echo '...files newer than ^^^this^^^ one will be added to tarball...' && sleep 5 && cd ~ && find code/ -type f -newer ~/transfer/c | xargs tar cvfz ~/transfer/c"
       alias ll='ls -lh --color --group-directories-first'
@@ -968,6 +967,10 @@ case "$OSTYPE" in
 
       if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'talon4.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ]; then
         alias vi=$HOME/usr/local/bin/vim
+
+        function ses() {
+          find ~/bob/ -name "Session.vim" | awk '{print "vi -S " $1}'
+        }
       fi
 
       shopt -s cdspell checkhash checkwinsize cmdhist dotglob histappend 

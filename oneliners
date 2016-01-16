@@ -216,7 +216,7 @@ s<BS>s   <---Produces German ß
 " Change width of vertically split windows:
 :vert resize 80
 
-" View this keyword anywhere in file (move cursor to word).  Think '[ is easier to reach on keyboard - lazy geek default show all'.
+" Vim view all instances of this keyword anywhere in file.  Think '[ is easier to reach on keyboard - lazy default show all'.
 [I
 
 " Recursively load files matching a pattern (like :e *.c but that doesn't work)
@@ -638,7 +638,7 @@ Runaway GUI SAS killer:
 
  /* Free up space - delete datasets */
 proc datasets library=WORK; kill; QUIT;  /* !not RUN; */
-proc datasets NOlist; delete Foo_DS Bar_DS; quit;
+proc datasets NOlist library=l; delete patmod_all_cha rxfilldata_all_cha; run; quit;
 
  /* Column input with some missing data -- use TRUNCOVER List input with some
   * missing data at the rightmost edge -- use MISSOVER to keep SAS from trying
@@ -1017,6 +1017,7 @@ data _null_; rc=attrn(open('tmp1.pull_lift'), 'NOBS'); put rc=;run;
 
  /* Day of week number 1=Sunday 7=Saturday */
 if weekday(today()) eq 2 then put "it's Monday";
+%if %sysfunc(weekday("&SYSDATE"d)) ne 5 %then %goto NOTSATURDAY;  ...  %NOTSATURDAY:
  /* Conditionally run macro if it's Wednesday */
 data _null_; if weekday(today()) eq 4 then do; call execute('%include "&CODE\PLOT_CODE\100__make_AdvHFA_STABILITY_PLOTS.sas";'); end; run;
 
@@ -1376,8 +1377,11 @@ data; format fiscalStart fiscalEnd date9.; fiscalStart= intnx('year.10', '03OCT1
 past = intnx('month', '01jan2000'D, -1, 'E');
 
  /* Calculate yesterday date in macro date calculation: */
-%let yesterday=%sysfunc(intnx(day, "&SYSDATE"D, -1, b), YYMMDD10.);
-%let yesterday=%sysevalf("&SYSDATE"D-1);
+%let yesterday=%sysevalf("&SYSDATE"D-1);                                                 /* 20322 */
+%let yesterday=%sysfunc(putn(%sysevalf("&SYSDATE"d-1),DATE9.));                          /* 31DEC2015 */
+%let yesterday=%sysfunc(intnx(day, "&SYSDATE"D, -1, b), YYMMDD10.);                      /* 2015-12-31 */
+%let yesterday=%bquote(')%sysfunc(intnx(day, "&SYSDATE"D, -1, b), YYMMDD10.)%bquote(');  /* '2015-12-31' */
+
 %let firstdayoflastmonth=%sysfunc(intnx(month, "&SYSDATE"D, -1, b), YYMMDD10.);
 %let onemonthagotoday=%sysfunc(intnx(month, "&SYSDATE"D, -1, s), YYMMDD10.);
 
@@ -1500,7 +1504,8 @@ numtochar = put(num, 12.2 -L);  /* floating point */
  /* Canonical char2num reusing existing char var name */
 data t(drop=TMP:); set t(rename=(x=TMPx)); x=input(TMPx, BEST.); run;
 
-do i=1 to input(mycountch, BEST.);  /* char2num */
+ /* 20151001 to 201510 while remaining a number: */
+shortmo=floor(month/100);
 
  /* Avoid asciibetical sort by inserting leading blanks if data is small: */
 data t; set t; region=right(region);
@@ -1652,6 +1657,9 @@ data ds_SAMPLE_1; run; data ds_SAMPLE_2; run;
 array temperaturehour_arr {24} temp1-temp24;
 
 DDMONYY in Oracle is DATE7. in SAS
+
+ /* x=21JUN13 */
+data; x=put(19530, DATE.); put x=; run;
 
  /* Canonical for each macro foreach loop */
 %let list=foo bar baz; %let i=1; %do %until (%qscan(&list, &i)=  ); %put %qscan(&list, &i); %let i=%eval(&i+1); %end;
@@ -1964,7 +1972,7 @@ where mydate >= date()-365
  /* Loop a range of dates: */
 %let start=%sysfunc(inputn(12DEC2015,ANYDTDTE9.)); %let end=%sysfunc(inputn(14DEC2015,ANYDTDTE9.)); %let nday=%eval(&end-&start); %do j=0 %to &nday; ... %end;
 
- /* '2015-12-13' */
+ /* Single quoted date '2015-12-13' */
 %let singlequotedfordatabase=%bquote(')%sysfunc(putn("&measuredt"d, YYMMDD10.))%bquote(');
 
  /* Missing dot to zero: */
@@ -1972,6 +1980,18 @@ select a.*, (case when b.TotalEnrolledLst30 ne . then b.TotalEnrolledLst30 else 
 
  /* Database trace: */
 option SASTRACE=",,,d" no$stsuffix SASTRACELOC=saslog; 
+
+ /* Postgres date convert macro '2015-10-01' */
+%put %bquote(')%sysfunc(putn(%sysfunc(inputn(20151001, YYMMDD8.)), YYMMDD10.))%bquote(');
+
+comment out: Ctl+/
+
+ /* Loop iterate comma separated macro variable: */
+%local i f; %let i=1; %let f=%scan(%superq(ds), &i, ','); %do %while ( &f ne  ); %let i=%eval(&i+1); %put DEBUG: dsloop3 &f; %let f=%scan(%superq(ds), &i, ','); %end;
+%dsloop3(%str(pqa_bar,pqa_foo));
+
+ /* Force date to last Saturday */
+data _null_; saturday = intnx('week', "&SYSDATE"D, 0, 'B')-1; call symput('date_max', put(saturday, DATE9.)); run;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3171,7 +3191,7 @@ Ctr-a d  # detach (from within screen session)
 # Set a shell variable's default even if it is not set, or is missing:
 f=foo.txt; if test "x$f" = "x" && f=bar; then ... fi
 
-# Push, flush history from one xterm to another
+# Push, flush, sync bash history from one xterm to another
 history -a  # append this xterm history
 history -n  # read in the other xterms appended history
 
@@ -6034,6 +6054,7 @@ sum(case when status = 'CANCEL' then 1 else 0 end) as cancelflag
 
 -- Postgres dates:
 where storeid in(&SID) and created > date('now') - interval '1 year'
+select date('now') - interval '1 month' as x
 ' Postgres data from last 2 days:
 select clientid, taskdate, hpprogramid, count(*) from naalytics.ehalthplanpatients_test where taskdate > date('now')-interval '2 day' group by clientid, taskdate, hpprogramid order by taskdate desc
 
@@ -6055,6 +6076,9 @@ TRUNCATE bigtable, fattable;
 
 -- Postgres remove leading zeros to find 01, 1, 03, 3:
 where trim(leading '0' from roleoftherapycode) in ('1','3')
+
+-- Postgres version
+select version();
 
 :: Send To folder c:\temp
 %APPDATA%\Microsoft\Windows\SendTo
@@ -6087,5 +6111,7 @@ date_trunc('day', etl_ts)
 -- Postgres date selection, capture all activity for the 14th
 select * from generate_series('2015-12-13'::timestamp without time zone, '2015-12-15'::timestamp without time zone, '1 second'::interval)
 where date(generate_series) <= date('2015-12-14')
+
+¿
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

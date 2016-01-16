@@ -3,7 +3,6 @@
   [separator] () {} 
   /*[exec] (Chromium)              {/usr/bin/chromium-browser} </usr/share/icons/hicolor/256x256/apps/chromium-browser.png>*/
   [exec] (Chrome)              {/usr/bin/google-chrome-stable} </usr/share/icons/hicolor/256x256/apps/google-chrome.png>
-  [exec] (Firefox        Mod4+f) {/usr/bin/firefox} </usr/share/pixmaps/firefox.png>
   [exec] (Gvim           Mod4+g) {/usr/bin/vim.gnome -g -f} </usr/share/pixmaps/vim-32.xpm>
   /*[exec] (lxterm       Mod4+t) {/usr/bin/lxterm -C} </usr/share/pixmaps/lxterminal.xpm>*/
   [exec] (gnome-terminal Mod4+t) {/usr/bin/gnome-terminal} </usr/share/pixmaps/gnome-terminal.xpm>
