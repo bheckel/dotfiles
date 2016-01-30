@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Thu 10 Dec 2015 10:40:53 (Bob Heckel)
+" Modified: Wed 20 Jan 2016 11:11:03 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -463,8 +463,13 @@ set nobackup
 
 "                               19 the swap file {{{2
 
-"""set directory=/Drugs/Personnel/bob/
-set directory=~/tmp/
+" Avoid placing swapfiles where other users might be confused by them
+if has('gui_win32')
+  set directory=c:/temp/
+else
+    set directory=~/tmp/
+endif
+
 " Write swap file to disk after 60 inactive seconds
 set updatetime=60000
 
@@ -841,6 +846,9 @@ noremap ,w :call WrapToggle()<CR>
 " Comment out (using the most common comment style '###' for suffix-less files).
 " This default may be overridden by au commands below.
 noremap ;; :call setline('.', Commentout(getline('.'), 'default'))<CR>
+" If filetype isn't set for /* this style */
+noremap ;;; :silent s:^:/\*\*\*:g \| :s:$:\*\*\*/:g<CR>
+noremap ;;;; :silent s:^/\\*\\*\\*::g \| :s:\\*\\*\\*/$::g<CR>
 
 if has('unix')
 """  map ;0 <ESC>:!/usr/bin/google-chrome 'https://google.com/search?q=<C-R>=Websearch()<CR>'<CR><CR>
@@ -1640,8 +1648,8 @@ fu! WrapToggle()  " {{{2
     setlocal textwidth=0
     setlocal nolinebreak
     setlocal nowrap
-    unmap j
-    unmap k
+"""    unmap j
+"""    unmap k
   endif
 endfu
 " }}}

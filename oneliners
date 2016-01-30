@@ -227,13 +227,14 @@ s<BS>s   <---Produces German ß
 " Bulk update convert fully qualified path to SAS macrovariable in all open buffer files:
 :argdo %s:C\:\\cygwin\\home\\bheckel\\VAIR_HFA:\&DIRROOT:ge | update
 
-" Simple bulk update - must have used :args - e in ge keeps vim quiet if no match (c confirm doesn't appear to work-THERE IS NO CONFIRMATION), do a  :vimgrep /foo/ **/*.sas  first to verify what will change:
+" Simple bulk update - must have used :args - e in ge keeps vim quiet if no match (c confirm doesn't appear to work-THERE IS NO CONFIRMATION), do a  :vimgrep /foo/g **/*.sas  first to verify what will change:
 :argdo %s/foo/bar/ge | update
 
 " Count words word count (returns e.g. '4 matches on 3 lines'):
 :%:s:replicant:&:gn
 
-" Just search all buffers. DEPRECATED: use bufgrep or my .vimrc BuffersList() bbb cmap:
+" Search all buffers (may need to clear quickfix first :cexpr [] ):
+:bufdo vimgrepadd searchme %
 :bufdo %s/findme/&/gic
 " Search and replace all buffers interactively:
 :bufdo %s/findme/changeme/gic
@@ -699,6 +700,10 @@ Using 1920 default: 00...19 becomes 2000...2019
 //          OPTIONS='MEMSIZE=0'                                
 //...
 
+ /* Set option from command line: */
+ /* t.sas is  proc options option=MEMSIZE value; run; */
+$ /sas/sashome/SASFoundation/9.4/sas -memsize 0 t.sas
+
  /* Sets the auto variable myfname, not the keyword FILENAME, to the physical name of the currently opened file! */
 infile IN FILENAME=myfname;  /* lvalue assigns rvalue ! */
 
@@ -919,11 +924,6 @@ input foo $CHAR2.;
 
  /* Suppress any input errors in SAS Log and keep _ERROR_=0 */
 input name $8.  number  ??;
-
- /* Macro date - format today's date into a macrovar: */
-%let formatteddate=%sysfunc(date(), YYMMDD10.);
-
-%let formatteddollars=%sysfunc(putn(&MYNUM, DOLLAR10.));
 
  /* Operating system specific option: */
 %macro OS; %if &SYSSCP eq OS %then %str(options NOs99nomig;); %mend; %OS
@@ -1364,6 +1364,12 @@ start='11jan2013'd; monthEnd=intnx('month', start, 0, 'e');   /* last day of mon
  /* Macro date - change format reformat date into a macrovar: */
 %let mydt='30OCT2015'; %let newdt=%sysfunc(putn("&mydt"D, YYMMDD10.));
 %let mydt='30OCT2015'; %let mydtplusone=%sysfunc(intnx(day, "&maxdate"D, 1, b), YYMMDD10.);
+%let mydquoted=%bquote(')%sysfunc(putn(%sysfunc(inputn(20150101, YYMMDD8.)), YYMMDD10.))%bquote(');  /* '2015-01-01' */
+
+ /* Macro date - format today's date into a macrovar: */
+%let formatteddate=%sysfunc(date(), YYMMDD10.);
+
+%let formatteddollars=%sysfunc(putn(&MYNUM, DOLLAR10.));
 
  /* Shifted index - when is next election day?: */
 %let nextelectionday=%sysfunc(intnx(year4.11, '01OCT2015'd, 1), DATE9.);
@@ -1773,8 +1779,8 @@ select b.code, b.count, COALESCE(a.animal,'Unknown') as animal  /* set animal='U
  /* Iterate over an array: */
 array a[*] foovar barvar bazvar; do i=1 to dim(a); if a[i]>maxn then maxn=a[i]; end;
 
- /* Enhanced date format 20131004.  B blank  C colon  D dash  N none  P period  S slash.  Default YYMMDD10. inserts dashes. */
-data _null_; d='04oct13'd; put d yymmddN8.;run;
+ /* Enhanced date separator formats.  B blank  C colon  D dash  N none  P period  S slash.  The default YYMMDD10. inserts dashes. */
+data _null_; d='04oct13'd; put d yymmddN8.;run;  /* 20131004 */
 %let maxdate2=%sysfunc(putn("&maxdate"d, YYMMDDN8.));
 
 do j=1 to 4; subj(j)=''; score(j)=.; end;  /* initialize array set to missing v8 */
@@ -1913,8 +1919,8 @@ select count(distinct cats(storeid,masked_patientkey)) as UPID
  /* Concatenate: use a delimiter - CATX is different in that it skips missing values.  Old version would do e.g. foo,,bar */
 mycsv = catx(',', c1, c2, c3);
 
-# Who is using up all WORK?:
-sudo du -h /workspace |sort -h| ls -l  # largest offender on bottom
+# Who is using up all SASWORK?:
+sudo find /saswork -size +10G | sudo xargs ls -lh | awk '{print$5,$3,$4,$6,$7,$8,$9}'|sort -rh
 
  /* Blank label */
 data p10j; set p10b p10c; label _TEMA001='00'x; run; proc print data=p10j LABEL; run;
@@ -1942,9 +1948,8 @@ data _null_; x='04'; y= put(input(x, BEST. -L), Z4.); put y=; run;
  /* Canonical email send: */
 filename MAILTHIS email ("&mailto") cc="&user@foo.com" subject="&clientname (clientid-&clid) Checklist attach=("&loc/&fn" "&loc/&fn2"); data _null_; file MAILTHIS; put 'ok'; put; run;
 
- /* Build a single quoted string for Oracle, Postgres etc (but FAILS with leading zero numbers, see alternative build_db_query_list_via_macro.sas): */
-proc sql; select ndc into :medlist separated by ',' from l.t; quit;
-data _null_; call symput('medlist2', catq('1AC', &medlist)); run;
+ /* Build a single quoted string for Oracle, Postgres etc (but FAILS with leading zero numbers, try ndc::integer or see alternative build_db_query_list_via_macro.sas): */
+proc sql; select ndc into :medlist separated by ',' from l.t; quit;  data _null_; call symput('medlist2', catq('1AC', &medlist)); run;
 
  /* Rename a dataset's variable: */
 proc datasets lib=work; modify stores; rename clients_fkid=clientid; run;
@@ -1966,7 +1971,7 @@ select patientphonenbr, case when length(patientphonenbr)=10 then 1 else 0 end a
  /* Only dates in the last year: */
 where mydate >= date()-365
 
- /* Canonical macro list loop: */
+ /* Canonical do while macro list loop: */
 %let i=1; %let clid=%qscan(&clientid_ind, &i, %str( )); %do %while ( &clid ne %str( ) ); ...  %let i=%eval(&i+1); %let clid=%qscan(&clientid_ind, &i, %str( ));
 
  /* Loop a range of dates: */
@@ -1992,6 +1997,13 @@ comment out: Ctl+/
 
  /* Force date to last Saturday */
 data _null_; saturday = intnx('week', "&SYSDATE"D, 0, 'B')-1; call symput('date_max', put(saturday, DATE9.)); run;
+
+ /* Determine informat at runtime based on a flag: */
+else if flag=3 then chardata=inputc(char_data,"$UPCASE22.");
+else if flag=3 then sasnumdate=inputn(char_date,"YYMMDD10.");
+
+ /* Make both numeric for the join: */
+from csv3 a left join db52 b on a.storeid_csv=input(b.storeid_db5, 8.) and a.pharmacypatientid_csv=input(b.pharmacypatientid_db5, 8.)
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -2680,7 +2692,8 @@ export CVSROOT=:ext:rheckel@parsifal:/home/rheckel/repository && cvs co eandb
 $ date --set=17:03:01
 
 # Determine how much memory (in MB) you have:
-$ free -m # or  vi /proc/meminfo
+$ free -m  # 193397 is 193G of RAM
+vi /proc/meminfo
 # Determine how much swap (in MB) you have on Solaris:
 /usr/sbin/swap -s
 # Determine how much memory (in MB) you have on Solaris:
@@ -3720,6 +3733,8 @@ tmux -2 a -t sas0-ses2  # attach if session exists, note sas0-ses2 may be a digi
 tmux -2 a  # if only one exists to reattach to
 tmux -2 new -s sas0-ses3  # if we need a new session
 
+if (( `df -h /saswork|grep saswork | awk '{print $4}'|sed s/%//g` > 90 )); then echo warning | mail -s 'workspace almost full' bob.heckel@ateb.com; fi
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -3755,6 +3770,8 @@ perl -e '@h{key1, key2} = (1,2); print $h{key2};'
 $basefilename = $1 if $fullyqualifiedpath =~ m|[/\\:]+([^/\\:]+)$|;
 # Pick out the fully qualified path and strip off the filename:
 $directory = $1 if $fullyqualifiedpath =~ m|(.*[/\\:])+[^/\\:]+$|;
+# Stem is $1 basename is $2
+$file =~ m#((?:[^/]*/)*)(.*)#;
 
 # Specify where to install Perl module (if you want a non standard directory):
 perl Makefile.PL PREFIX=~/perllib
@@ -6025,7 +6042,7 @@ COUNT(*)                returns the number of rows in a table
 COUNT(DISTINCT ColName) returns the number of unique values for column ColName
 COUNT(ColName)          returns the number of rows that have a non null value for ColName
 
--- Only those columns explicitly listed in the GROUP BY clause may appear un-aggregated (i.e. not as a parameter of an aggregate function) in the SELECT or HAVING clauses.  Or put negatively, it is prohibited to use an un-aggregated column in the SELECT or HAVING clauses unless it is explicitly listed in the GROUP BY clause.  That usually means the SELECT is equal or shorter to the GROUP BY.
+-- Only those columns explicitly listed in the GROUP BY clause may appear un-aggregated (i.e. not as a parameter of an aggregate function) in the SELECT or HAVING clauses.  That usually means the SELECT is equal or shorter to the GROUP BY.
 
 UPDATE Professor SET Salary=Salary*1.1, Dept="IT" WHERE Dept='555';
 

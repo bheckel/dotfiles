@@ -4,7 +4,7 @@
 # Summary: bash shell config for at least Cygwin 1.3/1.5/1.7, Unix and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Fri 06 Nov 2015 14:10:47 (Bob Heckel)
+# Modified: Fri 22 Jan 2016 14:23:36 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -110,11 +110,10 @@ alias gs='git status'
 alias gss='git status -s'
 alias h='history|tail -20'  # history 20 is better if it exists
 # Poor-man's file sync.  See gskto gskfrom.  Using suffix-less tarball to
-# discourage email parsing/snooping.
-# Assumes we have manually downloaded the weekend work attachment as ~/c.NEW.
+# discourage email filtering.
+# Assumes we have manually downloaded (or git pull origin master) the weekend work attachment as ~/c.NEW.
 # Monday morning run usually.
-alias homefrom='cd ~; ls -l ~/transfer/c.NEW && sleep 6; tar xvfz ~/transfer/c.NEW'
-alias iv=vi
+alias homefrom='cd ~; ls -l ~/transfer/c.NEW && sleep 6; tar xvfz ~/transfer/c.NEW; rmv ~/transfer/c.NEW'
 alias j="jobs -s"  # only show STOPPED (i.e. skip RUNNING blink.exe's) jobs
 alias l='ls'
 # Overridden later if non-GNU ls is present.  Do not move.
@@ -679,8 +678,8 @@ case "$OSTYPE" in
     #-------------------
     # Alias Cygwin  #{{{2
     #-------------------
-    alias by=logout  # like FTP and SAS
-    alias bye=logout
+    alias by=exit  # like FTP and SAS
+    alias bye=exit
     alias catput=$HOME/code/misccode/catput.sh
     # This assumes $TEMP is defined to C:\temp above for Cygwin vim/gvim issues (can't reside in Generic section, normal unix uses ~/tmp)
     alias d12="(cd $TEMP;vi -d 1 2)"
@@ -701,7 +700,7 @@ case "$OSTYPE" in
     ###alias h='history|tail -20|perl -pe "s/(\d+)(.*)/: \1; \2/"'
     alias h='history|tail -20'
     # Friday afternoon run usually
-    alias hometo='ls -l ~/c && echo "...files newer than ^^^this^^^ one will be added to tarball..." && sleep 5 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd - && st ~'
+###    alias hometo='ls -l ~/c && echo "...files newer than ^^^this^^^ one will be added to tarball..." && sleep 5 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd - && st ~'
     alias l='ls -GFw80 --color=none'   # for speed in Cygwin
     # Elim . .., owner and group info on Cygwin.
     alias ll='ls -FloGgh --color=auto'
@@ -933,16 +932,16 @@ case "$OSTYPE" in
       # Assumes we've downloaded the gsk tarball as ~/Downloads/c.  home* are un on workbox, gsk* are run on homebox. See
       # homefrom hometo.  Friday night run usually.
 ###      alias gskfrom='cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && find -L ~/code -perm 000|xargs chmod 755; cd ~/code/misccode; gs'
-      alias gskfrom='cd ~ && tar xvfz ~/Downloads/c && cp ~/Downloads/{c,c.PREV} && cd ~/code/misccode; gs'
+      alias gskfrom='cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && cd ~/code/misccode; gs'
       # Assumes we have recent work ready to tar and mail to gsk as c.NEW.
       # See homefrom hometo.  Sunday evening run usually:
       alias gskto="cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV | grep -v '/.git/' | grep -v '.swp' | xargs tar cvfz ~/Downloads/c.NEW"
-      # Next do  $ git add c && git commit -m'mod' && git push origin master
-      alias hometo="ls -l ~/transfer/c && echo '...files newer than ^^^this^^^ one will be added to tarball...' && sleep 5 && cd ~ && find code/ -type f -newer ~/transfer/c | xargs tar cvfz ~/transfer/c"
+      # Friday afternoon usually
+      alias hometo="ls -l ~/transfer/c && echo '...files newer than ^^^this^^^ one will be added to tarball...' && sleep 5 && cd ~ && find code/ -type f -newer ~/transfer/c | xargs tar cvfz ~/transfer/c; cd ~/transfer; git add c && git commit -m'mod' && git push origin master"
       alias ll='ls -lh --color --group-directories-first'
       ###alias moz='export DISPLAY=158.111.250.170:0.0; mozilla&'
       ###alias sqlplus=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/sqlplus
-      # Command is $ pwd|sed 's/\//\\/g'" before vim backslashitis
+      # Print Windows Working Directory.  Command is $ pwd|sed 's/\//\\/g'" before vim backslashitis
       alias pwwd="pwd|sed 's/\\//\\\\/g'"
       alias srcb="source $HOME/.bashrc"
 
@@ -969,7 +968,11 @@ case "$OSTYPE" in
         alias vi=$HOME/usr/local/bin/vim
 
         function ses() {
-          find ~/bob/ -name "Session.vim" | awk '{print "vi -S " $1}'
+          find ~/bob/ -name "Session.vim" | awk '{print "vi -S " $1}' | sort | less
+        }
+
+        function sesg() {
+          find ~/bob/ -name "Session.vim" | awk '{print "vi -S " $1}' | grep -i "$1" | sort
         }
       fi
 
