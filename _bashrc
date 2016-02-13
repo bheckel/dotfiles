@@ -4,7 +4,7 @@
 # Summary: bash shell config for at least Cygwin 1.3/1.5/1.7, Unix and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Fri 22 Jan 2016 14:23:36 (Bob Heckel)
+# Modified: Thu 11 Feb 2016 14:27:39 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -113,7 +113,7 @@ alias h='history|tail -20'  # history 20 is better if it exists
 # discourage email filtering.
 # Assumes we have manually downloaded (or git pull origin master) the weekend work attachment as ~/c.NEW.
 # Monday morning run usually.
-alias homefrom='cd ~; ls -l ~/transfer/c.NEW && sleep 6; tar xvfz ~/transfer/c.NEW; rmv ~/transfer/c.NEW'
+alias homefrom="cd ~; echo 'extracting...'; ls -l ~/transfer/c.NEW && sleep 5; tar xvfz ~/transfer/c.NEW; rmv ~/transfer/c.NEW; cd -"
 alias j="jobs -s"  # only show STOPPED (i.e. skip RUNNING blink.exe's) jobs
 alias l='ls'
 # Overridden later if non-GNU ls is present.  Do not move.
@@ -125,7 +125,6 @@ alias lla='ls -agh --color --group-directories-first'
 ###alias lls='ls -l | sort +4r | grep -v "total"'  # sort descending on size
 alias lsd='find . -type d'
 ###alias locate='locate -i'
-###alias m=more
 alias one="vi $HOME/code/misccode/oneliners"
 # Case insensitive search for module:
 ###alias pdoc='perldoc -i'     
@@ -259,177 +258,6 @@ rmv() {
 		fi
   fi
 }
-
-
-# TODO not working - just using gt alias against a hardcoded .go.uniq.txt for now
-# 1) cd //Rtpdsntp032/DataPostArchive/DataPost/zip_files # prod 
-# 2) cd //Rtpdsntp032/DataPostArchive/Serevent_Diskus/CODE # prod prd 
-# 3) cd //Rtpdsntp032/DataPostArchive/Valtrex_Caplets/CODE # prod prd 
-#
-# Improvement to pushd and cdargs
-###go() {
-###  local dat="$HOME/.go.txt"
-###  local datcore="$HOME/.go.core.txt"  # never overwritten if exists
-###  local datuniq="$HOME/.go.uniq.txt"
-###  local maxvolatilenames=20
-###  local maxvolatilenames2=`expr $maxvolatilenames + 1`
-###
-###  # Make dummy to avoid errors if doesn't exist
-###  if [ ! -e "$datcore" ]; then
-###    touch $datcore
-###    echo "go's core datafile ($datcore) is non-existent, dummy created"
-###  fi
-###
-###  # Switch-less lists available dirs, if any, from previous runs
-###  if [ "$#" -eq 0 ]; then
-###    if [ -e "$datuniq" ]; then
-###      # Eliminate the leading "cd"s only for readability
-###      cat "$datuniq" | sed 's/cd//'
-###      return 0
-###    else
-###      echo "go's datafile ($datuniq) is non-existent"
-###      return 0
-###    fi
-###  elif [ "$#" -ge 1 ]; then
-###    while getopts cdth the_opt; do
-###      case "$the_opt" in
-###        c ) # Remove dead dirs requested
-###            goclean
-###            unset OPTIND
-###            return 0
-###            ;;
-###        d ) # Tempfile deletion requested
-###            rm "$dat" 
-###            rm "$datuniq" 
-###            unset OPTIND
-###            return 0 
-###            ;;
-###        h ) 
-###            echo 'Simple directory navigation to previously saved dirs'
-###            echo 'Usage: go [ N | DIR-TO-SAVE-THEN-CD-TO ] [ -c -d -h ]'
-###            echo '  -c run goclean() to remove nonexistent directories'
-###            echo '  -d delete working files (no prompts)'
-###            echo '  -h this help message'
-###            unset OPTIND
-###            return 0 
-###            ;;
-###        # Go [t]o the most likely dir if it is unique enough.  S/b aliased as
-###        # 'gt' for speed.
-###        t ) 
-###            # Count lines matching via -c
-###            if [ `grep -ic "$2" "$datuniq"` -eq 1 ]; then
-###              # Found one match only
-###              # Go to the only choice (we're taking advantage of the leading
-###              # "cd" in go.uniq.tmp.txt) after removing our leading numbers.
-###              if [ "$ISCYG" = 'CYGWIN' ]; then
-###                # Minor ')' enhancement
-###                ###`grep -i "$2" "$datuniq" | sed "s/[0-9])//"`
-###                `grep -i "$2" "$datuniq" | sed 's/....//'`
-###                unset OPTIND
-###                return 0
-###              else
-###                echo 'not implemented'
-###              fi
-###            elif [ `grep -ic "$2" "$datuniq"` -gt 1 ]; then
-###              # Ambiguous - show matches, let user decide
-###              grep -i "$2" "$datuniq"
-###              unset OPTIND
-###	      echo -n '? '
-###	      read whereto
-###              # Recursive
-###	      go $whereto
-###              return 0
-###            else
-###              # Found nothing, show all to prove it
-###              cat "$datuniq"
-###              unset OPTIND
-###              return 0
-###            fi
-###            return 0 
-###            ;;
-###      esac
-###    done
-###  fi
-###  # Fall-thru -- navigation digit passed:
-###  case "$1" in
-###    1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 ) 
-###      # cd to dirs numbered 1 thru max of 9.  
-###      # Column positions of the tmp file are important.
-###      if [ "$ISCYG" = 'CYGWIN' ]; then
-###        `cat $datuniq | grep "^ \+$1" | sed 's/^...//'`
-###        unset OPTIND
-###        return 0
-###      fi
-###    ;;
-###    # This max must be same as tail parameter below plus the number of lines in
-###    # $datcore (or we must delete rows from .go.txt)
-###    10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47 | 48 | 49 | 50 | 51 | 52 | 53 | 54 | 55 | 56 | 57 | 58 | 59 | 60 | 61 | 62 | 63 | 64 | 65 | 66 | 67 | 68 | 69 | 70 ) 
-###      # Column positions of the tmp file are important.
-###      if [ "$ISCYG" = 'CYGWIN' ]; then
-###        # TODO spaces in path - this resolves to
-###        # cd /cygdrive/c/Documents\ and\ Settings/rsh86800/My\ Documents
-###        # but then cd fails to cd to it
-###        `cat $datuniq | grep "^$1" | sed 's/^...//'`
-###        unset OPTIND
-###        return 0
-###      fi
-###    ;;
-###    * ) 
-###      # User wants to add a new go() dir but we'll test that it exists
-###      # first.  cd(1) gives warning on failure so we won't add any here.
-###      if ( cd "$1" ); then
-###        cd "$1"
-###        d="$PWD"
-###        # Lastest saves are at bottom
-###        echo "cd $d" | sed -e 's/ /\\ /g' -e 's/cd\\/cd/g' >> $dat
-###        # Take a slice from the bottom of the file after removing dups
-###        if [ "$ISCYG" = 'CYGWIN' ]; then
-###          tail -$maxvolatilenames $dat | sort | uniq -i | nl -w2 -nrn -s') ' >| $datuniq
-###          # Always want these  TODO avoid dups in core & uniq .go's
-###          cat $datcore | sort | uniq -i | nl -v$maxvolatilenames2 -w2 -nrn -s') ' >> $datuniq
-###        else
-###          ###tail -$maxvolatilenames $dat | sort | uniq | nl >| $datuniq
-###          echo 'not implemented'
-###        fi
-###        unset OPTIND
-###        return 0
-###      fi
-###    ;;
-###  esac
-###}
-
-# Cleanup the working files of go() by verifying existence of dirs.
-# Usually called via go -c.  Separate from go() to allow easier refreshing of
-# the datafiles.
-# TODO chokes on paths with spaces "bash: [: /c/Program: binary operator
-# expected"
-###goclean() {
-###  local dat=$HOME/.go.txt
-###  local datuniq="$HOME/.go.uniq.txt"
-###  local datmp=$TMP/cleango$$
-###  local maxlines=75
-###
-###  >$datmp
-###
-###  while read l; do 
-###    # Remove 'cd ' part of line used by go()
-###    m=`echo "$l" | sed 's/^[^/]*//'`
-###    # Keep dirs that still exist since original call to go()
-###    if [ -d "$m" ]; then
-###      echo $l >>$datmp
-###    fi
-###  done <$dat
-###
-###  cat $datmp | uniq | tail -$maxlines >| $dat
-###
-###  if [ "$ISCYG" = 'CYGWIN' ]; then
-###    tail -9 "$dat" | sort | uniq | nl -w2 -nrn -s') ' >| "$datuniq"
-###  else
-###    tail -9 "$dat" | sort | uniq | nl >| "$datuniq"
-###  fi
-###
-###  rm $datmp
-###}
 
 
 # Adapted from http://hermitte.free.fr/cygwin/#Win32
@@ -616,6 +444,12 @@ function gl() {
 					|head -n$days; \
 					echo -n; echo; echo "${fg_darkgray} ...displaying last $days $branch";
 }
+
+
+function md() {
+  mkdir $1 && cd $1
+}
+
 
 # Generic Functions end
 
@@ -890,7 +724,7 @@ case "$OSTYPE" in
       fi  ##}}}
 
       # CentOS  # {{{2
-      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'talon4.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ]; then
+      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ]; then
         # locate() is failing with permission errors, using this weak alternative
         function loc() {
           find $HOME/code |grep -i $1
@@ -904,7 +738,7 @@ case "$OSTYPE" in
       #----------------
 
       # CentOS  # {{{2
-      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'talon4.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ]; then
+      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ]; then
         alias sas0='ssh -l bheckel sas-01.twa.ateb.com'
         alias tal='ssh -l bheckel talon3.dep.ateb.com'
 
@@ -932,12 +766,12 @@ case "$OSTYPE" in
       # Assumes we've downloaded the gsk tarball as ~/Downloads/c.  home* are un on workbox, gsk* are run on homebox. See
       # homefrom hometo.  Friday night run usually.
 ###      alias gskfrom='cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && find -L ~/code -perm 000|xargs chmod 755; cd ~/code/misccode; gs'
-      alias gskfrom='cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && cd ~/code/misccode; gs'
+      alias gskfrom="echo 'retrieving from github...'; cd ~/Downloads && git pull origin master; echo 'extracting...'; ls -l ~/Downloads/c; sleep 5; cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && cd ~/code/misccode; gs; cd -"
       # Assumes we have recent work ready to tar and mail to gsk as c.NEW.
       # See homefrom hometo.  Sunday evening run usually:
       alias gskto="cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV | grep -v '/.git/' | grep -v '.swp' | xargs tar cvfz ~/Downloads/c.NEW"
       # Friday afternoon usually
-      alias hometo="ls -l ~/transfer/c && echo '...files newer than ^^^this^^^ one will be added to tarball...' && sleep 5 && cd ~ && find code/ -type f -newer ~/transfer/c | xargs tar cvfz ~/transfer/c; cd ~/transfer; git add c && git commit -m'mod' && git push origin master"
+      alias hometo="ls -l ~/transfer/c && echo '...files newer than ^^^this^^^ one will be added to tarball...' && sleep 5 && cd ~ && find code/ -type f -newer ~/transfer/c | xargs tar cvfz ~/transfer/c; echo 'sending to github...'; cd ~/transfer; git add c && git commit -m'hometo' && git push origin master; cd -"
       alias ll='ls -lh --color --group-directories-first'
       ###alias moz='export DISPLAY=158.111.250.170:0.0; mozilla&'
       ###alias sqlplus=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/sqlplus
@@ -964,7 +798,8 @@ case "$OSTYPE" in
       fi
       #}}}
 
-      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'talon4.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ]; then
+      # Ateb  # {{{2
+      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ]; then
         alias vi=$HOME/usr/local/bin/vim
 
         function ses() {
@@ -972,9 +807,11 @@ case "$OSTYPE" in
         }
 
         function sesg() {
-          find ~/bob/ -name "Session.vim" | awk '{print "vi -S " $1}' | grep -i "$1" | sort
+###          find ~/bob/ -name "Session.vim" | awk '{print "vi -S " $1}' | grep -i "$1" | sort
+          find ~/bob/ -name "Session.vim" | awk '{print "vi -S " $1}' | grep -i "$1" | sort >| ~/tmp/.vimxfer && cat ~/tmp/.vimxfer
         }
       fi
+      #}}}
 
       shopt -s cdspell checkhash checkwinsize cmdhist dotglob histappend 
 

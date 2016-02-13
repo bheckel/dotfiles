@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Wed 20 Jan 2016 11:11:03 (Bob Heckel)
+" Modified: Wed 10 Feb 2016 10:54:57 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -408,9 +408,13 @@ set expandtab
 
 set cinwords=if,elsif,else,while,do,for,switch,unless,until,when,otherwise,BEGIN,END
 
-set smartindent
-
 set autoindent
+
+" Restore indent after typing hash
+set nosmartindent
+set cindent
+set cinkeys-=0#
+set indentkeys-=0#
 
 "                               15 folding {{{2
 
@@ -624,7 +628,7 @@ iab YdG <C-R>=strftime("%d-%b-%y")<CR>
 " 'It takes more time working around the annoying pathologies of web authoring
 " tools than it takes to just write the thing in html source to begin with.' ~ Anonymous
 iab HtA <a href="http://example.com">example link</a>
-iab HtM <!DOCTYPE html><CR><html><CR>  <head><title></title></head><CR><body></body><CR><Left><Left></html>
+iab HtM <!DOCTYPE html><CR><html><CR>  <head><meta charset="utf-8"><title></title></head><CR><body></body><CR><Left><Left></html>
 iab HtT <table><CR>  <tr><td> </td></tr><CR><Left><Left></table>
 " Character entities:
 """iab ;< &lt;

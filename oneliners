@@ -900,10 +900,10 @@ array starr{*} $2 st1-st57 ('AL', 'AK', 'AR', 'AZ', 'CA', 'CO');
  /* SAS array access */
 do i=1 to dim(starr); otherarr{i} = starr{i}; end;
 
- /* Get the $HOME environment variable (Windows & Unix at least) */
+ /* Get the $HOME environment variable */
 %let myhome=%sysget(HOME); %put _all_;
-%let sasroot=%sysget(SASROOT); %put _all_;
-%let sashome=%sysget(SASHOME); %put _all_;
+%let sasroot=%sysget(SASROOT); %put &=SASROOT;
+%let sashome=%sysget(SASHOME); %put &=SASHOME;
 
  /* Substring (if argument might contain a special character or mnemonic operator use %qsubstr()) */
 %put %substr(2168, 3, 2);
@@ -1930,6 +1930,7 @@ proc sql noprint; select distinct cats('"',put(patient_dob,date9.),'"d') into :d
 if region eq 'Asia' then put 'foo'; else put 'bar';
 
 rc=system("/Drugs/EGP/cho.sh fyu:sas &converted_change_perms 2>/Drugs/Personnel/bob/foo/wtf");
+rc=system('/bin/bash /Drugs/Cron/Daily/FredsImm/fredsimm.sh 2>/Drugs/Cron/Daily/FredsImm/fredsimm.err');
 
  /* Convert Unix path space to backslash space via regex: */
 %let reportlocationconverted=%sysfunc(prxchange(s/ /\\ /, -1, &reportlocation));
@@ -2004,6 +2005,24 @@ else if flag=3 then sasnumdate=inputn(char_date,"YYMMDD10.");
 
  /* Make both numeric for the join: */
 from csv3 a left join db52 b on a.storeid_csv=input(b.storeid_db5, 8.) and a.pharmacypatientid_csv=input(b.pharmacypatientid_db5, 8.)
+
+ /* Create composite proc sql index: */
+proc sql; create index places on sql.newcountries(name, continent); quit;
+
+ /* Command line SAS: */
+/sas/sashome/SASFoundation/9.4/sas -nodms
+
+ /* Week number starting with Mon thru Sun */
+weeknum=week(datepart(lastmodifieddt), 'W');
+
+ /* Month number */
+monthnum=month(datepart(lastmodifieddt));
+
+ /* Test write a file to a folder: */
+ods CSVALL file='/Drugs/TMMEligibility/ClarksRxBo/Imports/t2.csv'; proc print data=sashelp.cars; run; ods CSVALL close;
+
+ /* Append a record to end of dataset: */
+data weekcnt; set weekcnt end=e; output; if e then do; clientstoreid='999'; weeknum=6; output; end; run;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3601,8 +3620,8 @@ find $z/datapost/dataDose/ |grep 'lims_.*t_.*sas7bdat' |xargs ls -l |awk '{print
 find /cygdrive/c/datapost/data/SGK/Zebulon/ -name '*.pdf'|sed 's/\/cygdrive\/c//' |perl -pe 's/(.*)\/(.*)/<a href=http:\/\/zdatapostd.sgk.com\1\/\2\/>\2<\/a>/'
 
 # Cygwin X
-$ startxwin&  # ok to close xterm if one pops up and use it or rxvt for next cmd:
-$ ssh -X tpsh005  # see readme.ssh.txt if need id switching (su, super chemlms-shell, etc.)
+xinit -- -multiwindow
+ssh -l bheckel -Y 10.11.12.13  # /sas/sashome/SASManagementConsole/9.4/sasmc
 
 # Exceed Hummingbird replacement is Cygwin X (for CDE desktop access):
 $ XWin.exe -query trpsh005  # don't use startxwin unless want commandline only
@@ -3733,7 +3752,9 @@ tmux -2 a -t sas0-ses2  # attach if session exists, note sas0-ses2 may be a digi
 tmux -2 a  # if only one exists to reattach to
 tmux -2 new -s sas0-ses3  # if we need a new session
 
-if (( `df -h /saswork|grep saswork | awk '{print $4}'|sed s/%//g` > 90 )); then echo warning | mail -s 'workspace almost full' bob.heckel@ateb.com; fi
+if (( `df -h /saswork|grep saswork | awk '{print $4}'|sed s/%//g` > 90 )); then echo warning | mail -s 'workspace almost full' bob.heckel@taeb.com; fi
+
+$ nice -n19 gpg --encrypt --recipient 'Obc (Out Dial App) <obc\@taeb.com>' t.gpg
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6119,7 +6140,7 @@ where listdate = (select max(listdate) from test.master_npi)
 -- Postgres date range, pull data from last year for patients over 50:
 filldate > date('now') - interval '1 year'  and  patientdob < date('now') - interval '50 year'
 
--- Postgres determine age range:
+-- Postgres determine birthdate age range:
 case when extract(years FROM age(patientdob))>=90 then 90 else extract(years FROM age(patientdob)) end as age
 
 -- Postgres date truncate:
@@ -6129,6 +6150,13 @@ date_trunc('day', etl_ts)
 select * from generate_series('2015-12-13'::timestamp without time zone, '2015-12-15'::timestamp without time zone, '1 second'::interval)
 where date(generate_series) <= date('2015-12-14')
 
-¿
+-- Postgres cast convert type:
+select * from stores where clients_fkid=999 and storeid::int4=232
+
+-- Postgres psql save write output to file:
+select distinct pmapuserid, loginname as pmapusername, defaultclientid as clientid
+\o saveoutput.txt  (\o to quit)  then run query
+
+curl -o ~/tmp/breaching_whale.jpg -OL https://cdn.learnenough.com/breaching_whale.jpg
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
