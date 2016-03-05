@@ -9,18 +9,11 @@
 # MAKE SURE THAT APPS THAT KEEP RUNNING HAVE AN ''&'' AT THE END!
  
 xmodmap "$HOME/.Xmodmap"  # keymap for lefty
-###unclutter -idle 5 &
-# wmnd &
-# wmsmixer -w &
 ###idesk &
 conky -x 5 -y 0 &
-###rxvt-unicode -icon /usr/share/icons/Faenza/apps/32/xterm_32x32.xpm &
-###google-chrome &
-###ssh-agent $SHELL &
 nm-applet &
 dropbox start &
 redshift-gtk &
-###wmmoonclock &
 ###wmweather -s KRDU &
 xset dpms 1200 1500 1800  # monitor DPMS timeouts in seconds
 xset s off  # disable screensaver

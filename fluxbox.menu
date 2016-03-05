@@ -1,36 +1,35 @@
 [begin] (fluxbox)
 [include] (/etc/X11/fluxbox/fluxbox-menu)
   [separator] () {} 
-  /*[exec] (Chromium)              {/usr/bin/chromium-browser} </usr/share/icons/hicolor/256x256/apps/chromium-browser.png>*/
-  [exec] (Chrome)              {/usr/bin/google-chrome-stable} </usr/share/icons/hicolor/256x256/apps/google-chrome.png>
-  [exec] (Gvim           Mod4+g) {/usr/bin/vim.gnome -g -f} </usr/share/pixmaps/vim-32.xpm>
-  /*[exec] (lxterm       Mod4+t) {/usr/bin/lxterm -C} </usr/share/pixmaps/lxterminal.xpm>*/
-  [exec] (gnome-terminal Mod4+t) {/usr/bin/gnome-terminal} </usr/share/pixmaps/gnome-terminal.xpm>
-  [exec] (Midori)                {/usr/bin/midori} </usr/share/icons/hicolor/32x32/apps/midori.png>
-  [exec] (Thunar)                {/usr/bin/thunar} </usr/share/icons/hicolor/64x64/apps/Thunar.png>
+  [exec] (Chrome)             {/usr/bin/google-chrome-stable} </usr/share/icons/hicolor/256x256/apps/google-chrome.png>
+  [exec] (Gvim)               {/usr/bin/vim.gnome -g -f} </usr/share/pixmaps/vim-32.xpm>
+  [exec] (gnome-terminal)     {/usr/bin/gnome-terminal} </usr/share/pixmaps/gnome-terminal.xpm>
+  [exec] (Midori)             {/usr/bin/midori} </usr/share/icons/hicolor/32x32/apps/midori.png>
+  [exec] (Thunar)             {/usr/bin/thunar} </usr/share/icons/hicolor/64x64/apps/Thunar.png>
   [separator] ()              {} 
   [submenu] (yoniso)
-    [exec] (Firefox      Mod4+f) {/opt/firefox/firefox} </home/bheckel/misc/computer/firefox.png>
-    [exec] (Iview        Mod4+i) {/home/bheckel/bin/iview} </usr/share/pixmaps/playonlinux.png>
-    [exec] (rxvt-unicode)        {rxvt-unicode -icon /usr/share/icons/Faenza/apps/32/xterm_32x32.xpm} </usr/share/icons/Faenza/apps/32/xterm_32x32.xpm>
+    [exec] (Firefox)            {/opt/firefox/firefox} </home/bheckel/misc/computer/firefox.png>
+    [exec] (Iview)              {/home/bheckel/bin/iview} </usr/share/pixmaps/playonlinux.png>
+    [exec] (rxvt-unicode)       {rxvt-unicode -icon /usr/share/icons/Faenza/apps/32/xterm_32x32.xpm} </usr/share/icons/Faenza/apps/32/xterm_32x32.xpm>
   [end]
   [submenu] (misc)
-    [exec] (Calibre )            {/usr/bin/calibre} </usr/share/calibre/images/lt.png>
-    [exec] (Chrome)              {/usr/bin/google-chrome} </opt/google/chrome/product_logo_256.png>
-    [exec] (gnome-disks)         {gnome-disks} <>
-    [exec] (mtpaint)             {/usr/bin/mtpaint} <>
-    [exec] (netExtenderGui )     {/usr/bin/netExtenderGui} <>
-    [exec] (okular)              {/usr/bin/okular} <>
-    [exec] (remmina)             {/usr/bin/remmina} <>
-    [exec] (VirtualBox)          {/usr/bin/virtualbox} </usr/share/icons/hicolor/32x32/apps/virtualbox.png>
+    [exec] (anoise)             {/usr/bin/anoise} <>
+    [exec] (Calibre)            {/usr/bin/calibre} </usr/share/calibre/images/lt.png>
+    [exec] (gens)               {/usr/games/gens} <>
+    [exec] (gnome-disks)        {gnome-disks} <>
+    [exec] (mtpaint)            {/usr/bin/mtpaint} <>
+    [exec] (netExtenderGui)     {/usr/bin/netExtenderGui} <>
+    [exec] (okular)             {/usr/bin/okular} <>
+    [exec] (remmina)            {/usr/bin/remmina} <>
+    [exec] (VirtualBox)         {/usr/bin/virtualbox} </usr/share/icons/hicolor/32x32/apps/virtualbox.png>
   [end]
   /*[exec] (Volume       Mod4+v) {urxvt -name alsa -e alsamixer} </usr/share/icons/gnome/32x32/status/stock_volume.png>*/
   [separator] ()              {} 
   [exec] (Suspend)            {sleep 90 && sudo /usr/sbin/pm-suspend}
   [separator] ()              {} 
-  [exec] (Restart)            {sudo shutdown -r 0}
+  [exec] (Restart)            {xmessage restarting...; sudo shutdown -r 0}
   [separator] ()              {} 
-  [exec] (Shutdown)            {sudo shutdown -h 0}
+  [exec] (Shutdown)           {xmessage shutting down...; sudo shutdown -h 0}
   [separator] ()              {} 
   [exec] (About)              {(fluxbox -v; fluxbox -info | sed 1d) 2>/dev/null | xmessage -file - -center}
 [end]

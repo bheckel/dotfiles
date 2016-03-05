@@ -4,7 +4,7 @@
 # Summary: bash shell config for at least Cygwin 1.3/1.5/1.7, Unix and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Thu 11 Feb 2016 14:27:39 (Bob Heckel)
+# Modified: Sat 20 Feb 2016 09:18:38 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -25,6 +25,8 @@ stty -ixon
 
 # Tab completion after typing 'cd ' show dirs only.  See also FIGNORE for related completion restrictions.
 complete -d cd
+
+shopt -s extglob 
 
 #-----------------------
 # Generic Export  #{{{2
@@ -111,9 +113,8 @@ alias gss='git status -s'
 alias h='history|tail -20'  # history 20 is better if it exists
 # Poor-man's file sync.  See gskto gskfrom.  Using suffix-less tarball to
 # discourage email filtering.
-# Assumes we have manually downloaded (or git pull origin master) the weekend work attachment as ~/c.NEW.
-# Monday morning run usually.
-alias homefrom="cd ~; echo 'extracting...'; ls -l ~/transfer/c.NEW && sleep 5; tar xvfz ~/transfer/c.NEW; rmv ~/transfer/c.NEW; cd -"
+# Assumes we have sent the weekend work attachment ~/Downloads/c.NEW from home to github.  Monday morning run usually.
+alias homefrom="cd ~/transfer && git pull origin master; cd ~; echo 'extracting...'; ls -l ~/transfer/c.NEW && sleep 5; tar xvfz ~/transfer/c.NEW; rmv ~/transfer/c.NEW; cd -"
 alias j="jobs -s"  # only show STOPPED (i.e. skip RUNNING blink.exe's) jobs
 alias l='ls'
 # Overridden later if non-GNU ls is present.  Do not move.
@@ -730,6 +731,11 @@ case "$OSTYPE" in
           find $HOME/code |grep -i $1
         }
 
+        # Mar  3 07:32 /Drugs/Cron/Daily/tmm_enroll_ratio/tmm_enroll_ratio.log
+        function myls() {
+          ls -lgG $1 |sed -r 's/^\S+ \S+ \w+ //g'
+        }
+
         #umask 022  # 022 is 755, 037 is 740
       fi #}}}
 
@@ -766,10 +772,10 @@ case "$OSTYPE" in
       # Assumes we've downloaded the gsk tarball as ~/Downloads/c.  home* are un on workbox, gsk* are run on homebox. See
       # homefrom hometo.  Friday night run usually.
 ###      alias gskfrom='cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && find -L ~/code -perm 000|xargs chmod 755; cd ~/code/misccode; gs'
-      alias gskfrom="echo 'retrieving from github...'; cd ~/Downloads && git pull origin master; echo 'extracting...'; ls -l ~/Downloads/c; sleep 5; cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && cd ~/code/misccode; gs; cd -"
-      # Assumes we have recent work ready to tar and mail to gsk as c.NEW.
+      alias gskfrom="echo 'retrieving from github...';echo; cd ~/Downloads && git pull origin master; echo;echo 'extracting...'; ls -l ~/Downloads/c; sleep 5; cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && cd ~/code/misccode; gs; cd -"
+      # Assumes we have recent home changes ready to tar and use at work Monday when we will git it
       # See homefrom hometo.  Sunday evening run usually:
-      alias gskto="cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV | grep -v '/.git/' | grep -v '.swp' | xargs tar cvfz ~/Downloads/c.NEW"
+      alias gskto="cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV | grep -v '/.git/' | grep -v '.swp' | xargs tar cvfz ~/Downloads/c.NEW && cd ~/Downloads && git add c.NEW && git commit -m'gskto' && git push origin master"
       # Friday afternoon usually
       alias hometo="ls -l ~/transfer/c && echo '...files newer than ^^^this^^^ one will be added to tarball...' && sleep 5 && cd ~ && find code/ -type f -newer ~/transfer/c | xargs tar cvfz ~/transfer/c; echo 'sending to github...'; cd ~/transfer; git add c && git commit -m'hometo' && git push origin master; cd -"
       alias ll='ls -lh --color --group-directories-first'
