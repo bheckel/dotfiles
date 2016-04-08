@@ -375,55 +375,55 @@ parse_git_branch() {
 
 
 # Search ~/code
-loc() {
-  # Assumes  /bin/updatedb --localpaths="$HOME/code" --prunepaths="$HOME/code/misccode/.git" --output='/var/lib/locatedb.code'
-	# has been run recently.
-  local cmd='locate --ignore-case --database=/var/lib/locatedb.code'
-  local foundnothing="nothing found in $2 ($cmd $1)"
-  local foundatleast1=
-  local grepme=
-
-  if [ -z "$1" ];then
-		echo '.bashrc: Use locate(1) to find items in ~/code'
-		echo '         Optionally search by section.  Optionally edit all results.'
-    echo 'usage: loc searchstr [(p)erl | (s)as | (o)ther code | (v)im] [(v)im edit]'
-  elif [ -z "$2" -a -z "$3" ];then
-    $cmd "$1"
-  elif [ -z "$3" ];then
-    # Same lettering convention as my 'gone' utility
-    if [ "$2" = p ];then
-      grepme=perl
-    elif [ "$2" = s ];then
-      grepme=sas
-    elif [ "$2" = o ];then
-      grepme=misccode
-    else
-      grepme=$2
-    fi
-    foundatleast1=$($cmd "$1" | grep $grepme)
-    if [ ! -z "$foundatleast1" ]; then
-      $cmd "$1" | grep $grepme
-    else
-      echo $foundnothing
-    fi
-  else
-    if [ "$2" = p ];then
-      grepme=perl
-    elif [ "$2" = s ];then
-      grepme=sas
-    elif [ "$2" = o ];then
-      grepme=misccode
-    else
-      grepme=$2
-    fi
-    foundatleast1=$($cmd "$1" | grep $grepme)
-    if [ ! -z "$foundatleast1" ]; then
-      $EDITOR -p `$cmd "$1" | grep $grepme`
-    else
-      echo $foundnothing
-    fi
-  fi
-}
+###loc() {
+###  # Assumes  /bin/updatedb --localpaths="$HOME/code" --prunepaths="$HOME/code/misccode/.git" --output='/var/lib/locatedb.code'
+###	# has been run recently.
+###  local cmd='locate --ignore-case --database=/var/lib/locatedb.code'
+###  local foundnothing="nothing found in $2 ($cmd $1)"
+###  local foundatleast1=
+###  local grepme=
+###
+###  if [ -z "$1" ];then
+###		echo '.bashrc: Use locate(1) to find items in ~/code'
+###		echo '         Optionally search by section.  Optionally edit all results.'
+###    echo 'usage: loc searchstr [(p)erl | (s)as | (o)ther code | (v)im] [(v)im edit]'
+###  elif [ -z "$2" -a -z "$3" ];then
+###    $cmd "$1"
+###  elif [ -z "$3" ];then
+###    # Same lettering convention as my 'gone' utility
+###    if [ "$2" = p ];then
+###      grepme=perl
+###    elif [ "$2" = s ];then
+###      grepme=sas
+###    elif [ "$2" = o ];then
+###      grepme=misccode
+###    else
+###      grepme=$2
+###    fi
+###    foundatleast1=$($cmd "$1" | grep $grepme)
+###    if [ ! -z "$foundatleast1" ]; then
+###      $cmd "$1" | grep $grepme
+###    else
+###      echo $foundnothing
+###    fi
+###  else
+###    if [ "$2" = p ];then
+###      grepme=perl
+###    elif [ "$2" = s ];then
+###      grepme=sas
+###    elif [ "$2" = o ];then
+###      grepme=misccode
+###    else
+###      grepme=$2
+###    fi
+###    foundatleast1=$($cmd "$1" | grep $grepme)
+###    if [ ! -z "$foundatleast1" ]; then
+###      $EDITOR -p `$cmd "$1" | grep $grepme`
+###    else
+###      echo $foundnothing
+###    fi
+###  fi
+###}
 
 
 function urlencode() { echo -n $@ | perl -pe's/([^-_.~A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg'; }
@@ -728,7 +728,7 @@ case "$OSTYPE" in
       if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ]; then
         # locate() is failing with permission errors, using this weak alternative
         function loc() {
-          find $HOME/code |grep -i $1
+          find $HOME/code |grep -i "$1"
         }
 
         # Mar  3 07:32 /Drugs/Cron/Daily/tmm_enroll_ratio/tmm_enroll_ratio.log
@@ -771,8 +771,7 @@ case "$OSTYPE" in
       # Poor-man's file sync:
       # Assumes we've downloaded the gsk tarball as ~/Downloads/c.  home* are un on workbox, gsk* are run on homebox. See
       # homefrom hometo.  Friday night run usually.
-###      alias gskfrom='cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && find -L ~/code -perm 000|xargs chmod 755; cd ~/code/misccode; gs'
-      alias gskfrom="echo 'retrieving from github...';echo; cd ~/Downloads && git pull origin master; echo;echo 'extracting...'; ls -l ~/Downloads/c; sleep 5; cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && cd ~/code/misccode; gs; cd -"
+      alias gskfrom="echo 'retrieving from github...';echo; cd ~/Downloads && git pull origin master; echo;echo 'extracting...'; ls -l ~/Downloads/c; sleep 5; cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && cd ~/code/misccode; gs"
       # Assumes we have recent home changes ready to tar and use at work Monday when we will git it
       # See homefrom hometo.  Sunday evening run usually:
       alias gskto="cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV | grep -v '/.git/' | grep -v '.swp' | xargs tar cvfz ~/Downloads/c.NEW && cd ~/Downloads && git add c.NEW && git commit -m'gskto' && git push origin master"

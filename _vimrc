@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Wed 10 Feb 2016 10:54:57 (Bob Heckel)
+" Modified: Tue 05 Apr 2016 10:54:20 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -32,9 +32,10 @@
 """set verbose=1
 " DEBUG toggle -- watch changes to text happen slowly (default is 0)
 """set writedelay=5
+"""echo 'reach'
 
 let THISBOX = hostname()
-let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWL14H50510', 'sas-01.twa.ateb.com' ]
+let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWL14H50510', 'sas-01.twa.ateb.com', 'sasdev-01.twa.ateb.com', 'SAS-01', 'SAS-02' ]
 let HOMEBOXARRAY = [ 'yoniso', 'appa' ]
 
 if has ('win32unix')
@@ -759,7 +760,6 @@ map <F12> :q<CR>
 """"""""""""""""""""""""""
 " Begin ',' comma mapping
 """"""""""""""""""""""""""
-
 " Greenbar highlight every other line.  Also see HighlightCurrentLine()
 noremap ,<Tab> :set hls<CR>/\\n.*\\n/<CR>
 
@@ -831,6 +831,12 @@ noremap ,n :bn<CR>
 " ,p is an autocmd
 
 noremap ,qq :q!<CR>
+
+if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
+  " Ugly hack to get word (SAS macro name) under cursor.  Then gf & u:
+  noremap ,r :let @z=substitute(expand("<cword>"),".*","/Drugs/Macros/&.sas","g")<CR>ciw<C-R>z<ESC>
+"""  noremap ,r :let @z=substitute(expand("<cword>"),".*","/cygdrive/e/Macros/&.sas","g")<CR>ciw<C-R>z<ESC>
+endif
 
 " Quick search template:
 noremap ,s :%s::g<Left><Left>
@@ -1697,10 +1703,8 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufRead,BufEnter *.sas map ;c 0Di  *  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.sas map ;m 0Di  * Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.sas map ,m yy0I***<ESC>p
-  " Define pairs to allow the 'bounce on %' plugin to work.  Case insensitive.
-  au BufNewFile,BufRead,BufEnter *.sas let s:SASnotend = '\%(\<end\s\+\)\@<!'
-  " No spaces between pairs!
-  au BufNewFile,BufRead,BufEnter *.sas let b:match_words = s:SASnotend . '\<do\>:\<end\>,\<data\s\+\w\+:\<run\;,%macro.*\;:\<mend\>.*\;,\<proc sql:\<quit;'
+  " Define pairs to allow the 'bounce on %' plugin to work.  Case insensitive.  No spaces between pairs!
+  au BufNewFile,BufRead,BufEnter *.sas let b:match_words = '\<do\>:\<end\>,\<data\s\+\w\+:\<run\;,%macro.*\;:\<mend\>.*\;,\<sql.*;:\<quit;'
   " Filter SAS Log for error-like lines (and lines that should be errors) only
 """au BufNewFile,BufRead,BufEnter *.log noremap <silent> <F8> :g!/^ERROR: \\|^ERROR\\s\\+\\d\\+-\\d\\+:\\|^WARNING: [^Compression]\\|stopped processing this step because\\|lines were truncated\\|NOTE: Invalid data for\\|NOTE: Variable\\|NOTE\\s\\+\\d\\+-\\d\\+:\\|WARNING: Apparent/d<CR> 
   au BufNewFile,BufRead,BufEnter *.log noremap <silent> <F8> :g!/^ERROR:\\\|^WARNING:\\\|lines were truncated\\\|^NOTE: Invalid data for\\\|^NOTE: Variable/d<CR>
@@ -1916,7 +1920,13 @@ if !exists("autocommands_loaded")
 		"""au BufNewFile,BufRead,BufEnter DataPost*.log set noswapfile | set hlsearch | source u:/code/sas/saslog.vim 
 		"""au BufRead,BufNewFile *.map set filetype=xslt
 
-		au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim 
+   if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
+      if has('gui') 
+        au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source c:/cygwin64/home/bob.heckel/code/sas/saslog.vim 
+      else
+        au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim 
+      endif
+    endif
 
 """    au BufReadPre,FileReadPre /Drugs/Macros/* set noswapfile
 """    au BufReadPre,FileReadPre /Drugs/Cron/* set directory=/Drugs/Personnel/bob/

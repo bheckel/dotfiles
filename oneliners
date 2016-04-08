@@ -603,6 +603,7 @@ xxSASxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
 http://support.sas.com/documentation/onlinedoc/bookshelf/94/desktop.html
 http://support.sas.com/documentation/cdl/en/lefunctionsref/67960/HTML/default/viewer.htm#n1mj2bizbsd7ktn1sf9lz111kku3.htm
+http://support.sas.com/documentation/cdl/en/lestmtsref/67407/HTML/default/viewer.htm#p08st7rzfn0dgin1fml8hq40hlho.htm
 
 Missing value '.' always sort lower than char or num and ._ sorts lowest of all
 SAS Special Missing Value (.A thru .Z)
@@ -1257,7 +1258,7 @@ do while (1);  /* infinite loop */
 proc sql NOprint; select left(put(max(nfills),8.)) into :MAXNFILLS from (select count(*) as nfills from t group by member_id); quit;
 
  /* Count number of observations - efficient */
-data _null_; if 0 then set SASHELP.shoes nobs=count; call symput('CNTOFOBS', count); stop; run;
+data _null_; if 0 then set BUILD.clients_shortname_lookup nobs=count; call symput('OBSCNT', strip(count)); stop; run;
 
  /* Count observations without opening dataset - most efficient (can also count vars with NVARS)*/
 %let dsid=%sysfunc(open(work.foo)); %let cntobs=%sysfunc(attrn(&dsid, NLOBS)); %let dsid=%sysfunc(close(&dsid));
@@ -1294,6 +1295,9 @@ filename F 't.csv'; data t; infile F DLM=',' DSD TRUNCOVER LRECL=2600 FIRSTOBS=3
  /* Count spaces in a macrovariable by compressing them away */
 %let l1=%length(&spacey); %let c=%sysfunc(compress(&spacey)); %let l2=%length(&c); %let csp=%eval(&l1-&l2);
 
+ /* Remove commas from mvar */
+%let varlistsas=%sysfunc(compress(%quote(&varlist),','));
+%let varlistsas=%sysfunc(translate(%quote(&varlist),' ',','));
  /* Remove commas and quote delimiters from mvar */
 %let X=%sysfunc(compress(%quote(%sysfunc(translate(%quote(&S),' ',','))),'"'));
 
@@ -1313,7 +1317,9 @@ sBatch1Code = translate(sBatch1Code, '_', '-');
 sBatch1Code = tranwrd(sBatch1Code, 'foo', 'bar');
 sBatch1Code = tranwrd(sBatch1Code, 'foo', '');
 
- /* Canonical if then else macro: */
+ /* Canonical SAS if then else: */
+if region eq 'Asia' then put 'As'; else put 'no';
+if region eq 'Africa' then do; put 'Af'; end; else do; put 'no'; end;
 %if &i eq 2 %then %do; %let fqds=8ZP2432; %end; %else %do; %let fqds=32; %end;
 
  /* Rename vars to avoid "WARNING: Variable mfg_batch already exists on file WORK.VALTREX_PRODUCTIONANDANALYTICAL." */
@@ -1504,9 +1510,6 @@ out-->SAS Output  lst-->SAS Output (same)  log-->SAS Log  wpg-->Enhanced Editor
 data _null_; x=sleep(60000); run;  /* 60 seconds */
 
 if first.storeno and last.storeno then put 'firstdot lastdot says there is only one of these unique values: ' storeno;
-
- /* Assigned automatically by SAS */
-SASUSER libname e.g.: C:\Documents and Settings\rsh8680\My Documents\My SAS Files\V8
 
  /* SAS Program Editor (*not* Enhanced) where n is num of lines */
 Cn/CC copy  Dn/DD del  In insert  Mn move  Rn repeat  A after  B before  undo (in cmdline)
@@ -1886,7 +1889,7 @@ proc sql noprint; select distinct cats('"',put(patient_dob,date9.),'"d') into :d
  /* Canonical SAS if then */
 if region eq 'Asia' then put 'foo'; else put 'bar';
 
-rc=system('/bin/bash /Drugs/Cron/Daily/FredsImm/fredsimm.sh 2>/Drugs/Cron/Daily/FredsImm/fredsimm.err');
+rc=system('/bin/bash /Drugs/xron/Daily/FredsImm/fredsimm.sh 2>/Drugs/xron/Daily/FredsImm/fredsimm.err');
 
  /* Convert Unix path space to backslash space via regex: */
 %let reportlocationconverted=%sysfunc(prxchange(s/ /\\ /, -1, &reportlocation));
@@ -1914,6 +1917,8 @@ proc sql; select ndc into :medlist separated by ',' from l.t; quit;  data _null_
 proc datasets lib=work; modify stores; rename clients_fkid=clientid; run;
 
 ODS PATH work.templat(update) sasuser.templat(read) sashelp.tmplmst(read);
+ /* ERROR: Template 'Tagsets.Msoffice2k_x' was unable to write to template store!  Use: */
+ODS PATH (prepend) work.templat(update);
 
  /* List all filename reference filerefs: */
 filename _ALL_ list;
@@ -1933,7 +1938,7 @@ where mydate >= date()-365
  /* Canonical do while macro list loop: */
 %let i=1; %let clid=%qscan(&clientid_ind, &i, %str( )); %do %while ( &clid ne %str( ) ); ...  %let i=%eval(&i+1); %let clid=%qscan(&clientid_ind, &i, %str( ));
 
- /* Loop a range of dates: */
+ /* Loop a range of SAS dates: */
 %let start=%sysfunc(inputn(12DEC2015,ANYDTDTE9.)); %let end=%sysfunc(inputn(14DEC2015,ANYDTDTE9.)); %let nday=%eval(&end-&start); %do j=0 %to &nday; ... %end;
 
  /* Single quoted date '2015-12-13' */
@@ -1951,7 +1956,7 @@ option SASTRACE=",,,d" no$stsuffix SASTRACELOC=saslog;
  /* Date convert 22FEB2016 to 20160222 in macro: */
 %let mydt=%sysfunc(putn(%sysfunc(inputn(&today, DATE9.)), YYMMDDN8.));
 
-comment out: Ctl+/
+ /* Comment out in EG: Ctl+/  Uncomment in EG: Ctl+Shift+/ */
 
  /* Loop iterate comma separated macro variable: */
 %local i f; %let i=1; %let f=%scan(%superq(ds), &i, ','); %do %while ( &f ne  ); %let i=%eval(&i+1); %put DEBUG: dsloop3 &f; %let f=%scan(%superq(ds), &i, ','); %end;
@@ -1961,7 +1966,7 @@ comment out: Ctl+/
 else if flag=3 then chardata=inputc(char_data,"$UPCASE22.");
 else if flag=3 then sasnumdate=inputn(char_date,"YYMMDD10.");
 
- /* Char2num make both numeric on the fly for the join: */
+ /* Char2num make both vars numeric on the fly for the join: */
 from csv3 a left join db52 b on a.storeid_csv=input(b.storeid_db5, 8.) and a.pharmacypatientid_csv=input(b.pharmacypatientid_db5, 8.)
 
  /* Create composite proc sql index: */
@@ -1976,14 +1981,14 @@ weeknum=week(datepart(lastmodifieddt), 'W');
  /* Month number */
 monthnum=month(datepart(lastmodifieddt));
 
- /* Test write a file to a folder: */
+ /* Write a csv file using ODS: */
 ods CSVALL file='/Drugs/TMMEligibility/ClarksRxBo/Imports/t2.csv'; proc print data=sashelp.cars; run; ods CSVALL close;
 
  /* Append a record to end of dataset: */
 data weekcnt; set weekcnt end=e; output; if e then do; clientstoreid='999'; weeknum=6; output; end; run;
 
  /* datetime to date */
-select clientstoreid,  put(datepart(lastmodified), DATE9.) as dtlastmodified, count(*)
+select clientstoreid, put(datepart(lastmodified), DATE9.) as dtlastmodified, count(*)
 
  /* Conditional send email from datastep: */
 ...  else do; put 'fail ' rc1=; to='bob.heckel@taeb.com'; file dummy email filevar=to subject="Error during &SYSPROCESSNAME execution"; stop; end;
@@ -2000,13 +2005,46 @@ if reverse(upcase(left(trim(f)))) eq: 'FDP';
  /* Leap year is accomodated: */
 intnx('YEAR', '29feb2000'd, 2, 'SAME');  /* 28feb2002 */
 
+ /* SAS performance tuning: */
+1-For nominally good SAS I/O performance, you should see job steps in your SAS logs with combined CPU + User CPU time within 10% of the Real Time.
+2-As a general rule, the User CPU Time value added to the System CPU Time value should be fairly close to the Real Time value. If the Real Time value is much higher, as it is in this example, then you have a problem that needs to be corrected. 
+
+ /* Append Excel worksheet to an existing multi tab workbook: */
+PROC EXPORT DATA=sashelp.prdsale OUTFILE="t.xlsx" DBMS=XLSX REPLACE; SHEET="PRSALE"; RUN;
+
+ /* SAS EG default port is 8561 */
+
+ /* PC SAS clear previously compiled macros before rerunning - pick up changes to called macro during debugging: */
+proc catalog cat=work.sasmacr; delete mailteam / et=macro; quit;
+ /* SAS EG clear previously compiled macros before rerunning - pick up changes to called macro during debugging: */
+proc catalog cat=work.sasmac1; delete mailteam / et=macro; quit;
+
+ /* Print a SAS catalog: */
+proc catalog cat=work.sasmac1; contents out=new; run;
+
+ /* Show how SAS has translated your SQL:  NOTE: Statement transforms to: */
+proc sql FEEDBACK; ...
+
+select clientid, storeid, pharmacypatientid, max(greatest(solddate,filldate)) as max_solddate, max(solddate+dayssupply) as next_visit, max(solddate+dayssupply)-current_date as duedays, max(solddate)-current_date as recent_visit from rxfilldata_parent ...
+
+ /* Choose cgid if populated otherwise use default of 0: */
+put(coalesce(cgid,0),8.);
+
+ /* Today now formatted differently: */
+%let today=%sysfunc(putn(%sysfunc(inputn(&sysdate, DATE9.)), DATE9.));
+%let today2=%sysfunc(putn(%sysfunc(inputn(&today, DATE9.)), YYMMDDN8.));
+
+ /* Collapse multiple rows to single row: */
+data xx; update xx(obs=0) xx; by idnum; run;
+
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
 xxUNIXxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
 # Canonical date stamp:
-date +%d%b%y
+date +%d%b%y  # 31Mar16
+TODAY=`date +%Y%m%d`  # 20160331
 
 # Canonical find and then grep
 ssh tpsh005 'find /opt/QCServer/A.05.00/svr/files -name 'Inspec_Lot-*' -mtime -3 -exec grep "Error:" {} \;'
@@ -2132,19 +2170,14 @@ $ export DISPLAY=158.111.250.163:0.0 && mozilla&
 # crontab -e fields: min hr day mon wkday(0=Sun,6=Sat)
 
 # Run cron job on last day of every month
-0 23 28-31 * * [ $(date -d +1day +%d) -eq 1 ] && myscript.sh
-# Run cron job on last Sunday of every month (see also sunday.last.sh)
-18 * * * 0 [`date "+%d"` -gt 24] && /path/to/script
+00 07 28-31 * * [[ $(date -d +1day +\%d) -eq 01 ]] && echo 'james script will be ok at 500 today' | mailx bheckel@gmail.com
 # Run cron job every 30 minutes:
 5,35 * * * * /usr/bin/dfmon
 # Run cron job every Saturday & Sunday at 3:59am 4:59am 5:59pm
 59 3,4,17 * * 6-7 /bin/df -h 
 
-# When a script is started from the cron and there is anything sent to STDOUT,
-# it will either get logged in the system messages file or emailed to the root
-# account.  To prevent this:
+# When a script is started from cron and anything is sent to STDOUT it will either get logged in the system messages file or emailed.  To prevent this:
 5 0 * * * /usr/bin/disk_hogs > /dev/null 2>&1
-
 # Avoid cron email on cron output (use logfile instead):
 59 * * * * /usr/bin/fooprg >> /home/rheckel/fooprglog.txt 2>&1
 
@@ -2161,7 +2194,7 @@ $ export DISPLAY=158.111.250.163:0.0 && mozilla&
 df -h
 # Human readable disk space HPUX
 bdf
-# Top CPU users HPUX (ugly but works)
+# Top CPU users HPUX
 UNIX95= ps -eo user,pid,pcpu,comm | sort -nrbk3 | head -10
 
 # Poor man's cron bash.  Trigger at 4:00-4:59pm:
@@ -2399,7 +2432,7 @@ find -type f -mtime -1|xargs tar cvfz foo/t.tar.gz && scp foo/t.tar.gz rheckel@d
 find . -name '*.h' -exec grep -H foostring {} \;
 # or better recursive grep
 find . -type f -print | xargs grep foo
-find /Drugs/Cron -type f -print0 |xargs -0 grep -i Weekly_Detail
+find /Drugs/xron -type f -print0 |xargs -0 grep -i Weekly_Detail
 # or                                   discard STDERR
 find . -type f -print | xargs grep foo 2> /dev/null
 # or all text _without_ specifying which file(s) the text came from:
@@ -3346,10 +3379,14 @@ diff <(sort file1) <(sort file2)
 diff <(md5sum *.sas) <(cd tmp;md5sum *.sas)
 diff <(md5sum *.mp3) <(cd /cygdrive/e/Decade/Disc\ 1;md5sum *.mp3)
 
-# Yesterday's zip file
+# Yesterday in bash:
 TODAY=`date +%b-%Y`
 YESTERDAY=$(expr `date +%d` - 1)
 echo "$PTHZIP/${YESTERDAY}-${TODAY}.zip"
+# Better Postgres quoted string yesterday:
+yesterday=`date -d "yesterday 13:00 " '+%Y-%m-%d'`
+yesterdayq=`echo \'$yesterday\'`
+psql -h db-06.twa.taeb.com AETBMART -c "select avg(enrolledratio) from analytics.tmm_enrollmentperf where measure_enddt=${yesterdayq}"
 
 # Remove leading zero:
 $ date +%d | sed "s/0//"
@@ -3703,7 +3740,8 @@ scp -r /Drugs/Drugs/AcmeControl bheckel@sas-01.twa.ateb.com:tmp/
 # Send email without an input file as body:
 0 * * * * echo 'ok' | mailx bob.heckel@taeb.com > /dev/null 2>&1
 
-yum install vim-enhanced.x86_64
+# CentOS
+sudo yum install vim-enhanced.x86_64
 
 # Sync a remote directory to the local system.  -a syncs recursively, preserves symlinks, special and device files, modification times, group, owner, and permissions, -P gives progress bar for the transfers and allows resume interrupted transfers
 rsync --dry-run -avP bheckel@talon3://mnt/nfs/home/bheckel/tmp/1440187439_21Aug15/dir1/ dir1  # pull - trailing slash important
@@ -3741,6 +3779,9 @@ if [[ $f = *.jpg ]]; then echo 'is a jpg' fi
 if [ $s = 'foo' ]; then
 # Check number for equality
 if [ $? -eq 1 ]; then
+
+# mintty taskbar properties
+C:\cygwin64\bin\mintty.exe -i /Cygwin-Terminal.ico -
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4533,172 +4574,6 @@ my ($pkg, $file, $line) = caller(); print "DEBUG: this sub was called from $pkg 
 
 xxPERLxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
-
-xxCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
-
-/* Zero out a high order bit (used to display negative, parity, etc.).
- * AND'ing with 0111 1111 leaves all bits but the first one
- * untouched.
- */
-ch = ch & 127;
-
-/* Turn on ECHO by using an OR */
-flags |= ECHO;
-/* Turn off ECHO by using an AND and an invert */
-flags &= ~ECHO;
-
-Any bit AND'ed with a 0 yields a 0.
-Any bit OR'ed with a 0 yields itself.
-
-/*  If variable ptrX "holds the ADDRESS of a MEMORY LOCATION containing an
- *  int", what it really means is that variable ptrX holds the ADDRESS of the
- *  first byte of the memory used for the int being pointed to.  That is one
- *  reason why variable ptrX, acting as a pointer, must point to a specific
- *  type.  The system needs to know HOW MANY bytes to handle as part of the
- *  data being pointed to. 
- */
-
-/* Increment p, the POINTER.  * binds less tightly than ++  
- * Same as *(p++) 
- */
-*p++
-
-/* Increment the VALUE pointed to by p, the pointer.
- * Force * to bind more tightly than ++ 
- */
-(*p)++
-/* Normally *p++ is the same as *(p++), above forces it otherwise. */
-
-/* Same--the contents of the object i locations past the one pointed to by p 
- * They're equivalent and valid if either p is a pointer or if it is an array.
- */
-*(p+i)   /* pointer arithmetic */
-p[i]
-
-/* Iterate over a string approach 1 -- array */
-for ( i=0; str[i]!='\0'; i++ ) { puts(str[i]); }
-
-/* Iterate over a string approach 2 -- pointer */
-while ( *str != '\0' ) { puts(*str++); }
-
-/* Iterate over a string approach 3 -- terse pointer */
-while ( *str ) { puts(*str++); }
-
-// Go to the end of a string (e.g. to allow concatenation, etc.)
-while ( *str ) str++;
-
-/* Declare pointer to constant int, which means that although the pointer
- * can be modified (to point to different locations), the location pointed to
- * (that is, *pci1) can not be modified. 
- *
- * It can be used to document (and enforce) a pointer parameter which a
- * function promises not to use to modify the location in the caller. 
- */
-const int *pci1;        /* or int const *pci1 */
-
-/* Declares a pointer-to-int which cannot be modified (it cannot be set to
- * point anywhere else), although the value it points to (*pci2) can be
- * modified. 
- */
-int * const pci2;
-
-/* Copy the value pointed to by p2 to the value pointed to by p1 ... */
-*p1 = *p2
-/* ... compare with setting p1 to point wherever p2 points. */
-p1 = p2
-
-If you have a pointer named ptr that has been initialized to point to the
-variable var, the following are true:
- 1.  *ptr and var both refer to the CONTENTS of var (that is, whatever value
-     the program has stored there). 
- 2.  ptr and &var refer to the ADDRESS of var. 
-
-int x[] and int *x both mean "pointer to int" 
-
-/* Use line number as informative exit code (view via shell's $?). */
-perror(argv[0]);
-exit(__LINE__);
-
-// Legitimate floating-point constant values are: 1e4 (exponent), 1.0001,
-// 47.0, 0.0, and -1.159e-77. 
-
-// Initialize array to zeros.  Compiler will use the first initializer for the
-// first array element, and then use zero for all the elements without
-// initializers (may be more efficient than using a for loop).
-int arr[6] = {0};
-
-// Size of an array idiom.  does the trick in a way that doesn't need to be
-// changed if the array size changes.  Size of entire array divided by the
-// size of 1st element.
-int n = sizeof a / sizeof *a;
-// or
-int n = sizeof a / sizeof a[0];   
-// or
-#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
-
-// Definition  - the place where the variable is created or assigned storage.
-// Declaration - the placeS where the nature of the variable is stated but no storage is allocated.
-
-// Must allocate space before copying source string to destination.  This
-// assumes that you don't preallocate dest this way:  char dest[80];
-char *dest;
-dest = (char *)malloc(strlen(source) +1);
-strcpy(dest, source);   /* ok now */
-
-/* Safe error trap for malloc which itself requires *some* memory on failure */
-#define MALLOC(x,y) do { y malloc(x); if (!y) abort(1); } while(0)
-
-/* Pointers to structs. */
-ptr_mystruct->title
-/* eliminates the need for the ugly */
-(*ptr_mystruct).title
-/* In both cases, we are evaluating the element title of the structure pointed
- * to by ptr_mystruct 
- */
-/* Pointers to structs summary: */
-// Element 'title' of structure 'ptr_movies'   
-movies.title    
-// Element 'title' of structure pointed to by 'movies'
-movies->title   // same as the ugly (*movies).title 
-// Value pointed to by element 'title' of structure 'movies'
-*movies.title   // same as the ugly *(movies.title) 
-
-Find out which shared libraries a program requires (List Dynamic Dependencies):
-$ ldd /usr/bin/w3m
-
-External (global) variables initialize to 0. Local variables init to garbage.
-
-// Minimum C macro
-#define MIN(x,y) ((x) <= (y) ? (x) : (y))
-
-// Compare two strings:
-char *name = "Choice 1";
-if ( strcmp(name, "Choice 1") == 0 ) {
-  // You've found a match
-}
-
-// Super debugger.  Looks like this: DEBUG: ascii.c, 51, Jul  9 2002, 15:04:43
-printf("\nDEBUG: %s, %d, %s, %s\n", __FILE__, __LINE__, __DATE__, __TIME__);
-
-// const member function:
-void show() const;   // promises not to change invoking object
-
-// Determine if odd number:
-int odd = (fmid - bmid) & 1;
-
-// Assuming a struct named Point exists, use this to simplify typing:
-typedef struct Point Point;
-
-// Ragged array of ptrs to null terminated strings.
-char* mystrings[] = {"how", "now", "brown", "cow"};
-
-// Comment out a section of code (will skip main()):
-#ifdef BOBHDEBUG;  main(); #endif
-
-// Good declaration of an array (assumes  #define MAXSTRINGLEN 42  earlier):
-char array[MAXSTRINGLEN+1] = { 0 };
-
-xxCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
 xxOTHERxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -6082,6 +5957,7 @@ isql -v jaspre bheckel mypw
 -- Postgres commandline:
 psql -h ajsperdb1.edp.atbe.com TEBMART
 psql -U atbleau -h db-02.twa.taeb.com teb
+psql -h db-06.twa.taeb.com ATEBMART -c "select * from analytics.reportinglog where reportname='TMMRep_Reporting_Automation' order by lastmodified desc LIMIT 1"
 
 -- Postgres empty a table:
 TRUNCATE bigtable, fattable;
@@ -6101,8 +5977,9 @@ select version();
 -- SQL GROUP BY count more than one
 select patientid, count(*) from analytics.health group by patientid having count(*)>1
 
--- SQL sum pickeduptimestamp if picked up in a during month, a range of dates:
+-- SQL convert timestamp to date then sum pickeduptimestamp if picked up in a during month, a range of dates:
 sum(case when date(pickeduptimestamp) between '01MAY2015' and '31MAY2015' then 1 else 0 end) as May2015, ...
+...and (date(pickeduptimestamp) between date('2016-02-01') and date('2016-04-30'))...
 
 -- Set binary date flags in SQL:
 sum(case when date(pickeduptimestamp) between '01MAR2015' and '31MAR2015' then 1 else 0 end) as Mar2015
@@ -6140,5 +6017,11 @@ where date_trunc('minute', ahpp.lastmodified) = '2016-02-23 08:56:00'::timestamp
 -- psql help  \?
 
 fulljoin FULL JOIN - an INNER JOIN that has been augmented with rows in either table that are not in the other table
+
+-- Activate blank Windows screensaver:
+%windir%\system32\scrnsave.scr
+
+-- Find next Postgres sequence number:
+select nextval('analytics.tmm_enrollmentperf_tmm_enrollmentperfid_seq');
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
