@@ -29,7 +29,7 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 %s/$/^Mfoo bar/gc  <--^M is control char Ctr+v + Return
 
 " For each line containing UPRD37, do this substitution
-:g/SPRD37/s/rtpsduxrax/us1sduxray/c
+:g/UPRD37/s/rtpsduxrax/us1sduxray/c
 
 " Delete line 10 and the 3 lines following it (total 4 lines deleted)
 :10d 4
@@ -221,7 +221,7 @@ s<BS>s   <---Produces German ß
 
 " Recursively load files matching a pattern (like :e *.c but that doesn't work)
 :args **/*.c
-:argdo %s:'\\\\rtpsawnv0312\\pucc:'C\:\\cygwin\\home\\rheckel\\projects\\datapost\\tmp:ge | update
+:argdo %s:'\\\\trpsawnv0312\\pucc:'C\:\\cygwin\\home\\rheckel\\projects\\datapost\\tmp:ge | update
 " Bulk update substitute single quotes for double quotes in all open buffer files
 :argdo g/libname/s/'/"/g | update
 " Bulk update convert fully qualified path to SAS macrovariable in all open buffer files:
@@ -232,12 +232,6 @@ s<BS>s   <---Produces German ß
 
 " Count words word count (returns e.g. '4 matches on 3 lines'):
 :%:s:replicant:&:gn
-
-" Search all buffers (may need to clear quickfix first :cexpr [] ):
-:bufdo vimgrepadd searchme %
-:bufdo %s/findme/&/gic
-" Search and replace all buffers interactively:
-:bufdo %s/findme/changeme/gic
 
 " After you've forgotten to check file permissions:
 :w !sudo tee %
@@ -392,7 +386,10 @@ vim `grep -l frame_counter *.c`
 " Alternatively on systems with grep(1) - faster but won't recurse, use vimgrep:
 :grep -i unexpected *.sas 
 
-" Search across buffers (then :cw) if :vvs vimgrep map fails because files aren't in pwd:
+" Search and replace all buffers interactively:
+:bufdo %s/findme/changeme/gic
+
+" Search across buffers (then :cw) if my :vvs vimgrep map fails because files aren't in pwd (may need to clear quickfix first :cexpr [] ):
 :call setqflist([]) | bufdo grepadd! foo %
 
 " Delete everything but the first 2 fields in a CSV
@@ -829,7 +826,7 @@ $ date;c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin indsumresCI.sas -altlog 01.log
  /* If you can't edit the command line, use these in start/end of the code to save Log and List (NEW to avoid append): */
 proc printto LOG="D:\foo.log" NEW PRINT="D:\foo.lst" NEW; run; ...code... proc printto;run;
  /* Keep GUI open during the run.  Instead of -sysin */
-c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -autoexec "\\rtpsawnv0312\pucc\Serevent_Diskus\CODE\0_MAIN_Serevent_Diskus.sas" -sysparm "\\rtpsawnv0312\pucc\Serevent_Diskus\CODE"
+c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -autoexec "\\trpsawnv0312\pucc\Serevent_Diskus\CODE\0_MAIN_Serevent_Diskus.sas" -sysparm "\\trpsawnv0312\pucc\Serevent_Diskus\CODE"
 
  /* Suppress discard SAS List .lst */
 c:\PROGRA~1\SASINS~1\SAS\V8\sas.exe -sysin t.sas -log t.log -NOterminal -NOprint
@@ -1150,7 +1147,7 @@ data r; do i=1 to 10; obsnumiwant=ranuni(int(datetime())); set d; output; end; s
 attrib state length=$3 label='foo bar' format=$40.; 
 
  /* Foreach dataset in library, push names into a mvar: */
-proc sql NOPRINT; select memname into :DSETS separated by ' ' from dictionary.members where libname like 'WORK'; quit;
+proc sql NOPRINT; select memname into :DSETS TRIMMED separated by ' ' from dictionary.members where libname like 'WORK'; quit;
 options ls=180 NOlabel;proc sql;select * from dictionary.columns where libname eq 'WORK' and memname eq 'EFORMSNUMCH';quit;
 
  /* Canonical sql libname */
@@ -1256,6 +1253,7 @@ do while (1);  /* infinite loop */
 
  /* Count max number of fills per member into macrovariable: */
 proc sql NOprint; select left(put(max(nfills),8.)) into :MAXNFILLS from (select count(*) as nfills from t group by member_id); quit;
+proc sql NOprint; select max(nfills) into :MAXNFILLS TRIMMED from (select count(*) as nfills from t group by member_id); quit;
 
  /* Count number of observations - efficient */
 data _null_; if 0 then set BUILD.clients_shortname_lookup nobs=count; call symput('OBSCNT', strip(count)); stop; run;
@@ -1411,8 +1409,8 @@ ods listing close;
 ods rtf file='report1.rtf' newfile=bygroup;
 
  /* Canonical write output save Excel as CSV */
-ods CSVALL file='t.csv'; proc print NOobs; run; ods CSVALL close;
 options NOsource; proc export data=t OUTFILE="\\pucc\VENT\Output Compiled Data\CSV VenHFA_analytical.csv" DBMS=CSV REPLACE; run;
+ods csv file='InputFile.csv'; proc print data=t3 NOobs LABEL; run; ods csv close;  /* better if need to change varname to label for user */
 
  /* Canonical write output save as an Excel file: */
 ODS EXCEL file="t.xlsx" options(sheet_name="#BYVAL(member)" embedded_titles='yes'); proc print NOobs; run; ODS EXCEL close;
@@ -2037,6 +2035,14 @@ put(coalesce(cgid,0),8.);
  /* Collapse multiple rows to single row: */
 data xx; update xx(obs=0) xx; by idnum; run;
 
+rc1=system("/Drugs/Cron/Daily/AholdImm/aholdimm.sh &path./foldername/Output/Imm_.csv 2>/Drugs/Cron/Daily/AholdImm/Aholdimm_encrypt.err");
+
+ /* Count number of variables named flag_* */
+proc sql; select count(*) into :nvars TRIMMED from dictionary.columns where libname='WORK' and memname='MYDS' and name like 'flag_%'; quit;
+
+ /* Add 1 to each variable var_N */
+data t; set t; array arr var_:; do over arr; arr+1; end; run;
+
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -2535,7 +2541,7 @@ mycommand >&0   <---STDIN  same as 0> I think
 mycommand >&1   <---STDOUT  same as 1> I think
 mycommand >&2   <---STDERR  same as 2> I think
 
-# mod modulus division
+# mod modulus division (every n item mod will equal 0).  Better might be to just use python.
 bc -lwq    # if need modulus, from within bc, set scale=0
 
 # mod modulus division
@@ -3775,9 +3781,9 @@ $ nice -n19 gpg --encrypt --recipient 'Obc (Out Dial App) <obc\@taeb.com>' t.gpg
 # Check a file extension:
 if [[ $f = *.jpg ]]; then echo 'is a jpg' fi
 
-# Check string for equality
+# Check bash string for equality
 if [ $s = 'foo' ]; then
-# Check number for equality
+# Check bash number for equality
 if [ $? -eq 1 ]; then
 
 # mintty taskbar properties

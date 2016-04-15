@@ -1876,6 +1876,9 @@ if !exists("autocommands_loaded")
   "Activate via <C-X><C-O>
 """autocmd FileType * set omnifunc=syntaxcomplete#Complete
 
+  " TODO
+  au BufNewFile,BufEnter *.py set tabstop=4
+
   "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
   "
