@@ -21,7 +21,7 @@ set -o vi
 set -o noclobber
 
 # C-S=suspended C-Q=released fix
-stty -ixon 
+###stty -ixon 
 
 # Tab completion after typing 'cd ' show dirs only.  See also FIGNORE for related completion restrictions.
 complete -d cd

@@ -7,7 +7,7 @@
 #           Comments are often written for searching, not proper English
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Tue 23 Feb 2016 16:34:29 (Bob Heckel)
+# Modified: Wed 20 Apr 2016 08:42:53 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -43,7 +43,7 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 " Delete all lines NOT containing any part of either of these words.  global command uses the OR operator \| (chaining alternation multiple conditions):
 :g/^foo\|^bar/d
 
-" Yank all lines containing Emily into buffer A (must use uppercase register letter or only get last yank). Clear register A before beginning:
+" Yank all lines containing Emily into buffer a (must use uppercase register or only get last yank). Clear register A before beginning:
 :let @a='' | :g/Emily/y A
 " Delete line above a blank line (e.g. last line in a block or paragraph) into register a:
 :let @a='' | :g/^$/-1 d A
@@ -256,16 +256,11 @@ s<BS>s   <---Produces German ß
 " Write a specific range to a new textfile using marks a and b:
 :'a,'b w newfile.txt
 
-" Regex if two or more
-\{2,}
-" Regex match the previous atom from 0 to m times
-\{,m}
-" Regex match the previous atom from 0 to m times but as little as possible i.e. non-greedy
-\{-,m}
-" Regex match the previous atom n to m times but as little as possible i.e. non-greedy
-\{-n,m}
-" Non greedy search, match 3 to 5 a's but prefer the shortest match.
-/a\{-3,5}
+" Regex if two or more: \{2,}
+" Regex match the previous atom from 0 to m times: \{,m}
+" Regex match the previous atom from 0 to m times but as little as possible i.e. non-greedy: \{-,m}
+" Regex match the previous atom n to m times but as little as possible i.e. non-greedy: \{-n,m}
+" Non greedy search, match 3 to 5 a's but prefer the shortest match: /a\{-3,5}
 " Non-greedy Vim search (use :se hls to see the results better):
 /a.*b     <--- E.g. string axbxb greedy finds axbxb
 /a.\{-}b  <---non-greedy finds axb
@@ -279,9 +274,6 @@ s<BS>s   <---Produces German ß
 
 " Modeline.  Trailing ':' required for multiple set's.  /* vim: set tw=72 ft=sas ff=unix: */ # vim: set list syntax=off foldmarker=#{{{,#}}} foldmethod=marker tw=78:
 
-" Substitute files for //IN JCL:
-:0,$:s:\(.*\)://*IN      DD DSN=\1,DISP=SHR:gc
-
 " Create a unique filename based on seconds since the Epoch:
 $ vi foo`date +%s`.txt
 
@@ -291,7 +283,7 @@ $ vi foo`date +%s`.txt
 " Simultaneously turn flip change Yes to 1 and No to 0 in one swoop:
 :0,$:s:No:0:g|0,$:s:Yes:1:g
 
-" Use calculator inside a Vim window:
+" Use calculator inside Vim:
 :!echo 4+3+6 | bc
 
 " Search for either string Yes or string No (alternation):
@@ -386,11 +378,11 @@ vim `grep -l frame_counter *.c`
 " Alternatively on systems with grep(1) - faster but won't recurse, use vimgrep:
 :grep -i unexpected *.sas 
 
-" Search and replace all buffers interactively:
+" Search and replace all open buffers interactively:
 :bufdo %s/findme/changeme/gic
 
-" Search across buffers (then :cw) if my :vvs vimgrep map fails because files aren't in pwd (may need to clear quickfix first :cexpr [] ):
-:call setqflist([]) | bufdo grepadd! foo %
+" Canonical search across open buffers (then :cw) if my :vvs vimgrep map fails because files aren't in pwd (may need to clear quickfix first :cexpr [] ):
+:call setqflist([]) | bufdo grepadd! findme %
 
 " Delete everything but the first 2 fields in a CSV
 :%s:\(.\{-}\zs,\)\{2}.*::
@@ -601,6 +593,12 @@ xxSASxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 http://support.sas.com/documentation/onlinedoc/bookshelf/94/desktop.html
 http://support.sas.com/documentation/cdl/en/lefunctionsref/67960/HTML/default/viewer.htm#n1mj2bizbsd7ktn1sf9lz111kku3.htm
 http://support.sas.com/documentation/cdl/en/lestmtsref/67407/HTML/default/viewer.htm#p08st7rzfn0dgin1fml8hq40hlho.htm
+http://support.sas.com/documentation/cdl/en/allprodsproc/68038/HTML/default/viewer.htm#procedures.htm
+https://support.sas.com/rnd/base/ods/scratch/styles-tips.pdf
+https://support.sas.com/rnd/base/ods/odsmarkup/TipSheet_ods_xl_xp.pdf
+
+ /* See also ods_output_excel_mult_worksheet.sas */
+proc contents data=sashelp._all_; run;
 
 Missing value '.' always sort lower than char or num and ._ sorts lowest of all
 SAS Special Missing Value (.A thru .Z)
@@ -780,7 +778,7 @@ substr(mystr, mylen+1) = '00'x
 
  /* Name of currently running SAS program file: (like $0 in shell): */
 %put basename only of currently running program: &SYSPROCESSNAME
-%put fully qualified name of the currently this program running: %sysfunc(getoption(SYSIN));
+%put NOTE: fully qualified name of the currently this program running: %let thispgm=%sysfunc(getoption(SYSIN));
 
  /* CLASS categorical variables:  almost always stored as chars, identify classes (discrete categories) on which calculations are done.  E.g. gender, country, state, zip.
   *
@@ -1418,6 +1416,8 @@ ODS EXCEL file="t.xlsx" options(sheet_name="#BYVAL(member)" embedded_titles='yes
  /* Query what do we have for ODS HTML etc: */
 proc template; list styles; run;
 proc template; list tagsets; run;
+ /* View details of specific style: */
+proc template; source styles.printer; run;
 
  /* Multiple ODS destinations e.g. multiple styles for a single proc's output or one copy to local, one to network drive */
 ods html(id=1) file='file1.html' style=sasweb; ods html(id=two) file='file2.html' style=ocean;
@@ -2042,6 +2042,12 @@ proc sql; select count(*) into :nvars TRIMMED from dictionary.columns where libn
 
  /* Add 1 to each variable var_N */
 data t; set t; array arr var_:; do over arr; arr+1; end; run;
+
+ /* Take the 90th thru 100th obs only: */
+proc print data=_LAST_(firstobs=90 obs=100) width=minimum heading=H;run
+
+ /* SQL on one not on the other: */
+proc sql; create table on_cce_not_softdel as select a.* from cce a left join softdel b on a.aid=b.aid where b.id is null; quit;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3541,9 +3547,6 @@ if [ -f $file  ] && [ -w $file ]; then ...  # script
 
 # Which Linux distribution am I using:
 lsb_release -a
-
-# Canonical date(1) formatting
-date +'%a %d%b%y %02k:%M'
 
 $ 7z a Android-4.4.pdf.7z Android-4.4.pdf
 

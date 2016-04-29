@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Tue 05 Apr 2016 10:54:20 (Bob Heckel)
+" Modified: Mon 18 Apr 2016 08:58:42 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -297,8 +297,8 @@ set helpheight=999
 " Allows you to switch from an unsaved buffer without saving it first. 
 set hidden
 
-" no = continue edits in the top window
-set nosplitbelow
+" no == new window on top
+set splitbelow
 
 
 "                                7 multiple tab pages {{{2
@@ -412,10 +412,10 @@ set cinwords=if,elsif,else,while,do,for,switch,unless,until,when,otherwise,BEGIN
 set autoindent
 
 " Restore indent after typing hash
-set nosmartindent
-set cindent
-set cinkeys-=0#
-set indentkeys-=0#
+"""set nosmartindent
+"""set cindent
+"""set cinkeys-=0#
+"""set indentkeys-=0#
 
 "                               15 folding {{{2
 
@@ -508,6 +508,8 @@ set equalprg=sort
 
 " Default.  K to activate.  See au BufNewFile, etc. below (.vimrc, .pl .pm treated specially).
 set keywordprg=man
+
+set shell=bash
 
 
 "                               22 running make and jumping to errors {{{2
@@ -1078,10 +1080,14 @@ inoremap (<Space><Space> ()<Left>
 inoremap [<Space><Space> []<Left>
 inoremap {<Space><Space> {}<Left>
 
+" Search all open buffers (may need SyS cmap to restore syntax)
+cmap bbb call setqflist([])\|bufdo grepadd!  %<C-F>$hha
+" Search all files recursively in pwd
 cmap vvv vimgrep // **/*.*<C-F>$Bhhi
+" Search all SAS files recursively in pwd
 cmap vvs vimgrep //g **/*.sas<C-F>$Bhhhi
 " Hacked up bufgrep since vimgrep searches all files and no builtin exists as of 2010-01-20 
-cmap bbb exe 'vimgrep // '.join(BuffersList(),' ')<Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>
+"""cmap bbb exe 'vimgrep // '.join(BuffersList(),' ')<Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>
 
 " Increment / sequence / (a)dd a visualized column.  Cursor on number to 
 " start from.  C-V C-A.  To do more complicated things like increase by 100 use
