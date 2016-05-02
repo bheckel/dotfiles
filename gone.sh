@@ -4,7 +4,7 @@
 #
 #  Summary: grep $HOME/code/misccode/oneliners, highlight the search word and 
 #           display context surrounding each hit.  Optionally allow searching
-#           only specific sections.
+#           only specific sections of oneliners file.
 #
 #           NOTE: Keep 2 blank lines before the xxFOOxx lines in oneliners
 #           to avoid seeing the tag in search results.
@@ -15,7 +15,7 @@
 #           TODO add CANONICAL switch
 #
 #  Created: Wed 20 Nov 2002 12:54:09 (Bob Heckel)
-# Modified: Fri 07 Jun 2013 13:02:25 (Bob Heckel)
+# Modified: Mon 02 May 2016 09:12:48 (Bob Heckel)
 ##############################################################################
   
 F="$HOME/code/misccode/oneliners"
@@ -24,7 +24,7 @@ IGCASE=--ignore-case
 ###CANONICAL=0
 
 Usage() {
-  echo "Usage: `basename $0` [-c] PERLREGEX [c|(v)im|(s)as|(p)erl|(u)nix|(o)ther]
+  echo "Usage: `basename $0` [-c] PERLREGEX [(v)im|(s)as|(p)erl|(u)nix|(o)ther]
              -c   case sensitive search (default is INsensitive)
              -0   no before and after context from grep(1)
 
@@ -35,13 +35,14 @@ Usage() {
                     `basename $0` -c findme v
                     `basename $0` '\-eq'  <---needs a backslash due to dash!
 
-Searches the database (currently $F) for string
-matches, optionally looking in a particular section.
+Searches the 'database' ($F) for string
+matches, optionally looking in a particular section
 
-MUST backslash any literal regex characters (e.g. 'sql\*plus')."
+MUST backslash any literal regex characters (e.g. 'sql\*plus')"
 
   exit 0
 }
+
 if [ "$#" -lt 1 -o "$#" -gt 3 ]; then 
   Usage
 elif [ "${1:0:1}" = '-' ];then
@@ -60,15 +61,15 @@ while getopts c0 opt; do
   case "$opt" in
      c )  IGCASE=
           ;;
-     ###C )  CANONICAL=1
-          ###;;
+     C )  CANONICAL=1
+          ;;
      0 )  BEFORECONTEXT=0
           AFTERCONTEXT=0
           ;;
    esac
 done
 
-if test "$2" = 'c' || test "$2" = 'vim' || test "$2" = 'sas' || test "$2" = 'perl' || test "$2" = 'unix' || test "$2" = 'powershell' || test "$2" = 'other'; then
+if test "$2" = 'vim' || test "$2" = 'sas' || test "$2" = 'perl' || test "$2" = 'unix' || test "$2" = 'other'; then
   s=$2
   echo
 # Shortcut the >3 char section tags
@@ -89,7 +90,7 @@ elif test "$2" = 'v'; then
 else
   # An incorrect section was specified (skip if no section specified)
   if [ ! -z "$2" ]; then
-    echo "ERROR:  available sections are (c), (v)im, (s)as, (p)erl, (u)nix, (o)ther/(m)isc"
+    echo "ERROR:  available sections are (v)im, (s)as, (p)erl, (u)nix, (o)ther/(m)isc"
     exit 1
   fi
 fi
@@ -116,10 +117,3 @@ grep $IGCASE --before-context=$BEFORECONTEXT --after-context=$AFTERCONTEXT --col
 rc=`grep $IGCASE --count "$1" $F`
 echo ${fg_darkgray}xxxxxxxxxxx $rc hits${normal}
 echo
-
-
-if [ $rc -gt 0 ]; then
-  exit 0
-else
-  exit 1
-fi
