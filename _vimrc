@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Mon 18 Apr 2016 08:58:42 (Bob Heckel)
+" Modified: Mon 02 May 2016 10:55:21 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -844,10 +844,10 @@ endif
 noremap ,s :%s::g<Left><Left>
 
 " (T)oggle this prior to pasting:
-noremap ,t :set invpaste<CR>\|:se paste?<CR>
+noremap ,t mz \| :set invpaste<CR>\|:se paste?<CR> \| `z
 
 " Uppercase a word (see also ;u) and stay on the same character
-noremap ,u mzviwU\|:echon '.vimrc: word uppercased'<CR>`z
+noremap ,u mzviwU \| :echon '.vimrc: word uppercased'<CR>`z
 
 noremap ,w :call WrapToggle()<CR>
 
