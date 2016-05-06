@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Mon 02 May 2016 10:55:21 (Bob Heckel)
+" Modified: Wed 04 May 2016 14:39:39 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -111,6 +111,7 @@ set encoding=utf-8
 "--------------------------------------------------------------------------
 
 if has ('syntax') && &t_Co > 1
+  color default
   syntax enable
 endif
 
@@ -844,7 +845,8 @@ endif
 noremap ,s :%s::g<Left><Left>
 
 " (T)oggle this prior to pasting:
-noremap ,t mz \| :set invpaste<CR>\|:se paste?<CR> \| `z
+"""noremap ,t mz \| :set invpaste<CR>`z \| :se paste?<CR>
+noremap ,t :set invpaste<CR>`z \| :se paste?<CR> ``
 
 " Uppercase a word (see also ;u) and stay on the same character
 noremap ,u mzviwU \| :echon '.vimrc: word uppercased'<CR>`z

@@ -766,7 +766,8 @@ case "$OSTYPE" in
       # See homefrom hometo.  Sunday evening run usually:
       alias gskto="cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV | grep -v '/.git/' | grep -v '.swp' | xargs tar cvfz ~/Downloads/c.NEW && cd ~/Downloads && git add c.NEW && git commit -m'gskto' && git push origin master"
       # Friday afternoon usually
-      alias hometo="ls -l ~/transfer/c && echo '...files newer than ^^^this^^^ one will be added to tarball...' && sleep 5 && cd ~ && find code/ -type f -newer ~/transfer/c -not -name '*.swp' | xargs tar cvfz ~/transfer/c; echo 'sending to github...'; cd ~/transfer; git add c && git commit -m'hometo' && git push origin master; cd -"
+###      alias hometo="ls -l ~/transfer/c && echo '...files newer than ^^^this^^^ one will be added to tarball...' && sleep 5 && cd ~ && find code/ -type f -newer ~/transfer/c -not -name '*.swp' | xargs tar cvfz ~/transfer/c; echo 'sending to github...'; cd ~/transfer; git add c && git commit -m'hometo' && git push origin master; cd -"
+      alias hometo="ls -l ~/transfer/c && echo '...files newer than ^^^this^^^ one will be added to tarball...' && sleep 5 && cd ~ && find code/ -type f -newer ~/transfer/c -not -name '*.swp' | xargs tar cvfz ~/transfer/c; echo 'sending to github...'; cd ~/transfer; git add c && git commit -m'hometo' && git push origin master; cd -; cd ~/dotfiles && git add . && git commit -m'hometo' && git push origin master; cd -"
       alias ll='ls -lh --color --group-directories-first'
       ###alias moz='export DISPLAY=158.111.250.170:0.0; mozilla&'
       ###alias sqlplus=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/sqlplus

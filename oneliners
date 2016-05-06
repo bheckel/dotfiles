@@ -2,12 +2,12 @@
 #     Name: $HOME/code/misccode/oneliners
 #
 #  Summary: Programming and sysadmin fragments I've collected over the 
-#           years.  Section-searchable via my gone.sh
+#           years.  Section-searchable via my gone.sh.
 #
 #           Comments are often written for searching, not proper English
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Wed 20 Apr 2016 08:42:53 (Bob Heckel)
+# Modified: Fri 06 May 2016 09:23:48 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -1264,6 +1264,10 @@ data _null_; if 0 then set BUILD.clients_shortname_lookup nobs=count; call sympu
 
 if description ne: 'al' then do; file "&DIRROOT\&SYSMACRONAME._Error.txt"; put "UNEXPECTED: &SYSDATE &SYSTIME " description=; end;
 
+ /* Rename datasets with a timestamp */
+%let tstamp=%sysfunc(compress(&SYSTIME, ':'));  /* eg 1300 */
+proc datasets lib=l; change ccecallrequest=ccecallrequest_&tstamp; change tmm345=tmm345_&tstamp; run;
+
  /* Maximum storage size of SAS numeric using default 8. */
 9,007,199,254,740,992
 
@@ -1725,6 +1729,8 @@ proc sql; select monotonic() as Obs, * from foo; quit;
 
  /* Simple gplot */
 goptions reset=all ftext=swissl device=png cback=white border htitle=12pt ctext=gray gsfname=outpng gsfmode=replace ypixels=750 xpixels=750; filename outpng 'junk.png'; proc gplot data=linksplot; plot cnt*dt; run;
+ /* Simple gplot */
+ods graphics / height=400 width=800 noborder; proc sgplot data=sashelp.cars; histogram msrp; run; proc print data=sashelp.class; run;
 
 %put _all_; %goto THEEND; /*...stuff to be skipped...*/  %THEEND:
 
@@ -1741,6 +1747,7 @@ data t; set t; array nums _numeric_; do over nums; if nums eq . then nums=0; end
  /* Count number of files in directory */
 %let rc=%sysfunc(filename(dr, 'C:/temp')); %let cnt=%sysfunc(dnum(%sysfunc(dopen(&dr)))); %put !!!&cnt;
 
+ /* SQL set default if missing: */
 select b.code, b.count, COALESCE(a.animal,'Unknown') as animal  /* set animal='Unknown' if missing */
 
  /* Iterate over an array: */
@@ -3650,7 +3657,7 @@ find /cygdrive/c/datapost/data/SGK/Zebulon/ -name '*.pdf'|sed 's/\/cygdrive\/c//
 
 # Cygwin X
 xinit -- -multiwindow
-ssh -l bheckel -Y 10.11.12.13  # /sas/sashome/SASManagementConsole/9.4/sasmc
+ssh -l bheckel -Y 10.11.12.13  # then in resulting xterm /sas/sashome/SASManagementConsole/9.4/sasmc
 
 # Exceed Hummingbird replacement is Cygwin X (for CDE desktop access):
 $ XWin.exe -query trpsh005  # don't use startxwin unless want commandline only
@@ -3660,9 +3667,9 @@ find data/sgk/zebulon -name 'ols*.sas7bdat'|sed 's/\(.*\)/cp -i \1 \/cygdrive\/x
 
 echo $$  # the process id of the current process
 
-# Calculate date that was 3 years ago from today
+# Date calculate date that was 3 years ago from today:
 ~/code/perl/datecalc -1080
-# Calculate 42 days from Xmas eve
+# Date calculate 42 days from Xmas eve:
 ~/code/perl/datecalc 12/24/05 42
 
 # Add a line to first line in each file:
@@ -3899,7 +3906,6 @@ my $mtime = (stat($0))[9]; my $t = localtime $mtime; print "Last Modified $t";
 
 # Default (unless a 0 is a valid possibility)
 $leavealoneifset ||= $default;
-# or 
 $best_suffix ||= $soso_suffix || $notsogood_suffix || 'txt';
 
 # Split a scalar into an array, saving only part of the split result.
@@ -4012,7 +4018,9 @@ find . -name '*.html' -exec perl -pi.bak -e "s/BGCOLOR=\"#ffffff\"/BGCOLOR=\"#cc
 # Then if all is well:
 find -name '*.bak'|xargs rm
 
-# Search and replace multiple files canonical (after  $ tar cvfz ~/tmp/bak.tgz *ss_wee*)
+# Canonical search and replace (interactive :bufdo %s/foo/bar/gic may be better):
+$ perl -pi.bak -e "s/foo/bar/" *.sas
+# Search and replace inside multiple files (there is no UNDO so may want a backup 1st  $ tar cvfz ~/tmp/bak.tgz *ss_wee*):
 find . -name '*ss_wee*'|xargs perl -pi -e "s/db6/jaspertwa/g"
 
 # Delete multiple blocks paragraphs of text (consecutive with start and finish lines):  TODO why can't use xargs (it only mods first file)??
@@ -4287,9 +4295,6 @@ ls | awk '/2001_\w/{print $1}'
 # Parse a date string:
 ($mon, $day, $year) = (localtime())[4,3,5];
 
-# Find user's home directory:
-perl -e '$x=(getpwuid($<))[7];print $x'
-
 # Do something alternating days, will return '1' every other day.
 date | awk '{print $3}' | perl -e '$x = (<> % 2); END {print $x}'
 
@@ -4370,8 +4375,7 @@ open PID, '/usr/local/apache/logs/httpd.pid' or die"; $pid = <PID>;  close PID;
 # Print 2nd line in that file:
 print "$data[1]";
 
-# push and pop == a stack
-# push and shift == a queue
+# push and pop == a stack   push and shift == a queue
 
 push @meals, @breakfast, @lunch, @dinner;  # can push multiple lists, but pop one at a time
 
@@ -4465,9 +4469,6 @@ printf("%.3f", 3.1415926535);
 # Convert a hash to an array to make unique eliminate duplicates:
 %hash = map { $_, 1 } @array; @unique = keys %hash;
 
-# Canonical search and replace (interactive :bufdo %s/foo/bar/gic may be better):
-$ perl -pi.bak -e "s/foo/bar/" *.sas
-
 # Canonical perl translate
 $novowels =~ tr/aeiou/!/;  # change any vowel in $novowels into !
 
@@ -4506,9 +4507,6 @@ my    - lexical scope does not create an entry in the symbol table, variables th
 
 # File into an array:
 open FH1, 'junk1.txt' or die "Error: $0: $!"; @foo = <FH1>;
-
-# In one file not in another symmetrical difference:
-vi ~/code/perl/compare.pl
 
 # Thin out, print 10 random lines from a file (good for creating small dummy files):
 cat bladerun_crawl | perl -e '@line=<>; for(1..9){print $line[int rand @line]}'
@@ -4601,9 +4599,7 @@ dir /x
 ' Visual Basic CRLF in decimal.  Octal is 015 and 012.  Hex is 0xD and 0xA.
 Chr$(13) & Chr$(10)
 
-Speed of a T1 line is 1.5MB/second  Speed of a T3 line is 45MB/second
-
-10Base2  is 10 megabits/sec for 200 meters max cable length   10BaseT  is 10 megabits/sec over twisted pair
+Speed of a T1 line is 1.5MB/second.  Speed of a T3 line is 45MB/second.  10Base2  is 10 megabits/sec for 200 meters max cable length.  10BaseT  is 10 megabits/sec over twisted pair.
 
 :: Find your MAC address on W2K (via the network, not the card itself).
 > netstat -r
@@ -4622,8 +4618,6 @@ net use * /delete
 
 :: Browse current connections (need single quotes only on Cygwin)
 net view '\\emiake'
-
-PrtScn copies the whole desktop, Alt-PrtScn copies just the app with focus
 
 Register a DLL on WinXP
 c:\WINDOWS\system32\regsvr32.exe c:\WINDOWS\system32\MSRDO20.DLL
@@ -4646,7 +4640,7 @@ HTML email link:
 
 <input type="button" onclick="document.body.bgColor='lavender';" value="Change background color" />
 
-' Plural vs. singular display.
+' VB plural vs. singular display:
 sPlural = IIf((iFileCnt > 1), "s" & Chr(32), Chr(32))
 
 User settings are saved in the Registry here:
@@ -4661,7 +4655,7 @@ if [%1] == [] echo 'no args passed to this .BAT'
 ' Determine which sheet you're using:
 MsgBox "'" & ActiveSheet.Name & "' is the currently active worksheet."
 
-Add directory to DOS path:
+:: Add append directory to DOS path:
 set PATH=d:\newpath;%PATH%
 
 ' Find last used cell in an Excel worksheet:
@@ -4945,8 +4939,9 @@ sql> spool %TEMP%/foo
 ...run qry
 sql> spool off
 
--- Oracle check for duplicates, returns none if all samp_id are unique
+-- SQL check for duplicates, returns nothing if all samp_id are unique:
 select count(*) from samp group by samp_id having count(*)>1;
+select taebpatientid from final_to_insert group by taebpatientid having count(*)>1;
 
 -- SQL*Plus
 sql> show all
@@ -4983,7 +4978,7 @@ response.write "foo" & lstrEntryType
 <font color=red> <%= "debug " & Request("menutype") %> </font><br>
 <font color=red> <%= "debug " & Session("AdminRole") %> </font>
 
-' Since VB doesn't have substr(), can use this
+' Since VB does not have substr(), use this:
 MyCheck = "aBBBa" Like "a*a"
 
 <form method="POST" name="foo" action="t.asp?MenuType=Batch Data">
@@ -5739,6 +5734,7 @@ git log --since="3 months ago" --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %
 # wget-ish:
 git clone git://busybox.net/busybox.git
 git clone git://github.com/bheckel/dotfiles.git
+git remote set-url origin git@github.com:bheckel/dotfiles.git
 
 # git new branch:
 git branch mynewbranch; git checkout mynewbranch # or just branch and checkout in one swoop: git checkout -b mynewbranch
@@ -5746,7 +5742,8 @@ git branch mynewbranch; git checkout mynewbranch # or just branch and checkout i
 # git switch branches
 git checkout master
 
-# git commit mantra:
+# git commit mantra git mantra:
+git add . && git commit -m 'cleanup' && git push
 git add . && git commit -m 'mod'  # or better  git commit -a -m 'mod'
 git add cfg/DataPost_Configuration.xml && git commit -m 'mod single file'
 
@@ -5811,9 +5808,6 @@ git branch -m mynewbranchname
 git branch mynewbranch master  # copy branch from a specific branch, in this case master, to new branch
 
 git add README  # use git add -f README to force add if it's excluded by .gitignore
-
-# git mantra
-git add . && git commit -m 'cleanup' && git push
 
 # Test AJAX etc that won't work using file:// etc.
 $ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
@@ -5960,7 +5954,7 @@ sum(case when status = 'CANCEL' then 1 else 0 end) as cancelflag
 -- Postgres dates:
 where storeid in(&SID) and created > date('now') - interval '1 year'
 select date('now') - interval '1 month' as x
-' Postgres data from last 2 days:
+-- Postgres data from last 2 days:
 select clientid, taskdate, hpprogramid, count(*) from naalytics.ehalthplanpatients_test where taskdate > date('now')-interval '2 day' group by clientid, taskdate, hpprogramid order by taskdate desc
 
 -- Postgres jobs status of jobs I am running:
@@ -6032,14 +6026,17 @@ curl -o ~/tmp/breaching_whale.jpg -OL https://cdn.learnenough.com/breaching_whal
 -- Postgres date truncation:
 where date_trunc('minute', ahpp.lastmodified) = '2016-02-23 08:56:00'::timestamp
 
+-- Postgres help
 -- psql help  \?
 
-fulljoin FULL JOIN - an INNER JOIN that has been augmented with rows in either table that are not in the other table
+fulljoin FULL JOIN is an INNER JOIN that has been augmented with rows in either table that are not in the other table
 
 -- Activate blank Windows screensaver:
 %windir%\system32\scrnsave.scr
 
 -- Find next Postgres sequence number:
 select nextval('analytics.tmm_enrollmentperf_tmm_enrollmentperfid_seq');
+
+' Excel multiply two columns and produce a scalar: =SUMPRODUCT(O37:O38,P37:P38)
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
