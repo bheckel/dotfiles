@@ -117,3 +117,4 @@ grep $IGCASE --before-context=$BEFORECONTEXT --after-context=$AFTERCONTEXT --col
 rc=`grep $IGCASE --count "$1" $F`
 echo ${fg_darkgray}xxxxxxxxxxx $rc hits${normal}
 echo
+
