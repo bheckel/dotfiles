@@ -5809,6 +5809,9 @@ git branch mynewbranch master  # copy branch from a specific branch, in this cas
 
 git add README  # use git add -f README to force add if it's excluded by .gitignore
 
+# git on a foreign box:
+mkdir dotfiles; cd dotfiles; git init; git remote add origin git@github.com:mygithubacct/dotfiles.git; git pull origin master; ...edit/add/commit git push origin master
+
 # Test AJAX etc that won't work using file:// etc.
 $ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
 
