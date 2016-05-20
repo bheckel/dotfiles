@@ -7,7 +7,7 @@
 #           Comments are often written for searching, not proper English
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Fri 06 May 2016 09:23:48 (Bob Heckel)
+# Modified: Wed 11 May 2016 16:01:49 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -776,7 +776,7 @@ retain first second third;
  /* Create a C-like null terminated string: */
 substr(mystr, mylen+1) = '00'x
 
- /* Name of currently running SAS program file: (like $0 in shell): */
+ /* Name of this currently running SAS program file: (like $0 in shell): */
 %put basename only of currently running program: &SYSPROCESSNAME
 %put NOTE: fully qualified name of the currently this program running: %let thispgm=%sysfunc(getoption(SYSIN));
 
@@ -930,9 +930,6 @@ myvar = trim(translate(myvar, '', '.'));
 
  /* Simple datetime stamp: */
 %put %sysfunc(putn(%sysfunc(datetime()),DATETIME.));
-
- /* Print timestamp at end of job */
-%put ended %sysfunc(putn(%sysfunc(datetime()),DATETIME.));
 
  /* Time a job */
 %let _start=%sysfunc(time()); %put NOTE: %sysfunc(getoption(SYSIN)) started: %sysfunc(putn(%sysfunc(datetime()),DATETIME.));
@@ -1154,7 +1151,11 @@ libname GDM_DIST oracle user=&username password=&password path=&database schema=
  /* Complex oracle SEPARATED BY */
 select distinct r.sampid, s.specname, put(r.sampid,F6.)||'-'||s.specname into :RETESTSAMPIDS separated by ',', :METHS separated by ' ', :METHPAIRS separated by ' '
 
-%if %sysfunc(fileexist(&fn)) %then %put exists; %else %put no;
+%if %sysfunc(fileexist(c:\foo\bar.txt)) %then %put exists; %else %put file or directory does not exist;
+filename myfile 'c:\delme.dat'; %let exist = %sysfunc(FExist(myfile)); 
+%if not %sysfunc(exist(l.metndc)) %then %do; ... %end;
+
+filename x 'c:\deletefileusingSAS.dat'; %let rc = %sysfunc(FDelete(x)); 
 
 /* Setup the default SAS System user work folder and autocall in /cygdrive/c/Program\ Files/SAS\ Institute/SAS/V8/SASV8.CFG */
 -WORK "E:\SAS Temporary Files\"
@@ -1264,6 +1265,9 @@ data _null_; if 0 then set BUILD.clients_shortname_lookup nobs=count; call sympu
 
 if description ne: 'al' then do; file "&DIRROOT\&SYSMACRONAME._Error.txt"; put "UNEXPECTED: &SYSDATE &SYSTIME " description=; end;
 
+ /* Start: 11:13:27 PM */
+footnote "Start time: %sysfunc(time(),TIMEAMPM.)";
+
  /* Rename datasets with a timestamp */
 %let tstamp=%sysfunc(compress(&SYSTIME, ':'));  /* eg 1300 */
 proc datasets lib=l; change ccecallrequest=ccecallrequest_&tstamp; change tmm345=tmm345_&tstamp; run;
@@ -1347,9 +1351,9 @@ start='11jan2013'd; monthEnd=intnx('month', start, 0, 'e');   /* last day of mon
 %let mydt='30OCT2015'; %let mydtplusone=%sysfunc(intnx(day, "&maxdate"D, 1, b), YYMMDD10.);
 %let mydquoted=%bquote(')%sysfunc(putn(%sysfunc(inputn(20150101, YYMMDD8.)), YYMMDD10.))%bquote(');  /* '2015-01-01' */
 
- /* Shifted index - when is next election day?: */
+ /* intnx shifted index - when is next election day?: */
 %let nextelectionday=%sysfunc(intnx(year4.11, '01OCT2015'd, 1), DATE9.);
- /* Shifted index - when is the next election day after the upcoming one?: */
+ /* intnx shifted index - when is the next election day after the upcoming one?: */
 %let nextelectionday=%sysfunc(intnx(year4.11, %sysfunc(today()), 2), DATE9.);
 
  /* fiscalStart=01OCT2016 fiscalEnd=30SEP2017 */
@@ -1364,14 +1368,29 @@ past = intnx('month', '01jan2000'D, -1, 'E');
 %let yesterday=%sysfunc(intnx(day, "&SYSDATE"D, -1, b), YYMMDD10.);                      /* 2015-12-31 */
 %let yesterday=%bquote(')%sysfunc(intnx(day, "&SYSDATE"D, -1, b), YYMMDD10.)%bquote(');  /* '2015-12-31' */
 
-%let firstdayoflastmonth=%sysfunc(intnx(month, "&SYSDATE"D, -1, b), YYMMDD10.);
-%let onemonthagotoday=%sysfunc(intnx(month, "&SYSDATE"D, -1, s), YYMMDD10.);
+ /* Calculate one month from now in macro: */
+%let x=%sysevalf("&SYSDATE"D+30);  /* 20322 */
+%let x=%sysfunc(putn(%sysevalf("&SYSDATE"D+30),DATE9.));  /* 31DEC2015 */
+
+ /* Calculate one month ago in macro (more accurate than subtracting 30): */
+%let ThisMonth=201405;
+%let LastMonth=%sysfunc(intnx(month,%sysfunc(InputN(&ThisMonth.01,yymmdd8.)),-1), YYMMDDN8.);  /* the .01 is to fake May 1 */
+
+%let FirstDayOfLastMonth=%sysfunc(intnx(month, "&SYSDATE"D, -1, b), YYMMDD10.);
+%let OneMonthAgoToday=%sysfunc(intnx(month, "&SYSDATE"D, -1, s), YYMMDD10.);
+%let LastSunday=%sysfunc(intnx(week, "&SYSDATE"d, 0, b), DATE.);
 
  /* Force date to last Saturday */
 data _null_; lastsaturday = intnx('week', "&SYSDATE"D, 0, 'B')-1; call symput('date_max', put(lastsaturday, DATE9.)); run;
 %let lastSaturday=%sysfunc(intnx(week, "&SYSDATE"d, -1, e), DATE.);
 
-%let lastSunday=%sysfunc(intnx(week, "&SYSDATE"d, 0, b), DATE.);
+ /* Leap year is accomodated: */
+intnx('YEAR', '29feb2000'd, 2, 'SAME');  /* 28feb2002 */
+
+proc sql; select "%sysfunc(putn(%sysevalf("&SYSDATE"D+30),DATE9.))" as expireinonemonthdate ...
+
+ /* Calculate days between in macro: */
+%let begdate='01Jan1995'd; %let endate='31Dec1995'd; %put Number of days from BEGDATE to ENDDATE is %left(%sysfunc(putn(&enddate-&begdate+1, BEST.))); 
 
  /* Canonical proc means */
 proc means data=sashelp.shoes; class region; var sales; run;
@@ -1671,7 +1690,7 @@ options NOlabel;  /* Avoid proc sql printing pretty labels names instead of varn
 %put %sysfunc(putn('30OCT1965:12:01:00'DT, 10.));  /* "10." instead of "8." to avoid "1.8399E8" */
 %put %sysfunc(putn(183988860, DATETIME14.));
 
-put "This string will print without any line breaks - it is a multiline
+put "This string will print without any line breaks - this is a multiline
 looooooooooooooooooooooooooooooooooooong string";
 
  /* Date format distributive with seemingly misplaced "=": */
@@ -1878,6 +1897,7 @@ options mautosource sasautos=('.' '/Drugs/Macros', SASAUTOS);
 
 proc means data=sashelp.shoes MEDIAN; var sales; run;
 
+ /* Replace old SAS left trim: */
 select count(distinct cats(storeid,masked_patientkey)) as UPID
 
  /* Concatenate: use a delimiter - CATX is different in that it skips missing values - old version would do e.g. foo,,bar */
@@ -1946,8 +1966,6 @@ where mydate >= date()-365
  /* Loop a range of SAS dates: */
 %let start=%sysfunc(inputn(12DEC2015,ANYDTDTE9.)); %let end=%sysfunc(inputn(14DEC2015,ANYDTDTE9.)); %let nday=%eval(&end-&start); %do j=0 %to &nday; ... %end;
 
- /* Single quoted date '2015-12-13' */
-%let singlequotedfordatabase=%bquote(')%sysfunc(putn("&measuredt"d, YYMMDD10.))%bquote(');
 
  /* Missing dot to zero: */
 select a.*, (case when b.TotalEnrolledLst30 ne . then b.TotalEnrolledLst30 else 0 end) as TotalEnrolledLst30 from t1 a LEFT JOIN totenr30 b on a.clientid=b.clientid
@@ -1958,10 +1976,10 @@ option SASTRACE=",,,d" no$stsuffix SASTRACELOC=saslog;
  /* Date convert macro '2015-10-01' for Postgres */
 %put %bquote(')%sysfunc(putn(%sysfunc(inputn(20151001, YYMMDD8.)), YYMMDD10.))%bquote(');
 
- /* Date convert 22FEB2016 to 20160222 in macro: */
+ /* Date format convert 22FEB2016 to 20160222 in macro: */
 %let mydt=%sysfunc(putn(%sysfunc(inputn(&today, DATE9.)), YYMMDDN8.));
 
- /* Comment out in EG: Ctl+/  Uncomment in EG: Ctl+Shift+/ */
+ /* Comment out keybinding in EG: Ctl+/  Uncomment in EG: Ctl+Shift+/ */
 
  /* Loop iterate comma separated macro variable: */
 %local i f; %let i=1; %let f=%scan(%superq(ds), &i, ','); %do %while ( &f ne  ); %let i=%eval(&i+1); %put DEBUG: dsloop3 &f; %let f=%scan(%superq(ds), &i, ','); %end;
@@ -1998,6 +2016,7 @@ select clientstoreid, put(datepart(lastmodified), DATE9.) as dtlastmodified, cou
 
  /* Conditional send email from datastep: */
 ...  else do; put 'fail ' rc1=; to='bob.heckel@taeb.com'; file dummy email filevar=to subject="Error during &SYSPROCESSNAME execution"; stop; end;
+if rc1 eq 0 then do; put 'NOTE: chmod successful'; end; else do; put 'ERROR: chmod fail'; to='obb.heckel@ateb.com'; file dummy email filevar=to subject="Error during %sysfunc(getoption(SYSIN))"; end;
 
 x umask 000; data l.junk;set sashelp.shoes;run;  /* -rw-rw-rw-. 1 bheckel staff 128K Feb 23 16:04 /mnt/nfs/home/bheckel/junk.sas7bdat */
 x umask 777; data l.junk;set sashelp.shoes;run;  /* ----------. 1 bheckel staff 128K Feb 23 16:06 /mnt/nfs/home/bheckel/junk.sas7bdat */
@@ -2007,9 +2026,6 @@ description=prxchange('s/MTM Program//', -1, description);
 
  /* Skip non-PDF files check file extension: */
 if reverse(upcase(left(trim(f)))) eq: 'FDP';
-
- /* Leap year is accomodated: */
-intnx('YEAR', '29feb2000'd, 2, 'SAME');  /* 28feb2002 */
 
  /* SAS performance tuning: */
 1-For nominally good SAS I/O performance, you should see job steps in your SAS logs with combined CPU + User CPU time within 10% of the Real Time.
@@ -2036,9 +2052,8 @@ select clientid, storeid, pharmacypatientid, max(greatest(solddate,filldate)) as
  /* Choose cgid if populated otherwise use default of 0: */
 put(coalesce(cgid,0),8.);
 
- /* Today now formatted differently: */
-%let today=%sysfunc(putn(%sysfunc(inputn(&sysdate, DATE9.)), DATE9.));
-%let today2=%sysfunc(putn(%sysfunc(inputn(&today, DATE9.)), YYMMDDN8.));
+ /* Today macro date now human formatted: */
+%let today=%sysfunc(date(), YYMMDDN8.);
 
  /* Collapse multiple rows to single row: */
 data xx; update xx(obs=0) xx; by idnum; run;
@@ -2060,6 +2075,15 @@ proc sql; create table on_cce_not_softdel as select a.* from cce a left join sof
  /* Pass OPTIONS at SAS startup: */
 export SASV9_OPTIONS='-validvarname=any'
 proc options;run;
+
+ /* Postgres cast to fix rogue string in an integer-like field problem: */
+and (clientid=&clid. or (case when npi in ('NOT FOUND','') then '0000000000000000000000' else NPI end)::integer in (&&cl_npi.))
+
+where (age>=18 and age<=80) and (filldate>=date()-90)
+
+# Extract the digits 329 coming after space for Log naming:
+CID='-sysin /Drugs/Cron/Weekly/TMMCensusHPLoop/tmm_census_loop.sas -sysparm 329'
+CLIENTID="${CID##*sysparm }"
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3803,6 +3827,9 @@ if [ $? -eq 1 ]; then
 
 # mintty taskbar properties
 C:\cygwin64\bin\mintty.exe -i /Cygwin-Terminal.ico -
+
+# tar a directory without retaining the directory structure:
+tar cvfz tmp.tgz -C /cygdrive/e/TMMEligibilittPatientReport/20160517/Output .
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5991,6 +6018,8 @@ select version();
 
 -- SQL GROUP BY count more than one
 select patientid, count(*) from analytics.health group by patientid having count(*)>1
+-- Select only those with 2 or more maskedkey for one patient:
+select id, count(distinct maskedkey) from xrfilldata where id in ('999','888') group by id having count(distinct maskedkey)>1;
 
 -- SQL convert timestamp to date then sum pickeduptimestamp if picked up in a during month, a range of dates:
 sum(case when date(pickeduptimestamp) between '01MAY2015' and '31MAY2015' then 1 else 0 end) as May2015, ...
@@ -6012,6 +6041,9 @@ filldate > date('now') - interval '1 year'  and  patientdob < date('now') - inte
 -- Postgres determine birthdate age range:
 case when extract(years FROM age(patientdob))>=90 then 90 else extract(years FROM age(patientdob)) end as age
 date_part('year',age(patientdob))>=41 and date_part('year',age(patientdob))<=75
+
+-- Postgres calculate age:
+date_part('year'::text, age(pd.dateofbirth::timestamp with time zone)) AS age
 
 -- Postgres date truncate:
 date_trunc('day', etl_ts)
@@ -6040,6 +6072,14 @@ fulljoin FULL JOIN is an INNER JOIN that has been augmented with rows in either 
 -- Find next Postgres sequence number:
 select nextval('analytics.tmm_enrollmentperf_tmm_enrollmentperfid_seq');
 
+-- Postgres remove seconds from timestamp:
+psql -h db-06.twa.ateb.com ATEBMART -c "select to_char(lastmodified, 'yyyy-mm-dd HH24:MI') from analytics.reportinglog where reportname='TMMRep_Reporting_Automation' order by lastmodified desc limit 1"
+
+-- Postgres between two dates date range:
+where created>='2016-05-11' and created<'2016-05-12'
+
 ' Excel multiply two columns and produce a scalar: =SUMPRODUCT(O37:O38,P37:P38)
+
+Self-Join: recursive join that results when a set of data is joined back to itself is also known as a self-join. This is typically encountered when a parent-child relationship in a hierarchy needs to be traversed. When using the ANSI syntax to accomplish this, only the JOIN...ON syntax will work, and the keyword INNER can be used for clarity.
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

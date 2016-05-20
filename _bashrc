@@ -795,15 +795,14 @@ case "$OSTYPE" in
       #}}}
 
       # Ateb  # {{{2
-      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ]; then
+      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ] || [ $HOSTNAME = 'SAS-01' ] || [ $HOSTNAME = 'SAS-02' ]; then
         alias vi=$HOME/usr/local/bin/vim
 
         function ses() {
-          find ~/bob/ -name "Session.vim" | awk '{print "vi -S " $1}' | sort | less
+          find ~/bob/ -name "Session.vim" | xargs ls -lt | awk '{print "vi -S " $9}'
         }
 
         function sesg() {
-###          find ~/bob/ -name "Session.vim" | awk '{print "vi -S " $1}' | grep -i "$1" | sort
           find ~/bob/ -name "Session.vim" | awk '{print "vi -S " $1}' | grep -i "$1" | sort >| ~/tmp/.vimxfer && cat ~/tmp/.vimxfer
         }
       fi
