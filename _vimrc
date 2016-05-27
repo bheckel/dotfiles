@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Wed 04 May 2016 14:39:39 (Bob Heckel)
+" Modified: Tue 24 May 2016 10:33:41 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -1899,20 +1899,19 @@ if !exists("autocommands_loaded")
 """    au BufRead LimsGistTableCount.txt :se list
 """    au GUIEnter oracle_queries.sql,update.sql winpos 37 55 | se lines=20 | se columns=170 | se wrap | map j gj
     " SQL*Plus hack to get table/field name completion
-    au BufRead afiedt.buf winpos 37 55 | se lines=20 | se columns=170 | se tw=999999 | :new | silent :args $HOME/code/misccode/spool/links/*.LST | :hide | map :wq :wq! | noremap ZZ :wq!<CR>
+"""    au BufRead afiedt.buf winpos 37 55 | se lines=20 | se columns=170 | se tw=999999 | :new | silent :args $HOME/code/misccode/spool/links/*.LST | :hide | map :wq :wq! | noremap ZZ :wq!<CR>
     """au VimLeavePre afiedt.buf execute "w ~/tmp/afiedt.buf." . strftime("%m_%d-%H_%M_%S")
-
 """    au BufRead DataPost_Configuration.xml set foldmethod=indent | set foldlevel=1
 
     " Platform warning indicators:
-    " Gvim
-"""    au BufRead,BufWinEnter X:/*             hi StatusLine   guifg=Green guibg=Black gui=inverse,bold
-"""    au BufRead,BufWinLeave X:/*             hi StatusLineNC guifg=Green guibg=Gray gui=inverse,bold
+    " gvim
+    au BufRead,BufWinEnter H:/*             hi StatusLine   guifg=Green guibg=Black gui=inverse,bold
+    au BufRead,BufWinLeave H:/*             hi StatusLineNC guifg=Green guibg=Gray gui=inverse,bold
 """    au BufRead,BufWinEnter Y:/*             hi StatusLine   guifg=Yellow guibg=Black gui=inverse,bold
 """    au BufRead,BufWinLeave Y:/*             hi StatusLineNC guifg=Yellow guibg=Gray gui=inverse,bold
 """    au BufRead,BufWinEnter Z:/*             hi StatusLine   guifg=Red guibg=Black gui=inverse,bold
 """    au BufRead,BufWinLeave Z:/*             hi StatusLineNC guifg=Red guibg=Gray gui=inverse,bold
-"""    " Cygwin
+    " vim
 """    au BufRead,BufWinEnter /cygdrive/c/*    hi StatusLine   ctermfg=Blue ctermbg=White
 """    au BufRead,BufWinLeave /cygdrive/c/*    hi StatusLineNC ctermfg=Blue ctermbg=Gray gui=inverse,bold
 """    au BufRead,BufWinEnter /cygdrive/x/*    hi StatusLine   ctermfg=Green ctermbg=Black 
@@ -1922,7 +1921,7 @@ if !exists("autocommands_loaded")
 """    au BufRead,BufWinEnter /cygdrive/z/*    hi StatusLine   ctermfg=Red ctermbg=Black
 """    au BufRead,BufWinLeave /cygdrive/z/*    hi StatusLineNC ctermfg=Red ctermbg=Gray gui=inverse,bold
 
-"""    au BufReadPre,FileReadPre [MSWXYZ]:/* set noswapfile
+    au BufReadPre,FileReadPre [THR]:/* set noswapfile
 """    au BufReadPre,FileReadPre /cygdrive/[mswxyz]/* set noswapfile
 
     " Do not use The Force on Test & Production
@@ -1932,20 +1931,24 @@ if !exists("autocommands_loaded")
     """au BufEnter gsk,gsk_check.sh set foldmethod=marker
 		"""au BufNewFile,BufRead,BufEnter DataPost*.log set noswapfile | set hlsearch | source u:/code/sas/saslog.vim 
 		"""au BufRead,BufNewFile *.map set filetype=xslt
-
-   if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
-      if has('gui') 
-        au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source c:/cygwin64/home/bob.heckel/code/sas/saslog.vim 
-      else
-        au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim 
-      endif
-    endif
-
 """    au BufReadPre,FileReadPre /Drugs/Macros/* set noswapfile
 """    au BufReadPre,FileReadPre /Drugs/Cron/* set directory=/Drugs/Personnel/bob/
 """    au BufReadPre,FileReadPre /Drugs/RFD/* set noswapfile
 """    au BufReadPre,FileReadPre /Drugs/HealthPlans/* set noswapfile
 """    au BufReadPre,FileReadPre /Drugs/TMMEligibility/* set noswapfile
+
+    if has('win32gui') 
+      au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source c:/cygwin64/home/bob.heckel/code/sas/saslog.vim 
+    else
+      au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim 
+    endif
+  else
+    " Unregistered box
+    if has('win32gui') 
+      au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $VIMRUNTIME\syntax\saslog.vim 
+    else
+      au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim 
+    endif
   endif
 
   " end Temporary project-specific

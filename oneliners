@@ -585,6 +585,9 @@ scp bheckel@sas-01.twa.taeb.com://mnt/nfs/home/bheckel/tmp/.vimxfer ~/tmp
 # Share vimxfer file across machines:
 alias xfer='scp ~/tmp/.vimxfer bheckel@talon3:tmp/.vimxfer'
 
+# Set a shell variable:
+WHEREISVIMRUNTIME=`vim -e -T dumb --cmd 'exe "set t_cm=\<C-M>"|echo $VIMRUNTIME|quit' | tr -d '\015' `
+
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -2013,6 +2016,7 @@ data weekcnt; set weekcnt end=e; output; if e then do; clientstoreid='999'; week
 
  /* datetime to date */
 select clientstoreid, put(datepart(lastmodified), DATE9.) as dtlastmodified, count(*)
+select put(max(filldate), DATE9.) as humandate
 
  /* Conditional send email from datastep: */
 ...  else do; put 'fail ' rc1=; to='bob.heckel@taeb.com'; file dummy email filevar=to subject="Error during &SYSPROCESSNAME execution"; stop; end;
@@ -2066,7 +2070,7 @@ proc sql; select count(*) into :nvars TRIMMED from dictionary.columns where libn
  /* Add 1 to each variable var_N */
 data t; set t; array arr var_:; do over arr; arr+1; end; run;
 
- /* Take the 90th thru 100th obs only: */
+ /* Take the 90th thru 100th obs only, a semi-random pull: */
 proc print data=_LAST_(firstobs=90 obs=100) width=minimum heading=H;run
 
  /* SQL on one not on the other: */
@@ -2604,8 +2608,7 @@ set scale=3
 
 # Command line on the fly bc calculation
 (echo scale=5; echo 6954/10) | bc
-
-# Canonical bc convert base 10 decimal to hex (bc is case sensitive for hex numbers!):
+# Canonical bc convert base 10 decimal to hex (note: bc is case sensitive for hex numbers!):
 (echo obase=16; echo 10) | bc  # A
 # Canonical bc convert hexadecimal to decimal in bc:
 (echo ibase=16; echo DEADBEEF) | bc  # 3735928559
@@ -2633,7 +2636,7 @@ cat foo.txt | tr '[a-z]' '[A-Z]' >| foo.txt # or lowercase cat foo.txt | tr '[A-
 # Delete filenames containing spaces:
 $ rm *\ *   $ rm *' '*
 
-# Remove a file whose name is blank or weird (find inode):
+# Remove a file whose name is blank or nonprinting non-ASCII weird (i.e. find inode):
 ls -i
 # then rename using the inode (TODO can use mv {} with xargs??)
 find . -inum 41734 -exec mv {} thenrmthisfile \;
@@ -2667,7 +2670,7 @@ $ find LotTracking/ -name '*.vb' -mtime -90 -print0 |xargs -0 grep -RZL 'This co
 # Change owner from me to you:
 chown yourid myfile.txt
 # Change owner and group simultaneously:
-chown oracle.dba /u01  # (or oracle:dba)
+chown oracle:dba disownme.txt  # (or oracle.dba)
 
 # Mount CDROM
 mount -t iso9660 /dev/cdrom /mnt/cdrom
@@ -2676,8 +2679,10 @@ sudo mount -t vfat /dev/sdb /media/Nexus -o uid=1000,gid=1000,utf8,dmask=027,fma
 # Unmount Android
 sudo umount /media/Nexus
 
-# To pad with leading zeroes:
-gawk 'BEGIN {printf "%10.0g\n",3.14; exit}'
+# Zero pad a list of numbers with leading zeros to produce e.g. 0012 0123...:
+awk '{printf "%04d\n",$0}' listofnumbers.txt
+# Comma delimited zero padded:
+awk '{printf "%04d,",$0}' listofnumbers.txt
 
 # Trap window resize:
 kill -l    # to find the number for SIGWINCH
@@ -2686,6 +2691,7 @@ trap "echo caught SIGWINCH" 28  # then resize the window
 trap "echo caught SIGINT" 2
 
 # Send mail from command line:
+echo 'ok' | mailx bob@taeb.com
 echo 'body' | /bin/mutt -s "subject line" robertheckel@solectron.com
 
 # Cygwin.  Place a file's contents onto Clipboard:
@@ -2693,17 +2699,13 @@ cat clipboardme.html | putclip
 # Cygwin. Place Clipboard contents into a file:
 getclip > clipped.txt
 
-# Delete all blank lines from last line to EOL:
-sed -e :a -e '/^\n*$/{$d;N;};/\n$/ba' foo.txt
-
 sed 's/day/night/' <old.txt >new.txt
 
 # Remove all double quote quotation marks.
 sed 's/"//g' foo.txt > dequoted.txt
 
-# sed acts like grep but just prints the line to terminal
+# Prints the line to terminal if found:
 sed -n '/LADE/p' bladerun_crawl
-# awk acts like grep but just prints the line to terminal:
 awk '/LADE/' bladerun_crawl  # awk '/LADE/ {print $0}' bladerun_crawl
 
 # Preview, debug, lines that will change:
@@ -2736,7 +2738,7 @@ perl -ne '@x=split /:/; print "$x[0] and $x[1]\n"' /etc/passwd
 # Print the entire line, $0, if the second field contains 'John' or 'Fred'.
 awk '$2 ~ /John|Fred/ {print $0}' foo.txt
 
-# cat file until first blank line:
+# cat file until the first blank line:
 awk '$0 ~ /^$/ {exit;} {print $0;}' foo.txt
 
 # Shift first entry to last entry (rearrange columns).
@@ -3617,8 +3619,8 @@ sudo apt-get update && sudo apt-get upgrade
 vi -d <(ssh bheckel@sas-01.twa.taeb.com "cat /Drugs/Personnel/bob/t.sas") <(cat /Drugs/bheckel/t.sas)
 vi -d <(ssh bheckel@atlon3 "cat /Drugs/EGP/Humana_weekly_task_Freds.sas") <(cat Freds_priority_enrollment.orig.sas)
 
-# Diff two files across the network:
-ssh user@remote "cat /path/to/remote/file" | diff - /path/to/local/file
+# Diff two files across the network on two boxes:
+ssh user@remote "cat /path/to/remote/file.txt" | diff - /path/to/local/file.txt
 
 # Does vi exist on this box? (avoid which(1):
 hash vi &>/dev/null if [ $? -eq 0 ]; then export EDITOR=vi fi
