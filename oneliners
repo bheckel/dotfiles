@@ -635,6 +635,8 @@ put '0D0A'x;  /* carriage return line feed */
 
 Runaway GUI SAS killer:
 /* '; * "; */; %mend; quit; run;
+;*';*";*/;quit;run; /*Quote and Comment Killer*/
+
 
  /* Free up space - delete datasets */
 proc datasets library=WORK; kill; QUIT;  /* !not just RUN; */
@@ -2085,9 +2087,8 @@ and (clientid=&clid. or (case when npi in ('NOT FOUND','') then '000000000000000
 
 where (age>=18 and age<=80) and (filldate>=date()-90)
 
-# Extract the digits 329 coming after space for Log naming:
-CID='-sysin /Drugs/Cron/Weekly/TMMCensusHPLoop/tmm_census_loop.sas -sysparm 329'
-CLIENTID="${CID##*sysparm }"
+ /* Avoid proc graph GUI from popping up at each slide produced: */
+goptions NOdisplay;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3832,6 +3833,10 @@ C:\cygwin64\bin\mintty.exe -i /Cygwin-Terminal.ico -
 
 # tar a directory without retaining the directory structure:
 tar cvfz tmp.tgz -C /cygdrive/e/TMMEligibilittPatientReport/20160517/Output .
+
+# Extract the digits 329 coming after space for Log naming:
+CID='-sysin /Drugs/Cron/Weekly/TMMCensusHPLoop/tmm_census_loop.sas -sysparm 329'
+CLIENTID="${CID##*sysparm }"
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 

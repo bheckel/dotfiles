@@ -149,12 +149,16 @@ alias wget='wget -c'  # continue failures
 # Generic Functions  #{{{2
 #-----------------------------------
 
+###function ses() {
+###  if [ $OSTYPE = 'cygwin' ]; then
+###    find ~/bob/ -name "Session.vim" | xargs ls -lt | awk '{print "vi -S " $9}'
+###  else
+###    find ~/bob/ -name "Session.vim" | xargs ls -lt | awk '{print "vi -S " $10}'
+###  fi
+###}
 function ses() {
-  find ~/bob/ -name "Session.vim" | xargs ls -lt | awk '{print "vi -S " $9}'
-}
-
-function sesg() {
   # Fast edit using my ;w map inside fc
+  # No parm shows all
   find ~/bob/ -name "Session.vim" | awk '{print "vi -S " $1}' | grep -i "$1" | sort >| ~/tmp/.vimxfer && cat ~/tmp/.vimxfer
 }
 
