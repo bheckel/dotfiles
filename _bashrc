@@ -4,7 +4,7 @@
 # Summary: bash shell config for at least Cygwin 1.3/1.5/1.7, Unix and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Fri 20 May 2016 16:08:39 (Bob Heckel)
+# Modified: Tue 07 Jun 2016 08:52:50 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -159,7 +159,8 @@ alias wget='wget -c'  # continue failures
 function ses() {
   # Fast edit using my ;w map inside fc
   # No parm shows all
-  find ~/bob/ -name "Session.vim" | awk '{print "vi -S " $1}' | grep -i "$1" | sort >| ~/tmp/.vimxfer && cat ~/tmp/.vimxfer
+###  find ~/bob/ -name "Session.vim" | awk '{print "vi -S " $1}' | grep -i "$1" | sort >| ~/tmp/.vimxfer && cat ~/tmp/.vimxfer
+  find ~/bob/ -name "Session.vim" | xargs ls -lt | awk '{print "vi -S " $9}' | grep -i "$1" >|~/tmp/.vimxfer && cat ~/tmp/.vimxfer
 }
 
 
@@ -497,11 +498,10 @@ case "$OSTYPE" in
     alias daystil=$HOME/code/misccode/daystil64.exe
 ###    alias =clear
     alias cygwin=$HOME/code/misccode/cygwin.bat  # norc bat version must be doubleclicked
-    # rsynch of tobuddha/ will *copy* files symlinks point to from parsifal.
     ###alias budrsync='rsync -avz /home/bheckel/code/ root@buddha:/home/bheckel/code && rsync -avzL /home/bheckel/tobuddha/ root@buddha:/home/bheckel/tobuddha'
-    # Cygwin fix b/c ck4suspend screws up the commandline somehow.  Use the
-    # real fg for e.g. fg %2
+    # Cygwin fix.  Use the real fg for e.g. fg %2
     alias f='fg; echo'
+    alias gskfrom="echo 'retrieving from github...';echo; cd ~/dotfiles && git pull origin master; echo; cd ~/transfer && git pull origin master; echo 'extracting...'; ls -l ~/transfer/c; sleep 5; cd ~ && tar xvfz ~/transfer/c" 
     alias gv=gvim
     # Allow output to be triple clicked as a noop.
     ###alias h='history|tail -20|perl -pe "s/(\d+)(.*)/: \1; \2/"'
@@ -521,20 +521,15 @@ case "$OSTYPE" in
     alias m="less -FRSX"  # don't use less if it fits in the window
     # Present Working Windows Directory
     alias pwwd='cygpath -w "`pwd`"'
-    ###alias runllg="w3m -no-cookie -dump_source 'http://rtpsawn321/links/runllg.asp?action=Run+LLG'|grep '^LLG'"
 ###    alias runllg="w3m -no-cookie -dump_source 'http://rtpsawn321/links/runllg.asp?action=Run+LLG'|grep '^LLG' ; grep ERRMSG /cygdrive/x/SQL_Loader/Logs/LGI.log || echo fail"
     alias sas="c:/Program\ Files/SAS\ Institute/SAS/V8/sas.exe"
     ###alias sas8="c:/Program\ Files/SAS\ Institute/SAS/V8/sas.exe"
     ###alias sas9="c:/Program\ Files/SAS/SAS\ 9.1/sas.exe"
-###    alias sasdate=$HOME/code/misccode/sasdate
-###    alias tree=$HOME/code/misccode/tree
 ###    alias usb="$HOME/bin/USB_Disk_Eject /removename '*LEXAR'"
 ###    alias usbe="$HOME/bin/USB_Disk_Eject /removeletter E"
     alias uvi=$HOME/code/perl/uvi  # don't change timestamp
     alias v="vim -u $HOME/code/misccode/.vimrc.more"  # alternative to 'm'
     alias vi=vim
-    # Poor-man's gvim in an xterm.
-###    alias vig='rxvt -geometry 80x50+250+50 +sb -fn "Andale Mono-12" -e vi -c start&'
 
     # Avoid nullglob or e.g. ls k* will show all files if no k* files exist.
     shopt -s cdspell checkhash checkwinsize cmdhist huponexit \
@@ -730,7 +725,7 @@ case "$OSTYPE" in
       # Poor-man's file sync:
       # Assumes we've downloaded the gsk tarball as ~/Downloads/c.  home* are un on workbox, gsk* are run on homebox. See
       # homefrom hometo.  Friday night run usually.
-      alias gskfrom="echo 'retrieving from github...';echo; cd ~/Downloads && git pull origin master; echo;echo 'extracting...'; ls -l ~/Downloads/c; sleep 5; cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && cd ~/code/misccode; gs"
+###      alias gskfrom="echo 'retrieving from github...';echo; cd ~/Downloads && git pull origin master; echo;echo 'extracting...'; ls -l ~/Downloads/c; sleep 5; cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && cd ~/code/misccode; gs"
       # Assumes we have recent home changes ready to tar and use at work Monday when we will git it
       # See homefrom hometo.  Sunday evening run usually:
       alias gskto="cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV | grep -v '/.git/' | grep -v '.swp' | xargs tar cvfz ~/Downloads/c.NEW && cd ~/Downloads && git add c.NEW && git commit -m'gskto' && git push origin master"
@@ -742,7 +737,8 @@ case "$OSTYPE" in
       ###alias sqlplus=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/sqlplus
       # Print Windows Working Directory.  Command is $ pwd|sed 's/\//\\/g'" before vim backslashitis
       alias pwwd="pwd|sed 's/\\//\\\\/g'"
-      alias srcb="source $HOME/.bashrc"
+###      alias srcb="source $HOME/.bashrc"
+      alias srcb="source $HOME/dotfiles/_bashrc"
 
       # CR48  # {{{2
       if [ $HOSTNAME = 'ubuntu' ]; then

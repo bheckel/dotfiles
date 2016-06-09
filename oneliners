@@ -3584,14 +3584,13 @@ export PROMPT_COMMAND=; echo -ne "\033]0; override change rxvt window title\007"
 test -w log;echo $?  # interactive testing
 if [ -f $file  ] && [ -w $file ]; then ...  # script
 
-# Which Linux distribution am I using:
+# Details on which Linux distribution architecture release codename am I using:
 lsb_release -a
 
 $ 7z a Android-4.4.pdf.7z Android-4.4.pdf
 
 # Unzip 7zip
 $ 7z x proust.7z
-$ ~/Dropbox/Public/misc/computer/Linux/7za e ~/proust.7z
 
 # Avoid the bash Ctrl-s key combo of death that requires a Ctrl-q to escape its clutches
 stty -ixon
@@ -5682,7 +5681,6 @@ h4 { color:#FFFF99; font-weight:bold; font-size:110%; font-style:italic; width:7
 SELECT foo FROM tblfoo  UNION      SELECT bar FROM tblbar; -- stacks two tables and eliminates dups
 SELECT foo FROM tblfoo  UNION ALL  SELECT bar FROM tblbar; -- stacks two tables and keeps dups (rare since records are then ambiguous)
 
---delete a method from pec database table
 DELETE FROM pks_extraction_control WHERE meth_spec_nm LIKE 'ATM02102%';
 
 Excel uses exponentiation e.g. 1E+13 for large numbers - avoid by Format Cells : Custom : Enter "#" in Type field
