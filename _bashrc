@@ -1,10 +1,10 @@
 #!/bin/bash
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 #    Name: $HOME/.bashrc
-# Summary: bash shell config for at least Cygwin 1.3/1.5/1.7, Unix and z/OS
+# Summary: bash config for at least Cygwin 1.3/1.5/1.7, Unix/Linux and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Tue 07 Jun 2016 08:52:50 (Bob Heckel)
+# Modified: Fri 24 Jun 2016 08:12:48 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -87,7 +87,7 @@ export normal="[0m"
 # Generic Alias	 #{{{2
 #-----------------------
 alias ..='cd ..'
-alias bc="bc -lq"  # allow floating point calcs
+alias bc="bc -lq"  # allow floating point calcs, mess up other stuff
 alias be="vi $HOME/.bashrc"
 alias bak="$HOME/code/misccode/bak"
 alias bgrep="$HOME/code/perl/bgrep"
@@ -125,12 +125,8 @@ alias lla='ls -agh --color --group-directories-first'
 # If ls -lS isn't available:
 ###alias lls='ls -l | sort +4r | grep -v "total"'  # sort descending on size
 alias lsd='find . -type d'
-###alias locate='locate -i'
 alias one="vi $HOME/code/misccode/oneliners"
-# Case insensitive search for module:
-###alias pdoc='perldoc -i'     
 ###alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
-###alias q=$HOME/code/misccode/q.sh
 alias qr=$HOME/code/misccode/quickref_find.sh
 alias rme=$HOME/code/misccode/rme
 alias robots="export ROBOTOPTS=moveheaps,showscores,screwdriver,fastrobots; robots"
@@ -141,6 +137,7 @@ alias sr="$HOME/code/sas/sasrun"
 alias srcb="source $HOME/code/misccode/_bashrc"
 alias tree="\ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
 alias unbak="$HOME/code/misccode/bak -u "
+alias uvi="$HOME/code/perl/uvi"  # don't change timestamp
 alias ve="vi $HOME/.vimrc"
 alias wget='wget -c'  # continue failures
 
@@ -149,32 +146,13 @@ alias wget='wget -c'  # continue failures
 # Generic Functions  #{{{2
 #-----------------------------------
 
-###function ses() {
-###  if [ $OSTYPE = 'cygwin' ]; then
-###    find ~/bob/ -name "Session.vim" | xargs ls -lt | awk '{print "vi -S " $9}'
-###  else
-###    find ~/bob/ -name "Session.vim" | xargs ls -lt | awk '{print "vi -S " $10}'
-###  fi
-###}
 function ses() {
-  # Fast edit using my ;w map inside fc
   # No parm shows all
-###  find ~/bob/ -name "Session.vim" | awk '{print "vi -S " $1}' | grep -i "$1" | sort >| ~/tmp/.vimxfer && cat ~/tmp/.vimxfer
-  find ~/bob/ -name "Session.vim" | xargs ls -lt | awk '{print "vi -S " $9}' | grep -i "$1" >|~/tmp/.vimxfer && cat ~/tmp/.vimxfer
+  find ~/bob/ -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $9}' | grep -i "$1" >|~/tmp/.vimxfer && cat ~/tmp/.vimxfer
 }
 
 
 cdl(){ cd "$@" && ls; }
-
-
-# Avoid garbage on the command line.   .vimrc has a similar function.
-# E.g. run prior to doing a $ su foouser
-fix() {
-  unset PROMPT_COMMAND
-  unset PS1
-  export PS1='\u@\h\$ '  # generic
-  export TERM=vt100  # guessing that we're coming in via telnet
-}
 
 
 # Used with PS1 as an exit value indicator.
@@ -309,13 +287,13 @@ stoppedjobs() {
 }
 
 
-# Build a fast, disposable sandbox for testing
+# Build a disposable sandbox for testing
 sbx() {
-  # Leading epoch date is for sorting purposes.  To navigate do something like:
-  # cd ~/tmp/*09Jun*
+  # Leading epoch date is for sorting purposes.  To navigate do something like:  cd ~/tmp/*09Jun*
   todayuniq=`date +%s_%d%b%y`$1
   mkdir $HOME/tmp/$todayuniq
   cd $HOME/tmp/$todayuniq
+  pwd
 }
 
 
@@ -418,7 +396,7 @@ function gl() {
 
 
 function md() {
-  mkdir $1 && cd $1
+  mkdir $1 && cd $1 && ls -l
 }
 
 
@@ -428,15 +406,8 @@ function md() {
 #-------------------
 # Cygwin  #{{{1
 #-------------------
-# Debug from CMD w/o sourcing this file:
-# c:\cygwin\bin\rxvt.exe -geometry 80x40+250+175 -fn "Andale Mono-12" -e /bin/bash --norc
 case "$OSTYPE" in
   CYGWIN*|cygwin*)
-    ###if [ -z $NONINTERACTIVE ]; then
-      ###case "$HOSTNAME" in
-        ###'ZEBWL06A16349' | 'sati' ) if test -e $HOME/bin/ck4blink; then $HOME/bin/blink& fi
-      ###esac
-    ###fi
 
     #-------------------
     # Export Cygwin  #{{{2
@@ -457,11 +428,8 @@ case "$OSTYPE" in
     export CYGWIN=nodosfilewarning  # MS-DOS style path detected: u:/tmp/bdfCURR.rtpsh005
     export CVSROOT=$HOME/repository
 		export EDITOR=vim
-    # Must not be in General section b/c SunOS cron.
-    export PATH=$HOME/bin:/usr/bin:/bin:$PATH
     export LANG=en_US
     # Lowercase the fscking Windows uppercase hostname
-    ###export LCHOSTNAME="`echo ${HOSTNAME} | perl -ne 's/(.*)/\L$1\E/;print'`"
     export LCHOSTNAME="`echo ${HOSTNAME} | tr [A-Z] [a-z]`"
     # The echo -ne "\033]0;${PWD}\007" causes rxvt titlebar to show PWD.
     # '\[ ... \]' says "ignore this material while calculating the size of the prompt".
@@ -474,9 +442,9 @@ case "$OSTYPE" in
     export TEMP=/cygdrive/c/temp
     export VIMSTATUSL="${USERNAME}@`echo ${HOSTNAME} | tr [A-Z] [a-z]`"
 
-    if [ $HOSTNAME = 'SAS-01' ] || [ $HOSTNAME = 'SAS-02' ]; then
+###    if [ $HOSTNAME = 'SAS-01' ] || [ $HOSTNAME = 'SAS-02' ]; then
       export SASV9_OPTIONS='-validvarname=any'
-    fi
+###    fi
     #-------------------
     # Functions Cygwin  #{{{2
     #-------------------
@@ -487,7 +455,6 @@ case "$OSTYPE" in
     # Alias Cygwin  #{{{2
     #-------------------
     alias by=exit  # like FTP and SAS
-    alias bye=exit
     alias catput=$HOME/code/misccode/catput.sh
     # This assumes $TEMP is defined to C:\temp above for Cygwin vim/gvim issues (can't reside in Generic section, normal unix uses ~/tmp)
     alias d12="(cd $TEMP;vi -d 1 2)"
@@ -496,12 +463,11 @@ case "$OSTYPE" in
     alias d34="(cd $TEMP;vi -d 3 4)"
     alias datecalc=$HOME/code/perl/datecalc
     alias daystil=$HOME/code/misccode/daystil64.exe
-###    alias =clear
     alias cygwin=$HOME/code/misccode/cygwin.bat  # norc bat version must be doubleclicked
     ###alias budrsync='rsync -avz /home/bheckel/code/ root@buddha:/home/bheckel/code && rsync -avzL /home/bheckel/tobuddha/ root@buddha:/home/bheckel/tobuddha'
     # Cygwin fix.  Use the real fg for e.g. fg %2
     alias f='fg; echo'
-    alias gskfrom="echo 'retrieving from github...';echo; cd ~/dotfiles && git pull origin master; echo; cd ~/transfer && git pull origin master; echo 'extracting...'; ls -l ~/transfer/c; sleep 5; cd ~ && tar xvfz ~/transfer/c" 
+    alias gskfrom="echo 'retrieving from github...';echo; cd ~/dotfiles && git pull origin master; echo; cd ~/transfer && git pull origin master; echo 'extracting...'; ls -l ~/transfer/c; tar tvfz ~/transfer/c; sleep 7; cd ~ && tar xfz ~/transfer/c" 
     alias gv=gvim
     # Allow output to be triple clicked as a noop.
     ###alias h='history|tail -20|perl -pe "s/(\d+)(.*)/: \1; \2/"'
@@ -525,10 +491,6 @@ case "$OSTYPE" in
     alias sas="c:/Program\ Files/SAS\ Institute/SAS/V8/sas.exe"
     ###alias sas8="c:/Program\ Files/SAS\ Institute/SAS/V8/sas.exe"
     ###alias sas9="c:/Program\ Files/SAS/SAS\ 9.1/sas.exe"
-###    alias usb="$HOME/bin/USB_Disk_Eject /removename '*LEXAR'"
-###    alias usbe="$HOME/bin/USB_Disk_Eject /removeletter E"
-    alias uvi=$HOME/code/perl/uvi  # don't change timestamp
-    alias v="vim -u $HOME/code/misccode/.vimrc.more"  # alternative to 'm'
     alias vi=vim
 
     # Avoid nullglob or e.g. ls k* will show all files if no k* files exist.
@@ -559,7 +521,6 @@ case "$OSTYPE" in
      #--------------
      # Alias SunOS  #{{{2 
      #------------------
-     ###alias got='go -t '
      alias jam='ps -eaf | grep `whoami`'
      alias l='ls -F'
      alias la='ls -FA'
@@ -582,8 +543,6 @@ case "$OSTYPE" in
      if [ $HOSTNAME = 'buddha' ]; then
        # Leave / as root's home for things like .Xauthority, etc.
        export LD_LIBRARY_PATH=/opt/sfw/lib:/opt/csw/lib:/usr/local/lib
-       # TODO is this ok?
-       export MANPATH=$MANPATH:/opt/man:/opt/sfw/man:/opt/csw/man:/usr/openwin/man
        export PATH=$PATH:/opt/bin:/opt/sfw/bin:/opt/csw/bin:/usr/ccs/bin
        # TODO run once only and only if X is running, but don't think it's
        # more than an annoyance if left as is
@@ -608,7 +567,7 @@ case "$OSTYPE" in
        # For at least mysql
        export LD_LIBRARY_PATH=/opt/sfw/lib
        export MANPATH=$MANPATH:/opt/man:/opt/sfw/man:/usr/openwin/man
-       # Run system check every other day.
+       # Run system check every other day
        if [ `date | awk '{print $3}' | perl -e '$x=<>; $y=($x%2); END{print $y}'` = 0 ]; then
          echo
          \ls -l /opt/apache/logs/*_log
@@ -620,20 +579,6 @@ case "$OSTYPE" in
          echo
          last|grep -v bheckel|head -9
        fi
-     fi
-
-     if [ $HOSTNAME = 'tstdev' ]; then
-       # For make, etc. {{{
-       export EDITOR=/opt/SUNWspro/contrib/contrib6/vim5.6/bin/vim
-       export PATH=$PATH:/usr/ccs/bin/
-       export VIM=/opt/SUNWspro/contrib/contrib6/vim5.6/share/vim/vim56
-       alias jam="ps -eaf|grep `whoami`"
-       alias vi="/opt/SUNWspro/contrib/contrib6/vim5.6/bin/vim"
-     fi
-
-     if [ $HOSTNAME = 'anicca' ]; then
-       export PATH=$PATH:/usr/local/bin:/opt/sfw/bin
-       alias vi=vim
      fi
 
      stty erase ^? intr ^C kill ^K
@@ -648,49 +593,6 @@ case "$OSTYPE" in
   # Linux  #{{{1
   #-------------------
   linux-* | Linux)
-      # ChromeOS #{{{2
-      if [ $HOSTNAME = 'chromeos' ]; then
-        # Make sure we can write to this bitch
-        sudo mount -i -o remount,exec /home/chronos/user
-        cd ~
-
-        # Optionally start Dropbox if it's not running.
-        # http://gabeortiz.net/2011/how-to-get-dropbox-working-on-a-cr48-google-chrome-netbook/
-        if [ -z "$(pgrep dropbox)" ] && [ -d ~/.dropbox-dist ]; then
-          echo -n 'Start Dropbox? '
-          read yn
-          if [ "$yn" = 'y' ];then
-             ~/.dropbox-dist/dropboxd &
-          fi
-        fi
-
-        alias vi='~/bin/vim -u ~/code/misccode/_vimrc'
-###        export VIMRUNTIME=/home/chronos/user/.vim
-      fi
-
-      # Use: bigshell FONTSIZE (where fontsize defaults to 16).  Gil Levy
-      function bigshell() {
-        fontsize=${1:-16}
-        urxvt -fn "xft:DejaVu Sans Mono:pixelsize=$fontsize" -bc -fb "xft:DejaVu Sans Mono:pixelsize=$fontsize" -tn xterm -bg black -fg grey +sb -color0 "#000000" -color1 "#9e1828" -color2 "#4f874f" -color3 "#968a38" -color4 "#5d5da0" -color5 "#963c59" -color6 "#418179" -color7 "gray" -color8 "gray40" -color9 "#cf6171" -color10 "#c5f779" -color11 "#fff796" -color12 "#4186be" -color13 "#cf9ebe" -color14 "#71bebe" -color15 "white" -e /usr/bin/crosh
-      }
-      # end ChromeOS # }}}
-
-      # CentOS  # {{{2
-      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ]; then
-        # locate() is failing with permission errors, using this weak alternative
-        function loc() {
-          find $HOME/code |grep -i "$1"
-        }
-
-        # E.g. Mar  3 07:32 /Drugs/Cron/Daily/tmm_enroll_ratio/tmm_enroll_ratio.log
-        function myls() {
-          ls -lgG $1 |sed -r 's/^\S+ \S+ \w+ //g'
-        }
-
-        #umask 022  # 022 is 755, 037 is 740
-      fi
-      # }}}
-
       #----------------
       # Export Linux  #{{{2 
       #----------------
@@ -699,22 +601,9 @@ case "$OSTYPE" in
       export PROMPT_COMMAND='history -a; echo -ne "\033]0;${HOSTNAME:0:4}:${PWD}\007";'
       export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
       export VIMSTATUSL="${USER}@`echo ${HOSTNAME}`"
-      # For crontab -e to succeed
+      # For crontab -e
       export VISUAL=vim
 
-      # CentOS  # {{{2
-      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ]; then
-        alias sas0='ssh -l bheckel sas-01.twa.ateb.com'
-        alias tal='ssh -l bheckel talon3.dep.ateb.com'
-
-        # This keeps irenamer and fc from failing when it finds the minimal vim installed as vi
-        export EDITOR=/mnt/nfs/home/bheckel/usr/local/bin/vim
-        export SASV9_OPTIONS='-validvarname=any'
-      fi #}}}
-
-      #}}}
-
-      #----------------
       # Alias Linux  #{{{2 
       #----------------
 
@@ -739,16 +628,6 @@ case "$OSTYPE" in
       alias pwwd="pwd|sed 's/\\//\\\\/g'"
 ###      alias srcb="source $HOME/.bashrc"
       alias srcb="source $HOME/dotfiles/_bashrc"
-
-      # CR48  # {{{2
-      if [ $HOSTNAME = 'ubuntu' ]; then
-        ###export PATH=$PATH:/home/ubuntu/android_sdk_linux_m3-rc22a/tools
-        # Don't want autostart so that at least this box won't start modifying immediately in case of trouble.
-        alias dropbox='~/.dropbox-dist/dropboxd &'
-        alias vi='vim -u ~/code/misccode/_vimrc'
-      fi #}}}
-
-      # yoniso  # {{{2
       # TODO if not running (via fluxbox) start dropbox and nm-applet
       if [ $HOSTNAME = 'yoniso' ]; then
         alias cdrom='sudo mount -t iso9660 /dev/cdrom /media/cdrom; mount|grep "^/dev/cd"; echo "sudo umount /media/cdrom"'
@@ -757,13 +636,69 @@ case "$OSTYPE" in
 				alias systeminfo='df -h && echo && free -m && echo && grep --color="never" name /proc/cpuinfo | uniq && echo && lspci | grep --color="never" VGA && echo && xrandr | grep --color="never" connected && echo && uname -rms'
         alias usb='sudo fdisk -l; mount|grep "^/dev/sd"; echo; echo "sudo mount -t vfat /dev/??? /media/generic -o uid=1000,gid=1000,utf8,dmask=027,fmask=137"; echo; echo "sudo umount /media/generic"'
       fi
-      #}}}
 
-      # Ateb  # {{{2
-      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ]; then
-        alias vi=$HOME/usr/local/bin/vim
+      # CentOS  # {{{2
+      if [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ]; then
+        export PS1='${fg_darkgray}\j ${fg_yellowbold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
       fi
-      #}}}
+
+      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ]; then
+        alias sas0='ssh -l bheckel sas-01.twa.ateb.com'
+        alias tal='ssh -l bheckel talon3.dep.ateb.com'
+        alias vi=$HOME/usr/local/bin/vim
+
+        # This sometimes keeps things from failing when the minimal vim is installed as vi
+        export EDITOR=/mnt/nfs/home/bheckel/usr/local/bin/vim
+        export SASV9_OPTIONS='-validvarname=any'
+
+        # locate() is failing with permission errors, using this weak alternative
+        function loc() {
+          find $HOME/code |grep -i "$1"
+        }
+
+        # E.g. Mar  3 07:32 /Drugs/Cron/Daily/tmm_enroll_ratio/tmm_enroll_ratio.log
+        function myls() {
+          ls -lgG $1 |sed -r 's/^\S+ \S+ \w+ //g'
+        }
+
+        #umask 022  # 022 is 755, 037 is 740
+      fi
+
+      #----------------
+      # ChromeOS #{{{2
+      if [ $HOSTNAME = 'chromeos' ]; then
+        # Make sure we can write to this bitch
+        sudo mount -i -o remount,exec /home/chronos/user
+        cd ~
+
+        # Optionally start Dropbox if it's not running.
+        # http://gabeortiz.net/2011/how-to-get-dropbox-working-on-a-cr48-google-chrome-netbook/
+        if [ -z "$(pgrep dropbox)" ] && [ -d ~/.dropbox-dist ]; then
+          echo -n 'Start Dropbox? '
+          read yn
+          if [ "$yn" = 'y' ];then
+             ~/.dropbox-dist/dropboxd &
+          fi
+        fi
+
+        alias vi='~/bin/vim -u ~/code/misccode/_vimrc'
+###        export VIMRUNTIME=/home/chronos/user/.vim
+      fi
+
+      # Use: bigshell FONTSIZE (where fontsize defaults to 16)
+      function bigshell() {
+        fontsize=${1:-16}
+        urxvt -fn "xft:DejaVu Sans Mono:pixelsize=$fontsize" -bc -fb "xft:DejaVu Sans Mono:pixelsize=$fontsize" -tn xterm -bg black -fg grey +sb -color0 "#000000" -color1 "#9e1828" -color2 "#4f874f" -color3 "#968a38" -color4 "#5d5da0" -color5 "#963c59" -color6 "#418179" -color7 "gray" -color8 "gray40" -color9 "#cf6171" -color10 "#c5f779" -color11 "#fff796" -color12 "#4186be" -color13 "#cf9ebe" -color14 "#71bebe" -color15 "white" -e /usr/bin/crosh
+      }
+
+
+      # CR48  # {{{2
+      if [ $HOSTNAME = 'ubuntu' ]; then
+        ###export PATH=$PATH:/home/ubuntu/android_sdk_linux_m3-rc22a/tools
+        # Don't want autostart so that at least this box won't start modifying immediately in case of trouble.
+        alias dropbox='~/.dropbox-dist/dropboxd &'
+        alias vi='vim -u ~/code/misccode/_vimrc'
+      fi
 
       shopt -s cdspell checkhash checkwinsize cmdhist dotglob histappend 
 
@@ -867,7 +802,7 @@ case "$OSTYPE" in
 esac #}}}
 #}}}1
 
-# Project-specific or security-related additions:
+# Project-specific or security-sensitive additions:
 if [ -e $HOME/.bashrc.project ]; then
   source $HOME/.bashrc.project
 fi

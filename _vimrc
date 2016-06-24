@@ -758,7 +758,7 @@ if has('win32')
   noremap <C-A> <C-A>
 endif
 
-map <F12> :q<CR>  
+map <F12> :q<CR>
 
 
 
@@ -1742,6 +1742,7 @@ if !exists("autocommands_loaded")
   " end Perl
 
   au FileType sh set fileformat=unix
+  au BufWritePost *.sh silent !chmod a+x <afile>
   au FileType basic map ;; :call setline('.', Commentout(getline('.'), 'vb'))<CR>
   au FileType basic map ,m yy0I'''<ESC>p
   au FileType basic map ;s :s:^:''':<CR>
@@ -1921,7 +1922,7 @@ if !exists("autocommands_loaded")
 """    au BufRead,BufWinEnter /cygdrive/z/*    hi StatusLine   ctermfg=Red ctermbg=Black
 """    au BufRead,BufWinLeave /cygdrive/z/*    hi StatusLineNC ctermfg=Red ctermbg=Gray gui=inverse,bold
 
-    au BufReadPre,FileReadPre [THR]:/* set noswapfile
+    au BufReadPre,FileReadPre [ETHR]:/* set noswapfile
 """    au BufReadPre,FileReadPre /cygdrive/[mswxyz]/* set noswapfile
 
     " Do not use The Force on Test & Production
