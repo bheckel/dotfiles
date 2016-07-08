@@ -110,10 +110,10 @@ set encoding=utf-8
 "  ~/code/misccode/print_all_terminal_colors.sh
 "--------------------------------------------------------------------------
 
-if has ('syntax') && &t_Co > 1
-  color default
+"""if has ('syntax') && &t_Co > 1
+"""  color default
   syntax enable
-endif
+"""endif
 
 " Avoid reading text presented like it was written on a light bulb.  We're
 " sometimes relying on .Xdefaults to do wheat-on-black so this is only for gvim.
@@ -591,7 +591,6 @@ set shellslash
 iab BoB Bob Heckel
 iab RoB Robert S. Heckel Jr.
 iab EmA b.heckel@gmail.com
-iab PhO (919)816-2347
 
 """""
 " Misc
@@ -704,6 +703,7 @@ cab SyJ source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/java
 cab SyQ source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/sql.vim 
 """cab SyS source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/sas/sas.vim
 cab SyS source $HOME/code/sas/sas.vim
+cab SyV source $HOME/.vimrc
 
 
 " end Abbreviations-
@@ -1084,14 +1084,14 @@ inoremap (<Space><Space> ()<Left>
 inoremap [<Space><Space> []<Left>
 inoremap {<Space><Space> {}<Left>
 
-" Search all open buffers (may need SyS cmap to restore syntax)
-cmap bbb call setqflist([])\|bufdo grepadd!  %<C-F>$hha
+" Add case-insensitivity
+"""set grepprg=grep\ -ni
+" Search all open buffers
+cmap bbb call setqflist([]) \| bufdo grepadd!  %<C-F>$hha
 " Search all files recursively in pwd
 cmap vvv vimgrep // **/*.*<C-F>$Bhhi
 " Search all SAS files recursively in pwd
 cmap vvs vimgrep //g **/*.sas<C-F>$Bhhhi
-" Hacked up bufgrep since vimgrep searches all files and no builtin exists as of 2010-01-20 
-"""cmap bbb exe 'vimgrep // '.join(BuffersList(),' ')<Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left><Left>
 
 " Increment / sequence / (a)dd a visualized column.  Cursor on number to 
 " start from.  C-V C-A.  To do more complicated things like increase by 100 use
@@ -1773,7 +1773,7 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufEnter */tmp/*.grep echon '.vimrc: <CR> to select file, q to quit'
 
   " Don't wrap these                           bash fc temp files
-  au BufRead,BufEnter *.htm*,*.asp,*.cgi,*.sql,*/tmp/bash*,afiedt.buf set tw=0 wm=0
+"""  au BufRead,BufEnter *.htm*,*.asp,*.cgi,*.sql,*/tmp/bash*,afiedt.buf set tw=0 wm=0
 
   " See  set cinwords  above.
 """  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.pl,*.pm,*.sas set smartindent
@@ -1889,6 +1889,7 @@ if !exists("autocommands_loaded")
 
   " TODO
   au BufNewFile,BufEnter *.py set tabstop=4
+
 
   "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_

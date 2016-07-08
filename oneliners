@@ -1861,7 +1861,7 @@ if reverse(upcase(left(trim(myf)))) eq: 'FDP';
  /* If string is quoted: */
 %if (%qsubstr(%nrbquote(&file.), 1, 1) eq %str(%')) %then %do;
 
- /* Do not resolve macrovariables */
+ /* Do not resolve macrovariables triggers '&' or '%' */
 %let x=%nrstr(&a &b); %put &x;  /* &a &b */
 
  /* Reverse two names */
@@ -2098,6 +2098,14 @@ select put(input(storenum,4.),z4.) as clientstoreid, ...
 
  /* Delete obs if all vars are missing: */
 options missing=''; ... if missing(cats(of _ALL_)) then delete;
+
+ /* Beginning of month six months ago to end of previous month: */
+%let minbom=%sysfunc(intnx(MONTH, "&SYSDATE"d, -6, B),date9.); %let maxbom=%sysfunc(intnx(MONTH, "&SYSDATE"d, -1, E),date9.);
+
+ /* Double ampersand macro resolution: */
+%let n=3; %let x3=thisprints; %put &&x&n;
+ /* Triple ampersand macro resolution: */
+%let x=temp; %let n=3; %let temp3=thisprints; %put &&&x&n;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4279,7 +4287,7 @@ perl -e "print unpack('B32', pack('N', 12))"
 # Convert binary to decimal:
 perl -e "print unpack('N', pack('B32', substr('0'x32 . 1100, -32)))"
 
-# Simple test regex test from commandline without needing a variable:
+# Simple test regex test from commandline check regex without needing a variable:
 perl -e 'print "found" if "a"=~/[^1-9]/'
 # Test a multi-line string using a regex:
 perl -e 'print "match!" if "This is my\nmultiline string" =~ /This.*string/s;'
@@ -5867,6 +5875,13 @@ psql -h db-06.twa.ateb.com ATEBMART -c "select to_char(lastmodified, 'yyyy-mm-dd
 -- Postgres between two dates date range:
 where created>='2016-05-11' and created<'2016-05-12'
 
+-- Postgres extract months:
+select clientstoreid, to_char(filldate, 'YYYY-MM') as mo, count(*) as cnt ...
+select SUM(amount) as sales, date_trunc('month', created_at)::date as date from orders group by date order by date DESC;
+
+-- Postgres substr
+select distinct substring(cr.gpi,1,10)
+
 ' Excel multiply two columns and produce a scalar: =SUMPRODUCT(O37:O38,P37:P38)
 
 Self-Join: recursive join that results when a set of data is joined back to itself is also known as a self-join. This is typically encountered when a parent-child relationship in a hierarchy needs to be traversed. When using the ANSI syntax to accomplish this, only the JOIN...ON syntax will work, and the keyword INNER can be used for clarity.
@@ -5874,8 +5889,8 @@ Self-Join: recursive join that results when a set of data is joined back to itse
 -- Yesterday in Postgres
 and lastmodified >= current_date-1
 
-To save postgresql output to csv file:
-psql> \f ',' \a \o '/tmp/output.csv'
+To save postgresql output to comma pipe delimited csv file (warning - multiple runs append):
+psql> \f '|' \a \t \o '/tmp/output.csv'
 psql> \e
 
 -- Zero pad a number in postgresql:
@@ -5883,5 +5898,11 @@ select distinct lpad(clientstoreid::text, &sidlen, '0') as clientstoreid, ...
 
 -- Windows System Information Tool
 msinfo32
+
+-- Find duplicates Postgres
+select * from analytics.healthplanpatients hp where row(hpprogramid, externalpatientid, cardholderid, pharmacyid) in (select hpprogramid, externalpatientid, cardholderid, pharmacyid from analytics.healthplanpatients_test);
+
+# Make tmux windows tile evenly:
+:select-layout even-horizontal
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
