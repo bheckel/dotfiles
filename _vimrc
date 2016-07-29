@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Tue 24 May 2016 10:33:41 (Bob Heckel)
+" Modified: Mon 18 Jul 2016 08:42:18 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -195,8 +195,11 @@ hi Visual ctermfg=Black ctermbg=LightMagenta guifg=Black guibg=LightMagenta
 
 hi WarningMsg ctermfg=Magenta ctermbg=Yellow guifg=Magenta guibg=Yellow
 
-" :match WhitespaceEOL /\s\+$/
-hi WhitespaceEOL ctermbg=red guibg=red
+"""hi WhitespaceEOL ctermbg=red guibg=red
+"""match WhitespaceEOL /\s\+$/
+
+"""hi ColorizeFirst10 ctermbg=red guibg=red
+"""match ColorizeFirst10 /^........../
 
 " end Color Syntax
 
@@ -692,7 +695,7 @@ iab SaO filename F 'junk'; data t(rename=(PRODDESC=nm APRCLASS=class)); infile F
 """iab SaP <Esc>0ititle "&SYSDSN";proc print data=_LAST_(obs=10) width=minimum heading=H;run;title; data;file PRINT;put '~~~~~~~~~~~~~~~~~~~~~~';put;run;
 iab SaP <Esc>0ititle "&SYSDSN";proc print data=_LAST_(obs=10) width=minimum heading=H;run;title;
 """iab SaQ libname LDEBUG '.';data LDEBUG.t;set _LAST_;if _N_ eq 1 then put 10 * '!!!DEBUG';run;
-iab SaQ proc sql; create table t as select count(*) from t0 where x=1 group by y; quit;proc print;run;<Esc><CR>
+iab SaQ proc sql;<CR>create table t as<CR>select count(*)<CR>from t;<CR>quit;<Esc><CR>
 iab SaS select ( myvar );<CR><Space><Space>when ( 42 ) delete;<CR><Space><Space>otherwise;<CR><Left><Left>end;
 
 cab Sy0 source $VIMRUNTIME/syntax/nosyntax.vim

@@ -1068,8 +1068,9 @@ SELECT DISTINCT COUNT(samp_id)  /* bad - syntax is ok but probably not what you 
 proc copy in=OLDLIB out=NEWLIB memtype=data; select myds1 myds2...; run;
  /* so use this instead of proc copy */
 proc append base=newdstocreate data=olddsname FORCE; run;
- /* True append */
-proc append base=ci_oth data=ci_oth_&strength; run;
+
+ /* Canonical proc append */
+proc append base=ci_oth data=ci_oth_&strength FORCE; run;
 
  /* format= relies on e.g. ls=N cannot have ls=max to pull this off */
 options ls=80; proc sql; select specname FORMAT=$20. from v ; quit;
@@ -1127,6 +1128,15 @@ http://rtpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program=LINKS.t.sa
 
  /* NODUP eliminates obs that are exactly the same across ALL variables.  NODUPKEY eliminates obs that are exactly the same across *only* the BY variables. */
 proc sort data=foo out=bar NODUPKEY; by x y; run;
+
+ /* If you don't require the data within BY groups to be kept in the same order
+  * as it was before, use the NOEQUALS option. This will save you CPU and
+  * elapsed time, particularly on very large data sets. This option causes SAS
+  * not to worry about keeping observations with the same BY variable values in
+  * the same order. Usually you don't need the order maintained, so you can
+  * specify NOEQUALS. 
+  */
+proc sort data=foo NOEQUALS; by x y; run;
 
  /* proc sort alternative */
 proc sql;CREATE INDEX MYSORTEDx ON lelimsgist05e (Samp_Id, Indvl_Meth_Stage_Nm);quit;
@@ -1864,15 +1874,9 @@ if reverse(upcase(left(trim(myf)))) eq: 'FDP';
  /* Do not resolve macrovariables triggers '&' or '%' */
 %let x=%nrstr(&a &b); %put &x;  /* &a &b */
 
- /* Reverse two names */
-name=prxchange('s/(\w+), (\w+)/$2 $1/', -1, name);
-
-if prxmatch('/toyota|kia|honda/i', text) then type='Import';
-
- /* Remove leading zeros */
+ /* Remove leading zeros from a char var before comparing */
 clientstoreidNOZERO = substr(clientstoreidCHAR, verify(clientstoreidCHAR, '0'));
- /* Remove leading zeros before comparing */
-substr(bin, verify(bin,'0')) in ('4336')
+if substr(bin, verify(bin,'0')) in ('4336') ...
 
  /* Count days */
 sum(case when date(pickeduptimestamp) between '01MAR2015' and '31MAR2015' then 1 else 0 end) as Mar2015,...
@@ -1886,9 +1890,6 @@ options dlcreatedir; libname l '/Drugs/Immunizations/bobh';
 
  /* Where are SAS configuration files located: */
 proc options option=config; run;
-
- /* Convert multiple spaces to single: */
-cityst = prxchange('s/\s+/ /', -1, TMPcityst);
 
 /sas/sashome/SASFoundation/9.4/perl/bin/perl -v
 
@@ -1908,6 +1909,11 @@ proc means data=sashelp.shoes MEDIAN; var sales; run;
  /* Replace old SAS left trim: */
 select count(distinct cats(storeid,masked_patientkey)) as UPID
 
+ /* cat family */
+cat(of x1-x3)      vs. x1||x2||x3
+catt(of x1-x3)     vs. trim(x1)||trim(x2)||trim(x3)
+cats(of x1-x3)     vs. trim(left(x1))||trim(left(x2))||trim(left(x3))
+catx(SP, of x1-x3) vs. trim(left(x1))||SP||trim(left(x2))||SP||trim(left(x3))
  /* Concatenate: use a delimiter - CATX is different in that it skips missing values - old version would do e.g. foo,,bar */
 mycsv = catx(',', c1, c2, c3);
 
@@ -1924,6 +1930,9 @@ if region eq 'Asia' then put 'foo'; else put 'bar';
 
 rc=system('/bin/bash /Drugs/xron/Daily/FredsImm/fredsimm.sh 2>/Drugs/xron/Daily/FredsImm/fredsimm.err');
 
+ /* Convert multiple spaces to single: */
+cityst = prxchange('s/\s+/ /', -1, TMPcityst);
+
  /* Convert Unix path space to backslash space via regex: */
 %let reportlocationconverted=%sysfunc(prxchange(s/ /\\ /, -1, &reportlocation));
  /* Pick off end of string extension /foo/bar/baz is baz (Note no quotes!) */
@@ -1931,6 +1940,24 @@ rc=system('/bin/bash /Drugs/xron/Daily/FredsImm/fredsimm.sh 2>/Drugs/xron/Daily/
 
  /* Parse search replace capture first part of string via regex: */
 %let clientname=%sysfunc(prxchange(s/(.*) - .*$/$1/, -1, &clientfolder));
+
+ /* Canonical regex string substitution substr tranwrd replacement: */
+description=prxchange('s/MTM Program//', -1, description);
+
+ /* Reverse two names */
+name=prxchange('s/(\w+), (\w+)/$2 $1/', -1, name);
+
+if prxmatch('/toyota|kia|honda/i', text) then type='Import';
+
+prxparse (compile regex that can later be used for searching within a character value) similar to using qr{} or /o with a regexp search
+prxmatch similar to source =~ /perl-regex/
+prxsubstr (return position and length of where a regexp matches in source) similar to source =~ /perl-regex/g; start = pos source; length = length $&;
+prxnext (return position and length of where a regexp matches in source starting at start and ending at stop) similar to using the /g and /c options
+prxparen (return the last number of the last submatch that matched) similar to $+
+prxchange similar to old-string =~ s/perl-regexp/replacement/
+
+ /* Fix mask loose single quote e.g. 123O'LEARY in Postgres prior to enquoting it by doubling it: */
+select prxchange("s/'/''/", -1, upid) as upid
 
  /* Does a dataset exist?: */
 %let dsexist=%sysfunc(EXIST(sashelp.zipcode));
@@ -2030,9 +2057,6 @@ if rc1 eq 0 then do; put 'NOTE: chmod successful'; end; else do; put 'ERROR: chm
 x umask 000; data l.junk;set sashelp.shoes;run;  /* -rw-rw-rw-. 1 bheckel staff 128K Feb 23 16:04 /mnt/nfs/home/bheckel/junk.sas7bdat */
 x umask 777; data l.junk;set sashelp.shoes;run;  /* ----------. 1 bheckel staff 128K Feb 23 16:06 /mnt/nfs/home/bheckel/junk.sas7bdat */
 
- /* Canonical regex string substitution substr tranwrd replacement: */
-description=prxchange('s/MTM Program//', -1, description);
-
  /* Skip non-PDF files check file extension: */
 if reverse(upcase(left(trim(f)))) eq: 'FDP';
 
@@ -2107,13 +2131,17 @@ options missing=''; ... if missing(cats(of _ALL_)) then delete;
  /* Triple ampersand macro resolution: */
 %let x=temp; %let n=3; %let temp3=thisprints; %put &&&x&n;
 
+ /* AUTOMATIC SYSPROCESSNAME Program tmpsas.19660.sas */
+%let uniqueid=style%sysfunc(scan(&SYSPROCESSNAME, 2))&SYSPROCESSID;
+ /* styletmpsas41DA9A76AE00C4374018000000000000 */
+
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
 xxUNIXxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
 # Canonical date stamp:
-date +%d%b%y  # 31Mar16
+date +%d%b%y  # 31Mar16 like SAS DATE7.
 TODAY=`date +%Y%m%d`  # 20160331
 
 # Canonical find and then grep
@@ -2630,6 +2658,8 @@ set scale=3
 (echo obase=16; echo 10) | bc  # A
 # Canonical bc convert hexadecimal to decimal in bc:
 (echo ibase=16; echo DEADBEEF) | bc  # 3735928559
+(echo obase=2; echo ibase=16; echo F) | bc  # 1111
+(echo obase=10; echo ibase=2; echo 1111) | bc  # 15
 
 # Binary addition subtraction multiplication division in bc:
 ibase=2;obase=2
@@ -3453,6 +3483,7 @@ YESTERDAY=$(expr `date +%d` - 1)
 echo "$PTHZIP/${YESTERDAY}-${TODAY}.zip"
 # Better Postgres quoted string yesterday:
 yesterday=`date -d "yesterday 13:00 " '+%Y-%m-%d'`
+... created >= date('now')-interval '1 day'
 yesterdayq=`echo \'$yesterday\'`
 psql -h db-06.twa.taeb.com AETBMART -c "select avg(enrolledratio) from analytics.tmm_enrollmentperf where measure_enddt=${yesterdayq}"
 
@@ -5835,12 +5866,16 @@ where listdate = (select max(listdate) from test.master_npi)
 -- Postgres date range, pull data from last year for patients over 50:
 filldate > date('now') - interval '1 year'  and  patientdob < date('now') - interval '50 year'
 
+-- Postgres date range specific start date, go back 18 days:
+and filldate>=(date('2016-05-15')-18) and filldate <='2016-05-15'
+
 -- Postgres determine birthdate age range:
 case when extract(years FROM age(patientdob))>=90 then 90 else extract(years FROM age(patientdob)) end as age
 date_part('year',age(patientdob))>=41 and date_part('year',age(patientdob))<=75
 
 -- Postgres calculate age:
 date_part('year'::text, age(pd.dateofbirth::timestamp with time zone)) AS age
+... patientdob < date('now') - interval '18 year'
 
 -- Postgres date truncate:
 date_trunc('day', etl_ts)
