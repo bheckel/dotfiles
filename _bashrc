@@ -653,7 +653,7 @@ case "$OSTYPE" in
 
         # locate() is failing with permission errors, using this weak alternative
         function loc() {
-          find $HOME/code |grep -i "$1"
+          find $HOME/code |grep -i "$1" | xargs ls -lt
         }
 
         # E.g. Mar  3 07:32 /Drugs/Cron/Daily/tmm_enroll_ratio/tmm_enroll_ratio.log

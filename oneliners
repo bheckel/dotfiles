@@ -881,7 +881,8 @@ array starr{*} $2 st1-st57 ('AL', 'AK', 'AR', 'AZ', 'CA', 'CO');
 do i=1 to dim(starr); otherarr{i} = starr{i}; end;
 
  /* Get the HOME environment variables: */
-%let myhome=%sysget(HOME); %put _all_; %let sasroot=%sysget(SASROOT); %put &=SASROOT; %let sashome=%sysget(SASHOME); %put &=SASHOME;
+%let myhome=%sysget(HOME); %put _all_; %let sasroot=%sysget(SASROOT); %put &=SASROOT;
+%put %sysget(SASHOME) %sysget(SASROOT);
 
  /* Substring (if argument might contain a special character or mnemonic operator use %qsubstr()) */
 %put %substr(2168, 3, 2);
@@ -1344,8 +1345,8 @@ proc sql; select * from sashelp.shoes (rename=(region=myyr subsidiary=mysub)) ; 
 data d9(drop=long_test_name rename=(long_test_name2=long_test_name)); ...
 
  /* View, display, print format permanent stored formats to .lst */
-libname l '.'; proc format library=l FMTLIB; run;
-proc format library=WORK FMTLIB; run;
+proc format library=work FMTLIB; run;  /* all FMTLIB is a keyword */
+proc format library=work; select sexunic; run;  /* just one */
 
  /* Macro date - format today's date into a macrovar: */
 %let formatteddate=%sysfunc(date(), YYMMDD10.);
@@ -1634,10 +1635,10 @@ data t(genmax=3); ...;   proc print data=t(gennum=-1); run;
 
  /* Variable range lists: */
 var1-var999;
-_character_
+_CHARACTER_ _NUMERIC_
  /* More subtle variable range lists: */
 varA -character- varZ
-varP -numeric- varT
+varB-numeric-varY  /* varA & varZ can be char */
  
  /* Canonical contents: */
 proc datasets library=SASHELP; contents data=shoes VARNUM; run; quit;
@@ -1752,7 +1753,7 @@ define result / style(column)={background=$bkres.};
 Adjust proc sql print width via:  SELECT foovar format=$5. FROM ...
 
  /* proc sql number like SAS obs NOobs */
-proc sql; select monotonic() as Obs, * from foo; quit;
+proc sql; select monotonic() as Obs_Number, byte(monotonic()+96) as Obs_Letter, * from sashelp.class; quit;
 
  /* Simple gplot */
 goptions reset=all ftext=swissl device=png cback=white border htitle=12pt ctext=gray gsfname=outpng gsfmode=replace ypixels=750 xpixels=750; filename outpng 'junk.png'; proc gplot data=linksplot; plot cnt*dt; run;
@@ -1830,9 +1831,9 @@ options fullstimer bufsize=8K bufno=5000;
  /* Canonical input statement  e.g.:  1 100 98 75  A A B 10jul2014 12jul2014 11aug2014 */
 input id (apple orange banana) (:8.) (loc1-loc5) (:$1.) (mydate1-mydate5) (:date9.);
 
- /* Simpler if then else */
-x2=ifc(x='Y', 'yes', ' ');
-if x='Y' then x2='yes'; else x2=' ';
+ /* Simpler if then else, ifn() is for numerics */
+x2=ifc(x='Y', 'yes', 'no');
+if x='Y' then x2='yes'; else x2='no';
 
  /* Standardize addresses */
 addr = tranwrd(addr, 'Street', 'St.');
@@ -1865,7 +1866,7 @@ ods _ALL_ close; ods noresults; ods PDF file='t.pdf'; ...; ods PDF close;
  /* Skip non-PDF files */
 if reverse(upcase(left(trim(myf)))) eq: 'FDP';
 
- /* Clean out delete WORK */
+ /* Clean out delete WORK.  !SASHOME/bin/utilities */
 /usr/local/SAS94/sashome/SASFoundation/9.4/utilities/bin/cleanwork /workspace
 
  /* If string is quoted: */
@@ -1920,7 +1921,7 @@ mycsv = catx(',', c1, c2, c3);
 # Who is using up all SASWORK?:
 sudo find /saswork -size +10G | sudo xargs ls -lh | awk '{print$5,$3,$4,$6,$7,$8,$9}'|sort -rh
 
- /* Blank label */
+ /* Set a blank label */
 data p10j; set p10b p10c; label _TEMA001='00'x; run; proc print data=p10j LABEL; run;
 
 proc sql noprint; select distinct cats('"',put(patient_dob,date9.),'"d') into :dob1 -  :dob&ndob.  from subset_hp_npi; quit;
@@ -1956,7 +1957,7 @@ prxnext (return position and length of where a regexp matches in source starting
 prxparen (return the last number of the last submatch that matched) similar to $+
 prxchange similar to old-string =~ s/perl-regexp/replacement/
 
- /* Fix mask loose single quote e.g. 123O'LEARY in Postgres prior to enquoting it by doubling it: */
+ /* Fix mask loose single quote apostrophe e.g. 123O'LEARY or O'NEAL in Postgres query prior to enquoting it by doubling it: */
 select prxchange("s/'/''/", -1, upid) as upid
 
  /* Does a dataset exist?: */
@@ -2117,7 +2118,7 @@ where (age>=18 and age<=80) and (filldate>=date()-90)
  /* Avoid proc graph GUI from popping up at each slide produced: */
 goptions NOdisplay;
 
- /* Zero pad a number: */
+ /* Zero pad a character var that looks like a numeric: */
 select put(input(storenum,4.),z4.) as clientstoreid, ...
 
  /* Delete obs if all vars are missing: */
@@ -2134,6 +2135,18 @@ options missing=''; ... if missing(cats(of _ALL_)) then delete;
  /* AUTOMATIC SYSPROCESSNAME Program tmpsas.19660.sas */
 %let uniqueid=style%sysfunc(scan(&SYSPROCESSNAME, 2))&SYSPROCESSID;
  /* styletmpsas41DA9A76AE00C4374018000000000000 */
+
+ /* Use bang for temporary directory: */
+filename mytemp '!temp/t.txt';
+infile '!userprofile/t.txt';  /* Windows */
+
+if anyfirst(x) then put 'valid first char for varname when validvarname=V7'
+if anyfirst(x,3) then put 'valid third char for varname when validvarname=V7'
+if notfirst(x) then put 'invalid first char for varname when validvarname=V7'
+
+if holidaytest('Christmas', today()) then put 'merry xmas'
+
+connect to Postgres as myconn (server='db-03.mrk.taeb.com' database=taeb user=&user. password=&jasperpassword. readbuff=7000);
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3866,6 +3879,7 @@ tmux -2 new -s sas0-ses3  # if we need a new session
 if (( `df -h /saswork|grep saswork | awk '{print $4}'|sed s/%//g` > 90 )); then echo warning | mail -s 'workspace almost full' bob.heckel@taeb.com; fi
 
 $ nice -n19 gpg --encrypt --recipient 'Obc (Out Dial App) <obc\@taeb.com>' t.gpg
+$ gpg --output /Drugs/Imm/20160817/Output/GE_Imm_20160817.csv.gpg --encrypt --recipient pgp@smp.com /Drugs/Imm/20160817/Output/GE_Imm_20160817.csv
 
 # Check a file extension:
 if [[ $f = *.jpg ]]; then echo 'is a jpg' fi
@@ -5559,6 +5573,9 @@ ALTER USER LIMSARCH PASSWORD EXPIRE;
 ALTER USER limsarch IDENTIFIED BY new2dayJuly;
 ALTER USER limsarch IDENTIFIED BY "new2dayJuly" REPLACE "oldpw";
 
+-- Change Postgres password
+ALTER USER heckel WITH PASSWORD 'syP@ss';
+
 -- Oracle copy table
 CREATE TABLE user_roleTEST AS SELECT * FROM user_role;  -- do something to TEST...
 DROP TABLE user_role;  -- ...if it worked do this...
@@ -5936,6 +5953,9 @@ msinfo32
 
 -- Find duplicates Postgres
 select * from analytics.healthplanpatients hp where row(hpprogramid, externalpatientid, cardholderid, pharmacyid) in (select hpprogramid, externalpatientid, cardholderid, pharmacyid from analytics.healthplanpatients_test);
+
+-- List describe Postgres tables in psql:
+\d
 
 # Make tmux windows tile evenly:
 :select-layout even-horizontal
