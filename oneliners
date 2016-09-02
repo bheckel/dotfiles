@@ -7,7 +7,7 @@
 #           Comments are often written for searching, not proper English
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Wed 11 May 2016 16:01:49 (Bob Heckel)
+# Modified: Fri 02 Sep 2016 15:12:15 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -603,7 +603,7 @@ https://support.sas.com/rnd/base/ods/odsmarkup/TipSheet_ods_xl_xp.pdf
  /* See also ods_output_excel_mult_worksheet.sas */
 proc contents data=sashelp._all_; run;
 
-Missing value '.' always sort lower than char or num and ._ sorts lowest of all
+Missing value '.' always sort lower than char or num and ._ sorts lowest of all.  A blank space ' ' is MISSING to SAS but not to SQL where it is a character.
 SAS Special Missing Value (.A thru .Z)
 ...else if comment = 'refused to answer' then age = .A;...
 ...if .z < labvalue < 3 then...
@@ -1773,7 +1773,7 @@ foo+1;
  /* SUM function returns the sum of non-missing arguments whereas '+' operator returns a missing value (nulls propagate) if any of the arguments are missing. */
 x = a + b + c;            /* BAD- if ANY argument is missing, x = . */
 x = sum(a, b, c);         /* with missing argument, x is sum of nonmissings */
-x = sum(a, b, c, 0);      /* if a,b,c are missing, result will be zero */
+x = sum(a, b, c, 0);      /* if a, b & c are missing, result will be zero */
 x = (d + e + f + g) / 4;  /* BAD- x is missing if any var in the calc is missing */
 x = mean(d, e, f, g);     /* number of nonmissings is divided by 4 */
 
@@ -2147,6 +2147,9 @@ if notfirst(x) then put 'invalid first char for varname when validvarname=V7'
 if holidaytest('Christmas', today()) then put 'merry xmas'
 
 connect to Postgres as myconn (server='db-03.mrk.taeb.com' database=taeb user=&user. password=&jasperpassword. readbuff=7000);
+
+ /* Add a dummy record to end of an existing dataset: */
+data t; set data.fnl end=e; output; if e then do; clientid=685; output; end; run;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3150,6 +3153,7 @@ wall < mywallmessage.txt
 shutdown -g120 -i0 -y "shutting down server"  # at least Solaris
 
 # Cygwin convert DOS path to Unix path
+sed 's/\r//' t.txt >|t2.txt
 cygpath 'c:\Documents and Settings\Bob Heckel'
 ls `cygpath 'c:\Documents and Settings\Bob Heckel'`
 vi `cygpath 'c:\temp\cygwin.txt'`
@@ -3913,6 +3917,10 @@ vmstat -s | grep memory
 
 # Name of this running program without the path:
 THISPROG=${0##*/}
+
+# Remove carriage return from filename:
+$ rename $'\r' '' tmm_build_multiple_clients.44*
+$ rename 'fdw.csv' 'fdw.ORIG.csv' *.csv
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5934,6 +5942,9 @@ select SUM(amount) as sales, date_trunc('month', created_at)::date as date from 
 -- Postgres substr
 select distinct substring(cr.gpi,1,10)
 
+-- Postgres reformat date no dashes
+select 'EXPIRE='||to_char(date('now')+365,'YYYYMMDD') as x2
+
 ' Excel multiply two columns and produce a scalar: =SUMPRODUCT(O37:O38,P37:P38)
 
 Self-Join: recursive join that results when a set of data is joined back to itself is also known as a self-join. This is typically encountered when a parent-child relationship in a hierarchy needs to be traversed. When using the ANSI syntax to accomplish this, only the JOIN...ON syntax will work, and the keyword INNER can be used for clarity.
@@ -5959,5 +5970,9 @@ select * from analytics.healthplanpatients hp where row(hpprogramid, externalpat
 
 # Make tmux windows tile evenly:
 :select-layout even-horizontal
+
+-- Postgres (case-sensitive):
+\set AUTOCOMMIT off
+commit;
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

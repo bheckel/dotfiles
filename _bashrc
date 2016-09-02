@@ -4,7 +4,7 @@
 # Summary: bash config for at least Cygwin 1.3/1.5/1.7, Unix/Linux and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Fri 24 Jun 2016 08:12:48 (Bob Heckel)
+# Modified: Fri 02 Sep 2016 15:12:21 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -148,7 +148,8 @@ alias wget='wget -c'  # continue failures
 
 function ses() {
   # No parm shows all
-  find ~/bob/ -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $9}' | grep -i "$1" >|~/tmp/.vimxfer && cat ~/tmp/.vimxfer
+###  find ~/bob/ -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $9}' | grep -i "$1" >|~/tmp/.vimxfer && cat ~/tmp/.vimxfer
+  find ~/bob/ -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $9}' | grep -i "$1" >|~/bob/tmp/.vimxfer && cat ~/bob/tmp/.vimxfer
 }
 
 
@@ -612,23 +613,20 @@ case "$OSTYPE" in
       alias d123="(cd ~/tmp; vi -d 1 2 3)"
       alias d34="(cd ~/tmp; vi -d 3 4)"
       # Poor-man's file sync:
-      # Assumes we've downloaded the gsk tarball as ~/Downloads/c.  home* are un on workbox, gsk* are run on homebox. See
+      # Assumes we've downloaded the gsk tarball as ~/Downloads/c.  home* are run on workbox, gsk* are run on homebox. See
       # homefrom hometo.  Friday night run usually.
 ###      alias gskfrom="echo 'retrieving from github...';echo; cd ~/Downloads && git pull origin master; echo;echo 'extracting...'; ls -l ~/Downloads/c; sleep 5; cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && cd ~/code/misccode; gs"
       # Assumes we have recent home changes ready to tar and use at work Monday when we will git it
       # See homefrom hometo.  Sunday evening run usually:
       alias gskto="cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV | grep -v '/.git/' | grep -v '.swp' | xargs tar cvfz ~/Downloads/c.NEW && cd ~/Downloads && git add c.NEW && git commit -m'gskto' && git push origin master"
-      # Friday afternoon usually
-###      alias hometo="ls -l ~/transfer/c && echo '...files newer than ^^^this^^^ one will be added to tarball...' && sleep 5 && cd ~ && find code/ -type f -newer ~/transfer/c -not -name '*.swp' | xargs tar cvfz ~/transfer/c; echo 'sending to github...'; cd ~/transfer; git add c && git commit -m'hometo' && git push origin master; cd -"
+      # Friday afternoon run usually
       alias hometo="ls -l ~/transfer/c && echo '...files newer than ^^^this^^^ one will be added to tarball...' && sleep 5 && cd ~ && find code/ -type f -newer ~/transfer/c -not -name '*.swp' | xargs tar cvfz ~/transfer/c; echo; echo 'sending to github...'; cd ~/transfer; git pull origin master; git add c && git commit -m'hometo' && git push origin master; cd -; cd ~/dotfiles && git add . && git commit -m'hometo' && git push origin master; cd -"
       alias ll='ls -lh --color --group-directories-first'
       ###alias moz='export DISPLAY=158.111.250.170:0.0; mozilla&'
       ###alias sqlplus=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/sqlplus
       # Print Windows Working Directory.  Command is $ pwd|sed 's/\//\\/g'" before vim backslashitis
       alias pwwd="pwd|sed 's/\\//\\\\/g'"
-###      alias srcb="source $HOME/.bashrc"
       alias srcb="source $HOME/dotfiles/_bashrc"
-      # TODO if not running (via fluxbox) start dropbox and nm-applet
       if [ $HOSTNAME = 'yoniso' ]; then
         alias cdrom='sudo mount -t iso9660 /dev/cdrom /media/cdrom; mount|grep "^/dev/cd"; echo "sudo umount /media/cdrom"'
         alias kindle='sudo mount -t vfat /dev/sdb /media/kindle -o uid=1000,gid=1000,utf8,dmask=027,fmask=137; mount|grep "^/dev/sd"; echo "sudo umount /media/kindle"'
@@ -660,6 +658,11 @@ case "$OSTYPE" in
         function myls() {
           ls -lgG $1 |sed -r 's/^\S+ \S+ \w+ //g'
         }
+
+        alias d12="(cd ~/bob/tmp; vi -d 1 2)"
+        alias d13="(cd ~/bob/tmp; vi -d 1 3)"
+        alias d123="(cd ~/bob/tmp; vi -d 1 2 3)"
+        alias d34="(cd ~/bob/tmp; vi -d 3 4)"
 
         #umask 022  # 022 is 755, 037 is 740
       fi

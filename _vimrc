@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Mon 18 Jul 2016 08:42:18 (Bob Heckel)
+" Modified: Fri 02 Sep 2016 15:12:27 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -54,26 +54,32 @@ let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
 """let g:netrw_list_cmd = '\ls -l'
 """let g:netrw_list_cmd = '/cygdrive/c/windows/System32/WindowsPowerShell/v1.0/powershell -Command dir'
 
-" Setup tempspace that vim and gVim can share:
+" Setup tempspace that vim and gVim can share (if edit here, we may need to copy this .vimrc to C:/Program Files (x86)/Vim/_vimrc):
 if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
-  if has('gui')
-    let VTMP = 'c:/temp'
+  if has('gui') && has('win32')
+    " Windows gVim
+    let VTMP = 't:/Personnel/bob/tmp'
     let VTMPU = 'u:/temp'
   elseif has('win32unix')
-    let VTMP = '/cygdrive/c/temp'
+    " Cygwin terminal
+    let VTMP = '/cygdrive/t/Personnel/bob/tmp'
     let VTMPU = '/cygdrive/u/temp'
   else
-    let VTMP = '~/tmp'
+    " Linux terminal
+    let VTMP = '~/bob/tmp'
     let VTMPU = '~/tmp'
   endif
 elseif matchstr(HOMEBOXARRAY, THISBOX) == THISBOX
-  if has('win32unix')
+  if has('gui') && has('win32')
+    " Windows gVim
+    let VTMP = 'c:/temp'
+  elseif has('win32unix')
+    " Cygwin terminal
     let VTMP = '/cygdrive/c/temp'
   else
+    " Linux terminal
     let VTMP = '~/tmp'
   endif
-else
-  let VTMP = '~/tmp'
 endif
 
 " Fix leftward movement problem on mainframe z/OS:
