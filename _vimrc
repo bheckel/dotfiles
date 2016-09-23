@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Fri 02 Sep 2016 15:12:27 (Bob Heckel)
+" Modified: Fri 16 Sep 2016 08:38:39 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -33,6 +33,7 @@
 " DEBUG toggle -- watch changes to text happen slowly (default is 0)
 """set writedelay=5
 """echo 'reach'
+" Often unsychronized gvimrc is here C:/Program Files (x86)/Vim/_vimrc):
 
 let THISBOX = hostname()
 let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWL14H50510', 'sas-01.twa.ateb.com', 'sasdev-01.twa.ateb.com', 'SAS-01', 'SAS-02' ]
@@ -124,7 +125,10 @@ set encoding=utf-8
 " Avoid reading text presented like it was written on a light bulb.  We're
 " sometimes relying on .Xdefaults to do wheat-on-black so this is only for gvim.
 " ~/code/misccode/vim_colors.txt
-hi Normal guifg=#F5DEB3 guibg=Black
+
+"""hi Normal guifg=#F5DEB3 guibg=Black
+"""hi Normal  ctermfg=229 guifg=#ffffaf
+hi Normal guifg=White guibg=Black
 
 hi Comment ctermfg=DarkGray guifg=DarkGray guibg=Black
 

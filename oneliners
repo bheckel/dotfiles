@@ -934,6 +934,7 @@ myvar = trim(translate(myvar, '', '.'));
 
  /* Simple datetime stamp: */
 %put %sysfunc(putn(%sysfunc(datetime()),DATETIME.));
+%put %sysfunc(datetime(),DATETIME.);
 
  /* Time a job */
 %let _start=%sysfunc(time()); %put NOTE: %sysfunc(getoption(SYSIN)) started: %sysfunc(putn(%sysfunc(datetime()),DATETIME.));
@@ -1130,12 +1131,9 @@ http://rtpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program=LINKS.t.sa
  /* NODUP eliminates obs that are exactly the same across ALL variables.  NODUPKEY eliminates obs that are exactly the same across *only* the BY variables. */
 proc sort data=foo out=bar NODUPKEY; by x y; run;
 
- /* If you don't require the data within BY groups to be kept in the same order
-  * as it was before, use the NOEQUALS option. This will save you CPU and
-  * elapsed time, particularly on very large data sets. This option causes SAS
-  * not to worry about keeping observations with the same BY variable values in
-  * the same order. Usually you don't need the order maintained, so you can
-  * specify NOEQUALS. 
+ /* If you don't require the data within BY groups to be kept in the same order as it was before, use the NOEQUALS option.
+  * This will save CPU and elapsed time, particularly on large data sets. Causes SAS not to worry about keeping observations 
+  * with the same BY variable values in the same order. Usually you don't need the order maintained.
   */
 proc sort data=foo NOEQUALS; by x y; run;
 
@@ -1163,11 +1161,11 @@ options ls=180 NOlabel;proc sql;select * from dictionary.columns where libname e
 libname GDM_DIST oracle user=&username password=&password path=&database schema=gdm_dist;
 
  /* Complex oracle SEPARATED BY */
-select distinct r.sampid, s.specname, put(r.sampid,F6.)||'-'||s.specname into :RETESTSAMPIDS separated by ',', :METHS separated by ' ', :METHPAIRS separated by ' '
+select distinct r.sampid, s.specname, put(r.sampid,F6.)||'-'||s.specname into :SAMPIDS separated by ',', :METHS separated by ' ', :METHPAIRS separated by ' '
 
-%if %sysfunc(fileexist(c:\foo\bar.txt)) %then %put exists; %else %put file or directory does not exist;
-filename myfile 'c:\delme.dat'; %let exist = %sysfunc(FExist(myfile)); 
-%if not %sysfunc(exist(l.metndc)) %then %do; ... %end;
+%if %sysfunc(fileexist('c:\foo\bar.txt')) %then %put quote-mandatory file exists; %else %put file OR DIRECTORY! does not exist;
+filename myfileref 'c:\delme.dat'; %let exist = %sysfunc(FExist(myfileref)); 
+%if not %sysfunc(exist(l.metndc)) %then %do; %put dataset exists; %end;
 
 filename x 'c:\deletefileusingSAS.dat'; %let rc = %sysfunc(FDelete(x)); 
 
@@ -1348,7 +1346,7 @@ data d9(drop=long_test_name rename=(long_test_name2=long_test_name)); ...
 proc format library=work FMTLIB; run;  /* all FMTLIB is a keyword */
 proc format library=work; select sexunic; run;  /* just one */
 
- /* Macro date - format today's date into a macrovar: */
+ /* Macro date - format today's date into a macrovar e.g. 2016-09-16: */
 %let formatteddate=%sysfunc(date(), YYMMDD10.);
 
 %let formatteddollars=%sysfunc(putn(&MYNUM, DOLLAR10.));
@@ -1860,6 +1858,9 @@ select *, (int(intck('YEAR', today(), patientdob))*-1) as age
  /* mkdir -p /home/bheckel/testdir  No quotes! */
 %let newdir=%sysfunc(dcreate(testdir, /home/bheckel/));
 
+ /* Create nested dirs, alternative to dcreate() */
+options dlcreatedir; libname res ("&outdir./results", "&outdir./results/images"); libname res clear;
+
  /* Avoid EG overwhelm bug: */
 ods _ALL_ close; ods noresults; ods PDF file='t.pdf'; ...; ods PDF close;
 
@@ -1875,6 +1876,9 @@ if reverse(upcase(left(trim(myf)))) eq: 'FDP';
  /* Do not resolve macrovariables triggers '&' or '%' */
 %let x=%nrstr(&a &b); %put &x;  /* &a &b */
 
+ /* Remove any leading zeros: */
+%macro rml0(var); substr(&var.,verify(&var.,'0')) %mend;
+
  /* Remove leading zeros from a char var before comparing */
 clientstoreidNOZERO = substr(clientstoreidCHAR, verify(clientstoreidCHAR, '0'));
 if substr(bin, verify(bin,'0')) in ('4336') ...
@@ -1885,9 +1889,6 @@ sum(case when status='OPTOUT' then 1 else 0 end)/count(*) OPTOUT format percent8
 
  /* Do something every 5 days: */
 %let mod=%sysfunc(mod((%sysfunc(today())-"17JUN2015"d),5));  %if &mod eq 0 %then ...
-
- /* Create dir if not exist, alternative to dcreate() */
-options dlcreatedir; libname l '/Drugs/Immunizations/bobh';
 
  /* Where are SAS configuration files located: */
 proc options option=config; run;
@@ -1908,7 +1909,8 @@ options mautosource sasautos=('.' '/Drugs/Macros', SASAUTOS);
 proc means data=sashelp.shoes MEDIAN; var sales; run;
 
  /* Replace old SAS left trim: */
-select count(distinct cats(storeid,masked_patientkey)) as UPID
+select count(distinct cats(storeid,pharmacypatientid)) as UPID
+select compress(a.storeid)||compress(a.pharmacypatientid) as UPID
 
  /* cat family */
 cat(of x1-x3)      vs. x1||x2||x3
@@ -2002,7 +2004,6 @@ where mydate >= date()-365
  /* Loop a range of SAS dates: */
 %let start=%sysfunc(inputn(12DEC2015,ANYDTDTE9.)); %let end=%sysfunc(inputn(14DEC2015,ANYDTDTE9.)); %let nday=%eval(&end-&start); %do j=0 %to &nday; ... %end;
 
-
  /* Missing dot to zero: */
 select a.*, (case when b.TotalEnrolledLst30 ne . then b.TotalEnrolledLst30 else 0 end) as TotalEnrolledLst30 from t1 a LEFT JOIN totenr30 b on a.clientid=b.clientid
 
@@ -2013,7 +2014,9 @@ option SASTRACE=",,,d" no$stsuffix SASTRACELOC=saslog;
 %put %bquote(')%sysfunc(putn(%sysfunc(inputn(20151001, YYMMDD8.)), YYMMDD10.))%bquote(');
 
  /* Date format convert 22FEB2016 to 20160222 in macro: */
-%let mydt=%sysfunc(putn(%sysfunc(inputn(&today, DATE9.)), YYMMDDN8.));
+%let mydt=%sysfunc(putn(%sysfunc(inputn(&SYSDATE, DATE9.)), YYMMDDN8.));
+ /* SYSDATE to dashes 2016-02-22 */
+%let mydt=%sysfunc(putn(%sysfunc(inputn(&SYSDATE, DATE9.)), YYMMDDD10.));
 
  /* Comment out keybinding in EG: Ctl+/  Uncomment in EG: Ctl+Shift+/ */
 
@@ -2092,6 +2095,7 @@ put(coalesce(cgid,0),8.);
  /* Collapse multiple rows to single row: */
 data xx; update xx(obs=0) xx; by idnum; run;
 
+ /* Send stderr to file: */
 rc1=system("/Drugs/Cron/Daily/AholdImm/aholdimm.sh &path./foldername/Output/Imm_.csv 2>/Drugs/Cron/Daily/AholdImm/Aholdimm_encrypt.err");
 
  /* Count number of variables named flag_* */
@@ -2132,9 +2136,7 @@ options missing=''; ... if missing(cats(of _ALL_)) then delete;
  /* Triple ampersand macro resolution: */
 %let x=temp; %let n=3; %let temp3=thisprints; %put &&&x&n;
 
- /* AUTOMATIC SYSPROCESSNAME Program tmpsas.19660.sas */
-%let uniqueid=style%sysfunc(scan(&SYSPROCESSNAME, 2))&SYSPROCESSID;
- /* styletmpsas41DA9A76AE00C4374018000000000000 */
+ /* Unique AUTOMATIC SYSPROCESSNAME Program name e.g. tmpsas.19660.sas */
 
  /* Use bang for temporary directory: */
 filename mytemp '!temp/t.txt';
@@ -2150,6 +2152,28 @@ connect to Postgres as myconn (server='db-03.mrk.taeb.com' database=taeb user=&u
 
  /* Add a dummy record to end of an existing dataset: */
 data t; set data.fnl end=e; output; if e then do; clientid=685; output; end; run;
+
+ /* Single quote for Postgres etc: */
+select distinct quote(gpi,"'") into :gpis separated by ','
+
+ /* Age bucket groupings 10-19 20-29 etc. */
+data _null_; age=12; age10=age-mod(age,10); put age10=; run;
+
+proc sql; select foo, today() as startdate format date9.,today()+8 as enddate format date9.,1000000 as ranking from t; quit;
+
+ /* Count distinct values of a variable: */
+ods select nlevels; proc freq data=sashelp.class nlevels; tables name age sex; run; 
+
+ /* Date dashes */
+select b.atebpatientid, storenum, cnt, today() as dt format=YYMMDDD10.
+
+ /* Zero pad a char */
+select atebpatientid, storenum, cats(%rml0(storenum),pharmacypatientid) as upid, put(input(storenum,4.),z4.) as storenumz
+
+ /* Unique id for running SAS macro process: */
+%let style=style_&SYSMACRONAME._&SYSPROCESSID;
+ /* e.g. styletmpsas41DA9A76AE00C4374018000000000000 */
+%let uniqueid=style%sysfunc(scan(&SYSPROCESSNAME, 2))&SYSPROCESSID;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -2418,11 +2442,11 @@ for i in *; do du -sk $i; done | sort -n
 tar cf - tar_me | rsh theotherserver '( cd /home/rheckel/todel; tar xvfB - )'
 
 # Backup workbox code changes each weekday (where code/ is mounted, not symlinked) using a sentinel:
-(cd; touch .ts -d 'last monday 7am'; find code -type f -not -name '*.sw[op]' -daystart -newer .ts | xargs tar cvfz ${HOSTNAME}.tgz)
+(cd; touch .sentinel -d 'last monday 7am'; find code -type f -not -name '*.sw[op]' -daystart -newer .sentinel | xargs tar cvfz ${HOSTNAME}.tgz)
 # Update code from emailed tgz on one of the homeboxes
 (cd; tar --extract --verbose --gzip --keep-newer-files --file=ZEBWL10D43164.tgz)
 # Backup homebox code since last "sync".  From any dropbox-aware box.
-(cd; touch -d 'last friday 16:30' .ts && find -L code -type f -not -name '*.sw[op]' -newer .ts | xargs tar cvfz ${HOSTNAME}.tgz)
+(cd; touch -d 'last friday 16:30' .sentinel && find -L code -type f -not -name '*.sw[op]' -newer .sentinel | xargs tar cvfz ${HOSTNAME}.tgz)
 # Midweek backup homebox code (since last "sync").  From box the last untar occurred on.  ASSUMES tgz timestamp isn't from email save time.
 (cd; find -L code -type f -not -name '*.sw[op]' -daystart -newer ZEBWL10D43164.tgz | xargs tar cvfz ${HOSTNAME}.tgz)
 
@@ -2567,10 +2591,14 @@ find . | xargs touch
 # Find test files except for test.log:
 find -name 'test????' -a ! -name '*.log'
 
-# To find setuid and setgid file on your system.  Spaces around parens are mandatory, the -a isn't.
+# To find permissions setuid and setgid file.  Spaces around parens are mandatory, the -a isn't.
 find / -type f -a \( -perm -4000 -o -perm -2000 \) -print
 find / -perm -0600 -print 2>/dev/null   # finds -rw-r--r--
 find / -perm 0600  -print 2>/dev/null   # not   -rw-r--r-- only finds -rw-------
+# Find -rwxrwxr-- that aren't symlinks (usually 777)
+find . -perm -0775 -a ! -type l
+# Find group write files -rwxrwx---
+find . -perm -0070 -a ! -type l
 
 # Change permissions of specific filetypes:
 find -name '*.pl' -exec chmod 755 {} \;
@@ -4340,7 +4368,7 @@ perl -e "print unpack('B32', pack('N', 12))"
 # Convert binary to decimal:
 perl -e "print unpack('N', pack('B32', substr('0'x32 . 1100, -32)))"
 
-# Simple test regex test from commandline check regex without needing a variable:
+# Simple test regex test from commandline check regex without needing a variable (see ~/bin/regex_test.pl for complex tests):
 perl -e 'print "found" if "a"=~/[^1-9]/'
 # Test a multi-line string using a regex:
 perl -e 'print "match!" if "This is my\nmultiline string" =~ /This.*string/s;'
@@ -4451,7 +4479,7 @@ perl '-V:install.*'
 # Using rcs (automatically inserts revision sequence on co)
 our $VERSION = sprintf("%d.%02d", q$Revision$ =~ /(\d+)\.(\d+)/o);
 
-# Quick install: mkdir -p $HOME/perllib/File && cp -i $HOME/code/perl/Irenamer.pm $HOME/perllib/File/
+# Quick irenamer install: mkdir -p $HOME/perllib/File && cp -i $HOME/code/perl/Irenamer.pm $HOME/perllib/File/
 perl -MFile::Irenamer -e 'InteractiveRename(verbose,recurse)'
 
 # Reverse sort a hash:
@@ -5921,7 +5949,11 @@ where date_trunc('minute', ahpp.lastmodified) = '2016-02-23 08:56:00'::timestamp
 -- Postgres help
 -- psql help  \?
 
-fulljoin FULL JOIN is an INNER JOIN that has been augmented with rows in either table that are not in the other table
+fulljoin FULL JOIN: an INNER JOIN that has been augmented with rows in either table that are not in the other table
+
+selfjoin SELF JOIN: a recursive join that results when a set of data is joined back to itself.
+Typically encountered when a parent-child relationship in a hierarchy needs to be traversed.
+When using ANSI syntax to accomplish this, only the JOIN...ON syntax will work, and the keyword INNER can be used for clarity.
 
 -- Activate blank Windows screensaver from a .bat:
 start %windir%\system32\scrnsave.scr -s
@@ -5945,10 +5977,6 @@ select distinct substring(cr.gpi,1,10)
 -- Postgres reformat date no dashes
 select 'EXPIRE='||to_char(date('now')+365,'YYYYMMDD') as x2
 
-' Excel multiply two columns and produce a scalar: =SUMPRODUCT(O37:O38,P37:P38)
-
-Self-Join: recursive join that results when a set of data is joined back to itself is also known as a self-join. This is typically encountered when a parent-child relationship in a hierarchy needs to be traversed. When using the ANSI syntax to accomplish this, only the JOIN...ON syntax will work, and the keyword INNER can be used for clarity.
-
 -- Yesterday in Postgres
 and lastmodified >= current_date-1
 
@@ -5956,8 +5984,16 @@ To save postgresql output to comma pipe delimited csv file (warning - multiple r
 psql> \f '|' \a \t \o '/tmp/output.csv'
 psql> \e
 
+-- Postgres (case-sensitive):
+\set AUTOCOMMIT off
+commit;
+
 -- Zero pad a number in postgresql:
 select distinct lpad(clientstoreid::text, &sidlen, '0') as clientstoreid, ...
+
+-- Postgres || alternative
+select patientdateofbirth, concat(clientstoreid::text,pharmacypatientid::text) as upid
+select patientdateofbirth, concat(trim(leading '0' from clientstoreid::text),pharmacypatientid::text) as upid
 
 -- Windows System Information Tool
 msinfo32
@@ -5968,11 +6004,12 @@ select * from analytics.healthplanpatients hp where row(hpprogramid, externalpat
 -- List describe Postgres tables in psql:
 \d
 
+-- Comma separated column
+select string_agg(distinct atebpatientid::varchar,',') from cce.ccepatientstaging where clientid=22;
+
 # Make tmux windows tile evenly:
 :select-layout even-horizontal
 
--- Postgres (case-sensitive):
-\set AUTOCOMMIT off
-commit;
+' Excel multiply two columns and produce a scalar: =SUMPRODUCT(O37:O38,P37:P38)
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
