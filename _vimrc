@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Fri 16 Sep 2016 08:38:39 (Bob Heckel)
+" Modified: Wed 05 Oct 2016 16:16:22 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -36,7 +36,7 @@
 " Often unsychronized gvimrc is here C:/Program Files (x86)/Vim/_vimrc):
 
 let THISBOX = hostname()
-let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWL14H50510', 'sas-01.twa.ateb.com', 'sasdev-01.twa.ateb.com', 'SAS-01', 'SAS-02' ]
+let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWL14H50510', 'sas-01.twa.ateb.com', 'sasdev-01.twa.ateb.com', 'SAS-01', 'SAS-02', 'sas-01.mrk.ateb.com' ]
 let HOMEBOXARRAY = [ 'yoniso', 'appa' ]
 
 if has ('win32unix')
@@ -636,10 +636,6 @@ iab YdS <C-R>=strftime("%Y-%m-%d")<CR>
 iab YdG <C-R>=strftime("%d-%b-%y")<CR>
 
 """""
-" C
-"""iab CsW switch ( c ) {<CR>case 'a':<CR>  puts("it is a");<CR>break;<CR><Left><Left>case 'b'<CR>  puts("it is b");<CR>break;<CR><Left><Left>default:<CR>  puts("neither");<CR><Left><Left><Left><Left>}
-
-"""""
 " HTML (also see :TOhtml)
 " 'It takes more time working around the annoying pathologies of web authoring
 " tools than it takes to just write the thing in html source to begin with.' ~ Anonymous
@@ -687,7 +683,7 @@ iab PeH foreach my $k ( sort keys %h ) { print "$k=$h{$k}\n"; }
 """iab PeO open FH, 'foo' or die "Error: $0: $!";<CR><CR>while ( <FH> ){<CR>}<Up>
 iab PeO open my $read, '<', $file or die "Error: $0: $!";<CR><CR>while ( <$read> ){<CR>}<Up>
 iab PeR #!/usr/bin/perl -w<CR><CR>use v5.10;<CR>
-iab PeS #!/usr/bin/perl -wT<CR><CR>use strict qw(refs subs vars);<CR># DEBUG<CR>use CGI::Carp qw(fatalsToBrowser);
+"""iab PeS #!/usr/bin/perl -wT<CR><CR>use strict qw(refs subs vars);<CR># DEBUG<CR>use CGI::Carp qw(fatalsToBrowser);
 iab PeW while ( (my $k, my $v) = each %h ) { print "$k=$v\\n"; }
 
 """""
@@ -704,8 +700,7 @@ iab SaL options ls=180 ps=max; libname l '.';
 iab SaO filename F 'junk'; data t(rename=(PRODDESC=nm APRCLASS=class)); infile F truncover; input PRODDESC= $100. APRCLASS= $100.; run;
 """iab SaP <Esc>0ititle "&SYSDSN";proc print data=_LAST_(obs=10) width=minimum heading=H;run;title; data;file PRINT;put '~~~~~~~~~~~~~~~~~~~~~~';put;run;
 iab SaP <Esc>0ititle "&SYSDSN";proc print data=_LAST_(obs=10) width=minimum heading=H;run;title;
-"""iab SaQ libname LDEBUG '.';data LDEBUG.t;set _LAST_;if _N_ eq 1 then put 10 * '!!!DEBUG';run;
-iab SaQ proc sql;<CR>create table t as<CR>select count(*)<CR>from t;<CR>quit;<Esc><CR>
+iab SaQ proc sql;<CR>  create table t as<CR>select count(*)<CR>from t<CR>where<CR>group by<CR>;<CR><Left><Left>quit;<Esc><Up><Up><Up>
 iab SaS select ( myvar );<CR><Space><Space>when ( 42 ) delete;<CR><Space><Space>otherwise;<CR><Left><Left>end;
 
 cab Sy0 source $VIMRUNTIME/syntax/nosyntax.vim

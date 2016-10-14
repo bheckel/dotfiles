@@ -321,58 +321,6 @@ parse_git_branch() {
 }
 
 
-# Search ~/code
-###loc() {
-###  # Assumes  /bin/updatedb --localpaths="$HOME/code" --prunepaths="$HOME/code/misccode/.git" --output='/var/lib/locatedb.code'
-###	# has been run recently.
-###  local cmd='locate --ignore-case --database=/var/lib/locatedb.code'
-###  local foundnothing="nothing found in $2 ($cmd $1)"
-###  local foundatleast1=
-###  local grepme=
-###
-###  if [ -z "$1" ];then
-###		echo '.bashrc: Use locate(1) to find items in ~/code'
-###		echo '         Optionally search by section.  Optionally edit all results.'
-###    echo 'usage: loc searchstr [(p)erl | (s)as | (o)ther code | (v)im] [(v)im edit]'
-###  elif [ -z "$2" -a -z "$3" ];then
-###    $cmd "$1"
-###  elif [ -z "$3" ];then
-###    # Same lettering convention as my 'gone' utility
-###    if [ "$2" = p ];then
-###      grepme=perl
-###    elif [ "$2" = s ];then
-###      grepme=sas
-###    elif [ "$2" = o ];then
-###      grepme=misccode
-###    else
-###      grepme=$2
-###    fi
-###    foundatleast1=$($cmd "$1" | grep $grepme)
-###    if [ ! -z "$foundatleast1" ]; then
-###      $cmd "$1" | grep $grepme
-###    else
-###      echo $foundnothing
-###    fi
-###  else
-###    if [ "$2" = p ];then
-###      grepme=perl
-###    elif [ "$2" = s ];then
-###      grepme=sas
-###    elif [ "$2" = o ];then
-###      grepme=misccode
-###    else
-###      grepme=$2
-###    fi
-###    foundatleast1=$($cmd "$1" | grep $grepme)
-###    if [ ! -z "$foundatleast1" ]; then
-###      $EDITOR -p `$cmd "$1" | grep $grepme`
-###    else
-###      echo $foundnothing
-###    fi
-###  fi
-###}
-
-
 function urlencode() { echo -n $@ | perl -pe's/([^-_.~A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg'; }
 
 
@@ -481,7 +429,6 @@ case "$OSTYPE" in
     alias lla='ls -FlAoh --color=auto'
     # Long prompt, search match from near top, search skip screen, statusline,
     # pickup ANSI colors, search ignores case
-    # Don't use export LESS='-M-j10$-a-P%f$-R-i-F' -it breaks loc()
     # Cygwin 1.7 instead of LANG=en_US; export LANG in .bash_profile
 ###    alias man="LANG=c man"
     ###alias m='less -M -j10$ -a -P%f$ -R -i'
@@ -665,9 +612,9 @@ case "$OSTYPE" in
         export EDITOR=/mnt/nfs/home/bheckel/usr/local/bin/vim
         export SASV9_OPTIONS='-validvarname=any'
 
-        # locate() is failing with permission errors, using this weak alternative
+        # If locate() not available
         function loc() {
-          find $HOME/code |grep -i "$1" | xargs ls -lt
+          find $HOME/code |grep -i "$1" | xargs ls -lt 
         }
 
         # E.g. Mar  3 07:32 /Drugs/Cron/Daily/tmm_enroll_ratio/tmm_enroll_ratio.log
@@ -681,6 +628,10 @@ case "$OSTYPE" in
         alias d34="(cd ~/bob/tmp; vi -d 3 4)"
 
         #umask 022  # 022 is 755, 037 is 740
+      fi
+
+      if  [ $HOSTNAME = 'sas-01.mrk.ateb.com' ]; then
+        alias vi=/mnt/nfs/home/bheckel/usr/local/bin/vim
       fi
 
       #----------------

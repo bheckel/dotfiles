@@ -956,8 +956,9 @@ if 1 <= (dosedate-sampdate) <= 5 then ...
 
 options pagesize=32767; options pagesize=max;  /* same */
 
- /* Comma separated, double quoted mvar SELECT...INTO :foo list in proc sql: */
-select quote(trim(mycharvar)) into :RISKVARS separated by ', '
+ /* Comma separated, single quoted : */
+select quote(strip(gpi),"'") into :formulary_gpis separated by ','
+
 select froms, tos, dist into :ITEM1, :ITEM2, :ITEM3
 
  /* If you use this: */
@@ -1323,7 +1324,7 @@ filename F 't.csv'; data t; infile F DLM=',' DSD TRUNCOVER LRECL=2600 FIRSTOBS=3
  /* Use substr as lvalue to mask a value: */
 substr(ssnum, 1, 6) = '******';
 
- /* Delete specific characters, like regex s/foo// */
+ /* Remove specific characters from a string var, like regex s/foo// */
 phone = compress(fullphone, '()- ');
 
  /* Substitute specific characters, like regex s/-/_/g */
@@ -1506,13 +1507,13 @@ proc surveyselect data=SASHELP.shoes out=stacked samprate=1 reps=50000000; run;
 
  /* char2num - think "I"NPUT is closer to "C"HAR so use that to convert a character to a numeric: */
  /* num2char - think "P"UT is closer to "N"UM so use that to convert a numeric to a character: */
-num = input(mychar, ?? BEST. -L);  /* canonical char2num and suppress SAS Log "NOTE: Invalid argument to function INPUT at line..." & _ERROR_=1 */
-num = input(mychar, COMMA7.);  /* take char string 123,456 and store as a num 123456 */
-char = put(mynum, BEST. -L);  /* integer num2char  (may need: if mynum=. then mynum=' ') */
-char = put(mynum, 12.2 -L);  /* floating point num2char */
+num = input(char, ?? BEST. -L);  /* canonical char2num and suppress SAS Log "NOTE: Invalid argument to function INPUT at line..." & _ERROR_=1 */
+num = input(char, COMMA7.);  /* take char string 123,456 and store as a num 123456 */
+char = put(num, BEST. -L);  /* integer num2char  (may need: if mynum=. then mynum=' ') */
+char = put(num, 12.2 -L);  /* floating point num2char */
 data numds(drop=TMP:); set chards(rename=(clientid=TMPclientid)); clientid=input(TMPclientid, ?? BEST. -L); run;  /* char2num num2char convert dataset */
-
-mynum = input( substr(id,3,2), 4. );  /* substr() alone produces a char */
+ /* char2num substring to numeric: */
+num = input(substr(char,3,2), 4.);  /* substr() alone produces a char, convert it to num */
 
  /* 20151001 to 201510 while remaining a number: */
 shortmo=floor(month/100);
@@ -1969,6 +1970,7 @@ select prxchange("s/'/''/", -1, upid) as upid
 
  /* Zero pad a char that looks like a number to 4 leading zeros: */
 data _null_; x='04'; y= put(input(x, BEST. -L), Z4.); put y=; run;
+... din2=put(input(din,8.),Z8.);  /* char 2 to 00000002 */
 
  /* Canonical email send: */
 filename MAILTHIS email (a@foo.com b@foo.com) cc="&user@foo.com" subject="&clientname" attach=("&loc/&fn" "&loc/&fn2"); data _null_; file MAILTHIS; put 'ok'; put; run;
@@ -2054,9 +2056,9 @@ data weekcnt; set weekcnt end=e; output; if e then do; clientstoreid='999'; week
 select clientstoreid, put(datepart(lastmodified), DATE9.) as dtlastmodified, count(*)
 select put(max(filldate), DATE9.) as humandate
 
- /* Conditional send email from datastep: */
-...  else do; put 'fail ' rc1=; to='bob.heckel@taeb.com'; file dummy email filevar=to subject="Error during &SYSPROCESSNAME execution"; stop; end;
-if rc1 eq 0 then do; put 'NOTE: chmod successful'; end; else do; put 'ERROR: chmod fail'; to='obb.heckel@ateb.com'; file dummy email filevar=to subject="Error during %sysfunc(getoption(SYSIN))"; end;
+ /* Conditional minimalist send email from datastep: */
+...else do; put 'fail ' rc1=; to='bob.heckel@taeb.com'; file DUMMY email filevar=to subject="Error during &SYSPROCESSNAME execution"; stop; end;
+if rc1 eq 0 then do; put 'NOTE: chmod successful'; end; else do; put 'ERROR: chmod fail'; to='obb.heckel@ateb.com'; file DUMMY email filevar=to subject="Error during %sysfunc(getoption(SYSIN))"; end;
 
 x umask 000; data l.junk;set sashelp.shoes;run;  /* -rw-rw-rw-. 1 bheckel staff 128K Feb 23 16:04 /mnt/nfs/home/bheckel/junk.sas7bdat */
 x umask 777; data l.junk;set sashelp.shoes;run;  /* ----------. 1 bheckel staff 128K Feb 23 16:06 /mnt/nfs/home/bheckel/junk.sas7bdat */
@@ -2084,7 +2086,7 @@ proc catalog cat=work.sasmac1; contents out=new; run;
  /* Show how SAS has translated your SQL:  NOTE: Statement transforms to: */
 proc sql FEEDBACK; ...
 
-select clientid, storeid, pharmacypatientid, max(greatest(solddate,filldate)) as max_solddate, max(solddate+dayssupply) as next_visit, max(solddate+dayssupply)-current_date as duedays, max(solddate)-current_date as recent_visit from rxfilldata_parent ...
+select clientid, storeid, pharmacypatientid, max(greatest(solddate,filldate)) as max_solddate, max(solddate+dayssupply) as next_visit, max(solddate+dayssupply)-CURRENT_DATE as duedays, max(solddate)-CURRENT_DATE as recent_visit from rxfilldata_parent ...
 
  /* Choose cgid if populated otherwise use default of 0: */
 put(coalesce(cgid,0),8.);
@@ -2155,6 +2157,7 @@ data t; set data.fnl end=e; output; if e then do; clientid=685; output; end; run
 
  /* Single quote for Postgres etc: */
 select distinct quote(gpi,"'") into :gpis separated by ','
+select cats("'",ndc,"'") into: ndc_str separated by ','
 
  /* Age bucket groupings 10-19 20-29 etc. */
 data _null_; age=12; age10=age-mod(age,10); put age10=; run;
@@ -2175,6 +2178,19 @@ select atebpatientid, storenum, cats(%rml0(storenum),pharmacypatientid) as upid,
  /* e.g. styletmpsas41DA9A76AE00C4374018000000000000 */
 %let uniqueid=style%sysfunc(scan(&SYSPROCESSNAME, 2))&SYSPROCESSID;
 
+/* Exclusion join to keep only the records with the minimum age when there are more than one */
+proc sql; select a.* from  l.rxfilldata_extra a left join l.rxfilldata_extra b on (a.storeid=b.storeid and a.pharmacypatientid=b.pharmacypatientid and a.age>b.age) where b.storeid is null and b.pharmacypatientid is null; quit;
+
+second_largest_num=largest(2, 456, 789, .Q, 123);  /* 456 */
+ /* SMALLEST function counts only nonmissing values */
+fourth_smallest_num1=smallest(4, 1, 2, 3, -4, 5, ., 7);  /* 3 */
+fourth_smallest_num2=ordinal(4, 1, 2, 3, -4, 5, ., 7);  /* 2 */
+
+guid=uuidgen();
+
+ /* WHERE wildcard numeric sequence: */
+WHERE rank IN(1:10)
+
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -2185,13 +2201,14 @@ date +%d%b%y  # 31Mar16 like SAS DATE7.
 TODAY=`date +%Y%m%d`  # 20160331
 
 # Canonical find and then grep
+find /opt/QCServer/A.05.00/svr/files -name 'Inspec_Lot-*' -mtime -3 | xargs grep "Error:"
 ssh tpsh005 'find /opt/QCServer/A.05.00/svr/files -name 'Inspec_Lot-*' -mtime -3 -exec grep "Error:" {} \;'
 ssh tpsh005 'find /opt/QCServer/A.05.00/svr/files -name 'Inspec_Lot-*' -mtime -3 -exec grep "Error:" {} \; | tail'
 
 # Find newish file that is not empty:
 ssh tpsh005 find /home/gaaadmin/GAAAdapter/gaa/logs -name 'InspectionRes*error*' -mtime -7 -a -size +0
 
-# Specify user to login as:
+# Specify different user to login as:
 ssh -l root 192.168.0.108
 
 # grep but skip, ignore, the string 'foo' if in the same line:
@@ -2200,17 +2217,6 @@ find . -name '*.sas7bdat' -a -not -name '*tr_*' |xargs \ls -l
 
 # Look in Julie chats for password related info (with context)
 find . -name '*Julie*.txt' -print0 | xargs -0 grep -3 -i 'password'
-
-# Send results of find to grep then send results of grep to pr then send
-# results of pr to lpr.  The xargs command takes an argument and executes it.
-find . -type f -print | xargs grep -l bobh | xargs pr | lpr
-
-# Find the string 'bobh' in files in current & subdirs if the file is older
-# than 365 days.
-find -mtime +365 | xargs grep bobh
-
-# Convert Macintosh to Unix file format: TODO how to do in-place change?
-tr '\015' '\012' <file.mac >file.unix
 
 # Poor man's copy cp:
 $ cat <original.txt >duplicate.txt
@@ -2267,6 +2273,7 @@ echo -n 'count me' | wc
 # Count how many Vim Scripts use ``execute''?:
 $ find /usr/local/share/vim -type f -name \*.vim -exec grep -l '\<exe\(c\(u\(te\?\)\?\)\?\)\?\>' {} \; | wc -l
 
+# Enable readline on command line
 set -o vi
 
 # Reset terminal: 
@@ -2345,9 +2352,6 @@ while true; do if [ `date +%H` -eq 8 -a `date +%M` -eq 11 ];then echo 'ok';fi; s
 while true; do if [ `date +%M` -eq 20 -a `date +%H` -ne 16 ];then date;datapost_check.sh; fi; sleep 60; done
 # Poor man's killer cron - closes rxvt when done
 while true; do if [ `date +%H` -eq 16 ];then /bin/kill 1035;exit;fi; sleep 59; done
-
-# Avoid Linux screensaver blanking
-setterm -blank 0
 
 # Determine IP address on Unix:
 ping `hostname`
@@ -2748,7 +2752,9 @@ find -mtime -7 -type f -name '*.vb' -print0 | xargs -0 vi  # DON'T USE ...| xarg
 # May be easier to edit the .tgz in vim:
 find -mtime -7 -type f -name '*.vb' -print0 | xargs -0 tar cvfz junk.tgz
 
-# Simple find and edit search string "bobh" in one swoop (like my bgrep but without duplicate filenames):
+# Simple find and edit search string (like my bgrep but without duplicate filenames):
+find /sasdata/Cron/Daily/HPTask -name '*.sas'|xargs grep 'any deceased pat' |awk -F: '{print $1}'|sort|uniq >|~/bob/tmp/.vimxfer
+
 vi `find . -name "*" -exec grep -l "bobh" {} \;`
 # or just show filenames:
 find . -name 'dlt*' -o -name 'tst*' -exec grep -l REVISER {} \;
@@ -3010,6 +3016,11 @@ echo $PATH | tr ":" "\n"
 
 # Substitute only the second appearance of a string on a line:
 sed 's/replaceme/FOO/2' foo.txt
+
+# Convert Windows to Unix file format:
+sed 's/\r//' CLIDLIST_DOSFMT.txt >| $CLIDLIST_UNIXFMT.txt
+# Convert Macintosh to Unix file format:
+tr '\015' '\012' <file.mac >file.unix
 
 # Compress 2 or more spaces into 1:
 echo 'long   str' | sed 's/ \{2,\}//'
@@ -3880,8 +3891,9 @@ scp -r /Drugs/Drugs/AcmeControl bheckel@sas-01.twa.ateb.com:tmp/
 # Send email without an input file as body:
 0 * * * * echo 'ok' | mailx bob.heckel@taeb.com > /dev/null 2>&1
 
-# CentOS
+# CentOS package manager installer:
 sudo yum install vim-enhanced.x86_64
+sudo yum install postgresql  # psql
 
 # Sync a remote directory to the local system.  -a syncs recursively, preserves symlinks, special and device files, modification times, group, owner, and permissions, -P gives progress bar for the transfers and allows resume interrupted transfers
 rsync --dry-run -avP bheckel@talon3://mnt/nfs/home/bheckel/tmp/1440187439_21Aug15/dir1/ dir1  # pull - trailing slash important
@@ -5609,7 +5621,7 @@ ALTER USER LIMSARCH PASSWORD EXPIRE;
 ALTER USER limsarch IDENTIFIED BY new2dayJuly;
 ALTER USER limsarch IDENTIFIED BY "new2dayJuly" REPLACE "oldpw";
 
--- Change Postgres password
+-- Change password Postgres password
 ALTER USER heckel WITH PASSWORD 'syP@ss';
 
 -- Oracle copy table
@@ -5930,6 +5942,9 @@ date_part('year',age(patientdob))>=41 and date_part('year',age(patientdob))<=75
 date_part('year'::text, age(pd.dateofbirth::timestamp with time zone)) AS age
 ... patientdob < date('now') - interval '18 year'
 
+-- Postgres min max calculate age:
+select min(date_part('year',age(dateofbirth))), max(date_part('year',age(dateofbirth))) ...
+
 -- Postgres date truncate:
 date_trunc('day', etl_ts)
 
@@ -5971,17 +5986,18 @@ where created>='2016-05-11' and created<'2016-05-12'
 select clientstoreid, to_char(filldate, 'YYYY-MM') as mo, count(*) as cnt ...
 select SUM(amount) as sales, date_trunc('month', created_at)::date as date from orders group by date order by date DESC;
 
--- Postgres substr
+-- Postgres substr:
 select distinct substring(cr.gpi,1,10)
 
--- Postgres reformat date no dashes
+-- Postgres reformat date no dashes:
 select 'EXPIRE='||to_char(date('now')+365,'YYYYMMDD') as x2
 
--- Yesterday in Postgres
-and lastmodified >= current_date-1
+-- Yesterday in Postgres date:
+and lastmodified >= CURRENT_DATE-1
 
 To save postgresql output to comma pipe delimited csv file (warning - multiple runs append):
-psql> \f '|' \a \t \o '/tmp/output.csv'
+psql> \f '|' \a \o /Drugs/Personnel/bob/t.out
+psql> \f '|' \a \t \o /tmp/withoutheader.csv
 psql> \e
 
 -- Postgres (case-sensitive):
@@ -5991,7 +6007,7 @@ commit;
 -- Zero pad a number in postgresql:
 select distinct lpad(clientstoreid::text, &sidlen, '0') as clientstoreid, ...
 
--- Postgres || alternative
+-- Postgres double pipe || alternative it does a SAS compress(clientstoreid)||compress(pharmacypatientid): 
 select patientdateofbirth, concat(clientstoreid::text,pharmacypatientid::text) as upid
 select patientdateofbirth, concat(trim(leading '0' from clientstoreid::text),pharmacypatientid::text) as upid
 
