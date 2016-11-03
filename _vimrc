@@ -846,9 +846,9 @@ noremap ,n :bn<CR>
 noremap ,qq :q!<CR>
 
 if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
-  " Ugly hack to get word (SAS macro name) under cursor.  Then gf & u:
-  noremap ,r :let @z=substitute(expand("<cword>"),".*","/Drugs/Macros/&.sas","g")<CR>ciw<C-R>z<ESC>
-"""  noremap ,r :let @z=substitute(expand("<cword>"),".*","/cygdrive/e/Macros/&.sas","g")<CR>ciw<C-R>z<ESC>
+  " Ugly hack to get word (SAS macro name) under cursor into a path/filename for gf.  Then ,e & u:
+"""  noremap ,r :let @z=substitute(expand("<cword>"),".*","/Drugs/Macros/&.sas","g")<CR>ciw<C-R>z<ESC>
+  noremap ,r :let @z=substitute(expand("<cword>"),".*","/Drugs/Macros/&.sas","g")<CR>ciw<C-R>z<ESC>gf<ESC>
 endif
 
 " Quick search template:
@@ -1708,7 +1708,7 @@ if !exists("autocommands_loaded")
     " gvim knows nothing about SAS
     au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!c:/Progra~1/SASIns~1/SAS/V8/sas.exe -sysin %<CR>:args %:r.lst %:r.log<CR>
   else
-    " Run my execute SAS shell script:
+    " Run my execute SAS shell script in a terminal:
     au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!~/code/sas/sasrun %<CR>
   endif
 
@@ -1736,6 +1736,8 @@ if !exists("autocommands_loaded")
   """au BufRead *.log :g/Please contact your SAS/d
   """au BufRead *.log :g/information.  The SAS System will no longer function on or after that/d
   """au BufRead *.log :g/representative to have it renewed/d
+  " Ateb
+  au BufRead *.log :g/WARNING: Libref funcdata may not have assigned correctly from logical server./d
 
   " Perl
   au BufNewFile,BufRead,BufEnter *.pl nmap ,p :!perl -c %<CR>

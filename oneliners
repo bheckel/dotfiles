@@ -7,7 +7,7 @@
 #           Comments are often written for searching, not proper English
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Fri 02 Sep 2016 15:12:15 (Bob Heckel)
+# Modified: Mon 24 Oct 2016 09:05:24 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -588,6 +588,17 @@ alias xfer='scp ~/tmp/.vimxfer bheckel@talon3:tmp/.vimxfer'
 # Set a shell variable:
 WHEREISVIMRUNTIME=`vim -e -T dumb --cmd 'exe "set t_cm=\<C-M>"|echo $VIMRUNTIME|quit' | tr -d '\015' `
 
+" Keep only the first 12 characters, delete characters after column position 12:
+:s/^\(............\).*/\1/g
+
+" scp diff across networks
+vi -d /Drugs/update_shortname_ds.sas scp://bheckel@sas-01.mrk.ateb.com//Drugs/update_client_global_settings.sas
+
+" Find two strings in any order:
+/.*reboot\&.*box
+
+" Quickfix  :cw
+
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -933,8 +944,9 @@ data _NULL_; abort abend 008; run;
 myvar = trim(translate(myvar, '', '.'));
 
  /* Simple datetime stamp: */
-%put %sysfunc(putn(%sysfunc(datetime()),DATETIME.));
-%put %sysfunc(datetime(),DATETIME.);
+dts=put(datetime(),DATETIME16.);
+%put %sysfunc(datetime(),DATETIME.);  /* same */
+%put %sysfunc(putn(%sysfunc(datetime()),DATETIME.));  /* same, useless */
 
  /* Time a job */
 %let _start=%sysfunc(time()); %put NOTE: %sysfunc(getoption(SYSIN)) started: %sysfunc(putn(%sysfunc(datetime()),DATETIME.));
@@ -1693,6 +1705,7 @@ options NOlabel;  /* Avoid proc sql printing pretty labels names instead of varn
 
  /* Convert character constant date to character and SAS date to number in open code (easiest date converter conversion) */
 %put %sysfunc(putn('30OCT1965'D, 8.));
+ /* Canonical convert SAS numeric date to human date: */
 %put %sysfunc(putn(17325, DATE9.));
  /* Convert character constant datetime to character and SAS date to number in open code (easiest datetime converter conversion) */
 %put %sysfunc(putn('30OCT1965:12:01:00'DT, 10.));  /* "10." instead of "8." to avoid "1.8399E8" */
@@ -1807,9 +1820,6 @@ proc format; value f_yr 50-59='50-59' 60-HIGH ='60+' ; run; agerange = put(age, 
 libname DGM_DIST oracle user=&username password=&password path=&database schema=dgm_dist readbuff=10000;
 select * from ora_sas.customers(readbuff=10000);
 
- /* String concatenation: */
-combined = fname || lname || numb;
-
 %let cnt=1234; %put %sysfunc(putn(&cnt, comma.));  /* 1,234 */
 %let cntfmtd=%sysfunc(putn(&cnt, comma.));
 
@@ -1827,8 +1837,8 @@ options fullstimer bufsize=8K bufno=5000;
  /* Sortable timestamp e.g. 20120507_1329 */
 %let x=%sysfunc(compress(%sysfunc(today(),yymmddN8.)_%sysfunc(time(),hhmm6.), ': ')); 
 
- /* Canonical input statement  e.g.:  1 100 98 75  A A B 10jul2014 12jul2014 11aug2014 */
-input id (apple orange banana) (:8.) (loc1-loc5) (:$1.) (mydate1-mydate5) (:date9.);
+ /* Canonical input statement  e.g.:  1 100 98 75  A A B 10jul2014 12jul2014 */
+input id (apple orange banana) (:8.) (loc1-loc3) (:$1.) (mydate1-mydate2) (:date9.);
 
  /* Simpler if then else, ifn() is for numerics */
 x2=ifc(x='Y', 'yes', 'no');
@@ -1973,7 +1983,7 @@ data _null_; x='04'; y= put(input(x, BEST. -L), Z4.); put y=; run;
 ... din2=put(input(din,8.),Z8.);  /* char 2 to 00000002 */
 
  /* Canonical email send: */
-filename MAILTHIS email (a@foo.com b@foo.com) cc="&user@foo.com" subject="&clientname" attach=("&loc/&fn" "&loc/&fn2"); data _null_; file MAILTHIS; put 'ok'; put; run;
+filename MAILTHIS email ('a@foo.com' 'b@foo.com') cc="&user@foo.com" subject="&clientname" attach=("&loc/&fn" "&loc/&fn2"); data _null_; file MAILTHIS; put 'ok'; put; run;
 
  /* Build a single quoted string for Oracle, Postgres etc (but FAILS with leading zero numbers, try ndc::integer or see alternative build_db_query_list_via_macro.sas): */
 proc sql; select ndc into :medlist separated by ',' from l.t; quit;  data _null_; call symput('medlist2', catq('1AC', &medlist)); run;
@@ -2000,7 +2010,7 @@ select patientphonenbr, case when length(patientphonenbr)=10 then 1 else 0 end a
  /* Only dates in the last 365 days: */
 where mydate >= date()-365
 
- /* Canonical do while macro list loop: */
+ /* Canonical macro do while space-separated list loop iterate without an index counter: */
 %let i=1; %let clid=%qscan(&clientid_ind, &i, %str( )); %do %while ( &clid ne %str( ) ); ...  %let i=%eval(&i+1); %let clid=%qscan(&clientid_ind, &i, %str( ));
 
  /* Loop a range of SAS dates: */
@@ -2021,10 +2031,6 @@ option SASTRACE=",,,d" no$stsuffix SASTRACELOC=saslog;
 %let mydt=%sysfunc(putn(%sysfunc(inputn(&SYSDATE, DATE9.)), YYMMDDD10.));
 
  /* Comment out keybinding in EG: Ctl+/  Uncomment in EG: Ctl+Shift+/ */
-
- /* Loop iterate comma separated macro variable: */
-%local i f; %let i=1; %let f=%scan(%superq(ds), &i, ','); %do %while ( &f ne  ); %let i=%eval(&i+1); %put DEBUG: dsloop3 &f; %let f=%scan(%superq(ds), &i, ','); %end;
-%dsloop3(%str(pqa_bar,pqa_foo));
 
  /* Determine informat at runtime based on a flag: */
 else if flag=3 then chardata=inputc(char_data,"$UPCASE22.");
@@ -2058,7 +2064,7 @@ select put(max(filldate), DATE9.) as humandate
 
  /* Conditional minimalist send email from datastep: */
 ...else do; put 'fail ' rc1=; to='bob.heckel@taeb.com'; file DUMMY email filevar=to subject="Error during &SYSPROCESSNAME execution"; stop; end;
-if rc1 eq 0 then do; put 'NOTE: chmod successful'; end; else do; put 'ERROR: chmod fail'; to='obb.heckel@ateb.com'; file DUMMY email filevar=to subject="Error during %sysfunc(getoption(SYSIN))"; end;
+if rc1 eq 0 then do; put 'NOTE: chmod successful'; end; else do; put 'ERROR: chmod fail'; to='obb.heckel@taeb.com'; file DUMMY email filevar=to subject="Error during %sysfunc(getoption(SYSIN))"; end;
 
 x umask 000; data l.junk;set sashelp.shoes;run;  /* -rw-rw-rw-. 1 bheckel staff 128K Feb 23 16:04 /mnt/nfs/home/bheckel/junk.sas7bdat */
 x umask 777; data l.junk;set sashelp.shoes;run;  /* ----------. 1 bheckel staff 128K Feb 23 16:06 /mnt/nfs/home/bheckel/junk.sas7bdat */
@@ -2189,7 +2195,19 @@ fourth_smallest_num2=ordinal(4, 1, 2, 3, -4, 5, ., 7);  /* 2 */
 guid=uuidgen();
 
  /* WHERE wildcard numeric sequence: */
-WHERE rank IN(1:10)
+where rank IN(1:10)
+
+data;len=lengthn('ABC ');put len;run;  /* 3 */
+
+# Convert SAS Log to SAS Code:
+sed '/^[^[0-9]/d;/SAS/d; /^$/d;/DATA?:?:?/d; /\*[0-9]/d' ~/tmp/1 |cut -c6-256 |tr ! ' ' |sed '/^[^ ]/d' > t.sas
+
+tail -f /sas/config/Lev1/Logs/SASMeta_MetadataServer_2016-10-31_sas-01_2955.log
+
+vi /sas/config/Lev1/SASMeta/MetadataServer/omaconfig.xml
+
+ /* Bulk load a dataset insert into a database table: */
+proc append base=mydb.mytbl (bulkload=yes bl_datafile="/tmp/data" bl_logfile="/tmp/bulkload_log" BL_LOAD_METHOD=APPEND) data=myinserts; run;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -2424,11 +2442,9 @@ rsh zrtph128 'cat /home/rheckel/junk' | vi -
 ls -l | sort -r -n -k 5
 
 # Top 20 largest files AND directories (Cygwin):
-du -sk * | sort -rn | head -n20  # must use the '*' or get dir tot only
-# Top 20 largest directories (NetBSD):
-du | sort -rn | head -n20
-# Top 20 largest directories
-du -k| sort -rn | head -n20
+sudo du -sk /saswork/* | sort -rn | head -n20  # must use the '*' or get dir tot only
+# Diskhogs
+sudo du -sk /saswork/* | sort -rn | head -n20 | awk '{print $2}' | xargs sudo ls -dl
 # Total size of each item (file or directory) in CWD and sort numerically:
 for i in *; do du -sk $i; done | sort -n
 
@@ -2753,7 +2769,7 @@ find -mtime -7 -type f -name '*.vb' -print0 | xargs -0 vi  # DON'T USE ...| xarg
 find -mtime -7 -type f -name '*.vb' -print0 | xargs -0 tar cvfz junk.tgz
 
 # Simple find and edit search string (like my bgrep but without duplicate filenames):
-find /sasdata/Cron/Daily/HPTask -name '*.sas'|xargs grep 'any deceased pat' |awk -F: '{print $1}'|sort|uniq >|~/bob/tmp/.vimxfer
+find /sasdata/Cron/Daily/HPTask -name '*.sas'|xargs grep 'any deceased pat' |awk -F: '{print $1}'|sort|uniq >|~/bob/tmp/1
 
 vi `find . -name "*" -exec grep -l "bobh" {} \;`
 # or just show filenames:
@@ -3885,8 +3901,9 @@ $ [ -e t.sh ] && ( echo file exists; exit 1 )
 # Add user to another group:
 usermod -a -G sas bheckel
 
-# Recursive scp:
-scp -r /Drugs/Drugs/AcmeControl bheckel@sas-01.twa.ateb.com:tmp/
+# scp recursive scp:
+scp -r bheckel@sas-01.twa.taeb.com://Drugs/Cron/Daily/update_shortname_ds/ .
+scp -r /Drugs/Drugs/AcmeControl bheckel@sas-01.twa.taeb.com:tmp/
 
 # Send email without an input file as body:
 0 * * * * echo 'ok' | mailx bob.heckel@taeb.com > /dev/null 2>&1
@@ -3894,6 +3911,9 @@ scp -r /Drugs/Drugs/AcmeControl bheckel@sas-01.twa.ateb.com:tmp/
 # CentOS package manager installer:
 sudo yum install vim-enhanced.x86_64
 sudo yum install postgresql  # psql
+
+# CentOS reboot
+sudo shutdown -r now
 
 # Sync a remote directory to the local system.  -a syncs recursively, preserves symlinks, special and device files, modification times, group, owner, and permissions, -P gives progress bar for the transfers and allows resume interrupted transfers
 rsync --dry-run -avP bheckel@talon3://mnt/nfs/home/bheckel/tmp/1440187439_21Aug15/dir1/ dir1  # pull - trailing slash important
@@ -3961,6 +3981,8 @@ THISPROG=${0##*/}
 # Remove carriage return from filename:
 $ rename $'\r' '' tmm_build_multiple_clients.44*
 $ rename 'fdw.csv' 'fdw.ORIG.csv' *.csv
+
+uuencode /Drugs/TMMEligibility/Studies/QC_DelhcaInc.pdf | mail -s 'mail attachment' bob.heckel@ateb.com
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5977,10 +5999,12 @@ start %windir%\system32\scrnsave.scr -s
 select nextval('analytics.tmm_enrollmentperf_tmm_enrollmentperfid_seq');
 
 -- Postgres remove seconds from timestamp:
-psql -h db-06.twa.ateb.com ATEBMART -c "select to_char(lastmodified, 'yyyy-mm-dd HH24:MI') from analytics.reportinglog where reportname='TMMRep_Reporting_Automation' order by lastmodified desc limit 1"
+psql -h db-06.twa.taeb.com ATEBMART -c "select to_char(lastmodified, 'yyyy-mm-dd HH24:MI') from analytics.reportinglog where reportname='TMMRep_Reporting_Automation' order by lastmodified desc limit 1"
 
 -- Postgres between two dates date range:
 where created>='2016-05-11' and created<'2016-05-12'
+-- Postgres 2016-09-01 thru 2016-09-30 date range:
+select min(filldate), max(filldate) from sdfarchive where filldate >= date_trunc('MONTH', now())-'1 month'::interval and filldate < date_trunc('month', NOW())-'1 month'::interval+'1 month'::interval;
 
 -- Postgres extract months:
 select clientstoreid, to_char(filldate, 'YYYY-MM') as mo, count(*) as cnt ...
@@ -5996,11 +6020,11 @@ select 'EXPIRE='||to_char(date('now')+365,'YYYYMMDD') as x2
 and lastmodified >= CURRENT_DATE-1
 
 To save postgresql output to comma pipe delimited csv file (warning - multiple runs append):
-psql> \f '|' \a \o /Drugs/Personnel/bob/t.out
-psql> \f '|' \a \t \o /tmp/withoutheader.csv
+psql> \f '|' \a \o /Drugs/Personnel/bob/t.csv
+psql> \f ',' \a \t \o ~/tmp/bob/withoutheader.csv
 psql> \e
 
--- Postgres (case-sensitive):
+-- Postgres commit transactions (case-sensitive).  Or use:  BEGIN; update tbl set field=0; COMMIT; (or ROLLBACK;):
 \set AUTOCOMMIT off
 commit;
 
@@ -6027,5 +6051,11 @@ select string_agg(distinct atebpatientid::varchar,',') from cce.ccepatientstagin
 :select-layout even-horizontal
 
 ' Excel multiply two columns and produce a scalar: =SUMPRODUCT(O37:O38,P37:P38)
+
+-- Postgres first day of last month:
+select date_trunc('MONTH', now())-'1 month'::interval;
+
+-- Postgres bulk load a textfile to a table:
+\COPY analytics.obcdaily (client_name, , job_type_extra, att_count) FROM /Data/psql_import_temp.csv CSV HEADER
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

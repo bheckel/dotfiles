@@ -68,5 +68,5 @@ done
 
 
 echo
-echo ...completed setup ls -Rla:
-ls -Rla $myhome/
+echo ...completed setup ls -la:
+ls -la $myhome/

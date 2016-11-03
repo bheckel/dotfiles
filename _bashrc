@@ -41,6 +41,7 @@ export HISTIGNORE='f:fg:l:ls:la:cd:h:ll::d:by:&'  # '&' supposedly same as HISTC
 export HISTCONTROL=ignoreboth
 export HISTTIMEFORMAT='%F %T '
 export IGNOREEOF=1  # require 2 ctr-d to exit
+export LESS='--ignore-case'  # but still honors 'ThisSearchPattern'
 # More portable than the cleaner  if [ "${OSTYPE:0:6}" = 'CYGWIN' ]; then ...
 ###export ISCYG=`echo ${OSTYPE} | /usr/bin/perl -pe 's/(.{6}).*/$1/'`
 # Prevent ugly default bolding
@@ -135,7 +136,7 @@ alias sdf='ssh -l bheckel sdf.org; date'
 alias sl='ls --color=none'  # dyslexic daim branage
 alias sr="$HOME/code/sas/sasrun"
 alias srcb="source $HOME/code/misccode/_bashrc"
-alias tree="\ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
+###alias tree="\ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
 alias unbak="$HOME/code/misccode/bak -u "
 alias uvi="$HOME/code/perl/uvi"  # don't change timestamp
 alias ve="vi $HOME/.vimrc"
@@ -146,14 +147,16 @@ alias wget='wget -c'  # continue failures
 # Generic Functions  #{{{2
 #-----------------------------------
 
+cdl(){
+  command cd "$@" && command ls;
+}
+
+
 function ses() {
   # No parm shows all
 ###  find ~/bob/ -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $9}' | grep -i "$1" >|~/tmp/.vimxfer && cat ~/tmp/.vimxfer
   find ~/bob/ -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $9}' | grep -i "$1" >|~/bob/tmp/.vimxfer && cat ~/bob/tmp/.vimxfer
 }
-
-
-cdl(){ cd "$@" && ls; }
 
 
 # Used with PS1 as an exit value indicator.
@@ -604,12 +607,17 @@ case "$OSTYPE" in
       fi
 
       if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ]; then
-        alias sas0='ssh -l bheckel sas-01.twa.ateb.com'
-        alias tal='ssh -l bheckel talon3.dep.ateb.com'
         alias vi=$HOME/usr/local/bin/vim
 
         # This sometimes keeps things from failing when the minimal vim is installed as vi
         export EDITOR=/mnt/nfs/home/bheckel/usr/local/bin/vim
+      fi
+
+      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ] || [ $HOSTNAME = 'sas-01.mrk.ateb.com' ]; then
+        alias sas0='ssh -l bheckel sas-01.twa.ateb.com'
+        alias tal='ssh -l bheckel talon3.dep.ateb.com'
+        alias mrk='ssh -l bheckel sas-01.mrk.ateb.com'
+
         export SASV9_OPTIONS='-validvarname=any'
 
         # If locate() not available
@@ -628,10 +636,6 @@ case "$OSTYPE" in
         alias d34="(cd ~/bob/tmp; vi -d 3 4)"
 
         #umask 022  # 022 is 755, 037 is 740
-      fi
-
-      if  [ $HOSTNAME = 'sas-01.mrk.ateb.com' ]; then
-        alias vi=/mnt/nfs/home/bheckel/usr/local/bin/vim
       fi
 
       #----------------
