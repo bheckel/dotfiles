@@ -7,7 +7,7 @@
 #           Comments are often written for searching, not proper English
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Mon 24 Oct 2016 09:05:24 (Bob Heckel)
+# Modified: Mon 14 Nov 2016 14:56:41 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -604,6 +604,7 @@ xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSASxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
+http://support.sas.com/documentation/cdl/en/syntaxidx/68719/HTML/default/index.htm#/documentation/cdl/en/syntaxidx/68719/HTML/default/shared/start.htm
 http://support.sas.com/documentation/onlinedoc/bookshelf/94/desktop.html
 http://support.sas.com/documentation/cdl/en/lefunctionsref/67960/HTML/default/viewer.htm#n1mj2bizbsd7ktn1sf9lz111kku3.htm
 http://support.sas.com/documentation/cdl/en/lestmtsref/67407/HTML/default/viewer.htm#p08st7rzfn0dgin1fml8hq40hlho.htm
@@ -881,11 +882,6 @@ retain hi; hi=max(hi, DatastepVarWeWantMaxFrom);
  /* Find max using a SAS range: */
 if max(of one1-one3) < 5 then ...
 
- /* Test for oddness */
-mod(x,2) eq 1
- /* Test for eveness */
-mod(x,2) eq 0
-
  /* SAS array declare and initialize */
 array starr{*} $2 st1-st57 ('AL', 'AK', 'AR', 'AZ', 'CA', 'CO');
  /* SAS array access */
@@ -923,7 +919,7 @@ input name $8.  number  ??;
  /* Small shrink dataset to 5% random sample sampling for debugging huge ds to subset dataset (different result each run): */
 data t2; set t; if ranuni(0) <= .05; run;
 
- /* Don't add lines with NULLs */
+ /* Don't keep var with NULLs */
 if sex = '00'x||'00'x||'00'x then delete;
 
  /* Most efficient block size on mainframe: Moderate to large DASD-stored datasets s/b blocked at half a track. Small ds and catalogs s/b blocked at 6144 bytes. Tape 32760 bytes. */
@@ -1092,8 +1088,6 @@ options ls=80; proc sql; select specname FORMAT=$20. from v ; quit;
 
 proc sql NOprint; select id, (dis-adm)+1 AS mycalc LENGTH=4 LABEL='foo' from bar; quit;
 
-libname ORA oracle user=pks password=pks path=usdev100 schema=pks;
-
  /* Canonical freq */
 proc freq data=SASHELP.shoes(where=(region like 'A%')); run;
 proc freq data=t(where=(specname like '%2064%')); table specname*varname / LIST NOCUM NOROW NOCOL NOPCT; run;
@@ -1173,7 +1167,6 @@ options ls=180 NOlabel;proc sql;select * from dictionary.columns where libname e
  /* Canonical sql libname */
 libname GDM_DIST oracle user=&username password=&password path=&database schema=gdm_dist;
 
- /* Complex oracle SEPARATED BY */
 select distinct r.sampid, s.specname, put(r.sampid,F6.)||'-'||s.specname into :SAMPIDS separated by ',', :METHS separated by ' ', :METHPAIRS separated by ' '
 
 %if %sysfunc(fileexist('c:\foo\bar.txt')) %then %put quote-mandatory file exists; %else %put file OR DIRECTORY! does not exist;
@@ -1218,7 +1211,7 @@ select distinct region into :region1 thru :region3 ...
 
 x "move /Y lelimssumres01a.sas7bdat \\rtpsawn321\d\sql_loader\LeLimsSumres01a&suffix..sas7bdat";
 
- /* Tells SAS not to worry about keeping obs with the same BY variable values in the same order (for speed) */
+ /* Tells SAS not to worry about keeping obs with the same BY variable values in the same order (for speed efficiency) */
 proc sql NOEQUAL ...
 
  /* DELETE returns to the top of the datastep w/o writing.
@@ -1251,6 +1244,10 @@ lastname=scan(fullname, -1 ' ');
 if mod(_N_, 4) eq 0; ...
  /* Get every other obs */
 if mod(_N_, 2) eq 0; ...
+ /* Test for oddness */
+mod(x,2) eq 1
+ /* Test for evenness */
+mod(x,2) eq 0
 
  /* Determine where WORK dir is located: */
 libname l '.'; proc contents data=l._ALL_; run;
@@ -1285,10 +1282,8 @@ data _null_; if 0 then set BUILD.clients_shortname_lookup nobs=count; call sympu
  /* Count observations without opening dataset - most efficient (can also count vars with NVARS)*/
 %let dsid=%sysfunc(open(work.foo)); %let cntobs=%sysfunc(attrn(&dsid, NLOBS)); %let dsid=%sysfunc(close(&dsid));
 
- /* Build tail of filename DIRROOT=c:/foo/tmp/bar.txt */
+ /* Extract tail of filename DIRROOT=c:/foo/tmp/bar.txt */
 %let PRODUCTNAME=%substr(&DIRROOT, %eval(%index(&DIRROOT, tmp)+4));
-
-if description ne: 'al' then do; file "&DIRROOT\&SYSMACRONAME._Error.txt"; put "UNEXPECTED: &SYSDATE &SYSTIME " description=; end;
 
  /* Start: 11:13:27 PM */
 footnote "Start time: %sysfunc(time(),TIMEAMPM.)";
@@ -1307,7 +1302,7 @@ proc sort data=sashelp.shoes out=t NOEQUALS; by region DESCENDING sales; run;
  /* View browse SASHELP library */
 options ls=180;proc contents data=SASHELP._all_ /*NODS*/;run;
 
- /* What SAS products are licensed / installed? */
+ /* What SAS products are licensed / installed?: */
 proc setinit noalias; run; 
  /* Apply setinit.  May be simpler just to right-click a setinit.sss file */
 C:\Program Files\SAS Institute\SAS\V8>sas.exe -setinit -sysin c:\setinit.sas -config "c:\Program Files\SAS Institute\SAS\V8\sasv8.cfg"
@@ -1397,7 +1392,7 @@ past = intnx('month', '01jan2000'D, -1, 'E');
 %let x=%sysevalf("&SYSDATE"D+30);  /* 20322 */
 %let x=%sysfunc(putn(%sysevalf("&SYSDATE"D+30),DATE9.));  /* 31DEC2015 */
 
- /* Calculate one month ago in macro (more accurate than subtracting 30): */
+ /* Date convert calculate one month ago in macro (more accurate than subtracting 30): */
 %let ThisMonth=201405;
 %let LastMonth=%sysfunc(intnx(month,%sysfunc(InputN(&ThisMonth.01,yymmdd8.)),-1), YYMMDDN8.);  /* the .01 is to fake May 1 */
 
@@ -1422,6 +1417,11 @@ proc means data=sashelp.shoes; class region; var sales; run;
 proc means data=sashelp.shoes NOprint; output out=t; class region; var sales; run;
 proc summary data=sashelp.shoes PRINT; class region; var sales; run;
 proc sql; select region, count(sales), sum(sales) format=DOLLAR16. from sashelp.shoes group by region; quit;
+ /* Count missings: */
+proc means data=sashelp.class N NMISS; run;
+proc sort data=sashelp.class out=t; by sex; run; proc means data=t N NMISS; by sex; var height; run;
+proc sort data=sashelp.class out=t; by sex;run; proc means data=t N NMISS; class sex; var height; output out=t2; run;
+proc means data=sashelp.shoes MEDIAN; var sales; run;
 
  /* SAS error message V8 at least: */
 NOTE: BY-line has been truncated at least once.  /* fix with options ls=max */
@@ -1499,13 +1499,11 @@ KEYS PGM WPGM WPG LOG OUTPUT OUT NUMS ZOOM
 Change default WORK location (PC SAS): edit near EOF -WORK
 C:\Program Files\SAS\SAS 9.1\nls\en\SASV9.CFG
 
-Right click C:\Program Files\SAS Institute\SAS\V8\core\sashelp\setinit.sss to install license
-
  /* Display each line of textfile as it's read-in using INPUT statement */
 put '!!!' _INFILE_;
 
- /* Loop all characters in dataset: */
-array cs _CHARACTER_; do over cs; if cs eq: 'foo' then cs = 'bar'; end;
+ /* Loop all characters in dataset without an index: */
+array cs _CHARACTER_; do over cs; if cs eq: 'foo' then cs='bar'; end;
 
  /* Single trailing at sign (for ID field) @ vs. Double trailing (for repeating blocks) @@ */
 @  holds record in input buffer so that logic can be used to figure out which (next) INPUT statement to us.  More than one INPUT statement exists in data step.  Releases when control returns to top of data step.
@@ -1807,6 +1805,11 @@ array a[*] foovar barvar bazvar; do i=1 to dim(a); if a[i]>maxn then maxn=a[i]; 
 data _null_; d='04oct13'd; put d yymmddN8.;run;  /* 20131004 */
 %let maxdate2=%sysfunc(putn("&maxdate"d, YYMMDDN8.));
 
+ /* Canonical date convert from 08NOV2016 to 20161108 */
+%put %sysfunc(putn("08NOV2016"d, YYMMDDN8.));
+ /* Date convert libname e.g. /Drugs/RFREval/Ahold/2016/20161108/Dataset */
+%let maxdate=08NOV2016; libname l "/Drugs/RFREval/Ahold/%sysfunc(putn("&maxdate"d, YEAR.))/%sysfunc(putn("&maxdate"d, YYMMDDN8.))/Dataset";
+
 do j=1 to 4; subj(j)=''; score(j)=.; end;  /* initialize array set to missing v8 */
 call missing(of subj(*), of score(*));     /* initialize array set to missing v9 - don't care if NUM or CHAR */
 
@@ -1917,8 +1920,6 @@ $ sudo su - sas; /sas/config/Lev1/sas.servers status  # or start or stop
  /* Use mine first in the autocall hierarchy.  SASAUTOS is /sas/sashome/SASFoundation/9.4/sasautos/ */
 options mautosource sasautos=('.' '/Drugs/Macros', SASAUTOS);
 
-proc means data=sashelp.shoes MEDIAN; var sales; run;
-
  /* Replace old SAS left trim: */
 select count(distinct cats(storeid,pharmacypatientid)) as UPID
 select compress(a.storeid)||compress(a.pharmacypatientid) as UPID
@@ -1939,7 +1940,7 @@ data p10j; set p10b p10c; label _TEMA001='00'x; run; proc print data=p10j LABEL;
 
 proc sql noprint; select distinct cats('"',put(patient_dob,date9.),'"d') into :dob1 -  :dob&ndob.  from subset_hp_npi; quit;
 
- /* Canonical SAS if then */
+ /* Canonical SAS if then else */
 if region eq 'Asia' then put 'foo'; else put 'bar';
 
 rc=system('/bin/bash /Drugs/xron/Daily/FredsImm/fredsimm.sh 2>/Drugs/xron/Daily/FredsImm/fredsimm.err');
@@ -2097,7 +2098,7 @@ select clientid, storeid, pharmacypatientid, max(greatest(solddate,filldate)) as
  /* Choose cgid if populated otherwise use default of 0: */
 put(coalesce(cgid,0),8.);
 
- /* Today macro date now human formatted: */
+ /* Convert date today macro date now to human formatted e.g. 20161109: */
 %let today=%sysfunc(date(), YYMMDDN8.);
 
  /* Collapse multiple rows to single row: */
@@ -2136,7 +2137,7 @@ select put(input(storenum,4.),z4.) as clientstoreid, ...
  /* Delete obs if all vars are missing: */
 options missing=''; ... if missing(cats(of _ALL_)) then delete;
 
- /* Beginning of month six months ago to end of previous month: */
+ /* Convert date beginning of month six months ago to end of previous month: */
 %let minbom=%sysfunc(intnx(MONTH, "&SYSDATE"d, -6, B),date9.); %let maxbom=%sysfunc(intnx(MONTH, "&SYSDATE"d, -1, E),date9.);
 
  /* Double ampersand macro resolution: */
@@ -2208,6 +2209,15 @@ vi /sas/config/Lev1/SASMeta/MetadataServer/omaconfig.xml
 
  /* Bulk load a dataset insert into a database table: */
 proc append base=mydb.mytbl (bulkload=yes bl_datafile="/tmp/data" bl_logfile="/tmp/bulkload_log" BL_LOAD_METHOD=APPEND) data=myinserts; run;
+
+proc freq data=ar2_advair511 ; tables ptsex*fillmo / MISSPRINT; run;  /* row*col and include missing */
+
+array datearray[*] Columbus Hastings Nicea (1492 1066 325); idx=whichn(1066, of datearray[*]);  /* returns array index 2 */
+
+no_controlchar_punctuation_digits=compress('foo,bar.8', , 'CPD');
+
+ /* Set flag when the sum of certain vars is greater than 10: */
+array nvars[*] x1-x3; if sum(of nvars[*]))>10 then flag=1; else flag=0;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3923,7 +3933,7 @@ rsync -avP --delete dir1/ bheckel@talon3://mnt/nfs/home/bheckel/tmp/1440187439_2
 # Megfile about 100MB
 dd if=/dev/zero of=biggarbage bs=10000 count=10000
 
-# Find a partial string:
+# Find a partial contains string:
 if [[ "$f" == *"elet"* ]]; then  # wildcard
 if [[ $string =~ .*My.* ]]; then  # regex
 
@@ -5478,7 +5488,9 @@ set termout off
 
 @font-face { font-family: 'myf'; src: url('PRISTINA.ttf') format('truetype'); font-weight: normal; font-style: normal; }
 
-COALESCE(field1, field2) -- checks the value of each column in the order in which they are listed and returns the first nonmissing value. If only one column is listed, return the value of that column. If all the values of all arguments are missing, return a missing value
+ /* If only one column is listed, return the value of that column. If all the values of all arguments are missing, return a missing value. */
+COALESCE(field1, field2, field3-field5) /* checks the value of each column in the order in which they are listed and returns the first nonmissing value */
+COALESCE(field5-field1) 
 
 <script type="text/javascript">document.getElementById('txtCDInfo').innerHTML="new text!";</script>
 
@@ -6057,5 +6069,8 @@ select date_trunc('MONTH', now())-'1 month'::interval;
 
 -- Postgres bulk load a textfile to a table:
 \COPY analytics.obcdaily (client_name, , job_type_extra, att_count) FROM /Data/psql_import_temp.csv CSV HEADER
+
+-- Postgres windowing function, attach department average calculation to each row by department:
+SELECT depname, empno, salary, avg(salary) OVER (PARTITION BY depname) FROM empsalary;
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

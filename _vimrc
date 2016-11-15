@@ -1831,30 +1831,30 @@ if !exists("autocommands_loaded")
     au BufWritePost *.exe,*.pdf set nomod | endif
   augroup END
 
-  augroup encrypted
-    au!
-    " TODO have to force this even if orig pre-encrypted file is ff=unix
-    " not sure how to handle actual dos fmtd files
-    autocmd BufReadPre,FileReadPre      *.gpg set ff=unix
-    " First make sure nothing is written to ~/.viminfo while editing
-    " an encrypted file.
-    au BufReadPre,FileReadPre      *.gpg set viminfo=
-    au BufReadPre,FileReadPre      *.gpg set noswapfile
-    " Switch to binary mode to read the encrypted file
-    au BufReadPre,FileReadPre      *.gpg set bin
-    au BufReadPre,FileReadPre      *.gpg let ch_save = &ch|set ch=2
-    au BufReadPost,FileReadPost    *.gpg '[,']!gpg --decrypt 2> /dev/null
-    " Switch to normal mode for editing
-    au BufReadPost,FileReadPost    *.gpg set nobin
-    au BufReadPost,FileReadPost    *.gpg let &ch = ch_save|unlet ch_save
-    au BufReadPost,FileReadPost    *.gpg execute ":doautocmd BufReadPost " . expand("%:r")
-
-    " Convert all text to encrypted text before writing
-    au BufWritePre,FileWritePre    *.gpg '[,']!gpg -ca 2>/dev/null
-    " Undo the encryption so we are back in the normal text, directly
-    " after the file has been written.
-    au BufWritePost,FileWritePost    *.gpg u
-  augroup END
+"""  augroup encrypted
+"""    au!
+"""    " TODO have to force this even if orig pre-encrypted file is ff=unix
+"""    " not sure how to handle actual dos fmtd files
+"""    autocmd BufReadPre,FileReadPre      *.gpg set ff=unix
+"""    " First make sure nothing is written to ~/.viminfo while editing
+"""    " an encrypted file.
+"""    au BufReadPre,FileReadPre      *.gpg set viminfo=
+"""    au BufReadPre,FileReadPre      *.gpg set noswapfile
+"""    " Switch to binary mode to read the encrypted file
+"""    au BufReadPre,FileReadPre      *.gpg set bin
+"""    au BufReadPre,FileReadPre      *.gpg let ch_save = &ch|set ch=2
+"""    au BufReadPost,FileReadPost    *.gpg '[,']!gpg --decrypt 2> /dev/null
+"""    " Switch to normal mode for editing
+"""    au BufReadPost,FileReadPost    *.gpg set nobin
+"""    au BufReadPost,FileReadPost    *.gpg let &ch = ch_save|unlet ch_save
+"""    au BufReadPost,FileReadPost    *.gpg execute ":doautocmd BufReadPost " . expand("%:r")
+"""
+"""    " Convert all text to encrypted text before writing
+"""    au BufWritePre,FileWritePre    *.gpg '[,']!gpg -ca 2>/dev/null
+"""    " Undo the encryption so we are back in the normal text, directly
+"""    " after the file has been written.
+"""    au BufWritePost,FileWritePost    *.gpg u
+"""  augroup END
 
   " This block must be placed near end of au commands for syntax coloring to
   " be disabled.
