@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Wed 05 Oct 2016 16:16:22 (Bob Heckel)
+" Modified: Wed 23 Nov 2016 15:32:54 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -484,6 +484,7 @@ set nobackup
 
 " Avoid placing swapfiles where other users might be confused by them
 if has('gui_win32')
+  " TODO determine drive letter
   set directory=c:/temp/
 else
     set directory=~/tmp/

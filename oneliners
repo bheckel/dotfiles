@@ -1489,6 +1489,7 @@ select distinct 'literal ' as hardcodedfieldname, region 'display reggy all for 
 
  /* Canonical transpose, sex goes as column now */
 proc transpose data=tmp out=tmp2(drop= _NAME_ _LABEL_) prefix=Sx; by state; id sex; var result; copy comment1 comment2; run;
+proc transpose data=t out=t2; by mo;<---THE FORMER COLUMN  id clientstoreid;<--THE NEW COLUMN; run;
 
 libname INXML XML "&SYSPARM\&DATASRC..xml" access=READONLY; proc contents data=INXML._all_;run; data tmp; set INXML.table; run;
 
@@ -2077,7 +2078,7 @@ if reverse(upcase(left(trim(f)))) eq: 'FDP';
 1-For nominally good SAS I/O performance, you should see job steps in your SAS logs with combined CPU + User CPU time within 10% of the Real Time.
 2-As a general rule, the User CPU Time value added to the System CPU Time value should be fairly close to the Real Time value. If the Real Time value is much higher, as it is in this example, then you have a problem that needs to be corrected. 
 
- /* Append Excel worksheet to an existing multi tab workbook: */
+ /* Append export write Excel worksheet to an existing multi tab workbook: */
 PROC EXPORT DATA=sashelp.prdsale OUTFILE="t.xlsx" DBMS=XLSX REPLACE; SHEET="PRSALE"; RUN;
 
  /* SAS EG default port is 8561 */
@@ -2618,8 +2619,8 @@ find . -inum 123 -exec rm -i {} \;
 # Recursively update timestamps on all files and directories from current one downward:
 find . | xargs touch
 
-# Find test files except for test.log:
-find -name 'test????' -a ! -name '*.log'
+# Find files except for file named foo.log:
+find -name 'foo????' -a ! -name '*.log'
 
 # To find permissions setuid and setgid file.  Spaces around parens are mandatory, the -a isn't.
 find / -type f -a \( -perm -4000 -o -perm -2000 \) -print
@@ -2765,11 +2766,6 @@ find . -inum 41734 -exec mv {} thenrmthisfile \;
 
 # Find out types of files/executables in ~/bin:
 for i in ~/bin/*; do file $i; done;
-
-# Do something to all files of a specific filetype:
-for f in `echo *.shn`; do shorten -x $f; done
-# or better (depending on the shell)
-for f in *.shn; do shorten -x $f; done
 
 # Find multiple pattern filenames and open all in vi
 vi `find . -name '*merge*' -o -name '*join*'`  # DON'T USE ...| xargs vi
@@ -3993,6 +3989,16 @@ $ rename $'\r' '' tmm_build_multiple_clients.44*
 $ rename 'fdw.csv' 'fdw.ORIG.csv' *.csv
 
 uuencode /Drugs/TMMEligibility/Studies/QC_DelhcaInc.pdf | mail -s 'mail attachment' bob.heckel@ateb.com
+
+# Shell file test operators comparisons flags:
+-e filename # exists
+-d filename # is a directory. 
+-f filename # is an ordinary file
+-r filename # can be read by the process.
+-s filename # has a nonzero length
+-w filename # can be written by the process
+-x filename # is executable
+-L filename # is a symbolic link
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5669,6 +5675,7 @@ select sysdate-2 from dual
 
 Windows work gvim GUI Target: icon:
 "C:\Program Files\Vim\vim73\gvim.exe" -u u:\code\misccode\_vimrc
+or better just point to your .vimrc using D:\Program Files (x86)\Vim\_vimrc:  source d:/cygwin64/home/bob.heckel/dotfiles/_vimrc
 
 Windows commandline CPU monitor (must do locally, can't do it remotely with /U /P /S like systeminfo)
 c:\> wmic cpu get loadpercentage
@@ -6019,7 +6026,7 @@ where created>='2016-05-11' and created<'2016-05-12'
 select min(filldate), max(filldate) from sdfarchive where filldate >= date_trunc('MONTH', now())-'1 month'::interval and filldate < date_trunc('month', NOW())-'1 month'::interval+'1 month'::interval;
 
 -- Postgres extract months:
-select clientstoreid, to_char(filldate, 'YYYY-MM') as mo, count(*) as cnt ...
+select clientstoreid, to_char(filldate, 'YYYY-MM') as mymonth, count(*) as cnt ...
 select SUM(amount) as sales, date_trunc('month', created_at)::date as date from orders group by date order by date DESC;
 
 -- Postgres substr:
@@ -6072,5 +6079,8 @@ select date_trunc('MONTH', now())-'1 month'::interval;
 
 -- Postgres windowing function, attach department average calculation to each row by department:
 SELECT depname, empno, salary, avg(salary) OVER (PARTITION BY depname) FROM empsalary;
+
+masked_patientkey = encode(digest(coalesce(split_part(patientnamefirst, ' ', 1),'') || patientnamelast || (case when patientdob is not null then to_char(patientdob,'yyyy-MM-dd') else '' end) || substring(coalesce(patientposctalcode, ''), 1,5), 'sha256'),'hex')
+select digest(patientnamefirst,'sha1') from rxfilldata_parent limit 1;
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
