@@ -599,6 +599,9 @@ vi -d /Drugs/update_shortname_ds.sas scp://bheckel@sas-01.mrk.ateb.com//Drugs/up
 
 " Quickfix  :cw
 
+;; Light Table
+[:editor.keys.vim.normal "space" :editor.page-down
+
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -931,10 +934,9 @@ data; set SASHELP.shoes; if _N_ eq 1 then rc=prxparse("/ica$/"); retain rc; if p
 %if not %index(&endyr, 20) %then %abort;
 data _NULL_; abort abend 008; run;
 
- /* macro in() for macro */
-%if %sysfunc(indexw(AK AR VI WV, &STATE)) %then %do; %put is in list; %end;
- /* macro not in for macro multiple values */
-%if not %sysfunc(indexw(&RANGEVARS, &VAR)) %then %do; %put is NOT in list; %end;
+ /* IN list for macro in() for macro where &rpclients is %str(1059 999A 999B) */
+%if %sysfunc(indexw(&rpclients, &SYSPARM)) %then %let redpoint_client=Y; %else %let redpoint_client=N;
+%if not %sysfunc(indexw(&rpclients, &SYSPARM)) %then %let redpoint_client=N; %else %let redpoint_client=Y;
 
  /* Remove trailing dot */
 myvar = trim(translate(myvar, '', '.'));
@@ -1417,11 +1419,15 @@ proc means data=sashelp.shoes; class region; var sales; run;
 proc means data=sashelp.shoes NOprint; output out=t; class region; var sales; run;
 proc summary data=sashelp.shoes PRINT; class region; var sales; run;
 proc sql; select region, count(sales), sum(sales) format=DOLLAR16. from sashelp.shoes group by region; quit;
- /* Count missings: */
+ /* Count numeric missings: */
 proc means data=sashelp.class N NMISS; run;
 proc sort data=sashelp.class out=t; by sex; run; proc means data=t N NMISS; by sex; var height; run;
 proc sort data=sashelp.class out=t; by sex;run; proc means data=t N NMISS; class sex; var height; output out=t2; run;
 proc means data=sashelp.shoes MEDIAN; var sales; run;
+
+ /* Canonical count missings: */
+proc sql; select count(*) from l.Publix_pharmacydata where pharmacypatientid is null ; quit;
+proc sql; select count(case when pharmacypatientid eq '' then . else 1 end) as found, count(case when pharmacypatientid ne '' then . else 1 end) as notfound from l.Publix_pharmacydata quit;
 
  /* SAS error message V8 at least: */
 NOTE: BY-line has been truncated at least once.  /* fix with options ls=max */
@@ -1863,7 +1869,7 @@ filerecdate=input("&CURRDT", YYMMDD8.);
  /* Force macro lib to close */
 proc catalog c=work.sasmac1 force kill;quit;
 
- /* Choose default if better not available (or both exist) */
+ /* Choose macro variable default if better not available (or both exist) */
 %let name=%sysfunc(coalescec(&default., &better.));
 
  /* Calculate person's age: */
@@ -1901,6 +1907,9 @@ if substr(bin, verify(bin,'0')) in ('4336') ...
  /* Count days */
 sum(case when date(pickeduptimestamp) between '01MAR2015' and '31MAR2015' then 1 else 0 end) as Mar2015,...
 sum(case when status='OPTOUT' then 1 else 0 end)/count(*) OPTOUT format percent8.2 as opt_rate
+
+ /* Count number of distinct y values when x is less than 30: */
+select count(distinct y) as unique_y, count(distinct case when x < 30 then y else . end) as unique_criteria
 
  /* Do something every 5 days: */
 %let mod=%sysfunc(mod((%sysfunc(today())-"17JUN2015"d),5));  %if &mod eq 0 %then ...
@@ -2219,6 +2228,18 @@ no_controlchar_punctuation_digits=compress('foo,bar.8', , 'CPD');
 
  /* Set flag when the sum of certain vars is greater than 10: */
 array nvars[*] x1-x3; if sum(of nvars[*]))>10 then flag=1; else flag=0;
+
+ /* Count number of items in a list: */
+%put !!!%sysfunc(countw(a bb ccc));
+
+ /* Self join. Only take the lowest age if there are more than one: */
+select * from rxfilldata_extra a left join rxfilldata_extra b on (a.storeid=b.storeid and a.pharmacypatientid=b.pharmacypatientid and a.age>b.age)
+
+ /* Transpose long to wide: */
+proc transpose data=t out=t2(drop=_NAME_); by mo; id name; run;
+
+ /* Open EG sessions: */
+ps -ef |grep sasexe
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4000,6 +4021,12 @@ uuencode /Drugs/TMMEligibility/Studies/QC_DelhcaInc.pdf | mail -s 'mail attachme
 -x filename # is executable
 -L filename # is a symbolic link
 
+# Lookup username from user number id:
+getent passwd "594" | cut -d: -f1
+
+# More powerful than xargs:
+for f in $(find . -name '*.log'); do echo $f; saslog_grep.pl $f | grep ERROR; done;
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -4432,6 +4459,8 @@ perl -ne 'push @x, unpack "@1 A36 @37 A36",$_; END{$i=1;for(@x){print "$_\t"; if
 awk '/first word/, /last word/ {print}' startendpatt.txt
 # Same (don't need  while(<>){...}  when using -ne)
 perl -ne 'print if /first word/ .. /last word/' startendpatt.txt
+
+find /u/dwj2/mvds/NAT -type d | perl -ne 'print if /NAT/ and !/2004|2005/'; 
 
 # Extract print a section of a file where you know the start and end line numbers:
 perl -ne 'print if 15 .. 17' foo.txt  # inefficient but simple
