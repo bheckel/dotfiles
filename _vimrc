@@ -1901,6 +1901,7 @@ if !exists("autocommands_loaded")
   " TODO
   au BufNewFile,BufEnter *.py set tabstop=4
 
+  au BufReadCmd *.egp call zip#Browse(expand("<amatch>"))
 
   "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_

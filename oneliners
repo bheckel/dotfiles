@@ -7,7 +7,7 @@
 #           Comments are often written for searching, not proper English
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Mon 14 Nov 2016 14:56:41 (Bob Heckel)
+# Modified: Tue 20 Dec 2016 14:05:04 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -657,10 +657,7 @@ Runaway GUI SAS killer:
 proc datasets library=WORK; kill; QUIT;  /* !not just RUN; */
 proc datasets NOlist library=l; delete patmod_all_cha rxfilldata_all_cha; run; quit;
 
- /* Column input with some missing data -- use TRUNCOVER List input with some
-  * missing data at the rightmost edge -- use MISSOVER to keep SAS from trying
-  * the next line (e.g. when you're not using @@ and want it to keep going)
-  */
+ /* Column input with some missing data -- use TRUNCOVER List input with some missing data at the rightmost edge -- use MISSOVER to keep SAS from trying the next line (e.g. when you're not using @@ and want it to keep going) "SAS went to a new line when" */
 
  /* Print list describe paths to SAS libname libraries: */
 libname _ALL_ list;
@@ -938,15 +935,17 @@ data _NULL_; abort abend 008; run;
 %if %sysfunc(indexw(&rpclients, &SYSPARM)) %then %let redpoint_client=Y; %else %let redpoint_client=N;
 %if not %sysfunc(indexw(&rpclients, &SYSPARM)) %then %let redpoint_client=N; %else %let redpoint_client=Y;
 
- /* Remove trailing dot */
+ /* Remove trailing dot (var, new, old): */
 myvar = trim(translate(myvar, '', '.'));
+ /* Convert A to 1, B to 2, etc and convert char2num: */
+code2num = input(translate(jobcode,'12345','ABCDE'),1.);
 
  /* Simple datetime stamp: */
 dts=put(datetime(),DATETIME16.);
 %put %sysfunc(datetime(),DATETIME.);  /* same */
 %put %sysfunc(putn(%sysfunc(datetime()),DATETIME.));  /* same, useless */
 
- /* Time a job */
+ /* Time a job: */
 %let _start=%sysfunc(time()); %put NOTE: %sysfunc(getoption(SYSIN)) started: %sysfunc(putn(%sysfunc(datetime()),DATETIME.));
   ...code...
 %put NOTE: SYSCC: &SYSCC (%sysfunc(getoption(SYSIN)) ended: %sysfunc(putn(%sysfunc(datetime()),DATETIME.)) / minutes elapsed: %sysevalf((%sysfunc(time())-&_start)/60));
@@ -1368,6 +1367,10 @@ start='01jan2013'd; nextweek=intnx('week', start, 1); nextweekEND=intnx('week', 
 start='11jan2013'd; monthStart=intnx('month', start, 0, 'b'); /* first day of month: */
 start='11jan2013'd; monthEnd=intnx('month', start, 0, 'e');   /* last day of month */
 
+ /* Calculate person's age (number of year boundaries crossed): */
+age = intck('YEAR', today(), dateofbirth)*-1;
+select *, (intck('YEAR', today(), patientdob)*-1) as age
+
  /* Macro date - change format reformat date into a macrovar: */
 %let mydt='30OCT2015'; %let newdt=%sysfunc(putn("&mydt"D, YYMMDD10.));
 %let mydt='30OCT2015'; %let mydtplusone=%sysfunc(intnx(day, "&maxdate"D, 1, b), YYMMDD10.);
@@ -1378,11 +1381,16 @@ start='11jan2013'd; monthEnd=intnx('month', start, 0, 'e');   /* last day of mon
  /* intnx shifted index - when is the next election day after the upcoming one?: */
 %let nextelectionday=%sysfunc(intnx(year4.11, %sysfunc(today()), 2), DATE9.);
 
- /* fiscalStart=01OCT2016 fiscalEnd=30SEP2017 */
+ /* Fixed fiscal date range fiscalStart=01OCT2016 fiscalEnd=30SEP2017 */
 data; format fiscalStart fiscalEnd date9.; fiscalStart= intnx('year.10', '03OCT15'd, 1, 'b'); fiscalEnd= intnx('year.10', '01OCT15'd, 1, 'e'); run;
 
  /* Last day of previous month (31dec1999): */
 past = intnx('month', '01jan2000'D, -1, 'E');
+data; previous_mo = intnx('month', '01jan2000'D, -1, 'E'); put previous_mo=; put previous_mo= DATE9.; run;
+ /* First day of year this year */
+data; newyearsday = put(intnx('year', "&SYSDATE"D, 0, 'B'), DATE9.); put newyearsday=; run;
+%let newyearsday=%sysfunc(intnx(YEAR, "&SYSDATE"D, 0, B), DATE9.);  /* can't handle quotes! does not need put() ! */
+%let newyearseve=%sysfunc(intnx(YEAR, "&SYSDATE"D, 0, E), DATE9.);
 
  /* Calculate yesterday date in macro date calculation: */
 %let yesterday=%sysevalf("&SYSDATE"D-1);                                                 /* 20322 */
@@ -1408,6 +1416,14 @@ data _null_; lastsaturday = intnx('week', "&SYSDATE"D, 0, 'B')-1; call symput('d
 
  /* Leap year is accomodated: */
 intnx('YEAR', '29feb2000'd, 2, 'SAME');  /* 28feb2002 */
+
+ /* First day of the month 6 months after discharge: */
+FollowupDate = intnx('month', DischrDate, 6);
+ /* Same day of the month 6 months after discharge: */
+FollowupDate = intnx('month', DischrDate, 6, 'SAMEDAY');
+
+ /* Convert date beginning of month six months ago to end of previous month: */
+%let minbom=%sysfunc(intnx(MONTH, "&SYSDATE"d, -6, B),date9.); %let maxbom=%sysfunc(intnx(MONTH, "&SYSDATE"d, -1, E),date9.);
 
 proc sql; select "%sysfunc(putn(%sysevalf("&SYSDATE"D+30),DATE9.))" as expireinonemonthdate ...
 
@@ -1512,25 +1528,33 @@ put '!!!' _INFILE_;
  /* Loop all characters in dataset without an index: */
 array cs _CHARACTER_; do over cs; if cs eq: 'foo' then cs='bar'; end;
 
- /* Single trailing at sign (for ID field) @ vs. Double trailing (for repeating blocks) @@ */
-@  holds record in input buffer so that logic can be used to figure out which (next) INPUT statement to us.  More than one INPUT statement exists in data step.  Releases when control returns to top of data step.
-@@ holds a record across multiple iterations of the DATA Step to allow reading multiple obs from a single line of raw data.  A single INPUT statement exists in data step.  Releases when the end of the raw RECORD is reached  or an @[@]-less INPUT statement is encountered.
+ /* Single trailing at sign  @ vs. Double trailing at sign @@ */
+@  holds record in input buffer so that logic can be used to figure out which (next) INPUT statement to use.  More than one INPUT statement exists in data step.  Releases when control returns to top of data step.
+@@ holds a record across multiple iterations of the DATA Step to allow writing multiple obs from a single line of raw data.  A single INPUT statement exists in data step.  Releases when the end of the raw RECORD is reached or an @[@]-less INPUT statement is encountered.
 
  /* SAS Date format checker: */
-data _null_; d1 = input('01-JAN-60', DATE9.); d2 = input('01/01/2009', MMDDYY10.); put _all_; run;
+data _null_; num1=input('01-JAN-60', DATE9.); num2=input('01/01/1960', MMDDYY10.); num3='01-JAN-60'd; char=put(0, DATE9.); put _all_; run;
 
  /* Build large dummy dataset: */
 proc surveyselect data=SASHELP.shoes out=stacked samprate=1 reps=50000000; run;
 
  /* char2num - think "I"NPUT is closer to "C"HAR so use that to convert a character to a numeric: */
+num = input(char, ?? 8.);  /* char2num and suppress SAS Log "NOTE: Invalid argument to function INPUT at line..." & _ERROR_=1 */
+num = input(char, ?? BEST. -L);  /* overkill?? */
  /* num2char - think "P"UT is closer to "N"UM so use that to convert a numeric to a character: */
-num = input(char, ?? BEST. -L);  /* canonical char2num and suppress SAS Log "NOTE: Invalid argument to function INPUT at line..." & _ERROR_=1 */
-num = input(char, COMMA7.);  /* take char string 123,456 and store as a num 123456 */
 char = put(num, BEST. -L);  /* integer num2char  (may need: if mynum=. then mynum=' ') */
 char = put(num, 12.2 -L);  /* floating point num2char */
-data numds(drop=TMP:); set chards(rename=(clientid=TMPclientid)); clientid=input(TMPclientid, ?? BEST. -L); run;  /* char2num num2char convert dataset */
+char = '5,000'; num = input(char, COMMA7.);
+
+ /* Canonical char2num swap and drop */
+data nums; set chars(rename=(Height=Char_Height Date=Char_Date)); Height=input(Char_Height,8.); Date=input(Char_Date,mmddyy10.); drop Char_:; run;
+ /* Canonical num2char */
+data chars; set nums; Char_Date=put(SASDate,DATE9.); Char_Cost=put(Cost,DOLLAR10.); drop SASDate Cost; run;
  /* char2num substring to numeric: */
 num = input(substr(char,3,2), 4.);  /* substr() alone produces a char, convert it to num */
+
+ /* Char2num make both vars numeric on the fly for the join: */
+from csv3 a left join db52 b on a.storeid_csv=input(b.storeid_db5, 8.) and a.pharmacypatientid_csv=input(b.pharmacypatientid_db5, 8.)
 
  /* 20151001 to 201510 while remaining a number: */
 shortmo=floor(month/100);
@@ -1573,7 +1597,7 @@ input (name1-name12) ($)  @@;
 input (Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec) (1.);  /* read raw 111222333444 */
 
 array elements{5} $2 _TEMPORARY_ ('H','He','Li','Be','B'); /* cannot use '{*}' here */
- /* Multidimensional array 3 rows, 25 columns: 1-25 26-50 51-75 */
+ /* Multidimensional array 3 rows, 25 columns: 1-25 26-50 51-75.  Good for looking up an item in a table R1C1 style. */
 array a{3,25} v1-75;  /* to access v50: a{2,25} */
 
  /* Standard, SAS column input readable, numerics: -15, 15.4, +.05, 1.54E3, -1.54E-3  But still may be able to use formatted input, COMMA12.2 etc, for nonstandards ($ or % or ,). */
@@ -1872,11 +1896,7 @@ proc catalog c=work.sasmac1 force kill;quit;
  /* Choose macro variable default if better not available (or both exist) */
 %let name=%sysfunc(coalescec(&default., &better.));
 
- /* Calculate person's age: */
-age = int((intck('YEAR', today(), dateofbirth)))*-1;
-select *, (int(intck('YEAR', today(), patientdob))*-1) as age
-
- /* mkdir -p /home/bheckel/testdir  No quotes! */
+ /* Same as $ mkdir -p /home/bheckel/testdir.  No quotes! */
 %let newdir=%sysfunc(dcreate(testdir, /home/bheckel/));
 
  /* Create nested dirs, alternative to dcreate() */
@@ -1885,7 +1905,7 @@ options dlcreatedir; libname res ("&outdir./results", "&outdir./results/images")
  /* Avoid EG overwhelm bug: */
 ods _ALL_ close; ods noresults; ods PDF file='t.pdf'; ...; ods PDF close;
 
- /* Skip non-PDF files */
+ /* Skip non-PDF suffixed files */
 if reverse(upcase(left(trim(myf)))) eq: 'FDP';
 
  /* Clean out delete WORK.  !SASHOME/bin/utilities */
@@ -2047,9 +2067,6 @@ option SASTRACE=",,,d" no$stsuffix SASTRACELOC=saslog;
 else if flag=3 then chardata=inputc(char_data,"$UPCASE22.");
 else if flag=3 then sasnumdate=inputn(char_date,"YYMMDD10.");
 
- /* Char2num make both vars numeric on the fly for the join: */
-from csv3 a left join db52 b on a.storeid_csv=input(b.storeid_db5, 8.) and a.pharmacypatientid_csv=input(b.pharmacypatientid_db5, 8.)
-
  /* Create composite proc sql index: */
 proc sql; create index places on sql.newcountries(name, continent); quit;
 
@@ -2147,9 +2164,6 @@ select put(input(storenum,4.),z4.) as clientstoreid, ...
  /* Delete obs if all vars are missing: */
 options missing=''; ... if missing(cats(of _ALL_)) then delete;
 
- /* Convert date beginning of month six months ago to end of previous month: */
-%let minbom=%sysfunc(intnx(MONTH, "&SYSDATE"d, -6, B),date9.); %let maxbom=%sysfunc(intnx(MONTH, "&SYSDATE"d, -1, E),date9.);
-
  /* Double ampersand macro resolution: */
 %let n=3; %let x3=thisprints; %put &&x&n;
  /* Triple ampersand macro resolution: */
@@ -2195,10 +2209,12 @@ select atebpatientid, storenum, cats(%rml0(storenum),pharmacypatientid) as upid,
  /* e.g. styletmpsas41DA9A76AE00C4374018000000000000 */
 %let uniqueid=style%sysfunc(scan(&SYSPROCESSNAME, 2))&SYSPROCESSID;
 
-/* Exclusion join to keep only the records with the minimum age when there are more than one */
+ /* Exclusion join to keep only the records with the minimum age when there are more than one */
 proc sql; select a.* from  l.rxfilldata_extra a left join l.rxfilldata_extra b on (a.storeid=b.storeid and a.pharmacypatientid=b.pharmacypatientid and a.age>b.age) where b.storeid is null and b.pharmacypatientid is null; quit;
 
+ /* Find second largest number: */
 second_largest_num=largest(2, 456, 789, .Q, 123);  /* 456 */
+fourth_smallest_num=ordinal(4, of q1-q4);
  /* SMALLEST function counts only nonmissing values */
 fourth_smallest_num1=smallest(4, 1, 2, 3, -4, 5, ., 7);  /* 3 */
 fourth_smallest_num2=ordinal(4, 1, 2, 3, -4, 5, ., 7);  /* 2 */
@@ -2240,6 +2256,20 @@ proc transpose data=t out=t2(drop=_NAME_); by mo; id name; run;
 
  /* Open EG sessions: */
 ps -ef |grep sasexe
+
+ /* Set default if day is missing: */
+if missing(day) then date = mdy(month,15,year); else date = mdy(month,day,year);
+
+ /* Check if string contains only Y or N.  Function returns the position of the first character in Answer that is NOT a Y or N otherwise 0 true: */
+if verify(strip(response), 'YN') then output errors;
+
+ /* Mildly regex-like, find v450 or V450.100 or v450abcd, 0 true if matched: */
+if compare(code, 'V450', 'i:') eq 0 then matched='Y';
+
+proc sql; select Subj, Height, Weight, mean(Height) as Ave_Height, 100*Height/CALCULATED Ave_Height as Percent_Height; quit;
+
+ /* Fill missings with previous visit's var using array: */
+...  array visit[*] visit:; do i=1 to dim(visit); if visit[i] ne . then do; prev=visit[i]; end; else visit[i]=prev; end; ...
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4189,6 +4219,9 @@ $x =~ /(.*,)/   <---greedily returns 'multi, comma,' in $1
 $x =~ /([^,]*,)/  <---$1 is "multi,"
 $x =~ /(,[^,]*,)/;   <---$1 is ", comma,"
 
+$x = 'be stingy very stingy please'; $x =~ s/.*stingy/xxx/; print $x;  <--- xxx please
+$x = 'be stingy very stingy please'; $x =~ s/.*?stingy/xxx/; print $x; <--- xxx very stingy please
+
 # Regex matches floating point numbers.
 /^[+-]?(\d+\.\d+|\d+\.|\.\d+|\d+)([eE][+-]?\d+)?$/
 # or regex that matches floating point numbers less Perlishly,
@@ -4302,13 +4335,6 @@ $ perl -ne '$_ =~ m/.{76}(..)/; print "$_" if $1 == 15' foo.txt
 perl -ne 'm/.{174}(\w)/; print if $1 eq "Y"' foo.txt
 
 # To sort on a specific column, see the Schwartzian transformation.
-
-# Slurp an entire file into a single variable -- make sure ff=unix !!
-my $contents = do { local $/ = <$fh> };  # old style
-# Can use __DATA__ filehandle like SAS' CARDS; or DATALINES to slurp;
-my $contents; { local $/ = undef; $contents = <DATA>; }  # old style
-# Slurp an entire file into a single variable -- make sure ff=unix !!
-my $contents = do { local $/=undef; open my $fh, '<', 'foo.txt' or die; <$fh>;};  # new style
 
 # Current time timestamp since the Epoch:
 print localtime();
@@ -4523,7 +4549,7 @@ ls | awk '/2001_\w/{print $1}'
 # Do something alternating days, will return '1' every other day.
 date | awk '{print $3}' | perl -e '$x = (<> % 2); END {print $x}'
 
-# Does a file exist?  Pop message box if so
+# Does a file exist?  Pop message box if so:
 perl -e 'system msgbox if (-f "./myfile.txt")'
 perl -e 'print "ok" if (-e "./bladerun_crawl")'
 
@@ -4549,6 +4575,7 @@ delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
 open OUT, "|more" or *OUT = *STDOUT;
 open IN, "ps|" or die "Can't start ps";
 
+# Parse delimited string:
 @x = split /:/,  "ab:cd:::ef:gh";  # two empty fields between cd and ef
 @y = split /:+/, "ab:cd:::ef:gh";  # one big fat delimiter between cd and ef
 
@@ -4641,7 +4668,7 @@ perl -MDBI -e 0
 
 die 'debug archwitutl.pm', scalar localtime;
 
-# Canonical system call
+# Canonical system call:
 system("/bin/ls  $_") if $. eq 1;
 system('mv', '-i', "$new", "$path/");
 
@@ -4694,7 +4721,7 @@ printf("%.3f", 3.1415926535);
 # Convert a hash to an array to make unique eliminate duplicates:
 %hash = map { $_, 1 } @array; @unique = keys %hash;
 
-# Canonical perl translate
+# Canonical perl translate:
 $novowels =~ tr/aeiou/!/;  # change any vowel in $novowels into !
 
 ($HOST = $host) =~ tr/a-z/A-Z/;  # uppercase en passant (but it's better to use \U and \L for Unicode)
@@ -4713,7 +4740,7 @@ $count = () = myarray();
 
 print 'hash key "c" is undefined and this will not autovivify it' if ! defined $h{c};
 
-# Canonical print an array
+# Canonical print an array:
 @a = ('a','b','c'); print "Hello, $_" for @a;
 
 # Canonical regex en-passant - EXTRACT first name (reads left to right)
@@ -4755,11 +4782,25 @@ perl -e 'print int(rand(51)) + 25;'  # <---integer from 25 to 75
 # Print 3 random numbers which will be 1, 2, 3 or 4
 for i in 1 2 3; do perl -e 'print int(rand(4)) + 1, "\n"'; done
 
-# Random password generator
+# Random password generator:
 perl -le 'print map { ("a".."z")[rand 26] } 1..8'
 
 # Print the longest line
 perl -ne '$l = $_ if length($_) > length($l); END { print $l }' bladerun_crawl
+
+# Paragrep - read in whole paragraph, not just one line
+$/ = '';
+# Slurp - read in whole file, not just one line or paragraph
+undef $/;
+
+# Slurp an entire file into a single variable -- make sure ff=unix !!
+my $contents = do { local $/ = <$fh> };  # old style
+
+# Can use __DATA__ filehandle like SAS CARDS; or DATALINES to slurp a fake file;
+my $contents; { local $/ = undef; $contents = <DATA>; }
+
+# Slurp an entire file into a single variable -- make sure ff=unix !!
+my $contents = do { local $/=undef; open my $fh, '<', 'foo.txt' or die; <$fh>;};
 
 # Paragrep - delete entire paragraph if word found in it:
 perl -00 -lne 'unless (/genetic/) {print}' bladerun_crawl
@@ -4809,8 +4850,24 @@ undef is always false
 
 my ($pkg, $file, $line) = caller(); print "DEBUG: this sub was called from $pkg in $file:$line\n";
 
-# Enforce mandatory parameters:
+# Enforce mandatory parameters from user:
 $ARGV[1] || die "Usage: $0 90 Imports";
+
+# Grouping regex.  Side effect is to capture to $1:
+m/house(cat|)/;  # matches either 'housecat' or 'house'
+
+# Regex with assignment on the fly:
+($hours, $minutes, $second) = ($time =~ /(\d\d):(\d\d):(\d\d)/);
+
+# Regex to find duplicated adjacent words using backreferences g1 g2 ...:
+m/(\w\w\w)\s\g1/;  # find sequences like 'the the'
+
+# Fill array using regex to split:
+$x='Calvin adn Hobbes'; @word = split /\s+/, $x;
+$x='/usr/bin'; @parts = split m!(/)!, $x;  # $parts[0] is '', $parts[1] is /, $parts[2] is usr ...
+
+# Paired regex delimiters instead of slash:
+s{/usr/local/}{/usr/share}g; 
 
 xxPERLxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5631,7 +5688,7 @@ select object_type, count(*) from dba_objects where owner='PKS_USER' group by ob
 // Font size attributes CSS
 h4 { color:#FFFF99; font-weight:bold; font-size:110%; font-style:italic; width:70%; border:1px dashed #333 }
 
--- Be careful with asterisks if tables aren't named identically
+UNION - match by column POSITION, UNION CORRESPONDING - match by column NAME (safer when using select *), using ALL in either causes dups to not be dropped (rare since records are then ambiguous but useful for stacking datasets like SAS' SET t1 t2)
 SELECT foo FROM tblfoo  UNION      SELECT bar FROM tblbar; -- stacks two tables and eliminates dups
 SELECT foo FROM tblfoo  UNION ALL  SELECT bar FROM tblbar; -- stacks two tables and keeps dups (rare since records are then ambiguous)
 
@@ -5642,7 +5699,7 @@ Excel uses exponentiation e.g. 1E+13 for large numbers - avoid by Format Cells :
 :: Find DNS info for a site (or IP)
 nslookup zdatapost.sgk.com
 
-What version of java are you running:
+What version of the hell that is java are you running:
 c:\> C:\ProgramData\Oracle\Java\javapath\java -fullversion
 
 -- Oracle concatenation
@@ -5658,6 +5715,7 @@ xmllint -schema Bookstore.xsd --noout Bookstore-XSD.xml
 au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
 
 alias lims='sqlplus sasrepor/sasrepor@sprd25'
+alias db6='psql -h db-06.wa.taeb.com ATEBMART'
 
 :: SELECT constant to provide an empty column 
 select '' as test_result, ...
@@ -6111,5 +6169,8 @@ SELECT depname, empno, salary, avg(salary) OVER (PARTITION BY depname) FROM emps
 
 masked_patientkey = encode(digest(coalesce(split_part(patientnamefirst, ' ', 1),'') || patientnamelast || (case when patientdob is not null then to_char(patientdob,'yyyy-MM-dd') else '' end) || substring(coalesce(patientposctalcode, ''), 1,5), 'sha256'),'hex')
 select digest(patientnamefirst,'sha1') from rxfilldata_parent limit 1;
+
+-- Postgres client encrypted using salt 'theirsalt', encrypt to compare with original pharmacypatientids hash
+select pharmacypatientid, encode(digest(pharmacypatientid||'theirsalt','sha1'), 'hex') as patient_num2, filldate
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
