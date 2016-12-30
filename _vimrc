@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Wed 23 Nov 2016 15:32:54 (Bob Heckel)
+" Modified: Tue 27 Dec 2016 10:10:25 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -771,9 +771,9 @@ map <F12> :q<CR>
 
 
 
-""""""""""""""""""""""""""
-" Begin ',' comma mapping
-""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""
+" Begin ',' comma map leader 
+""""""""""""""""""""""""""""""
 " Greenbar highlight every other line.  Also see HighlightCurrentLine()
 noremap ,<Tab> :set hls<CR>/\\n.*\\n/<CR>
 
@@ -866,7 +866,7 @@ noremap ,w :call WrapToggle()<CR>
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Begin ';' semicolon mapping 
+" Begin ';' semicolon map leader
 " (RSI warning: don't use uppercase, leave those contortions for emacs)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Comment out (using the most common comment style '###' for suffix-less files).
@@ -881,13 +881,13 @@ if has('unix')
   map ;0 <ESC>:!/usr/bin/firefox 'https://google.com/search?q=<C-R>=Websearch()<CR>'<CR><CR>
 endif
 
-" Quick save as /cygdrive/c/temp/1 etc.
+" Quick save as (usually) ~/tmp/1 for diff, etc.
 noremap ;1 :%call WriteToFile(VTMP, 1, 0)<CR>
 noremap ;2 :%call WriteToFile(VTMP, 2, 0)<CR>
 noremap ;3 :%call WriteToFile(VTMP, 3, 0)<CR>
 noremap ;4 :%call WriteToFile(VTMP, 4, 0)<CR>
 
-" Checkpoint current file:
+" Checkpoint backup current file:
 noremap ;5 :call BkupFile(VTMP)<CR>
 
 " Maximize window.  Alternative to z99.  <C-W>_ makes my hands hurt just
@@ -1061,6 +1061,8 @@ noremap <C-Y> 2<C-Y>
 " ;k ;ll
 noremap zz <C-W>w
 
+inoremap jk <Esc>
+
 " Reformat current paragraph to gq while in insert mode (avoid vap etc):
 inoremap <F1> <C-L><ESC>gqap{/<C-L><CR>xi
 
@@ -1110,7 +1112,7 @@ vnoremap <C-A> :Inc<CR>
 " Sum a column of digits.  Think (p)lus.  Assumes bc(1) exists.
 vnoremap <C-P> "ey:call CalcBC()<CR>
 
-" gvim - don't use, need right click for Paste on Linux (where there are multiple clipboards).
+" gvim - do not use, we need right click for Paste on Linux (where there are multiple clipboards)
 """nnoremap <RightMouse> <Insert>
 """inoremap <RightMouse> <ESC>
 
@@ -1156,26 +1158,26 @@ endif
 " echon 'debug print'
 "--------------------------------------------------------------------------
 
-fu! FixStatusLine()  " {{{2
-  " Allow status line separators to work in telnet, etc.
-  highlight StatusLine term=bold,reverse  cterm=bold,reverse  gui=bold,reverse
-  highlight StatusLineNC term=reverse  cterm=reverse  gui=reverse
-endfu
-" :call FixStatusLine() or  :Fix 
-command! -nargs=0 Fix call FixStatusLine()  " }}}
-
-
 fu! SASrunSelection()  " {{{2
-  '<,'>write! ~/tmp/t.sas | !~/code/sas/sasrun ~/tmp/t.sas
-" TODO
-"""  '<,'>write! s:vt/t.sas | !~/code/sas/sasrun s:vt/t.sas
-endfu  " }}}
+  '<,'>write! ~/tmp/SASrunSelection.sas | !~/code/sas/sasrun ~/tmp/SASrunSelection.sas
+endfu
+" :call SASrunSelection() 
+" This won't work:
+"""command! -nargs=0 Sas call SASrunSelection()  " }}}
 
 
 fu! CalcBC()   " {{{2
   " Highlight a calculation that has a trailing '=' and this will fill in the
-  " answer or echo the result if no '='.  Requires that bc(1) is available on
-  " the box.  See vnoremap ;B or vnoremap <C-B> to call.
+  " answer or echo the result if no '='.  Requires that bc(1) is available.
+  " <C-p> to call, think (p)lus
+  "
+  " E.g. highlight
+  " 1+2+3=
+  "
+  " or
+  " 1
+  " 2
+  " 3
   "
   " NOTE: This fn assumes that buffer 'e' holds the numbers to be summed!! (see <C-b>
   " mapping).
@@ -1229,82 +1231,19 @@ fu! CalcBC()   " {{{2
 endfu   " }}}
 
 
-fu! HelpPager(onoff)  " {{{2
-  " Use pager-like behavior on the Vim Help files.  See au commands.
-  " Check if app has already been loaded or "compatible" mode is set.
-  if exists("loaded_HelpPager") || &cp
-    finish
-  endif
-
-  echohl WarningMsg 
-  echon $HOME"/.vimrc's HelpPager is " . a:onoff
-
-  if a:onoff == 'on'
-    nmap <unique> b <C-B>
-    set timeoutlen=0
-    nmap <unique> g 1G
-    nmap <unique> j <C-E>
-    nmap <unique> k <C-Y>
-    nmap <unique> q :q<CR>
-    set tw=78
-    set wrap
-  elseif a:onoff == 'off'
-    nunmap b
-    set timeoutlen=300
-    nunmap g
-    nunmap j
-    nunmap k
-    nunmap q
-    set nowrap
-  endif
-endfu  " }}}
-
-
 fu! CDtoThisFilesLoc()  " {{{2
   " This changes Vim to the pwd (not the OS to the pwd)
-  " TODO how to keep spaces in name from freaking this out?
+  " TODO how to handle spaces in path?
   let _dir = expand("%:p:h")
   exec "cd " . _dir
   unlet _dir
 endfu  " }}}
 
 
-fu! Foldsearch(search)  " {{{2
-  " TODO describe wtf this does
-  " E.g. :Fs ^sub                            to get all Perl subs folded
-  " E.g. :Fs public\|protected\|private      to get API info in Java
-  normal zE          " erase all folds to begin with TODO how to avoid??
-  normal G$          " move to the end of the file
-	let folded = 0     " flag to set when a fold is found
-  let flags = "w"    " allow wrapping in the search
-  let line1 =  0     " set marker for beginning of fold
-  while search(a:search, flags) > 0
-    let  line2 = line(".")
-		" echo "pattern found at line # " line2
-    if (line2 -1 > line1)
-      " echo line1 . ":" . (line2-1)
-      " echo "A fold goes here."
-      execute ":" . line1 . "," . (line2-1) . "fold"
-			let folded = 1       " at least one fold has been found
-    endif
-    let line1 = line2     " update marker
-    let flags = "W"       " turn off wrapping
-  endwhile
-	" Now create the last fold which goes to the end of the file.
-  normal $G
-  let  line2 = line(".")
-	" echo "end of file found at line # " line2
-  if (line2  > line1 && folded == 1)
-    " echo line1 . ":" . line2
-    " echo "A fold goes here."
-    execute ":". line1 . "," . line2 . "fold"
-  endif
-endfu
-command! -nargs=+ -complete=command Fs call Foldsearch(<q-args>)  " }}}
-
-
 fu! MaxLineLen(printmaxlen)  " {{{2
   " This may be simpler:
+  " $ wc -L foo.txt
+  " or
   " echo max(map(range(1, line('$')), "virtcol([v:val, '$'])")
   "
   " Determine the longest line of a file
@@ -1332,6 +1271,7 @@ command! -nargs=0 Maxl call MaxLineLen(1)  " }}}
 
 
 fu! SetOpt(opt, val)  " {{{2
+  " Used to widen gvim to max column width
   let s:opt = a:opt
   let s:val = a:val
 
@@ -1348,7 +1288,7 @@ fu! BkupFile(vtpth)  " {{{2
   """echo 'head ' . s:head
   let s:tail = expand("%:e")
   """echo 'tail ' . s:tail
-  " Make it unique by the second
+  " Make it unique to the second
   let s:stamp = strftime("__%d%b%y_%H.%M.%S__")
 
   if len(s:tail) > 0
@@ -1364,9 +1304,9 @@ endfu  " }}}
 
 
 fu! Commadelim()   " {{{2
-  " Assumes data has one element to be single-quoted and terminated with ','
+  " Assumes data has one element per row to be single-quoted and terminated with ','
   " for each row.
-  " Assumes we'll highlight rows to be modified then: :'<,'>call Commadelim()
+  " Assumes we'll highlight rows to be modified then  :'<,'>call Commadelim()
    
   " Automatically loops lines
   let e = a:lastline
@@ -1375,7 +1315,7 @@ fu! Commadelim()   " {{{2
   let curr = line('.')
 
   if curr == e
-    " Don't do anything on the last line
+    " Don't add comma on the last line
     let n = substitute(m, "$", "'", "g")
   else
     let n = substitute(m, "$", "',", "g")
@@ -1408,23 +1348,8 @@ fu! HighlightCurrentLine()  " {{{2
 endfu  " }}}
 
 
-fu! BuffersList()  " {{{2
-  " From StackOverflow
-  let all = range(0, bufnr('$'))
-  let res = []
-  for b in all
-    if buflisted(b)
-      call add(res, bufname(b))
-    endif
-  endfor
-  return res
-endfunction
-" See bbb map or run manually e.g.:
-""":exe 'vimgrep/pattern/ '.join(BuffersList(),' ')
-" }}}
-
-
 fu! ReadFromFile(vtpth, fnm)  " {{{2
+  " Used by transfer/read and write one block of text between vim sessions/terminals maps
   let fqfn = a:vtpth . '/' . a:fnm
   exec("read " . fqfn)
 endfu
@@ -1432,6 +1357,7 @@ endfu
 
 
 fu! WriteToFile(vtpth, fnm, append, ...) range  " {{{2
+  " Used by transfer/read and write one block of text between vim sessions/terminals maps
   let lfirst = a:firstline
   let llast = a:lastline
 
@@ -1454,7 +1380,7 @@ endfu
 
 
 fu! Commentout(line, lang)  " {{{2
-"                                                   ___ not necessarily vim filetype, refers to my tags below!
+"                                                   ___ not necessarily vim filetype, refers instead to my tags below
 " E.g. :call setline('.', Commentout(getline('.'), 'sas') )
   let line = a:line
   let lang = a:lang
@@ -1582,10 +1508,9 @@ fu! AlignAssignments()  " {{{2
   endfor
 endfu
 """nmap <silent>  ;=  :call AlignAssignments()<CR>
-" }}}
 
 
-" Table of completion specifications (a list of lists)...   {{{2
+" Table of completion specifications (a list of lists)...   
 " Build a TAB key function that can:
 "  -Recognize special user-defined insertion contexts and complete them appropriately
 "   Fall back to regular CTRL-N completion after an identifier
@@ -4103,83 +4028,10 @@ let g:DirDiffExcludes = 'CVS,*.class,*.exe,.*.swp,*.sas7bdat,*.sas7bcat,*.lnk,*.
 " Needed to avoid losing my cpoptions setting above
 let &cpo = s:save_cpo  " /*}}}*/
 
-" 2013-07-23 inlined Sbd {{{
-" sbd.vim — Smart Buffer Delete
-"
-" :help sbd.txt
-if exists('loaded_sbd')
-    finish
-endif
-let loaded_sbd = 1
-
-if !exists('g:sbd_delete_anyway')
-    let g:sbd_delete_anyway = 0
-endif
-
-if !exists('g:sbd_close_special')
-    let g:sbd_close_special = 1
-endif
-
-let s:modeNormal = 'n'
-let s:modeCloseModified = 'm'
-
-silent command! -nargs=0 Sbd call <SID>DeleteBuffer(s:modeNormal)
-silent command! -nargs=0 Sbdm call <SID>DeleteBuffer(s:modeCloseModified)
-
-function <SID>DeleteBuffer(mode)
-    let s:sbdBuffer = bufnr("%")
-    let s:sbdBufferCount = 0
-    let s:sbdEmptyBuffer = 0
-    let s:sbdWindow = winnr()
-
-    if (a:mode != s:modeCloseModified
-                \ && getbufvar(s:sbdBuffer, '&modified') == 1
-                \ && g:sbd_delete_anyway == 0)
-        echom "sbd: save your changes first."
-        return
-    endif
-
-    for i in range(1, bufnr('$'))
-        if (getbufvar(i, '&buflisted') == 1 && getbufvar(i, '&modifiable') == 1)
-            let s:sbdBufferCount = s:sbdBufferCount + 1
-        endif
-    endfor
-
-    windo call s:PreserveWindowLayout()
-
-    if (getbufvar(s:sbdBuffer, '&buflisted') == 1)
-        execute "bdelete! " . s:sbdBuffer. ""
-    endif
-
-" switch to original window
-    execute "normal! " . s:sbdWindow . "\<C-w>\<C-w>"
-endfunction
-
-function s:PreserveWindowLayout()
-    if (s:sbdBuffer == bufnr("%"))
-        let prevBuffer = bufnr("#")
-
-" we're dealing with a special buffer
-        if (&buftype != "" && g:sbd_close_special == 1)
-            close
-
-" switch to a convenient buffer
-        elseif (s:sbdBufferCount <= 1 && s:sbdEmptyBuffer != 0)
-            execute "buffer! " . s:sbdEmptyBuffer
-        elseif (s:sbdBufferCount <= 1 && s:sbdEmptyBuffer == 0)
-            enew!
-            let s:sbdEmptyBuffer = bufnr('%')
-        elseif (prevBuffer > 0 && buflisted(prevBuffer) && prevBuffer != s:sbdBuffer)
-            buffer! #
-        else
-            bprevious!
-        endif
-    endif
-endfunction  " /*}}}*/
-
 
 " end 3rd Party Plugins
 "--------------------------------------------------------------------------
+
 
 " Machine or security-sensitive settings:
 if filereadable(glob("~/.vimrc.local")) 

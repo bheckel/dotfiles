@@ -1215,10 +1215,11 @@ x "move /Y lelimssumres01a.sas7bdat \\rtpsawn321\d\sql_loader\LeLimsSumres01a&su
  /* Tells SAS not to worry about keeping obs with the same BY variable values in the same order (for speed efficiency) */
 proc sql NOEQUAL ...
 
- /* DELETE returns to the top of the datastep w/o writing.
-  * RETURN returns to the top of the datastep with a default OUTPUT.
-  * LEAVE exits a loop.
-  * CONTINUE goes to the next iteration of the loop.
+ /* Control flow statements:
+  * DELETE returns to the top of the datastep w/o writing
+  * RETURN returns to the top of the datastep with a default OUTPUT
+  * LEAVE exits a loop (and branches to the first statement following the end of the DO loop)
+  * CONTINUE goes to the next iteration of the loop
   */
 
  /* PUT STATEMENT writes to a buffer (default: LOG) vs. INPUT statement reads from a buffer (default: CARDS) */
@@ -1510,8 +1511,15 @@ select distinct 'literal ' as hardcodedfieldname, region 'display reggy all for 
 %if %index(&the_type, natmer) %then %put found a natmer;
 
  /* Canonical transpose, sex goes as column now */
-proc transpose data=tmp out=tmp2(drop= _NAME_ _LABEL_) prefix=Sx; by state; id sex; var result; copy comment1 comment2; run;
+proc transpose data=t out=t2(drop= _NAME_ _LABEL_) prefix=Sx; by state; id sex; var result; copy comment1 comment2; run;
 proc transpose data=t out=t2; by mo;<---THE FORMER COLUMN  id clientstoreid;<--THE NEW COLUMN; run;
+
+ /* Transpose wide to long: */
+proc transpose data=wide out=long(where=(COL1 ne .)); by patient; var visit1-visit4; run;  
+data long; set wide; array v v:; do i=1 to dim(v); sname = vlabel(v{i}); value = v{i}; if not missing(value) then output; end; run;
+
+ /* Transpose long to wide: */
+proc transpose data=long out=wide(drop=_NAME_); by mo; id name; run;
 
 libname INXML XML "&SYSPARM\&DATASRC..xml" access=READONLY; proc contents data=INXML._all_;run; data tmp; set INXML.table; run;
 
@@ -2250,9 +2258,6 @@ array nvars[*] x1-x3; if sum(of nvars[*]))>10 then flag=1; else flag=0;
 
  /* Self join. Only take the lowest age if there are more than one: */
 select * from rxfilldata_extra a left join rxfilldata_extra b on (a.storeid=b.storeid and a.pharmacypatientid=b.pharmacypatientid and a.age>b.age)
-
- /* Transpose long to wide: */
-proc transpose data=t out=t2(drop=_NAME_); by mo; id name; run;
 
  /* Open EG sessions: */
 ps -ef |grep sasexe
@@ -6111,6 +6116,9 @@ psql -h db-06.twa.taeb.com ATEBMART -c "select to_char(lastmodified, 'yyyy-mm-dd
 where created>='2016-05-11' and created<'2016-05-12'
 -- Postgres 2016-09-01 thru 2016-09-30 date range:
 select min(filldate), max(filldate) from sdfarchive where filldate >= date_trunc('MONTH', now())-'1 month'::interval and filldate < date_trunc('month', NOW())-'1 month'::interval+'1 month'::interval;
+
+-- Postgres datetime truncated to date for grouping:
+select count(*), created::date from cce.ccepatientstaging where created >'2016-12-28' and clientid=2000000 group by created::date;
 
 -- Postgres extract months:
 select clientstoreid, to_char(filldate, 'YYYY-MM') as mymonth, count(*) as cnt ...
