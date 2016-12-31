@@ -129,7 +129,7 @@ alias lsd='find . -type d'
 alias one="vi $HOME/code/misccode/oneliners"
 ###alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
 alias qr=$HOME/code/misccode/quickref_find.sh
-alias rme=$HOME/code/misccode/rme
+###alias rme=$HOME/code/misccode/rme
 alias robots="export ROBOTOPTS=moveheaps,showscores,screwdriver,fastrobots; robots"
 alias sasrun=$HOME/code/misccode/sasrun
 alias sdf='ssh -l bheckel sdf.org; date'
