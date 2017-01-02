@@ -901,11 +901,11 @@ noremap ;c 0Di#  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel
 " Change (d)irectory to where the open file resides:
 noremap ;d :call CDtoThisFilesLoc()<CR>
 
+" Unflatten toggle, reflow to current tw:
+noremap ;ff mfvipJ`f
 " (F)latten paragraph to single line - prepare text for paste into an input
 " box, etc.
-noremap ;f mfvipJ`f
-" Unflatten toggle, reflow to current tw:
-noremap ;ff vipgq
+noremap ;f vipgq
 
 " (G)et Clipboard contents:
 if has('win32')
