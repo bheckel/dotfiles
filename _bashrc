@@ -105,6 +105,7 @@ alias cdv="cd $HOME/code/vb"
 alias cdvb="cd $HOME/code/vb"
 alias cls=clear  # like Windows
 alias datecalc=$HOME/code/perl/datecalc
+alias ddg='w3m http://duckduckgo.com/lite'
 alias f='fg'  # jobs -s  to list what's suspended
 alias g=$HOME/code/misccode/gone.sh
 # Can't use sed to eliminate leading spaces or it breaks coloring
@@ -132,7 +133,7 @@ alias lsd='find . -type d'
 alias one="vi $HOME/code/misccode/oneliners"
 ###alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
 alias qr=$HOME/code/misccode/quickref_find.sh
-###alias rme=$HOME/code/misccode/rme
+alias rme=$HOME/rme/rme
 alias robots="export ROBOTOPTS=moveheaps,showscores,screwdriver,fastrobots; robots"
 alias sasrun=$HOME/code/sas/sasrun
 alias sdf='ssh -l bheckel sdf.org; date'
