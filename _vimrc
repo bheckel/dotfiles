@@ -37,7 +37,7 @@
 
 let THISBOX = hostname()
 let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWL14H50510', 'sas-01.twa.ateb.com', 'sasdev-01.twa.ateb.com', 'SAS-01', 'SAS-02', 'sas-01.mrk.ateb.com' ]
-let HOMEBOXARRAY = [ 'yoniso', 'appa' ]
+let HOMEBOXARRAY = [ 'yoniso', 'appa', 'localhost' ]
 
 if has ('win32unix')
   let g:netrw_cygwin=1  " scp to be provided by Cygwin
