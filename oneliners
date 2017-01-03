@@ -597,10 +597,15 @@ vi -d /Drugs/update_shortname_ds.sas scp://bheckel@sas-01.mrk.ateb.com//Drugs/up
 " Find two strings in any order:
 /.*reboot\&.*box
 
-" Quickfix  :cw
+" Quickfix window
+:cw
 
-;; Light Table
+;; Light Table keys config
 [:editor.keys.vim.normal "space" :editor.page-down
+
+" Vim array
+let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWL14H50510','sas-01.mrk.taeb.com' ]
+if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
 
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
