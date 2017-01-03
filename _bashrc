@@ -4,7 +4,7 @@
 # Summary: bash config for at least Cygwin 1.3/1.5/1.7, Unix/Linux and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Wed 16 Nov 2016 11:00:06 (Bob Heckel)
+# Modified: Tue 03 Jan 2017 08:42:34 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -109,8 +109,11 @@ alias f='fg'  # jobs -s  to list what's suspended
 alias g=$HOME/code/misccode/gone.sh
 # Can't use sed to eliminate leading spaces or it breaks coloring
 alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
+alias gd='git diff'
+# git diff previous pull
+alias gdp='git show'
 alias gs='git status'
-alias gss='git status -s'
+alias gskfrom="echo 'retrieving from github...';echo; cd ~/dotfiles && git pull origin master; echo; cd ~/transfer && git pull origin master; echo 'extracting...'; ls -l ~/transfer/c; tar tvfz ~/transfer/c; sleep 7; cd ~ && tar xfz ~/transfer/c" 
 alias h='history|tail -20'  # history 20 is better if it exists
 # Poor-man's file sync.  See gskto gskfrom.  Using suffix-less tarball to
 # discourage email filtering.
@@ -131,7 +134,7 @@ alias one="vi $HOME/code/misccode/oneliners"
 alias qr=$HOME/code/misccode/quickref_find.sh
 ###alias rme=$HOME/code/misccode/rme
 alias robots="export ROBOTOPTS=moveheaps,showscores,screwdriver,fastrobots; robots"
-alias sasrun=$HOME/code/misccode/sasrun
+alias sasrun=$HOME/code/sas/sasrun
 alias sdf='ssh -l bheckel sdf.org; date'
 alias sl='ls --color=none'  # dyslexic daim branage
 alias sr="$HOME/code/sas/sasrun"
@@ -424,11 +427,9 @@ case "$OSTYPE" in
     ###alias budrsync='rsync -avz /home/bheckel/code/ root@buddha:/home/bheckel/code && rsync -avzL /home/bheckel/tobuddha/ root@buddha:/home/bheckel/tobuddha'
     # Cygwin fix.  Use the real fg for e.g. fg %2
     alias f='fg; echo'
-    alias gskfrom="echo 'retrieving from github...';echo; cd ~/dotfiles && git pull origin master; echo; cd ~/transfer && git pull origin master; echo 'extracting...'; ls -l ~/transfer/c; tar tvfz ~/transfer/c; sleep 7; cd ~ && tar xfz ~/transfer/c" 
     alias gv=gvim
     # Allow output to be triple clicked as a noop.
     ###alias h='history|tail -20|perl -pe "s/(\d+)(.*)/: \1; \2/"'
-    alias h='history|tail -20'
     # Friday afternoon run usually
 ###    alias hometo='ls -l ~/c && echo "...files newer than ^^^this^^^ one will be added to tarball..." && sleep 5 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd - && st ~'
     alias l='ls -GFw80 --color=none'   # for speed in Cygwin

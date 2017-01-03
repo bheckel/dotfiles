@@ -37,7 +37,6 @@
 
 let THISBOX = hostname()
 let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWL14H50510', 'sas-01.twa.ateb.com', 'sasdev-01.twa.ateb.com', 'SAS-01', 'SAS-02', 'sas-01.mrk.ateb.com' ]
-let HOMEBOXARRAY = [ 'yoniso', 'appa' ]
 
 if has ('win32unix')
   let g:netrw_cygwin=1  " scp to be provided by Cygwin
@@ -70,7 +69,7 @@ if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
     let VTMP = '~/bob/tmp'
     let VTMPU = '~/tmp'
   endif
-elseif matchstr(HOMEBOXARRAY, THISBOX) == THISBOX
+else
   if has('gui') && has('win32')
     " Windows gVim
     let VTMP = 'c:/temp'
@@ -576,11 +575,11 @@ if has('gui')
 endif
 
 " Use  :set guifont=*  to browse
-if matchstr(HOMEBOXARRAY, THISBOX) == THISBOX
-  set guifont=Consolas\ 8
-elseif has ('win32')
-  set guifont=Consolas:h8,Andale_Mono:h8,Lucida_Console:h8,Terminal:h8,Courier_new:h8,Courier:h7
-endif
+"""if matchstr(HOMEBOXARRAY, THISBOX) == THISBOX
+"""  set guifont=Consolas\ 8
+"""elseif has ('win32')
+"""  set guifont=Consolas:h8,Andale_Mono:h8,Lucida_Console:h8,Terminal:h8,Courier_new:h8,Courier:h7
+"""endif
 
 " For Win32 only.  Unix uses t_ti and t_te.
 set restorescreen
@@ -1635,7 +1634,7 @@ if !exists("autocommands_loaded")
     au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!c:/Progra~1/SASIns~1/SAS/V8/sas.exe -sysin %<CR>:args %:r.lst %:r.log<CR>
   else
     " Run my execute SAS shell script in a terminal:
-    au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!~/code/sas/sasrun %<CR>
+    au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!~/code/sas/sasrun %:p<CR>
   endif
 
   " Handle my ~/bin/sasrun script files
