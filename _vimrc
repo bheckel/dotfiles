@@ -144,7 +144,7 @@ hi Directory ctermfg=Magenta guifg=Magenta guibg=Black cterm=bold gui=bold
 """match ErrorMsg /[^\t]\zs\t\+/
 hi ErrorMsg ctermfg=Black ctermbg=Red guifg=Black guibg=Red
 
-hi Folded ctermfg=LightGray ctermbg=Black guifg=LightGray guibg=Black cterm=bold gui=bold
+hi Folded ctermfg=LightGray ctermbg=DarkGray guifg=LightGray guibg=DarkGray cterm=bold gui=bold
 
 hi Function ctermfg=Yellow guifg=LightYellow guibg=Black
 
@@ -159,7 +159,7 @@ hi MatchParen ctermfg=White ctermbg=Blue guifg=Cyan guibg=Magenta
 hi ModeMsg ctermfg=Black ctermbg=Yellow guifg=Black guibg=Yellow
 hi MoreMsg ctermfg=Blue ctermbg=Black guifg=Blue
 
-hi Number ctermfg=Magenta ctermbg=Black guifg=Magenta guibg=Black
+hi Number ctermfg=Magenta guifg=Magenta
 " :se rnu relative number gutter
 hi LineNr ctermfg=Black ctermbg=238 guifg=Black guibg=#444444
 
@@ -1826,6 +1826,9 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufEnter *.py set tabstop=4
 
   au BufReadCmd *.egp call zip#Browse(expand("<amatch>"))
+
+  " See my .bashrc function ses()
+  au BufReadCmd /tmp/bash-fc* nmap ;r :call ReadFromFile(VTMP, '.vimxfer_ses')<CR>
 
   "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
