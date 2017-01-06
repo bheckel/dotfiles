@@ -1248,6 +1248,9 @@ proc sql; select Subj, Height, Weight, mean(Height) as Ave_Height, 100*Height/CA
  /* Fill missings with previous visit's var using array: */
 ...  array visit[*] visit:; do i=1 to dim(visit); if visit[i] ne . then do; prev=visit[i]; end; else visit[i]=prev; end; ...
 
+Fix "ERROR: The connection to the X display server could not be made"
+ods graphics on;
+
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -4963,8 +4966,6 @@ Sheets("Centura").Cells.SpecialCells(xlCellTypeLastCell).Row
 
 Run MySQL from command-line
 $ mysql -t mydatabase < mysql.sql
-Run PostgreSQL from command-line
-$ psql invest < tmp.sql
 
 ' Iterate all Excel cells in a column range:
 For Each c In [b1:b400]
@@ -5013,10 +5014,10 @@ Capture current Cygpath in Cygwin:
 cygpath -w $PWD
 cygpath -w `pwd`
 
-Start PostgreSQL on Cygwin:
-$ ipc-daemon & postmaster -D ~/pg/data >| ~/pg/data/pg.log 2>&1 &
-Stop PostgreSQL on Cygwin:
-$ pg_ctl -D ~/pg/data stop 
+# Start PostgreSQL on Cygwin:
+ipc-daemon & postmaster -D ~/pg/data >| ~/pg/data/pg.log 2>&1 &
+# Stop PostgreSQL on Cygwin:
+pg_ctl -D ~/pg/data stop 
 kill -9 [ipc-daemon's pid]
 
 Show Windows pids (winpid) on Cygwin:
@@ -5263,11 +5264,7 @@ SQL> SELECT * FROM (SELECT * FROM t ORDER BY c) WHERE ROWNUM <= 10;
 -- Oracle describe table
 SQL> desc mytable
 
--- Postgres describe table (no schema prefix)
-select column_name, data_type, character_maximum_length
-from INFORMATION_SCHEMA.COLUMNS where table_name='mytbl'
-
--- Oracle what are the view names
+-- Oracle list view names
 SQL> select * from all_views where view_name like '%SPEC%'
 
 ' Debug ASP debugging:
@@ -5762,7 +5759,7 @@ ALTER USER limsarch IDENTIFIED BY new2dayJuly;
 ALTER USER limsarch IDENTIFIED BY "new2dayJuly" REPLACE "oldpw";
 
 -- Change password Postgres password
-ALTER USER heckel WITH PASSWORD 'syP@ss';
+ALTER USER heckel WITH PASSWORD 'myPass';
 
 -- Oracle copy table
 CREATE TABLE user_roleTEST AS SELECT * FROM user_role;  -- do something to TEST...
@@ -6016,7 +6013,9 @@ vi '\\okpsawn557\d$\oracle\ora81\network\ADMIN\Tnsnames.ora'
 sum(case when status = 'CANCEL' then 1 else 0 end) as cancelflag
 
 -- Postgres dates:
-where storeid in(&SID) and created > date('now') - interval '1 year'
+created > date('now') - 365
+created > date('now') - interval '1 year'
+-- Postgres today date:
 select date('now') - interval '1 month' as x
 -- Postgres data from last 2 days:
 select clientid, taskdate, hpprogramid, count(*) from naalytics.ehalthplanpatients_test where taskdate > date('now')-interval '2 day' group by clientid, taskdate, hpprogramid order by taskdate desc

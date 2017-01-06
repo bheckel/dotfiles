@@ -38,7 +38,7 @@ Usage() {
 Searches the 'database' ($F) for string
 matches, optionally looking in a particular section
 
-MUST backslash any literal regex characters (e.g. 'sql\*plus')"
+Must backslash any literal regex characters (e.g. 'sql\*plus')"
 
   exit 0
 }

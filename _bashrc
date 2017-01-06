@@ -110,8 +110,10 @@ alias g=$HOME/code/misccode/gone.sh
 # Can't use sed to eliminate leading spaces or it breaks coloring
 alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
 alias gdot="cd ~/dotfiles && git pull origin master && git add . && git commit -m'gdot' && git push origin master && cd -"
+alias grme="cd ~/rme && git pull origin master && git add . && git commit -m'grme' && git push origin master && cd -"
 alias gs='git status'
 alias gskfrom="echo 'retrieving from github...';echo; cd ~/dotfiles && git pull origin master; echo; cd ~/transfer && git pull origin master; echo 'extracting...'; ls -l ~/transfer/c; tar tvfz ~/transfer/c; sleep 7; cd ~ && tar xfz ~/transfer/c" 
+alias gtrn="cd ~/transfer && git pull origin master && git add . && git commit -m'gtrn' && git push origin master && cd -"
 alias h='history|tail -20'  # history 20 is better if it exists
 # Poor-man's file sync.  See gskto gskfrom.  Using suffix-less tarball to
 # discourage email filtering.
