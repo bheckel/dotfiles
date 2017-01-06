@@ -4,7 +4,7 @@
 # Summary: bash config for at least Cygwin 1.3/1.5/1.7, Unix/Linux and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Wed 04 Jan 2017 15:51:35 (Bob Heckel)
+# Modified: Thu 05 Jan 2017 16:24:52 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -20,7 +20,7 @@
 set -o vi
 set -o noclobber
 
-# C-S=suspended C-Q=released fix
+# C-S=suspend C-Q=release fix
 ###stty -ixon 
 
 # Tab completion after typing 'cd ' show dirs only.  See also FIGNORE for related completion restrictions.
@@ -103,16 +103,13 @@ alias cdt="cd $HOME/tmp"
 alias cds="cd $HOME/code/sas"
 alias cdv="cd $HOME/code/vb"
 alias cdvb="cd $HOME/code/vb"
-alias cls=clear  # like Windows
 alias datecalc=$HOME/code/perl/datecalc
 alias ddg='w3m http://duckduckgo.com/lite'
 alias f='fg'  # jobs -s  to list what's suspended
 alias g=$HOME/code/misccode/gone.sh
 # Can't use sed to eliminate leading spaces or it breaks coloring
 alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
-alias gd='git diff'
-# git diff previous pull
-alias gdp='git show'
+alias gdot="cd ~/dotfiles && git pull origin master && git add . && git commit -m'gdot' && git push origin master && cd -"
 alias gs='git status'
 alias gskfrom="echo 'retrieving from github...';echo; cd ~/dotfiles && git pull origin master; echo; cd ~/transfer && git pull origin master; echo 'extracting...'; ls -l ~/transfer/c; tar tvfz ~/transfer/c; sleep 7; cd ~ && tar xfz ~/transfer/c" 
 alias h='history|tail -20'  # history 20 is better if it exists
@@ -156,37 +153,17 @@ cdl(){
 }
 
 
-function ses() {
-  # View available Sessions, optionally do $ fc then ggdG then ;r (see my .vimrc map ;r). No parm (suboptimally) shows all
-  find ~/bob/ -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $9}' | grep -i "$1" >|~/bob/tmp/.vimxfer_ses && cat ~/bob/tmp/.vimxfer_ses
+ses() {
+  # Access available vim Sessions (see my .vimrc map ;r to read this output while in fc)
+###  find ~/bob/ -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $9}' | grep -i "$1" >|~/bob/tmp/.vimxfer_ses && cat ~/bob/tmp/.vimxfer_ses
+  find ~/bob/ -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $9}' | grep -i "$1" >|~/bob/tmp/.vimxfer_ses \
+  && cat ~/bob/tmp/.vimxfer_ses && fc
 }
 
 # Search comma-separated project files.  Debug find ~/bob/ -name .keyword|xargs head
-function sesg() {
+sesg() {
   find ~/bob/ -name .keyword | xargs grep -i "$1"
 }
-
-
-# Used with PS1 as an exit value indicator.
-# Don't use this for non-color xterms and when xtrace is in use.  See fix().
-# TODO not working, $? is always 0
-# Unused 2010-11-28
-###set_prompt_colors() {
-###  if (( errornum = $? )); then
-###    prompt_beg="${fg_redbold}"
-###    prompt_end="${normal}"
-###  else
-###    if test "$HOSTNAME" = 'sverige' || test "$HOSTNAME" = 'sdf'; then
-###      prompt_beg="${fg_whitebold}"
-###    elif test "$HOSTNAME" = 'tstdev'; then
-###      prompt_beg="${fg_cyanbold}"
-###    else
-###      prompt_beg="${fg_greenbold}"
-###    fi
-###    prompt_beg=$fg_greenbold
-###    prompt_end=$normal
-###  fi
-###}
 
 
 # 'Windows-ish Start' a file or file manager
@@ -207,60 +184,65 @@ st() {
 }
 
 
-# Recycler to ReMoVe files we're not yet ready to delete.
-# TODO call underscore() if necessary first
+# Recycler to ReMoVe files we're not yet man enough to delete
 # TODO allow run from other than pwd
-# TODO don't write a partial REMOVETHIS__ on failure
-# TODO make sure user is in the dir if -s is used
+# TODO don't write a partial MARKER on failure
 rmv() {
   local VERBOSE
   local MARKER
   local __TMP
 
-  # MUST be same as in ~/bin/clean_synch
-  MARKER=REMOVETHIS__
-  # Don't want /tmp as the rmv dir so change it if necessary
+  MARKER=_DELETE
+  # We don't want /tmp as the rmv dir
   __TMP=$TMP
   [ "$__TMP" = /tmp ] && __TMP=/$USER/tmp
   [ "$__TMP" = //tmp ] && __TMP=/$USER/tmp # double slash is due to root's home '/'
   [ "$__TMP" = '' ] && __TMP=/$USER/tmp
   [ "$__TMP" = / ] && __TMP=/$USER/tmp
 
-  # -s placeholder file output is used for synching parsifal and work PC's
-  # important directories.
+  # -s placeholder file output is used for synching home and work
   if [ ! "$1" ]; then
     echo 'error: Must enter file(s) or file pattern.  Exiting.'
     echo 'Usage: rmv [-s|-v] file1 file2 pat* ...'
     echo "       Removes a file or files to $HOME/tmp"
-    echo "       -s places a $MARKER marker after rmv'ing (sweep-away-sync mode)"
+    echo "       -s places a $MARKER marker after removing (sweep-away-sync mode)"
     echo "          Must be in pwd for this command to place marker properly"
     echo "       -v verbose mode"
     return 1
   fi
+
   if [ "$1" = '-s' ]; then
     shift
     for f in "$@"; do
-      touch "${MARKER}${f}"
+      
+      if [[ $f =~ ./.* ]]; then
+        echo 'Cannot use fully qualified paths with -s, please cd first'
+      else
+        echo '... placing marker'
+        touch "${f}${MARKER}"
+      fi
     done
   fi
+
   if [ "$1" = '-v' ]; then
     VERBOSE=$1
     shift
   else
     VERBOSE=''
   fi
+
   if [ -d $__TMP ]; then
     for f in "$@"; do
       mv $VERBOSE "$f" $__TMP || echo 'failed to rmv'
     done
   else  # rare
     echo "uh oh we're missing $HOME/tmp ...";
-		echo "...attempting to mkdir, please fix manually if there is no success message below"
+		echo 'attempting to mkdir ...'
 		mkdir $HOME/tmp
 		if [ -e $HOME/tmp ]; then
-		  echo "...success"
+		  echo "... success"
 		else
-		  echo "cannot create $HOME/tmp"
+		  echo "Error: cannot create $HOME/tmp"
 		fi
   fi
 }
@@ -299,7 +281,7 @@ stoppedjobs() {
 }
 
 
-# Build a disposable sandbox for testing
+# Build a disposable sandbox
 sbx() {
   # Leading epoch date is for sorting purposes.  To navigate do something like:  cd ~/tmp/*09Jun*
   todayuniq=`date +%s_%d%b%y`$1
@@ -309,6 +291,7 @@ sbx() {
 }
 
 
+# Last twenty-five
 lt() {
   if test "x$1" = "x"; then
     \ls -lt | head -n25
@@ -320,9 +303,6 @@ lt() {
 
 # For PS1
 parse_git_dirty() {
-  # The message varies across versions so this isn't reliable:
-###  [[ $(git status 2> /dev/null | tail -n1) != "nothing to commit, working directory clean" ]] && echo "*"
-
   GS=$(git status 2> /dev/null | tail -n1)
   [[ ${GS:0:17} != 'nothing to commit' ]] && echo '*'
 }
@@ -339,12 +319,12 @@ function google() { w3m http://www.google.com/search?hl=en#q="`urlencode $@`" ;}
 
 
 # Git Log
-function gl() {
+gl() {
   # e.g. gl mybranch 20
 	local branch=$1
   test  "x$branch" = "x" && branch='CURRENT BRANCH'
   local days=$2
-  test  "x$days" = "x" && days=10
+  test  "x$days" = "x" && days=25
   git log --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %d [%an]" \
 	        --graph \
 					--date=short $1 \
@@ -354,7 +334,7 @@ function gl() {
 }
 
 
-function md() {
+md() {
   mkdir $1 && cd $1 && ls -l
 }
 
@@ -429,22 +409,14 @@ case "$OSTYPE" in
     alias gv=gvim
     # Allow output to be triple clicked as a noop.
     ###alias h='history|tail -20|perl -pe "s/(\d+)(.*)/: \1; \2/"'
-    # Friday afternoon run usually
-###    alias hometo='ls -l ~/c && echo "...files newer than ^^^this^^^ one will be added to tarball..." && sleep 5 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd - && st ~'
     alias l='ls -GFw80 --color=none'   # for speed in Cygwin
     # Elim . .., owner and group info on Cygwin.
     alias ll='ls -FloGgh --color=auto'
     alias lla='ls -FlAoh --color=auto'
-    # Long prompt, search match from near top, search skip screen, statusline,
-    # pickup ANSI colors, search ignores case
-    # Cygwin 1.7 instead of LANG=en_US; export LANG in .bash_profile
-###    alias man="LANG=c man"
-    ###alias m='less -M -j10$ -a -P%f$ -R -i'
     alias m="less -FRSX"  # don't use less if it fits in the window
     # Present Working Windows Directory
     alias pwwd='cygpath -w "`pwd`"'
 ###    alias runllg="w3m -no-cookie -dump_source 'http://rtpsawn321/links/runllg.asp?action=Run+LLG'|grep '^LLG' ; grep ERRMSG /cygdrive/x/SQL_Loader/Logs/LGI.log || echo fail"
-###    alias sas="c:/Program\ Files/SAS\ Institute/SAS/V8/sas.exe"
     ###alias sas8="c:/Program\ Files/SAS\ Institute/SAS/V8/sas.exe"
     ###alias sas9="c:/Program\ Files/SAS/SAS\ 9.1/sas.exe"
     alias vi=vim
@@ -581,8 +553,9 @@ case "$OSTYPE" in
 ###      alias gskfrom="echo 'retrieving from github...';echo; cd ~/Downloads && git pull origin master; echo;echo 'extracting...'; ls -l ~/Downloads/c; sleep 5; cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && cd ~/code/misccode; gs"
       # Assumes we have recent home changes ready to tar and use at work Monday after we git it, Sunday evening run usually.  Should be a function.
       alias gskto="cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV | grep -v '/.git/' | grep -v '.swp' | xargs tar cvfz ~/Downloads/c.NEW && cd ~/Downloads && git add c.NEW && git commit -m'gskto' && git push origin master"
-      # Assumes we have Mon-Fri changes to sync.  Friday afternoon run usually.  Should be a function.
-      alias hometo="ls -l ~/transfer/c && echo '...files newer than ^^^this^^^ one will be added to tarball...' && sleep 5 && cd ~ && find code/ -type f -newer ~/transfer/c -not -name '*.swp' | xargs tar cvfz ~/transfer/c; echo; echo 'sending to github...'; cd ~/transfer; git pull origin master; git add c && git commit -m'hometo' && git push origin master; cd -; cd ~/dotfiles && git add . && git commit -m'hometo' && git push origin master; cd -"
+      # Assumes we have Mon-Fri changes to be sync'd.  Friday afternoon run usually.
+###      alias hometo="ls -l ~/transfer/c && echo '...files newer than ^^^this^^^ one will be added to tarball...' && sleep 5 && cd ~ && find code/ -type f -newer ~/transfer/c -not -name '*.swp' | xargs tar cvfz ~/transfer/c; echo; echo 'sending to github...'; cd ~/transfer; git pull origin master; git add c && git commit -m'hometo' && git push origin master; cd -; cd ~/dotfiles && git add . && git commit -m'hometo' && git push origin master; cd -"
+      alias hometo="ls -l ~/transfer/c && echo '...files newer than ^^^this^^^ one will be added to tarball...' && sleep 5 && cd ~ && find code/ -type f -newer ~/transfer/c -not -name '*.swp' | xargs tar cvfz ~/transfer/c; echo; echo 'sending to github...'; cd ~/transfer; git pull origin master; git add . && git commit -m'hometo' && git push origin master"
       alias ll='ls -lh --color --group-directories-first'
       ###alias moz='export DISPLAY=158.111.250.170:0.0; mozilla&'
       ###alias sqlplus=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/sqlplus
@@ -611,18 +584,18 @@ case "$OSTYPE" in
         export PS1='${fg_darkgray}\j ${fg_yellowbold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
       fi
 
-      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ]; then
+      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ] || [ $HOSTNAME = 'sas-01.mrk.ateb.com' ]; then
+        alias d12="(cd ~/bob/tmp; vi -d 1 2)"
+        alias d13="(cd ~/bob/tmp; vi -d 1 3)"
+        alias d123="(cd ~/bob/tmp; vi -d 1 2 3)"
+        alias d34="(cd ~/bob/tmp; vi -d 3 4)"
+        alias mrk='ssh -l bheckel sas-01.mrk.ateb.com'
+        alias sas0='ssh -l bheckel sas-01.twa.ateb.com'
+        alias tal='ssh -l bheckel talon3.dep.ateb.com'
         alias vi=$HOME/usr/local/bin/vim
 
         # This sometimes keeps things from failing when the minimal vim is installed as vi
         export EDITOR=/mnt/nfs/home/bheckel/usr/local/bin/vim
-      fi
-
-      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ] || [ $HOSTNAME = 'sas-01.mrk.ateb.com' ]; then
-        alias sas0='ssh -l bheckel sas-01.twa.ateb.com'
-        alias tal='ssh -l bheckel talon3.dep.ateb.com'
-        alias mrk='ssh -l bheckel sas-01.mrk.ateb.com'
-
         export SASV9_OPTIONS='-validvarname=any'
 
         # If locate() not available
@@ -634,11 +607,6 @@ case "$OSTYPE" in
         function myls() {
           ls -lgG $1 |sed -r 's/^\S+ \S+ \w+ //g'
         }
-
-        alias d12="(cd ~/bob/tmp; vi -d 1 2)"
-        alias d13="(cd ~/bob/tmp; vi -d 1 3)"
-        alias d123="(cd ~/bob/tmp; vi -d 1 2 3)"
-        alias d34="(cd ~/bob/tmp; vi -d 3 4)"
 
         #umask 022  # 022 is 755, 037 is 740
       fi

@@ -28,7 +28,7 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 " Insert a line, interleave, after each line in a file:
 %s/$/^Mfoo bar/gc  <--^M is control char Ctr+v + Return
 
-" For each line containing UPRD37, do this substitution
+" For each line containing UPRD37, do this substitution if rtpsduxrax exists:
 :g/UPRD37/s/rtpsduxrax/us1sduxray/c
 
 " Delete line 10 and the 3 lines following it (total 4 lines deleted)
@@ -1037,6 +1037,10 @@ mydttm = dhms(mydate, max(0,hour(mytime)), max(0,minute(mytime)), max(0,second(m
  /* Convert datetime floating point number to human e.g. 25AUG2005 date in open code */
 %put %sysfunc(putn(1440588139.7, datetime9.));
 %put %sysfunc(putn(1441637788, datetime14.));
+
+ /* Reformat date macro date in macro: */
+%put %sysfunc(putn("&SYSDATE"d, DATE9.));
+%put %sysfunc(putn("&SYSDATE"d, YYMMDDN8.));  /* 20170105 */
 
  /* Check for success to this point before continuing to destructive section */
 %if &SYSERR eq 0 %then %do ... %end
@@ -3992,14 +3996,14 @@ rsync -avP --delete dir1/ bheckel@talon3://mnt/nfs/home/bheckel/tmp/1440187439_2
 dd if=/dev/zero of=biggarbage bs=10000 count=10000
 
 # Find a partial contains string:
-if [[ "$f" == *"elet"* ]]; then  # wildcard
-if [[ $string =~ .*My.* ]]; then  # regex
+if [[ "$f" == *"elet"* ]]; then  # bash wildcard
+if [[ $string =~ .*My.* ]]; then  # bash regex
 
 # Shell parse string suffix capture text from 'average:' to end of string:
 MYUP=`uptime`
 LOAD="${MYUP##*average:}"
 
-# Shell parse string suffix capture text from space to end of string:
+# Bash parse string suffix capture text from space to end of string:
 JOB='clients.sas -foo 256'
 CLIENTID="${JOB##*foo }"  # 256
 
@@ -5304,8 +5308,6 @@ SQL> @foo
 
 -- Canonical sqlplus save spool output to file
 set termout off; set linesize 2000; set pagesize 9999; spool u:/serevent.out; ...SQL...; spool off; quit;
-
-spool u:/ahfa60stab.out;
 
 -- userid/password@hostname
 $ sqlplus pks/ev123dba@sdev388
