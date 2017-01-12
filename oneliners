@@ -591,8 +591,8 @@ WHEREISVIMRUNTIME=`vim -e -T dumb --cmd 'exe "set t_cm=\<C-M>"|echo $VIMRUNTIME|
 " Keep only the first 12 characters, delete characters after column position 12:
 :s/^\(............\).*/\1/g
 
-" scp diff across networks
-vi -d /Drugs/update_shortname_ds.sas scp://bheckel@sas-01.mrk.ateb.com//Drugs/update_client_global_settings.sas
+" vim scp diff scp across networks using vim:
+vi -d /Drugs/update_shortname_ds.sas scp://bheckel@sas-01.mrk.taeb.com//Drugs/update_shortname_ds.sas
 
 " Find two strings in any order:
 /.*reboot\&.*box
@@ -930,7 +930,7 @@ if sex = '00'x||'00'x||'00'x then delete;
  /* Most efficient block size on mainframe: Moderate to large DASD-stored datasets s/b blocked at half a track. Small ds and catalogs s/b blocked at 6144 bytes. Tape 32760 bytes. */
 options blksize(dasd)=half;
 
- /* Perl regex in SAS */
+ /* Perl prx regex in SAS */
 data; set SASHELP.shoes; if _N_ eq 1 then rc=prxparse("/ica$/"); retain rc; if prxmatch(rc,region); run;
 
 %if not %index(&endyr, 20) %then %abort;
@@ -1002,8 +1002,8 @@ cat "//'bqh0.inc.saslog'" | vi -     # HFS
  /* Remove trailing comma: */
 %let YRCNTS=%substr(%bquote(&YRCNTS), 1, %length(&YRCNTS)-1);
 
- /* Count observations count without opening dataset (or if it's open in SAS GUI) */
-data _null_; rc=attrn(open('tmp1.pull_lift'), 'NOBS'); put rc=;run;
+ /* Count observations count without opening dataset (or if it's open in SAS GUI), alternative to proc sql INTO :cnt */
+data _null_; n_obs=attrn(open('tmp1.pull_lift'), 'NOBS'); put n_obs=;run;
 %macro m; %put %sysfunc(attrn(%sysfunc(open(tmp1.pull_lift)), NLOBSF)); %mend;%m
 %if %sysfunc(attrn(%sysfunc(open(_LAST_)), NLOBSF)) lt 100 %then %do; %put ok; %end;
 
@@ -2342,9 +2342,8 @@ proc datasets lib=l; change ccecallrequest=ccecallrequest_&tstamp; change tmm345
  /* Maximum storage size of SAS numeric using default 8. */
 9,007,199,254,740,992
 
-proc sort data=sashelp.shoes out=t NOEQUALS; by DESCENDING region sales; run;
- /*                                                    ________________       */
-proc sort data=sashelp.shoes out=t NOEQUALS; by region DESCENDING sales; run;
+ /* Reverse normal sort order for one var              ________________                */
+proc sort data=sashelp.shoes out=t NOEQUALS; by region DESCENDING sales subsidiary; run;
 
  /* View browse SASHELP library */
 options ls=180;proc contents data=SASHELP._all_ /*NODS*/;run;
@@ -3049,13 +3048,13 @@ name=prxchange('s/(\w+), (\w+)/$2 $1/', -1, name);
 if prxmatch('/toyota|kia|honda/i', text) then type='Import';
 
 prxparse (compile regex that can later be used for searching within a character value) similar to using qr{} or /o with a regexp search
-prxmatch similar to source =~ /perl-regex/
+prxmatch similar to mystr =~ /perlregex/
 prxsubstr (return position and length of where a regexp matches in source) similar to source =~ /perl-regex/g; start = pos source; length = length $&;
 prxnext (return position and length of where a regexp matches in source starting at start and ending at stop) similar to using the /g and /c options
 prxparen (return the last number of the last submatch that matched) similar to $+
 prxchange similar to old-string =~ s/perl-regexp/replacement/
 
- /* Fix mask loose single quote apostrophe e.g. 123O'LEARY or O'NEAL in Postgres query prior to enquoting it by doubling it: */
+ /* Fix mask loose single quote apostrophe e.g. 123O'LEARY or O'NEAL in query using regex prior to enquoting it by doubling it: */
 select prxchange("s/'/''/", -1, upid) as upid
 
  /* Does a dataset exist?: */
@@ -3810,11 +3809,11 @@ sudo apt-get install google-chrome-stable
 # Debian, Ubuntu regular update mantra (not dist upgrade):
 sudo apt-get update && sudo apt-get upgrade
 
-# Process substitution ssh diff across network:
+# Process substitution ssh diff across network DEPRECATED USE VIM:
 vi -d <(ssh bheckel@sas-01.twa.taeb.com "cat /Drugs/Personnel/bob/t.sas") <(cat /Drugs/bheckel/t.sas)
 vi -d <(ssh bheckel@atlon3 "cat /Drugs/EGP/Humana_weekly_task_Freds.sas") <(cat Freds_priority_enrollment.orig.sas)
 
-# Diff two files across the network on two boxes:
+# Diff two files across the network on two boxes using ssh:
 ssh user@remote "cat /path/to/remote/file.txt" | diff - /path/to/local/file.txt
 
 # Does vi exist on this box? (avoid which(1):
@@ -4887,6 +4886,9 @@ $x='/usr/bin'; @parts = split m!(/)!, $x;  # $parts[0] is '', $parts[1] is /, $p
 # Paired regex delimiters instead of slash:
 s{/usr/local/}{/usr/share}g; 
 
+# Remove non-alpha characters regex:
+$x='B@@b_test-1'; ($y = $x) =~ s/[^A-z-_]+//g; print "ok $y";
+
 xxPERLxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -5791,8 +5793,6 @@ git log --since="3 months ago" --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %
 
 # wget-ish:
 git clone git://busybox.net/busybox.git
-git clone git://github.com/bheckel/dotfiles.git
-git remote set-url origin git@github.com:bheckel/dotfiles.git
 
 # git new branch:
 git branch mynewbranch; git checkout mynewbranch # or just branch and checkout in one swoop: git checkout -b mynewbranch
@@ -5867,8 +5867,8 @@ git branch mynewbranch master  # copy branch from a specific branch, in this cas
 
 git add README  # use git add -f README to force add if it's excluded by .gitignore
 
-# git on a foreign box:
-mkdir dotfiles; cd dotfiles; git init; git remote add origin git@github.com:mygithubacct/dotfiles.git; git pull origin master; ...edit/add/commit git push origin master
+# Existing github repo on a new foreign box (do git remote rm origin first if get "you can't push" error):
+git clone git://github.com/bheckel/dotfiles.git && git remote add origin git@github.com:bheckel/dotfiles.git; ...edit/add/commit... git pull origin master && git push origin master
 
 # Test AJAX etc that won't work using file:// etc.
 $ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
@@ -6162,7 +6162,7 @@ msinfo32
 -- Find duplicates Postgres
 select * from analytics.healthplanpatients hp where row(hpprogramid, externalpatientid, cardholderid, pharmacyid) in (select hpprogramid, externalpatientid, cardholderid, pharmacyid from analytics.healthplanpatients_test);
 
--- List describe Postgres tables in psql:
+-- List describe browse Postgres tables in psql:
 \d
 
 -- Comma separated column

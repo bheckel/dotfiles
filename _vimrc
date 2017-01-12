@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Tue 27 Dec 2016 10:10:25 (Bob Heckel)
+" Modified: Fri 06 Jan 2017 16:01:02 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -116,15 +116,11 @@ set encoding=utf-8
 "  ~/code/misccode/print_all_terminal_colors.sh
 "--------------------------------------------------------------------------
 
-"""if has ('syntax') && &t_Co > 1
-"""  color default
-  syntax enable
-"""endif
+syntax enable
 
 " Avoid reading text presented like it was written on a light bulb.  We're
-" sometimes relying on .Xdefaults to do wheat-on-black so this is only for gvim.
-" ~/code/misccode/vim_colors.txt
-
+" relying on .mintty or .Xdefaults so this is only for gvim.
+" See ~/code/misccode/vim_colors.txt
 """hi Normal guifg=#F5DEB3 guibg=Black
 """hi Normal  ctermfg=229 guifg=#ffffaf
 hi Normal guifg=White guibg=Black
@@ -144,7 +140,7 @@ hi Directory ctermfg=Magenta guifg=Magenta guibg=Black cterm=bold gui=bold
 """match ErrorMsg /[^\t]\zs\t\+/
 hi ErrorMsg ctermfg=Black ctermbg=Red guifg=Black guibg=Red
 
-hi Folded ctermfg=LightGray ctermbg=DarkGray guifg=LightGray guibg=DarkGray cterm=bold gui=bold
+hi Folded ctermfg=DarkGray ctermbg=Black guifg=Black guibg=DarkGray cterm=bold gui=bold
 
 hi Function ctermfg=Yellow guifg=LightYellow guibg=Black
 
@@ -543,6 +539,7 @@ set isfname=@,48-57,/,.,-,_,+,,,#,$,~,=
 
 "                               24 multi-byte characters {{{2
 
+set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<
 
 "                               25 other {{{2
 
