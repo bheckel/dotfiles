@@ -4,7 +4,7 @@
 # Summary: bash config for at least Cygwin 1.3/1.5/1.7, Unix/Linux and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Thu 05 Jan 2017 16:24:52 (Bob Heckel)
+# Modified: Fri 13 Jan 2017 13:28:20 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -157,15 +157,19 @@ cdl(){
 
 
 ses() {
-  # Access available vim Sessions (see my .vimrc map ;r to read this output while in fc)
-###  find ~/bob/ -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $9}' | grep -i "$1" >|~/bob/tmp/.vimxfer_ses && cat ~/bob/tmp/.vimxfer_ses
-  find ~/bob/ -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $9}' | grep -i "$1" >|~/bob/tmp/.vimxfer_ses \
-  && cat ~/bob/tmp/.vimxfer_ses && fc
+  # List/access available vim Sessions (see my .vimrc map ;r to read this output while in fc)
+  if [ ! -z "$1" ];then
+    # TODO check for 0 results before fc
+    find ~/bob/ -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $9}' | grep -i "$1" >|~/bob/tmp/.vimxfer_ses \
+    && cat ~/bob/tmp/.vimxfer_ses && fc
+  else
+    find ~/bob/ -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $9}'
+  fi
 }
 
 # Search comma-separated project files.  Debug find ~/bob/ -name .keyword|xargs head
 sesg() {
-  find ~/bob/ -name .keyword | xargs grep -i "$1"
+  find ~/bob/ -name '.keyword*' | xargs grep -i "$1"
 }
 
 
@@ -558,7 +562,7 @@ case "$OSTYPE" in
       alias gskto="cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV | grep -v '/.git/' | grep -v '.swp' | xargs tar cvfz ~/Downloads/c.NEW && cd ~/Downloads && git add c.NEW && git commit -m'gskto' && git push origin master"
       # Assumes we have Mon-Fri changes to be sync'd.  Friday afternoon run usually.
 ###      alias hometo="ls -l ~/transfer/c && echo '...files newer than ^^^this^^^ one will be added to tarball...' && sleep 5 && cd ~ && find code/ -type f -newer ~/transfer/c -not -name '*.swp' | xargs tar cvfz ~/transfer/c; echo; echo 'sending to github...'; cd ~/transfer; git pull origin master; git add c && git commit -m'hometo' && git push origin master; cd -; cd ~/dotfiles && git add . && git commit -m'hometo' && git push origin master; cd -"
-      alias hometo="ls -l ~/transfer/c && echo '...files newer than ^^^this^^^ one will be added to tarball...' && sleep 5 && cd ~ && find code/ -type f -newer ~/transfer/c -not -name '*.swp' | xargs tar cvfz ~/transfer/c; echo; echo 'sending to github...'; cd ~/transfer; git pull origin master; git add . && git commit -m'hometo' && git push origin master"
+      alias hometo="ls -l ~/transfer/c && echo '...files newer than ^^^this^^^ one will be added to tarball...' && sleep 5 && cd ~ && find code/ -type f -newer ~/transfer/c -not -name '*.swp' | xargs tar cvfz ~/transfer/c; echo; echo 'sending to github...'; cd ~/transfer; git pull origin master && git add . && git commit -m'hometo' && git push origin master"
       alias ll='ls -lh --color --group-directories-first'
       ###alias moz='export DISPLAY=158.111.250.170:0.0; mozilla&'
       ###alias sqlplus=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/sqlplus
