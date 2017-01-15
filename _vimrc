@@ -224,8 +224,9 @@ set cpoptions=s$
 " H, M, L, gg, etc commands move cursor to first blank in line.
 """set startofline
 
-" Search pwd and subdirs when using gf
-set path=.,**/*
+" Search pwd and subdirs when using gf, :find, etc.
+"""set path=.,**/*
+set path=**
 
 set wrapscan
 
