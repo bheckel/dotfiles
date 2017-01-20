@@ -139,12 +139,9 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 " Search across linebreaks
 /the\nword
 
-" The classic search and replace across lines (eg replace Acme Distributors with Barrett...):
-" First get instances not split over 2 lines---
-:%s/Acme Distributors/Barrett and Sons/g
-" Then get those split across newlines---
-:g/Acme$/+ s/^Distributors/and Sons
-:g/^and Sons/- s/Acme$/Barrett
+" Search and replace across lines (e.g. replace Acme Distributors with Barrett...):
+" First get instances NOT split over 2 lines...  :%s/Acme Distributors/Barrett and Sons/g
+" Then get those split across newlines...  :g/Acme$/+ s/^Distributors/and Sons    :g/^and Sons/- s/Acme$/Barrett
 
 " Fix Perl comment on current line to start with a capital letter and end with a period:
 :s:# \(.\):# \U\1: | s:$:\.:
@@ -272,6 +269,9 @@ s<BS>s   <---Produces German ß
 "   Match 'foo' and 'bar', including the quotes.
 /'[^']*'
 
+" Remove last column from a pipe delimited file:
+:%s/.*\zs|.*//
+
 " Modeline.  Trailing ':' required for multiple set's.  /* vim: set tw=72 ft=sas ff=unix: */ # vim: set list syntax=off foldmarker=#{{{,#}}} foldmethod=marker tw=78:
 
 " Create a unique filename based on seconds since the Epoch:
@@ -333,16 +333,14 @@ yl
 :Nwrite "daeb rheckel Tistyb4p tmp/testing/junk2z"
 :Nread "mf bqh0 Tistyb4p pgm.trash(junk)"
 " Netrw using vim with ssh:
-$ vim scp://rheckel@192.94.73.4/html/index.html
 $ vi scp://rsh8680@tpsh005//opt/QCServer/A.05.00/svr/files/Inspec_Lot-0108.log  # note no colon and double slash
-$ vi scp://root@192.168.1.1:6699//var/log/messages
 
 " Debug shell script by doing an echo line below declaration:
 :,$:s:\(export \(\w\+\).*\):\1echo '\2 ' \$\2:gc
 " Debug perl script:
 :,$:s:\(my \(\S\+\).*\):\1print '\2 ', \2;:gc
 
-" Convert file to html:
+" Convert file to html using a .vim file:
 :runtime! syntax/2html.vim
 
 " nl(1) number line replacement
@@ -916,7 +914,8 @@ input foo $CHAR2.;
 input name $8.  number  ??;
 
  /* Operating system specific option: */
-%macro OS; %if &SYSSCP eq OS %then %str(options NOs99nomig;); %mend; %OS
+%macro os_detect; %if &SYSSCP eq OS %then %str(options NOs99nomig;); %mend;
+%macro os_detect; %if "&SYSSCP" eq "LIN X64" %then %put Unix; %mend;
 
  /* Thin out cleanout SAS Log, can use \| to get >1 line at a time */
 :g/\s*SYMB\|\s*MLOG\|\d\+\s*THE SAS/d
@@ -930,10 +929,12 @@ if sex = '00'x||'00'x||'00'x then delete;
  /* Most efficient block size on mainframe: Moderate to large DASD-stored datasets s/b blocked at half a track. Small ds and catalogs s/b blocked at 6144 bytes. Tape 32760 bytes. */
 options blksize(dasd)=half;
 
+no_controlchar_punctuation_digits=compress('foo,bar.8', , 'CPD');
+
  /* Perl prx regex in SAS */
 data; set SASHELP.shoes; if _N_ eq 1 then rc=prxparse("/ica$/"); retain rc; if prxmatch(rc,region); run;
 /* Remove non-standard characters e.g. ApotPhar@SnS: */
-short_client_name=prxchange('s/[^A-z1-9-_]//', -1, short_client_name);
+short_client_name=prxchange('s/[^A-z0-9-_]//', -1, short_client_name);
 
 %if not %index(&endyr, 20) %then %abort;
 data _NULL_; abort abend 008; run;
@@ -1210,8 +1211,10 @@ where rank IN(1:10)
 
 data;len=lengthn('ABC ');put len;run;  /* 3 */
 
-# Convert SAS Log to SAS Code:
-sed '/^[^[0-9]/d;/SAS/d; /^$/d;/DATA?:?:?/d; /\*[0-9]/d' ~/tmp/1 |cut -c6-256 |tr ! ' ' |sed '/^[^ ]/d' > t.sas
+# Convert SAS Log back to SAS Code:
+sed '/^[^[0-9]/d;/SAS/d; /^$/d;/DATA?:?:?/d; /\*[0-9]/d' ~/tmp/t.log |cut -c6-256 |tr ! ' ' |sed '/^[^ ]/d' > t.sas
+# Convert SAS Log to resolved macro MPRINT output:
+sed '/^NOTE:/d; /^$/d; /^\s*$/d; /real time/d; /cpu time/d; /The SAS System/d' t.log  >| resolvedcode.log
 
 tail -f /sas/config/Lev1/Logs/SASMeta_MetadataServer_2016-10-31_sas-01_2955.log
 
@@ -1223,8 +1226,6 @@ proc append base=mydb.mytbl (bulkload=yes bl_datafile="/tmp/data" bl_logfile="/t
 proc freq data=ar2_advair511 ; tables ptsex*fillmo / MISSPRINT; run;  /* row*col and include missing */
 
 array datearray[*] Columbus Hastings Nicea (1492 1066 325); idx=whichn(1066, of datearray[*]);  /* returns array index 2 */
-
-no_controlchar_punctuation_digits=compress('foo,bar.8', , 'CPD');
 
  /* Set flag when the sum of certain vars is greater than 10: */
 array nvars[*] x1-x3; if sum(of nvars[*]))>10 then flag=1; else flag=0;
@@ -2262,7 +2263,7 @@ select distinct quote(trim(batch_nbr)), quote(trim(matl_nbr)) into :batches, :ma
 select batch_nbr, matl_nbr into :batches separated by "','", :materials separated by "','"
 select distinct region into :region1 thru :region3 ...
 
-x "move /Y lelimssumres01a.sas7bdat \\rtpsawn321\d\sql_loader\LeLimsSumres01a&suffix..sas7bdat";
+x "move /Y lelimssumres01a.sas7bdat \\rtpsawn321\d\sql_loader\LeLimsSumres01a&suff..sas7bdat";
 
  /* Tells SAS not to worry about keeping obs with the same BY variable values in the same order (for speed efficiency) */
 proc sql NOEQUAL ...
@@ -3543,17 +3544,22 @@ ctags -R <---probably  $ ctags *  for other versions, not sure how to recurse
 # Then Ctr-] and Ctr-t in Vim to navigate or find function whose name you only know part of (assumes you've run ctags *):
 :ta[g]/iknowpartialregex
 
-# Canonical awk
-awk -F ' ' '{print $1}'  # -F ' ' is unnecessary for space delimiters
-awk '{print $1}'
+# Canonical awk parse third column of pipe delimited - works in vim too e.g. :%!awk -F '|' '{print $3}' much easier than vim regex:
+awk -F '|' '{print $3}'  # -F ' ' is unnecessary for space delimiters
+awk '{print $3}'
 
+# Performance test webpage:
 time w3m -dump bashref2_05.html &>/dev/null
 
-# Decompress from pwd to another dir
+# Decompress from pwd to another dir:
 unzip '*sumr*zip' -d ../tmp
-
-# Just do a simple extract
+# Just do a simple extract:
 unzip -jo lelimssumres01a$ds.sas7bdat.zip
+
+# 7zip zip
+$ 7z a Android-4.4.pdf.7z Android-4.4.pdf
+# 7zip unzip
+$ 7z x proust.7z
 
 # Date formatted using stftime
 $ DATE=`date '+%Y%m%d'` DAY=`date '+%d'` HOUR=`date '+%H'` MONTH=`date '+%m'` MIN=`date '+%M'`
@@ -3789,11 +3795,6 @@ if [ -f $file  ] && [ -w $file ]; then ...  # script
 # Details on which Linux distribution architecture release codename am I using:
 lsb_release -a
 
-$ 7z a Android-4.4.pdf.7z Android-4.4.pdf
-
-# Unzip 7zip
-$ 7z x proust.7z
-
 # Avoid the bash Ctrl-s key combo of death that requires a Ctrl-q to escape its clutches
 stty -ixon
 
@@ -4016,6 +4017,8 @@ LOAD="${MYUP##*average:}"
 # Bash parse string suffix capture text from space to end of string:
 JOB='clients.sas -foo 256'
 CLIENTID="${JOB##*foo }"  # 256
+# Bash strip suffix from foo.txt
+echo ${foo%.*}
 
 tmux list-sessions  # we see sas0-ses2 is not '(attached)'
 tmux -2 a -t sas0-ses2  # attach if session exists, note sas0-ses2 may be a digit if originally created anonymously
