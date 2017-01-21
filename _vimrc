@@ -861,6 +861,8 @@ noremap ,u mzviwU \| :echon '.vimrc: word uppercased'<CR>`z
 
 noremap ,w :call WrapToggle()<CR>
 
+nnoremap ,hdr :-1read ~/code/sas/Headertmplt.sas<CR>
+
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Begin ';' semicolon map leader
