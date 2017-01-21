@@ -140,7 +140,7 @@ hi Directory ctermfg=Magenta guifg=Magenta guibg=Black cterm=bold gui=bold
 """match ErrorMsg /[^\t]\zs\t\+/
 hi ErrorMsg ctermfg=Black ctermbg=Red guifg=Black guibg=Red
 
-hi Folded ctermfg=DarkGray ctermbg=Black guifg=Black guibg=DarkGray cterm=bold gui=bold
+hi Folded ctermfg=Gray ctermbg=DarkGray guifg=Black guifg=Gray guibg=DarkGray cterm=bold gui=bold
 
 hi Function ctermfg=Yellow guifg=LightYellow guibg=Black
 
@@ -845,7 +845,7 @@ noremap ,qq :q!<CR>
 
 if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
   " Ugly hack to get word (SAS macro name) under cursor into a path/filename for gf.  Then ,e & u:
-"""  noremap ,r :let @z=substitute(expand("<cword>"),".*","/Drugs/Macros/&.sas","g")<CR>ciw<C-R>z<ESC>
+"""  noremap ,r :let @z=substitute(expand("<cword>"),".*","/Drugs/Macros/&.sas","g")<CR>ciw<C-R>z<ESC>gf<ESC>:sleep 100<ESC>#e<ESC>:sleep 100<ESC>u<ESC>#e
   noremap ,r :let @z=substitute(expand("<cword>"),".*","/Drugs/Macros/&.sas","g")<CR>ciw<C-R>z<ESC>gf<ESC>
 endif
 

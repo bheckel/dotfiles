@@ -592,7 +592,7 @@ case "$OSTYPE" in
       fi
 
       if [ $HOSTNAME = 'sas-01.mrk.ateb.com' ]; then
-        export PS1='${fg_darkgray}\j ${fg_magentabold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
+        export PS1='${fg_darkgray}\j ${fg_redbold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
       fi
 
       if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ] || [ $HOSTNAME = 'sas-01.mrk.ateb.com' ]; then
