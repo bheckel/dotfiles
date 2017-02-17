@@ -140,7 +140,7 @@ hi Directory ctermfg=Magenta guifg=Magenta guibg=Black cterm=bold gui=bold
 """match ErrorMsg /[^\t]\zs\t\+/
 hi ErrorMsg ctermfg=Black ctermbg=Red guifg=Black guibg=Red
 
-hi Folded ctermfg=Gray ctermbg=DarkGray guifg=Black guifg=Gray guibg=DarkGray cterm=bold gui=bold
+hi Folded ctermfg=DarkGray ctermbg=Black guifg=DarkGray guibg=Black cterm=bold gui=bold
 
 hi Function ctermfg=Yellow guifg=LightYellow guibg=Black
 
@@ -327,19 +327,8 @@ set titlelen=90
 "                                9 using the mouse {{{2
 
 set mousehide
-
 " For spellchecking:
 set mousemodel=popup
-
-" 16-Mar-14 trying to get vim to mouse scroll - not working
-"""map <M-Esc>[62~ <ScrollWheelUp>
-"""map! <M-Esc>[62~ <ScrollWheelUp>
-"""map <M-Esc>[63~ <ScrollWheelDown>
-"""map! <M-Esc>[63~ <ScrollWheelDown>
-"""map <M-Esc>[64~ <S-ScrollWheelUp>
-"""map! <M-Esc>[64~ <S-ScrollWheelUp>
-"""map <M-Esc>[65~ <S-ScrollWheelDown>
-"""map! <M-Esc>[65~ <S-ScrollWheelDown>
 
 "                               10 printing {{{2
 

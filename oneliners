@@ -1046,6 +1046,7 @@ mydttm = dhms(mydate, max(0,hour(mytime)), max(0,minute(mytime)), max(0,second(m
 %put %sysfunc(putn("&SYSDATE"d, YYMMDDN8.));  /* 20170105 */
 %let start=%sysfunc(putn('12JAN17'd, DATE9.)); %let end=&start; %put &=start &=end;  /* 12JAN2016 */
 %let start2=%bquote(')%sysfunc(putn("&start"d, YYMMDD10.))%bquote('); %let end2=&start2; %put &=start2 &=end2;  /* '2017-01-12' */
+select strip(short_client_name)||'_'||"%sysfunc(putn("&SYSDATE"d, YYMMDDD10.))"||'.pdf' into :Cname from build.clients_shortname_lookup;
 
  /* Check for success to this point before continuing to destructive section */
 %if &SYSERR eq 0 %then %do ... %end
@@ -1236,8 +1237,10 @@ array nvars[*] x1-x3; if sum(of nvars[*]))>10 then flag=1; else flag=0;
  /* Self join. Only take the lowest age if there are more than one: */
 select * from rxfilldata_extra a left join rxfilldata_extra b on (a.storeid=b.storeid and a.pharmacypatientid=b.pharmacypatientid and a.age>b.age)
 
- /* Open EG sessions: */
+ /* Open EG Metadata sessions: */
 ps -ef |grep sasexe
+ /* Which user has an EG session open: */
+ps -ef |grep sasexe|awk '{print $1}'|uniq
 
  /* Set default if day is missing: */
 if missing(day) then date = mdy(month,15,year); else date = mdy(month,day,year);
@@ -1258,6 +1261,23 @@ ods graphics on;
 
  /* SAS If-the-else macro: */
 %if %sysfunc(indexw(&rpclients, &SYSPARM)) %then %do; %let redpoint_client=Y; %end; %else %do; %let redpoint_client=N; %end;
+
+-- Postgres month
+select count(distinct pharmacypatientid), date_trunc('MONTH',filldate)::date from sdfarchive group by 2;
+ /* SAS month */
+select count(distinct pharmacypatientid), month(filldate) from sdfarchive group by 2 order by 2
+
+ /* Histogram */
+proc univariate data=data.rxfilldata noprint; hist; var filldate; run;
+
+ /* 6 months ago criteria: */
+where filldate > today()-180
+
+ /* Multisheet Excel output: */
+ods excel file="AN-6617.xlsx"; ods excel options(sheet_name="6 mo"); proc print data=output6mo NOobs; sum count; run; ods excel options(sheet_name="12 mo"); proc print data=output12mo NOobs; sum count; run; ods excel close;
+
+ /* Threaded database connections: */
+from op.rxfilldata_&partition. (dbslice=("FILLNUM=0" "(FILLNUM>=1 OR FILLNUM IS NULL)")) 
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -1551,7 +1571,7 @@ find . -type f -amin -10 -print # files accessed in last 10 minutes
 find . -type f -atime -2        # files accessed in last 2 days
 find . -type f -mmin -5         # files modified in last 5 minutes
 find . -type f -mtime -1        # files modified in last 1 day (24 hours)
-find . -mtime +3 -mtime -8      # a range of times (-a is optional)
+find . -mtime +3 -mtime -8      # a range of times (-a is optional) older than 3 days and younger than 8 days
 find . -daystart -mtime 0       # files created since 12 midnight today
 find . -daystart -mtime 1       # files created since 12 midnight yesterday (i.e. files NOT created today)
 find . -type f -atime +30       # files that have not been read in 30+ days
@@ -1941,6 +1961,9 @@ prtconf -v | grep Memory
 isainfo -v
 # Determine processor you have on Solaris:
 psrinfo -v
+
+# Poll memory:
+while true; do date >> ~/free.txt ; free -g -o >> ~/free.txt; sleep 5; done
 
 # Determine the maximum non-swap memory (in MB) you have on Solaris:
 /usr/sbin/prtconf | grep Mem
@@ -2459,6 +2482,7 @@ data; newyearsday = put(intnx('year', "&SYSDATE"D, 0, 'B'), DATE9.); put newyear
  /* Date convert calculate one month ago in macro (more accurate than subtracting 30): */
 %let ThisMonth=201405;
 %let LastMonth=%sysfunc(intnx(month,%sysfunc(InputN(&ThisMonth.01,yymmdd8.)),-1), YYMMDDN8.);  /* the .01 is to fake May 1 */
+%let m= %sysfunc(month("&sysdate"d), z2.);  /* 01 02 etc */
 
 %let FirstDayOfLastMonth=%sysfunc(intnx(month, "&SYSDATE"D, -1, b), YYMMDD10.);
 %let OneMonthAgoToday=%sysfunc(intnx(month, "&SYSDATE"D, -1, s), YYMMDD10.);
@@ -3004,7 +3028,7 @@ select a.*, case when b.chronic='Y' then 'Y' else 'N' end as chronic
 
 put 'ERROR: dups exist ' name= (myvars:)(=);
 
-# Start restart SASApp server. " - " = login as user sas with his environment.
+# Start restart SASApp server. " - " to login as user sas with his environment:
 $ sudo su - sas; /sas/config/Lev1/sas.servers status  # or start or stop 
 
  /*                                                SASROOT _______________________________          */
@@ -3488,8 +3512,8 @@ Ctr-a d  # detach (from within screen session)
 f=foo.txt; if test "x$f" = "x" && f=bar; then ... fi
 
 # Push, flush, sync bash history from one xterm to another
-history -a  # append this xterm history
-history -n  # read in the other xterms appended history
+history -a  # append this terminal history
+history -n  # read in the other xterms appended history into this terminal
 
 # Insert, append, add a header line to first line of an existing file:
 for f in *.html; do echo "<b>$f</b>" >| new$f && cat $f >> new$f; done;
@@ -3938,6 +3962,8 @@ awk -F"," '{x+=$2}END{print x}' t.csv
 awk -F"," '{x+=$2;print}END{print "Total,"x}' t.csv
 # Sum column of a CSV file for only myItem1:
 awk -F, '$1=="myItem1"{x+=$2;}END{print x}' t.csv
+# Sum row counts of several files:
+for f in $(find /Drugs/Immunizations -name '*.csv' -a -not -name '*del*' -daystart -mtime -3); do wc -l $f done | awk -F" " '{x+=$1}END{print x}'
 
 # Unique values of the first column (SELECT DISTINCT * FROM COL1). awk database:
 head -n1 t.csv |sed 's/,/\n/g' |nl  # determine field nums
@@ -4084,6 +4110,9 @@ getent passwd "594" | cut -d: -f1
 
 # More powerful than xargs:
 for f in $(find . -name '*.log'); do echo $f; saslog_grep.pl $f | grep ERROR; done;
+
+# Zero pad a list of numbers e.g. 001 002:
+awk '{printf "%03d\n", $0}' junk
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5969,7 +5998,10 @@ System.out.println("Return".concat(" of").concat(" the king."));
 // Java array
 int[] array = new int[5] { 1, 2, 3, 4, 5 };
 
-Administrator cmd.exe: Run / type cmd / Ctrl-Shift-Enter
+Win7 Administrator cmd.exe command prompt:
+Run : type cmd : Ctrl-Shift-Enter
+Win7 Administrator Cygwin/vim:
+Run : C:\cygwin64\bin\mintty.exe : Ctrl-Shift-Enter
 
 :: Win7 slow network debug (as Administrator):
 netsh interface tcp show global
@@ -6150,10 +6182,10 @@ select 'EXPIRE='||to_char(date('now')+365,'YYYYMMDD') as x2
 -- Yesterday in Postgres date:
 and lastmodified >= CURRENT_DATE-1
 
-To save postgresql output to comma pipe delimited csv file (warning - multiple runs append):
+To save postgresql output to comma pipe delimited csv file (warning - multiple runs append so \q when done):
 psql> \f '|' \a \o /Drugs/Personnel/bob/t.csv
 psql> \f ',' \a \t \o ~/tmp/bob/withoutheader.csv
-psql> \e
+psql> \f '\t' \a \t \o /sasdata/Personnel/bob/tabdelimited.out
 
 -- Postgres commit transactions (case-sensitive).  Or use:  BEGIN; update tbl set field=0; COMMIT; (or ROLLBACK;):
 \set AUTOCOMMIT off
@@ -6197,5 +6229,14 @@ select digest(patientnamefirst,'sha1') from rxfilldata_parent limit 1;
 
 -- Postgres client encrypted using salt 'theirsalt', encrypt to compare with original pharmacypatientids hash
 select pharmacypatientid, encode(digest(pharmacypatientid||'theirsalt','sha1'), 'hex') as patient_num2, filldate
+
+-- Postgres rounding percentages
+select clientid, avg(enrolledratio)::decimal(5,2)
+
+-- Postgres datetime criteria:
+select * from analytics.tmm_enrollmentperf where created > '2017-01-30 09:00:00'::timestamp;
+
+-- Do we have 12 months for each client?:
+select clientid, year, count(*) from (select distinct clientid, year, month from dshbrd.pdctracksummary where year=2016) as t group by clientid, year order by clientid, year;
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
