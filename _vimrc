@@ -140,7 +140,7 @@ hi Directory ctermfg=Magenta guifg=Magenta guibg=Black cterm=bold gui=bold
 """match ErrorMsg /[^\t]\zs\t\+/
 hi ErrorMsg ctermfg=Black ctermbg=Red guifg=Black guibg=Red
 
-hi Folded ctermfg=DarkGray ctermbg=Black guifg=Black guibg=DarkGray cterm=bold gui=bold
+hi Folded ctermfg=DarkGray ctermbg=Black guifg=DarkGray guibg=Black cterm=bold gui=bold
 
 hi Function ctermfg=Yellow guifg=LightYellow guibg=Black
 
@@ -224,8 +224,9 @@ set cpoptions=s$
 " H, M, L, gg, etc commands move cursor to first blank in line.
 """set startofline
 
-" Search pwd and subdirs when using gf
-set path=.,**/*
+" Search pwd and subdirs when using gf, :find, etc.
+"""set path=.,**/*
+set path=**
 
 set wrapscan
 
@@ -326,19 +327,8 @@ set titlelen=90
 "                                9 using the mouse {{{2
 
 set mousehide
-
 " For spellchecking:
 set mousemodel=popup
-
-" 16-Mar-14 trying to get vim to mouse scroll - not working
-"""map <M-Esc>[62~ <ScrollWheelUp>
-"""map! <M-Esc>[62~ <ScrollWheelUp>
-"""map <M-Esc>[63~ <ScrollWheelDown>
-"""map! <M-Esc>[63~ <ScrollWheelDown>
-"""map <M-Esc>[64~ <S-ScrollWheelUp>
-"""map! <M-Esc>[64~ <S-ScrollWheelUp>
-"""map <M-Esc>[65~ <S-ScrollWheelDown>
-"""map! <M-Esc>[65~ <S-ScrollWheelDown>
 
 "                               10 printing {{{2
 
@@ -844,7 +834,7 @@ noremap ,qq :q!<CR>
 
 if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
   " Ugly hack to get word (SAS macro name) under cursor into a path/filename for gf.  Then ,e & u:
-"""  noremap ,r :let @z=substitute(expand("<cword>"),".*","/Drugs/Macros/&.sas","g")<CR>ciw<C-R>z<ESC>
+"""  noremap ,r :let @z=substitute(expand("<cword>"),".*","/Drugs/Macros/&.sas","g")<CR>ciw<C-R>z<ESC>gf<ESC>:sleep 100<ESC>#e<ESC>:sleep 100<ESC>u<ESC>#e
   noremap ,r :let @z=substitute(expand("<cword>"),".*","/Drugs/Macros/&.sas","g")<CR>ciw<C-R>z<ESC>gf<ESC>
 endif
 
@@ -859,6 +849,8 @@ noremap ,t :set invpaste<CR>`z \| :se paste?<CR> ``
 noremap ,u mzviwU \| :echon '.vimrc: word uppercased'<CR>`z
 
 noremap ,w :call WrapToggle()<CR>
+
+nnoremap ,hdr :-1read ~/code/sas/Headertmplt.sas<CR>
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -1753,30 +1745,29 @@ if !exists("autocommands_loaded")
     au BufWritePost *.exe,*.pdf set nomod | endif
   augroup END
 
-"""  augroup encrypted
-"""    au!
-"""    " TODO have to force this even if orig pre-encrypted file is ff=unix
-"""    " not sure how to handle actual dos fmtd files
-"""    autocmd BufReadPre,FileReadPre      *.gpg set ff=unix
-"""    " First make sure nothing is written to ~/.viminfo while editing
-"""    " an encrypted file.
-"""    au BufReadPre,FileReadPre      *.gpg set viminfo=
-"""    au BufReadPre,FileReadPre      *.gpg set noswapfile
-"""    " Switch to binary mode to read the encrypted file
-"""    au BufReadPre,FileReadPre      *.gpg set bin
-"""    au BufReadPre,FileReadPre      *.gpg let ch_save = &ch|set ch=2
-"""    au BufReadPost,FileReadPost    *.gpg '[,']!gpg --decrypt 2> /dev/null
-"""    " Switch to normal mode for editing
-"""    au BufReadPost,FileReadPost    *.gpg set nobin
-"""    au BufReadPost,FileReadPost    *.gpg let &ch = ch_save|unlet ch_save
-"""    au BufReadPost,FileReadPost    *.gpg execute ":doautocmd BufReadPost " . expand("%:r")
-"""
-"""    " Convert all text to encrypted text before writing
-"""    au BufWritePre,FileWritePre    *.gpg '[,']!gpg -ca 2>/dev/null
-"""    " Undo the encryption so we are back in the normal text, directly
-"""    " after the file has been written.
-"""    au BufWritePost,FileWritePost    *.gpg u
-"""  augroup END
+" TODO not working
+"  augroup encrypted
+"    au!
+"    autocmd BufReadPre,FileReadPre      *.gpg set ff=unix
+"    " First make sure nothing is written to ~/.viminfo while editing
+"    " an encrypted file.
+"    au BufReadPre,FileReadPre      *.gpg set viminfo=
+"    au BufReadPre,FileReadPre      *.gpg set noswapfile
+"    " Switch to binary mode to read the encrypted file
+"    au BufReadPre,FileReadPre      *.gpg set bin
+"    au BufReadPre,FileReadPre      *.gpg let ch_save = &ch|set ch=2
+"    au BufReadPost,FileReadPost    *.gpg '[,']!gpg --decrypt 2> /dev/null
+"    " Switch to normal mode for editing
+"    au BufReadPost,FileReadPost    *.gpg set nobin
+"    au BufReadPost,FileReadPost    *.gpg let &ch = ch_save|unlet ch_save
+"    au BufReadPost,FileReadPost    *.gpg execute ":doautocmd BufReadPost " . expand("%:r")
+"
+"    " Convert all text to encrypted text before writing
+"    au BufWritePre,FileWritePre    *.gpg '[,']!gpg -ca 2>/dev/null
+"    " Undo the encryption so we are back in the normal text, directly
+"    " after the file has been written.
+"    au BufWritePost,FileWritePost    *.gpg u
+"  augroup END
 
   " This block must be placed near end of au commands for syntax coloring to
   " be disabled.

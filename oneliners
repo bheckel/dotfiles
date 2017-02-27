@@ -139,12 +139,9 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 " Search across linebreaks
 /the\nword
 
-" The classic search and replace across lines (eg replace Acme Distributors with Barrett...):
-" First get instances not split over 2 lines---
-:%s/Acme Distributors/Barrett and Sons/g
-" Then get those split across newlines---
-:g/Acme$/+ s/^Distributors/and Sons
-:g/^and Sons/- s/Acme$/Barrett
+" Search and replace across lines (e.g. replace Acme Distributors with Barrett...):
+" First get instances NOT split over 2 lines...  :%s/Acme Distributors/Barrett and Sons/g
+" Then get those split across newlines...  :g/Acme$/+ s/^Distributors/and Sons    :g/^and Sons/- s/Acme$/Barrett
 
 " Fix Perl comment on current line to start with a capital letter and end with a period:
 :s:# \(.\):# \U\1: | s:$:\.:
@@ -272,6 +269,9 @@ s<BS>s   <---Produces German ß
 "   Match 'foo' and 'bar', including the quotes.
 /'[^']*'
 
+" Remove last column from a pipe delimited file:
+:%s/.*\zs|.*//
+
 " Modeline.  Trailing ':' required for multiple set's.  /* vim: set tw=72 ft=sas ff=unix: */ # vim: set list syntax=off foldmarker=#{{{,#}}} foldmethod=marker tw=78:
 
 " Create a unique filename based on seconds since the Epoch:
@@ -333,16 +333,14 @@ yl
 :Nwrite "daeb rheckel Tistyb4p tmp/testing/junk2z"
 :Nread "mf bqh0 Tistyb4p pgm.trash(junk)"
 " Netrw using vim with ssh:
-$ vim scp://rheckel@192.94.73.4/html/index.html
 $ vi scp://rsh8680@tpsh005//opt/QCServer/A.05.00/svr/files/Inspec_Lot-0108.log  # note no colon and double slash
-$ vi scp://root@192.168.1.1:6699//var/log/messages
 
 " Debug shell script by doing an echo line below declaration:
 :,$:s:\(export \(\w\+\).*\):\1echo '\2 ' \$\2:gc
 " Debug perl script:
 :,$:s:\(my \(\S\+\).*\):\1print '\2 ', \2;:gc
 
-" Convert file to html:
+" Convert file to html using a .vim file:
 :runtime! syntax/2html.vim
 
 " nl(1) number line replacement
@@ -916,7 +914,8 @@ input foo $CHAR2.;
 input name $8.  number  ??;
 
  /* Operating system specific option: */
-%macro OS; %if &SYSSCP eq OS %then %str(options NOs99nomig;); %mend; %OS
+%macro os_detect; %if &SYSSCP eq OS %then %str(options NOs99nomig;); %mend;
+%macro os_detect; %if "&SYSSCP" eq "LIN X64" %then %put Unix; %mend;
 
  /* Thin out cleanout SAS Log, can use \| to get >1 line at a time */
 :g/\s*SYMB\|\s*MLOG\|\d\+\s*THE SAS/d
@@ -930,8 +929,12 @@ if sex = '00'x||'00'x||'00'x then delete;
  /* Most efficient block size on mainframe: Moderate to large DASD-stored datasets s/b blocked at half a track. Small ds and catalogs s/b blocked at 6144 bytes. Tape 32760 bytes. */
 options blksize(dasd)=half;
 
+no_controlchar_punctuation_digits=compress('foo,bar.8', , 'CPD');
+
  /* Perl prx regex in SAS */
 data; set SASHELP.shoes; if _N_ eq 1 then rc=prxparse("/ica$/"); retain rc; if prxmatch(rc,region); run;
+/* Remove non-standard characters e.g. ApotPhar@SnS: */
+short_client_name=prxchange('s/[^A-z0-9-_]//', -1, short_client_name);
 
 %if not %index(&endyr, 20) %then %abort;
 data _NULL_; abort abend 008; run;
@@ -1038,9 +1041,12 @@ mydttm = dhms(mydate, max(0,hour(mytime)), max(0,minute(mytime)), max(0,second(m
 %put %sysfunc(putn(1440588139.7, datetime9.));
 %put %sysfunc(putn(1441637788, datetime14.));
 
- /* Reformat date macro date in macro: */
-%put %sysfunc(putn("&SYSDATE"d, DATE9.));
+ /* Reformat date convert macro date in macro: */
+%put %sysfunc(putn("&SYSDATE"d, DATE9.));  /* 05JAN2017 */
 %put %sysfunc(putn("&SYSDATE"d, YYMMDDN8.));  /* 20170105 */
+%let start=%sysfunc(putn('12JAN17'd, DATE9.)); %let end=&start; %put &=start &=end;  /* 12JAN2016 */
+%let start2=%bquote(')%sysfunc(putn("&start"d, YYMMDD10.))%bquote('); %let end2=&start2; %put &=start2 &=end2;  /* '2017-01-12' */
+select strip(short_client_name)||'_'||"%sysfunc(putn("&SYSDATE"d, YYMMDDD10.))"||'.pdf' into :Cname from build.clients_shortname_lookup;
 
  /* Check for success to this point before continuing to destructive section */
 %if &SYSERR eq 0 %then %do ... %end
@@ -1206,8 +1212,10 @@ where rank IN(1:10)
 
 data;len=lengthn('ABC ');put len;run;  /* 3 */
 
-# Convert SAS Log to SAS Code:
-sed '/^[^[0-9]/d;/SAS/d; /^$/d;/DATA?:?:?/d; /\*[0-9]/d' ~/tmp/1 |cut -c6-256 |tr ! ' ' |sed '/^[^ ]/d' > t.sas
+# Convert SAS Log back to SAS Code:
+sed '/^[^[0-9]/d;/SAS/d; /^$/d;/DATA?:?:?/d; /\*[0-9]/d' ~/tmp/t.log |cut -c6-256 |tr ! ' ' |sed '/^[^ ]/d' > t.sas
+# Convert SAS Log to resolved macro MPRINT output:
+sed '/^NOTE:/d; /^$/d; /^\s*$/d; /real time/d; /cpu time/d; /The SAS System/d' t.log  >| resolvedcode.log
 
 tail -f /sas/config/Lev1/Logs/SASMeta_MetadataServer_2016-10-31_sas-01_2955.log
 
@@ -1220,8 +1228,6 @@ proc freq data=ar2_advair511 ; tables ptsex*fillmo / MISSPRINT; run;  /* row*col
 
 array datearray[*] Columbus Hastings Nicea (1492 1066 325); idx=whichn(1066, of datearray[*]);  /* returns array index 2 */
 
-no_controlchar_punctuation_digits=compress('foo,bar.8', , 'CPD');
-
  /* Set flag when the sum of certain vars is greater than 10: */
 array nvars[*] x1-x3; if sum(of nvars[*]))>10 then flag=1; else flag=0;
 
@@ -1231,8 +1237,10 @@ array nvars[*] x1-x3; if sum(of nvars[*]))>10 then flag=1; else flag=0;
  /* Self join. Only take the lowest age if there are more than one: */
 select * from rxfilldata_extra a left join rxfilldata_extra b on (a.storeid=b.storeid and a.pharmacypatientid=b.pharmacypatientid and a.age>b.age)
 
- /* Open EG sessions: */
+ /* Open EG Metadata sessions: */
 ps -ef |grep sasexe
+ /* Which user has an EG session open: */
+ps -ef |grep sasexe|awk '{print $1}'|uniq
 
  /* Set default if day is missing: */
 if missing(day) then date = mdy(month,15,year); else date = mdy(month,day,year);
@@ -1250,6 +1258,26 @@ proc sql; select Subj, Height, Weight, mean(Height) as Ave_Height, 100*Height/CA
 
 Fix "ERROR: The connection to the X display server could not be made"
 ods graphics on;
+
+ /* SAS If-the-else macro: */
+%if %sysfunc(indexw(&rpclients, &SYSPARM)) %then %do; %let redpoint_client=Y; %end; %else %do; %let redpoint_client=N; %end;
+
+-- Postgres month
+select count(distinct pharmacypatientid), date_trunc('MONTH',filldate)::date from sdfarchive group by 2;
+ /* SAS month */
+select count(distinct pharmacypatientid), month(filldate) from sdfarchive group by 2 order by 2
+
+ /* Histogram */
+proc univariate data=data.rxfilldata noprint; hist; var filldate; run;
+
+ /* 6 months ago criteria: */
+where filldate > today()-180
+
+ /* Multisheet Excel output: */
+ods excel file="AN-6617.xlsx"; ods excel options(sheet_name="6 mo"); proc print data=output6mo NOobs; sum count; run; ods excel options(sheet_name="12 mo"); proc print data=output12mo NOobs; sum count; run; ods excel close;
+
+ /* Threaded database connections: */
+from op.rxfilldata_&partition. (dbslice=("FILLNUM=0" "(FILLNUM>=1 OR FILLNUM IS NULL)")) 
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -1288,9 +1316,6 @@ $ tar -tf ~/w3m-0.5.2-2.tar.bz2 | xargs rm -v  # reverse untar mistake
 
 # Direct data to one file and errors to another:
 (cat bladerun_crawl.txt nosuchfile.txt > bladerun_crawlcontents.txt) 2> errmsgonly.txt
-
-# Redirect both STDOUT and STDERR in one file, send nothing to the console (error messages are written to STDOUT instead of STDERR)
-$ ls goodfile.txt nosuchfile.txt > lsOutputWithAnyErrorMessages.txt 2>&1
 
 # Keep a record of software installation:
 $ ./configure 2>&1 | tee log.configure
@@ -1546,7 +1571,7 @@ find . -type f -amin -10 -print # files accessed in last 10 minutes
 find . -type f -atime -2        # files accessed in last 2 days
 find . -type f -mmin -5         # files modified in last 5 minutes
 find . -type f -mtime -1        # files modified in last 1 day (24 hours)
-find . -mtime +3 -mtime -8      # a range of times (-a is optional)
+find . -mtime +3 -mtime -8      # a range of times (-a is optional) older than 3 days and younger than 8 days
 find . -daystart -mtime 0       # files created since 12 midnight today
 find . -daystart -mtime 1       # files created since 12 midnight yesterday (i.e. files NOT created today)
 find . -type f -atime +30       # files that have not been read in 30+ days
@@ -1735,9 +1760,12 @@ bunzip2 linux-2.4.3.tar.bz2 | tar xvf -
 tar tvfj jdk118_v3-glibc-2.1.3.tar.bz2 
 
 # Redirection
-mycommand >&0   <---STDIN  same as 0> I think
-mycommand >&1   <---STDOUT  same as 1> I think
-mycommand >&2   <---STDERR  same as 2> I think
+mycommand >&0   # STDIN  same as 0>
+mycommand >&1   # STDOUT  same as 1>
+mycommand >&2   # STDERR  same as 2>
+
+# Redirect both STDOUT and STDERR, send nothing to the console (error messages are written to STDOUT instead of STDERR)
+$ ls goodfile.txt nosuchfile.txt > lsOutputWithOnlyErrorMessages.txt 2>&1
 
 # mod modulus division (every n item mod will equal 0).  Better might be to just use python.
 bc -lwq    # if need modulus, from within bc, set scale=0
@@ -1933,6 +1961,9 @@ prtconf -v | grep Memory
 isainfo -v
 # Determine processor you have on Solaris:
 psrinfo -v
+
+# Poll memory:
+while true; do date >> ~/free.txt ; free -g -o >> ~/free.txt; sleep 5; done
 
 # Determine the maximum non-swap memory (in MB) you have on Solaris:
 /usr/sbin/prtconf | grep Mem
@@ -2255,7 +2286,7 @@ select distinct quote(trim(batch_nbr)), quote(trim(matl_nbr)) into :batches, :ma
 select batch_nbr, matl_nbr into :batches separated by "','", :materials separated by "','"
 select distinct region into :region1 thru :region3 ...
 
-x "move /Y lelimssumres01a.sas7bdat \\rtpsawn321\d\sql_loader\LeLimsSumres01a&suffix..sas7bdat";
+x "move /Y lelimssumres01a.sas7bdat \\rtpsawn321\d\sql_loader\LeLimsSumres01a&suff..sas7bdat";
 
  /* Tells SAS not to worry about keeping obs with the same BY variable values in the same order (for speed efficiency) */
 proc sql NOEQUAL ...
@@ -2451,6 +2482,7 @@ data; newyearsday = put(intnx('year', "&SYSDATE"D, 0, 'B'), DATE9.); put newyear
  /* Date convert calculate one month ago in macro (more accurate than subtracting 30): */
 %let ThisMonth=201405;
 %let LastMonth=%sysfunc(intnx(month,%sysfunc(InputN(&ThisMonth.01,yymmdd8.)),-1), YYMMDDN8.);  /* the .01 is to fake May 1 */
+%let m= %sysfunc(month("&sysdate"d), z2.);  /* 01 02 etc */
 
 %let FirstDayOfLastMonth=%sysfunc(intnx(month, "&SYSDATE"D, -1, b), YYMMDD10.);
 %let OneMonthAgoToday=%sysfunc(intnx(month, "&SYSDATE"D, -1, s), YYMMDD10.);
@@ -2996,7 +3028,7 @@ select a.*, case when b.chronic='Y' then 'Y' else 'N' end as chronic
 
 put 'ERROR: dups exist ' name= (myvars:)(=);
 
-# Start restart SASApp server. " - " = login as user sas with his environment.
+# Start restart SASApp server. " - " to login as user sas with his environment:
 $ sudo su - sas; /sas/config/Lev1/sas.servers status  # or start or stop 
 
  /*                                                SASROOT _______________________________          */
@@ -3402,9 +3434,10 @@ split -b 1400000 orig.tgz
 # Unsplit rejoin the 1.4MB pieces
 cat xa* > origrebuilt.tgz
 
-# Original file is not saved.  E.g. footext.gpg is readable in vim if use passphrase
+# Encrypt decrypt a file. Original file is not saved.  But foo.txt.gpg is readable in vim if use passphrase:
 gpg -c foo.txt  # encrypt
-gpg -d foo.txt.gpg >foo.txt  # decrypt
+gpg -d foo.txt.gpg  # decrypt to STDOUT
+gpg -d foo.txt.gpg >foo.txt  # decrypt to file
 
 # Recursive wc recursive find - safe for Windows filenames w/ spaces (Cygwin) canonical total count lines of code (alternatively use :vimgrep /foo/ **/*.vb)
 find . -name '*.vb' -print0 | xargs -0 grep -i 'databound web'
@@ -3479,8 +3512,8 @@ Ctr-a d  # detach (from within screen session)
 f=foo.txt; if test "x$f" = "x" && f=bar; then ... fi
 
 # Push, flush, sync bash history from one xterm to another
-history -a  # append this xterm history
-history -n  # read in the other xterms appended history
+history -a  # append this terminal history
+history -n  # read in the other xterms appended history into this terminal
 
 # Insert, append, add a header line to first line of an existing file:
 for f in *.html; do echo "<b>$f</b>" >| new$f && cat $f >> new$f; done;
@@ -3535,17 +3568,22 @@ ctags -R <---probably  $ ctags *  for other versions, not sure how to recurse
 # Then Ctr-] and Ctr-t in Vim to navigate or find function whose name you only know part of (assumes you've run ctags *):
 :ta[g]/iknowpartialregex
 
-# Canonical awk
-awk -F ' ' '{print $1}'  # -F ' ' is unnecessary for space delimiters
-awk '{print $1}'
+# Canonical awk parse third column of pipe delimited - works in vim too e.g. :%!awk -F '|' '{print $3}' much easier than vim regex:
+awk -F '|' '{print $3}'  # -F ' ' is unnecessary for space delimiters
+awk '{print $3}'
 
+# Performance test webpage:
 time w3m -dump bashref2_05.html &>/dev/null
 
-# Decompress from pwd to another dir
+# Decompress from pwd to another dir:
 unzip '*sumr*zip' -d ../tmp
-
-# Just do a simple extract
+# Just do a simple extract:
 unzip -jo lelimssumres01a$ds.sas7bdat.zip
+
+# 7zip zip
+$ 7z a Android-4.4.pdf.7z Android-4.4.pdf
+# 7zip unzip
+$ 7z x proust.7z
 
 # Date formatted using stftime
 $ DATE=`date '+%Y%m%d'` DAY=`date '+%d'` HOUR=`date '+%H'` MONTH=`date '+%m'` MIN=`date '+%M'`
@@ -3613,7 +3651,7 @@ if [ "${1##*.}" = 'tar' ]; then ... fi
 $ tar -x extract_only_me.txt -vf my.tar
 
 CSVS=$(find $PTHPAR -maxdepth 1 -name '*.csv' -not -mtime 0)
-if [ -z "$CSVS"  ];then # string is zero length, no files meet stale criteria, so now echo 'files have been touched today...'
+if [ -z "$CSVS"  ];then # string is empty zero length, no files meet stale criteria, so now echo 'files have been touched today...'
 
 # Determine Cygwin version:
 $ cygcheck -c | grep ygwi
@@ -3781,11 +3819,6 @@ if [ -f $file  ] && [ -w $file ]; then ...  # script
 # Details on which Linux distribution architecture release codename am I using:
 lsb_release -a
 
-$ 7z a Android-4.4.pdf.7z Android-4.4.pdf
-
-# Unzip 7zip
-$ 7z x proust.7z
-
 # Avoid the bash Ctrl-s key combo of death that requires a Ctrl-q to escape its clutches
 stty -ixon
 
@@ -3929,6 +3962,8 @@ awk -F"," '{x+=$2}END{print x}' t.csv
 awk -F"," '{x+=$2;print}END{print "Total,"x}' t.csv
 # Sum column of a CSV file for only myItem1:
 awk -F, '$1=="myItem1"{x+=$2;}END{print x}' t.csv
+# Sum row counts of several files:
+for f in $(find /Drugs/Immunizations -name '*.csv' -a -not -name '*del*' -daystart -mtime -3); do wc -l $f done | awk -F" " '{x+=$1}END{print x}'
 
 # Unique values of the first column (SELECT DISTINCT * FROM COL1). awk database:
 head -n1 t.csv |sed 's/,/\n/g' |nl  # determine field nums
@@ -4008,6 +4043,8 @@ LOAD="${MYUP##*average:}"
 # Bash parse string suffix capture text from space to end of string:
 JOB='clients.sas -foo 256'
 CLIENTID="${JOB##*foo }"  # 256
+# Bash strip suffix from foo.txt
+echo ${foo%.*}
 
 tmux list-sessions  # we see sas0-ses2 is not '(attached)'
 tmux -2 a -t sas0-ses2  # attach if session exists, note sas0-ses2 may be a digit if originally created anonymously
@@ -4073,6 +4110,9 @@ getent passwd "594" | cut -d: -f1
 
 # More powerful than xargs:
 for f in $(find . -name '*.log'); do echo $f; saslog_grep.pl $f | grep ERROR; done;
+
+# Zero pad a list of numbers e.g. 001 002:
+awk '{printf "%03d\n", $0}' junk
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5750,9 +5790,6 @@ select count(*), object_type from dba_objects where owner='PKS' group by object_
 
 <a href="javascript:void(0);" onclick="alert('Hello, world!');">Test</a>
 
--- Rename oracle table
-ALTER TABLE user_role3 RENAME TO user_role2;
-
 -- Expire Oracle user password
 ALTER USER LIMSARCH PASSWORD EXPIRE;
 
@@ -5763,12 +5800,14 @@ ALTER USER limsarch IDENTIFIED BY "new2dayJuly" REPLACE "oldpw";
 -- Change password Postgres password
 ALTER USER heckel WITH PASSWORD 'myPass';
 
--- Oracle copy table
-CREATE TABLE user_roleTEST AS SELECT * FROM user_role;  -- do something to TEST...
+-- Rename Oracle table:
+ALTER TABLE user_role1 RENAME TO user_role2;
+-- Oracle move rename table:
+CREATE TABLE user_roleTMP AS SELECT * FROM user_role;
 DROP TABLE user_role;  -- ...if it worked do this...
-CREATE TABLE user_role AS SELECT * FROM user_roleTEST;  -- ...and this
+CREATE TABLE user_role AS SELECT * FROM user_roleTMP;  -- ...then this
 
--- Oracle days from today, two days ago
+-- Oracle days from today, two days ago:
 select to_char(sysdate-2, 'DD-MON-YY') from dual
 select sysdate-2 from dual
 
@@ -5959,7 +5998,10 @@ System.out.println("Return".concat(" of").concat(" the king."));
 // Java array
 int[] array = new int[5] { 1, 2, 3, 4, 5 };
 
-Administrator cmd.exe: Run / type cmd / Ctrl-Shift-Enter
+Win7 Administrator cmd.exe command prompt:
+Run : type cmd : Ctrl-Shift-Enter
+Win7 Administrator Cygwin/vim:
+Run : C:\cygwin64\bin\mintty.exe : Ctrl-Shift-Enter
 
 :: Win7 slow network debug (as Administrator):
 netsh interface tcp show global
@@ -6140,10 +6182,10 @@ select 'EXPIRE='||to_char(date('now')+365,'YYYYMMDD') as x2
 -- Yesterday in Postgres date:
 and lastmodified >= CURRENT_DATE-1
 
-To save postgresql output to comma pipe delimited csv file (warning - multiple runs append):
+To save postgresql output to comma pipe delimited csv file (warning - multiple runs append so \q when done):
 psql> \f '|' \a \o /Drugs/Personnel/bob/t.csv
 psql> \f ',' \a \t \o ~/tmp/bob/withoutheader.csv
-psql> \e
+psql> \f '\t' \a \t \o /sasdata/Personnel/bob/tabdelimited.out
 
 -- Postgres commit transactions (case-sensitive).  Or use:  BEGIN; update tbl set field=0; COMMIT; (or ROLLBACK;):
 \set AUTOCOMMIT off
@@ -6187,5 +6229,14 @@ select digest(patientnamefirst,'sha1') from rxfilldata_parent limit 1;
 
 -- Postgres client encrypted using salt 'theirsalt', encrypt to compare with original pharmacypatientids hash
 select pharmacypatientid, encode(digest(pharmacypatientid||'theirsalt','sha1'), 'hex') as patient_num2, filldate
+
+-- Postgres rounding percentages
+select clientid, avg(enrolledratio)::decimal(5,2)
+
+-- Postgres datetime criteria:
+select * from analytics.tmm_enrollmentperf where created > '2017-01-30 09:00:00'::timestamp;
+
+-- Do we have 12 months for each client?:
+select clientid, year, count(*) from (select distinct clientid, year, month from dshbrd.pdctracksummary where year=2016) as t group by clientid, year order by clientid, year;
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
