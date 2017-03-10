@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Fri 06 Jan 2017 16:01:02 (Bob Heckel)
+" Modified: Mon 06 Mar 2017 16:30:30 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -104,6 +104,10 @@ endif
 
 """scriptencoding utf-8
 set encoding=utf-8
+
+" $ mkdir -p ~/.vim/autoload ~/.vim/bundle && curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
+"""execute pathogen#infect()
+" cd ~/.vim/bundle && git clone git://github.com/tpope/vim-commentary.git
 
 " end Initialization
 
@@ -859,10 +863,12 @@ nnoremap ,hdr :-1read ~/code/sas/Headertmplt.sas<CR>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Comment out (using the most common comment style '###' for suffix-less files).
 " This default may be overridden by au commands below.
-noremap ;; :call setline('.', Commentout(getline('.'), 'default'))<CR>
+"""noremap ;; :call setline('.', Commentout(getline('.'), 'default'))<CR>
+" 07-Mar-17 use Commentary instead
+noremap ;; :Commentary<CR>
 " If filetype isn't set for /* this style */
-noremap ;;; :silent s:^:/\*\*\*:g \| :s:$:\*\*\*/:g<CR>
-noremap ;;;; :silent s:^/\\*\\*\\*::g \| :s:\\*\\*\\*/$::g<CR>
+"""noremap ;;; :silent s:^:/\*\*\*:g \| :s:$:\*\*\*/:g<CR>
+"""noremap ;;;; :silent s:^/\\*\\*\\*::g \| :s:\\*\\*\\*/$::g<CR>
 
 if has('unix')
 """  map ;0 <ESC>:!/usr/bin/google-chrome 'https://google.com/search?q=<C-R>=Websearch()<CR>'<CR><CR>
@@ -1611,7 +1617,7 @@ endfu
 if !exists("autocommands_loaded")
   let autocommands_loaded = 1
  
-	" Start a returning session at the line and column of last edited position
+	" Start at the line and column of last edited position
 	autocmd BufReadPost * if line("'\"") | exe "normal '\"" | endif
 
   if has('gui')
@@ -1631,7 +1637,7 @@ if !exists("autocommands_loaded")
   au BufRead tmpsas.*.log,tmpsas.*.lst map q :qa!<CR>
   au BufRead tmpsas.*.log,tmpsas.*.lst echo '.vimrc: q to exit all'
 
-  au BufNewFile,BufRead,BufEnter *.sas map ;; :call setline('.', Commentout(getline('.'), 'sas'))<CR>
+"""  au BufNewFile,BufRead,BufEnter *.sas map ;; :call setline('.', Commentout(getline('.'), 'sas'))<CR>
   au BufNewFile,BufRead,BufEnter *.sas map ;c 0Di  *  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.sas map ;m 0Di  * Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.sas map ,m yy0I***<ESC>p
@@ -1662,26 +1668,26 @@ if !exists("autocommands_loaded")
   if has ('unix') && version > 599
     au BufWritePost *.pl silent !chmod a+x <afile>
   endif
-  au BufNewFile,BufRead,BufEnter *.pl,*.pm map ;; :call setline('.', Commentout(getline('.'), 'perl'))<CR>
+"""  au BufNewFile,BufRead,BufEnter *.pl,*.pm map ;; :call setline('.', Commentout(getline('.'), 'perl'))<CR>
   " end Perl
 
   au FileType sh set fileformat=unix
   au BufWritePost *.sh silent !chmod a+x <afile>
-  au FileType basic map ;; :call setline('.', Commentout(getline('.'), 'vb'))<CR>
+"""  au FileType basic map ;; :call setline('.', Commentout(getline('.'), 'vb'))<CR>
   au FileType basic map ,m yy0I'''<ESC>p
   au FileType basic map ;s :s:^:''':<CR>
-  au FileType dosbatch map ;; :call setline('.', Commentout(getline('.'), 'bat'))<CR>
-  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;; :call setline('.', Commentout(getline('.'), 'cpp'))<CR>
+"""  au FileType dosbatch map ;; :call setline('.', Commentout(getline('.'), 'bat'))<CR>
+"""  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;; :call setline('.', Commentout(getline('.'), 'cpp'))<CR>
   au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;c 0Di//  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;m 0Di// Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ,m yy0I///<ESC>p
-  au FileType sh map ;; :call setline('.', Commentout(getline('.'), 'default'))<CR>
+"""  au FileType sh map ;; :call setline('.', Commentout(getline('.'), 'default'))<CR>
   au FileType sh silent !chmod a+x <afile>
   " Default Vim make is for C, this handles C++
   au BufNewFile,BufRead,BufEnter *.cpp set makeprg=g++\ -Wall\ %
   au BufNewFile,BufRead,BufEnter *.c nmap ;z :!gcc %<CR>\|:echon 'compiled a.exe via ;z map'<CR>
-  au FileType javascript map ;; :call setline('.', Commentout(getline('.'), 'cpp'))<CR>
-  au BufNewFile,BufRead,BufEnter *.htm*,*xsl* map ;; :call setline('.', Commentout(getline('.'), 'html'))<CR>
+"""  au FileType javascript map ;; :call setline('.', Commentout(getline('.'), 'cpp'))<CR>
+"""  au BufNewFile,BufRead,BufEnter *.htm*,*xsl* map ;; :call setline('.', Commentout(getline('.'), 'html'))<CR>
   au BufNewFile,BufRead,BufEnter *.htm* map ,m yy0I///<ESC>p
   au BufNewFile,BufRead,BufEnter *.asp,*.bas let s:VBnotend = '\%(\<end\s\+\)\@<!'
   au BufNewFile,BufRead,BufEnter *.asp,*.bas let b:match_words = s:VBnotend . '\<if\>:\<end\s\+if\>'
@@ -1698,6 +1704,12 @@ if !exists("autocommands_loaded")
 
   " Don't wrap these                           bash fc temp files
 """  au BufRead,BufEnter *.htm*,*.asp,*.cgi,*.sql,*/tmp/bash*,afiedt.buf set tw=0 wm=0
+
+  au BufRead,BufEnter *.sql,afiedt.buf iab LI limit 10
+  au BufRead,BufEnter *.sql,afiedt.buf iab OB order by 1
+  au BufRead,BufEnter *.sql,afiedt.buf iab SF select * from
+  au BufRead,BufEnter *.sql,afiedt.buf iab SC select count(*) from
+  au BufRead,BufEnter *.sql,afiedt.buf iab WH where
 
   " See  set cinwords  above.
 """  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.pl,*.pm,*.sas set smartindent
@@ -1718,11 +1730,11 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufRead,BufEnter *.vim,.vimrc,*.htm,*.html,*_vimrc set keywordprg=
   au FileType HELP set keywordprg=
 
-  au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;; :call setline('.', Commentout(getline('.'), 'vim'))<CR>
+"""  au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;; :call setline('.', Commentout(getline('.'), 'vim'))<CR>
   au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;c 0Di"  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;m 0Di" Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ,m yy0I"""<ESC>p
-  au BufNewFile,BufRead,BufEnter .bashrc,_bashrc* map ;; :call setline('.', Commentout(getline('.'), 'bash'))<CR>
+"""  au BufNewFile,BufRead,BufEnter .bashrc,_bashrc* map ;; :call setline('.', Commentout(getline('.'), 'bash'))<CR>
   au BufNewFile,BufRead,BufEnter *.vim nmap ;z :source %<CR>
 
   " MS Office
@@ -4018,6 +4030,114 @@ let g:DirDiffExcludes = 'CVS,*.class,*.exe,.*.swp,*.sas7bdat,*.sas7bcat,*.lnk,*.
 " Needed to avoid losing my cpoptions setting above
 let &cpo = s:save_cpo  " /*}}}*/
 
+" 2017-03-07 inlined Commentary {{{
+" commentary.vim - Comment stuff out
+" Maintainer:   Tim Pope <http://tpo.pe/>
+" Version:      1.3
+" GetLatestVimScripts: 3695 1 :AutoInstall: commentary.vim
+
+if exists("g:loaded_commentary") || &cp || v:version < 700
+  finish
+endif
+let g:loaded_commentary = 1
+
+function! s:surroundings() abort
+  return split(get(b:, 'commentary_format', substitute(substitute(
+        \ &commentstring, '\S\zs%s',' %s','') ,'%s\ze\S', '%s ', '')), '%s', 1)
+endfunction
+
+function! s:strip_white_space(l,r,line) abort
+  let [l, r] = [a:l, a:r]
+  if stridx(a:line,l) == -1 && stridx(a:line,l[0:-2]) == 0 && a:line[strlen(a:line)-strlen(r[1:]):-1] == r[1:]
+    return [l[0:-2], r[1:]]
+  endif
+  return [l, r]
+endfunction
+
+function! s:go(type,...) abort
+  if a:0
+    let [lnum1, lnum2] = [a:type, a:1]
+  else
+    let [lnum1, lnum2] = [line("'["), line("']")]
+  endif
+
+  let [l_, r_] = s:surroundings()
+  let uncomment = 2
+  for lnum in range(lnum1,lnum2)
+    let line = matchstr(getline(lnum),'\S.*\s\@<!')
+    let [l, r] = s:strip_white_space(l_,r_,line)
+    if line != '' && (stridx(line,l) || line[strlen(line)-strlen(r) : -1] != r)
+      let uncomment = 0
+    endif
+  endfor
+
+  for lnum in range(lnum1,lnum2)
+    let line = getline(lnum)
+    if strlen(r) > 2 && l.r !~# '\\'
+      let line = substitute(line,
+            \'\M'.r[0:-2].'\zs\d\*\ze'.r[-1:-1].'\|'.l[0].'\zs\d\*\ze'.l[1:-1],
+            \'\=substitute(submatch(0)+1-uncomment,"^0$\\|^-\\d*$","","")','g')
+    endif
+    if uncomment
+      let line = substitute(line,'\S.*\s\@<!','\=submatch(0)[strlen(l):-strlen(r)-1]','')
+    else
+      let line = substitute(line,'^\%('.matchstr(getline(lnum1),'^\s*').'\|\s*\)\zs.*\S\@<=','\=l.submatch(0).r','')
+    endif
+    call setline(lnum,line)
+  endfor
+  let modelines = &modelines
+  try
+    set modelines=0
+    silent doautocmd User CommentaryPost
+  finally
+    let &modelines = modelines
+  endtry
+endfunction
+
+function! s:textobject(inner) abort
+  let [l_, r_] = s:surroundings()
+  let [l, r] = [l_, r_]
+  let lnums = [line('.')+1, line('.')-2]
+  for [index, dir, bound, line] in [[0, -1, 1, ''], [1, 1, line('$'), '']]
+    while lnums[index] != bound && line ==# '' || !(stridx(line,l) || line[strlen(line)-strlen(r) : -1] != r)
+      let lnums[index] += dir
+      let line = matchstr(getline(lnums[index]+dir),'\S.*\s\@<!')
+      let [l, r] = s:strip_white_space(l_,r_,line)
+    endwhile
+  endfor
+  while (a:inner || lnums[1] != line('$')) && empty(getline(lnums[0]))
+    let lnums[0] += 1
+  endwhile
+  while a:inner && empty(getline(lnums[1]))
+    let lnums[1] -= 1
+  endwhile
+  if lnums[0] <= lnums[1]
+    execute 'normal! 'lnums[0].'GV'.lnums[1].'G'
+  endif
+endfunction
+
+xnoremap <silent> <Plug>Commentary     :<C-U>call <SID>go(line("'<"),line("'>"))<CR>
+nnoremap <silent> <Plug>Commentary     :<C-U>set opfunc=<SID>go<CR>g@
+nnoremap <silent> <Plug>CommentaryLine :<C-U>set opfunc=<SID>go<Bar>exe 'norm! 'v:count1.'g@_'<CR>
+onoremap <silent> <Plug>Commentary        :<C-U>call <SID>textobject(0)<CR>
+nnoremap <silent> <Plug>ChangeCommentary c:<C-U>call <SID>textobject(1)<CR>
+nmap <silent> <Plug>CommentaryUndo <Plug>Commentary<Plug>Commentary
+command! -range -bar Commentary call s:go(<line1>,<line2>)
+
+if !hasmapto('<Plug>Commentary') || maparg('gc','n') ==# ''
+  xmap gc  <Plug>Commentary
+  nmap gc  <Plug>Commentary
+  omap gc  <Plug>Commentary
+  nmap gcc <Plug>CommentaryLine
+  nmap cgc <Plug>ChangeCommentary
+  nmap gcu <Plug>Commentary<Plug>Commentary
+endif
+
+" TODO deprecate my code
+" Add as needed
+autocmd FileType sh setlocal commentstring=#\ %s
+
+"}}}
 
 " end 3rd Party Plugins
 "--------------------------------------------------------------------------
