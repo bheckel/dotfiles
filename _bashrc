@@ -591,10 +591,12 @@ case "$OSTYPE" in
 
       if [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ]; then
         export PS1='${fg_darkgray}\j ${fg_yellowbold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
+        alias vit='vi ~/t.sas'
       fi
 
       if [ $HOSTNAME = 'sas-01.mrk.ateb.com' ]; then
         export PS1='${fg_darkgray}\j ${fg_redbold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
+        alias vit='vi ~/t.sas'
       fi
 
       if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ] || [ $HOSTNAME = 'sas-01.mrk.ateb.com' ]; then
