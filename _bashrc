@@ -4,7 +4,7 @@
 # Summary: bash config for at least Cygwin 1.3/1.5/1.7, Unix/Linux and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Fri 13 Jan 2017 13:28:20 (Bob Heckel)
+# Modified: Wed 22 Feb 2017 13:39:45 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -143,6 +143,10 @@ alias unbak="$HOME/code/misccode/bak -u "
 alias uvi="$HOME/code/perl/uvi"  # don't change timestamp
 alias ve="vi $HOME/.vimrc"
 alias wget='wget -c'  # continue failures
+
+# Project-specific
+alias mrk='ssh -l bheckel sas-01.mrk.ateb.com'
+alias sas0='ssh -l bheckel sas-01.twa.ateb.com'
 
 #-----------------------------------
 # bash functions must precede calls
@@ -602,6 +606,7 @@ case "$OSTYPE" in
         alias sas0='ssh -l bheckel sas-01.twa.ateb.com'
         alias tal='ssh -l bheckel talon3.dep.ateb.com'
         alias vi=$HOME/usr/local/bin/vim
+        alias vit='vi ~/t.sas'
 
         # This sometimes keeps things from failing when the minimal vim is installed as vi
         export EDITOR=/mnt/nfs/home/bheckel/usr/local/bin/vim
@@ -609,7 +614,7 @@ case "$OSTYPE" in
 
         # If locate() not available
         function loc() {
-          find $HOME/code |grep -i "$1" | xargs ls -lt >|~/bob/tmp/.vimxfer_ses && vi ~/bob/tmp/.vimxfer_ses
+          find $HOME/code |grep -i "$1" | xargs ls -lt >|~/bob/tmp/.vimxfer_ses && $HOME/usr/local/bin/vim ~/bob/tmp/.vimxfer_ses
         }
 
         # E.g. Mar  3 07:32 /Drugs/Cron/Daily/tmm_enroll_ratio/tmm_enroll_ratio.log
@@ -731,8 +736,6 @@ case "$OSTYPE" in
       #-----------------
       export EDITOR=vim
       export PATH=$HOME/bin:/IBMGNU/bin:/usr/local/bin:$PATH
-      export PROMPT_COMMAND='set_prompt_colors'
-      export PS1=': `stoppedjobs`\[${prompt_beg}\]$(whoami|tr A-Z a-z)@ip01\[${prompt_end}\]\[${fg_green}\]\$\[${normal}\]; '
       # Mandatory for dtelnet
       export TERM=xterm
       #-----------------

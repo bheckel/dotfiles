@@ -481,7 +481,7 @@ Omnicomplete default key combination using syntax files in insert mode C-X C-O
 " Turn all open buffers into tabs
 :tab ball
 
-" This foldmethod doesn't mod file
+" This foldmethod doesn't modify the file:
 :se fdm=manual
 :setlocal foldmethod=marker
 
@@ -1173,10 +1173,10 @@ proc sql; connect to odbc as myconn (user=&user. password=&jasperpassword. dsn='
 data t; set data.fnl end=e; output; if e then do; clientid=685; output; end; run;
 
  /* Single quote for Postgres etc: */
-select distinct quote(gpi,"'") into :gpis separated by ','
+select distinct quote(strip(gpi),"'") into :gpis separated by ','
 select cats("'",ndc,"'") into: ndc_str separated by ','
 
- /* Age bucket groupings 10-19 20-29 etc. */
+ /* Age bucket groupings 10-19 20-29 etc. using modulo: */
 data _null_; age=12; age10=age-mod(age,10); put age10=; run;
 
 proc sql; select foo, today() as startdate format date9.,today()+8 as enddate format date9.,1000000 as ranking from t; quit;
@@ -1278,6 +1278,9 @@ ods excel file="AN-6617.xlsx"; ods excel options(sheet_name="6 mo"); proc print 
 
  /* Threaded database connections: */
 from op.rxfilldata_&partition. (dbslice=("FILLNUM=0" "(FILLNUM>=1 OR FILLNUM IS NULL)")) 
+
+ /* Access a Metadata assigned library: */
+libname l meta library='FuncData';
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -1420,6 +1423,10 @@ $ export DISPLAY=158.111.250.163:0.0 && mozilla&
 
 30 09,15,20 * * * grep http /home/chronos/user/Bookmarks | awk '{print $2}'| sed 's/"//g' | sed 's/$/<BR>/' >| /home/chronos/user/Dropbox/Public/Equanimity/bm.html 2>|/home/chronos/user/cron.log
 
+# cron every other week (errors at EOY):
+49 15 * * 3 [ `expr \`date +\%V\` \% 2` -eq 0 ] && ~/crontest.sh
+49 15 * * 3 [ `expr \`date +\%V\` \% 2` -eq 1 ] && ~/crontest.sh
+
 # Human readable disk space Solaris
 df -h
 # Human readable disk space HPUX
@@ -1484,6 +1491,7 @@ winkill `ps -W | grep rtvscan | head -n1 | awk '{print $1}'`
 # Create a ~500MB (~500,000,000 bytes) dummy file of garbage (like mkfile) that is a specific size in bytes:
 #                             ea block   num blocks
 dd if=/dev/zero of=biggarbage bs=50000 count=10000
+dd if=/dev/zero of=biggarbage bs=100000 count=10000  # gigabyte
 
 # chmod: 4 Read  2 Write  1 eXecute  (User, Group, Others (neither U nor G), All)
 # For directories, 'read' permission is necessary to ls directory's contents.
@@ -1767,10 +1775,10 @@ mycommand >&2   # STDERR  same as 2>
 # Redirect both STDOUT and STDERR, send nothing to the console (error messages are written to STDOUT instead of STDERR)
 $ ls goodfile.txt nosuchfile.txt > lsOutputWithOnlyErrorMessages.txt 2>&1
 
-# mod modulus division (every n item mod will equal 0).  Better might be to just use python.
+# mod modulo modulus division (every n item mod will equal 0).  Better might be to just use python.
 bc -lwq    # if need modulus, from within bc, set scale=0
 
-# mod modulus division
+# mod modulo modulus division
 if (num % i == 0) { isPrime = false; }
 E.g. 3 % 2 = 1    i.e. flip it 2/3 taking the remainder which is 1
 E.g. 2 % 3 = 2    i.e. flip it 3/2 taking the remainder which is 2
@@ -2318,13 +2326,13 @@ mfg_batch=scan(mfg_batch,1,'-');
  /* Goes right to left, fixes problem of names with middle names */
 lastname=scan(fullname, -1 ' ');
 
- /* Get every 4th obs */
+ /* Get every 4th obs using modulo */
 if mod(_N_, 4) eq 0; ...
- /* Get every other obs */
+ /* Get every other obs using modulo */
 if mod(_N_, 2) eq 0; ...
- /* Test for oddness */
+ /* Test for oddness using modulo */
 mod(x,2) eq 1
- /* Test for evenness */
+ /* Test for evenness using modulo */
 mod(x,2) eq 0
 
  /* Determine where WORK dir is located: */
@@ -3016,7 +3024,7 @@ sum(case when status='OPTOUT' then 1 else 0 end)/count(*) OPTOUT format percent8
  /* Count number of distinct y values when x is less than 30: */
 select count(distinct y) as unique_y, count(distinct case when x < 30 then y else . end) as unique_criteria
 
- /* Do something every 5 days: */
+ /* Do something every 5 days using modulo: */
 %let mod=%sysfunc(mod((%sysfunc(today())-"17JUN2015"d),5));  %if &mod eq 0 %then ...
 
  /* Where are SAS configuration files located: */
@@ -4079,12 +4087,16 @@ watch -d 'ls -l ~ |grep sas'
 # Read control file to determine which code to run:
 while read -r clid; do nice -n19 $SAS -sysin ~/$clid.sas -log ~/$clid.log done <$FILE
 
-# Count number of cores.  Cores = Cores per socket x Sockets
+# CPU count:
 nproc --all
 lscpu | egrep 'Thread|Core|Socket|^CPU\('
+# Count number of cores.  Cores = Cores per socket x Sockets.  CPU cores count.
 grep -m 1 'cpu cores' /proc/cpuinfo
 # Count available memory:
 vmstat -s | grep memory
+
+# Process using most memory:
+ps -e -o pid,vsz,comm= | sort -n -k 2
 
 # Name of this running program without the path:
 THISPROG=${0##*/}
@@ -4113,6 +4125,8 @@ for f in $(find . -name '*.log'); do echo $f; saslog_grep.pl $f | grep ERROR; do
 
 # Zero pad a list of numbers e.g. 001 002:
 awk '{printf "%03d\n", $0}' junk
+
+zip -P passw0rd secure.zip file
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5648,7 +5662,7 @@ Factorial: 6! is 6*5*4*3*2*1
 
 Fibonacci each number is the sum of the preceding two: 0 1 1 2 3 5 8 13 21 ...
 
-OldNew percentage change: Take the new, "current value" and divide it by the old, obsolete value. Subtract 1.00 (or 100%) from the result.
+OldNew percentage change %: Take the new, "current value" and divide it by the old, "obsolete value". Subtract 1.00 (i.e. 100%) from the result.
 
 Disable screensaver lock Windows XP (see also code\misccode\ScreenSaverIsSecure_Make0.reg)
 \HKCU\Software\Policies\Microsoft\Windows\ControlPanel\Desktop
@@ -5909,6 +5923,9 @@ git add README  # use git add -f README to force add if it's excluded by .gitign
 # Existing github repo on a new foreign box (do git remote rm origin first if get "you can't push" error):
 git clone git://github.com/bheckel/dotfiles.git && git remote add origin git@github.com:bheckel/dotfiles.git; ...edit/add/commit... git pull origin master && git push origin master
 
+# Compare commits:
+git difftool 3a93bc3 1fb24fe
+
 # Test AJAX etc that won't work using file:// etc.
 $ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
 
@@ -6143,10 +6160,9 @@ curl -o ~/tmp/breaching_whale.jpg -OL https://cdn.learnenough.com/breaching_whal
 -- Postgres date truncation:
 where date_trunc('minute', ahpp.lastmodified) = '2016-02-23 08:56:00'::timestamp
 
--- Postgres help
--- psql help  \?
+-- Postgres help $ psql help  \?
 
-fulljoin FULL JOIN: an INNER JOIN that has been augmented with rows in either table that are not in the other table
+fulljoin FULL JOIN: an INNER JOIN that has been augmented with rows in either table that are not in the other table (fills in NULLs for missing matches on either side)
 
 selfjoin SELF JOIN: a recursive join that results when a set of data is joined back to itself.
 Typically encountered when a parent-child relationship in a hierarchy needs to be traversed.
@@ -6238,5 +6254,8 @@ select * from analytics.tmm_enrollmentperf where created > '2017-01-30 09:00:00'
 
 -- Do we have 12 months for each client?:
 select clientid, year, count(*) from (select distinct clientid, year, month from dshbrd.pdctracksummary where year=2016) as t group by clientid, year order by clientid, year;
+
+-- Hadoop shell ls equivalent:
+hdfs dfs -ls /tmp/.pigscripts/riskfactorpig-2017-02-15_07-56.pig
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
