@@ -605,6 +605,9 @@ vi -d /Drugs/update_shortname_ds.sas scp://bheckel@sas-01.mrk.taeb.com//Drugs/up
 let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWL14H50510','sas-01.mrk.taeb.com' ]
 if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
 
+" Delete duplicate lines
+:%s/^\(.*\)\(\n\1\)\+$/\1/
+
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -932,6 +935,7 @@ options blksize(dasd)=half;
 no_controlchar_punctuation_digits=compress('foo,bar.8', , 'CPD');
 
  /* Perl prx regex in SAS */
+if prxmatch('/((\(\d{3}\) ?)|(\d{3}-))?\d{3}-\d{4}/', ph) then type='valid phone number';
 data; set SASHELP.shoes; if _N_ eq 1 then rc=prxparse("/ica$/"); retain rc; if prxmatch(rc,region); run;
 /* Remove non-standard characters e.g. ApotPhar@SnS: */
 short_client_name=prxchange('s/[^A-z0-9-_]//', -1, short_client_name);
@@ -1282,6 +1286,17 @@ from op.rxfilldata_&partition. (dbslice=("FILLNUM=0" "(FILLNUM>=1 OR FILLNUM IS 
  /* Access a Metadata assigned library: */
 libname l meta library='FuncData';
 
+ /* Reset open close ODS listing to Log: */
+ods listing close;
+ods listing;
+
+ /* Name of running macro: */
+%put DEBUG: &SYSMACRONAME running &=myclid because &=is_independent;
+
+ /* Implicit pass-through */
+libname ORA oracle user=pks password=pw path=ustst38;
+options NOlabel; proc sql; select name from dictionary.columns where libname eq 'ORA' and memname eq 'USER_ROLE' ; quit;
+
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -1515,6 +1530,7 @@ rsh zrtph128 'cat /home/rheckel/junk' | vi -
 
 # Canonical sort by largest files (descending), assumes filesize is in 5th column
 ls -l | sort -r -n -k 5
+du -sh ~/bob/* | sort -h
 
 # Top 20 largest files AND directories (Cygwin):
 sudo du -sk /saswork/* | sort -rn | head -n20  # must use the '*' or get dir tot only
@@ -1642,6 +1658,7 @@ find / -type f -size +1000000c -exec ls -l {} \; 2>/dev/null | grep -v "/proc"
 find /workspace -type f -size +50G -exec ls -lh {} \;
 # Troubleshoot find largest file:
 find ~/tmp -size +1M | xargs ls -lh | awk '{print$5,$3,$4,$6,$7,$8,$9}' | sort -rh
+cd ~/tmp; du -sh * | sort -h
 
 # Find files in the /tmp directory that are larger than 10 megabytes (10 million bytes) that have not been modified in the last 48 hours:
 find /tmp -size +10000000c -and -mtime +2
@@ -3642,6 +3659,8 @@ if [ expression ];then commands elif [ expression2 ];then commands else commands
 [ $# -lt 2 ] && echo "Usage: $0 arg1 arg2" && exit 1
 [ $# -eq 1 ] || echo "Usage: $0 arg1" && exit 1
 if [ $# = 0 ]; then ... fi
+# Less than 1 argument default parameter passed to shell script:
+[ $# -lt 1 ] && echo "Usage: $0 arg1 arg2" && exit 1
 
 # Length of string is 1 character:
 if [ ${#month} -eq 1 ];then echo 'ok'; fi
@@ -3751,6 +3770,7 @@ for x in "${MAPFILES[@]}"; do ...; done
 # Canonical timestamped backup quick tar quick backup:
 cd $c && tar cvfz /cygdrive/u/bkup/dpCdrive.`date +%d%b%y`.tgz datapost/ ; cd -  # use "datapost/" instead of "/cygdrive/c/datapost" for easier untarring
 tar cvfz /cygdrive/u/bkup/retain.`date +%d%b%y`.tgz $y/retainsamp_sas/
+cp -i /Drugs/tmm_targeted_list_refresh.sas7bdat ~/bob/tmp/tmm_targeted_list_refresh.`date +\%d\%b\%y`.sas7bdat  # backslashes for cron
 
 # Comma delimited items split into lines, one item per line (convert wide to long)
 awk -F, '{ print $1; print $2; print $3 }' t.csv
@@ -3888,6 +3908,8 @@ ls -l /proc/25226/exe
 sudo sed -i -e "s/# deb/deb/g" /etc/apt/sources.list  # caution sed will turn ff=unix
 sed -i '/ifwordonline/s/changeme/tothis/' t.pl  # caution sed will turn ff=unix
 sed -i '/polic/s/squad/pod/' bladerun_crawl
+# Inplace edit change last field in each t1.txt t2.txt t3.txt - NO BACKUP
+find . -maxdepth 1 -name 't[123].txt' | xargs sed -i  -e 's/04\/20\/2017"$/03\/30\/2017"/'
 
 # Avoid having to cd / to untar a cygwin package:
 tar -C / -xvf connect-proxy-1.101-1.tar.gz
@@ -3994,8 +4016,11 @@ curl -s ftp://mirror.cs.vt.edu/pub/cygwin/cygwin/x86/setup.ini | awk '/^install:
 # Open most recent file:
 vim $( ls /tmp/*.__* | sort -r | head -n 1 )
 
-# Default an empty missing bash environment variable:
+# Default an empty missing bash shelldefault environment variable:
 test "x$no_of_days" = "x" && no_of_days=10
+# Default an empty missing bash shelldefault incoming parameter environment variable:
+daysback=${1}
+test "x${1}" = "x" && daysback=1
 
 # Check for any default pararmeters arguments passed:
 [ -z "$1" ] && echo "No argument supplied" && exit 1
@@ -4127,6 +4152,9 @@ for f in $(find . -name '*.log'); do echo $f; saslog_grep.pl $f | grep ERROR; do
 awk '{printf "%03d\n", $0}' junk
 
 zip -P passw0rd secure.zip file
+
+# Git mantra:
+alias gitup="git add . && git commit -m 'mod' && git push origin master"
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6257,5 +6285,8 @@ select clientid, year, count(*) from (select distinct clientid, year, month from
 
 -- Hadoop shell ls equivalent:
 hdfs dfs -ls /tmp/.pigscripts/riskfactorpig-2017-02-15_07-56.pig
+
+-- SQL find employees with salary greater than the average revenue generated in their department.  Correlated subquery:
+SELECT * FROM employees WHERE salary > (SELECT AVG(revenue_generated) FROM employees AS dept_employees WHERE dept_employees.department = employees.department);
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
