@@ -4,7 +4,7 @@
 # Summary: bash config for at least Cygwin 1.3/1.5/1.7, Unix/Linux and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Mon 20 Mar 2017 08:46:32 (Bob Heckel)
+# Modified: Thu 11 May 2017 13:25:07 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -131,6 +131,7 @@ alias lla='ls -agh --color --group-directories-first'
 ###alias lls='ls -l | sort +4r | grep -v "total"'  # sort descending on size
 alias lsd='find . -type d'
 alias one="vi $HOME/code/misccode/oneliners"
+alias pse='ps -ef|grep bheckel'
 ###alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
 alias qr=$HOME/code/misccode/quickref_find.sh
 alias rme=$HOME/rme/rme
@@ -171,7 +172,7 @@ ses() {
   fi
 }
 
-# Search comma-separated project session database-like files.  Debug: find ~/bob/ -name .keyword|xargs head
+# Session grep.  Search comma-separated project session keyword files.  Debug: find ~/bob/ -name .keyword|xargs head
 sesg() {
   find ~/bob/ -name '.keyword*' | xargs grep -i "$1"
 }

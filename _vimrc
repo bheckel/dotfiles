@@ -563,6 +563,7 @@ if has('gui')
   set guioptions+=r
   set guioptions-=T
   set guioptions-=m
+  set guifont=Consolas:h8
 endif
 
 " Use  :set guifont=*  to browse
@@ -1665,14 +1666,14 @@ if !exists("autocommands_loaded")
   " Alternate help files via 'K'.  Default s/b set above as keywordprg=man
   au BufNewFile,BufRead,BufEnter *.p[lm] set keywordprg=perldoc\ -f
   au BufNewFile,BufRead,BufEnter *.pl map ,3 :s:^###::g<CR>:se nohls<CR>
-  if has ('unix') && version > 599
-    au BufWritePost *.pl silent !chmod a+x <afile>
-  endif
+  " if has ('unix') && version > 599
+    " au BufWritePost *.pl silent !chmod a+x <afile>
+  " endif
 """  au BufNewFile,BufRead,BufEnter *.pl,*.pm map ;; :call setline('.', Commentout(getline('.'), 'perl'))<CR>
   " end Perl
 
   au FileType sh set fileformat=unix
-  au BufWritePost *.sh silent !chmod a+x <afile>
+  " au BufWritePost *.sh silent !chmod a+x <afile>
 """  au FileType basic map ;; :call setline('.', Commentout(getline('.'), 'vb'))<CR>
   au FileType basic map ,m yy0I'''<ESC>p
   au FileType basic map ;s :s:^:''':<CR>
@@ -1682,7 +1683,6 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;m 0Di// Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ,m yy0I///<ESC>p
 """  au FileType sh map ;; :call setline('.', Commentout(getline('.'), 'default'))<CR>
-  au FileType sh silent !chmod a+x <afile>
   " Default Vim make is for C, this handles C++
   au BufNewFile,BufRead,BufEnter *.cpp set makeprg=g++\ -Wall\ %
   au BufNewFile,BufRead,BufEnter *.c nmap ;z :!gcc %<CR>\|:echon 'compiled a.exe via ;z map'<CR>
@@ -4133,10 +4133,11 @@ if !hasmapto('<Plug>Commentary') || maparg('gc','n') ==# ''
   nmap gcu <Plug>Commentary<Plug>Commentary
 endif
 
-" TODO deprecate my code
 " Add as needed
-autocmd FileType sh setlocal commentstring=#\ %s
+autocmd FileType sh,perl,crontab setlocal commentstring=#\ %s
+autocmd FileType vim setlocal commentstring=\"\ %s
 
+" TODO deprecate my code in favor of this
 "}}}
 
 " end 3rd Party Plugins
