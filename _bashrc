@@ -177,6 +177,9 @@ sesg() {
   find ~/bob/ -name '.keyword*' | xargs grep -i "$1"
 }
 
+sesh() {
+  ses|head
+}
 
 # 'Windows-ish Start' a file or file manager
 st() {

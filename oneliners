@@ -611,6 +611,10 @@ if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
 " Delete duplicate lines
 :%s/^\(.*\)\(\n\1\)\+$/\1/
 
+" Custom Session:
+:mksession! .debug
+vim -S /mnt/nfs/home/bheckel/bob/ImmTasks/.debug
+
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -705,12 +709,12 @@ data _null_; age=input(symget('age'),12.); run;
  /* SAS X command (ok in open code): */
 x 'c:/util/vim/vim61/gvim.exe -c "set winsize=100 20" out.dat';
 
- /* Canonical generate random number between 1 and 5 */
+ /* Canonical generate random whole number between 1 and 5 */
 randomnum = ceil(ranuni(0) * 5);
- /* Generate random number between 100 and 123: */
-randomnum = 23*ranuni(-1) + 100;
+ /* Generate random number floating point number between 100 and 123: */
+randomnum = ranuni(-1)*23 + 100;
  /* Generate random number between 0 and 1: */
-randomnum = round(1*ranuni(-1) + 0);
+randomnum = round(ranuni(-1));
 
 Interactive SAS on OS/390 (from TSO command line):
 ==> sas options('dms yearcutoff=1905')
@@ -737,9 +741,6 @@ if indx GE '0' and indx LE '9' then delete;
  /* Keep only numbers from a mixed CHAR variable: */
 isnum = verify(compress(storeid), '.0123456789'); if isnum eq 0 then put "pure numerical";
 
- /* ltrim() and rtrim() don't exist in SAS so use strip() or: */
-trim(left(put(numericsasvari,F4.)));
-
  /* Distributive range input statement: */
 input @166 (r1-r15) ($CHAR1.);
 input @166 (c1-c15) (:$1.);
@@ -764,7 +765,14 @@ put @1 myname +(-1)":"  @30 myvalue;
 data work.all; set %do j=1 %to 3; work.tmp&j %end; ; run;
 
  /* Get current year date: */
-call symput("CYR", substr(put("&sysdate9"d,mmddyy10.),7,4));
+call symput("thisyr", substr(put("&sysdate9"d,mmddyy10.),7,4));
+ /*                      1_______today into epoch num_______            */
+%let thisyr=%sysfunc(putn(%sysfunc(inputn(&sysdate9,date9.)),year.));
+ /*        2______________.................................._______     */
+ /*             format epoch num to date format                         */
+
+%let dtnum=%sysfunc(dhms('01JAN60'd,0,70,0));  /* 70 converts to 1 min 10 seconds */
+%let dtformatted=%sysfunc(putn(&dtnum,datetime.));  /* 01JAN60:01:10:00 */
 
  /* Increment a symput generated macrovariable: */
 call symput('RUNME'||compress(put(_N_,5.)), executemacro);
@@ -938,6 +946,8 @@ options blksize(dasd)=half;
 no_controlchar_punctuation_digits=compress('foo,bar.8', , 'CPD');
 
  /* Perl prx regex in SAS */
+description= prxchange("s/Remove Patients (From)? //", -1, description);  /* Remove Patients From Non-Pilot Stores -> Non-Pilot Stores */
+description= prxchange("s/Remove Patients ((From)?|(Under)?) //", -1, description);
 if prxmatch('/((\(\d{3}\) ?)|(\d{3}-))?\d{3}-\d{4}/', ph) then type='valid phone number';
 data; set SASHELP.shoes; if _N_ eq 1 then rc=prxparse("/ica$/"); retain rc; if prxmatch(rc,region); run;
 /* Remove non-standard characters e.g. ApotPhar@SnS: */
@@ -1027,6 +1037,8 @@ str2 = '%include "' || left(trim(product)) || '\' || left(trim(product)) || '.sa
 call execute(str2);
 str1 = '%mymacro(' || left(trim(product)) || ',' || left(trim(server)) || ',' || left(trim(writeoutput)) || ');' ;
 call execute(str1);
+
+trim() returns a space for a blank string, trimn() returns a null
 
  /* Convert DATETIME variable to DATE */
 mysasdate = datepart(mysasdatetime);
@@ -1224,7 +1236,9 @@ guid=uuidgen();
  /* WHERE wildcard numeric sequence: */
 where rank IN(1:10)
 
-data;len=lengthn('ABC ');put len;run;  /* 3 */
+ /* length() is effectively deprecated, lengthn count is 0 for null string, it's 1 for length() */
+data; len=lengthn('ABC '); put len; run;  /* 3 */
+data; len=lengthc('ABC '); put len; run;  /* 4 */
 
 # Convert SAS Log back to SAS Code:
 sed '/^[^[0-9]/d;/SAS/d; /^$/d;/DATA?:?:?/d; /\*[0-9]/d' ~/tmp/t.log |cut -c6-256 |tr ! ' ' |sed '/^[^ ]/d' > t.sas
@@ -1301,6 +1315,7 @@ libname l meta library='FuncData';
  /* Reset open close ODS listing to Log: */
 ods listing close;
 ods listing;
+ods listing;title "&SYSDSN";proc print data=_LAST_(where=(patientid=60279077)) width=minimum heading=H;run;title;
 
  /* Name of running macro: */
 %put DEBUG: &SYSMACRONAME running &=myclid because &=is_independent;
@@ -1535,8 +1550,10 @@ start='11jan2013'd; monthStart=intnx('month', start, 0, 'b'); /* first day of mo
 start='11jan2013'd; monthEnd=intnx('month', start, 0, 'e');   /* last day of month */
 
  /* Calculate person's age (number of year boundaries crossed): */
-age = intck('YEAR', today(), dateofbirth)*-1;
-select *, (intck('YEAR', today(), patientdob)*-1) as age
+select *, (intck('YEAR', today(), dateofbirth)*-1) as agethisyear  /* 52 all year */
+exactage = intck('YEAR', today(), dateofbirth)*-1;                 /* 51.58234 changes daily */
+ /* Age in half year increments - intck counts half year boundaries crossed */
+ageinhalfyrs = intck('YEAR2', today(), '30OCT65'd)*-1;
 
  /* Macro date - change format reformat date into a macrovar: */
 %let mydt='30OCT2015'; %let newdt=%sysfunc(putn("&mydt"D, YYMMDD10.));
@@ -1564,6 +1581,7 @@ data; newyearsday = put(intnx('year', "&SYSDATE"D, 0, 'B'), DATE9.); put newyear
 %let yesterday=%sysfunc(putn(%sysevalf("&SYSDATE"d-1),DATE9.));                          /* 31DEC2015 */
 %let yesterday=%sysfunc(intnx(day, "&SYSDATE"D, -1, b), YYMMDD10.);                      /* 2015-12-31 */
 %let yesterday=%bquote(')%sysfunc(intnx(day, "&SYSDATE"D, -1, b), YYMMDD10.)%bquote(');  /* '2015-12-31' */
+%let jan1ofpreviousyear=%sysfunc(intnx(year,%sysfunc(today()),-1,b),date9.);             /* 01JAN2016 */
 
  /* Calculate one month from now in macro: */
 %let x=%sysevalf("&SYSDATE"D+30);  /* 20322 */
@@ -1589,9 +1607,9 @@ data _null_; lastsaturday = intnx('week', "&SYSDATE"D, 0, 'B')-1; call symput('d
 intnx('YEAR', '29feb2000'd, 2, 'SAME');  /* 28feb2002 */
 
  /* First day of the month 6 months after discharge: */
-FollowupDate = intnx('month', DischrDate, 6);
+FollowupDate = intnx('month', '03jan17'd, 6);  /* 01jul17 */
  /* Same day of the month 6 months after discharge: */
-FollowupDate = intnx('month', DischrDate, 6, 'SAMEDAY');
+FollowupDate = intnx('month', '03jan17'd, 6, 'SAMEDAY');  /* 03jul17 */
 
  /* Convert date beginning of month six months ago to end of previous month: */
 %let minbom=%sysfunc(intnx(MONTH, "&SYSDATE"d, -6, B),date9.); %let maxbom=%sysfunc(intnx(MONTH, "&SYSDATE"d, -1, E),date9.);
@@ -1637,7 +1655,7 @@ C:\Program Files\SAS Institute\SAS\V8\core\sasinst\hotfix\
 
 dataset_exists = %sysfunc(EXIST(mydataset));  /* 1 yes, 0 no */
 
-ods PDF file='c:/temp/t.pdf';  proc...run; ods PDF close;
+ods PDF file='c:/temp/t.pdf' style=HtmlBlue NOTOC;  proc...run; ods PDF close;
 
 ods html file='myrpt' style=HtmlBlue; proc print data=_LAST_; run; ods html close;
 ods html body='t.htm'; proc print data=_LAST_; run; ods html close;
@@ -1746,6 +1764,7 @@ options NOlabel; /* prevent proc sql default from displaying labels instead of v
 
  /* View control and non numchar characters (v8): */
 c=compress(comments1159,'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
+onlyKeepDigits=compress('919-844-0641', kd)  /* 9198440641 */
 
  /* Convert to Oracle formatted datetime e.g. 21-MAY-98 02:30:37 is Oracle format 'DD-MON-YY HH24:MI:SS' */
 proc format; picture ORADTT other='%0d-%b-%0y %0H:%0M:%0S' (datatype=datetime);run; data; s='21May98:02:30:37'DT; call symput('IP21START',"'"||trim(left(put(s, ORADTT.)))||"'");run;
@@ -2100,7 +2119,7 @@ if reverse(upcase(left(trim(myf)))) eq: 'FDP';
 
  /* Remove leading zeros from a char var before comparing */
 clientstoreidNOZERO = substr(clientstoreidCHAR, verify(clientstoreidCHAR, '0'));
-if substr(bin, verify(bin,'0')) in ('4336') ...
+if substr(bin, verify(bin,'0')) in('4336') and substr(pcn,verify(pcn,'0')) in('MEDDADV') then boost=1;
 
  /* Count days */
 sum(case when date(pickeduptimestamp) between '01MAR2015' and '31MAR2015' then 1 else 0 end) as Mar2015,...
@@ -2174,14 +2193,15 @@ name=prxchange('s/(\w+), (\w+)/$2 $1/', -1, name);
 if prxmatch('/toyota|kia|honda/i', text) then type='Import';
 
 prxparse (compile regex that can later be used for searching within a character value) similar to using qr{} or /o with a regexp search
-prxmatch similar to mystr =~ /perlregex/
+prxmatch similar to mystr =~ /perlregex/  prxparse is optional for this function
 prxsubstr (return position and length of where a regexp matches in source) similar to source =~ /perl-regex/g; start = pos source; length = length $&;
 prxnext (return position and length of where a regexp matches in source starting at start and ending at stop) similar to using the /g and /c options
 prxparen (return the last number of the last submatch that matched) similar to $+
 prxchange similar to old-string =~ s/perl-regexp/replacement/
+prxposn return position of paren capture buffers, then use substr()
 
  /* Fix mask loose single quote apostrophe e.g. 123O'LEARY or O'NEAL in query using regex prior to enquoting it by doubling it: */
-select prxchange("s/'/''/", -1, upid) as upid
+select prxchange("s/'/''/", -1, upid) as upid  /* -1 is replace every occurrence */
 
  /* Does a dataset exist?: */
 %let dsexist=%sysfunc(EXIST(sashelp.zipcode));
@@ -2362,6 +2382,19 @@ if holidaytest('Christmas', today()) then put 'merry xmas'
 
  /* Read excel: */
 proc import datafile="/Drugs/RFD/2017/05/AN-7578/Dataset/RX30_site_list_20170509.xlsx" dbms=xlsx out=t0 REPLACE; sheet='Pharmacy Breakout'n; getnames=no; datarow=4; run;
+
+ /* String functions: */
+x = '?$%'; none = anyalpha(trim(x));  /* returns 0, no alpha chars exist */
+x = '?$%'; none = anypunct(trim(x));  /* returns 1, the question mark */
+
+data.filter1(rename=(pharmacypatientid=pharmacypatientid_old))
+
+ /* If we store a floating point in 4 bytes (length x4 4; input x4;) we lose precision when SAS brings it into PDV because SAS adds 4 bytes of zeros */
+if x4 = trunc(1.234, 4) then compare_a_4bit = 'true';  /* so we must use trunc() */
+
+ /* Missing number counts: */
+nonmisscnt = n(of x1-x99, y, z);
+misscnt = nmiss(of x1-x99, y, z);
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4177,9 +4210,6 @@ uuencode /Drugs/TMMEligibility/Studies/QC_DelhcaInc.pdf | mail -s 'mail attachme
 # Lookup username from user number id:
 getent passwd "594" | cut -d: -f1
 
-# More powerful than xargs:
-for f in $(find . -name '*.log'); do echo $f; saslog_grep.pl $f | grep ERROR; done;
-
 # Zero pad a list of numbers e.g. 001 002:
 awk '{printf "%03d\n", $0}' junk
 
@@ -4188,8 +4218,12 @@ zip -P passw0rd secure.zip file
 # Git mantra:
 alias gitup="git add . && git commit -m 'mod' && git push origin master"
 
-# Grep all SAS logs in a directory:
+# Grep all SAS logs in a directory.  More powerful than xargs:
 for f in $(find /sasdata/Cron/Daily/cce -name '*.log' ) \ do \ ~bheckel/bin/saslog_grep.pl x $f \ done
+for f in $(find . -name '*.log'); do echo $f; saslog_grep.pl $f | grep ERROR; done;
+
+# Convert mapped backslash Windows drive path to forwardslash Unix:
+perl -e '$x=q{T:\TMMEligibility\WallMediCent\Imports\20170522\Data}; $x=~s:\\:/:g; $x=~s|T:|/Drugs|; print "$x\n";'
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5114,10 +5148,6 @@ Byte size increments: mega, giga, tera, peta, exa, zetta, yotta
 
 :: Test for existence of a file in BAT (note no quotes on echo):
 if exist foo.txt echo ok
-
-' Determine the date of the 1st day of the month 12 months preceding the
-' current month was:
-CDate(DateSerial(Year(Now), Month(Now) - 12, 1))
 
 Dial-up connectoids by command line:
 rasdial     <---to determine active connection name
