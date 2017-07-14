@@ -7,7 +7,7 @@
 #           Comments are often written for searching, not proper English
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Wed 04 Jan 2017 11:31:54 (Bob Heckel)
+# Modified: Mon 19 Jun 2017 08:36:31 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -223,9 +223,18 @@ s<BS>s   <---Produces German ß
 :argdo g/libname/s/'/"/g | update
 " Bulk update convert fully qualified path to SAS macrovariable in all open buffer files:
 :argdo %s:C\:\\cygwin\\home\\bheckel\\VAIR_HFA:\&DIRROOT:ge | update
-
-" Simple bulk update - must have used :args - e in ge keeps vim quiet if no match (c confirm doesn't appear to work-THERE IS NO CONFIRMATION), do a  :vimgrep /foo/g **/*.sas  first to verify what will change:
+" Simple bulk update - must have used :args - the e flag in ge keeps vim quiet if no match (c confirm doesn't work-THERE IS NO CONFIRMATION), do a  :vimgrep /foo/g **/*.sas  first to verify what will change:
 :argdo %s/foo/bar/ge | update
+" Best search and replace in multiple files:
+:args `grep -l foo *.sas`  " open files
+:argdo %s/foo/xxx/g        " change w/o saving
+:argdo update
+
+" Remove blocks, paragraphs of text from a series of files. Edit multiple files:
+$ vim -c 'argdo /begin/+1,/end/-1g/^/d | update' *.c
+
+" Slow and mostly useless sed replacement unless we've loaded up :args instead of hardcoding foo.csv:
+$ vim -c 'argdo set nomore | g!/-2008/d | update' foo.csv
 
 " Count words word count (returns e.g. '4 matches on 3 lines'):
 :%:s:replicant:&:gn
@@ -376,11 +385,15 @@ vim `grep -l frame_counter *.c`
 " Alternatively on systems with grep(1) - faster but won't recurse, use vimgrep:
 :grep -i unexpected *.sas 
 
-" Search and replace all open buffers interactively:
-:bufdo %s/findme/changeme/gic
+" Search and replace all open buffers:
+:bufdo %s/findme/changeme/gi
+:bufdo update
 
-" Canonical search across open buffers (then :cw) if my :vvs vimgrep map fails because files aren't in pwd (may need to clear quickfix first :cexpr [] ):
-:call setqflist([]) | bufdo grepadd! findme %
+" clear quickfix:
+:cexpr []
+
+" Canonical search across open buffers (then :cw)
+:call setqflist([]) | silent bufdo grepadd! findme %
 
 " Delete everything but the first 2 fields in a CSV
 :%s:\(.\{-}\zs,\)\{2}.*::
@@ -399,12 +412,6 @@ w3m -dump 'http://rtpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program
 
 " Swap tab-delimited field 5 with 4 position (use :se list to view these tabs):
 ,$:s:^\([^	]*\)	\([^	]*\)	\([^	]*\)	\([^	]*\)	\([^	]*\)	\(.*\):\1	\2	\3	\5	\4	\6	:gc
-
-" Remove blocks, paragraphs of text from a series of files. Edit multiple files:
-$ vim -c 'argdo /begin/+1,/end/-1g/^/d | update' *.c
-
-" Slow and mostly useless sed replacement
-$ vim -c 'argdo set nomore | g!/-2008/d | update' foo.csv
 
 $ vim -u NONE -U NONE -N   <---no .vimrc and plugins ('clean' VIM)
 
@@ -580,7 +587,7 @@ if hostname() == 'yoniso' ... else ... endif
 " Share ;w across network
 scp bheckel@sas-01.twa.taeb.com://mnt/nfs/home/bheckel/tmp/.vimxfer ~/tmp 
 
-" Copy this file to another host (no warning on overwrite!):
+" Copy this file to another host from vim (no warning on overwrite!):
 :w scp://bheckel@sas-01.mrk.taeb.com/%
 
 # Share vimxfer file across machines:
@@ -709,12 +716,15 @@ data _null_; age=input(symget('age'),12.); run;
  /* SAS X command (ok in open code): */
 x 'c:/util/vim/vim61/gvim.exe -c "set winsize=100 20" out.dat';
 
- /* Canonical generate random whole number between 1 and 5 */
-randomnum = ceil(ranuni(0) * 5);
+ /* Canonical dice generate random whole number between range 1 and 6 (must use ceil to get the 1): */
+randomnum = ceil(ranuni(0) * 6);
  /* Generate random number floating point number between 100 and 123: */
 randomnum = ranuni(-1)*23 + 100;
- /* Generate random number between 0 and 1: */
+ /* Generate random number between 0 and 1 (but not 0 or 1): */
 randomnum = round(ranuni(-1));
+
+ /* Shuffle a ds: */
+data t; set t; shuffle=ranuni(0); run;  proc sort; by shuffle; run;
 
 Interactive SAS on OS/390 (from TSO command line):
 ==> sas options('dms yearcutoff=1905')
@@ -765,11 +775,12 @@ put @1 myname +(-1)":"  @30 myvalue;
 data work.all; set %do j=1 %to 3; work.tmp&j %end; ; run;
 
  /* Get current year date: */
-call symput("thisyr", substr(put("&sysdate9"d,mmddyy10.),7,4));
+call symput('THISYR', substr(put("&sysdate9"d,mmddyy10.),7,4));
  /*                      1_______today into epoch num_______            */
 %let thisyr=%sysfunc(putn(%sysfunc(inputn(&sysdate9,date9.)),year.));
  /*        2______________.................................._______     */
  /*             format epoch num to date format                         */
+call symputx('THISYR', put(intnx('year', "&SYSDATE"D, 0, 'B'),YEAR.), L);
 
 %let dtnum=%sysfunc(dhms('01JAN60'd,0,70,0));  /* 70 converts to 1 min 10 seconds */
 %let dtformatted=%sysfunc(putn(&dtnum,datetime.));  /* 01JAN60:01:10:00 */
@@ -921,8 +932,8 @@ proc print data=SASHELP.shoes (obs=10); var region stores sales returns; run;
  /* Named macro call with good default parameters: */
 %macro Foo(data=_LAST_, by=, vars=, out=_DATA_);
 
- /* Preserve leading whitespace ($2. would not) */
-input foo $CHAR2.;
+ /* Preserve leading whitespace ($3. would not) */
+input foo $CHAR3.;
 
  /* Suppress any input errors in SAS Log and keep _ERROR_=0 */
 input name $8.  number  ??;
@@ -962,7 +973,7 @@ data _NULL_; abort abend 008; run;
 
  /* Remove trailing dot (var, new, old): */
 myvar = trim(translate(myvar, '', '.'));
- /* Convert A to 1, B to 2, etc and convert char2num: */
+ /* Convert A to 1, B to 2, etc and then convert char2num: */
 code2num = input(translate(jobcode,'12345','ABCDE'),1.);
 
  /* Simple datetime stamp: */
@@ -1073,6 +1084,7 @@ mydttm = dhms(mydate, max(0,hour(mytime)), max(0,minute(mytime)), max(0,second(m
 %let start=%sysfunc(putn('12JAN17'd, DATE9.)); %let end=&start; %put &=start &=end;  /* 12JAN2016 */
 %let start2=%bquote(')%sysfunc(putn("&start"d, YYMMDD10.))%bquote('); %let end2=&start2; %put &=start2 &=end2;  /* '2017-01-12' */
 select strip(short_client_name)||'_'||"%sysfunc(putn("&SYSDATE"d, YYMMDDD10.))"||'.pdf' into :Cname from build.clients_shortname_lookup;
+call symputx('YEARMONTH', put(today(), YYMMN.), L);  /* 201707 */
 
  /* Check for success to this point before continuing to destructive section */
 %if &SYSERR eq 0 %then %do ... %end
@@ -1224,7 +1236,7 @@ select taebpatientid, storenum, cats(%rml0(storenum),pharmacypatientid) as upid,
  /* Exclusion join to keep only the records with the minimum age when there are more than one */
 proc sql; select a.* from  l.rxfilldata_extra a left join l.rxfilldata_extra b on (a.storeid=b.storeid and a.pharmacypatientid=b.pharmacypatientid and a.age>b.age) where b.storeid is null and b.pharmacypatientid is null; quit;
 
- /* Find second largest number: */
+ /* Find second largest number (good for top 3 etc): */
 second_largest_num=largest(2, 456, 789, .Q, 123);  /* 456 */
 fourth_smallest_num=ordinal(4, of q1-q4);
  /* SMALLEST function counts only nonmissing values */
@@ -1245,6 +1257,7 @@ sed '/^[^[0-9]/d;/SAS/d; /^$/d;/DATA?:?:?/d; /\*[0-9]/d' ~/tmp/t.log |cut -c6-25
 # Convert SAS Log to resolved macro MPRINT output:
 sed '/^NOTE:/d; /^$/d; /^\s*$/d; /real time/d; /cpu time/d; /The SAS System/d' t.log  >| resolvedcode.log
 
+ /* SAS Admin Logs */
 tail -f /sas/config/Lev1/Logs/SASMeta_MetadataServer_2016-10-31_sas-01_2955.log
 
 vi /sas/config/Lev1/SASMeta/MetadataServer/omaconfig.xml
@@ -1334,8 +1347,8 @@ ods excel file='t.xlsx' ods excel options(sheet_name='Diabetic'); proc print dat
 proc sql; select quote(cats('%',substr(long_client_name,1,5),'%'),"'") into :longname from build.clients_shortname_lookup where clientid=&clientid; quit;
 SELECT description, groupname FROM amc.campaigngroups WHERE description ilike &longname and campaigntype = 'TMM'; 
 
- /* Specific number of random records from a dataset: */
-proc surveyselect n=10 data=tmp out=foo; run;
+ /* Specific number of random records from a dataset (same result if seed=): */
+proc surveyselect n=10 seed=123 data=tmp out=foo; run;
 data r; do i=1 to 10; obsnumiwant=ranuni(int(datetime())); set d; output; end; stop; run;
 
 attrib state length=$3 label='foo bar' format=$40.; 
@@ -1414,6 +1427,30 @@ proc sql NOEQUAL ...
 sumof=sum(of idnum--qtr4 of x1-x42);  /* same */
 sumof=sum(of idnum--qtr4 x1-x42);  /* same */
 meanof=mean(of a[*]);   /* variable array */
+
+ /* Sum accumulator is auto-retained (but  foo=foo+1  is not) */
+foo+1;
+
+ /* SUM function returns the sum of non-missing arguments whereas '+' operator returns a missing value (nulls propagate) if any of the arguments are missing. */
+x = a + b + c;            /* BAD- if ANY argument is missing, x = . */
+x = sum(a, b, c);         /* with missing argument, x is sum of nonmissings */
+x = sum(a, b, c, 0);      /* if a, b & c are missing, result will be zero */
+x = (d + e + f + g) / 4;  /* BAD- x is missing if any var in the calc is missing */
+x = mean(d, e, f, g);     /* number of nonmissings is divided by 4 */
+x = sum(0, x, y);         /* return 0 if all are missing, optionally use if n(x, y) eq 2 then ... */
+
+ /* Missing to zero */
+x=sum(foo, 0);
+ /* Missing to zero */
+data t; set t; array nums _numeric_; do over nums; if nums eq . then nums=0; end; iacthr97 = emhrsi97 + cohrsi97 + vehrsi97; run;
+
+ /* Missing number counts: */
+nonmisscnt = n(of x1-x99, y, z);
+misscnt = nmiss(of x1-x99, y, z);
+
+ /* Interquartile range (distance between 25th and 75th percentile): */
+x = iqr(10, 20, ., 30, 40, 50);  /* 20 */
+x = iqr(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);  /* 5 */
 
  /* Split parse string on dash taking 8ZP6699 from 8ZP6699-4148428 */
 mfg_batch=scan(mfg_batch,1,'-');
@@ -1575,6 +1612,8 @@ data; previous_mo = intnx('month', '01jan2000'D, -1, 'E'); put previous_mo=; put
 data; newyearsday = put(intnx('year', "&SYSDATE"D, 0, 'B'), DATE9.); put newyearsday=; run;
 %let newyearsday=%sysfunc(intnx(YEAR, "&SYSDATE"D, 0, B), DATE9.);  /* sysfunc can't handle intnx parm 1 with quotes!!! And does not need put() ! */
 %let newyearseve=%sysfunc(intnx(YEAR, "&SYSDATE"D, 0, E), DATE9.);
+ /* Last day of year: */
+%let eoy=%sysfunc(intnx(year, "&SYSDATE"d, 0, E),date9.);
 
  /* Calculate yesterday date in macro date calculation: */
 %let yesterday=%sysevalf("&SYSDATE"D-1);                                                 /* 20322 */
@@ -1736,7 +1775,7 @@ proc surveyselect data=SASHELP.shoes out=stacked samprate=1 reps=50000000; run;
 
  /* char2num - think "I"NPUT is closer to "C"HAR so use that to convert a character to a numeric: */
 num = input(char, ?? 8.);  /* char2num and suppress SAS Log "NOTE: Invalid argument to function INPUT at line..." & _ERROR_=1 */
-num = input(char, ?? BEST. -L);  /* overkill?? */
+num = input(char, ?? BEST. -L);  /* overkill? */
  /* num2char - think "P"UT is closer to "N"UM so use that to convert a numeric to a character: */
 char = put(num, BEST. -L);  /* integer num2char  (may need: if mynum=. then mynum=' ') */
 char = put(num, 12.2 -L);  /* floating point num2char */
@@ -1749,7 +1788,7 @@ data chars; set nums; Char_Date=put(SASDate,DATE9.); Char_Cost=put(Cost,DOLLAR10
  /* char2num substring to numeric: */
 num = input(substr(char,3,2), 4.);  /* substr() alone produces a char, convert it to num */
 
- /* Char2num make both vars numeric on the fly for the join: */
+ /* Char2num make both vars numeric on the fly during the join: */
 from csv3 a left join db52 b on a.storeid_csv=input(b.storeid_db5, 8.) and a.pharmacypatientid_csv=input(b.pharmacypatientid_db5, 8.)
 
  /* 20151001 to 201510 while remaining a number: */
@@ -1957,7 +1996,11 @@ fullname=catx(' ', fname, mname, lname);  /* gracefully concatenates any missing
 
 data clear_var_format_informat_label; set SASHELP.shoes; format inventory; informat inventory; label inventory=; run; proc contents ; run;
 
+ /* Note: must execute lag for every obs, do not use lag() in a conditional or results are unpredictable: */
 if lag(foo) eq foo then put 'dup!' _all_;
+if lag1(foo) eq foo then put 'dup!' _all_;  /* same */
+ /* dif(bloodpressure) is the same as bloodpressure - lag(bloodpressure) */
+if first.id and last.id then delete; diff_bp = dif(bloodpressure); if not first.id then output;  /* it's ok to calculate cross-id errors then toss  */
 
 data OUTDIR.&OUTPUTFILE(compress=yes);
 
@@ -1995,7 +2038,8 @@ proc sql; select monotonic() as Obs_Number, byte(monotonic()+96) as Obs_Letter, 
 
  /* Simple gplot */
 goptions reset=all ftext=swissl device=png cback=white border htitle=12pt ctext=gray gsfname=outpng gsfmode=replace ypixels=750 xpixels=750; filename outpng 'junk.png'; proc gplot data=linksplot; plot cnt*dt; run;
- /* Simple gplot */
+goptions ypixels=750 xpixels=950 ftext='Albany AMT' htext=0.80;
+ /* Simple sgplot */
 ods graphics / height=400 width=800 noborder; proc sgplot data=sashelp.cars; histogram msrp; run; proc print data=sashelp.class; run;
 
 %put _all_; %goto THEEND; /*...stuff to be skipped...*/  %THEEND:
@@ -2004,21 +2048,6 @@ ods graphics / height=400 width=800 noborder; proc sgplot data=sashelp.cars; his
 (CASE WHEN QURY0297.Output_MAT_COD IS NULL THEN QURY0297.Output_MAT_COD ELSE ("'"||trim(QURY0297.Output_MAT_COD)) END) FORMAT=$20. LABEL="foo" AS Output_MAT_COD,
 
 select a.*, (CASE WHEN b.TotalEnrolledLst30 ne . THEN b.TotalEnrolledLst30 ELSE 0 END) as TotalEnrolledLst30
-
- /* Sum accumulator is auto-retained (but  foo = foo + 1  is not) */
-foo+1;
-
- /* SUM function returns the sum of non-missing arguments whereas '+' operator returns a missing value (nulls propagate) if any of the arguments are missing. */
-x = a + b + c;            /* BAD- if ANY argument is missing, x = . */
-x = sum(a, b, c);         /* with missing argument, x is sum of nonmissings */
-x = sum(a, b, c, 0);      /* if a, b & c are missing, result will be zero */
-x = (d + e + f + g) / 4;  /* BAD- x is missing if any var in the calc is missing */
-x = mean(d, e, f, g);     /* number of nonmissings is divided by 4 */
-
- /* Missing to zero */
-x=sum(foo, 0);
- /* Missing to zero */
-data t; set t; array nums _numeric_; do over nums; if nums eq . then nums=0; end; iacthr97 = emhrsi97 + cohrsi97 + vehrsi97; run;
 
  /* Count number of files in directory */
 %let rc=%sysfunc(filename(dr, 'C:/temp')); %let cnt=%sysfunc(dnum(%sysfunc(dopen(&dr)))); %put !!!&cnt;
@@ -2038,8 +2067,11 @@ data _null_; d='04oct13'd; put d yymmddN8.;run;  /* 20131004 */
  /* Date convert libname e.g. /Drugs/RFREval/Ahold/2016/20161108/Dataset */
 %let maxdate=08NOV2016; libname l "/Drugs/RFREval/Ahold/%sysfunc(putn("&maxdate"d, YEAR.))/%sysfunc(putn("&maxdate"d, YYMMDDN8.))/Dataset";
 
+call missing(x1, x2, x3);
+call missing(of n1-n3, of ch1-ch3);
 do j=1 to 4; subj(j)=''; score(j)=.; end;  /* initialize array set to missing v8 */
 call missing(of subj(*), of score(*));     /* initialize array set to missing v9 - don't care if NUM or CHAR */
+call missing(of _all_);
 
  /* Exponentiation scientific notation: 1.257E+03 */
 
@@ -2107,6 +2139,7 @@ if reverse(upcase(left(trim(myf)))) eq: 'FDP';
 
  /* Clean out delete WORK.  !SASHOME/bin/utilities */
 /usr/local/SAS94/sashome/SASFoundation/9.4/utilities/bin/cleanwork /workspace
+sudo /sas/sashome/SASFoundation/9.4/utilities/bin/cleanwork /saswork  # toggle -n on for dryrun 
 
  /* If string is quoted: */
 %if (%qsubstr(%nrbquote(&file.), 1, 1) eq %str(%')) %then %do;
@@ -2141,7 +2174,7 @@ select a.*, case when b.chronic='Y' then 'Y' else 'N' end as chronic
 put 'ERROR: dups exist ' name= (myvars:)(=);
 
 # Start restart SASApp server. " - " to login as user sas with his environment:
-$ sudo su - sas; /sas/config/Lev1/sas.servers status  # or start or stop 
+$ sudo su - sas /sas/config/Lev1/sas.servers status  # or start or stop 
 
  /*                                                SASROOT _______________________________          */
  /* Use mine first in the autocall hierarchy.  SASAUTOS is /sas/sashome/SASFoundation/9.4/sasautos/ */
@@ -2213,6 +2246,7 @@ data _null_; x='04'; y= put(input(x, BEST. -L), Z4.); put y=; run;
 ... din2=put(input(din,8.),Z8.);  /* char 2 to 00000002 */
 
  /* Canonical email send: */
+filename MAILTHIS email ('bob.heckel@taeb.com')  subject='test' ; data _null_; file MAILTHIS; put 'ok'; put; run;
 filename MAILTHIS email ('a@foo.com' 'b@foo.com') cc="&user@foo.com" subject="&clientname" attach=("&loc/&fn" "&loc/&fn2"); data _null_; file MAILTHIS; put 'ok'; put; run;
 
  /* Build a single quoted string for Oracle, Postgres etc (but FAILS with leading zero numbers, try ndc::integer or see alternative build_db_query_list_via_macro.sas): */
@@ -2262,9 +2296,10 @@ option SASTRACE=",,,d" no$stsuffix SASTRACELOC=saslog;
 
  /* Comment out keybinding in EG: Ctl+/  Uncomment in EG: Ctl+Shift+/ */
 
- /* Determine informat at runtime based on a flag: */
+ /* Unlike input(), determine informat at runtime based on a flag: */
 else if flag=3 then chardata=inputc(char_data,"$UPCASE22.");
 else if flag=3 then sasnumdate=inputn(char_date,"YYMMDD10.");
+fmtd = inputc(letter, put(digit, myfmt.));
 
  /* Create composite proc sql index: */
 proc sql; create index places on sql.newcountries(name, continent); quit;
@@ -2392,9 +2427,21 @@ data.filter1(rename=(pharmacypatientid=pharmacypatientid_old))
  /* If we store a floating point in 4 bytes (length x4 4; input x4;) we lose precision when SAS brings it into PDV because SAS adds 4 bytes of zeros */
 if x4 = trunc(1.234, 4) then compare_a_4bit = 'true';  /* so we must use trunc() */
 
- /* Missing number counts: */
-nonmisscnt = n(of x1-x99, y, z);
-misscnt = nmiss(of x1-x99, y, z);
+ /* Generate random temperatures in Farenheit */
+call streaminit(12345); x=rand('NORMAL',70,10);
+
+ /* Sort within an observation */
+call sortn(of Score1-Score5); MeanTopThree = mean(of Score3-Score5);
+
+moving_avg = mean(x, lag(x), lag2(x));
+
+call symput('THISMONTH', strip(month(today())));
+ 
+ /* Have multiple filldates but want only the most recent fill highest date of each patient's ndc */
+proc sort; by upid ndc filldate; run;
+data t2; set t; by upid ndc; /* if pharmacypatientid='pmap538502' then put _all_; */ if last.ndc then output; run;
+
+ods powerpoint file="~/bob/t.pptx"; title 'demo pptx'; proc print data=sashelp.class(obs=5); run; ods powerpoint close;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3186,6 +3233,8 @@ du -sk  *.sas7bdat|awk '{sum += $1} END {print sum}'
 find . -name '*sas' | xargs du -sk|awk '{sum += $1} END {print sum}'
 # If spaces in filenames:
 find . -name '*sas' -print0 | xargs -0 du -sk|awk '{sum += $1} END {print sum}'
+
+find /Drugs/Archive/Drugs/ -mtime +500|xargs du -sb|awk '{sum += $1} END {print sum}'
 
 # or not summing all lines:
 cat foo.txt | awk '/OnlyTheseLines/{t+=$1} END{print t}'
@@ -4224,6 +4273,9 @@ for f in $(find . -name '*.log'); do echo $f; saslog_grep.pl $f | grep ERROR; do
 
 # Convert mapped backslash Windows drive path to forwardslash Unix:
 perl -e '$x=q{T:\TMMEligibility\WallMediCent\Imports\20170522\Data}; $x=~s:\\:/:g; $x=~s|T:|/Drugs|; print "$x\n";'
+
+find /Drugs/Personnel -maxdepth 1 |xargs du -sb |awk '{print $2, $1}' | sed 's/ /\t/g'
+find /sasdata -maxdepth 1 |xargs du -sb |awk '{print $2, $1}' | sed 's/ /,/g'
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6090,7 +6142,8 @@ ISO 8601 date time format: 2013-04-27T18:00:00-05:00  2013-04-27T18:00:00,1-05:0
 $ sqlite3 test.db "SELECT * FROM Cars;"
 
 Modulo finds the remainder of division of one number by another:
-11 % 3, is 2, because 3 goes into 11 three times with a remainder of 2.
+11 % 3 = 2 because 3 goes into 11 three times with a remainder of 2.
+15 % 3 = 0
 
 -- Cartesian inner join:
 SELECT Name, Day FROM Customers, Reservations;
@@ -6164,7 +6217,7 @@ vi '\\okpsawn557\d$\oracle\ora81\network\ADMIN\Tnsnames.ora'
 ' Excel difference in cell values:
 =IF(A6<>BD6, "yes", "no")
 
--- SQL sum count a group flag:
+-- SQL sum count a group flag.  Good for later excluding a group of records if any record contains 'CANCEL':
 sum(case when status = 'CANCEL' then 1 else 0 end) as cancelflag
 
 -- Postgres dates:
@@ -6295,6 +6348,7 @@ select 'EXPIRE='||to_char(date('now')+365,'YYYYMMDD') as x2
 and lastmodified >= CURRENT_DATE-1
 
 To save postgresql output to comma pipe delimited csv file (warning - multiple runs append so \q when done):
+psql> \o t.out
 psql> \f '|' \a \o /Drugs/Personnel/bob/t.csv
 psql> \f ',' \a \t \o ~/tmp/bob/withoutheader.csv
 psql> \f '\t' \a \t \o /sasdata/Personnel/bob/tabdelimited.out
@@ -6377,5 +6431,15 @@ by_day <- flights %>% count(day)
 
 # R regex how many don't start with 'b':
 library(stringr); x <- c("apple","banana","pear"); sum(!str_detect(x, "^b"));
+
+-- Calculate percent of total after adding total in subquery:
+select a.*, b.*, a.UPID/b.tot as pct format=PERCENT8.2 from report1_nRx a join (select nRx, sum(upid) as tot from report1_nRx) b on a.nRx=b.nRx
+
+-- Postgres WITH temporary table creation
+with val as ( values ('1427315266'),('1003048109'),('1003109422'),('1003128414') )
+select column1 from val;
+
+-- Postgres age today and at end of year e.g. 51 years 8 mons 4 days | 52:
+select age('1965-10-30'::date), date_part('year', age('2017-12-31', '1965-10-30'))
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

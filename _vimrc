@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Mon 06 Mar 2017 16:30:30 (Bob Heckel)
+" Modified: Wed 12 Jul 2017 09:07:50 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -513,7 +513,11 @@ set equalprg=sort
 " Default.  K to activate.  See au BufNewFile, etc. below (.vimrc, .pl .pm treated specially).
 set keywordprg=man
 
-set shell=bash
+if has('win32')
+  set shell=c:\cygwin64\bin\bash.exe
+else
+  set shell=bash
+endif
 
 
 "                               22 running make and jumping to errors {{{2
@@ -760,6 +764,8 @@ endif
 
 map <F12> :q<CR>
 
+" Like gv but for paste buffer
+noremap <expr> gb '`[' . strpart(getregtype(), 0, 1) . '`]'
 
 
 """"""""""""""""""""""""""""""
@@ -1091,9 +1097,9 @@ inoremap [<Space><Space> []<Left>
 inoremap {<Space><Space> {}<Left>
 
 " Add case-insensitivity
-"""set grepprg=grep\ -ni
+set grepprg=grep\ -ni\ $*\ /dev/null
 " Search all open buffers
-cmap bbb call setqflist([]) \| bufdo grepadd!  %<C-F>$hha
+cmap bbb call setqflist([]) \| silent bufdo grepadd!  %<C-F>$hha
 " Search all files recursively in pwd
 cmap vvv vimgrep // **/*.*<C-F>$Bhhi
 " Search all SAS files recursively in pwd
