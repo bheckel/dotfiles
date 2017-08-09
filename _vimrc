@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Wed 12 Jul 2017 09:07:50 (Bob Heckel)
+" Modified: Wed 09 Aug 2017 11:09:28 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -696,7 +696,8 @@ iab SaL options ls=180 ps=max; libname l '.';
 iab SaO filename F 'junk'; data t(rename=(PRODDESC=nm APRCLASS=class)); infile F truncover; input PRODDESC= $100. APRCLASS= $100.; run;
 """iab SaP <Esc>0ititle "&SYSDSN";proc print data=_LAST_(obs=10) width=minimum heading=H;run;title; data;file PRINT;put '~~~~~~~~~~~~~~~~~~~~~~';put;run;
 iab SaP <Esc>0ititle "&SYSDSN";proc print data=_LAST_(obs=10) width=minimum heading=H;run;title;
-iab SaQ proc sql;<CR>  create table t as<CR>select count(*)<CR>from t<CR>where<CR>group by<CR>;<CR><Left><Left>quit;<Esc><Up><Up><Up>
+" iab SaQ proc sql;<CR>  create table t as<CR>select count(*)<CR>from t<CR>where<CR>group by<CR>;<CR><Left><Left>quit;<Esc><Up><Up><Up>
+iab SaQ proc sql;<CR>  create table t as<CR>select *<CR>from t a join t2 b on a.foo=b.foo<CR>where<CR>group by<CR>;<CR><Left><Left>quit;<Esc><Up><Up><Up>
 iab SaS select ( myvar );<CR><Space><Space>when ( 42 ) delete;<CR><Space><Space>otherwise;<CR><Left><Left>end;
 
 cab Sy0 source $VIMRUNTIME/syntax/nosyntax.vim
@@ -724,7 +725,7 @@ map <C-S> :w
 " Highlight last paste.  (G)et (p)aste.
 nnoremap <expr> gp '`[' . strpart(getregtype(), 0, 1) . '`]'
 
-" Open a window for the file under cursor.  (G)etfile (w)indow.
+" Open a window for the file under cursor.  (G)et this file a (w)indow.
 noremap gw <Esc>:sp<CR>gf
 
 " Easily navigate wrapped '^...' long lines with arrow keys

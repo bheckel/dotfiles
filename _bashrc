@@ -4,7 +4,7 @@
 # Summary: bash config for at least Cygwin 1.3/1.5/1.7, Unix/Linux and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Thu 11 May 2017 13:25:07 (Bob Heckel)
+# Modified: Wed 09 Aug 2017 11:09:36 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -94,6 +94,7 @@ alias bak="$HOME/code/misccode/bak"
 alias bgrep="$HOME/code/perl/bgrep"
 alias by=exit  # like bye in FTP and SAS
 alias cd..='cd ..; ls'
+alias cdd="cd $HOME/dotfiles"
 alias cdc="cd $HOME/code/c"
 alias cdh="cd $HOME/code/html"
 alias cdm="cd $HOME/code/misccode"
@@ -106,11 +107,11 @@ alias cdvb="cd $HOME/code/vb"
 alias datecalc=$HOME/code/perl/datecalc
 alias ddg='w3m http://duckduckgo.com/lite'
 alias f='fg'  # jobs -s  to list what's suspended
-alias g=$HOME/code/misccode/gone.sh
+alias g=$HOME/dotfiles/gone.sh
 alias gitup="git add . && git commit -m 'mod' && git push origin master"
 # Can't use sed to eliminate leading spaces or it breaks coloring
 alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
-alias gdot="cd ~/dotfiles && git add . && git commit -m'gdot' && git pull origin master && git push origin master && cd -"
+# alias gdot="cd ~/dotfiles && git add . && git commit -m'gdot' && git pull origin master && git push origin master && cd -"
 alias grunt='pig -x local'
 alias gs='git status'
 ###alias gskfrom="echo 'retrieving from github...';echo; cd ~/dotfiles && git pull origin master; echo; cd ~/transfer && git pull origin master; echo 'extracting...'; ls -l ~/transfer/c; tar tvfz ~/transfer/c; sleep 7; cd ~ && tar xfz ~/transfer/c" 
@@ -130,7 +131,8 @@ alias lla='ls -agh --color --group-directories-first'
 # If ls -lS isn't available:
 ###alias lls='ls -l | sort +4r | grep -v "total"'  # sort descending on size
 alias lsd='find . -type d'
-alias one="vi $HOME/code/misccode/oneliners"
+# alias one="vi $HOME/code/misccode/oneliners"
+alias one="vi $HOME/dotfiles/oneliners"
 alias pse='ps -ef|grep bheckel'
 ###alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
 alias qr=$HOME/code/misccode/quickref_find.sh
@@ -140,7 +142,8 @@ alias sasrun=$HOME/code/sas/sasrun
 alias sdf='ssh -l bheckel sdf.org; date'
 alias sl='ls --color=none'  # dyslexic daim branage
 alias sr="$HOME/code/sas/sasrun"
-alias srcb="source $HOME/code/misccode/_bashrc"
+# alias srcb="source $HOME/code/misccode/_bashrc"
+alias srcb="source $HOME/dotfiles/_bashrc"
 ###alias tree="\ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
 alias unbak="$HOME/code/misccode/bak -u "
 alias uvi="$HOME/code/perl/uvi"  # don't change timestamp

@@ -622,6 +622,9 @@ if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
 :mksession! .debug
 vim -S /mnt/nfs/home/bheckel/bob/ImmTasks/.debug
 
+" Open file at specific search place:
+vim -c '/tmm_targeted_list_refresh' ~/template_print.sas
+
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -2188,7 +2191,7 @@ select compress(a.storeid)||compress(a.pharmacypatientid) as UPID
 cat(of x1-x3)      vs. x1||x2||x3
 catt(of x1-x3)     vs. trim(x1)||trim(x2)||trim(x3)
 cats(of x1-x3)     vs. trim(left(x1))||trim(left(x2))||trim(left(x3))
-catx(SP, of x1-x3) vs. trim(left(x1))||SP||trim(left(x2))||SP||trim(left(x3))
+catx(SP, of x1-x3) vs. trim(left(x1))||SP||trim(left(x2))||SP||trim(left(x3))  /* SP can be ', ' */
 
  /* Concatenate using a delimiter - CATX is different in that it skips missing values - old version would do e.g. foo,,bar */
 mycsv = catx(',', c1, c2, c3);
@@ -2442,6 +2445,9 @@ proc sort; by upid ndc filldate; run;
 data t2; set t; by upid ndc; /* if pharmacypatientid='pmap538502' then put _all_; */ if last.ndc then output; run;
 
 ods powerpoint file="~/bob/t.pptx"; title 'demo pptx'; proc print data=sashelp.class(obs=5); run; ods powerpoint close;
+
+ /* Remove blank lines from text file: */
+data _null_; rc = system("sed -i '/^$/d' ~/bob/tmp/mnt/nfs/alertproc/gap_add_20170802_8.csv"); run;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4226,11 +4232,9 @@ watch -d 'ls -l ~ |grep sas'
 # Read control file to determine which code to run:
 while read -r clid; do nice -n19 $SAS -sysin ~/$clid.sas -log ~/$clid.log done <$FILE
 
-# CPU count:
+# Count number of cores.  Cores = Cores per socket x Sockets.  CPU cores count.
 nproc --all
 lscpu | egrep 'Thread|Core|Socket|^CPU\('
-# Count number of cores.  Cores = Cores per socket x Sockets.  CPU cores count.
-grep -m 1 'cpu cores' /proc/cpuinfo
 # Count available memory:
 vmstat -s | grep memory
 
