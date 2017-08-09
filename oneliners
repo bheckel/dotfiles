@@ -7,7 +7,7 @@
 #           Comments are often written for searching, not proper English
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Mon 19 Jun 2017 08:36:31 (Bob Heckel)
+# Modified: Wed 09 Aug 2017 14:57:27 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -2449,6 +2449,11 @@ ods powerpoint file="~/bob/t.pptx"; title 'demo pptx'; proc print data=sashelp.c
  /* Remove blank lines from text file: */
 data _null_; rc = system("sed -i '/^$/d' ~/bob/tmp/mnt/nfs/alertproc/gap_add_20170802_8.csv"); run;
 
+ /* Cheat at Oracle Postgres passthrough proc sql (avoid db-specific syntax): */
+%bquote(')%sysfunc(putn(%sysevalf("&SYSDATE"D+30),YYMMDDN8.))%bquote(') as expirationdate,
+
+ /* num2char */
+data data.delete; set activealerts(rename=(atebpatientid=TMPatebpatientid)); atebpatientid=put(TMPatebpatientid, $8.); run;
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
