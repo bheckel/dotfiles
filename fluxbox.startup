@@ -18,6 +18,7 @@ redshift-gtk &
 xset dpms 1200 1500 1800  # monitor DPMS timeouts in seconds
 xset s off  # disable screensaver
 ###anoise &
+/usr/bin/gnome-terminal &
 fbsetbg /home/bheckel/Dropbox/Public/misc/computer/carbon3.jpg &
 
 # Because fluxbox is the last app you have to run it with ''exec'' before it

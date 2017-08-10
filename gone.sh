@@ -15,10 +15,10 @@
 #           TODO add CANONICAL switch
 #
 #  Created: Wed 20 Nov 2002 12:54:09 (Bob Heckel)
-# Modified: Mon 02 May 2016 09:12:48 (Bob Heckel)
+# Modified: Thu 10 Aug 2017 17:08:30 (Bob Heckel)
 ##############################################################################
   
-F="$HOME/code/misccode/oneliners"
+F="$HOME/dotfiles/oneliners"
 
 IGCASE=--ignore-case
 ###CANONICAL=0
