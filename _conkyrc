@@ -301,7 +301,7 @@ TEXT
 
 ###${offset 0}${font Consolas:size=10}Sabbe dhamma${font}
 # yoniso
-${offset 0}${color}${image /home/bheckel/misc/computer/fb-icon48x48-metal.png}
+${offset 0}${color}${image /home/bheckel/Dropbox/Public/misc/computer/fb-icon48x48-metal.png}
 
 
 ${color dark goldenrod}${execi 2500 display-dhamma | par -w25}
