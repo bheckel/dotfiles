@@ -6079,7 +6079,7 @@ git add README  # use git add -f README to force add if it's excluded by .gitign
 
 # Existing github repo on a new foreign box (do git remote rm origin first if get "you can't push to" error):
 git clone git://github.com/bheckel/dotfiles.git && git remote add origin git@github.com:bheckel/dotfiles.git; ...edit/add/commit... git pull origin master && git push origin master
-# May need this first:
+# But may need this first or instead of remote add:
 git remote set-url origin git@github.com:bheckel/dotfiles.git
 
 # Compare commits:
