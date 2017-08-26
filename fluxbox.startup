@@ -12,14 +12,16 @@ xmodmap "$HOME/.Xmodmap"  # keymap for lefty
 ###idesk &
 conky -x 5 -y 0 &
 nm-applet &
-dropbox start &
+# dropbox start &
 redshift-gtk &
 ###wmweather -s KRDU &
 xset dpms 1200 1500 1800  # monitor DPMS timeouts in seconds
 xset s off  # disable screensaver
 ###anoise &
-/usr/bin/gnome-terminal &
-fbsetbg /home/bheckel/Dropbox/Public/misc/computer/carbon3.jpg &
+/usr/bin/gnome-terminal --geometry 95x55+200+10 &
+/usr/bin/google-chrome-stable &
+# fbsetbg /home/bheckel/Dropbox/Public/misc/computer/carbon3.jpg &
+fbsetbg -a /home/bheckel/Dropbox/Camera\ Uploads/Disney_2017/2017-08-15\ 22.23.47.jpg &
 
 # Because fluxbox is the last app you have to run it with ''exec'' before it
 exec fluxbox
