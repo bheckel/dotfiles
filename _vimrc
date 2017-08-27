@@ -563,12 +563,15 @@ set viewdir=~/.vim/view
 if has('gui')
   set guioptions+=a
   set guioptions+=b
-  " Scrollbar right
   set guioptions+=r
   set guioptions-=T
   set guioptions-=m
-  set guifont=Consolas:h8
-endif
+  if has('gui_win32')
+    set guifont=Consolas:h8
+  elseif has('gui_gtk2')
+    set guifont=Consolas\ 9
+  endif
+end
 
 " Use  :set guifont=*  to browse
 """if matchstr(HOMEBOXARRAY, THISBOX) == THISBOX
