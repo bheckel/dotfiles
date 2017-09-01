@@ -2454,6 +2454,15 @@ data _null_; rc = system("sed -i '/^$/d' ~/bob/tmp/mnt/nfs/alertproc/gap_add_201
 
  /* num2char */
 data data.delete; set activealerts(rename=(atebpatientid=TMPatebpatientid)); atebpatientid=put(TMPatebpatientid, $8.); run;
+
+ /* If macro date is between 30AUG2017 and 28FEB2018 */
+%if (%eval("&sysdate"d > "29AUG2017"d) eq 1) and (%eval("&sysdate"d < "28FEB2018"d) eq 0) %then %do; ...
+
+ods pdf file="/Drugs/TMMEligibility/&clientfolder./Imports/ClientQC_&Cname." startpage=no; ods pdf text = "^{newline 4}"; ods pdf text = "^{style [just=center] Gender}"; proc sql; select patientgender,count(*) from work.qc_status group by 1 order by 1; quit;
+
+ /* Create ds if percentage of sex is bad: */
+proc sql; create table patientphonenbr_err as select distinct (select count(*) from qc_status where length(patientphonenbr) ne 10) / (select count(*) from qc_status) as pct from qc_status having pct gt 0.05 ; quit;
+
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -3642,6 +3651,9 @@ $ /bin/updatedb --localpaths='/home/rsh8680/code' --prunepaths='/home/rsh8680/co
 # Canonical Linux
 $ sudo updatedb --database-root='/home/bheckel/code' --output='/var/lib/locatedb.code'
 
+# Skip prune tmp dir:
+(cd ~ && find ~/bob/ -maxdepth 2 -not -path '*/tmp/*' -name 'Session.vim')
+
 # Calculate the day before assumes GNU date(1):
 date -d '20050801 2 day ago' +"%Y%m%d"
 
@@ -4208,6 +4220,7 @@ tmux list-sessions  # we see sas0-ses2 is not '(attached)'
 tmux -2 a -t sas0-ses2  # attach if session exists, note sas0-ses2 may be a digit if originally created anonymously
 tmux -2 a  # if only one exists to reattach to
 tmux -2 new -s sas0-ses3  # if we need a new session
+tmux kill-session -t sas0-ses3
 
 if (( `df -h /saswork|grep saswork | awk '{print $4}'|sed s/%//g` > 90 )); then echo warning | mail -s 'workspace almost full' bob.heckel@taeb.com; fi
 
@@ -4272,9 +4285,6 @@ getent passwd "594" | cut -d: -f1
 awk '{printf "%03d\n", $0}' junk
 
 zip -P passw0rd secure.zip file
-
-# Git mantra:
-alias gitup="git add . && git commit -m 'mod' && git push origin master"
 
 # Grep all SAS logs in a directory.  More powerful than xargs:
 for f in $(find /sasdata/Cron/Daily/cce -name '*.log' ) \ do \ ~bheckel/bin/saslog_grep.pl x $f \ done
@@ -6011,7 +6021,7 @@ git branch mynewbranch; git checkout mynewbranch # or just branch and checkout i
 git checkout master
 
 # git commit mantra git mantra:
-git add . && git commit -m 'cleanup' && git push
+git add . && git commit -m 'cleanup' && git push origin master
 git add . && git commit -m 'mod'  # or better  git commit -a -m 'mod'
 git add cfg/DataPost_Configuration.xml && git commit -m 'mod single file'
 
@@ -6258,6 +6268,7 @@ TRUNCATE bigtable, fattable;
 
 -- Postgres remove leading zeros to find 01, 1, 03, 3:
 where trim(leading '0' from storeid) in ('1','3')
+select distinct concat(a.clientid::text,trim(leading '0' from b.clientstoreid::text),pharmacypatientid::text) as upid
 
 -- Postgres cast convert type:
 select * from stores where clients_fkid=999 and storeid::int4=3
