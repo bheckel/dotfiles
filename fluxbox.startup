@@ -22,6 +22,7 @@ xset s off  # disable screensaver
 /usr/bin/google-chrome-stable &
 # fbsetbg /home/bheckel/Dropbox/Public/misc/computer/carbon3.jpg &
 fbsetbg -a /home/bheckel/Dropbox/Camera\ Uploads/Disney_2017/2017-08-15\ 22.23.47.jpg &
+ssh-add &
 
 # Because fluxbox is the last app you have to run it with ''exec'' before it
 exec fluxbox

@@ -27,11 +27,13 @@
   [end]
   /*[exec] (Volume       Mod4+v) {urxvt -name alsa -e alsamixer} </usr/share/icons/gnome/32x32/status/stock_volume.png>*/
   [separator] ()              {} 
-  [exec] (Suspend)            {TODOsleep 90 && sudo /usr/sbin/pm-suspend}
-  [separator] ()              {} 
-  [exec] (Restart)            {TODOxmessage restarting...; TODOsudo shutdown -r 0}
-  [separator] ()              {} 
-  [exec] (Shutdown)           {TODOxmessage shutting down...; TODOsudo shutdown -h 0}
-  [separator] ()              {} 
+  [reconfig] (Reconfigure fluxbox)
+  /* [separator] ()              {} */ 
+  /* [exec] (Suspend)            {TODOsleep 90 && sudo /usr/sbin/pm-suspend} */
+  /* [separator] ()              {} */ 
+  /* [exec] (Restart)            {TODOxmessage restarting...; TODOsudo shutdown -r 0} */
+  /* [separator] ()              {} */ 
+  /* [exec] (Shutdown)           {TODOxmessage shutting down...; TODOsudo shutdown -h 0} */
+  /* [separator] ()              {} */ 
   [exec] (About)              {(fluxbox -v; fluxbox -info | sed 1d) 2>/dev/null | xmessage -file - -center}
 [end]
