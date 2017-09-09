@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Modified: Sat 17 Jan 2015 09:09:04 (Bob Heckel)
+# Modified: Sun 03 Sep 2017 09:24:14 (Bob Heckel)
 #
 # fluxbox startup-script
 #
@@ -9,19 +9,19 @@
 # MAKE SURE THAT APPS THAT KEEP RUNNING HAVE AN ''&'' AT THE END!
  
 xmodmap "$HOME/.Xmodmap"  # keymap for lefty
-###idesk &
+#idesk &
 conky -x 5 -y 0 &
 nm-applet &
 # dropbox start &
 redshift-gtk &
-###wmweather -s KRDU &
+#wmweather -s KRDU &
 xset dpms 1200 1500 1800  # monitor DPMS timeouts in seconds
 xset s off  # disable screensaver
-###anoise &
+#anoise &
 /usr/bin/gnome-terminal --geometry 95x55+200+10 &
 /usr/bin/google-chrome-stable &
-# fbsetbg /home/bheckel/Dropbox/Public/misc/computer/carbon3.jpg &
 fbsetbg -a /home/bheckel/Dropbox/Camera\ Uploads/Disney_2017/2017-08-15\ 22.23.47.jpg &
+# ssh-add &
 
 # Because fluxbox is the last app you have to run it with ''exec'' before it
 exec fluxbox
