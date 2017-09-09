@@ -36,7 +36,7 @@
 " Often unsychronized gvimrc is here C:/Program Files (x86)/Vim/_vimrc):
 
 let THISBOX = hostname()
-let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWL14H50510', 'sas-01.twa.ateb.com', 'sasdev-01.twa.ateb.com', 'SAS-01', 'SAS-02', 'sas-01.mrk.ateb.com' ]
+let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWL14H50510', 'sas-01.twa.ateb.com', 'sasdev-01.twa.ateb.com', 'SAS-01', 'SAS-02', 'sas-01.mrk.ateb.com', 'VWS-12-BHECKEL' ]
 
 if has ('win32unix')
   let g:netrw_cygwin=1  " scp to be provided by Cygwin
@@ -54,7 +54,8 @@ let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
 """let g:netrw_list_cmd = '\ls -l'
 """let g:netrw_list_cmd = '/cygdrive/c/windows/System32/WindowsPowerShell/v1.0/powershell -Command dir'
 
-" Setup tempspace that vim and gVim can share (if edit here, we may need to copy this .vimrc to C:/Program Files (x86)/Vim/_vimrc):
+" Setup tempspace that vim and gVim can share (if edit here, we may need to copy this .vimrc to C:/Program Files (x86)/Vim/_vimrc),
+" make sure both Linux & Windows hostnames are added to WORKBOXARRAY
 if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
   if has('gui') && has('win32')
     " Windows gVim

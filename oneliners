@@ -638,7 +638,7 @@ http://support.sas.com/documentation/cdl/en/allprodsproc/68038/HTML/default/view
 https://support.sas.com/rnd/base/ods/scratch/styles-tips.pdf
 https://support.sas.com/rnd/base/ods/odsmarkup/TipSheet_ods_xl_xp.pdf
 
- /* See also ods_output_excel_mult_worksheet.sas */
+ /* List all fields in sashelp library.  See also ods_output_excel_mult_worksheet.sas */
 proc contents data=sashelp._all_; run;
 
 Missing value '.' always sort lower than char or num and ._ sorts lowest of all.  A blank space ' ' is MISSING to SAS but not to SQL where it is a character.
@@ -1594,6 +1594,7 @@ select *, (intck('YEAR', today(), dateofbirth)*-1) as agethisyear  /* 52 all yea
 exactage = intck('YEAR', today(), dateofbirth)*-1;                 /* 51.58234 changes daily */
  /* Age in half year increments - intck counts half year boundaries crossed */
 ageinhalfyrs = intck('YEAR2', today(), '30OCT65'd)*-1;
+yearsold = year(today())-year(patientdob)
 
  /* Macro date - change format reformat date into a macrovar: */
 %let mydt='30OCT2015'; %let newdt=%sysfunc(putn("&mydt"D, YYMMDD10.));
@@ -2327,8 +2328,8 @@ data weekcnt; set weekcnt end=e; output; if e then do; clientstoreid='999'; week
 select clientstoreid, put(datepart(lastmodified), DATE9.) as dtlastmodified, count(*)
 select put(max(filldate), DATE9.) as humandate
 
- /* Conditional minimalist send email from datastep: */
-...else do; put 'fail ' rc1=; to='bob.heckel@taeb.com'; file DUMMY email filevar=to subject="Error during &SYSPROCESSNAME execution"; stop; end;
+ /* Conditional minimalist send email from datastep or macro: */
+%if %sysfunc(attrn(%sysfunc(open(error_count)), NLOBSF)) gt 0 %then %do; %put ERROR: QC fail; data _null_; to='bob.heckel@ateb.com'; file DUMMY email filevar=to subject="Error during &SYSPROCESSNAME execution"; run; %end;
 if rc1 eq 0 then do; put 'NOTE: chmod successful'; end; else do; put 'ERROR: chmod fail'; to='obb.heckel@taeb.com'; file DUMMY email filevar=to subject="Error during %sysfunc(getoption(SYSIN))"; end;
 
 x umask 000; data l.junk;set sashelp.shoes;run;  /* -rw-rw-rw-. 1 bheckel staff 128K Feb 23 16:04 /mnt/nfs/home/bheckel/junk.sas7bdat */
@@ -2706,8 +2707,8 @@ sudo du -sk /saswork/* | sort -rn | head -n20 | awk '{print $2}' | xargs sudo ls
 for i in *; do du -sk $i; done | sort -n
 # Total size of each item (directory) in CWD and sort numerically diskhogs:
 for i in `find . -type d`; do du -sh $i; done | sort -n
-# Diskhogs
-for i in `find /Drugs/Personnel -maxdepth 1 -type d`; do du -sh $i; done | sort -h
+# Diskhogs canonical:
+for i in `find /Drugs/Personnel -maxdepth 1 -type d`; do du -sh $i; done | sort -hr
 
 # HP-UX System Admin Tool -- sam
 # Solaris Administration Tool -- admintool or sam
@@ -6463,5 +6464,8 @@ select column1 from val;
 
 -- Postgres age today and at end of year e.g. 51 years 8 mons 4 days | 52:
 select age('1965-10-30'::date), date_part('year', age('2017-12-31', '1965-10-30'))
+
+' Weighted average in Excel (patient count in C, lift % in col F):
+=SUMPRODUCT(F7:F23,C7:C23)/SUM(C7:C23)
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
