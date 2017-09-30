@@ -7,7 +7,7 @@
 #           Comments are often written for searching, not proper English
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Wed 09 Aug 2017 14:57:27 (Bob Heckel)
+# Modified: Mon 11 Sep 2017 11:31:29 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -1036,10 +1036,8 @@ cat "//'bqh0.inc.saslog'" | vi -     # HFS
  /* Remove trailing comma: */
 %let YRCNTS=%substr(%bquote(&YRCNTS), 1, %length(&YRCNTS)-1);
 
- /* Count observations count without opening dataset (or if it's open in SAS GUI), alternative to proc sql INTO :cnt */
-data _null_; n_obs=attrn(open('tmp1.pull_lift'), 'NOBS'); put n_obs=;run;
-%macro m; %put %sysfunc(attrn(%sysfunc(open(tmp1.pull_lift)), NLOBSF)); %mend;%m
-%if %sysfunc(attrn(%sysfunc(open(_LAST_)), NLOBSF)) lt 100 %then %do; %put ok; %end;
+ /* Count observations count without looping dataset (or if it's open in SAS GUI), alternative to proc sql INTO :cnt */
+%let dsid=%sysfunc(open(work.error_count)); %let cntobs=%sysfunc(attrn(&dsid, NLOBS)); %let dsid=%sysfunc(close(&dsid)); %if &cntobs gt 0 %then %do; ...
 
  /* Day of week number 1=Sunday 7=Saturday */
 if weekday(today()) eq 2 then put "it's Monday";
@@ -1672,6 +1670,7 @@ proc means data=sashelp.class N NMISS; run;
 proc sort data=sashelp.class out=t; by sex; run; proc means data=t N NMISS; by sex; var height; run;
 proc sort data=sashelp.class out=t; by sex;run; proc means data=t N NMISS; class sex; var height; output out=t2; run;
 proc means data=sashelp.shoes MEDIAN; var sales; run;
+proc means data=sashelp.cars maxdec=0; output out=t MEDIAN=; class make; var mpg_city; run;
 
  /* Canonical count missings: */
 proc sql; select count(*) from l.Publix_pharmacydata where pharmacypatientid is null ; quit;
@@ -2056,7 +2055,7 @@ select a.*, (CASE WHEN b.TotalEnrolledLst30 ne . THEN b.TotalEnrolledLst30 ELSE 
  /* Count number of files in directory */
 %let rc=%sysfunc(filename(dr, 'C:/temp')); %let cnt=%sysfunc(dnum(%sysfunc(dopen(&dr)))); %put !!!&cnt;
 
- /* SQL set default if missing: */
+ /* SQL set default if missing, same as CASE WHEN a IS NOT NULL THEN a ELSE b END */
 select b.code, b.count, COALESCE(a.animal,'Unknown') as animal  /* set animal='Unknown' if missing */
 
  /* Iterate over an array: */
@@ -2109,6 +2108,7 @@ input id (apple orange banana) (:8.) (loc1-loc3) (:$1.) (mydate1-mydate2) (:date
 
  /* Simpler if then else, ifn() is for numerics */
 x2=ifc(x='Y', 'yes', 'no');
+call symputx('cap', ifc(usecap eq '0', 'N', 'Y'));
 if x='Y' then x2='yes'; else x2='no';
 
  /* Standardize addresses */
@@ -2366,7 +2366,7 @@ put(coalesce(cgid,0),8.);
  /* Convert date today macro date now to human formatted e.g. 20161109: */
 %let today=%sysfunc(date(), YYMMDDN8.);
 
- /* Collapse multiple rows to single row: */
+ /* Collapse multiple rows flatten multiple rows to single row one row: */
 data xx; update xx(obs=0) xx; by idnum; run;
 
  /* Send stderr to file: */
@@ -2463,6 +2463,9 @@ ods pdf file="/Drugs/TMMEligibility/&clientfolder./Imports/ClientQC_&Cname." sta
 
  /* Create ds if percentage of sex is bad: */
 proc sql; create table patientphonenbr_err as select distinct (select count(*) from qc_status where length(patientphonenbr) ne 10) / (select count(*) from qc_status) as pct from qc_status having pct gt 0.05 ; quit;
+
+ /* Enquote single quote a macro variable: */
+%put %sysfunc(quote(&foo, "'"));
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5674,6 +5677,7 @@ Vimperator autoload Windows shortcut Properties target box:
 
 Windows shortcut Properties target box:
 "C:\Program Files\Vim\vim72\gvim.exe" -u u:\.vimrc
+"C:\Program Files (x86)\Vim\vim80\gvim.exe" -S C:/Users/bob.heckel/Session.vim
 
 XML declaration header: <?xml version="1.0" ?> or <?xml version="1.0" encoding="UTF-8"?>
 
@@ -6467,5 +6471,12 @@ select age('1965-10-30'::date), date_part('year', age('2017-12-31', '1965-10-30'
 
 ' Weighted average in Excel (patient count in C, lift % in col F):
 =SUMPRODUCT(F7:F23,C7:C23)/SUM(C7:C23)
+
+-- Postgres first day of year beginning of year
+SELECT date_trunc('year', now())::date;
+
+ALTER TABLE Customer DROP COLUMN Birth_Date;
+ALTER TABLE analytics.build ADD COLUMN rundatacheck boolean NOT NULL DEFAULT TRUE;
+ALTER TABLE analytics.archivebuildconfig ADD COLUMN job_type text NOT NULL DEFAULT 'Imports';
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

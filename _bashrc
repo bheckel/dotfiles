@@ -4,7 +4,7 @@
 # Summary: bash config for at least Cygwin 1.3/1.5/1.7, Unix/Linux and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Sat 09 Sep 2017 07:42:27 (Bob Heckel)
+# Modified: Fri 29 Sep 2017 09:25:58 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -172,6 +172,11 @@ ses() {
   else
     (cd ~ && find ~/bob/ -maxdepth 3 -not -path '*/tmp/*' -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $9}')
   fi
+}
+
+sesrm() {
+  # E.g. archive_ses.sh /mnt/nfs/home/bheckel/bob/RFD/AN-5087_weisoptout
+  mv -i $1/{Session.vim,Session.vimx} && mv -i $1/ ~/bob/_old/ 
 }
 
 # Session grep.  Search comma-separated project session keyword files.  Debug: find ~/bob/ -name .keyword|xargs head
