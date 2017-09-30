@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Created: Tue 03 May 2015 09:01:11 (Bob Heckel) 
-# Modified: Wed 09 Aug 2017 11:13:45 (Bob Heckel)
+#  Created: Tue 03 May 2015 09:01:11 (Bob Heckel) 
+# Modified: Sat 30 Sep 2017 07:57:30 (Bob Heckel)
 
 # No leading dots!
 majordots='bashrc vimrc tmux.conf Xdefaults'
@@ -55,5 +55,13 @@ for f in inputrc; do
   cp $myhome/dotfiles/_$f $myhome/.$f
 done
 
+# For vim swapfile
+mkdir $HOME/tmp
+
 echo
 echo ...completed $majordots
+
+echo "Consider installing:"
+echo "sudo apt install git"
+echo "sudo apt install vim-nox"
+echo "sudo apt install w3m"
