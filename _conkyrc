@@ -4,7 +4,7 @@
 #           $ conky -d -x 40 -y 10
 #
 #  Created: Sat 04 Feb 2012 21:38:40 (Bob Heckel - adapted from darcon at gmail.com)
-# Modified: Thu 04 Jun 2015 07:48:02 (Bob Heckel)
+# Modified: Sun 24 Sep 2017 07:30:21 (Bob Heckel)
 ################################################################################
 
 # set to yes if you want Conky to be forked in the background
@@ -304,7 +304,7 @@ TEXT
 ${offset 0}${color}${image /home/bheckel/Dropbox/Public/misc/computer/fb-icon48x48-metal.png}
 
 
-${color dark goldenrod}${execi 2500 display-dhamma | par -w25}
+#${color dark goldenrod}${execi 2500 display-dhamma | par -w25}
 
 ###${color goldenrod}${execi 1500 ~/bin/display-dhamma -dhp bnnp | par -w75}
 ###${color goldenrod}${execi 1500 ~/bin/display-dhamma -dhp bn | par -w28}
@@ -324,7 +324,7 @@ ${color slate grey}TempF: ${color}${execi 120 sensors -f|grep 'Core 0' | cut -c 
 ###${offset 0}${color slate grey}Processes/Running: ${color}$processes/${color}$running_processes
 ${offset 0}${color slate grey}Processes: ${color}$running_processes/${color}$processes
 ###${offset 0}${cpugauge 45,130 ffffff cc4444}
-${offset 0}${cpugraph 25,130 ffffff cc4444 -t}
+${offset 0}${cpugraph 25,130 ffffff cc4444 -lt}
 ###${offset 0}${color slate grey}Load: ${color }$loadavg
 ###${offset 0}${color slate grey}Running:   ${color }$running_processes
 ###${offset 0}${color slate grey}Highest CPU:
@@ -333,7 +333,7 @@ ${offset 0}${cpugraph 25,130 ffffff cc4444 -t}
 ${offset 0}${color lightgrey} ${top name 1}${top cpu 1}
 ${offset 0}${color lightgrey} ${top name 2}${top cpu 2}
 ${offset 0}${color lightgrey} ${top name 3}${top cpu 3}
-###${offset 0}${color lightgrey} ${top name 4}${top cpu 4}
+${offset 0}${color lightgrey} ${top name 4}${top cpu 4}
 
 ${offset 0}${color slate grey}Memory: ${color}$mem/$memmax
 ${offset 0}${memgraph 20,130 ffffff cc4444 -t}
@@ -342,7 +342,7 @@ ${offset 0}${memgraph 20,130 ffffff cc4444 -t}
 ${offset 0}${color lightgrey} ${top_mem name 1}${top_mem mem 1}
 ${offset 0}${color lightgrey} ${top_mem name 2}${top_mem mem 2}
 ${offset 0}${color lightgrey} ${top_mem name 3}${top_mem mem 3}
-###${offset 0}${color lightgrey} ${top_mem name 4}${top_mem mem 4}
+${offset 0}${color lightgrey} ${top_mem name 4}${top_mem mem 4}
 
 ###${offset 0}${color slate grey}MEM:  ${color } $memperc% $mem/$memmax
 ###${offset 0}${color slate grey}SWAP: ${color }$swapperc% $swap/$swapmax
