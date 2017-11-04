@@ -7,7 +7,6 @@
   [exec] (gnome-terminal)     {/usr/bin/gnome-terminal --geometry 95x55+200+10} </usr/share/pixmaps/gnome-terminal.xpm>
   [exec] (Gvim)               {/usr/bin/vim.gnome -g -f} </usr/share/pixmaps/vim-32.xpm>
   [exec] (Iview)              {/home/bheckel/.wine/drive_c/Program\ Files\ \(x86\)/IrfanView/i_view32.exe} <>
-  [exec] (Remmina)            {/usr/bin/remmina} <>
   [exec] (Thunar)             {/usr/bin/thunar} </usr/share/icons/hicolor/64x64/apps/Thunar.png>
   [exec] (VirtualBox)         {/usr/bin/virtualbox} </usr/share/icons/hicolor/32x32/apps/virtualbox.png>
   [separator] ()              {} 
@@ -25,6 +24,7 @@
       [exec] (Firefox)            {/opt/firefox/firefox} </home/bheckel/misc/computer/firefox.png>
       [exec] (Iview)              {/home/bheckel/bin/iview} </usr/share/pixmaps/playonlinux.png>
       [exec] (rxvt-unicode)       {rxvt-unicode -icon /usr/share/icons/Faenza/apps/32/xterm_32x32.xpm} </usr/share/icons/Faenza/apps/32/xterm_32x32.xpm>
+      [exec] (Remmina)            {/usr/bin/remmina} <>
     [end]
   [end]
   [separator] ()         {} 

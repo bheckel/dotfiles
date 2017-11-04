@@ -5,10 +5,10 @@
 # Applications you want to run with fluxbox.
 # MAKE SURE THAT APPS THAT KEEP RUNNING HAVE AN '&' AT THE END!
 #
-# Modified: Mon 04 Sep 2017 20:13:02 (Bob Heckel)
+# Modified: Sat 07 Oct 2017 09:25:29 (Bob Heckel)
  
 xmodmap "$HOME/.Xmodmap"  # keymap for lefty
-#idesk &
+idesk &
 conky -x 5 -y 0 &
 nm-applet &
 # dropbox start &
