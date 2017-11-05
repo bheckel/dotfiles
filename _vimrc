@@ -118,16 +118,15 @@ set encoding=utf-8
 "  View current highlighting:  :hi or  :so $VIMRUNTIME/syntax/hitest.vim
 "  To test term:  :runtime syntax/colortest.vim
 "
-"  ~/code/misccode/print_all_terminal_colors.sh
+" To determine number:
+" ~/code/misccode/print_all_terminal_colors.sh or
+" ~/code/misccode/vim_colors.txt
 "--------------------------------------------------------------------------
 
 syntax enable
 
 " Avoid reading text presented like it was written on a light bulb.  We're
 " relying on .mintty or .Xdefaults so this is only for gvim.
-" See ~/code/misccode/vim_colors.txt
-"""hi Normal guifg=#F5DEB3 guibg=Black
-"""hi Normal  ctermfg=229 guifg=#ffffaf
 hi Normal guifg=White guibg=Black
 
 hi Comment ctermfg=DarkGray guifg=DarkGray guibg=Black
@@ -137,13 +136,13 @@ hi Conditional ctermfg=LightGreen guifg=LightGreen
 hi DiffAdd ctermfg=Black ctermbg=LightGreen guifg=Black guibg=LightGreen
 hi DiffChange ctermfg=Black ctermbg=LightYellow guifg=Black guibg=LightYellow
 hi DiffDelete ctermbg=DarkGreen guibg=DarkGreen
-hi DiffText ctermfg=Black guifg=Black
+hi DiffText ctermfg=Green guifg=Black
 
 hi Directory ctermfg=Magenta guifg=Magenta guibg=Black cterm=bold gui=bold
 
 " Highlight tabs other than at start of line for indenting
 """match ErrorMsg /[^\t]\zs\t\+/
-hi ErrorMsg ctermfg=Black ctermbg=Red guifg=Black guibg=Red
+hi ErrorMsg ctermfg=Black ctermbg=124 guifg=Black guibg=Red
 
 hi Folded ctermfg=DarkGray ctermbg=Black guifg=DarkGray guibg=Black cterm=bold gui=bold
 

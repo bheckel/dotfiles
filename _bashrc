@@ -4,7 +4,7 @@
 # Summary: bash config for at least Cygwin 1.3/1.5/1.7, Unix/Linux and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Fri 29 Sep 2017 09:25:58 (Bob Heckel)
+# Modified: Tue 03 Oct 2017 09:40:01 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -102,6 +102,7 @@ alias cdp="cd $HOME/code/perl"
 alias cdpl="cd $HOME/code/perl"
 alias cdt="cd $HOME/tmp"
 alias cds="cd $HOME/code/sas"
+alias cro='crontab -e'
 alias datecalc=$HOME/code/perl/datecalc
 alias ddg='w3m http://duckduckgo.com/lite'
 alias f='fg'  # jobs -s  to list what's suspended
@@ -419,10 +420,10 @@ case "$OSTYPE" in
     alias by=exit  # like FTP and SAS
     alias catput=$HOME/code/misccode/catput.sh
     # This assumes $TEMP is defined to C:\temp above for Cygwin vim/gvim issues (can't reside in Generic section, normal unix uses ~/tmp)
-    alias d12="(cd $TEMP;vi -d 1 2)"
-    alias d13="(cd $TEMP;vi -d 1 3)"
-    alias d123="(cd $TEMP;vi -d 1 2 3)"
-    alias d34="(cd $TEMP;vi -d 3 4)"
+    alias d12="(cd $TEMP;vi -Rd 1 2)"
+    alias d13="(cd $TEMP;vi -Rd 1 3)"
+    alias d123="(cd $TEMP;vi -Rd 1 2 3)"
+    alias d34="(cd $TEMP;vi -Rd 3 4)"
     alias datecalc=$HOME/code/perl/datecalc
     alias daystil=$HOME/code/misccode/daystil64.exe
     alias cygwin=$HOME/code/misccode/cygwin.bat  # norc bat version must be doubleclicked
@@ -560,10 +561,10 @@ case "$OSTYPE" in
       #----------------
 
       # Quick diff
-      alias d12="(cd ~/tmp; vi -d 1 2)"
-      alias d13="(cd ~/tmp; vi -d 1 3)"
-      alias d123="(cd ~/tmp; vi -d 1 2 3)"
-      alias d34="(cd ~/tmp; vi -d 3 4)"
+      alias d12="(cd ~/tmp; vi -Rd 1 2)"
+      alias d13="(cd ~/tmp; vi -Rd 1 3)"
+      alias d123="(cd ~/tmp; vi -Rd 1 2 3)"
+      alias d34="(cd ~/tmp; vi -Rd 3 4)"
       # Poor-man's file sync:
       # $ ls ~/transfer/
       # c  c.NEW  git.txt  gvim74.exe  iview423_setup.exe  README.md  saslog.vim  sasrun  sas.vim
@@ -621,10 +622,10 @@ case "$OSTYPE" in
 
       if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ] || [ $HOSTNAME = 'sas-01.mrk.ateb.com' ]; then
         alias cavx='vi scp://bheckel@sas-01.mrk.ateb.com//Drugs/Personnel/bob/tmp/.vimxfer'
-        alias d12="(cd ~/bob/tmp; vi -d 1 2)"
-        alias d13="(cd ~/bob/tmp; vi -d 1 3)"
-        alias d123="(cd ~/bob/tmp; vi -d 1 2 3)"
-        alias d34="(cd ~/bob/tmp; vi -d 3 4)"
+        alias d12="(cd ~/bob/tmp; vi -Rd 1 2)"
+        alias d13="(cd ~/bob/tmp; vi -Rd 1 3)"
+        alias d123="(cd ~/bob/tmp; vi -Rd 1 2 3)"
+        alias d34="(cd ~/bob/tmp; vi -Rd 3 4)"
         alias mrk='ssh -l bheckel sas-01.mrk.ateb.com'
         alias sas0='ssh -l bheckel sas-01.twa.ateb.com'
         alias tal='ssh -l bheckel talon3.dep.ateb.com'
