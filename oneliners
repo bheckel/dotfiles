@@ -588,7 +588,7 @@ if hostname() == 'yoniso' ... else ... endif
 scp bheckel@sas-01.twa.taeb.com://mnt/nfs/home/bheckel/tmp/.vimxfer ~/tmp 
 
 " Copy this file to another host from vim (no warning on overwrite!):
-:w scp://bheckel@sas-01.mrk.taeb.com/%
+:w scp://bheckel@sas-01.mrk.taeb.com/bin/%
 
 # Share vimxfer file across machines:
 alias xfer='scp ~/tmp/.vimxfer bheckel@talon3:tmp/.vimxfer'
