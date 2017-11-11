@@ -4,11 +4,12 @@
   [separator] () {} 
   [exec] (Chrome)             {/usr/bin/google-chrome-stable} </usr/share/icons/hicolor/256x256/apps/google-chrome.png>
   [exec] (GENS)               {/usr/games/gens} <>
-  [exec] (gnome-terminal)     {/usr/bin/gnome-terminal --geometry 95x55+200+10} </usr/share/pixmaps/gnome-terminal.xpm>
+  /* [exec] (gnome-terminal)     {/usr/bin/gnome-terminal --geometry 95x55+200+10} </usr/share/pixmaps/gnome-terminal.xpm> */
   [exec] (Gvim)               {/usr/bin/vim.gnome -g -f} </usr/share/pixmaps/vim-32.xpm>
   [exec] (Iview)              {/home/bheckel/.wine/drive_c/Program\ Files\ \(x86\)/IrfanView/i_view32.exe} <>
   [exec] (Thunar)             {/usr/bin/thunar} </usr/share/icons/hicolor/64x64/apps/Thunar.png>
   [exec] (VirtualBox)         {/usr/bin/virtualbox} </usr/share/icons/hicolor/32x32/apps/virtualbox.png>
+  [exec] (xterm)              {xterm -fa "xft:Consolas-9:antialias=true" -bc -sb -rightbar -geometry "95x55+200+10"} <>
   [separator] ()              {} 
   [submenu] (misc)
     [exec] (alsamixer)          {urxvt -e /usr/bin/alsamixer} <>
@@ -17,6 +18,8 @@
     [exec] (Firefox)            {/usr/bin/firefox} </home/bheckel/Dropbox/Public/misc/computer/firefox32x32.png>
     [exec] (Gnome-disks)        {gnome-disks} <>
     [exec] (Midori)             {/usr/bin/midori} </usr/share/icons/hicolor/32x32/apps/midori.png>
+    [exec] (Remmina)            {/usr/bin/remmina} <>
+    [exec] (rxvt-unicode)       {rxvt-unicode -icon /usr/share/icons/Faenza/apps/32/xterm_32x32.xpm} </usr/share/icons/Faenza/apps/32/xterm_32x32.xpm>
     /* [exec] (mtpaint)            {/usr/bin/mtpaint} <> */
     [exec] (Okular)             {/usr/bin/okular} <>
     [separator] ()              {} 
@@ -24,7 +27,6 @@
       [exec] (Firefox)            {/opt/firefox/firefox} </home/bheckel/misc/computer/firefox.png>
       [exec] (Iview)              {/home/bheckel/bin/iview} </usr/share/pixmaps/playonlinux.png>
       [exec] (rxvt-unicode)       {rxvt-unicode -icon /usr/share/icons/Faenza/apps/32/xterm_32x32.xpm} </usr/share/icons/Faenza/apps/32/xterm_32x32.xpm>
-      [exec] (Remmina)            {/usr/bin/remmina} <>
     [end]
   [end]
   [separator] ()         {} 
