@@ -7,7 +7,7 @@
 #           Comments are often written for searching, not proper English
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Mon 11 Sep 2017 11:31:29 (Bob Heckel)
+# Modified: Thu 19 Oct 2017 09:34:37 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -588,7 +588,7 @@ if hostname() == 'yoniso' ... else ... endif
 scp bheckel@sas-01.twa.taeb.com://mnt/nfs/home/bheckel/tmp/.vimxfer ~/tmp 
 
 " Copy this file to another host from vim (no warning on overwrite!):
-:w scp://bheckel@sas-01.mrk.taeb.com/%
+:w scp://bheckel@sas-01.mrk.taeb.com/bin/%
 
 # Share vimxfer file across machines:
 alias xfer='scp ~/tmp/.vimxfer bheckel@talon3:tmp/.vimxfer'
@@ -638,7 +638,6 @@ http://support.sas.com/documentation/cdl/en/allprodsproc/68038/HTML/default/view
 https://support.sas.com/rnd/base/ods/scratch/styles-tips.pdf
 https://support.sas.com/rnd/base/ods/odsmarkup/TipSheet_ods_xl_xp.pdf
 
- /* List all fields in sashelp library.  See also ods_output_excel_mult_worksheet.sas */
 proc contents data=sashelp._all_; run;
 
 Missing value '.' always sort lower than char or num and ._ sorts lowest of all.  A blank space ' ' is MISSING to SAS but not to SQL where it is a character.
@@ -1072,7 +1071,7 @@ mydttm = dhms(mydate, max(0,hour(mytime)), max(0,minute(mytime)), max(0,second(m
 %put %sysfunc(putn(1440588139.7, datetime9.));
 %put %sysfunc(putn(1441637788, datetime14.));
 
- /* Canonical eformat date convert macro date in macro: */
+ /* Canonical eformat date convert macro date in macro date arithmetic in macro: */
 %let daten_max=20170510; %put %sysfunc(putn(%sysfunc(inputn(&daten_max, YYMMDD8.)), YYMMN6.));  /* 201705 */
 %let thirty_days_ago=%sysfunc(putn(%sysevalf("&SYSDATE"d-30), yymmddn8.));
 
@@ -1191,7 +1190,8 @@ data _null_; do while ( x<3 ); put x=; x+1; end; run;
 http://rtpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program=LINKS.t.sas&UID=rsh8680&_debug=131
 
  /* NODUP eliminates obs that are exactly the same across ALL variables.  NODUPKEY eliminates obs that are exactly the same across *only* the BY variables. */
-proc sort data=foo out=bar NODUPKEY; by x y; run;
+proc sort data=foo OUT=bar NODUPKEY; by x y; run;
+proc sort data=foo OUT=bar DUPOUT=foo_dupsonly NODUPKEY; by x y; run;
 
  /* If you don't require the data within BY groups to be kept in the same order as it was before, use the NOEQUALS option.
   * This will save CPU and elapsed time, particularly on large data sets. Causes SAS not to worry about keeping observations 
@@ -1636,6 +1636,7 @@ data; newyearsday = put(intnx('year', "&SYSDATE"D, 0, 'B'), DATE9.); put newyear
 %let FirstDayOfLastMonth=%sysfunc(intnx(month, "&SYSDATE"D, -1, b), YYMMDD10.);
 %let OneMonthAgoToday=%sysfunc(intnx(month, "&SYSDATE"D, -1, s), YYMMDD10.);
 %let LastSunday=%sysfunc(intnx(week, "&SYSDATE"d, 0, b), DATE.);
+%put LastMonday=%sysfunc(intnx(week1.2, "&SYSDATE"d, 0, b), DATE.);
 
  /* Force date to last Saturday */
 data _null_; lastsaturday = intnx('week', "&SYSDATE"D, 0, 'B')-1; call symput('date_max', put(lastsaturday, DATE9.)); run;
@@ -2213,8 +2214,8 @@ rc=system('/bin/bash /Drugs/xron/Daily/FredsImm/fredsimm.sh 2>/Drugs/xron/Daily/
  /* Convert multiple spaces to single: */
 cityst = prxchange('s/\s+/ /', -1, TMPcityst);
 
- /* Convert Unix path space to backslash space via regex: */
-%let reportlocationconverted=%sysfunc(prxchange(s/ /\\ /, -1, &reportlocation));
+ /* Convert Unix path spaces in name to backslash space escapes via regex: */
+%let reportlocation_escaped=%sysfunc(prxchange(s/ /\\ /, -1, &reportlocation));
  /* Pick off end of string extension /foo/bar/baz is baz (Note no quotes!) */
 %let RFDPATH=/Drugs/RFD/2016/02/AN-3097; %let RFD=%sysfunc(prxchange(s/(.*)\/(.*)$/$2/, 1, &RFDPATH));
 
@@ -2466,6 +2467,26 @@ proc sql; create table patientphonenbr_err as select distinct (select count(*) f
 
  /* Enquote single quote a macro variable: */
 %put %sysfunc(quote(&foo, "'"));
+
+ /* Pipe delimited file: */
+proc export outfile="&path./&sp_name./&jobtype./&daten_exec./Output/&sp_name._TMM_candidates_fdw.csv" data=TMM.fnl dbms=dlm replace; delimiter='|'; putnames=no; run;
+
+ /* Convert numeric SAS date to single quoted string for Postgres: */
+dobq = quote(put(dob, yymmddd10.), "'");
+
+ /* This month's number: */
+%put %sysfunc(month("&SYSDATE"d));
+
+ /* Group by month count by month: */
+proc sql; select count(distinct atebpatientid), month(filldate) from statin_final group by 2; quit;
+
+proc ds2; thread thr / overwrite=yes; method run(); set { select  a.*, coalesce(b.gpi,a.productid) as gx, b.drugname as dx from l.rxfilldata as a left join l.medispan as b on a.ndc=b.ndc_upc_hri }; end; endthread; run; quit; proc ds2 scond=error; data rxfilldata0; declare thread thr thr_instance; method init(); end; method run(); set from thr_instance threads=4; end; enddata; run; quit;
+
+ /* Check does macrovariable &checkme exist: */
+%if not %symexist(checkme) %then %do; ...
+
+ /* Date-stamp datestamp SAS logs: */
+for f in /foo/t.sas /foo/t2.sas; do BASENM="${f%.*}"; /sas/sashome/SASFoundation/9.4/sas -sysin "$f" -log "${BASENM}.log" -altlog "${BASENM}.`date +%a`.log" -print "${BASENM}.lst"; done;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5837,7 +5858,7 @@ Factorial: 6! is 6*5*4*3*2*1
 
 Fibonacci each number is the sum of the preceding two: 0 1 1 2 3 5 8 13 21 ...
 
-OldNew percentage change %: Take the new, "current value" and divide it by the old, "obsolete value". Subtract 1.00 (i.e. 100%) from the result.
+OldNew percentage change %: To calculate the percentage increase: First: work out the difference (increase) between the two numbers you are comparing. Then: divide the increase by the ORIGINAL number and multiply the answer by 100. If your answer is a negative number then this is a percentage decrease.
 
 Disable screensaver lock Windows XP (see also code\misccode\ScreenSaverIsSecure_Make0.reg)
 \HKCU\Software\Policies\Microsoft\Windows\ControlPanel\Desktop
@@ -6481,5 +6502,8 @@ SELECT date_trunc('year', now())::date;
 ALTER TABLE Customer DROP COLUMN Birth_Date;
 ALTER TABLE analytics.build ADD COLUMN rundatacheck boolean NOT NULL DEFAULT TRUE;
 ALTER TABLE analytics.archivebuildconfig ADD COLUMN job_type text NOT NULL DEFAULT 'Imports';
+
+-- Edit Postgres stored procedure in vim:
+bheckel@db-dev-01.twa.taeb.com:TAEBMART \ef analytics.tmm_client_build_config
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
