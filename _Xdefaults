@@ -10,7 +10,8 @@
 ! Modified: Sun 05 Nov 2017 07:55:33 (Bob Heckel)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-Xterm.cursorBlink: on
+Xterm*cursorBlink: on
+Xterm*background: #000000
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! URxvt and rxvt-unicode
@@ -19,7 +20,6 @@ Xterm.cursorBlink: on
 URxvt*background: #290020
 URxvt*cursorBlink: on
 URxvt*cursorUnderline: true
-URxvt*cutchars: `"'()*,;<>[]{|}@
 URxvt*cursorColor: Grey
 URxvt*foreground: Wheat
 URxvt*saveLines: 2048

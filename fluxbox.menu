@@ -9,7 +9,7 @@
   [exec] (Iview)              {/home/bheckel/.wine/drive_c/Program\ Files\ \(x86\)/IrfanView/i_view32.exe} <>
   [exec] (Thunar)             {/usr/bin/thunar} </usr/share/icons/hicolor/64x64/apps/Thunar.png>
   [exec] (VirtualBox)         {/usr/bin/virtualbox} </usr/share/icons/hicolor/32x32/apps/virtualbox.png>
-  [exec] (xterm)              {xterm -fa "xft:Consolas-9:antialias=true" -bc -sb -rightbar -geometry "95x55+200+10"} <>
+  [exec] (xterm)              {xterm -bg black -fa "xft:Consolas-9:antialias=true" -bc -sb -rightbar -sl 1000 -geometry "95x55+200+10"} <>
   [separator] ()              {} 
   [submenu] (misc)
     [exec] (alsamixer)          {urxvt -e /usr/bin/alsamixer} <>
