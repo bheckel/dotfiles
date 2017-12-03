@@ -1442,7 +1442,7 @@ x = sum(0, x, y);         /* return 0 if all are missing, optionally use if n(x,
 
  /* Missing to zero */
 x=sum(foo, 0);
- /* Missing to zero */
+ /* Change missing to zero do over nums */
 data t; set t; array nums _numeric_; do over nums; if nums eq . then nums=0; end; iacthr97 = emhrsi97 + cohrsi97 + vehrsi97; run;
 
  /* Missing number counts: */
@@ -2487,6 +2487,11 @@ proc ds2; thread thr / overwrite=yes; method run(); set { select  a.*, coalesce(
 
  /* Date-stamp datestamp SAS logs: */
 for f in /foo/t.sas /foo/t2.sas; do BASENM="${f%.*}"; /sas/sashome/SASFoundation/9.4/sas -sysin "$f" -log "${BASENM}.log" -altlog "${BASENM}.`date +%a`.log" -print "${BASENM}.lst"; done;
+
+ /* Load macrovariable directly from database: */
+libname db8 ODBC dsn='db8' schema='client' user=&user. password=&password.; %global sname; proc sql NOprint; select distinct shortname into :sname TRIMMED from db8.client where clientid = &clid ; quit;
+
+libname jasper ODBC dsn='db6dev' schema='public' user=&user password=&pw; proc sql; insert into jasper.dashboardclients ( clientid ) select * from t; quit;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
