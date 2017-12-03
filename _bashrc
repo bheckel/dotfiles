@@ -28,6 +28,9 @@ complete -d cd
 
 shopt -s extglob 
 
+# Make fscking dark blue readable
+printf '\e]4;4;#6495ed\a'
+
 #-----------------------
 # Generic Export  #{{{2
 #-----------------------
@@ -102,12 +105,13 @@ alias cdp="cd $HOME/code/perl"
 alias cdpl="cd $HOME/code/perl"
 alias cdt="cd $HOME/tmp"
 alias cds="cd $HOME/code/sas"
+alias commit='git add . && git commit -m "mod"'
 alias cro='crontab -e'
 alias datecalc=$HOME/code/perl/datecalc
 alias ddg='w3m http://duckduckgo.com/lite'
 alias f='fg'  # jobs -s  to list what's suspended
 alias g=$HOME/dotfiles/gone.sh
-alias gitup="git pull origin master && git add . && git commit -m 'mod' && git push origin master"
+# alias gitup="git pull origin master && git add . && git commit -m 'mod' && git push origin master"
 # Can't use sed to eliminate leading spaces or it breaks coloring
 alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
 # alias gdot="cd ~/dotfiles && git add . && git commit -m'gdot' && git pull origin master && git push origin master && cd -"
@@ -132,6 +136,8 @@ alias lla='ls -agh --color --group-directories-first'
 alias lsd='find . -type d'
 # alias one="vi $HOME/code/misccode/oneliners"
 alias one="vi $HOME/dotfiles/oneliners"
+alias pull='git pull origin master'
+alias push='git push origin master'
 alias pse='ps -ef|grep bheckel'
 ###alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
 alias qr=$HOME/code/misccode/quickref_find.sh

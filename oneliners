@@ -4326,6 +4326,9 @@ perl -e '$x=q{T:\TMMEligibility\WallMediCent\Imports\20170522\Data}; $x=~s:\\:/:
 find /Drugs/Personnel -maxdepth 1 |xargs du -sb |awk '{print $2, $1}' | sed 's/ /\t/g'
 find /sasdata -maxdepth 1 |xargs du -sb |awk '{print $2, $1}' | sed 's/ /,/g'
 
+# Poor man's expect:
+printf 'y\nbob.heckel\nMyPw\npush\n' | /opt/cisco/anyconnect/bin/vpn -s connect portal.ateb.com
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 

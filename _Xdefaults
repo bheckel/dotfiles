@@ -7,63 +7,11 @@
 !           See rxvt-unicode --help for items available
 !
 !  Created: Thu 10 Jan 2002 08:56:11 (Bob Heckel)
-! Modified: Sat 29 Mar 2014 09:13:10 (Bob Heckel)
+! Modified: Sun 05 Nov 2017 07:55:33 (Bob Heckel)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Rxvt
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Black
-Rxvt*background: #000000
-Rxvt*cutchars: `"'()*,;<>[]{|}@
-Rxvt*cursorColor: White
-Rxvt*foreground: Wheat
-Rxvt*saveLines: 2048
-Rxvt*scrollColor: Grey26
-Rxvt*scrollBar_right: on
-Rxvt*termName: xterm
-Rxvt*visualBell: on
-!!!Rxvt*font: Andale Mono-8
-!!!Rxvt*font1: Andale Mono-9
-!!!Rxvt*font2: Andale Mono-10
-!!!Rxvt*font3: Andale Mono-11
-!!!Rxvt*font4: Andale Mono-12
-!!!Rxvt*font5: Andale Mono-14
-!!!Rxvt*font6: Andale Mono-16
-!!!Rxvt*backgroundPixmap:/home/bqh0/code/misccode/pattern.xpm
-! Black
-Rxvt*color0: #000000
-! Red
-Rxvt*color1: Red2
-! Green
-Rxvt*color2: Green1
-! Yellow (brown)
-Rxvt*color3: Khaki1
-! Blue
-Rxvt*color4: DodgerBlue1
-! Magenta
-Rxvt*color5: DarkOrchid1
-! Cyan
-Rxvt*color6: Cyan2
-! This is not foreground color!
-! White
-Rxvt*color7: #fdfdfd
-! Gray
-Rxvt*color8: #666666
-! Bright red
-Rxvt*color9: OrangeRed
-! Bright green
-Rxvt*color10: SpringGreen1
-! Yellow
-Rxvt*color11: Yellow
-! Bright blue
-Rxvt*color12: DodgerBlue3
-! Bright magenta
-Rxvt*color13: #ff00ff
-! Bright cyan
-Rxvt*color14: #00ffff
-! Bright white
-Rxvt*color15: #ffffff
+Xterm*cursorBlink: on
+Xterm*background: #000000
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! URxvt and rxvt-unicode
@@ -72,7 +20,6 @@ Rxvt*color15: #ffffff
 URxvt*background: #290020
 URxvt*cursorBlink: on
 URxvt*cursorUnderline: true
-URxvt*cutchars: `"'()*,;<>[]{|}@
 URxvt*cursorColor: Grey
 URxvt*foreground: Wheat
 URxvt*saveLines: 2048
