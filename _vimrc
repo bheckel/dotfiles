@@ -129,7 +129,7 @@ syntax enable
 " relying on .mintty or .Xdefaults so this is only for gvim.
 hi Normal guifg=White guibg=Black
 
-hi Comment ctermfg=DarkGray guifg=DarkGray guibg=Black
+hi Comment ctermbg=Black ctermfg=DarkGray guifg=DarkGray guibg=Black
 
 hi Conditional ctermfg=LightGreen guifg=LightGreen
 
