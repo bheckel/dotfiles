@@ -1,6 +1,5 @@
 ##############################################################################
-#     Name: .fluxbox/keys (usually symlinked from ~/dotfiles/fluxbox.keys to
-#           ~/.fluxbox/keys)
+#     Name: .fluxbox/keys
 #
 #  Summary: Customized keybindings for fluxbox
 #
@@ -11,8 +10,10 @@
 #
 #           $ man fluxbox-keys
 #
+#           'Reconfigure' to apply changes
+#
 #  Created: Mon 12 Jan 2012 17:59:26 (Bob Heckel)
-# Modified: Sat 02 Sep 2017 11:57:20 (Bob Heckel)
+# Modified: Fri 15 Dec 2017 03:44:57 (Bob Heckel)
 ##############################################################################
 
 # Right-click on the desktop to get menus
@@ -77,11 +78,12 @@ Mod1 Shift Tab :PrevWindow {groups} (workspace=[current])
 Mod4 c :If {Some Matches (google-chrome)} {NextWindow (google-chrome) (workspace=[current])} {Exec /opt/google/chrome/google-chrome}
 # File (e)xplorer
 Mod4 e :Exec /usr/bin/thunar
-Mod4 g :Exec /usr/bingvim
+Mod4 g :Exec /usr/bin/gvim
 # Minimize all
 Mod4 m :ShowDesktop
 Mod4 r :RootMenu
-Mod4 t :Exec /usr/bin/gnome-terminal --geometry 95x55+400+90 &
+#Mod4 t :Exec /usr/bin/gnome-terminal --geometry 95x55+400+90 &
+Mod4 t :Exec xterm -bg black -fa "xft:Consolas-9:antialias=true" -bc -sb -rightbar -sl 1000 -geometry "95x55+350+50"
 # (V)olume
 Mod4 v :Exec /usr/bin/urxvt -name alsa -e alsamixer
 
@@ -94,9 +96,11 @@ Mod4 v :Exec /usr/bin/urxvt -name alsa -e alsamixer
 ###174 :Exec amixer sset Master,0 1-
 ###160 :Exec amixer sset Master,0 toggle
 # Volume down with arrow down
-Mod4 116 :Exec amixer sset Master,0 1-
+#Mod4 116 :Exec amixer sset Master,0 1-
+Mod4 116 :Exec amixer -D pulse sset Master 5%-
 # Volume up with arrow up
-Mod4 111 :Exec amixer sset Master,0 1+
+#Mod4 111 :Exec amixer sset Master,0 1+
+Mod4 111 :Exec amixer -D pulse sset Master 5%+
 
 # Current window commands
 Mod1 F4 :Close
