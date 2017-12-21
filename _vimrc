@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Wed 09 Aug 2017 11:09:28 (Bob Heckel)
+" Modified: Mon 11 Dec 2017 14:38:39 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -160,7 +160,7 @@ hi ModeMsg ctermfg=Black ctermbg=Yellow guifg=Black guibg=Yellow
 hi MoreMsg ctermfg=Blue ctermbg=Black guifg=Blue
 
 hi Number ctermfg=Magenta guifg=Magenta
-" :se rnu relative number gutter
+" For :se rnu relative number gutter
 hi LineNr ctermfg=Black ctermbg=238 guifg=Black guibg=#444444
 
 " Tab completion dropdown
@@ -1670,7 +1670,6 @@ if !exists("autocommands_loaded")
   " Ateb
   au BufRead *.log :g/WARNING: Libref funcdata may not have assigned correctly from logical server./d
 
-  " Perl
   au BufNewFile,BufRead,BufEnter *.pl nmap ,p :!perl -c %<CR>
   au BufNewFile,BufRead,BufEnter *.pl nmap ;z :!echo && echo && perl %<CR>
   " Alternate help files via 'K'.  Default s/b set above as keywordprg=man
@@ -1682,13 +1681,13 @@ if !exists("autocommands_loaded")
 """  au BufNewFile,BufRead,BufEnter *.pl,*.pm map ;; :call setline('.', Commentout(getline('.'), 'perl'))<CR>
   " end Perl
 
+  " TODO use &ft instead of python, need function?
+  au BufNewFile,BufRead,BufEnter *.py nmap ;z :!echo && echo && python %<CR>
+
   au FileType sh set fileformat=unix
-  " au BufWritePost *.sh silent !chmod a+x <afile>
-"""  au FileType basic map ;; :call setline('.', Commentout(getline('.'), 'vb'))<CR>
+  au BufWritePost *.sh silent !chmod a+x <afile>
   au FileType basic map ,m yy0I'''<ESC>p
   au FileType basic map ;s :s:^:''':<CR>
-"""  au FileType dosbatch map ;; :call setline('.', Commentout(getline('.'), 'bat'))<CR>
-"""  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;; :call setline('.', Commentout(getline('.'), 'cpp'))<CR>
   au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;c 0Di//  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;m 0Di// Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ,m yy0I///<ESC>p
@@ -1731,8 +1730,7 @@ if !exists("autocommands_loaded")
   """autocmd BufRead mutt-*[0-9],.followup,.article,.letter :1,$!sed -e :a -e '/^\n*$/{$d;N;};/\n$/ba'
   " end ~/bin/bgrep
 
-  " Vim
-  " We don't edit these files so simplify exiting:
+  " We never edit these files so simplify exiting:
   au BufEnter $VIMRUNTIME/doc/*.txt noremap q :q<CR>
   au BufLeave $VIMRUNTIME/doc/*.txt unmap q
 
@@ -1740,7 +1738,6 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufRead,BufEnter *.vim,.vimrc,*.htm,*.html,*_vimrc set keywordprg=
   au FileType HELP set keywordprg=
 
-"""  au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;; :call setline('.', Commentout(getline('.'), 'vim'))<CR>
   au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;c 0Di"  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;m 0Di" Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ,m yy0I"""<ESC>p
@@ -1802,11 +1799,6 @@ if !exists("autocommands_loaded")
     set guifont=Consolas:h7
   endif
 
-  " Quickfix
-  """ TODO need something like this to keep q from flowing to existing buffers after leaving QF: au BufLeave QF unmap q
-  """au FileType QF map q :q!<CR>
-  """au FileType QF echon '.vimrc: q to :q! this :cw'
-
   au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
   au BufEnter oneliners,.vimrc,_vimrc,.bashrc,_bashrc set foldmethod=marker
   au BufEnter .vimrc echo ".vimrc: $MYVIMRC:" $MYVIMRC
@@ -1824,13 +1816,6 @@ if !exists("autocommands_loaded")
   " Without this, NetRW loses its place when returning to the tree (use buffer n because mz is taken by netrw):
 	au BufLeave NetrwTreeListing mn
 	au BufEnter NetrwTreeListing `n
-	" I'm usually only browsing with netrw:
-  " TODO not unmapping on bufleave
-"""	au FileType NETRW map q :q<CR>
-"""	au BufWinLeave NETRW unmap q
-
-  "Activate via <C-X><C-O>
-"""autocmd FileType * set omnifunc=syntaxcomplete#Complete
 
   " TODO
   au BufNewFile,BufEnter *.py set tabstop=4
@@ -1839,6 +1824,10 @@ if !exists("autocommands_loaded")
 
   " See my .bashrc function ses()
   au BufReadCmd /tmp/bash-fc* nmap ;r :call ReadFromFile(VTMP, '.vimxfer_ses')<CR>
+
+  " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source c:/cygwin64/home/bob.heckel/code/sas/saslog.vim
+  au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim
+  " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $VIMRUNTIME\syntax\saslog.vim
 
   "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
@@ -1858,8 +1847,6 @@ if !exists("autocommands_loaded")
     " gvim
     au BufRead,BufWinEnter H:/*             hi StatusLine   guifg=Green guibg=Black gui=inverse,bold
     au BufRead,BufWinLeave H:/*             hi StatusLineNC guifg=Green guibg=Gray gui=inverse,bold
-"""    au BufRead,BufWinEnter Y:/*             hi StatusLine   guifg=Yellow guibg=Black gui=inverse,bold
-"""    au BufRead,BufWinLeave Y:/*             hi StatusLineNC guifg=Yellow guibg=Gray gui=inverse,bold
 """    au BufRead,BufWinEnter Z:/*             hi StatusLine   guifg=Red guibg=Black gui=inverse,bold
 """    au BufRead,BufWinLeave Z:/*             hi StatusLineNC guifg=Red guibg=Gray gui=inverse,bold
     " vim
@@ -1867,8 +1854,6 @@ if !exists("autocommands_loaded")
 """    au BufRead,BufWinLeave /cygdrive/c/*    hi StatusLineNC ctermfg=Blue ctermbg=Gray gui=inverse,bold
 """    au BufRead,BufWinEnter /cygdrive/x/*    hi StatusLine   ctermfg=Green ctermbg=Black 
 """    au BufRead,BufWinLeave /cygdrive/x/*    hi StatusLineNC ctermfg=Green ctermbg=Gray gui=inverse,bold
-"""    au BufRead,BufWinEnter /cygdrive/y/*    hi StatusLine   ctermfg=Yellow ctermbg=Black
-"""    au BufRead,BufWinLeave /cygdrive/y/*    hi StatusLineNC ctermfg=Yellow ctermbg=Gray gui=inverse,bold
 """    au BufRead,BufWinEnter /cygdrive/z/*    hi StatusLine   ctermfg=Red ctermbg=Black
 """    au BufRead,BufWinLeave /cygdrive/z/*    hi StatusLineNC ctermfg=Red ctermbg=Gray gui=inverse,bold
 
@@ -1879,7 +1864,6 @@ if !exists("autocommands_loaded")
     """au BufEnter [YZ]:/DataPost* set readonly
     """au BufEnter /cygdrive/[yz]/DataPost* set readonly
 
-    """au BufEnter gsk,gsk_check.sh set foldmethod=marker
 		"""au BufNewFile,BufRead,BufEnter DataPost*.log set noswapfile | set hlsearch | source u:/code/sas/saslog.vim 
 		"""au BufRead,BufNewFile *.map set filetype=xslt
 """    au BufReadPre,FileReadPre /Drugs/Macros/* set noswapfile
@@ -1888,21 +1872,8 @@ if !exists("autocommands_loaded")
 """    au BufReadPre,FileReadPre /Drugs/HealthPlans/* set noswapfile
 """    au BufReadPre,FileReadPre /Drugs/TMMEligibility/* set noswapfile
 
-    if has('win32gui') 
-      au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source c:/cygwin64/home/bob.heckel/code/sas/saslog.vim 
-    else
-      au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim 
-    endif
-  else
-    " Unregistered box
-    if has('win32gui') 
-      au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $VIMRUNTIME\syntax\saslog.vim 
-    else
-      au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim 
-    endif
-  endif
-
   " end Temporary project-specific
+  end
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 
 endif  " ! autocommands_loaded

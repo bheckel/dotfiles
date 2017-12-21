@@ -2280,7 +2280,7 @@ select patientphonenbr, case when length(patientphonenbr)=10 then 1 else 0 end a
 where mydate >= date()-365
 
  /* Canonical macro do while space-separated list loop iterate without an index counter: */
-%let i=1; %let clid=%qscan(&clientid_ind, &i, %str( )); %do %while ( &clid ne %str( ) ); ...  %let i=%eval(&i+1); %let clid=%qscan(&clientid_ind, &i, %str( ));
+%let i=1; %let clid=%qscan(&clientid_ind, &i, %str( )); %do %until ( &clid ne %str( ) ); ...  %let i=%eval(&i+1); %let clid=%qscan(&clientid_ind, &i, %str( ));
 
  /* Loop a range of SAS dates: */
 %let start=%sysfunc(inputn(12DEC2015,ANYDTDTE9.)); %let end=%sysfunc(inputn(14DEC2015,ANYDTDTE9.)); %let nday=%eval(&end-&start); %do j=0 %to &nday; ... %end;
@@ -2330,7 +2330,7 @@ select clientstoreid, put(datepart(lastmodified), DATE9.) as dtlastmodified, cou
 select put(max(filldate), DATE9.) as humandate
 
  /* Conditional minimalist send email from datastep or macro: */
-%if %sysfunc(attrn(%sysfunc(open(error_count)), NLOBSF)) gt 0 %then %do; %put ERROR: QC fail; data _null_; to='bob.heckel@ateb.com'; file DUMMY email filevar=to subject="Error during &SYSPROCESSNAME execution"; run; %end;
+%if %sysfunc(attrn(%sysfunc(open(error_count)), NLOBSF)) gt 0 %then %do; %put ERROR: QC fail; data _null_; to='bob.heckel@taeb.com'; file DUMMY email filevar=to subject="Error during &SYSPROCESSNAME execution"; run; %end;
 if rc1 eq 0 then do; put 'NOTE: chmod successful'; end; else do; put 'ERROR: chmod fail'; to='obb.heckel@taeb.com'; file DUMMY email filevar=to subject="Error during %sysfunc(getoption(SYSIN))"; end;
 
 x umask 000; data l.junk;set sashelp.shoes;run;  /* -rw-rw-rw-. 1 bheckel staff 128K Feb 23 16:04 /mnt/nfs/home/bheckel/junk.sas7bdat */
@@ -2492,6 +2492,16 @@ for f in /foo/t.sas /foo/t2.sas; do BASENM="${f%.*}"; /sas/sashome/SASFoundation
 libname db8 ODBC dsn='db8' schema='client' user=&user. password=&password.; %global sname; proc sql NOprint; select distinct shortname into :sname TRIMMED from db8.client where clientid = &clid ; quit;
 
 libname jasper ODBC dsn='db6dev' schema='public' user=&user password=&pw; proc sql; insert into jasper.dashboardclients ( clientid ) select * from t; quit;
+
+/* Read in the date using ddmmyy. informat and convert to SAS date */
+%let date = 20151001; %let sasDate = %sysfunc(inputn(&date, yymmdd8.));
+numdate = inputn(strip(chardate), 'DATE9.'); 
+
+ /* Is it this specific day date of month: */
+%if %sysfunc(day("&sysdate"d)) eq 30 %then %do; ...
+
+ /* Loop date range producing formatted dates: */
+%let start=%sysfunc(inputn(12DEC2015,ANYDTDTE9.)); %do j=0 %to 5; %let myd = %sysfunc(putn(%eval(&start+&j), date9.)); %put &=myd; %end;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4327,7 +4337,12 @@ find /Drugs/Personnel -maxdepth 1 |xargs du -sb |awk '{print $2, $1}' | sed 's/ 
 find /sasdata -maxdepth 1 |xargs du -sb |awk '{print $2, $1}' | sed 's/ /,/g'
 
 # Poor man's expect:
-printf 'y\nbob.heckel\nMyPw\npush\n' | /opt/cisco/anyconnect/bin/vpn -s connect portal.ateb.com
+printf 'y\nbob.heckel\nMyPw\npush\n' | /opt/cisco/anyconnect/bin/vpn -s connect portal.taeb.com
+
+cat ~/clids.txt | xargs ~bheckel/bin/isdata.sh; ssh bheckel@sas-01.mrk.taeb.com 'cat ~/clids.txt | xargs ~bheckel/bin/isdata.sh'
+
+# Make tmux windows panes tile evenly:
+:select-layout even-horizontal
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6432,9 +6447,6 @@ select * from analytics.healthplanpatients hp where row(hpprogramid, externalpat
 -- Comma separated column
 select string_agg(distinct taebpatientid::varchar,',') from cce.ccepatientstaging where clientid=22;
 
-# Make tmux windows tile evenly:
-:select-layout even-horizontal
-
 ' Excel multiply two columns and produce a scalar: =SUMPRODUCT(O37:O38,P37:P38)
 
 -- Postgres first day of last month:
@@ -6510,5 +6522,8 @@ ALTER TABLE analytics.archivebuildconfig ADD COLUMN job_type text NOT NULL DEFAU
 
 -- Edit Postgres stored procedure in vim:
 bheckel@db-dev-01.twa.taeb.com:TAEBMART \ef analytics.tmm_client_build_config
+
+-- Run script:
+bheckel@db-dev-01.twa.taeb.com:TAEBMART \i /sasdata/Personnel/bob/DashboardETLenroll/Dev_to_db-06_20171111_final.sql
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
