@@ -85,7 +85,7 @@ Mod4 r :RootMenu
 #Mod4 t :Exec /usr/bin/gnome-terminal --geometry 95x55+400+90 &
 Mod4 t :Exec xterm -bg black -fa "xft:Consolas-9:antialias=true" -bc -sb -rightbar -sl 1000 -geometry "95x55+350+50"
 # (V)olume
-Mod4 v :Exec /usr/bin/urxvt -name alsa -e alsamixer
+#Mod4 v :Exec /usr/bin/urxvt -name alsa -e alsamixer
 
 # Open a dialog to run programs
 #Mod4 F2 :Exec fbrun

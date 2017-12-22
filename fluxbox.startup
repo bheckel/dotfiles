@@ -8,7 +8,7 @@
 # Modified: Sat 07 Oct 2017 09:25:29 (Bob Heckel)
  
 xmodmap "$HOME/.Xmodmap"  # keymap for lefty
-idesk &
+# idesk &
 conky -x 5 -y 0 &
 nm-applet &
 # dropbox start &
