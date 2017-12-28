@@ -4344,6 +4344,9 @@ cat ~/clids.txt | xargs ~bheckel/bin/isdata.sh; ssh bheckel@sas-01.mrk.taeb.com 
 # Make tmux windows panes tile evenly:
 :select-layout even-horizontal
 
+# What is my DNS?:
+nmcli dev show | grep DNS
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -5895,8 +5898,6 @@ nslookup hostname 8.8.8.8  or  nslookup hostname 8.8.4.4
 :: OpenDNS
 nslookup hostname 208.67.222.222  or  nslookup hostname 208.67.220.220
 tracert -d 8.8.8.8
-
-DNS test http://18.62.0.96/
 
 :: Windows - determine what runs at startup etc.
 msconfig
