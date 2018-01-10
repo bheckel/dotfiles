@@ -141,7 +141,7 @@ alias lsd='find . -type d'
 alias one="vi $HOME/dotfiles/oneliners"
 alias pull='git pull origin master'
 alias push='git push origin master'
-alias pse='ps -ef|grep bheckel'
+alias pse="ps -ef|grep ^$USER"
 ###alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
 alias qr=$HOME/code/misccode/quickref_find.sh
 alias rme=$HOME/rme/rme
@@ -650,7 +650,7 @@ case "$OSTYPE" in
 
         # If locate() not available
         function loc() {
-          find $HOME/code |grep -i "$1" | xargs ls -lt >|~/bob/tmp/.vimxfer_ses && $HOME/usr/local/bin/vim ~/bob/tmp/.vimxfer_ses
+          find $HOME/code | grep -i "$1" | grep -v '\.git' | xargs ls -lt >|~/bob/tmp/.vimxfer_ses && $HOME/usr/local/bin/vim ~/bob/tmp/.vimxfer_ses
         }
 
         # E.g. Mar  3 07:32 /Drugs/Cron/Daily/tmm_enroll_ratio/tmm_enroll_ratio.log

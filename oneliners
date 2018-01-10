@@ -625,6 +625,9 @@ vim -S /mnt/nfs/home/bheckel/bob/ImmTasks/.debug
 " Open file at specific search place:
 vim -c '/tmm_targeted_list_refresh' ~/template_print.sas
 
+-- Edit Postgres stored procedure in vim:
+bheckel@db-dev-01.twa.taeb.com:TAEBMART \ef analytics.tmm_client_build_config
+
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -6521,10 +6524,11 @@ ALTER TABLE Customer DROP COLUMN Birth_Date;
 ALTER TABLE analytics.build ADD COLUMN rundatacheck boolean NOT NULL DEFAULT TRUE;
 ALTER TABLE analytics.archivebuildconfig ADD COLUMN job_type text NOT NULL DEFAULT 'Imports';
 
--- Edit Postgres stored procedure in vim:
-bheckel@db-dev-01.twa.taeb.com:TAEBMART \ef analytics.tmm_client_build_config
-
 -- Run script:
 bheckel@db-dev-01.twa.taeb.com:TAEBMART \i /sasdata/Personnel/bob/DashboardETLenroll/Dev_to_db-06_20171111_final.sql
+
+-- Postgres copy table:
+CREATE TABLE mycopy (LIKE mytable INCLUDING ALL);
+INSERT INTO mycopy SELECT * FROM mytable;
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
