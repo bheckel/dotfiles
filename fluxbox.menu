@@ -17,7 +17,9 @@
     [exec] (Calibre)            {/usr/bin/calibre} </usr/share/calibre/images/lt.png>
     [exec] (Firefox)            {/usr/bin/firefox} </home/bheckel/Dropbox/Public/misc/computer/firefox32x32.png>
     [exec] (Gnome-disks)        {gnome-disks} <>
+    [exec] (LibreOffice Calc)   {/usr/lib/libreoffice/program/soffice.bin --calc} <>
     [exec] (Midori)             {/usr/bin/midori} </usr/share/icons/hicolor/32x32/apps/midori.png>
+    [exec] (Printer)            {system-config-printer} <>
     [exec] (Remmina)            {/usr/bin/remmina} <>
     [exec] (rxvt-unicode)       {rxvt-unicode -icon /usr/share/icons/Faenza/apps/32/xterm_32x32.xpm} </usr/share/icons/Faenza/apps/32/xterm_32x32.xpm>
     /* [exec] (mtpaint)            {/usr/bin/mtpaint} <> */
