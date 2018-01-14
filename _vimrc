@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Mon 11 Dec 2017 14:38:39 (Bob Heckel)
+" Modified: Sun 14 Jan 2018 01:13:18 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -1828,6 +1828,10 @@ if !exists("autocommands_loaded")
   " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source c:/cygwin64/home/bob.heckel/code/sas/saslog.vim
   au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim
   " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $VIMRUNTIME\syntax\saslog.vim
+
+  if THISBOX == 'appa'
+    au BufNewFile,BufRead,BufEnter *.sas | syntax clear | source $HOME/code/sas/sas.vim
+  endif
 
   "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
