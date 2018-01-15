@@ -1813,6 +1813,8 @@ if !exists("autocommands_loaded")
   " Always edit git commit messages at 1L,1C
   au FileType GITCOMMIT :1
 
+  au BufNewFile,BufRead *.md   set syntax=markdown
+
   " Without this, NetRW loses its place when returning to the tree (use buffer n because mz is taken by netrw):
 	au BufLeave NetrwTreeListing mn
 	au BufEnter NetrwTreeListing `n
