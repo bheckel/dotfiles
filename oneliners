@@ -885,7 +885,7 @@ set sascode=%dpv2root%\code
 
 # Cygwin quick dataset check:
 echo 'options ls=180;proc contents data=?;run;' >| t$$.sas; C:/PROGRA~1/SASHome/SASFoundation/9.3/sas.exe -sysin t$$.sas && cat t$$.lst && rm t$$.???
-echo "options ps=max;libname l '//Rtpdsntp032/DataPostArchive/Ventolin_HFA/OUTPUT_COMPILED_DATA';proc freq data=l.ven60_analytical_individuals;table mfg_batch test;run;" >| u:/tmp/t.sas && c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin 'u:\tmp\t.sas' -log 'u:\tmp\t.log' -print 'u:\tmp\t.lst'; cat 'u:\tmp\t.lst'
+echo "options ps=max;libname l '//Rtpdsntp032/DataPostArchive/Ventolin_HFA/OUTPUT_COMPILED_DATA' compress=yes; proc freq data=l.ven60_analytical_individuals;table mfg_batch test;run;" >| u:/tmp/t.sas && c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin 'u:\tmp\t.sas' -log 'u:\tmp\t.log' -print 'u:\tmp\t.lst'; cat 'u:\tmp\t.lst'
 
  /* Describe option settings in effect: (also sr ~/code/sas/options.cmdl.sas linesize) */
 proc options option=&SYSPARM define value; run;
@@ -961,16 +961,10 @@ options blksize(dasd)=half;
 
 no_controlchar_punctuation_digits=compress('foo,bar.8', , 'CPD');
 
- /* Perl prx regex in SAS */
-description= prxchange("s/Remove Patients (From)? //", -1, description);  /* Remove Patients From Non-Pilot Stores -> Non-Pilot Stores */
-description= prxchange("s/Remove Patients ((From)?|(Under)?) //", -1, description);
-if prxmatch('/((\(\d{3}\) ?)|(\d{3}-))?\d{3}-\d{4}/', ph) then type='valid phone number';
-data; set SASHELP.shoes; if _N_ eq 1 then rc=prxparse("/ica$/"); retain rc; if prxmatch(rc,region); run;
-/* Remove non-standard characters e.g. ApotPhar@SnS: */
-short_client_name=prxchange('s/[^A-z0-9-_]//', -1, short_client_name);
-
 %if not %index(&endyr, 20) %then %abort;
 data _NULL_; abort abend 008; run;
+/* Check for an empty dataset and abort if so */
+data _NULL_; if num=0 then abort return; stop; set check_me_for_zeroobservations nobs=num; run;
 
  /* IN list for macro in() for macro where &rpclients is %str(1059 999A 999B) */
 %if %sysfunc(indexw(&rpclients, &SYSPARM)) %then %let redpoint_client=Y; %else %let redpoint_client=N;
@@ -1098,11 +1092,11 @@ libname SAND ... direct_exe=delete ...;
  /* Speed up proc append to database */
 libname SAND ... bulkload=yes ...;
 
- /* Count number of characters in a string v9+ */
+ /* Count number of characters in a string v9+. Like FIND & FINDC, COUNT counts the number of times a substring appears in a string, COUNTC counts the number of times individual characters appear in a string */
 commas=countc(myvar, ',');
 
  /* Colon input specifier - we'll take anything between the delimiters but with a max of 40 chars: */
-input ProviderLicenseNumber :$40.;  /* no preceeding LENGTH statement needed */
+input ProviderLicenseNumber :$40.;  /* no preceding LENGTH statement needed */
 
  /* Capture part of a string */
 captureUpToDash = substr(SampName,1,index(SampName, '-')-1);
@@ -1556,6 +1550,7 @@ substr(ssnum, 1, 6) = '******';
 
  /* Remove specific characters from a string var, like regex s/foo// */
 phone = compress(fullphone, '()- ');
+ndc = quote(compress(strip('NDC/UPC/HRI'n),'-'),"'");
 
  /* Substitute specific characters, like regex s/-/_/g */
 sBatch1Code = translate(sBatch1Code, '_', '-');
@@ -1583,16 +1578,18 @@ proc format library=work; select sexunic; run;  /* just one */
 
 %let formatteddollars=%sysfunc(putn(&MYNUM, DOLLAR10.));
 
- /* When you need to know how many intervals are between two dates use intck(). When you need to create a date that is some number of intervals away from another date use intnx(). */
+ /* When you need to know how many intervals are between two dates use intck(). The number of MONTH intervals INTCK counts depends on whether the first day of a month falls within the period. */
+ /* When you need to create a date that is some number of intervals away from another date use intnx(). INTNX produces the SAS date value that corresponds to the beginning of the next interval.*/
 start='01jan2013'd; end='30jun2013'd; days2=intck('day', start, end);  /* days2 is 180 (180 day boundaries crossed) */
 start='31dec2013'd; end='01jan2014'd; yrs2=intck('year', start, end);  /* yrs2 is 1 (a single year boundary was crossed!) */
 start='01jan2013'd; nextweek=intnx('week', start, 1); nextweekEND=intnx('week', start, 1, 'E');  /* or 'M'iddle, 'S'ame.  nextweek is Sun. 2013-01-06 nextweekEND is Sat. 2013-01-12 */
 start='11jan2013'd; monthStart=intnx('month', start, 0, 'b'); /* first day of month: */
 start='11jan2013'd; monthEnd=intnx('month', start, 0, 'e');   /* last day of month */
 
+put / 'aug is month with 3 paydays'; count=intck('week2','01jul98'D, '31jul98'D); put count=; count=intck('week2','01aug98'D, '31aug98'D);
+
  /* Calculate person's age (number of year boundaries crossed): */
 select *, (intck('YEAR', today(), dateofbirth)*-1) as agethisyear  /* 52 all year */
-exactage = intck('YEAR', today(), dateofbirth)*-1;                 /* 51.58234 changes daily */
  /* Age in half year increments - intck counts half year boundaries crossed */
 ageinhalfyrs = intck('YEAR2', today(), '30OCT65'd)*-1;
 yearsold = year(today())-year(patientdob)
@@ -1853,9 +1850,7 @@ input name &$12.  score1  score2;
  /* Free-format input (space delimited etc) - use list input and only name each var and specify its type */
  /* Modified list can read spaces in vars and handle non-standards like commas in numbers */
 
- /* Canonical DATETIME. format examples. TIME portion must be delimited by
-  * a colon, minimum width is TIME5. x=1000000
-  */
+ /* Canonical DATETIME. format examples. TIME portion must be delimited by a colon, minimum width is TIME5. x=1000000 */
 put x DATETIME.;    /* 12JAN60:13:46:40 */
 put x DATETIME10.;  /* 12JAN60:13 */
 
@@ -2214,6 +2209,17 @@ if region eq 'Asia' then put 'foo'; else put 'bar';
 
 rc=system('/bin/bash /Drugs/xron/Daily/FredsImm/fredsimm.sh 2>/Drugs/xron/Daily/FredsImm/fredsimm.err');
 
+ /* Perl prx regex in SAS */
+description= prxchange("s/Remove Patients (From)? //", -1, description);  /* Remove Patients From Non-Pilot Stores -> Non-Pilot Stores */
+description= prxchange("s/Remove Patients ((From)?|(Under)?) //", -1, description);
+
+if prxmatch('/((\(\d{3}\) ?)|(\d{3}-))?\d{3}-\d{4}/', ph) then type='valid phone number';
+
+data t; set SASHELP.shoes; if _N_ eq 1 then re=prxparse("/merica$/"); retain re; if prxmatch(re,region); run;
+
+/* Remove non-standard characters e.g. ApotPhar@SnS: */
+short_client_name=prxchange('s/[^A-z0-9-_]//', -1, short_client_name);
+
  /* Convert multiple spaces to single: */
 cityst = prxchange('s/\s+/ /', -1, TMPcityst);
 
@@ -2244,10 +2250,13 @@ prxposn return position of paren capture buffers, then use substr()
  /* Fix mask loose single quote apostrophe e.g. 123O'LEARY or O'NEAL in query using regex prior to enquoting it by doubling it: */
 select prxchange("s/'/''/", -1, upid) as upid  /* -1 is replace every occurrence */
 
- /* Does a dataset exist?: */
+ /* Instream regex conversion e.g. x < y = 5 becomes x &lt; y = 5 */
+data; input; _INFILE_ = prxchange('s/</&lt;/', -1, _INFILE_); cards; x < y = 5; run;
+
+ /* Macro does a dataset exist?: */
 %let dsexist=%sysfunc(EXIST(sashelp.zipcode));
 
-%let thispgm=%sysfunc(getoption(SYSIN));
+%let thispgmname=%sysfunc(getoption(SYSIN));
 
  /* Zero pad a char that looks like a number to 4 leading zeros: */
 data _null_; x='04'; y= put(input(x, BEST. -L), Z4.); put y=; run;
@@ -2270,7 +2279,7 @@ ODS PATH (prepend) work.templat(update);
  /* List all filename reference filerefs: */
 filename _ALL_ list;
 
- /* Find these via $ sas ... -rtrace all -rtracelog myrtrace.log */
+ /* Find autoexecs via $ sas ... -rtrace all -rtracelog myrtrace.log */
 /sas/sashome/SASFoundation/9.4/autoexec.sas
 /sas/config/Lev1/SASApp/appserver_autoexec_usermods.sas
 
@@ -2291,11 +2300,12 @@ where mydate >= date()-365
  /* Missing dot to zero: */
 select a.*, (case when b.TotalEnrolledLst30 ne . then b.TotalEnrolledLst30 else 0 end) as TotalEnrolledLst30 from t1 a LEFT JOIN totenr30 b on a.clientid=b.clientid
 
- /* Database trace: */
-option SASTRACE=",,,d" no$stsuffix SASTRACELOC=saslog; 
-
- /* Date convert macro '2015-10-01' for Postgres */
+ /* Date convert single quote macro '2015-10-01' for Postgres, etc. */
 %put %bquote(')%sysfunc(putn(%sysfunc(inputn(20151001, YYMMDD8.)), YYMMDD10.))%bquote(');
+%let comment=%str(Important: Humana Adherence Outlier Patient);
+%let commentq=%sysfunc(catq('1AC', &comment));
+ /* Enquote single quote a macro variable NOTE sometimes double quotes, use catq!: */
+%put %sysfunc(quote(&foo, "'"));
 
  /* Date format convert 22FEB2016 to 20160222 in macro: */
 %let mydt=%sysfunc(putn(%sysfunc(inputn(&SYSDATE, DATE9.)), YYMMDDN8.));
@@ -2411,8 +2421,6 @@ options missing=''; ... if missing(cats(of _ALL_)) then delete;
  /* Triple ampersand macro resolution: */
 %let x=temp; %let n=3; %let temp3=thisprints; %put &&&x&n;
 
- /* Unique AUTOMATIC SYSPROCESSNAME Program name e.g. tmpsas.19660.sas */
-
  /* Use bang for temporary directory: */
 filename mytemp '!temp/t.txt';
 infile '!userprofile/t.txt';  /* Windows */
@@ -2426,7 +2434,7 @@ if holidaytest('Christmas', today()) then put 'merry xmas'
  /* Read excel: */
 proc import datafile="/Drugs/RFD/2017/05/AN-7578/Dataset/RX30_site_list_20170509.xlsx" dbms=xlsx out=t0 REPLACE; sheet='Pharmacy Breakout'n; getnames=no; datarow=4; run;
 
- /* String functions: */
+ /* The ANY string functions: */
 x = '?$%'; none = anyalpha(trim(x));  /* returns 0, no alpha chars exist */
 x = '?$%'; none = anypunct(trim(x));  /* returns 1, the question mark */
 
@@ -2439,7 +2447,7 @@ if x4 = trunc(1.234, 4) then compare_a_4bit = 'true';  /* so we must use trunc()
 call streaminit(12345); x=rand('NORMAL',70,10);
 
  /* Sort within an observation */
-call sortn(of Score1-Score5); MeanTopThree = mean(of Score3-Score5);
+call sortn(of Score1-Score5); MeanOfTopThree = mean(of Score3-Score5);
 
 moving_avg = mean(x, lag(x), lag2(x));
 
@@ -2468,9 +2476,6 @@ ods pdf file="/Drugs/TMMEligibility/&clientfolder./Imports/ClientQC_&Cname." sta
  /* Create ds if percentage of sex is bad: */
 proc sql; create table patientphonenbr_err as select distinct (select count(*) from qc_status where length(patientphonenbr) ne 10) / (select count(*) from qc_status) as pct from qc_status having pct gt 0.05 ; quit;
 
- /* Enquote single quote a macro variable: */
-%put %sysfunc(quote(&foo, "'"));
-
  /* Pipe delimited file: */
 proc export outfile="&path./&sp_name./&jobtype./&daten_exec./Output/&sp_name._TMM_candidates_fdw.csv" data=TMM.fnl dbms=dlm replace; delimiter='|'; putnames=no; run;
 
@@ -2496,8 +2501,10 @@ libname db8 ODBC dsn='db8' schema='client' user=&user. password=&password.; %glo
 
 libname jasper ODBC dsn='db6dev' schema='public' user=&user password=&pw; proc sql; insert into jasper.dashboardclients ( clientid ) select * from t; quit;
 
-/* Read in the date using ddmmyy. informat and convert to SAS date */
+ /* Read in macrovariable date using informat and convert to SAS date */
 %let date = 20151001; %let sasDate = %sysfunc(inputn(&date, yymmdd8.));
+
+ /* Human date to epoch number */
 numdate = inputn(strip(chardate), 'DATE9.'); 
 
  /* Is it this specific day date of month: */
@@ -2505,6 +2512,42 @@ numdate = inputn(strip(chardate), 'DATE9.');
 
  /* Loop date range producing formatted dates: */
 %let start=%sysfunc(inputn(12DEC2015,ANYDTDTE9.)); %do j=0 %to 5; %let myd = %sysfunc(putn(%eval(&start+&j), date9.)); %put &=myd; %end;
+
+if product eq vname(a[i]) then do; ...
+call vname(a[i], breakfast);  /* new var breakfast filled with former var names in the array loop */
+
+filename FINDPIPE PIPE "find &path./&cl_foldername./ExternalFile/PE/ -type f -maxdepth 1"; data _null_; infile FINDPIPE PAD; input fn $200.; if _N_ eq 1 then call symput('FNM', fn); run;
+
+select "%sysfunc(putn(%sysevalf("&SYSDATE"d),yymmddn8.))" as earliestdate, ... /* 20180125 */
+select "%sysfunc(putn(%sysevalf("&SYSDATE"d+90),yymmddn8.))" as expirationdate, ... /* 20180425 */
+
+fuzzydifferencescore=compged(compress(lookup,' ,.'),compress(organization,' ,.'),'i');
+
+if Age = . then ...
+if missing(Age) then ...  /* better, same for char & nums */
+If Nm = ' ' then ...
+if missing(Nm) then ...  /* better, same for char & nums */
+
+ /* Find first position of a substring e.g. abczyx1xyz */
+data t; input String $10.; first=find(String,'xyz','i'); /* 8 */ first_c=findc(String,'xyz','i'); /* 4 */ ...
+
+Phone2 = compress(Phone,'(-) ');  /* (919) 123-4567 to 9191234567 */
+Phone3 = compress(Phone,,'KD');  /* better (919) 123-4567 to 9191234567 */
+
+count_of_Y_survey_responses = countc(cats(of Q1-Q5),'y','i');
+
+ /* Debug options */
+options source NOcenter dsoptions=note2err msglevel=n nostsuffix sastrace=',,,ds' sastraceloc=saslog sql_ip_trace=source dbidirectexec; 
+
+ /* Exclude null/missing values regardless of whether SAS or the RDBMS processes the comparison: */
+where Profit < 0 and Profit is not null
+ /* On the other hand, if you do want to include null/missing values: */
+where Profit < 0 or Profit is null
+
+data subset; if _N_=1 then do; declare hash h(dataset:'small'); h.defineKey('id'); h.defineDone(); end; set large; if h.find() = 0 then output; run; 
+
+ /* Duplicate an obs and make a change to one of the vars: */
+data ntfct; set ntfct; if _n_ eq 2 then do; output; drugname='foo'; output; end; else output; run;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4349,6 +4392,11 @@ cat ~/clids.txt | xargs ~bheckel/bin/isdata.sh; ssh bheckel@sas-01.mrk.taeb.com 
 
 # What is my DNS?:
 nmcli dev show | grep DNS
+
+# Putty cornflower blue: 149
+
+# Which distro am I using:
+cat /etc/*-release
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6528,7 +6576,9 @@ ALTER TABLE analytics.archivebuildconfig ADD COLUMN job_type text NOT NULL DEFAU
 bheckel@db-dev-01.twa.taeb.com:TAEBMART \i /sasdata/Personnel/bob/DashboardETLenroll/Dev_to_db-06_20171111_final.sql
 
 -- Postgres copy table:
-CREATE TABLE mycopy (LIKE mytable INCLUDING ALL);
-INSERT INTO mycopy SELECT * FROM mytable;
+CREATE TABLE mycopy (LIKE mytable INCLUDING ALL); INSERT INTO mycopy SELECT * FROM mytable;
+
+-- Postgres insert a file into a table:
+\copy bob from 't.txt' (delimiter ',');
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
