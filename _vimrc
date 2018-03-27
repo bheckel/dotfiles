@@ -21,7 +21,7 @@
 "           sys     0m0.010s
 "                                                                          }}}
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Sun 14 Jan 2018 01:13:18 (Bob Heckel)
+" Modified: Thu 08 Mar 2018 15:13:42 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -134,9 +134,9 @@ hi Comment ctermbg=Black ctermfg=DarkGray guifg=DarkGray guibg=Black
 hi Conditional ctermfg=LightGreen guifg=LightGreen
 
 hi DiffAdd ctermfg=Black ctermbg=LightGreen guifg=Black guibg=LightGreen
-hi DiffChange ctermfg=Black ctermbg=LightYellow guifg=Black guibg=LightYellow
+hi DiffChange ctermfg=Black ctermbg=Cyan guifg=Black guibg=Yellow
 hi DiffDelete ctermbg=DarkGreen guibg=DarkGreen
-hi DiffText ctermfg=Green guifg=Black
+" hi DiffText ctermfg=Green guifg=Black
 
 hi Directory ctermfg=Magenta guifg=Magenta guibg=Black cterm=bold gui=bold
 
@@ -209,6 +209,10 @@ hi WarningMsg ctermfg=Magenta ctermbg=Yellow guifg=Magenta guibg=Yellow
 
 """hi ColorizeFirst10 ctermbg=red guibg=red
 """match ColorizeFirst10 /^........../
+
+hi EvilChars ctermbg=red guibg=yellow cterm=undercurl gui=undercurl
+" Microsoft apostrophe
+match EvilChars /\%u2019/
 
 " end Color Syntax
 

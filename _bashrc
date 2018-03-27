@@ -112,7 +112,7 @@ alias datecalc=$HOME/code/perl/datecalc
 alias ddg='w3m http://duckduckgo.com/lite'
 alias f='fg'  # jobs -s  to list what's suspended
 alias g=$HOME/dotfiles/gone.sh
-alias gitup='git add . && git commit -m "mod" && git pull origin master && git push origin master'
+alias gitup='git status && git add . && git commit -m "mod" && git pull origin master && git push origin master'
 alias gpull='git pull origin master'
 alias gpush='git push origin master'
 alias gcom="git add . && git commit -m 'mod'"
@@ -153,15 +153,14 @@ alias sl='ls --color=none'  # dyslexic daim branage
 alias sr="$HOME/code/sas/sasrun"
 # alias srcb="source $HOME/code/misccode/_bashrc"
 alias srcb="source $HOME/dotfiles/_bashrc"
+alias tm1="tmux -2 a -t 'sas0-ses1'"
+alias tm2="tmux -2 a -t 'sas0-ses2'"
+alias tm3="tmux -2 a -t 'sas0-ses3'"
 ###alias tree="\ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
 alias unbak="$HOME/code/misccode/bak -u "
 alias uvi="$HOME/code/perl/uvi"  # don't change timestamp
 alias ve="vi $HOME/.vimrc"
 alias wget='wget -c'  # continue failures
-
-# Project-specific
-alias mrk='ssh -l bheckel sas-01.mrk.ateb.com'
-alias sas0='ssh -l bheckel sas-01.twa.ateb.com'
 
 #-----------------------------------
 # bash functions must precede calls
