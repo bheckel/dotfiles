@@ -720,6 +720,7 @@ data _null_; age=input(symget('age'),12.); run;
 
  /* SAS X command (ok in open code): */
 x 'c:/util/vim/vim61/gvim.exe -c "set winsize=100 20" out.dat';
+x 'psql -h db-dev-01.twa.taeb.com TAEBMART -c "\copy bobtable from ''/mnt/nfs/home/bheckel/t.txt'' (delimiter '','');"';
 
  /* Canonical dice generate random whole number between range 1 and 6 (must use ceil to get the 1): */
 randomnum = ceil(ranuni(0) * 6);
@@ -966,11 +967,7 @@ data _NULL_; abort abend 008; run;
 /* Check for an empty dataset and abort if so */
 data _NULL_; if num=0 then abort return; stop; set check_me_for_zeroobservations nobs=num; run;
 
- /* IN list for macro in() for macro where &rpclients is %str(1059 999A 999B) */
-%if %sysfunc(indexw(&rpclients, &SYSPARM)) %then %let redpoint_client=Y; %else %let redpoint_client=N;
-%if not %sysfunc(indexw(&rpclients, &SYSPARM)) %then %let redpoint_client=N; %else %let redpoint_client=Y;
-
- /* Remove trailing dot (var, new, old): */
+ /* Remove trailing dot (bad: var, new!, old): */
 myvar = trim(translate(myvar, '', '.'));
  /* Convert A to 1, B to 2, etc and then convert char2num: */
 code2num = input(translate(jobcode,'12345','ABCDE'),1.);
@@ -1947,7 +1944,7 @@ DDMONYY in Oracle is DATE7. in SAS
 data; x=put(19530, DATE.); put x=; run;
 
  /* Canonical for each macro foreach loop */
-%let list=foo bar baz; %let i=1; %do %until (%qscan(&list, &i)=  ); %put %qscan(&list, &i); %let i=%eval(&i+1); %end;
+%macro loop; %local i; %let i=1; %let clid=%scan(&clids, &i, ' '); %do %while ( &clid ne   ); %let i=%eval(&i+1); %put !!!&=clid; %let clid=%scan(&clids, &i, ' '); %end; %mend; %loop;
 
  /* Macro multiple condition macro if then %if statement */
 %if &foo eq bar OR &foo eq %str(baz oom) %then ...
@@ -2091,8 +2088,8 @@ select * from ora_sas.customers(readbuff=10000);
  /* Oracle libname */
 libname DGM_DIST oracle user=&username password=&password path=&database schema=dgm_dist readbuff=10000;
 
- /* List datasets and details in library (directory) */
-proc contents data=L._ALL_; run;
+ /* List datasets and details in library directory */
+proc contents data=l.pqa_: ; run;
 
  /* Replace special chars with space */
 do aa= 1 to 29 , 31 , 127 , 129 , 141 to 144 , 157 , 158; var1=tranwrd(var1,byte(aa), ' '); end; 
@@ -2247,7 +2244,7 @@ prxparen (return the last number of the last submatch that matched) similar to $
 prxchange similar to old-string =~ s/perl-regexp/replacement/
 prxposn return position of paren capture buffers, then use substr()
 
- /* Fix mask loose single quote apostrophe e.g. 123O'LEARY or O'NEAL in query using regex prior to enquoting it by doubling it: */
+ /* Fix mask loose single quote apostrophe e.g. 123O'LEARY or O'NEAL in query using regex prior to enquoting it by doubling it for Postgres etc: */
 select prxchange("s/'/''/", -1, upid) as upid  /* -1 is replace every occurrence */
 
  /* Instream regex conversion e.g. x < y = 5 becomes x &lt; y = 5 */
@@ -2334,6 +2331,7 @@ monthnum=month(datepart(lastmodifieddt));
 
  /* Write a csv file using ODS: */
 ods CSVALL file='/Drugs/TMMEligibility/ClarksRxBo/Imports/t2.csv'; proc print data=sashelp.cars; run; ods CSVALL close;
+proc export outfile="&path.&sp_name./&jobtype./&daten_exec./Output/imm_del_&daten_exec._&clid._&type..csv" data=del_&type dbms=dlm replace; delimiter='|'; putnames=no; run; 
 
  /* Append a record to end of dataset: */
 data weekcnt; set weekcnt end=e; output; if e then do; clientstoreid='999'; weeknum=6; output; end; run;
@@ -2466,7 +2464,7 @@ data _null_; rc = system("sed -i '/^$/d' ~/bob/tmp/mnt/nfs/alertproc/gap_add_201
 %bquote(')%sysfunc(putn(%sysevalf("&SYSDATE"D+30),YYMMDDN8.))%bquote(') as expirationdate,
 
  /* num2char */
-data data.delete; set activealerts(rename=(atebpatientid=TMPatebpatientid)); atebpatientid=put(TMPatebpatientid, $8.); run;
+data data.delete; set activealerts(rename=(taebpatientid=TMPtaebpatientid)); taebpatientid=put(TMPtaebpatientid, $8.); run;
 
  /* If macro date is between 30AUG2017 and 28FEB2018 */
 %if (%eval("&sysdate"d > "29AUG2017"d) eq 1) and (%eval("&sysdate"d < "28FEB2018"d) eq 0) %then %do; ...
@@ -2486,7 +2484,7 @@ dobq = quote(put(dob, yymmddd10.), "'");
 %put %sysfunc(month("&SYSDATE"d));
 
  /* Group by month count by month: */
-proc sql; select count(distinct atebpatientid), month(filldate) from statin_final group by 2; quit;
+proc sql; select count(distinct taebpatientid), month(filldate) from statin_final group by 2; quit;
 
 proc ds2; thread thr / overwrite=yes; method run(); set { select  a.*, coalesce(b.gpi,a.productid) as gx, b.drugname as dx from l.rxfilldata as a left join l.medispan as b on a.ndc=b.ndc_upc_hri }; end; endthread; run; quit; proc ds2 scond=error; data rxfilldata0; declare thread thr thr_instance; method init(); end; method run(); set from thr_instance threads=4; end; enddata; run; quit;
 
@@ -2548,6 +2546,17 @@ data subset; if _N_=1 then do; declare hash h(dataset:'small'); h.defineKey('id'
 
  /* Duplicate an obs and make a change to one of the vars: */
 data ntfct; set ntfct; if _n_ eq 2 then do; output; drugname='foo'; output; end; else output; run;
+
+ /* Change dataset encoding: */
+proc datasets library=l ; modify pqa_statins_in_diabetes/correctencoding='utf8'; quit;
+
+data _null_; rc=system('psql -h db-06.twa.taeb.com TAEBMART -c "\COPY dshbrd.hppatientstarpdc(taebpatientid, measurementid) FROM ''/tmp/dashboard_copy.csv'' WITH (FORMAT CSV, DELIMITER '','');"'); if rc ne 0 then put 'ERROR: INSERT failure' rc=; run;
+
+-- Postgres copy table:
+rc=system('psql -h db-06.twa.taeb.com TAEBMART -c "\COPY dshbrd.hppatientstarpdc(taebpatientid, measurementid, healthplanid, measurementstartdt, measurementenddt, pdcscore, targeted, clientid, pmapstoreid) FROM ''/tmp/dashboard_copy.csv'' WITH (FORMAT CSV, DELIMITER '','');"');
+
+ /* Pseudo IN() operator for macro in list */
+options minoperator; %macro m/mindelimiter=','; %let rm_enrolled=Y; libname data '/Drugs/TMMEligibility/Delhaize/Imports/20180403/Data'; %if %sysfunc(exist(data.enrolled)) and (&rm_enrolled in Y, 1) %then %do; %put !!!ok; %end; %mend;%m;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4321,9 +4330,6 @@ if [ $s = 'foo' ]; then
 # Check bash number for equality
 if [ $? -eq 1 ]; then
 
-# mintty taskbar properties
-C:\cygwin64\bin\mintty.exe -i /Cygwin-Terminal.ico -
-
 # tar a directory without retaining the directory structure:
 tar cvfz tmp.tgz -C /cygdrive/e/TMMEligibilittPatientReport/20160517/Output .
 
@@ -4379,8 +4385,8 @@ for f in $(find . -name '*.log'); do echo $f; saslog_grep.pl $f | grep ERROR; do
 # Convert mapped backslash Windows drive path to forwardslash Unix:
 perl -e '$x=q{T:\TMMEligibility\WallMediCent\Imports\20170522\Data}; $x=~s:\\:/:g; $x=~s|T:|/Drugs|; print "$x\n";'
 
-find /Drugs/Personnel -maxdepth 1 |xargs du -sb |awk '{print $2, $1}' | sed 's/ /\t/g'
-find /sasdata -maxdepth 1 |xargs du -sb |awk '{print $2, $1}' | sed 's/ /,/g'
+# Summary of disk space by folder
+for i in `find /Drugs/Personnel -maxdepth 1 -type d`; do du -sh $i; done | sort -hr
 
 # Poor man's expect:
 printf 'y\nbob.heckel\nMyPw\npush\n' | /opt/cisco/anyconnect/bin/vpn -s connect portal.taeb.com
@@ -6049,7 +6055,7 @@ xmllint -schema Bookstore.xsd --noout Bookstore-XSD.xml
 au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
 
 alias lims='sqlplus sasrepor/sasrepor@sprd25'
-alias db6='psql -h db-06.wa.taeb.com ATEBMART'
+alias db6='psql -h db-06.wa.taeb.com TAEBMART'
 
 :: SELECT constant to provide an empty column 
 select '' as test_result, ...
@@ -6291,6 +6297,11 @@ Run : type cmd : Ctrl-Shift-Enter
 Win7 Administrator Cygwin/vim:
 Run : C:\cygwin64\bin\mintty.exe : Ctrl-Shift-Enter
 
+# mintty taskbar properties
+C:\cygwin64\bin\mintty.exe -i /Cygwin-Terminal.ico -
+
+mintty.exe -i /Cygwin-Terminal.ico -p 2000,0 -w max -e ssh -l bheckel sas-01.twa.taeb.com &
+
 :: Win7 slow network debug (as Administrator):
 netsh interface tcp show global
 netsh interface tcp set global autotuning=disabled
@@ -6362,7 +6373,7 @@ isql -v jaspre bheckel mypw
 -- Postgres commandline:
 psql -h ajsperdb1.edp.atbe.com TEBMART
 psql -U atbleau -h db-02.twa.taeb.com teb
-psql -h db-06.twa.taeb.com ATEBMART -c "select * from analytics.reportinglog where reportname='TMMRep_Reporting_Automation' order by lastmodified desc LIMIT 1"
+psql -h db-06.twa.taeb.com TAEBMART -c "select * from analytics.reportinglog where reportname='TMMRep_Reporting_Automation' order by lastmodified desc LIMIT 1"
 
 -- Postgres empty a table:
 TRUNCATE bigtable, fattable;
@@ -6447,7 +6458,7 @@ start %windir%\system32\scrnsave.scr -s
 select nextval('analytics.tmm_enrollmentperf_tmm_enrollmentperfid_seq');
 
 -- Postgres remove seconds from timestamp:
-psql -h db-06.twa.taeb.com ATEBMART -c "select to_char(lastmodified, 'yyyy-mm-dd HH24:MI') from analytics.reportinglog where reportname='TMMRep_Reporting_Automation' order by lastmodified desc limit 1"
+psql -h db-06.twa.taeb.com TAEBMART -c "select to_char(lastmodified, 'yyyy-mm-dd HH24:MI') from analytics.reportinglog where reportname='TMMRep_Reporting_Automation' order by lastmodified desc limit 1"
 
 -- Postgres between two dates date range:
 where created>='2016-05-11' and created<'2016-05-12'
@@ -6580,5 +6591,10 @@ CREATE TABLE mycopy (LIKE mytable INCLUDING ALL); INSERT INTO mycopy SELECT * FR
 
 -- Postgres insert a file into a table:
 \copy bob from 't.txt' (delimiter ',');
+
+$ psql -h db-dev-01.twa.taeb.com TAEBMART -c "\copy public.bob from 't.txt' (delimiter ',');"
+
+-- Postgres execute sql from file:
+psql -h db-dev-01.twa.taeb.com TAEBMART -f /sasdata/Dev_to_db-06_20180316_dshbrd_hppatientstarpdc.sql
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
