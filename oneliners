@@ -967,10 +967,6 @@ data _NULL_; abort abend 008; run;
 /* Check for an empty dataset and abort if so */
 data _NULL_; if num=0 then abort return; stop; set check_me_for_zeroobservations nobs=num; run;
 
- /* IN list for macro in() for macro where &rpclients is %str(1059 999A 999B) */
-%if %sysfunc(indexw(&rpclients, &SYSPARM)) %then %let redpoint_client=Y; %else %let redpoint_client=N;
-%if not %sysfunc(indexw(&rpclients, &SYSPARM)) %then %let redpoint_client=N; %else %let redpoint_client=Y;
-
  /* Remove trailing dot (bad: var, new!, old): */
 myvar = trim(translate(myvar, '', '.'));
  /* Convert A to 1, B to 2, etc and then convert char2num: */
@@ -2468,7 +2464,7 @@ data _null_; rc = system("sed -i '/^$/d' ~/bob/tmp/mnt/nfs/alertproc/gap_add_201
 %bquote(')%sysfunc(putn(%sysevalf("&SYSDATE"D+30),YYMMDDN8.))%bquote(') as expirationdate,
 
  /* num2char */
-data data.delete; set activealerts(rename=(atebpatientid=TMPatebpatientid)); atebpatientid=put(TMPatebpatientid, $8.); run;
+data data.delete; set activealerts(rename=(taebpatientid=TMPtaebpatientid)); taebpatientid=put(TMPtaebpatientid, $8.); run;
 
  /* If macro date is between 30AUG2017 and 28FEB2018 */
 %if (%eval("&sysdate"d > "29AUG2017"d) eq 1) and (%eval("&sysdate"d < "28FEB2018"d) eq 0) %then %do; ...
@@ -2488,7 +2484,7 @@ dobq = quote(put(dob, yymmddd10.), "'");
 %put %sysfunc(month("&SYSDATE"d));
 
  /* Group by month count by month: */
-proc sql; select count(distinct atebpatientid), month(filldate) from statin_final group by 2; quit;
+proc sql; select count(distinct taebpatientid), month(filldate) from statin_final group by 2; quit;
 
 proc ds2; thread thr / overwrite=yes; method run(); set { select  a.*, coalesce(b.gpi,a.productid) as gx, b.drugname as dx from l.rxfilldata as a left join l.medispan as b on a.ndc=b.ndc_upc_hri }; end; endthread; run; quit; proc ds2 scond=error; data rxfilldata0; declare thread thr thr_instance; method init(); end; method run(); set from thr_instance threads=4; end; enddata; run; quit;
 
@@ -2554,7 +2550,13 @@ data ntfct; set ntfct; if _n_ eq 2 then do; output; drugname='foo'; output; end;
  /* Change dataset encoding: */
 proc datasets library=l ; modify pqa_statins_in_diabetes/correctencoding='utf8'; quit;
 
-data _null_; rc=system('psql -h db-06.twa.taeb.com ATEBMART -c "\COPY dshbrd.hppatientstarpdc(atebpatientid, measurementid) FROM ''/tmp/dashboard_copy.csv'' WITH (FORMAT CSV, DELIMITER '','');"'); if rc ne 0 then put 'ERROR: INSERT failure' rc=; run;
+data _null_; rc=system('psql -h db-06.twa.taeb.com TAEBMART -c "\COPY dshbrd.hppatientstarpdc(taebpatientid, measurementid) FROM ''/tmp/dashboard_copy.csv'' WITH (FORMAT CSV, DELIMITER '','');"'); if rc ne 0 then put 'ERROR: INSERT failure' rc=; run;
+
+-- Postgres copy table:
+rc=system('psql -h db-06.twa.taeb.com TAEBMART -c "\COPY dshbrd.hppatientstarpdc(taebpatientid, measurementid, healthplanid, measurementstartdt, measurementenddt, pdcscore, targeted, clientid, pmapstoreid) FROM ''/tmp/dashboard_copy.csv'' WITH (FORMAT CSV, DELIMITER '','');"');
+
+ /* Pseudo IN() operator for macro in list */
+options minoperator; %macro m/mindelimiter=','; %let rm_enrolled=Y; libname data '/Drugs/TMMEligibility/Delhaize/Imports/20180403/Data'; %if %sysfunc(exist(data.enrolled)) and (&rm_enrolled in Y, 1) %then %do; %put !!!ok; %end; %mend;%m;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4327,9 +4329,6 @@ if [[ $f = *.jpg ]]; then echo 'is a jpg' fi
 if [ $s = 'foo' ]; then
 # Check bash number for equality
 if [ $? -eq 1 ]; then
-
-# mintty taskbar properties
-C:\cygwin64\bin\mintty.exe -i /Cygwin-Terminal.ico -
 
 # tar a directory without retaining the directory structure:
 tar cvfz tmp.tgz -C /cygdrive/e/TMMEligibilittPatientReport/20160517/Output .
@@ -6297,6 +6296,11 @@ Win7 Administrator cmd.exe command prompt:
 Run : type cmd : Ctrl-Shift-Enter
 Win7 Administrator Cygwin/vim:
 Run : C:\cygwin64\bin\mintty.exe : Ctrl-Shift-Enter
+
+# mintty taskbar properties
+C:\cygwin64\bin\mintty.exe -i /Cygwin-Terminal.ico -
+
+mintty.exe -i /Cygwin-Terminal.ico -p 2000,0 -w max -e ssh -l bheckel sas-01.twa.taeb.com &
 
 :: Win7 slow network debug (as Administrator):
 netsh interface tcp show global

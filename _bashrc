@@ -561,7 +561,7 @@ case "$OSTYPE" in
       # Export Linux  #{{{2 
       #----------------
 
-      export PATH=$PATH:~/bin
+      export PATH=~/bin:$PATH
       export PROMPT_COMMAND='history -a; echo -ne "\033]0;${HOSTNAME:0:4}:${PWD}\007";'
       export PS1='${fg_blue}\j ${fg_greenbold}\u@${HOSTNAME}${fg_blue}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
       export VIMSTATUSL="${USER}@`echo ${HOSTNAME}`"
