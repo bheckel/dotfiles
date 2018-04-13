@@ -1,5 +1,5 @@
 !
-! Modified: Sat 22 Mar 2014 08:17:21 (Bob Heckel)
+! Modified: Sun 25 Mar 2018 09:05:37 (Bob Heckel)
 !
 ! $ ln -s ~/code/misccode/_Xmodmap ~/.Xmodmap
 !
@@ -12,9 +12,11 @@
 ! $ xmodmap -e "pointer = 3 2 1 4 5"
 ! $ xmodmap -e "keycode 104 = Return"
 
+! left button == 3 / wheel click / right button == 1 / wheel hold & scroll / wheel scroll
 ! Lefty mouse
-! left button / wheel click / right button / wheel hold & scroll / wheel scroll
-pointer = 3 2 1 4 5
+!!!pointer = 3 2 1 4 5
+! Righty mouse
+pointer = 1 2 3 4 5
 
 ! Make Capslock act like Tab
 keycode 66 = Tab

@@ -20,11 +20,12 @@ xset dpms 1000 1200 1400  # monitor DPMS timeouts in seconds
 #anoise &
 #/usr/bin/gnome-terminal --geometry 95x55+200+10 &
 #rxvt &
-/usr/sbin/alsactl --file ~/.config/asound.state restore
+# /usr/sbin/alsactl --file ~/.config/asound.state restore
 # /usr/bin/google-chrome-stable &
 # fbsetbg -a $HOME/Dropbox/Camera\ Uploads/Disney_2017/2017-08-15\ 22.23.47.jpg &
 fbsetbg -a $HOME/Dropbox/Public/misc/computer/wallpaper/papers.co-sc85-amnesia-night-crazy-blur-6-wallpaper-340x340.jpg &
 # ssh-add &
+# imwheel --kill
 
 # Because fluxbox is the last app you have to run it with 'exec'
 exec fluxbox
