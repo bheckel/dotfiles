@@ -1,10 +1,10 @@
 ################################################################################
 #     Name: .conkyrc
 #
-#           $ conky -d -x 40 -y 10
+#           $ conky -x 5 -y 0
 #
 #  Created: Sat 04 Feb 2012 21:38:40 (Bob Heckel - adapted from darcon at gmail.com)
-# Modified: Sun 24 Sep 2017 07:30:21 (Bob Heckel)
+# Modified: Sat 10 Mar 2018 06:39:24 (Bob Heckel)
 ################################################################################
 
 # set to yes if you want Conky to be forked in the background

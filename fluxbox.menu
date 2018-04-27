@@ -3,13 +3,14 @@
 [include] (/etc/X11/fluxbox/fluxbox-menu)
   [separator] () {} 
   [exec] (Chrome)             {/usr/bin/google-chrome-stable} </usr/share/icons/hicolor/256x256/apps/google-chrome.png>
-  [exec] (GENS)               {/usr/games/gens} <>
+  [exec] (GENS)               {/usr/games/gens} </home/bheckel/misc/computer/gens.jpeg>
   /* [exec] (gnome-terminal)     {/usr/bin/gnome-terminal --geometry 95x55+200+10} </usr/share/pixmaps/gnome-terminal.xpm> */
-  [exec] (Gvim)               {/usr/bin/vim.gnome -g -f} </usr/share/pixmaps/vim-32.xpm>
-  [exec] (Iview)              {/home/bheckel/.wine/drive_c/Program\ Files\ \(x86\)/IrfanView/i_view32.exe} <>
+  [exec] (galculator)         {/usr/bin/galculator} </usr/share/pixmaps/galculator.xpm>
+  [exec] (gvim)               {/usr/bin/vim.gnome -g -f} </usr/share/pixmaps/vim-32.xpm>
+  [exec] (Iview)              {/home/bheckel/.wine/drive_c/Program\ Files\ \(x86\)/IrfanView/i_view32.exe} </home/bheckel/misc/computer/irfanview.png>
   [exec] (Thunar)             {/usr/bin/thunar} </usr/share/icons/hicolor/64x64/apps/Thunar.png>
   [exec] (VirtualBox)         {/usr/bin/virtualbox} </usr/share/icons/hicolor/32x32/apps/virtualbox.png>
-  [exec] (xterm)              {xterm -bg black -fa "xft:Consolas-9:antialias=true" -bc -sb -rightbar -sl 1000 -geometry "95x55+200+10"} <>
+  [exec] (xterm)              {xterm -bg black -fa "xft:Consolas-9:antialias=true" -bc -sb -rightbar -sl 1000 -geometry "95x55+200+10"} </home/bheckel/misc/computer/xterm.jpeg>
   [separator] ()              {} 
   [submenu] (misc)
     [exec] (alsamixer)          {urxvt -e /usr/bin/alsamixer} <>
