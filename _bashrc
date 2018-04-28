@@ -4,7 +4,7 @@
 # Summary: bash config for at least Cygwin 1.3/1.5/1.7, Unix/Linux and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Thu 28 Dec 2017 10:27:40 (Bob Heckel)
+# Modified: Fri 27 Apr 2018 09:42:54 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -21,7 +21,7 @@ set -o vi
 set -o noclobber
 
 # C-S=suspend C-Q=release fix
-###stty -ixon 
+stty -ixon 
 
 # Tab completion after typing 'cd ' show dirs only.  See also FIGNORE for related completion restrictions.
 complete -d cd
@@ -54,6 +54,7 @@ export LS_COLORS='ow=30;42:*.swp=00;35:*.swo=00;35:*.bak=00;35:ex=00;32'
 export PAGER=less  # for man(1)
 export PARINIT='rTbgqR B=.?_A_a Q=_s>| w65'  # par formatter
 export PERLLIB=$HOME/perllib
+export PROMPT_COMMAND='echo -ne "\033]0;${PWD}\007";'
 export TMP=$HOME/tmp
 # Default "unknown host" indicator for my .vimrc statusline
 export VIMSTATUSL='?@?'
@@ -153,9 +154,11 @@ alias sl='ls --color=none'  # dyslexic daim branage
 alias sr="$HOME/code/sas/sasrun"
 # alias srcb="source $HOME/code/misccode/_bashrc"
 alias srcb="source $HOME/dotfiles/_bashrc"
-alias tm1="tmux -2 a -t 'sas0-ses1'"
-alias tm2="tmux -2 a -t 'sas0-ses2'"
-alias tm3="tmux -2 a -t 'sas0-ses3'"
+# tmux -2 new -s s1
+alias tm1="tmux -2 a -t 's1'"
+alias tm2="tmux -2 a -t 's2'"
+alias tm3="tmux -2 a -t 's3'"
+alias tm4="tmux -2 a -t 's4'"
 ###alias tree="\ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
 alias unbak="$HOME/code/misccode/bak -u "
 alias uvi="$HOME/code/perl/uvi"  # don't change timestamp
@@ -189,7 +192,7 @@ ses() {
 
 
 sesrm() {
-  # E.g. archive_ses.sh /mnt/nfs/home/bheckel/bob/RFD/AN-5087_weisoptout
+  # E.g. sesrm /mnt/nfs/home/bheckel/bob/RFD/AN-5087_weisoptout
   mv -i $1/{Session.vim,Session.vimx} && mv -i $1/ ~/bob/_old/ 
 }
 
@@ -410,7 +413,7 @@ case "$OSTYPE" in
     # The echo -ne "\033]0;${PWD}\007" causes rxvt titlebar to show PWD.
     # '\[ ... \]' says "ignore this material while calculating the size of the prompt".
     # Want our history appended (-a) and other term's history merged into ours (-n)
-    export PROMPT_COMMAND='history -a; echo -ne "\033]0;${PWD}\007";'
+    # export PROMPT_COMMAND='history -a; echo -ne "\033]0;${PWD}\007";'
     # 0 rsh86800@ZEBWL12H26564[master] datapost/ Thu Feb 20 13:41:16
     export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${LCHOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
     export PS2=' '  # allow multiple line copy to clipboard 
@@ -475,8 +478,6 @@ case "$OSTYPE" in
      # Export SunOS  #{{{2 
      #------------------
      export EDITOR=vi
-     ###export PROMPT_COMMAND='set_prompt_colors; echo -ne "\033]0;`stoppedjobs`${HOSTNAME:0:6}:${PWD}\007"'
-     export PROMPT_COMMAND='echo -ne "\033]0;`stoppedjobs`${HOSTNAME:0:6}:${PWD}\007"'
      # Set colors in set_prompt_colors(), not here.
      ###export PS1='\[${fg_darkgray}\]:\[${normal}\] `stoppedjobs`\[${prompt_beg}\]$USER@${HOSTNAME:0:8}\[${prompt_end}\]\[${fg_green}\]\$\[${fg_darkgray}\];\[${normal}\] '
      ###export PS1=':`stoppedjobs`$USER@${HOSTNAME:0:8}; '
@@ -562,7 +563,7 @@ case "$OSTYPE" in
       #----------------
 
       export PATH=~/bin:$PATH
-      export PROMPT_COMMAND='history -a; echo -ne "\033]0;${HOSTNAME:0:4}:${PWD}\007";'
+      # export PROMPT_COMMAND='history -a; echo -ne "\033]0;${HOSTNAME:0:4}:${PWD}\007";'
       export PS1='${fg_blue}\j ${fg_greenbold}\u@${HOSTNAME}${fg_blue}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
       export VIMSTATUSL="${USER}@`echo ${HOSTNAME}`"
       # For crontab -e
@@ -727,7 +728,7 @@ case "$OSTYPE" in
       export PATH=$HOME/bin:$PATH:/usr/pkg/bin
       # TODO colors force lines to not wrap to new line
       export PS1='${fg_darkgray}\j ${fg_whitebold}\u@${HOSTNAME}${fg_darkgray} \W/ \d \t ${normal} \n\$ '
-      export PROMPT_COMMAND='echo -ne "\033]0;`stoppedjobs`${HOSTNAME:0:6}:${PWD}\007"'
+      # export PROMPT_COMMAND='echo -ne "\033]0;`stoppedjobs`${HOSTNAME:0:6}:${PWD}\007"'
       export SURFRAW_text_browser=w3m
       export WWW_HOME=http://www.google.com
       export TERM=xterm
