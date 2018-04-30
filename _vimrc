@@ -1051,7 +1051,7 @@ nnoremap <C-T> :tabnew<CR>
 " ...except
 au FileType help,HELP :nnoremap <C-T> <C-T>
 
-nnoremap <Space> <C-F>
+noremap <Space> <C-F>
 
 " Speed things up a bit
 nnoremap <C-E> 2<C-E>
@@ -1841,7 +1841,7 @@ if !exists("autocommands_loaded")
 
   if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
     " Avoid opening this tempfile accidentally via my ,e map etc. It is never useful.
-    au BufEnter ~/bob/tmp/.vimxfer :echom 'deleting this buffer' | :bd
+    au BufEnter ~/bob/tmp/.vimxfer :echom 'an autocommand is deleting this buffer' | :bd
   endif
 
   "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _

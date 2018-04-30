@@ -3809,11 +3809,12 @@ rxvt -bg white -fg black -geometry 80x40+159+46 -fn "Andale Mono-12"
 # Typing speed
 START=`date +%s`;WORDS=`cat|wc -w`; STOP=`date +%s`; SPEED=`echo "$WORDS / ( ( $STOP - $START ) / 60 )"|bc`;echo "You have a typing speed of $SPEED words per minute."
 
-# Configure ssh for no password:
+# Configure passwordless ssh for no password:
 ssh-keygen -t dsa  # on mario but  ssh-keygen -t rsa -b 4096  is a standard for 2012
 cat /home/chronos/.ssh/id_dsa.pub | ssh rheckel@sdf.org 'cat - >> ~/.ssh/authorized_keys'
-# Better ssh no password,  Ignores mkdir if ~/.ssh/ already exists:
+# Better passwordless ssh no password,  Ignores mkdir if ~/.ssh/ already exists:
 ssh user@host "mkdir -p .ssh && cat >> .ssh/authorized_keys" < ~/.ssh/id_rsa.pub
+ssh-copy-id -i id_rsa.pub bheckel@sas-01.twa.ateb.com
 
 # Performance benchmark:
 time echo "scale=5000; 4*a(1)" | bc -l -q
@@ -6378,8 +6379,8 @@ select date('now') - interval '1 month' as x
 -- Postgres data from last 2 days:
 select clientid, taskdate, hpprogramid, count(*) from naalytics.ehalthplanpatients_test where taskdate > date('now')-interval '2 day' group by clientid, taskdate, hpprogramid order by taskdate desc
 
--- Postgres jobs status of jobs I am running:
-select current_query from pg_stat_activity where usename='bheckel'
+-- Cancel Postgres jobs status of jobs I am running:
+select * from pg_stat_activity where usename='bheckel'
 
 -- Postgres change datatype:
 select stre_id as stid, cast (value as integer) as Waitime ...
