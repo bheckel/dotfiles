@@ -25,7 +25,7 @@
 " Often unsychronized gvimrc is here C:/Program Files (x86)/Vim/_vimrc):
 
 let THISBOX = hostname()
-let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWL14H50510', 'sas-01.twa.ateb.com', 'sasdev-01.twa.ateb.com', 'sas-01.mrk.ateb.com', 'VWS-12-BHECKEL' ]
+let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWL14H50510', 'sas-01.twa.ateb.com', 'sasdev-01.twa.ateb.com', 'sas-01.mrk.ateb.com', 'TWAVWS-05-BHECK' ]
 
 if has ('win32unix')
   let g:netrw_cygwin=1  " scp to be provided by Cygwin
@@ -765,7 +765,7 @@ if has('win32')
   nnoremap <C-A> <C-A>
 endif
 
-nnoremap <F12> :q<CR>
+nnoremap <F12> :qa<CR>
 
 " Like gv but for paste buffer
 nnoremap <expr> gb '`[' . strpart(getregtype(), 0, 1) . '`]'
@@ -1646,7 +1646,6 @@ if !exists("autocommands_loaded")
   endif
 
   " Handle my ~/bin/sasrun script files
-  au BufRead tmpsas.*.log,tmpsas.*.lst map <F12> :qa<CR>
   au BufRead tmpsas.*.log,tmpsas.*.lst map q :qa!<CR>
   au BufRead tmpsas.*.log,tmpsas.*.lst echo '.vimrc: q to exit all'
 

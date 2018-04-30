@@ -7,7 +7,7 @@
 #           Comments are often written for searching, not proper English
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Thu 19 Oct 2017 09:34:37 (Bob Heckel)
+# Modified: Mon 30 Apr 2018 08:23:10 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -6614,5 +6614,8 @@ $ psql -h db-dev-01.twa.taeb.com TAEBMART -c "\copy public.bob from 't.txt' (del
 
 -- Postgres execute sql from file command line:
 psql -h db-dev-01.twa.taeb.com TAEBMART -f /sasdata/Dev_to_db-06_20180316_dshbrd_hppatientstarpdc.sql
+
+-- Remote Desktop multiple monitors:
+%windir%\system32\mstsc.exe /span
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
