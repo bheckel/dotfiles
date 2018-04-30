@@ -813,7 +813,6 @@ else
   nnoremap ,d :e <C-R>=expand("%:p:h") . "\" <CR>
 endif
 
-" TODO function to not switch into ~/bob/tmp/.vimxfer
 " Toggle between two buffers (e fails if 2+ files are opened together and have never used :n)
 nnoremap ,e :e#<CR>
 
