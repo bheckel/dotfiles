@@ -1317,6 +1317,8 @@ ods excel file="~/bob/projected_tmm_builds.xlsx" options(sheet_name="17Apr17"); 
  /* Multi-sheet Excel output: */
 ods excel file="AN-6617.xlsx"; ods excel options(sheet_name="6 mo"); proc print data=output6mo NOobs; sum count; run; ods excel options(sheet_name="12 mo"); proc print data=output12mo NOobs; sum count; run; ods excel close;
 
+ods excel options(sheet_name="GE Shingrix Campaign Volume" absolute_column_width='30,15' embedded_footnotes='yes');
+
  /* Threaded database connections: */
 from op.rxfilldata_&partition. (dbslice=("FILLNUM=0" "(FILLNUM>=1 OR FILLNUM IS NULL)")) 
 
@@ -1360,7 +1362,7 @@ libname GDM_DIST oracle user=&username password=&password path=&database schema=
 
 select distinct r.sampid, s.specname, put(r.sampid,F6.)||'-'||s.specname into :SAMPIDS separated by ',', :METHS separated by ' ', :METHPAIRS separated by ' '
 
-%if %sysfunc(fileexist('c:\foo\bar.txt')) %then %put quote-mandatory file exists; %else %put file OR DIRECTORY! does not exist;
+%if %sysfunc(fileexist('c:\foo\bar.txt')) %then %put quote-mandatory file exists; %else %put file OR DIRECTORY! OR FOLDER! does not exist;
 filename myfileref 'c:\delme.dat'; %let exist = %sysfunc(FExist(myfileref)); 
 %if not %sysfunc(exist(l.metndc)) %then %do; %put dataset exists; %end;
 
@@ -1655,6 +1657,8 @@ FollowupDate = intnx('month', '03jan17'd, 6, 'SAMEDAY');  /* 03jul17 */
 
  /* Convert date beginning of month six months ago to end of previous month: */
 %let minbom=%sysfunc(intnx(MONTH, "&SYSDATE"d, -6, B),date9.); %let maxbom=%sysfunc(intnx(MONTH, "&SYSDATE"d, -1, E),date9.);
+ /* If it's 16-May-18 then return 20180401 - the first day of the previous month in macro: */
+%let bom_previous=%sysfunc(intnx(MONTH, "&SYSDATE"d, -1, B),YYMMDDN.); 
 
 proc sql; select "%sysfunc(putn(%sysevalf("&SYSDATE"D+30),DATE9.))" as expireinonemonthdate ...
 
@@ -1663,6 +1667,7 @@ proc sql; select "%sysfunc(putn(%sysevalf("&SYSDATE"D+30),DATE9.))" as expireino
 
  /* Canonical proc means */
 proc means data=sashelp.shoes; class region; var sales; run;
+proc means data=data.rxfilldata mean; var age;run;
 proc means data=sashelp.shoes NOprint; output out=t; class region; var sales; run;
 proc summary data=sashelp.shoes PRINT; class region; var sales; run;
 proc sql; select region, count(sales), sum(sales) format=DOLLAR16. from sashelp.shoes group by region; quit;
@@ -2463,7 +2468,7 @@ ods powerpoint file="~/bob/t.pptx"; title 'demo pptx'; proc print data=sashelp.c
  /* Remove blank lines from text file: */
 data _null_; rc = system("sed -i '/^$/d' ~/bob/tmp/mnt/nfs/alertproc/gap_add_20170802_8.csv"); run;
 
- /* Cheat at Oracle Postgres passthrough proc sql (avoid db-specific syntax): */
+ /* Cheat at Oracle Postgres passthrough proc sql avoid db-specific syntax resolve macrovariable inside single quotes: */
 %bquote(')%sysfunc(putn(%sysevalf("&SYSDATE"D+30),YYMMDDN8.))%bquote(') as expirationdate,
 
  /* num2char */
@@ -2558,13 +2563,25 @@ data _null_; rc=system('psql -h db-06.twa.taeb.com TAEBMART -c "\COPY dshbrd.hpp
 -- Postgres copy table:
 rc=system('psql -h db-06.twa.taeb.com TAEBMART -c "\COPY dshbrd.hppatientstarpdc(taebpatientid, measurementid, healthplanid, measurementstartdt, measurementenddt, pdcscore, targeted, clientid, pmapstoreid) FROM ''/tmp/dashboard_copy.csv'' WITH (FORMAT CSV, DELIMITER '','');"');
 
- /* Pseudo IN() operator for macro in list */
+ /* Pseudo IN() list operator for macro in list */
 options minoperator; %macro m/mindelimiter=','; %let rm_enrolled=Y; libname data '/Drugs/TMMEligibility/Delhaize/Imports/20180403/Data'; %if %sysfunc(exist(data.enrolled)) and (&rm_enrolled in Y, 1) %then %do; %put !!!ok; %end; %mend;%m;
+options minoperator; %macro m/mindelimiter=','; %let clid=9; %let v2clids=1,2,3; %if &clid in &v2clids %then %do; %put !!!ok; %end; %mend;%m;
 
  /* Zero padded month number digits in macro: */
 %let m = %sysfunc(month("&sysdate"d),z2.);
 
 connect to postgres as myconn (user=&user password=&jasperpassword database=taeb server='db-103.twa.taeb.com' readbuff=7000);
+
+proc sql; connect to odbc as myconn (user=&user password=&pw dsn=jasper readbuff=7000); EXECUTE ( update analytics.mtmtargeted set lasttargetdate=%bquote(')&date_max.%bquote(') where taebpatientid in (&taebpatientids)) by myconn; disconnect from myconn; quit;
+
+ /* Resets option to user's choice at end of program */
+proc sql; select setting into :TMPMPRINT from DICTIONARY.options where optname='MPRINT'; quit; options NOMPRINT;
+%if &TMPMPRINT eq MPRINT %then %do; options MPRINT; %end;
+
+ /* When coworker decides to call a dataset 'label'... */
+options DATASTMTCHK=COREKEYWORDS;
+
+%let bom_previous=%sysfunc(intnx(MONTH, "&SYSDATE"d, -1, B),YYMMDDN.); data _null_; if fileexist("/Drugs/TMMEligibility/BRStores/Dashboard/&bom_previous") then put 'previous month folder directory exists'; run;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4407,8 +4424,6 @@ cat ~/clids.txt | xargs ~bheckel/bin/isdata.sh; ssh bheckel@sas-01.mrk.taeb.com 
 
 # What is my DNS?:
 nmcli dev show | grep DNS
-
-# Putty cornflower blue: 149
 
 # Which distro am I using:
 cat /etc/*-release
@@ -6318,7 +6333,8 @@ Run : C:\cygwin64\bin\mintty.exe : Ctrl-Shift-Enter
 # mintty taskbar properties
 C:\cygwin64\bin\mintty.exe -i /Cygwin-Terminal.ico -
 
-mintty.exe -i /Cygwin-Terminal.ico -p 2000,0 -w max -e ssh -l bheckel sas-01.twa.taeb.com &
+mintty.exe -i /Cygwin-Terminal.ico -p 0,30 -s 312,75 -e ssh -l bheckel sas-01.twa.taeb.com &
+mintty.exe -i /Cygwin-Terminal.ico -p right -s maxheight -e ssh -l bheckel sas-01.twa.taeb.com
 
 :: Win7 slow network debug (as Administrator):
 netsh interface tcp show global
@@ -6532,6 +6548,8 @@ select string_agg(distinct taebpatientid::varchar,',') from cce.ccepatientstagin
 
 -- Postgres first day of last month:
 select date_trunc('MONTH', now())-'1 month'::interval;
+-- Postgres earlier than first of this month:
+select distinct clientid, dashstart from dshbrd.dashboardclients where deactivated != TRUE and dashstart < date_trunc('MONTH', now());
 
 -- Postgres bulk load a textfile to a table:
 \COPY analytics.obcdaily (client_name, , job_type_extra, att_count) FROM /Data/psql_import_temp.csv CSV HEADER
@@ -6617,5 +6635,8 @@ psql -h db-dev-01.twa.taeb.com TAEBMART -f /sasdata/Dev_to_db-06_20180316_dshbrd
 
 -- Remote Desktop multiple monitors:
 %windir%\system32\mstsc.exe /span
+
+-- Faster alternative to max() on unindexed table:
+select filldate from rxfilldata_201709 where clientid=19 order by 1 desc limit 1 ;
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
