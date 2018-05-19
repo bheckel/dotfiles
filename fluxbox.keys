@@ -13,7 +13,7 @@
 #           'Reconfigure' to apply changes
 #
 #  Created: Mon 12 Jan 2012 17:59:26 (Bob Heckel)
-# Modified: Fri 15 Dec 2017 03:44:57 (Bob Heckel)
+# Modified: Sat 28 Apr 2018 12:34:15 (Bob Heckel)
 ##############################################################################
 
 # Right-click on the desktop to get menus
@@ -97,10 +97,14 @@ Mod4 t :Exec xterm -bg black -fa "xft:Consolas-9:antialias=true" -bc -sb -rightb
 ###160 :Exec amixer sset Master,0 toggle
 # Volume down with arrow down
 #Mod4 116 :Exec amixer sset Master,0 1-
-Mod4 116 :Exec amixer -D pulse sset Master 5%-
+#Mod4 116 :Exec amixer -D pulse sset Master 5%-
 # Volume up with arrow up
 #Mod4 111 :Exec amixer sset Master,0 1+
-Mod4 111 :Exec amixer -D pulse sset Master 5%+
+#Mod4 111 :Exec amixer -D pulse sset Master 5%+
+
+# Toggles to fullscreen and back using up/down arrows (116 Maximize is not a typo)
+Mod4 111 :Maximize
+Mod4 116 :Maximize
 
 # Current window commands
 Mod1 F4 :Close
