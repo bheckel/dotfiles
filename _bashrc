@@ -15,12 +15,11 @@
 # in those cases.
 [[ $- != *i* ]] && return
 
-# One arg per call
 # If you change this to "emacs" a kitten will die:
 set -o vi
 set -o noclobber
 
-# C-S=suspend C-Q=release fix
+# C-S=suspend C-Q=release bypass
 stty -ixon 
 
 # Tab completion after typing 'cd ' show dirs only.  See also FIGNORE for related completion restrictions.
@@ -143,7 +142,7 @@ alias lsd='find . -type d'
 alias one="vi $HOME/dotfiles/oneliners"
 alias pull='git pull origin master'
 alias push='git push origin master'
-alias pse="ps -ef|grep ^$USER"
+alias pse="ps -ef|grep ^$USER|grep -vP 'ps -ef|grep'"
 ###alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
 alias qr=$HOME/code/misccode/quickref_find.sh
 alias rme=$HOME/rme/rme
@@ -152,13 +151,9 @@ alias sasrun=$HOME/code/sas/sasrun
 alias sdf='ssh -l bheckel sdf.org; date'
 alias sl='ls --color=none'  # dyslexic daim branage
 alias sr="$HOME/code/sas/sasrun"
-# alias srcb="source $HOME/code/misccode/_bashrc"
 alias srcb="source $HOME/dotfiles/_bashrc"
 # tmux -2 new -s s1
-alias tm1="tmux -2 a -t 's1'"
-alias tm2="tmux -2 a -t 's2'"
-alias tm3="tmux -2 a -t 's3'"
-alias tm4="tmux -2 a -t 's4'"
+# alias tm1="tmux -2 a -t 's1'"
 ###alias tree="\ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
 alias unbak="$HOME/code/misccode/bak -u "
 alias uvi="$HOME/code/perl/uvi"  # don't change timestamp
@@ -378,6 +373,16 @@ md() {
   mkdir $1 && cd $1 && ls -l
 }
 
+
+tm() {
+  #TODO
+  # if:
+  # "session not found: s5"
+  # then:
+  # $ tmux -2 new -s s5
+
+  tmux -2 a -t "s${1}"
+}
 
 # Generic Functions end
 
@@ -633,7 +638,7 @@ case "$OSTYPE" in
         alias vit='vi ~/t.sas'
       fi
 
-      if [ $HOSTNAME = 'talon3.ateb.com' ] || [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ] || [ $HOSTNAME = 'sas-01.mrk.ateb.com' ]; then
+      if [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ] || [ $HOSTNAME = 'sas-01.mrk.ateb.com' ]; then
         alias cavx='vi scp://bheckel@sas-01.mrk.ateb.com//Drugs/Personnel/bob/tmp/.vimxfer'
         alias d12="(cd ~/bob/tmp; vi -Rd 1 2)"
         alias d13="(cd ~/bob/tmp; vi -Rd 1 3)"
@@ -657,6 +662,11 @@ case "$OSTYPE" in
         # E.g. Mar  3 07:32 /Drugs/Cron/Daily/tmm_enroll_ratio/tmm_enroll_ratio.log
         function myls() {
           ls -lgG $1 |sed -r 's/^\S+ \S+ \w+ //g'
+        }
+
+        # Allow mintty ctrl click to open Linux path in Win Explorer
+        td() {
+          echo "/cygdrive/t/${1:7:999}"
         }
 
         #umask 022  # 022 is 755, 037 is 740

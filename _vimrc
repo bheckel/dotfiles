@@ -3,11 +3,11 @@
 "     Name: $HOME/.vimrc
 "  Summary: Platform-independent, overly ambitious, Vim config file
 "                                                                         
-"          'In pursuit of the dubious goal of producing idiot-proof,
+"           In pursuit of the dubious goal of producing idiot-proof,
 "           zero-learning-curve programs, even programs intended for
 "           heavy-duty use such as editors--arguably the most important 
 "           piece of software you'll use--have been turned into children's 
-"           toys, effectively expert-proofed' -- Tom Christiansen
+"           toys, effectively expert-proofed -- Tom Christiansen
 "
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
 " Modified: Fri 27 Apr 2018 09:41:54 (Bob Heckel)
@@ -25,7 +25,7 @@
 " Often unsychronized gvimrc is here C:/Program Files (x86)/Vim/_vimrc):
 
 let THISBOX = hostname()
-let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWL14H50510', 'sas-01.twa.ateb.com', 'sasdev-01.twa.ateb.com', 'sas-01.mrk.ateb.com', 'VWS-12-BHECKEL' ]
+let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWL14H50510', 'sas-01.twa.ateb.com', 'sasdev-01.twa.ateb.com', 'sas-01.mrk.ateb.com', 'TWAVWS-05-BHECK' ]
 
 if has ('win32unix')
   let g:netrw_cygwin=1  " scp to be provided by Cygwin
@@ -292,9 +292,11 @@ set hlsearch
 " Mandatory for displaying a status line:
 set laststatus=2
 
+" TODO add paste indicator
+" TODO add DEBUG indicator
 " Depends on this being set above:
 " hi User1 term=inverse,bold cterm=inverse,bold ctermfg=red guifg=red
-" And $VIMSTATUSL being set in .bashrc 
+" ...and $VIMSTATUSL being set in .bashrc 
 " E.g. ~/code/misccode/_vimrc [+,VIM,unix,b1] rsh868@ZEBWL12H99999   485/4494L,1C(10%)
 set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)
 
@@ -765,7 +767,7 @@ if has('win32')
   nnoremap <C-A> <C-A>
 endif
 
-nnoremap <F12> :q<CR>
+nnoremap <F12> :qa<CR>
 
 " Like gv but for paste buffer
 nnoremap <expr> gb '`[' . strpart(getregtype(), 0, 1) . '`]'
@@ -856,7 +858,8 @@ nnoremap ,s :%s::g<Left><Left>
 
 " (T)oggle this prior to pasting:
 """nnoremap ,t mz \| :set invpaste<CR>`z \| :se paste?<CR>
-nnoremap ,t :set invpaste<CR>`z \| :se paste?<CR> ``
+" nnoremap ,t :set invpaste<CR>`z \| :se paste?<CR> ``
+nnoremap ,t :set invpaste<CR>
 
 " Uppercase a word (see also ;u) and stay on the same character
 nnoremap ,u mzviwU \| :echon '.vimrc: word uppercased'<CR>`z
@@ -959,6 +962,7 @@ nnoremap ;q viw"zxllciwhhpll"zp
   " Temporary ugly hack for XP vs. Win7 Cygwin permission battle
 """  nmap ;rx :!chmod 755 $u/temp/.vimxfer
 """else
+  " nmap ;r :call ReadFromFile(VTMP, '.vimxfer')<CR>
   nmap ;r :call ReadFromFile(VTMP, '.vimxfer')<CR>
 """  echon VTMP 'x' THISBOX
 """endif
@@ -1024,7 +1028,7 @@ nnoremap ' `
 """nnoremap ' `z.
 
 " Hack to fix the stray pixel problem with monospaced fonts under Cygwin rxvt
-nnoremap <Esc><Esc> <C-L>
+" nnoremap <Esc><Esc> <C-L>
 
 " End of word fast append
 nnoremap E ea
@@ -1050,7 +1054,7 @@ nnoremap <C-T> :tabnew<CR>
 " ...except
 au FileType help,HELP :nnoremap <C-T> <C-T>
 
-nnoremap <Space> <C-F>
+noremap <Space> <C-F>
 
 " Speed things up a bit
 nnoremap <C-E> 2<C-E>
@@ -1061,15 +1065,16 @@ nnoremap <C-Y> 2<C-Y>
 " ;k ;ll
 nnoremap zz <C-W>w
 
-inoremap jk <Esc>
+" Bondage & discipline
 " inoremap <Esc> <NOP>
+" I'm too lazy to deal with CapsLock remapping
+inoremap jk <Esc>
 
 " Reformat current paragraph to gq while in insert mode (avoid vap etc):
-inoremap <F1> <C-L><ESC>gqap{/<C-L><CR>xi
+" inoremap <F1> <C-L><ESC>gqap{/<C-L><CR>xi
 
 " Normal action, while in insert mode, CTR-E inserts the character below the
-" cursor.  This remap prevents that but allows the more useful scrolling up (or
-" down).
+" cursor.  This prevents that and allows the more useful scrolling up/down.
 inoremap  
 inoremap  
 
@@ -1091,10 +1096,8 @@ inoremap <C-K> <C-X><C-K>
 " Tab completion.  Find (p)revious completions.  See set complete.
 inoremap <silent> <TAB> <C-P>
 
-" Without the spaces, other macros get fsckd
-inoremap (<Space><Space> ()<Left>
-inoremap [<Space><Space> []<Left>
-inoremap {<Space><Space> {}<Left>
+" TODO interferes with copy/paste inserts
+" inoremap ( ()<Esc>i
 
 " Add case-insensitivity
 set grepprg=grep\ -ni\ $*\ /dev/null
@@ -1113,9 +1116,8 @@ vnoremap <C-A> :Inc<CR>
 " Sum a column of digits.  Think (p)lus.  Assumes bc(1) exists.
 vnoremap <C-P> "ey:call CalcBC()<CR>
 
-" SWitch case on the go
-inoremap <C-U> <Esc>viwUA
-inoremap <C-L> <Esc>viwuA
+" Uppercase on the go
+inoremap <C-U> <Esc>viwUea
 
 " gvim - do not use, we need right click for Paste on Linux (where there are multiple clipboards)
 """nnoremap <RightMouse> <Insert>
@@ -1354,8 +1356,9 @@ endfu  " }}}
 
 
 fu! ReadFromFile(vtpth, fnm)  " {{{2
-  " Used by transfer/read and write one block of text between vim sessions/terminals maps
+  " Used by mappings that transfer/read/write a block of text between vim sessions/terminals
   let fqfn = a:vtpth . '/' . a:fnm
+  " TODO want something like 0read instead of read to insert on current line but that only works for empty files
   exec("read " . fqfn)
 endfu
 " }}}
@@ -1646,7 +1649,6 @@ if !exists("autocommands_loaded")
   endif
 
   " Handle my ~/bin/sasrun script files
-  au BufRead tmpsas.*.log,tmpsas.*.lst map <F12> :qa<CR>
   au BufRead tmpsas.*.log,tmpsas.*.lst map q :qa!<CR>
   au BufRead tmpsas.*.log,tmpsas.*.lst echo '.vimrc: q to exit all'
 
@@ -1660,8 +1662,8 @@ if !exists("autocommands_loaded")
 """au BufNewFile,BufRead,BufEnter *.log noremap <silent> <F8> :g!/^ERROR: \\|^ERROR\\s\\+\\d\\+-\\d\\+:\\|^WARNING: [^Compression]\\|stopped processing this step because\\|lines were truncated\\|NOTE: Invalid data for\\|NOTE: Variable\\|NOTE\\s\\+\\d\\+-\\d\\+:\\|WARNING: Apparent/d<CR> 
   au BufNewFile,BufRead,BufEnter *.log nnoremap <silent> <F8> :g!/^ERROR:\\\|^WARNING:\\\|lines were truncated\\\|^NOTE: Invalid data for\\\|^NOTE: Variable/d<CR>
   " 4 backslashes required here instead of 1 on commandline
-  " au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\\\|^WARNING:/<CR>
-  au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR:/<CR>
+  " au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR:/<CR>
+  au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\\\|^WARNING:/<CR>
   au BufNewFile,BufRead,BufEnter *.log set guifont=Consolas:h8
 
   " TOGGLE. Delete the yearly warning lines that appear when SAS License is about to expire
@@ -1706,7 +1708,7 @@ if !exists("autocommands_loaded")
   " Automatically flow text
   au BufReadPre,FileReadPre *.email set formatoptions=a
 
-  au BufNewFile,BufRead,BufEnter *vimperatorrc* source ~/code/misccode/vimperator.vim
+  " au BufNewFile,BufRead,BufEnter *vimperatorrc* source ~/code/misccode/vimperator.vim
 
 	" My ~/code/perl/bgrep searching code
   au BufNewFile,BufEnter */tmp/*.grep source ~/code/misccode/bgrep.vim
@@ -1840,7 +1842,7 @@ if !exists("autocommands_loaded")
 
   if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
     " Avoid opening this tempfile accidentally via my ,e map etc. It is never useful.
-    au BufEnter ~/bob/tmp/.vimxfer :echom 'deleting this buffer' | :bd
+    au BufEnter ~/bob/tmp/.vimxfer :echom 'an autocommand is deleting this buffer' | :bd
   endif
 
   "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
@@ -3071,7 +3073,7 @@ if !hasmapto('<Plug>Commentary') || maparg('gc','n') ==# ''
 endif
 
 " Add as needed
-autocmd FileType sh,perl,crontab setlocal commentstring=#\ %s
+autocmd FileType sh,perl,crontab,conf setlocal commentstring=#\ %s
 autocmd FileType vim setlocal commentstring=\"\ %s
 
 " TODO deprecate my code in favor of this
