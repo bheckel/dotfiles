@@ -95,7 +95,7 @@ alias bc="bc -lq"  # allow floating point calcs, mess up other stuff
 alias be="vi $HOME/.bashrc"
 alias bak="$HOME/code/misccode/bak"
 alias bgrep="$HOME/code/perl/bgrep"
-alias by=exit  # like bye in FTP and SAS
+alias by=exit  # keepin' up the FTP tradition
 alias cd..='cd ..; ls'
 alias cdd="cd $HOME/dotfiles"
 alias cdc="cd $HOME/code/c"
@@ -608,6 +608,16 @@ case "$OSTYPE" in
       # Print Windows Working Directory.  Command is $ pwd|sed 's/\//\\/g'" before backslashitis.
       alias pwwd="pwd|sed 's/\\//\\\\/g'"
       alias srcb="source $HOME/dotfiles/_bashrc"
+
+      #----------------
+      # Functions Linux  #{{{2 
+      #----------------
+
+      # If locate() not available
+      function loc() {
+        find $HOME/code | grep -i "$1" | grep -v '\.git' | xargs ls -lt >|/tmp/.vimxfer_ses && vim /tmp/.vimxfer_ses
+      }
+
 
       #----------------
       # Ubuntu #{{{2

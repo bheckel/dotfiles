@@ -3,6 +3,7 @@
 [include] (/etc/X11/fluxbox/fluxbox-menu)
   [separator] () {} 
   [exec] (Chrome)             {/usr/bin/google-chrome-stable} </usr/share/icons/hicolor/256x256/apps/google-chrome.png>
+  [exec] (Firefox)            {/usr/bin/firefox} </home/bheckel/Dropbox/Public/misc/computer/firefox32x32.png>
   [exec] (GENS)               {/usr/games/gens} </home/bheckel/misc/computer/gens.jpeg>
   /* [exec] (gnome-terminal)     {/usr/bin/gnome-terminal --geometry 95x55+200+10} </usr/share/pixmaps/gnome-terminal.xpm> */
   [exec] (galculator)         {/usr/bin/galculator} </usr/share/pixmaps/galculator.xpm>
@@ -17,7 +18,6 @@
     [exec] (audio-recorder)     {/usr/bin/audio-recorder} <>
     [exec] (Anoise)             {/usr/bin/anoise} <>
     [exec] (Calibre)            {/usr/bin/calibre} </usr/share/calibre/images/lt.png>
-    [exec] (Firefox)            {/usr/bin/firefox} </home/bheckel/Dropbox/Public/misc/computer/firefox32x32.png>
     [exec] (Gnome-disks)        {gnome-disks} <>
     [exec] (LibreOffice Calc)   {/usr/lib/libreoffice/program/soffice.bin --calc} <>
     [exec] (Midori Browser)     {/usr/bin/midori} </usr/share/icons/hicolor/32x32/apps/midori.png>
