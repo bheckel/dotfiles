@@ -5,13 +5,13 @@
   [exec] (Chrome)             {/usr/bin/google-chrome-stable} </usr/share/icons/hicolor/256x256/apps/google-chrome.png>
   [exec] (Firefox)            {/usr/bin/firefox} </home/bheckel/Dropbox/Public/misc/computer/firefox32x32.png>
   [exec] (GENS)               {/usr/games/gens} </home/bheckel/misc/computer/gens.jpeg>
-  /* [exec] (gnome-terminal)     {/usr/bin/gnome-terminal --geometry 95x55+200+10} </usr/share/pixmaps/gnome-terminal.xpm> */
   [exec] (galculator)         {/usr/bin/galculator} </usr/share/pixmaps/galculator.xpm>
   [exec] (gvim)               {/usr/bin/vim.gnome -g -f} </usr/share/pixmaps/vim-32.xpm>
   [exec] (Iview)              {/home/bheckel/.wine/drive_c/Program\ Files\ \(x86\)/IrfanView/i_view32.exe} </home/bheckel/misc/computer/irfanview.png>
   [exec] (Thunar)             {/usr/bin/thunar} </usr/share/icons/hicolor/64x64/apps/Thunar.png>
   [exec] (VirtualBox)         {/usr/bin/virtualbox} </usr/share/icons/hicolor/32x32/apps/virtualbox.png>
   [exec] (xterm)              {xterm -bg black -fa "xft:Consolas-9:antialias=true" -bc -sb -rightbar -sl 5000 -geometry "105x60+200+175"} </home/bheckel/misc/computer/xterm.jpeg>
+  [exec] (xterm-tmux)         {xterm -bg black -fa "xft:Consolas-9:antialias=true" -bc -sb -rightbar -sl 5000 -geometry "195x60+200+175" -e 'tmux -2 new -s s1'} </home/bheckel/misc/computer/xterm.jpeg>
   [separator] ()              {} 
   [submenu] (misc)
     [exec] (alsamixer)          {urxvt -e /usr/bin/alsamixer} <>
@@ -33,13 +33,13 @@
       [exec] (rxvt-unicode)       {rxvt-unicode -icon /usr/share/icons/Faenza/apps/32/xterm_32x32.xpm} </usr/share/icons/Faenza/apps/32/xterm_32x32.xpm>
     [end]
   [end]
-  [separator] ()         {} 
+  [separator] ()              {} 
   /* [separator] ()              {} */ 
   /* [exec] (Suspend)            {TODOsleep 90 && sudo /usr/sbin/pm-suspend} */
   /* [separator] ()              {} */ 
   /* [exec] (Restart)            {TODOxmessage restarting...; TODOsudo shutdown -r 0} */
   /* [separator] ()              {} */ 
-  [exec] (Shutdown)      {xmessage shutting down...; sudo shutdown -h 0}
+  [exec] (Shutdown)           {xmessage shutting down...; sudo shutdown -h 0}
   /* [separator] ()              {} */ 
-  [exec] (About)         {(fluxbox -v; fluxbox -info | sed 1d) 2>/dev/null | xmessage -file - -center}
+  [exec] (About)              {(fluxbox -v; fluxbox -info | sed 1d) 2>/dev/null | xmessage -file - -center}
 [end]

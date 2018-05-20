@@ -10,7 +10,7 @@
 "           toys, effectively expert-proofed -- Tom Christiansen
 "
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Fri 27 Apr 2018 09:41:54 (Bob Heckel)
+" Modified: Sun 20 May 2018 08:45:10 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -80,6 +80,7 @@ endif
 " Make sure this comes before the syntax area of this file:
 set t_Co=256
 """set t_ut=
+set background=dark
 
 " Force vim to clear itself when exiting:
 """set t_ti=7[r[?47h
