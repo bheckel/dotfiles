@@ -4280,7 +4280,7 @@ test "x$no_of_days" = "x" && no_of_days=10
 daysback=${1}
 test "x${1}" = "x" && daysback=1
 
-# Check for any default pararmeters arguments passed:
+# Check for any default pararmeters arguments passed no parameter:
 [ -z "$1" ] && echo "No argument supplied" && exit 1
 
 # Don't complain if file does not exist:
@@ -6619,7 +6619,7 @@ ALTER TABLE Customer DROP COLUMN Birth_Date;
 ALTER TABLE analytics.build ADD COLUMN rundatacheck boolean NOT NULL DEFAULT TRUE;
 ALTER TABLE analytics.archivebuildconfig ADD COLUMN job_type text NOT NULL DEFAULT 'Imports';
 
--- Run script:
+-- Run Postgres script:
 bheckel@db-dev-01.twa.taeb.com:TAEBMART \i /sasdata/Personnel/bob/DashboardETLenroll/Dev_to_db-06_20171111_final.sql
 
 -- Postgres copy table:
