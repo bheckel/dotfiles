@@ -4437,6 +4437,8 @@ for f in $(find /Drugs/TMMEligibility/GiantEagle/Imports/2017* -name 'GiantEagle
 # RGB in terminal:
 for i in {0..255} ; do printf "\x1b[38;5;${i}mcolour${i}\n"; done
 
+whatismyip=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
