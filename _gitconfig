@@ -1,0 +1,9 @@
+[merge]
+	tool = vimdiff
+[user]
+	email = rsh@rshdev.com
+[core]
+	pager = less -+F -+S -+X
+[color]
+	status = auto
+	diff = on
