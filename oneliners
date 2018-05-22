@@ -3831,7 +3831,8 @@ ssh-keygen -t dsa  # on mario but  ssh-keygen -t rsa -b 4096  is a standard for 
 cat /home/chronos/.ssh/id_dsa.pub | ssh rheckel@sdf.org 'cat - >> ~/.ssh/authorized_keys'
 # Better passwordless ssh no password,  Ignores mkdir if ~/.ssh/ already exists:
 ssh user@host "mkdir -p .ssh && cat >> .ssh/authorized_keys" < ~/.ssh/id_rsa.pub
-ssh-copy-id -i id_rsa.pub bheckel@sas-01.twa.ateb.com
+# Best passwordless ssh
+ssh-copy-id -i ~/.ssh/id_rsa.pub bheckel@sas-01.twa.taeb.com
 
 # Performance benchmark:
 time echo "scale=5000; 4*a(1)" | bc -l -q
