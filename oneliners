@@ -5684,7 +5684,7 @@ SQL> set linesize 1000;  -- avoid truncation of results
 -- PL/SQL print
 set serveroutput on BEGIN DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('Hello Word'); END;
 
--- Oracle (at least) make a copy of a database table
+-- SQL DDL make a copy of a database table
 CREATE TABLE mycopy AS SELECT * FROM origtbl
 
 -- Oracle nonaggregated expression (rownum) in an aggregated query - SQL hack:
@@ -6641,5 +6641,9 @@ psql -h db-dev-01.twa.taeb.com TAEBMART -f /sasdata/Dev_to_db-06_20180316_dshbrd
 
 -- Faster alternative to max() on unindexed table:
 select filldate from rxfilldata_201709 where clientid=19 order by 1 desc limit 1 ;
+
+-- Postgres variables are created through the \set command but strings need this contortion:  \set dt '\'20180501\''
+\set myvariable value
+SELECT * FROM :myvariable.table1;
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

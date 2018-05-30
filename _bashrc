@@ -329,12 +329,11 @@ sbx() {
 }
 
 
-# Last twenty-five
 lt() {
   if test "x$1" = "x"; then
-    \ls -lt | head -n25
+    \ls -lt | head -n50
   else
-    \ls -lt "$1" | head -n25
+    \ls -lt "$1" | head -n50
   fi
 }
 
@@ -653,14 +652,13 @@ case "$OSTYPE" in
       fi
 
       if [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ] || [ $HOSTNAME = 'sas-01.mrk.ateb.com' ]; then
+        # See also ~/.bashrc.project
+        unset SSH_ASKPASS
         alias cavx='vi scp://bheckel@sas-01.mrk.ateb.com//Drugs/Personnel/bob/tmp/.vimxfer'
         alias d12="(cd ~/bob/tmp; vi -Rd 1 2)"
         alias d13="(cd ~/bob/tmp; vi -Rd 1 3)"
         alias d123="(cd ~/bob/tmp; vi -Rd 1 2 3)"
         alias d34="(cd ~/bob/tmp; vi -Rd 3 4)"
-        alias sasca='ssh -l bheckel sas-01.mrk.ateb.com'
-        alias mrk='ssh -l bheckel sas-01.mrk.ateb.com'
-        alias sas0='ssh -l bheckel sas-01.twa.ateb.com'
         alias vi=$HOME/usr/local/bin/vim
         alias vit='vi ~/t.sas'
 

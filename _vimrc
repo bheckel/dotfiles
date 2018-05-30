@@ -1104,6 +1104,7 @@ inoremap <silent> <TAB> <C-P>
 set grepprg=grep\ -ni\ $*\ /dev/null
 " Search all open buffers
 cmap bbb call setqflist([]) \| silent bufdo grepadd!  %<C-F>$hha
+
 " Search all files recursively in pwd
 cmap vvv vimgrep // **/*.*<C-F>$Bhhi
 " Search all SAS files recursively in pwd
