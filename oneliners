@@ -3831,7 +3831,8 @@ ssh-keygen -t dsa  # on mario but  ssh-keygen -t rsa -b 4096  is a standard for 
 cat /home/chronos/.ssh/id_dsa.pub | ssh rheckel@sdf.org 'cat - >> ~/.ssh/authorized_keys'
 # Better passwordless ssh no password,  Ignores mkdir if ~/.ssh/ already exists:
 ssh user@host "mkdir -p .ssh && cat >> .ssh/authorized_keys" < ~/.ssh/id_rsa.pub
-ssh-copy-id -i id_rsa.pub bheckel@sas-01.twa.ateb.com
+# Best passwordless ssh
+ssh-copy-id -i ~/.ssh/id_rsa.pub bheckel@sas-01.twa.taeb.com
 
 # Performance benchmark:
 time echo "scale=5000; 4*a(1)" | bc -l -q
@@ -4280,7 +4281,7 @@ test "x$no_of_days" = "x" && no_of_days=10
 daysback=${1}
 test "x${1}" = "x" && daysback=1
 
-# Check for any default pararmeters arguments passed:
+# Check for any default pararmeters arguments passed no parameter:
 [ -z "$1" ] && echo "No argument supplied" && exit 1
 
 # Don't complain if file does not exist:
@@ -5437,9 +5438,10 @@ Copy and submit a mainframe job via Vim on USS.  Mainframe copy cp.
 Chain two commands in Vim.
 :!cp % "//'bqh0.pgm.lib(%:t:r)'" \| :!sub 'bqh0.pgm.lib(tsaaaaq)'
 
-Python help
+Python help for open function:
 >>> print open.__doc__
->>> help("open")
+>>> help("open")  # or help(open)
+>>> quit()
 
 View an MVS mainframe file on HFS side:
 cat "//'bqh0.pgm.lib(tsaaaaa)'" | vi -
@@ -5683,7 +5685,7 @@ SQL> set linesize 1000;  -- avoid truncation of results
 -- PL/SQL print
 set serveroutput on BEGIN DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('Hello Word'); END;
 
--- Oracle (at least) make a copy of a database table
+-- SQL DDL make a copy of a database table
 CREATE TABLE mycopy AS SELECT * FROM origtbl
 
 -- Oracle nonaggregated expression (rownum) in an aggregated query - SQL hack:
@@ -6621,7 +6623,7 @@ ALTER TABLE Customer DROP COLUMN Birth_Date;
 ALTER TABLE analytics.build ADD COLUMN rundatacheck boolean NOT NULL DEFAULT TRUE;
 ALTER TABLE analytics.archivebuildconfig ADD COLUMN job_type text NOT NULL DEFAULT 'Imports';
 
--- Run script:
+-- Run Postgres script:
 bheckel@db-dev-01.twa.taeb.com:TAEBMART \i /sasdata/Personnel/bob/DashboardETLenroll/Dev_to_db-06_20171111_final.sql
 
 -- Postgres copy table:
@@ -6643,5 +6645,9 @@ select filldate from rxfilldata_201709 where clientid=19 order by 1 desc limit 1
 
 <!-- White on gray -->
 <body bgcolor="#cccccc" text="#000000">
+
+-- Postgres variables are created through the \set command but strings need this contortion:  \set dt '\'20180501\''
+\set myvariable value
+SELECT * FROM :myvariable.table1;
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
