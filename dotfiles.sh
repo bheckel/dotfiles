@@ -1,10 +1,10 @@
 #!/bin/bash
 
 #  Created: Tue 03 May 2015 09:01:11 (Bob Heckel) 
-# Modified: Sat 30 Sep 2017 07:57:30 (Bob Heckel)
+# Modified: Sat 02 Jun 2018 10:22:38 (Bob Heckel)
 
 # No leading dots!
-majordots='bashrc vimrc tmux.conf Xdefaults'
+majordots='bashrc vimrc tmux.conf gitconfig'
   
 if [ "$#" -gt 1 ]; then 
   cat <<EOT
@@ -43,17 +43,18 @@ for f in $majordots; do
   ln -s $myhome/dotfiles/_$f $myhome/.$f
 done
 
+# 02-Jun-18 not sure still needed and breaks WSL mintty
 # These won't source as a symlink:
-for f in inputrc; do
-  echo setting up $myhome/.$f...
-  if [ -e $myhome/.$f ] || [ -L $myhome/.$f ]; then
-    mv -i $myhome/.$f $myhome/.$f.ORIG
-    echo .$f was backed-up as .$f.ORIG
-  else
-    echo .$f does not yet exist
-  fi
-  cp $myhome/dotfiles/_$f $myhome/.$f
-done
+# for f in inputrc; do
+#   echo setting up $myhome/.$f...
+#   if [ -e $myhome/.$f ] || [ -L $myhome/.$f ]; then
+#     mv -i $myhome/.$f $myhome/.$f.ORIG
+#     echo .$f was backed-up as .$f.ORIG
+#   else
+#     echo .$f does not yet exist
+#   fi
+#   cp $myhome/dotfiles/_$f $myhome/.$f
+# done
 
 # For vim swapfile
 mkdir $HOME/tmp
@@ -63,5 +64,7 @@ echo ...completed $majordots
 
 echo "Consider installing:"
 echo "sudo apt install git"
+echo "sudo apt install ssh"
+echo "sudo apt install tmux"
 echo "sudo apt install vim-nox"
 echo "sudo apt install w3m"
