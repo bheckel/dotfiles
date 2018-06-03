@@ -621,6 +621,7 @@ case "$OSTYPE" in
       # Ubuntu #{{{2
       #----------------
 
+      alias pse="ps -ef | grep ^$USER | grep -vP 'ps -ef|grep' | grep -v chrome"
       alias systeminfo='df -h && echo && free -m && echo && grep --color="never" name /proc/cpuinfo | uniq && echo && lspci | grep --color="never" VGA && echo && xrandr | grep --color="never" connected && echo && uname -rms'
       alias usb='sudo fdisk -l; mount|grep "^/dev/sd"; sudo mkdir /media/usb; echo; echo "sudo mount -t vfat /dev/??? /media/usb -o uid=1000,gid=1000,utf8,dmask=027,fmask=137"; echo; echo "sudo umount /media/usb"'
 
@@ -636,9 +637,9 @@ case "$OSTYPE" in
       fi
 
       # For ~/.fluxbox/menu.  Keep terminal open.
-      if [ -n $RUNCMDFLUXBOX ]; then
-        eval $RUNCMDFLUXBOX
-        unset $RUNCMDFLUXBOX
+      if [ -n "$RUNCMDFLUXBOX" ]; then
+        eval "$RUNCMDFLUXBOX"
+        unset RUNCMDFLUXBOX
       fi
 
       #----------------

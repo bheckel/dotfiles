@@ -15,7 +15,7 @@
   [separator] ()              {} 
   [submenu] (misc)
     [exec] (alsamixer)          {urxvt -e /usr/bin/alsamixer} <>
-    [exec] (ateb)               {RUNCMDFLUXBOX="urxvt -e /home/bheckel/bin/ateb"} <>
+    [exec] (ateb)               {RUNCMDFLUXBOX='/home/bheckel/bin/ateb' urxvt} <>
     [exec] (audio-recorder)     {/usr/bin/audio-recorder} <>
     [exec] (Anoise)             {/usr/bin/anoise} <>
     [exec] (Calibre)            {/usr/bin/calibre} </usr/share/calibre/images/lt.png>
