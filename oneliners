@@ -5439,9 +5439,10 @@ Copy and submit a mainframe job via Vim on USS.  Mainframe copy cp.
 Chain two commands in Vim.
 :!cp % "//'bqh0.pgm.lib(%:t:r)'" \| :!sub 'bqh0.pgm.lib(tsaaaaq)'
 
-Python help
+Python help for open function:
 >>> print open.__doc__
->>> help("open")
+>>> help("open")  # or help(open)
+>>> quit()
 
 View an MVS mainframe file on HFS side:
 cat "//'bqh0.pgm.lib(tsaaaaa)'" | vi -
@@ -6642,6 +6643,9 @@ psql -h db-dev-01.twa.taeb.com TAEBMART -f /sasdata/Dev_to_db-06_20180316_dshbrd
 
 -- Faster alternative to max() on unindexed table:
 select filldate from rxfilldata_201709 where clientid=19 order by 1 desc limit 1 ;
+
+<!-- White on gray -->
+<body bgcolor="#cccccc" text="#000000">
 
 -- Postgres variables are created through the \set command but strings need this contortion:  \set dt '\'20180501\''
 \set myvariable value

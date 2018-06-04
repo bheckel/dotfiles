@@ -4,7 +4,7 @@
 # Summary: bash config for at least Unix/Linux, Cygwin 1.3/1.5/1.7 and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Mon 21 May 2018 11:20:19 (Bob Heckel)
+# Modified: Sun 03 Jun 2018 15:52:09 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -617,10 +617,11 @@ case "$OSTYPE" in
         find $HOME/code | grep -i "$1" | grep -v '\.git' | xargs ls -lt >|/tmp/.vimxfer_ses && vim /tmp/.vimxfer_ses
       }
 
-
       #----------------
       # Ubuntu #{{{2
       #----------------
+
+      alias pse="ps -ef | grep ^$USER | grep -vP 'ps -ef|grep' | grep -v chrome"
       alias systeminfo='df -h && echo && free -m && echo && grep --color="never" name /proc/cpuinfo | uniq && echo && lspci | grep --color="never" VGA && echo && xrandr | grep --color="never" connected && echo && uname -rms'
       alias usb='sudo fdisk -l; mount|grep "^/dev/sd"; sudo mkdir /media/usb; echo; echo "sudo mount -t vfat /dev/??? /media/usb -o uid=1000,gid=1000,utf8,dmask=027,fmask=137"; echo; echo "sudo umount /media/usb"'
 
@@ -634,12 +635,16 @@ case "$OSTYPE" in
         alias brinno='sudo mount -t vfat /dev/sdb1 /media/brinno/ -o uid=1000,gid=100,utf8,dmask=027,fmask=137'
         alias ubrinno='sudo umount /media/brinno'
       fi
-      # }}}
+
+      # For ~/.fluxbox/menu.  Keep terminal open.
+      if [ -n "$RUNCMDFLUXBOX" ]; then
+        eval "$RUNCMDFLUXBOX"
+        unset RUNCMDFLUXBOX
+      fi
 
       #----------------
       # CentOS  # {{{2
       #----------------
-
       if [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ]; then
         export PS1='${fg_darkgray}\j ${fg_yellowbold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
         alias vit='vi ~/t.sas'

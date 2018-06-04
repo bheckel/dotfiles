@@ -2,6 +2,7 @@
 	tool = vimdiff
 [user]
 	email = rsh@rshdev.com
+	name = Bob Heckel
 [core]
 	pager = less -+F -+S -+X
 [color]
