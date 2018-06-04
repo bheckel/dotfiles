@@ -2570,6 +2570,7 @@ options minoperator; %macro m/mindelimiter=','; %let clid=9; %let v2clids=1,2,3;
  /* Zero padded month number digits in macro: */
 %let m = %sysfunc(month("&sysdate"d),z2.);
 
+ /* Direct connection without dsn tagging: */
 connect to postgres as myconn (user=&user password=&jasperpassword database=taeb server='db-103.twa.taeb.com' readbuff=7000);
 
 proc sql; connect to odbc as myconn (user=&user password=&pw dsn=jasper readbuff=7000); EXECUTE ( update analytics.mtmtargeted set lasttargetdate=%bquote(')&date_max.%bquote(') where taebpatientid in (&taebpatientids)) by myconn; disconnect from myconn; quit;
@@ -2578,7 +2579,7 @@ proc sql; connect to odbc as myconn (user=&user password=&pw dsn=jasper readbuff
 proc sql; select setting into :TMPMPRINT from DICTIONARY.options where optname='MPRINT'; quit; options NOMPRINT;
 %if &TMPMPRINT eq MPRINT %then %do; options MPRINT; %end;
 
- /* When coworker decides to call a dataset 'label'... */
+ /* When coworker decides to call a dataset 'label'...: */
 options DATASTMTCHK=COREKEYWORDS;
 
 %let bom_previous=%sysfunc(intnx(MONTH, "&SYSDATE"d, -1, B),YYMMDDN.); data _null_; if fileexist("/Drugs/TMMEligibility/BRStores/Dashboard/&bom_previous") then put 'previous month folder directory exists'; run;

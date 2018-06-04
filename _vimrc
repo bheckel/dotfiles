@@ -1890,6 +1890,7 @@ if !exists("autocommands_loaded")
 """    au BufReadPre,FileReadPre /Drugs/HealthPlans/* set noswapfile
 """    au BufReadPre,FileReadPre /Drugs/TMMEligibility/* set noswapfile
 
+    au BufEnter all.sql set foldmethod=marker
   " end Temporary project-specific
   end
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
