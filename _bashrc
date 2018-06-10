@@ -162,6 +162,7 @@ alias tmls='tmux list-sessions'
 alias unbak="$HOME/code/misccode/bak -u "
 alias uvi="$HOME/code/perl/uvi"  # don't change timestamp
 alias ve="vi $HOME/.vimrc"
+alias vin="vi -c 'syntax off'"
 alias wget='wget -c'  # continue failures
 
 #-----------------------------------
@@ -380,6 +381,7 @@ md() {
 tm() {
   tmux -2 a -t "s${1}"
   echo 'try tmn if not found'
+  tmux list-sessions
 }
 
 tmn() {

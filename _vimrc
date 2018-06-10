@@ -1635,15 +1635,13 @@ endfu
 if !exists("autocommands_loaded")
   let autocommands_loaded = 1
  
-	" Start at the line and column of last edited position
+	" Return to the line and column of last edited position
 	autocmd BufReadPost * if line("'\"") | exe "normal '\"" | endif
 
   if has('gui')
-    " Maximize SAS Logs upon opening
-    au GUIEnter *.log simalt ~x
+    " Maximize window upon opening
+    " au GUIEnter *.log simalt ~x
     " Run SAS on current .sas file:
-    " TODO figure out how to use :makeprg (set makeprg=file://c:/Program\ Files/SAS\ Institute/SAS/V8/sas.exe\ -sysin\ % doesnt work 2008-09-04)
-    " gvim knows nothing about SAS
     au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!c:/Progra~1/SASIns~1/SAS/V8/sas.exe -sysin %<CR>:args %:r.lst %:r.log<CR>
   else
     " Run my execute SAS shell script in a terminal:
@@ -1890,6 +1888,7 @@ if !exists("autocommands_loaded")
 """    au BufReadPre,FileReadPre /Drugs/HealthPlans/* set noswapfile
 """    au BufReadPre,FileReadPre /Drugs/TMMEligibility/* set noswapfile
 
+    au BufEnter all.sql set foldmethod=marker
   " end Temporary project-specific
   end
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
