@@ -4813,6 +4813,8 @@ perl -pe 's/\0//g'
 # changes to STDOUT
 perl -pe "s/'//g" junk
 
+cat /etc/*-release | grep VERSION | perl -pe 's/VERSION="//g'
+
 # Replace all instances in files (without backups):
 perl -pi -e "s:#\!/usr/bin/perl:#\!/usr/pkg/bin/perl:" junk
 perl -pi -e "s/REPLACEME/foo/" dhammapada.rss
