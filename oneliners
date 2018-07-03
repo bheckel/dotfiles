@@ -2917,6 +2917,9 @@ find . -mtime +14 -print0 | xargs -0 rm
 # Sum file sizes WITHOUT using awk.  Shell's SET creates numbered variables for each whitespace-separated element, size happens to be in position $3
 t=0; for f in $(ls); do set -- $(ls -lgo $f); ((t=$t+$3)); done; echo $t
 
+# Do something to each file for each
+for f in $( find /Drugs/TMMEligibility -print | grep 20180601 | grep DSBRDTMMPATADD ); do ls $f done
+
 # Show only files starting with b, c or containing 'part' somewhere in the name:
 ls foo.{b*,c*,prc,*part*}
 # or count specific filetypes
@@ -3834,6 +3837,7 @@ cat /home/chronos/.ssh/id_dsa.pub | ssh rheckel@sdf.org 'cat - >> ~/.ssh/authori
 ssh user@host "mkdir -p .ssh && cat >> .ssh/authorized_keys" < ~/.ssh/id_rsa.pub
 # Best passwordless ssh
 ssh-copy-id -i ~/.ssh/id_rsa.pub bheckel@sas-01.twa.taeb.com
+ssh-copy-id bheckel@sas-01.twa.taeb.com
 
 # Performance benchmark:
 time echo "scale=5000; 4*a(1)" | bc -l -q
@@ -5258,6 +5262,9 @@ $x='B@@b_test-1'; ($y = $x) =~ s/[^A-z-_]+//g; print "ok $y";
 
 # Does executable file exist:
 if ( -f "/mnt/nfs/home/bheckel/bin/myls" ) { system "/mnt/nfs/home/bheckel/bin/myls $file"; }
+
+# Swap items on either side of a delimiter:
+while (<>) { s/(.*):(.*)/$2:$1/; print; }
 
 xxPERLxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
