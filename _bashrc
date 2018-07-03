@@ -93,7 +93,7 @@ export fg_yellow="[0;33m"
 alias ..='cd ..'
 alias bc="bc -lq"  # allow floating point calcs, mess up other stuff
 alias be="vi $HOME/.bashrc"
-alias bak="$HOME/code/misccode/bak"
+# alias bak="$HOME/code/misccode/bak"
 alias bgrep="$HOME/code/perl/bgrep"
 alias by=exit  # keepin' up the FTP tradition
 alias cd..='cd ..; ls'
@@ -388,6 +388,9 @@ tmn() {
   tmux -2 new -s "s${1}"
 }
 
+bak() {
+  cp -iv ${1} ${1}.bak
+}
 
 # Generic Functions end
 
