@@ -10,7 +10,7 @@
 "           toys, effectively expert-proofed -- Tom Christiansen
 "
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Sun 20 May 2018 08:45:10 (Bob Heckel)
+" Modified: Wed 25 Jul 2018 09:20:13 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -200,8 +200,8 @@ hi WarningMsg ctermfg=Magenta ctermbg=Yellow guifg=Magenta guibg=Yellow
 """match ColorizeFirst10 /^........../
 
 hi EvilChars ctermbg=red guibg=yellow cterm=undercurl gui=undercurl
-" Microsoft apostrophe of death
-match EvilChars /\%u2019/
+" Microsoft comma fancy apostrophes of death cause vim 'CONVERSION ERROR'
+match EvilChars /\%u2018\|\%u2019/
 
 " end Color Syntax
 
@@ -747,11 +747,11 @@ if has('gui')
   nnoremap <F4><F4> :call SetOpt('columns', 80)<CR>
 endif
 
-nnoremap <F6> :se guifont=Consolas:h6<CR>z.
+nnoremap <F6> :se guifont=Consolas:h5<CR>z.
 nnoremap <F7> :se guifont=Consolas:h7<CR>z.
-nnoremap <F8> :se guifont=Consolas:h8<CR>z.
-nnoremap <F9> :se guifont=Consolas:h9<CR>z.
-nnoremap <F10> :se guifont=Consolas:h10<CR>z.
+nnoremap <F8> :se guifont=Consolas:h9<CR>z.
+nnoremap <F9> :se guifont=Consolas:h12<CR>z.
+nnoremap <F10> :se guifont=Consolas:h15<CR>z.
 " TODO for win32 gui
 """nnoremap <C-ScrollWheelUp> :set guifont=Consolas:h15
 
@@ -1661,10 +1661,9 @@ if !exists("autocommands_loaded")
   " Filter SAS Log for error-like lines (and lines that should be errors) only
 """au BufNewFile,BufRead,BufEnter *.log noremap <silent> <F8> :g!/^ERROR: \\|^ERROR\\s\\+\\d\\+-\\d\\+:\\|^WARNING: [^Compression]\\|stopped processing this step because\\|lines were truncated\\|NOTE: Invalid data for\\|NOTE: Variable\\|NOTE\\s\\+\\d\\+-\\d\\+:\\|WARNING: Apparent/d<CR> 
   au BufNewFile,BufRead,BufEnter *.log nnoremap <silent> <F8> :g!/^ERROR:\\\|^WARNING:\\\|lines were truncated\\\|^NOTE: Invalid data for\\\|^NOTE: Variable/d<CR>
-  " 4 backslashes required here instead of 1 on commandline
   " au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR:/<CR>
-  au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\\\|^WARNING:/<CR>
-  au BufNewFile,BufRead,BufEnter *.log set guifont=Consolas:h8
+  au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\|^WARNING:/<CR>
+  " au BufNewFile,BufRead,BufEnter *.log set guifont=Consolas:h8
 
   " TOGGLE. Delete the yearly warning lines that appear when SAS License is about to expire
   """au BufRead *.log :g/^WARNING: The Base Product\|installation repres/d
@@ -1840,10 +1839,10 @@ if !exists("autocommands_loaded")
     au BufNewFile,BufRead,BufEnter *.sas | syntax clear | source $HOME/code/sas/sas.vim
   endif
 
-  if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
+  " if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
     " Avoid opening this tempfile accidentally via my ,e map etc. It is never useful.
-    au BufEnter ~/bob/tmp/.vimxfer :echom 'an autocommand is deleting this buffer' | :bd
-  endif
+    " au BufEnter ~/bob/tmp/.vimxfer :echom 'an autocommand is deleting this buffer' | :bd
+  " endif
 
   "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_

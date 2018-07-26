@@ -1032,9 +1032,6 @@ cat "//'bqh0.inc.saslog'" | vi -     # HFS
  /* Remove trailing comma: */
 %let YRCNTS=%substr(%bquote(&YRCNTS), 1, %length(&YRCNTS)-1);
 
- /* Count observations count without looping dataset (or if it's open in SAS GUI), alternative to proc sql INTO :cnt */
-%let dsid=%sysfunc(open(work.error_count)); %let cntobs=%sysfunc(attrn(&dsid, NLOBS)); %let dsid=%sysfunc(close(&dsid)); %if &cntobs gt 0 %then %do; ...
-
  /* Day of week number 1=Sunday 7=Saturday */
 if weekday(today()) eq 2 then put "it's Monday";
 %if %sysfunc(weekday("&SYSDATE"d)) ne 5 %then %goto NOTSATURDAY;  ...  %NOTSATURDAY:
@@ -1503,7 +1500,7 @@ data _null_; if 0 then set BUILD.clients_shortname_lookup nobs=count; call sympu
  /* Extract tail of filename DIRROOT=c:/foo/tmp/bar.txt */
 %let PRODUCTNAME=%substr(&DIRROOT, %eval(%index(&DIRROOT, tmp)+4));
 
- /* Start: 11:13:27 PM */
+ /* E.g. Start time: 11:13:27 PM */
 footnote "Start time: %sysfunc(time(),TIMEAMPM.)";
 
  /* Rename datasets with a timestamp */
@@ -4445,6 +4442,8 @@ for i in {0..255} ; do printf "\x1b[38;5;${i}mcolour${i}\n"; done
 
 whatismyip=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
 
+50 15 * * * ssh bheckel@sas-01.mrk.taeb.com ~/bin/saslog_grep.pl -x /sasdata/Cron/Daily/TMMTargetedList/tmm_run_check.log
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -6659,5 +6658,16 @@ select filldate from rxfilldata_201709 where clientid=19 order by 1 desc limit 1
 -- Postgres variables are created through the \set command but strings need this contortion:  \set dt '\'20180501\''
 \set myvariable value
 SELECT * FROM :myvariable.table1;
+
+// JavaScript
+let num = 255; alert( num.toString(16) );  // ff
+let num = 255; alert( num.toString(2) );   // 11111111
+
+// JavaScript precision rounding IEEE-754
+alert( 0.1.toFixed(20) ); // 0.10000000000000000555
+alert( 6.35.toFixed(1) ); // 6.3  WTF?
+alert( 6.35.toFixed(20) ); // 6.34999999999999964473
+alert( (6.35 * 10).toFixed(20) ); // 63.50000000000000000000
+alert( Math.round(6.35 * 10) / 10); // 6.35 -> 63.5 -> 64(rounded) -> 6.4
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
