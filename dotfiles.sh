@@ -45,16 +45,16 @@ done
 
 # 02-Jun-18 not sure still needed and breaks WSL mintty
 # These won't source as a symlink:
-# for f in inputrc; do
-#   echo setting up $myhome/.$f...
-#   if [ -e $myhome/.$f ] || [ -L $myhome/.$f ]; then
-#     mv -i $myhome/.$f $myhome/.$f.ORIG
-#     echo .$f was backed-up as .$f.ORIG
-#   else
-#     echo .$f does not yet exist
-#   fi
-#   cp $myhome/dotfiles/_$f $myhome/.$f
-# done
+for f in inputrc; do
+  echo setting up $myhome/.$f...
+  if [ -e $myhome/.$f ] || [ -L $myhome/.$f ]; then
+    mv -i $myhome/.$f $myhome/.$f.ORIG
+    echo .$f was backed-up as .$f.ORIG
+  else
+    echo .$f does not yet exist
+  fi
+  cp $myhome/dotfiles/_$f $myhome/.$f
+done
 
 # For vim swapfile
 mkdir $HOME/tmp
