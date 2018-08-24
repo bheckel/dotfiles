@@ -1119,7 +1119,6 @@ proc format library=work FMTLIB; run;
  /* Canonical diff two datasets compare */
 proc compare base=l.materialOLD compare=l.material BRIEFSUMMARY out=t; run;
 
- /* Oracle count function */
 SELECT COUNT(DISTINCT samp_id)  /* good */
 SELECT DISTINCT COUNT(samp_id)  /* bad - syntax is ok but probably not what you want */
 
@@ -5691,8 +5690,9 @@ $ sqlplus pks/ev123dba@sdev388 @t.sql --need an exit; in t.sql to run standalone
 SQL> define_editor='c:/program files/vim/vim70/gvim -c "set filetype=sql"'
 SQL> set linesize 1000;  -- avoid truncation of results
 
--- PL/SQL print
-set serveroutput on BEGIN DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('Hello Word'); END;
+-- Oracle PL/SQL print
+set serveroutput on;  -- or set serveroutput on size unl;
+BEGIN DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('Hello World' || chr(10)); END; -- then type /
 
 -- SQL DDL make a copy of a database table
 CREATE TABLE mycopy AS SELECT * FROM origtbl
@@ -5910,9 +5910,6 @@ WHERE batch_time > '2008-02-13'
 
 :: Last logon login times
 dir "%userprofile%\ntuser.dat.LOG" /ah /s
-
--- Who is logged into Oracle:
-select * from v$session;
 
 start /b /min /wait notepad.exe
 :: waits for Notepad to exit before starting a new one
@@ -6570,6 +6567,8 @@ select distinct clientid, dashstart from dshbrd.dashboardclients where deactivat
 -- Postgres windowing function, attach department average calculation to each row by department:
 SELECT depname, empno, salary, avg(salary) OVER (PARTITION BY depname) FROM empsalary;
 
+first_value(an.account_name) over(partition by ab.ACCOUNT_ID order by an.override_account_name desc) as account_name,
+
 masked_patientkey = encode(digest(coalesce(split_part(patientnamefirst, ' ', 1),'') || patientnamelast || (case when patientdob is not null then to_char(patientdob,'yyyy-MM-dd') else '' end) || substring(coalesce(patientposctalcode, ''), 1,5), 'sha256'),'hex')
 select digest(patientnamefirst,'sha1') from rxfilldata_parent limit 1;
 
@@ -6669,5 +6668,45 @@ alert( 6.35.toFixed(1) ); // 6.3  WTF?
 alert( 6.35.toFixed(20) ); // 6.34999999999999964473
 alert( (6.35 * 10).toFixed(20) ); // 63.50000000000000000000
 alert( Math.round(6.35 * 10) / 10); // 6.35 -> 63.5 -> 64(rounded) -> 6.4
+
+-- plsql rc
+define_editor="C:\Program Files (x86)\Vim\vim74\gvim.exe -u C:\Users\boheck\_gvimrc"
+
+-- Oracle date constant TIMESTAMP '2012-10-29 12:01:01'
+select DATE '1978-12-25' from dual;
+
+NVL2(x, return_value1_bc_x_isNOTnull, return_value2_bc_x_ISnull);
+
+INSERT INTO...; SAVEPOINT bobora; INSERT INTO...; ROLLBACK TO bobora;
+
+-- Oracle regex:
+select object_name, object_type from user_objects where object_type in ('PACKAGE') AND regexp_like(object_name, '.*BOBONCALL.*')
+
+-- Oracle what is available?:
+select object_name, object_type from user_objects where object_type in ('VIEW','TABLE','PACKAGE','PROCEDURE','FUNCTION') and lower(object_name) like '%acc%' order by 2,1
+
+-- Oracle invalid objects:
+select * from user_objects o where object_type != 'JAVA CLASS' and status = 'INVALID';
+
+-- Oracle date subtraction:
+where lc.updated >= TRUNC(SYSDATE - (365 * 2)) -- 2 year window
+
+-- Oracle declaration:
+FUNCTION hasLinkages(in_accountId NUMBER, in_contextBeingUsed NUMBER DEFAULT 2) RETURN NUMBER;
+
+SELECT REGEXP_COUNT ('Oracle PL/SQL By Example Updated for Oracle 11g', 'ora', 1, 'i') FROM dual;
+
+-- Oracle user sessions Who is logged:
+select * from v$session where username is not null order by logon_time, sid
+
+-- Oracle run script:
+sqlplus -S estars/ag0g1@esd @query.sql
+vi ~/code/misccode/query.sql && (cd ~/code/misccode/ && sqlplus -S estars/ag0g1@esd @query.sql && vi $c/temp/query.out)
+
+-- Oracle package count:
+SELECT OBJECT_NAME, count(*) FROM dba_procedures WHERE OWNER = 'SETARS' AND OBJECT_TYPE IN('PROCEDURE' , 'PACKAGE','FUNCTION') AND procedure_name IS NOT NULL GROUP BY object_name;
+
+-- Oracle quoting masking:
+foo CONSTANT  varchar2(9) := q'[bar 'ok']';
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

@@ -10,7 +10,7 @@
 "           toys, effectively expert-proofed -- Tom Christiansen
 "
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Wed 25 Jul 2018 09:20:13 (Bob Heckel)
+" Modified: Fri 10 Aug 2018 09:23:00 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -85,7 +85,7 @@ set background=dark
 " Force vim to clear itself when exiting:
 """set t_ti=7[r[?47h
 """set t_te=[?47l8
-" Change cursor in insert mode for mintty:
+" Improve cursor in insert mode for mintty:
 if has('win32unix')
   let &t_ti.="\e[1 q"
   let &t_SI.="\e[5 q"
@@ -474,8 +474,8 @@ set suffixesadd=.sas
 
 " Avoid placing swapfiles where other users might be confused by them
 if has('gui_win32')
-  " TODO determine drive letter
-  set directory=c:/temp/
+  " TODO determine drive letter and user
+  set directory=C:\cygwin64\home\boheck\tmp
 else
     set directory=~/tmp/
 endif
@@ -710,7 +710,7 @@ cab SyH source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/html
 cab SyL source $HOME/code/sas/saslog.vim
 cab SyJ source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/javascript.vim
 cab SyQ source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/sql.vim 
-"""cab SyS source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/sas/sas.vim
+cab SyS source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/sas/sas.vim
 cab SyS source $HOME/code/sas/sas.vim
 cab SyV source $HOME/.vimrc
 
@@ -1118,7 +1118,7 @@ vnoremap <C-A> :Inc<CR>
 " Sum a column of digits.  Think (p)lus.  Assumes bc(1) exists.
 vnoremap <C-P> "ey:call CalcBC()<CR>
 
-" Uppercase on the go
+" Uppercase current word on the fly
 inoremap <C-U> <Esc>viwUea
 
 " gvim - do not use, we need right click for Paste on Linux (where there are multiple clipboards)
@@ -1361,6 +1361,7 @@ fu! ReadFromFile(vtpth, fnm)  " {{{2
   " Used by mappings that transfer/read/write a block of text between vim sessions/terminals
   let fqfn = a:vtpth . '/' . a:fnm
   " TODO want something like 0read instead of read to insert on current line but that only works for empty files
+  " TODO use :silent! somehow
   exec("read " . fqfn)
 endfu
 " }}}
@@ -1621,6 +1622,7 @@ fu! WrapToggle()  " {{{2
 endfu
 " }}}
 
+
 " end Functions-
 
 
@@ -1645,12 +1647,15 @@ if !exists("autocommands_loaded")
     au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!c:/Progra~1/SASIns~1/SAS/V8/sas.exe -sysin %<CR>:args %:r.lst %:r.log<CR>
   else
     " Run my execute SAS shell script in a terminal:
-    au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!~/code/sas/sasrun %:p<CR>
+    " au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!~/code/sas/sasrun %:p<CR>
+    au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!~/code/sas/sasrun2 "%:p"<CR>
   endif
 
   " Handle my ~/bin/sasrun script files
   au BufRead tmpsas.*.log,tmpsas.*.lst map q :qa!<CR>
   au BufRead tmpsas.*.log,tmpsas.*.lst echo '.vimrc: q to exit all'
+  au BufRead /cygdrive/c/temp/query.out map q :qa!<CR>
+  au BufRead /cygdrive/c/temp/query.out echo '.vimrc: q to exit'
 
 """  au BufNewFile,BufRead,BufEnter *.sas map ;; :call setline('.', Commentout(getline('.'), 'sas'))<CR>
   au BufNewFile,BufRead,BufEnter *.sas map ;c 0Di  *  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
@@ -1672,7 +1677,7 @@ if !exists("autocommands_loaded")
   """au BufRead *.log :g/information.  The SAS System will no longer function on or after that/d
   """au BufRead *.log :g/representative to have it renewed/d
   " Ateb
-  au BufRead *.log :g/WARNING: Libref funcdata may not have assigned correctly from logical server./d
+  " au BufRead *.log :g/WARNING: Libref funcdata may not have assigned correctly from logical server./d
 
   au BufNewFile,BufRead,BufEnter *.pl nmap ,p :!perl -c %<CR>
   au BufNewFile,BufRead,BufEnter *.pl nmap ;z :!echo && echo && perl %<CR>
@@ -1830,6 +1835,7 @@ if !exists("autocommands_loaded")
 
   " See my .bashrc function ses()
   au BufReadCmd /tmp/bash-fc* nmap ;r :call ReadFromFile(VTMP, '.vimxfer_ses')<CR>
+  au BufEnter /tmp/bash-fc* set ff=unix
 
   " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source c:/cygwin64/home/bob.heckel/code/sas/saslog.vim
   au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim

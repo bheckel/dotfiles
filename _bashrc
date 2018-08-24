@@ -119,13 +119,12 @@ alias gcom="git add . && git commit -m 'mod'"
 # Can't use sed to eliminate leading spaces or it breaks coloring
 alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
 # alias gdot="cd ~/dotfiles && git add . && git commit -m'gdot' && git pull origin master && git push origin master && cd -"
-alias grunt='pig -x local'
+# alias grunt='pig -x local'
 alias gs='git status'
 ###alias gskfrom="echo 'retrieving from github...';echo; cd ~/dotfiles && git pull origin master; echo; cd ~/transfer && git pull origin master; echo 'extracting...'; ls -l ~/transfer/c; tar tvfz ~/transfer/c; sleep 7; cd ~ && tar xfz ~/transfer/c" 
 alias gskfrom="echo 'retrieving from github...';echo; cd ~/transfer && git pull origin master; echo 'extracting...'; ls -l ~/transfer/c; tar tvfz ~/transfer/c; sleep 7; cd ~ && tar xfz ~/transfer/c" 
 alias h='history|tail -20'  # history 20 is better if it exists
-# Poor-man's file sync.  See gskto gskfrom.  Using suffix-less tarball to
-# discourage email filtering.
+# Poor-man's file sync.  See gskto gskfrom.  Using suffix-less tarball to discourage email filtering.
 # Assumes we have sent the weekend work attachment ~/Downloads/c.NEW from home to github.  Monday morning run usually.
 alias homefrom="cd ~/transfer && git pull origin master; cd ~; echo 'extracting...'; ls -l ~/transfer/c.NEW && sleep 5; tar xvfz ~/transfer/c.NEW; rmv ~/transfer/c.NEW; cd -"
 alias j="jobs -s"  # only show STOPPED (e.g. skip RUNNING blink.exe &) jobs
@@ -163,6 +162,8 @@ alias unbak="$HOME/code/misccode/bak -u "
 alias uvi="$HOME/code/perl/uvi"  # don't change timestamp
 alias ve="vi $HOME/.vimrc"
 alias vin="vi -c 'syntax off'"
+# alias vit="vi $HOME/t.sas"
+alias vit="vi $HOME/onedrive/t.sas"
 alias wget='wget -c'  # continue failures
 
 #-----------------------------------
@@ -183,10 +184,10 @@ ses() {
     # want to restart the same session later
     # TODO check for 0 results before fc
     # TODO detect hostname for find path
-    (cd ~ && find ~/bob/ -maxdepth 3 -not -path '*/tmp/*' -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $9}' | grep -i "$1" >|~/bob/tmp/.vimxfer_ses \
-     && cat ~/bob/tmp/.vimxfer_ses && fc && echo "vi -S $9")
+    (cd ~ && find ~/onedrive/ -maxdepth 3 -not -path '*/tmp/*' -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $10}' | grep -i "$1" >| /cygdrive/c/temp/.vimxfer_ses \
+     && cat /cygdrive/c/temp/.vimxfer_ses && fc && echo "vi -S $9")
   else
-    (cd ~ && find ~/bob/ -maxdepth 3 -not -path '*/tmp/*' -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $9}')
+    (cd ~ && find ~/onedrive/ -maxdepth 3 -not -path '*/tmp/*' -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $10}')
   fi
 }
 
@@ -360,16 +361,16 @@ function google() { w3m http://www.google.com/search?hl=en#q="`urlencode $@`" ;}
 gl() {
   # e.g. gl mybranch 20
   echo 'What changed between commits e.g. git difftool 2576255 2704773'
-	local branch=$1
+  local branch=$1
   test  "x$branch" = "x" && branch='CURRENT BRANCH'
   local days=$2
   test  "x$days" = "x" && days=25
   git log --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %d [%an]" \
-	        --graph \
-					--date=short $1 \
-					|sed "s/^\* //g" \
-					|head -n$days; \
-					echo -n; echo; echo "${fg_darkgray} ...displaying last $days $branch";
+          --graph \
+          --date=short $1 \
+          |sed "s/^\* //g" \
+          |head -n$days; \
+          echo -n; echo; echo "${fg_darkgray} ...displaying last $days $branch";
 }
 
 
@@ -385,7 +386,11 @@ tm() {
 }
 
 tmn() {
-  tmux -2 new -s "s${1}"
+  if [ ! -z ${1} ]; then
+    tmux -2 new -s "s${1}"
+  else
+    tmux -2 new -s "s1"
+  fi
 }
 
 bak() {
@@ -418,7 +423,7 @@ case "$OSTYPE" in
     export y=/cygdrive/y
     export z=/cygdrive/z
     export CYGWIN=nodosfilewarning  # MS-DOS style path detected: u:/tmp/bdfCURR.rtpsh005
-    export CVSROOT=$HOME/repository
+    # export CVSROOT=$HOME/repository
 		export EDITOR=vim
     export LANG=en_US
     # Lowercase the fscking Windows uppercase hostname
@@ -430,7 +435,7 @@ case "$OSTYPE" in
     # 0 rsh86800@ZEBWL12H26564[master] datapost/ Thu Feb 20 13:41:16
     export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${LCHOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
     export PS2=' '  # allow multiple line copy to clipboard 
-    export SENSIBLE_BROWSER='/cygdrive/c/Program\ Files/mozilla\ firefox/firefox.exe'
+    # export SENSIBLE_BROWSER='/cygdrive/c/Program\ Files/mozilla\ firefox/firefox.exe'
     export TEMP=/cygdrive/c/temp
     export VIMSTATUSL="${USERNAME}@`echo ${HOSTNAME} | tr [A-Z] [a-z]`"
 
@@ -440,6 +445,11 @@ case "$OSTYPE" in
     #-------------------
     # Functions Cygwin  #{{{2
     #-------------------
+
+    # If locate() not available
+    function loc() {
+      find $HOME/code | grep -i "$1" | grep -v '\.git' | xargs ls -lt >|/tmp/.vimxfer_ses && vim -R /tmp/.vimxfer_ses
+    }
 
     # end Functions Cygwin
 
@@ -652,13 +662,11 @@ case "$OSTYPE" in
       #----------------
       if [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ]; then
         export PS1='${fg_darkgray}\j ${fg_yellowbold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
-        alias vit='vi ~/t.sas'
       fi
 
       if [ $HOSTNAME = 'sas-01.mrk.ateb.com' ]; then
         export PS1='${fg_darkgray}\j ${fg_redbold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
         alias usvx='vi scp://bheckel@sas-01.twa.ateb.com//Drugs/Personnel/bob/tmp/.vimxfer'
-        alias vit='vi ~/t.sas'
       fi
 
       if [ $HOSTNAME = 'sas-01.twa.ateb.com' ] || [ $HOSTNAME = 'sasdev-01.twa.ateb.com' ] || [ $HOSTNAME = 'sas-01.mrk.ateb.com' ]; then
@@ -670,7 +678,6 @@ case "$OSTYPE" in
         alias d123="(cd ~/bob/tmp; vi -Rd 1 2 3)"
         alias d34="(cd ~/bob/tmp; vi -Rd 3 4)"
         alias vi=$HOME/usr/local/bin/vim
-        alias vit='vi ~/t.sas'
 
         # This sometimes keeps things from failing when the minimal vim is installed as vi
         export EDITOR=/mnt/nfs/home/bheckel/usr/local/bin/vim
