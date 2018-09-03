@@ -1850,6 +1850,8 @@ if !exists("autocommands_loaded")
     " au BufEnter ~/bob/tmp/.vimxfer :echom 'an autocommand is deleting this buffer' | :bd
   " endif
 
+	au BufRead,BufNewFile *.pkg,*.pck,*.spc set filetype=PLSQL
+
   "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
   "
