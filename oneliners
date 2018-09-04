@@ -5537,6 +5537,7 @@ Application.DisplayAlerts = False
 
 -- Oracle prevent nulls from propagating:
 SELECT ename, comm, sal, 12*sal+NVL(comm,0) ...
+IF NVL(l_salary,0) <= 40000 ...
 
 -- Oracle case insensitive
 where ename LIKE UPPER('foo%')
@@ -6161,9 +6162,6 @@ git log --pretty=oneline
 git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
 git log --since="3 months ago" --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %d [%an]" --graph --date=short
 
-# wget-ish:
-git clone git://busybox.net/busybox.git
-
 # git new branch:
 git branch mynewbranch; git checkout mynewbranch # or just branch and checkout in one swoop: git checkout -b mynewbranch
 
@@ -6238,8 +6236,8 @@ git branch mynewbranch master  # copy branch from a specific branch, in this cas
 git add README  # use git add -f README to force add if it's excluded by .gitignore
 
 # Existing github repo on a new foreign box (do git remote rm origin first if get "you can't push to" error):
-git clone git://github.com/bheckel/dotfiles.git && git remote add origin git@github.com:bheckel/dotfiles.git; ...edit/add/commit... git pull origin master && git push origin master
-# But may need this first or instead of remote add:
+git clone git@github.com:bheckel/dotfiles.git && git remote add origin git@github.com:bheckel/dotfiles.git; ...edit/add/commit... git pull origin master && git push origin master
+# But may need this first or instead of remote add if your clone was git clone git://github.com/bheckel/misc.git
 git remote set-url origin git@github.com:bheckel/dotfiles.git
 
 # Compare commits:
@@ -6708,5 +6706,10 @@ SELECT OBJECT_NAME, count(*) FROM dba_procedures WHERE OWNER = 'SETARS' AND OBJE
 
 -- Oracle quoting masking:
 foo CONSTANT  varchar2(9) := q'[bar 'ok']';
+
+ALTER PACKAGE test_ora04068 COMPILE PACKAGE;
+
+-- Oracle cross database:
+SELECT \*+ DRIVING_SITE(SITE) *\ COUNT(*) FROM DB_OWNER.DI_SITE_DATA@DNB_XXXX SITE WHERE SITE.DUNS_NBR = :1
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

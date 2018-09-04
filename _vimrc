@@ -10,7 +10,7 @@
 "           toys, effectively expert-proofed -- Tom Christiansen
 "
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Fri 10 Aug 2018 09:23:00 (Bob Heckel)
+" Modified: Mon 27 Aug 2018 11:58:39 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -332,6 +332,8 @@ set titlelen=90
 set mousehide
 " For spellchecking:
 set mousemodel=popup
+" 'unnamed' makes it so that you can't cw and then paste from the * register
+set clipboard=
 
 "                               10 printing {{{2
 
@@ -1669,6 +1671,8 @@ if !exists("autocommands_loaded")
   " au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR:/<CR>
   au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\|^WARNING:/<CR>
   " au BufNewFile,BufRead,BufEnter *.log set guifont=Consolas:h8
+  au BufNewFile,BufRead,BufEnter *.plsql,*.pck set filetype=sql
+  au BufNewFile,BufRead,BufEnter *.plsql,*.pck let b:match_words = '\<begin\>:\<end\>,\<loop\>:\<end loop\>'
 
   " TOGGLE. Delete the yearly warning lines that appear when SAS License is about to expire
   """au BufRead *.log :g/^WARNING: The Base Product\|installation repres/d
@@ -1866,10 +1870,10 @@ if !exists("autocommands_loaded")
 
     " Platform warning indicators:
     " gvim
-    au BufRead,BufWinEnter H:/*             hi StatusLine   guifg=Green guibg=Black gui=inverse,bold
-    au BufRead,BufWinLeave H:/*             hi StatusLineNC guifg=Green guibg=Gray gui=inverse,bold
-"""    au BufRead,BufWinEnter Z:/*             hi StatusLine   guifg=Red guibg=Black gui=inverse,bold
-"""    au BufRead,BufWinLeave Z:/*             hi StatusLineNC guifg=Red guibg=Gray gui=inverse,bold
+    " au BufRead,BufWinEnter H:/*             hi StatusLine   guifg=Green guibg=Black gui=inverse,bold
+    " au BufRead,BufWinLeave H:/*             hi StatusLineNC guifg=Green guibg=Gray gui=inverse,bold
+"""    au BufRead,BufWinEnter Z:/*            hi StatusLine   guifg=Red guibg=Black gui=inverse,bold
+"""    au BufRead,BufWinLeave Z:/*            hi StatusLineNC guifg=Red guibg=Gray gui=inverse,bold
     " vim
 """    au BufRead,BufWinEnter /cygdrive/c/*    hi StatusLine   ctermfg=Blue ctermbg=White
 """    au BufRead,BufWinLeave /cygdrive/c/*    hi StatusLineNC ctermfg=Blue ctermbg=Gray gui=inverse,bold
@@ -1878,7 +1882,9 @@ if !exists("autocommands_loaded")
 """    au BufRead,BufWinEnter /cygdrive/z/*    hi StatusLine   ctermfg=Red ctermbg=Black
 """    au BufRead,BufWinLeave /cygdrive/z/*    hi StatusLineNC ctermfg=Red ctermbg=Gray gui=inverse,bold
 
-    au BufReadPre,FileReadPre [ETHR]:/* set noswapfile
+    " au BufReadPre,FileReadPre [ETHR]:/* set noswapfile
+    " TODO what event is a diff window open
+    au BufReadPre,FileReadPre Source/* set noswapfile
 """    au BufReadPre,FileReadPre /cygdrive/[mswxyz]/* set noswapfile
 
     " Do not use The Force on Test & Production
@@ -1893,7 +1899,7 @@ if !exists("autocommands_loaded")
 """    au BufReadPre,FileReadPre /Drugs/HealthPlans/* set noswapfile
 """    au BufReadPre,FileReadPre /Drugs/TMMEligibility/* set noswapfile
 
-    au BufEnter all.sql set foldmethod=marker
+    " au BufEnter all.sql set foldmethod=marker
   " end Temporary project-specific
   end
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
