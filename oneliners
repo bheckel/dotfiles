@@ -6712,4 +6712,10 @@ ALTER PACKAGE test_ora04068 COMPILE PACKAGE;
 -- Oracle cross database:
 SELECT \*+ DRIVING_SITE(SITE) *\ COUNT(*) FROM DB_OWNER.DI_SITE_DATA@DNB_XXXX SITE WHERE SITE.DUNS_NBR = :1
 
+-- Use my id or superowner's
+..., actual_updatedby = nvl(sys_context('mystars_context', 'employee_id'), 0)
+
+-- Kill Oracle session (session id, serial #):
+SQL> exec sys.kill_session(51,6449);
+
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

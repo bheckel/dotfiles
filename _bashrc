@@ -4,7 +4,7 @@
 # Summary: bash config for at least Unix/Linux, Cygwin 1.3/1.5/1.7 and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Sun 03 Jun 2018 15:52:09 (Bob Heckel)
+# Modified: Mon 10 Sep 2018 14:10:09 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -102,8 +102,6 @@ alias cdc="cd $HOME/code/c"
 alias cdh="cd $HOME/code/html"
 alias cdm="cd $HOME/code/misccode"
 alias cdp="cd $HOME/code/perl"
-alias cdpl="cd $HOME/code/perl"
-alias cdt="cd $HOME/tmp"
 alias cds="cd $HOME/code/sas"
 alias cls=clear
 alias commit='git add . && git commit -m "mod"'
@@ -112,10 +110,10 @@ alias datecalc=$HOME/code/perl/datecalc
 alias ddg='w3m http://duckduckgo.com/lite'
 alias f='fg'  # jobs -s  to list what's suspended
 alias g=$HOME/dotfiles/gone.sh
-alias gitup='git status && git add . && git commit -m "mod" && git pull origin master && git push origin master'
-alias gpull='git pull origin master'
-alias gpush='git push origin master'
-alias gcom="git add . && git commit -m 'mod'"
+alias gitup='echo "ok to gitup?" && read && git status && git add . && git commit -m "mod" && git pull origin master && git push origin master'
+alias gpul='git pull origin master'
+alias gpus='git push origin master'
+alias gcom='echo "ok to git commit?" && read && git add . && git commit -m "mod"'
 # Can't use sed to eliminate leading spaces or it breaks coloring
 alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
 # alias gdot="cd ~/dotfiles && git add . && git commit -m'gdot' && git pull origin master && git push origin master && cd -"
@@ -153,6 +151,7 @@ alias sr="$HOME/code/sas/sasrun"
 alias srcb="source $HOME/dotfiles/_bashrc"
 alias tml='tmux list-sessions'
 alias tmls='tmux list-sessions'
+alias tmux='tmux -u'  # UTF8
 # tmux -2 new -s s1
 # alias tm1="tmux -2 a -t 's1'"
 # alias tm1new='tmux -2 new -s s1'
@@ -380,16 +379,16 @@ md() {
 
 
 tm() {
-  tmux -2 a -t "s${1}"
+  tmux -u -2 a -t "s${1}"
   echo 'try tmn if not found'
   tmux list-sessions
 }
 
 tmn() {
   if [ ! -z ${1} ]; then
-    tmux -2 new -s "s${1}"
+    tmux -u -2 new -s "s${1}"
   else
-    tmux -2 new -s "s1"
+    tmux -u -2 new -s "s1"
   fi
 }
 
