@@ -6165,6 +6165,9 @@ git log --since="3 months ago" --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %
 # git new branch:
 git branch mynewbranch; git checkout mynewbranch # or just branch and checkout in one swoop: git checkout -b mynewbranch
 
+# git poke around:
+git branch -a; git remote -v; git remote show origin;
+
 # git switch branches
 git checkout master
 
@@ -6668,7 +6671,7 @@ alert( (6.35 * 10).toFixed(20) ); // 63.50000000000000000000
 alert( Math.round(6.35 * 10) / 10); // 6.35 -> 63.5 -> 64(rounded) -> 6.4
 
 -- plsql rc
-define_editor="C:\Program Files (x86)\Vim\vim74\gvim.exe -u C:\Users\boheck\_gvimrc"
+define_editor="C:\Program Files (x86)\Vim\vim74\gvim.exe -u C:\Users\obheck\_gvimrc"
 
 -- Oracle date constant TIMESTAMP '2012-10-29 12:01:01'
 select DATE '1978-12-25' from dual;
@@ -6689,7 +6692,7 @@ select * from user_objects o where object_type != 'JAVA CLASS' and status = 'INV
 -- Oracle date subtraction:
 where lc.updated >= TRUNC(SYSDATE - (365 * 2)) -- 2 year window
 
--- Oracle declaration:
+-- Oracle function declaration:
 FUNCTION hasLinkages(in_accountId NUMBER, in_contextBeingUsed NUMBER DEFAULT 2) RETURN NUMBER;
 
 SELECT REGEXP_COUNT ('Oracle PL/SQL By Example Updated for Oracle 11g', 'ora', 1, 'i') FROM dual;
@@ -6697,15 +6700,15 @@ SELECT REGEXP_COUNT ('Oracle PL/SQL By Example Updated for Oracle 11g', 'ora', 1
 -- Oracle user sessions Who is logged:
 select * from v$session where username is not null order by logon_time, sid
 
--- Oracle run script:
-sqlplus -S estars/ag0g1@esd @query.sql
-vi ~/code/misccode/query.sql && (cd ~/code/misccode/ && sqlplus -S estars/ag0g1@esd @query.sql && vi $c/temp/query.out)
+-- Oracle run script plsql developer SQL> @C:\cygwin64\home\obheck\code\misccode\query.sql:
+$ sqlplus -S me/pw@esd @query.sql
+$ vi ~/code/misccode/query.sql && (cd ~/code/misccode/ && sqlplus -S me/pw@esd @query.sql && vi $c/temp/query.out)
 
 -- Oracle package count:
 SELECT OBJECT_NAME, count(*) FROM dba_procedures WHERE OWNER = 'SETARS' AND OBJECT_TYPE IN('PROCEDURE' , 'PACKAGE','FUNCTION') AND procedure_name IS NOT NULL GROUP BY object_name;
 
--- Oracle quoting masking:
-foo CONSTANT  varchar2(9) := q'[bar 'ok']';
+-- Oracle quoting masking also max varchar2:
+foo CONSTANT  varchar2(4000) := q'[bar 'ok']';
 
 ALTER PACKAGE test_ora04068 COMPILE PACKAGE;
 
@@ -6717,5 +6720,20 @@ SELECT \*+ DRIVING_SITE(SITE) *\ COUNT(*) FROM DB_OWNER.DI_SITE_DATA@DNB_XXXX SI
 
 -- Kill Oracle session (session id, serial #):
 SQL> exec sys.kill_session(51,6449);
+
+-- case when
+select ch.clientid, '' as x1, case when ac.actioncodeid=20109 then 'IMM_FAMILY=AV_HEPATITIS' when ac.actioncodeid=20114 then 'IMM_FAMILY=AV_INFLUENZA' end as x9 from ...
+
+-- Oracle userid
+EXECUTE IMMEDIATE q'[ SELECT sys_context('setars_context', 'employee_id') from dual ]' INTO whoami;
+
+-- In one table not in the other table:
+(select * from z_REF_CORPORATE_INITIATIVE minus select * from REF_CORPORATE_INITIATIVE) -- all rows that are in T1 but not in T2
+union all
+(select * from REF_CORPORATE_INITIATIVE minus select * from z_REF_CORPORATE_INITIATIVE)  -- all rows that are in T2 but not in T1
+
+CREATE OR REPLACE FUNCTION f RETURN SYS_REFCURSOR AS c SYS_REFCURSOR; BEGIN OPEN c FOR select * from dual; RETURN c; END; /
+
+SELECT INSTR('CORPORATE FLOOR','OR', 3, 2) FROM dual  -- 14 here, 0 if not found
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

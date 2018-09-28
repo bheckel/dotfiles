@@ -897,6 +897,7 @@ nnoremap ;3 :%call WriteToFile(VTMP, 3, 0)<CR>
 nnoremap ;4 :%call WriteToFile(VTMP, 4, 0)<CR>
 
 " Checkpoint backup current file:
+" map ;5 :silent write! /c/temp/%:t<CR>
 nnoremap ;5 :call BkupFile(VTMP)<CR>
 
 " Maximize window.  Alternative to z99.  <C-W>_ makes my hands hurt just

@@ -161,7 +161,6 @@ alias unbak="$HOME/code/misccode/bak -u "
 alias uvi="$HOME/code/perl/uvi"  # don't change timestamp
 alias ve="vi $HOME/.vimrc"
 alias vin="vi -c 'syntax off'"
-# alias vit="vi $HOME/t.sas"
 alias vit="vi $HOME/onedrive/t.sas"
 alias wget='wget -c'  # continue failures
 
