@@ -4388,15 +4388,8 @@ $ rename 'fdw.csv' 'fdw.ORIG.csv' *.csv
 
 uuencode /Drugs/TMMEligibility/Studies/QC_DelhcaInc.pdf | mail -s 'mail attachment' bob.heckel@taeb.com
 
-# Shell file test operators comparisons flags:
--e filename # exists
--d filename # is a directory. 
--f filename # is an ordinary file
--r filename # can be read by the process.
--s filename # has a nonzero length
--w filename # can be written by the process
--x filename # is executable
--L filename # is a symbolic link
+# Shell bash filetest file test operators comparisons flags:
+-e  exists, -d is a directory, -f is an ordinary file, -r can be read by the process, -s has a nonzero length, -w can be written by the process, -x is executable, -L is a symbolic link
 
 # Lookup username from user number id:
 getent passwd "594" | cut -d: -f1
@@ -6683,7 +6676,7 @@ INSERT INTO...; SAVEPOINT bobora; INSERT INTO...; ROLLBACK TO bobora;
 -- Oracle regex:
 select object_name, object_type from user_objects where object_type in ('PACKAGE') AND regexp_like(object_name, '.*BOBONCALL.*')
 
--- Oracle what is available?:
+-- Oracle what objects are available? ls for db:
 select object_name, object_type from user_objects where object_type in ('VIEW','TABLE','PACKAGE','PROCEDURE','FUNCTION') and lower(object_name) like '%acc%' order by 2,1
 
 -- Oracle invalid objects:
@@ -6735,5 +6728,20 @@ union all
 CREATE OR REPLACE FUNCTION f RETURN SYS_REFCURSOR AS c SYS_REFCURSOR; BEGIN OPEN c FOR select * from dual; RETURN c; END; /
 
 SELECT INSTR('CORPORATE FLOOR','OR', 3, 2) FROM dual  -- 14 here, 0 if not found
+
+-- Overflows using PLS_INTEGER ok with INTEGER:
+DECLARE p1 PLS_INTEGER := 2147483647; p2 INTEGER := 1; n NUMBER; BEGIN n := p1 + p2; END; /
+
+alter table CONTAC add constraint NN_CONTAC_ORIGIN_LOV_ID check("ORIGIN_LOV_ID" IS NOT NULL);
+
+select constraint_name, constraint_type from user_constraints@sep WHERE constraint_name LIKE 'NN%ORIGIN%';
+
+-- Find uncommitted transactions
+select s.sid ,s.serial# ,s.username ,s.machine ,s.status ,s.lockwait ,t.used_ublk ,t.used_urec ,t.start_time from v$transaction t inner join v$session s on t.addr = s.taddr;
+
+-- Random ids 0.1% of all records in Oracle table:
+SELECT account_id FROM account_name SAMPLE(0.1);
+
+rc := SQL%ROWCOUNT; dbms_output.put_line('rows affected: ' || rc);  -- place this before COMMIT
 
 xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

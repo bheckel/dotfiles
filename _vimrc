@@ -431,7 +431,10 @@ set foldopen-=search
 
 "                               16 diff mode {{{2
 
-set diffopt=filler,vertical,iwhite
+" 05-Oct-18 TODO doesn't ignore whitespace
+" set diffopt=filler,vertical,iwhite
+set diffopt+=iwhite
+" set diffexpr=""
 
 
 "                               17 mapping {{{2
@@ -972,18 +975,12 @@ nnoremap ;q viw"zxllciwhhpll"zp
 """endif
 
 " Pt. 2 Transfer/read and write one block of text between vim sessions:
-"""if BOX==WORKBOX1 || BOX==WORKBOX2 || BOX==WORKBOX3
-"""if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
-"""  nnoremap ;a :call WriteToFile(VTMPU, '.vimxfer', 1)<CR>
-"""  vnoremap ;a :call WriteToFile(VTMPU, '.vimxfer', 1)<CR>
-"""  norenmap ;w :call WriteToFile(VTMPU, '.vimxfer', 0)<CR>
-"""  vnoremap ;w :call WriteToFile(VTMPU, '.vimxfer', 0)<CR>
-"""else
-  noremap ;a :call WriteToFile(VTMP, '.vimxfer', 1)<CR>
-  vnoremap ;a :call WriteToFile(VTMP, '.vimxfer', 1)<CR>
-  noremap ;w :call WriteToFile(VTMP, '.vimxfer', 0)<CR>
-  vnoremap ;w :call WriteToFile(VTMP, '.vimxfer', 0)<CR>
-"""endif
+noremap ;a :call WriteToFile(VTMP, '.vimxfer', 1)<CR>
+vnoremap ;a :call WriteToFile(VTMP, '.vimxfer', 1)<CR>
+noremap ;w :call WriteToFile(VTMP, '.vimxfer', 0)<CR>
+vnoremap ;w :call WriteToFile(VTMP, '.vimxfer', 0)<CR>
+" The non-overengineered version:
+" map ;w :'<,'>write! /c/temp/.vimxfer<CR>
 
 nnoremap ;sv :source $MYVIMRC<CR>
 
