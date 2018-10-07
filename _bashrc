@@ -141,7 +141,7 @@ alias push='git push origin master'
 alias pse="ps -ef|grep ^$USER|grep -vP 'ps -ef|grep'"
 ###alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
 alias qr=$HOME/code/misccode/quickref_find.sh
-alias rme=$HOME/rme/rme
+alias rme=$HOME/code/rme/rme
 alias robots="export ROBOTOPTS=moveheaps,showscores,screwdriver,fastrobots; robots"
 alias sasrun=$HOME/code/sas/sasrun
 alias sdf='ssh -l bheckel sdf.org; date'
@@ -159,7 +159,6 @@ alias tmux='tmux -u'  # UTF8
 alias uvi="$HOME/code/perl/uvi"  # don't change timestamp
 alias ve="vi $HOME/.vimrc"
 alias vin="vi -c 'syntax off'"
-alias vit="vi $HOME/onedrive/t.sas"
 alias wget='wget -c'  # continue failures
 
 #-----------------------------------
@@ -836,7 +835,10 @@ case "$OSTYPE" in
   ;;
 esac # }}}1
 
-# Project-specific or security-sensitive additions:
+# Tempoarary project-specific additions:
+alias vit="vi $HOME/onedrive/t.sas"
+
+# Security-sensitive additions:
 if [ -e $HOME/.bashrc.project ]; then
   source $HOME/.bashrc.project
 fi
