@@ -97,7 +97,7 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 " Non-inclusive delete.  Only delete everything between these two lines:
 :?firstword? 1,/lastword/ -1 d
 
-" Chain two searches, find the first word peak appearing the following only AFTER the word am0908
+" Chain two searches, find the first 'peak info' appearing the following only AFTER 'am0908'
 /am0908/;/peak info
 
 " Delete everything except these two strings:
