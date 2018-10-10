@@ -434,7 +434,8 @@ set foldopen-=search
 " 05-Oct-18 TODO doesn't ignore whitespace
 " set diffopt=filler,vertical,iwhite
 set diffopt+=iwhite
-" set diffexpr=""
+set diffopt+=filler
+set diffexpr="--ignore-blank-lines"
 
 
 "                               17 mapping {{{2
@@ -1657,20 +1658,19 @@ if !exists("autocommands_loaded")
   au BufRead /cygdrive/c/temp/query.out map q :qa!<CR>
   au BufRead /cygdrive/c/temp/query.out echo '.vimrc: q to exit'
 
-"""  au BufNewFile,BufRead,BufEnter *.sas map ;; :call setline('.', Commentout(getline('.'), 'sas'))<CR>
+  " au BufNewFile,BufRead,BufEnter *.sas map ;; :call setline('.', Commentout(getline('.'), 'sas'))<CR>
   au BufNewFile,BufRead,BufEnter *.sas map ;c 0Di  *  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.sas map ;m 0Di  * Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.sas map ,m yy0I***<ESC>p
   " Define pairs to allow the 'bounce on %' plugin to work.  Case insensitive.  No spaces between pairs!
   au BufNewFile,BufRead,BufEnter *.sas let b:match_words = '\<do\>:\<end\>,\<data\s\+\w\+:\<run\;,%macro.*\;:\<mend\>.*\;,\<sql.*;:\<quit;'
   " Filter SAS Log for error-like lines (and lines that should be errors) only
-"""au BufNewFile,BufRead,BufEnter *.log noremap <silent> <F8> :g!/^ERROR: \\|^ERROR\\s\\+\\d\\+-\\d\\+:\\|^WARNING: [^Compression]\\|stopped processing this step because\\|lines were truncated\\|NOTE: Invalid data for\\|NOTE: Variable\\|NOTE\\s\\+\\d\\+-\\d\\+:\\|WARNING: Apparent/d<CR> 
   au BufNewFile,BufRead,BufEnter *.log nnoremap <silent> <F8> :g!/^ERROR:\\\|^WARNING:\\\|lines were truncated\\\|^NOTE: Invalid data for\\\|^NOTE: Variable/d<CR>
   " au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR:/<CR>
   au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\|^WARNING:/<CR>
   " au BufNewFile,BufRead,BufEnter *.log set guifont=Consolas:h8
-  au BufNewFile,BufRead,BufEnter *.plsql,*.pck set filetype=sql
-  au BufNewFile,BufRead,BufEnter *.plsql,*.pck let b:match_words = '\<begin\>:\<end\>,\<loop\>:\<end loop\>'
+  au BufNewFile,BufRead,BufEnter *.pck,*.prc set filetype=plsql
+  au BufNewFile,BufRead,BufEnter *.pck,*.prc let b:match_words = '\<begin\>:\<end\>,\<loop\>:\<end loop\>'
 
   " TOGGLE. Delete the yearly warning lines that appear when SAS License is about to expire
   """au BufRead *.log :g/^WARNING: The Base Product\|installation repres/d

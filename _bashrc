@@ -120,7 +120,7 @@ alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate ref
 alias gs='git status'
 ###alias gskfrom="echo 'retrieving from github...';echo; cd ~/dotfiles && git pull origin master; echo; cd ~/transfer && git pull origin master; echo 'extracting...'; ls -l ~/transfer/c; tar tvfz ~/transfer/c; sleep 7; cd ~ && tar xfz ~/transfer/c" 
 alias gskfrom="echo 'retrieving from github...';echo; cd ~/transfer && git pull origin master; echo 'extracting...'; ls -l ~/transfer/c; tar tvfz ~/transfer/c; sleep 7; cd ~ && tar xfz ~/transfer/c" 
-alias h='history|tail -20'  # history 20 is better if it exists
+alias h='history|tail -n20'
 # Poor-man's file sync.  See gskto gskfrom.  Using suffix-less tarball to discourage email filtering.
 # Assumes we have sent the weekend work attachment ~/Downloads/c.NEW from home to github.  Monday morning run usually.
 alias homefrom="cd ~/transfer && git pull origin master; cd ~; echo 'extracting...'; ls -l ~/transfer/c.NEW && sleep 5; tar xvfz ~/transfer/c.NEW; rmv ~/transfer/c.NEW; cd -"
@@ -836,6 +836,7 @@ case "$OSTYPE" in
 esac # }}}1
 
 # Tempoarary project-specific additions:
+alias cdg='cd /cygdrive/c/Orion/workspace/data/Source/SQL'
 alias vit="vi $HOME/onedrive/t.sas"
 
 # Security-sensitive additions:

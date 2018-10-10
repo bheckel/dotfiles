@@ -1,10 +1,12 @@
-[merge]
-	tool = vimdiff
-[user]
-	email = rsh@rshdev.com
-	name = Bob Heckel
-[core]
-	pager = less -+F -+S -+X
 [color]
 	status = auto
 	diff = auto
+[core]
+	pager = less -+F -+S -+X
+[merge]
+	tool = vimdiff
+[push]
+	default = upstream
+[user]
+	email = rsh@rshdev.com
+	name = Bob Heckel

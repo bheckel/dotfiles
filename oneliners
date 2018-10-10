@@ -7,7 +7,7 @@
 #           Comments are often written for searching, not proper English
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Mon 30 Apr 2018 08:23:10 (Bob Heckel)
+# Modified: Mon 08 Oct 2018 15:01:22 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -5263,7 +5263,247 @@ xxPERLxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
 
-xxOTHERxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
+xxDATABASExx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
+
+-- Outer joins preserve the rows that don't match and pad the remaining columns with NULLs.  OUTER keyword is optional.
+-- These words replace the comma between tablenames in old style Oracle (+) joins:
+LEFT OUTER JOIN
+
+-- Only on one table (Oracle v8 can't use JOIN ON syntax!)
+select a.numb, b.numb from tmp1 a LEFT JOIN tmp2 b on a.numb=b.numb where b.numb IS NULL
+
+-- Copy first few rows of Oracle table into new one that does not already exist:
+INSERT INTO bobhlm SELECT * FROM links_material WHERE rownum<11;
+
+--Get Oracle database instance version rack etc information v9+
+select * from v$instance;
+
+-- Oracle userid
+EXECUTE IMMEDIATE q'[ SELECT sys_context('setars_context', 'employee_id') from dual ]' INTO whoami;
+
+-- In one table not in the other table:
+(select * from z_REF_CORPORATE_INITIATIVE minus select * from REF_CORPORATE_INITIATIVE) -- all rows that are in T1 but not in T2
+union all
+(select * from REF_CORPORATE_INITIATIVE minus select * from z_REF_CORPORATE_INITIATIVE)  -- all rows that are in T2 but not in T1
+
+CREATE OR REPLACE FUNCTION f RETURN SYS_REFCURSOR AS c SYS_REFCURSOR; BEGIN OPEN c FOR select * from dual; RETURN c; END; /
+
+SELECT INSTR('CORPORATE FLOOR','OR', 3, 2) FROM dual  -- 14 here, 0 if not found
+
+-- Overflows using PLS_INTEGER ok with INTEGER:
+DECLARE p1 PLS_INTEGER := 2147483647; p2 INTEGER := 1; n NUMBER; BEGIN n := p1 + p2; END; /
+
+alter table CONTAC add constraint NN_CONTAC_ORIGIN_LOV_ID check("ORIGIN_LOV_ID" IS NOT NULL);
+
+select constraint_name, constraint_type from user_constraints@sep WHERE constraint_name LIKE 'NN%ORIGIN%';
+
+-- Find uncommitted transactions
+select s.sid ,s.serial# ,s.username ,s.machine ,s.status ,s.lockwait ,t.used_ublk ,t.used_urec ,t.start_time from v$transaction t inner join v$session s on t.addr = s.taddr;
+
+-- Random ids 0.1% of all records in Oracle table:
+SELECT account_id FROM account_name SAMPLE(0.1);
+
+rc := SQL%ROWCOUNT; dbms_output.put_line('rows affected: ' || rc);  -- place this before COMMIT
+
+TYPE varray_type IS VARRAY(4) OF VARCHAR2(15);  -- Oracle collection
+TYPE associativearray_type_str IS TABLE OF INTEGER INDEX BY VARCHAR2(10);  -- Oracle collection
+TYPE nestedtable_type IS TABLE OF VARCHAR2(15)  -- Oracle collection
+
+DROP PACKAGE test_bob;
+
+-- Partial row record variable:
+DECLARE CURSOR c IS SELECT fnm, lnm FROM employees; friend c%ROWTYPE; BEGIN friend.fnm := 'John'; END; /
+
+define_editor="C:\Program Files (x86)\Vim\vim74\gvim.exe -u C:\Users\obheck\_gvimrc"
+
+-- Oracle date constant TIMESTAMP '2012-10-29 12:01:01'
+select DATE '1978-12-25' from dual;
+
+select NVL(NULL, 'it is NULL') from dual;  -- returns 'it is NULL'
+select NVL(TO_CHAR(3), 'NULL') from dual;  -- returns 3
+DBMS_OUTPUT.PUT(NVL(TO_CHAR(name.age.years), 'NULL') || ' yrs ');
+NVL2(x, return_value1_bc_x_isNOTnull, return_value2_bc_x_ISnull);
+
+INSERT INTO...; SAVEPOINT bobora; INSERT INTO...; ROLLBACK TO bobora;
+
+-- Oracle regex:
+select object_name, object_type from user_objects where object_type in ('PACKAGE') AND regexp_like(object_name, '.*BOBONCALL.*')
+
+-- Oracle what objects are available? ls for db:
+select object_name, object_type from user_objects where object_type in ('VIEW','TABLE','PACKAGE','PROCEDURE','FUNCTION') and lower(object_name) like '%acc%' order by 2,1
+
+-- Oracle invalid objects:
+select * from user_objects o where object_type != 'JAVA CLASS' and status = 'INVALID';
+
+-- Oracle date subtraction:
+where lc.updated >= TRUNC(SYSDATE - (365 * 2)) -- 2 year window
+
+-- Oracle function declaration:
+FUNCTION hasLinkages(in_accountId NUMBER, in_contextBeingUsed NUMBER DEFAULT 2) RETURN NUMBER;
+
+SELECT REGEXP_COUNT ('Oracle PL/SQL By Example Updated for Oracle 11g', 'ora', 1, 'i') FROM dual;
+
+-- Oracle user sessions Who is logged:
+select * from v$session where username is not null order by logon_time, sid
+
+-- Oracle run script plsql developer SQL> @C:\cygwin64\home\obheck\code\misccode\query.sql:
+$ sqlplus -S me/pw@esd @query.sql
+$ vi ~/code/misccode/query.sql && (cd ~/code/misccode/ && sqlplus -S me/pw@esd @query.sql && vi $c/temp/query.out)
+
+-- Oracle package count:
+SELECT OBJECT_NAME, count(*) FROM dba_procedures WHERE OWNER = 'SETARS' AND OBJECT_TYPE IN('PROCEDURE' , 'PACKAGE','FUNCTION') AND procedure_name IS NOT NULL GROUP BY object_name;
+
+-- Oracle quoting masking also max varchar2:
+foo CONSTANT  varchar2(4000) := q'[bar 'ok']';
+
+ALTER PACKAGE test_ora04068 COMPILE PACKAGE;
+
+SQL> alter procedure z_set_activ_match_code compile;  show errors
+
+-- Oracle cross database:
+SELECT \*+ DRIVING_SITE(SITE) *\ COUNT(*) FROM DB_OWNER.DI_SITE_DATA@DNB_XXXX SITE WHERE SITE.DUNS_NBR = :1
+
+-- Use my id or superowner's if i do not exist:
+..., actual_updatedby = nvl(sys_context('mystars_context', 'employee_id'), 0)
+
+-- Kill Oracle session (session id, serial #):
+SQL> exec sys.kill_session(51,6449);
+
+-- Rename Oracle table:
+ALTER TABLE user_role1 RENAME TO user_role2;
+
+-- Oracle move rename table:
+CREATE TABLE fooTMP AS SELECT * FROM user_role; DROP TABLE foo; CREATE TABLE foo AS SELECT * FROM fooTMP;
+
+-- Oracle days from today, two days ago:
+select to_char(sysdate-2, 'DD-MON-YY') from dual
+select sysdate-2 from dual
+
+--SQLPlus formatting:
+COLUMN meth_spec_nm FORMAT a80; COLUMN meth_spec_num FORMAT 99;
+
+-- Oracle schema info
+select object_type, count(*) from dba_objects where owner='PKS_USER' group by object_type;
+
+-- Only those columns explicitly listed in the GROUP BY clause may appear un-aggregated (i.e. not as a parameter of an agg. function) in the SELECT or HAVING clauses. Put negatively, It is prohibited to use an un-aggregated column in the SELECT or HAVING clauses, unless it is explicitly listed in the GROUP BY clause.
+
+OPEN c1; LOOP FETCH c1 INTO v_lastname, v_jobid; EXIT WHEN c1%NOTFOUND; DBMS_OUTPUT.PUT_LINE( RPAD(v_lastname, 25, ' ') || v_jobid ); END LOOP; CLOSE c1;
+
+-- Increase sqlplus buffer:
+dbms_output.enable(1000000);
+
+-- Oracle prevent nulls from propagating:
+SELECT ename, comm, sal, 12*sal+NVL(comm,0) ...
+IF NVL(l_salary,0) <= 40000 ...
+
+-- Oracle case insensitive
+where ename LIKE UPPER('foo%')
+
+-- Oracle exact date change
+update mdpi_shift_downtime set mfg_shift_dt=TO_DATE('9/4/2007','MM/DD/YYYY') where Comment_Txt='Assembly Downtime Test'
+
+-- Canonical Oracle SQL*Plus date examples (Oracle date less than etc)
+WHERE e.hire_date < TO_DATE('12/31/1999', 'mm/dd/yyyy')
+WHERE birth_date < TO_DATE('19400101', 'YYYYMMDD')
+WHERE EntryTs >= TO_DATE('07-NOV-06 00:00:00','DD-MON-YY HH24:MI:SS')
+
+-- Canonical Oracle date range:
+WHERE prod_sel_dt BETWEEN TO_DATE('01-JAN-10','DD-MON-YY') AND TO_DATE('31-JAN-10','DD-MON-YY')
+
+-- Oracle last few days search (if activity_dt is DATE formatted):
+select count(*) from activity_log where activity_dt > (SYSDATE-3);
+
+-- Oracle same as standard SAS DATE9.
+select trunc(sysdate) from dual
+
+-- Oracle date only this month:
+WHERE order_dt > TRUNC(SYSDATE, 'MONTH')
+
+select * from retain.fnsh_prod where prod_sel='Y' and trunc(prod_sel_dt)=trunc(sysdate);
+
+-- Oracle generate random positive integer:
+select ABS(round(dbms_random.normal*100,-1)) from dual;
+
+select rpad('Melanie', 10, '*') Melanie, lpad('Caffrey', 10, '.') Caffrey
+
+-- Oracle update query samples: 
+update pks_extraction_control set pks_level='' where pks_level='.';
+update retain.fnsh_prod set prod_sel = 'N', prod_sel_dt = NULL;
+
+-- Oracle SQL*Plus (like SELECT TOP 10 *... in SQL Server)
+select * from activity_log where rownum<10;
+
+-- Oracle last month
+select ADD_MONTHS(sysdate,-1) from dual;
+
+dbms_output.put_line('rpt at: ' || TO_CHAR(sysdate, 'dd-mon-yy hh:mipm'));
+
+-- Oracle Business hours only
+...if (TO_CHAR(sysdate, 'DY') in ('SAT', 'SUN') or
+(TO_CHAR(sysdate, 'HH24') not between '08' and '18') ...
+
+-- Oracle CASE or IF-THEN-ELSE shortcut, replacement
+--                                IF  THEN     IF       THEN  ELSE
+select prod_nm, decode(prod_grp,'MDPI','m','Solid Dose','sd','unk') from samp;
+
+-- Format Oracle format if column too wide that truncation occurs in sql*plus window:
+sql> col[umn] MFG_SPEC_TXT_A format a15
+sql> column MFG_SPEC_NUM format 999      -- number width w/o zeros
+
+-- Oracle update
+UPDATE user_role SET user_role=5 WHERE user_nm LIKE '%Heckel%'
+-- Oracle substring replace
+UPDATE pec SET pks_txt=REPLACE(pks_txt,'GEN','new') WHERE pks_txt like '%GEN%';
+
+-- Oracle date
+select to_char(sysdate, 'Dy DD-Mon-YYYY HH:MI:SS AM') as "Current Time" from dual;  -- Wed 19-Aug-2009 02:51:33 PM  TODO is the 'AM' correct??
+select to_char(sysdate, 'Dy DD-Mon-YYYY HH24:MI:SS') as "Current Time" from dual;  -- Wed 19-Aug-2009 14:53:41
+select TO_DATE('16-JAN-06');  -- uses Oracle's default date format
+select TO_DATE('15-may-2006 16:00:01','dd-mon-yyyy hh24:mi:ss') from dual; -- 15-May-06 04:00:01 PM
+select * from activity_log where trunc(activity_dt)=TO_DATE('16-JAN-06','DD-MON-YY');
+select TO_DATE('15-may-2006 16:00:01','dd-mon-yyyy hh24:mi:ss') from dual; -- 15-May-06 04:00:01 PM
+
+-- Oracle date between
+(TEST_END_DATE BETWEEN TO_DATE('2012-09-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE('2014-06-13 23:59:59', 'YYYY-MM-DD HH24:MI:SS'))
+SS.EntryTs >= TO_DATE('01-JAN-05','DD-MON-YY') AND SS.EntryTs <= TO_DATE('31-DEC-05','DD-MON-YY')
+-- SQL Server date between
+WHERE batch_time >= {ts '2011-01-03 00:00:00'} and batch_time <= {ts '2011-01-04 00:00:00'}
+
+-- Oracle spool (Windows).  Save Oracle SQL*Plus output to file foo.LST
+sql> spool %TEMP%/foo
+...run qry
+sql> spool off
+
+-- SQL check for duplicates, returns nothing if all samp_id are unique:
+select count(*) from samp group by samp_id having count(*)>1;
+select taebpatientid from final_to_insert group by taebpatientid having count(*)>1;
+
+-- SQL*Plus
+sql> show all
+sql> set linesize 1000;
+sql> set pagesize 9999;
+
+-- Oracle high level view all database tables you own (current schema)
+SQL> SELECT table_name FROM user_tables;
+
+-- Oracle high level view all database tables all available schema
+SQL> SELECT owner, table_name FROM all_tables;
+
+-- Oracle list all schemas:
+SQL> SELECT username FROM all_users ORDER BY username;
+
+-- Oracle select top 10 rows of a table in order:
+SQL> SELECT * FROM (SELECT * FROM t ORDER BY c) WHERE ROWNUM <= 10;
+
+-- Oracle describe table
+SQL> desc mytable
+
+-- Oracle list view names
+SQL> select * from all_views where view_name like '%SPEC%'
+
+xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
+
+xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
 :: DOS directory list ls by age, order by oldest last.
 dir /p /o:d
@@ -5453,17 +5693,10 @@ LOCAL/System/CurrentControlSet/Control/Update/UpdateMode 00 not 01
 -- Across database access syntax SQL Server SQLServer
 select count(*) from [W23PSQL01\Production].bpms_va.dbo.claims_pharmacy
 
--- Outer joins preserve the rows that don't match and pad the remaining columns with NULLs.  OUTER keyword is optional.
--- These words replace the comma between tablenames in old style Oracle (+) joins:
-LEFT OUTER JOIN
-
 -- inner joins eliminate the rows that *don't* match
 
 -- Built-in Scalar Function SQL Server SQLServer
 SELECT CURRENT_TIMESTAMP
-
--- Only on one table (Oracle v8 can't use JOIN ON syntax!)
-select a.numb, b.numb from tmp1 a LEFT JOIN tmp2 b on a.numb=b.numb where b.numb IS NULL
 
 SELECT DATEDIFF (YEAR, '1/1/2002', '1/1/2005')
 
@@ -5513,129 +5746,14 @@ EXEC SP_SPACEUSED N'rheckel.[bpmsoutliersnc60]'
 -- Copy an SQL Server table into a new one that does not already exist:
 SELECT * INTO xBpmsOutliersNC60 FROM BpmsOutliersNC60 
 
--- Copy first few rows of Oracle table into new one that does not already exist:
-INSERT INTO bobhlm SELECT * FROM links_material WHERE rownum<11;
-
--- Delete Oracle table (even if records exist in it):
+-- Delete table (even if records exist in it):
 DROP TABLE bobhlm;
-
---Get Oracle database instance version rack etc information v9+
-select * from v$instance;
 
 :: AT command cron for Windows:
 at 20:42 /interactive notepad
 
 ' Do not prompt user before overwriting:
 Application.DisplayAlerts = False
-
--- Oracle prevent nulls from propagating:
-SELECT ename, comm, sal, 12*sal+NVL(comm,0) ...
-IF NVL(l_salary,0) <= 40000 ...
-
--- Oracle case insensitive
-where ename LIKE UPPER('foo%')
-
--- Oracle exact date change
-update mdpi_shift_downtime set mfg_shift_dt=TO_DATE('9/4/2007','MM/DD/YYYY') where Comment_Txt='Assembly Downtime Test'
-
--- Canonical Oracle SQL*Plus date examples (Oracle date less than etc)
-WHERE e.hire_date < TO_DATE('12/31/1999', 'mm/dd/yyyy')
-WHERE birth_date < TO_DATE('19400101', 'YYYYMMDD')
-WHERE EntryTs >= TO_DATE('07-NOV-06 00:00:00','DD-MON-YY HH24:MI:SS')
-
--- Canonical Oracle date range:
-WHERE prod_sel_dt BETWEEN TO_DATE('01-JAN-10','DD-MON-YY') AND TO_DATE('31-JAN-10','DD-MON-YY')
-
--- Oracle last few days search (if activity_dt is DATE formatted):
-select count(*) from activity_log where activity_dt > (SYSDATE-3);
-
--- Oracle same as standard SAS DATE9.
-select trunc(sysdate) from dual
-
--- Oracle date only this month:
-WHERE order_dt > TRUNC(SYSDATE, 'MONTH')
-
-select * from retain.fnsh_prod where prod_sel='Y' and trunc(prod_sel_dt)=trunc(sysdate);
-
--- Oracle generate random positive integer:
-select ABS(round(dbms_random.normal*100,-1)) from dual;
-
-select rpad('Melanie', 10, '*') Melanie, lpad('Caffrey', 10, '.') Caffrey
-
--- Oracle update query samples: 
-update pks_extraction_control set pks_level='' where pks_level='.';
-update retain.fnsh_prod set prod_sel = 'N', prod_sel_dt = NULL;
-
--- Oracle SQL*Plus (like SELECT TOP 10 *... in SQL Server)
-select * from activity_log where rownum<10;
-
--- Oracle last month
-select ADD_MONTHS(sysdate,-1) from dual;
-
-dbms_output.put_line('rpt at: ' || TO_CHAR(sysdate, 'dd-mon-yy hh:mipm'));
-
--- Oracle Business hours only
-...if (TO_CHAR(sysdate, 'DY') in ('SAT', 'SUN') or
-(TO_CHAR(sysdate, 'HH24') not between '08' and '18') ...
-
--- Oracle CASE or IF-THEN-ELSE shortcut, replacement
---                                IF  THEN     IF       THEN  ELSE
-select prod_nm, decode(prod_grp,'MDPI','m','Solid Dose','sd','unk') from samp;
-
--- Format Oracle format if column too wide that truncation occurs in sql*plus window:
-sql> col[umn] MFG_SPEC_TXT_A format a15
-sql> column MFG_SPEC_NUM format 999      -- number width w/o zeros
-
--- Oracle update
-UPDATE user_role SET user_role=5 WHERE user_nm LIKE '%Heckel%'
--- Oracle substring replace
-UPDATE pec SET pks_txt=REPLACE(pks_txt,'GEN','new') WHERE pks_txt like '%GEN%';
-
--- Oracle date
-select to_char(sysdate, 'Dy DD-Mon-YYYY HH:MI:SS AM') as "Current Time" from dual;  -- Wed 19-Aug-2009 02:51:33 PM  TODO is the 'AM' correct??
-select to_char(sysdate, 'Dy DD-Mon-YYYY HH24:MI:SS') as "Current Time" from dual;  -- Wed 19-Aug-2009 14:53:41
-select TO_DATE('16-JAN-06');  -- uses Oracle's default date format
-select TO_DATE('15-may-2006 16:00:01','dd-mon-yyyy hh24:mi:ss') from dual; -- 15-May-06 04:00:01 PM
-select * from activity_log where trunc(activity_dt)=TO_DATE('16-JAN-06','DD-MON-YY');
-select TO_DATE('15-may-2006 16:00:01','dd-mon-yyyy hh24:mi:ss') from dual; -- 15-May-06 04:00:01 PM
-
--- Oracle date between
-(TEST_END_DATE BETWEEN TO_DATE('2012-09-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE('2014-06-13 23:59:59', 'YYYY-MM-DD HH24:MI:SS'))
-SS.EntryTs >= TO_DATE('01-JAN-05','DD-MON-YY') AND SS.EntryTs <= TO_DATE('31-DEC-05','DD-MON-YY')
--- SQL Server date between
-WHERE batch_time >= {ts '2011-01-03 00:00:00'} and batch_time <= {ts '2011-01-04 00:00:00'}
-
--- Oracle spool (Windows).  Save Oracle SQL*Plus output to file foo.LST
-sql> spool %TEMP%/foo
-...run qry
-sql> spool off
-
--- SQL check for duplicates, returns nothing if all samp_id are unique:
-select count(*) from samp group by samp_id having count(*)>1;
-select taebpatientid from final_to_insert group by taebpatientid having count(*)>1;
-
--- SQL*Plus
-sql> show all
-sql> set linesize 1000;
-sql> set pagesize 9999;
-
--- Oracle high level view all database tables you own (current schema)
-SQL> SELECT table_name FROM user_tables;
-
--- Oracle high level view all database tables all available schema
-SQL> SELECT owner, table_name FROM all_tables;
-
--- Oracle list all schemas:
-SQL> SELECT username FROM all_users ORDER BY username;
-
--- Oracle select top 10 rows of a table in order:
-SQL> SELECT * FROM (SELECT * FROM t ORDER BY c) WHERE ROWNUM <= 10;
-
--- Oracle describe table
-SQL> desc mytable
-
--- Oracle list view names
-SQL> select * from all_views where view_name like '%SPEC%'
 
 ' Debug ASP debugging:
 response.write "mfg" & Request("Mfg_Shift") & <br><br>""
@@ -5688,7 +5806,7 @@ SQL> set linesize 1000;  -- avoid truncation of results
 set serveroutput on;  -- or set serveroutput on size unl;
 BEGIN DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('Hello World' || chr(10)); END; -- then type /
 
--- SQL DDL make a copy of a database table
+-- SQL DDL make a copy of a database table:
 CREATE TABLE mycopy AS SELECT * FROM origtbl
 
 -- Oracle nonaggregated expression (rownum) in an aggregated query - SQL hack:
@@ -5703,8 +5821,7 @@ select * from user_constraints where table_name = 'COUNTRIES';
 <? ... >
 
 // Javascript arrays
-coffees = ["French Roast", "Columbian", "Kona"]
-myArray = new Array("Hello", myVar, 3.14159)
+coffees = ["French Roast", "Columbian", "Kona"]; myArray = new Array("Hello", myVar, 3.14159)
 
 # Where Ruby libraries are installed
 ruby -e "puts $:"
@@ -6052,15 +6169,9 @@ DEL z:\Data_Trending\MDPI\*.* /Q
 -- SQL Server
 WHERE datepart(year,insert_date)='2005' AND datepart(month,insert_date)='7' AND datepart(day,insert_date)='31'
 
---SQLPlus formatting
-column meth_spec_nm format a80;
-
 :: Determine dotnet .NET Framework version - look for e.g. v4.0/:
 dir %windir%\Microsoft.NET\Framework\
 HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\.NETFramework\InstallRoot
-
--- Oracle schema info
-select object_type, count(*) from dba_objects where owner='PKS_USER' group by object_type;
 
 // Font size attributes CSS
 h4 { color:#FFFF99; font-weight:bold; font-size:110%; font-style:italic; width:70%; border:1px dashed #333 }
@@ -6124,17 +6235,6 @@ ALTER USER limsarch IDENTIFIED BY "new2dayJuly" REPLACE "oldpw";
 
 -- Change password Postgres password
 ALTER USER heckel WITH PASSWORD 'myPass';
-
--- Rename Oracle table:
-ALTER TABLE user_role1 RENAME TO user_role2;
--- Oracle move rename table:
-CREATE TABLE user_roleTMP AS SELECT * FROM user_role;
-DROP TABLE user_role;  -- ...if it worked do this...
-CREATE TABLE user_role AS SELECT * FROM user_roleTMP;  -- ...then this
-
--- Oracle days from today, two days ago:
-select to_char(sysdate-2, 'DD-MON-YY') from dual
-select sysdate-2 from dual
 
 Windows work gvim GUI Target: icon:
 "C:\Program Files\Vim\vim73\gvim.exe" -u u:\code\misccode\_vimrc
@@ -6663,85 +6763,7 @@ alert( 6.35.toFixed(20) ); // 6.34999999999999964473
 alert( (6.35 * 10).toFixed(20) ); // 63.50000000000000000000
 alert( Math.round(6.35 * 10) / 10); // 6.35 -> 63.5 -> 64(rounded) -> 6.4
 
--- plsql rc
-define_editor="C:\Program Files (x86)\Vim\vim74\gvim.exe -u C:\Users\obheck\_gvimrc"
-
--- Oracle date constant TIMESTAMP '2012-10-29 12:01:01'
-select DATE '1978-12-25' from dual;
-
-NVL2(x, return_value1_bc_x_isNOTnull, return_value2_bc_x_ISnull);
-
-INSERT INTO...; SAVEPOINT bobora; INSERT INTO...; ROLLBACK TO bobora;
-
--- Oracle regex:
-select object_name, object_type from user_objects where object_type in ('PACKAGE') AND regexp_like(object_name, '.*BOBONCALL.*')
-
--- Oracle what objects are available? ls for db:
-select object_name, object_type from user_objects where object_type in ('VIEW','TABLE','PACKAGE','PROCEDURE','FUNCTION') and lower(object_name) like '%acc%' order by 2,1
-
--- Oracle invalid objects:
-select * from user_objects o where object_type != 'JAVA CLASS' and status = 'INVALID';
-
--- Oracle date subtraction:
-where lc.updated >= TRUNC(SYSDATE - (365 * 2)) -- 2 year window
-
--- Oracle function declaration:
-FUNCTION hasLinkages(in_accountId NUMBER, in_contextBeingUsed NUMBER DEFAULT 2) RETURN NUMBER;
-
-SELECT REGEXP_COUNT ('Oracle PL/SQL By Example Updated for Oracle 11g', 'ora', 1, 'i') FROM dual;
-
--- Oracle user sessions Who is logged:
-select * from v$session where username is not null order by logon_time, sid
-
--- Oracle run script plsql developer SQL> @C:\cygwin64\home\obheck\code\misccode\query.sql:
-$ sqlplus -S me/pw@esd @query.sql
-$ vi ~/code/misccode/query.sql && (cd ~/code/misccode/ && sqlplus -S me/pw@esd @query.sql && vi $c/temp/query.out)
-
--- Oracle package count:
-SELECT OBJECT_NAME, count(*) FROM dba_procedures WHERE OWNER = 'SETARS' AND OBJECT_TYPE IN('PROCEDURE' , 'PACKAGE','FUNCTION') AND procedure_name IS NOT NULL GROUP BY object_name;
-
--- Oracle quoting masking also max varchar2:
-foo CONSTANT  varchar2(4000) := q'[bar 'ok']';
-
-ALTER PACKAGE test_ora04068 COMPILE PACKAGE;
-
--- Oracle cross database:
-SELECT \*+ DRIVING_SITE(SITE) *\ COUNT(*) FROM DB_OWNER.DI_SITE_DATA@DNB_XXXX SITE WHERE SITE.DUNS_NBR = :1
-
--- Use my id or superowner's
-..., actual_updatedby = nvl(sys_context('mystars_context', 'employee_id'), 0)
-
--- Kill Oracle session (session id, serial #):
-SQL> exec sys.kill_session(51,6449);
-
 -- case when
 select ch.clientid, '' as x1, case when ac.actioncodeid=20109 then 'IMM_FAMILY=AV_HEPATITIS' when ac.actioncodeid=20114 then 'IMM_FAMILY=AV_INFLUENZA' end as x9 from ...
 
--- Oracle userid
-EXECUTE IMMEDIATE q'[ SELECT sys_context('setars_context', 'employee_id') from dual ]' INTO whoami;
-
--- In one table not in the other table:
-(select * from z_REF_CORPORATE_INITIATIVE minus select * from REF_CORPORATE_INITIATIVE) -- all rows that are in T1 but not in T2
-union all
-(select * from REF_CORPORATE_INITIATIVE minus select * from z_REF_CORPORATE_INITIATIVE)  -- all rows that are in T2 but not in T1
-
-CREATE OR REPLACE FUNCTION f RETURN SYS_REFCURSOR AS c SYS_REFCURSOR; BEGIN OPEN c FOR select * from dual; RETURN c; END; /
-
-SELECT INSTR('CORPORATE FLOOR','OR', 3, 2) FROM dual  -- 14 here, 0 if not found
-
--- Overflows using PLS_INTEGER ok with INTEGER:
-DECLARE p1 PLS_INTEGER := 2147483647; p2 INTEGER := 1; n NUMBER; BEGIN n := p1 + p2; END; /
-
-alter table CONTAC add constraint NN_CONTAC_ORIGIN_LOV_ID check("ORIGIN_LOV_ID" IS NOT NULL);
-
-select constraint_name, constraint_type from user_constraints@sep WHERE constraint_name LIKE 'NN%ORIGIN%';
-
--- Find uncommitted transactions
-select s.sid ,s.serial# ,s.username ,s.machine ,s.status ,s.lockwait ,t.used_ublk ,t.used_urec ,t.start_time from v$transaction t inner join v$session s on t.addr = s.taddr;
-
--- Random ids 0.1% of all records in Oracle table:
-SELECT account_id FROM account_name SAMPLE(0.1);
-
-rc := SQL%ROWCOUNT; dbms_output.put_line('rows affected: ' || rc);  -- place this before COMMIT
-
-xxOTHERxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
+xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

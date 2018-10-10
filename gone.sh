@@ -9,13 +9,11 @@
 #           NOTE: Keep 2 blank lines before the xxFOOxx lines in oneliners
 #           to avoid seeing the tag in search results.
 #
-#           Depends on .bashrc's $fg_... 
-#
 #           TODO fix inability to pass -c -0
 #           TODO add CANONICAL switch
 #
 #  Created: Wed 20 Nov 2002 12:54:09 (Bob Heckel)
-# Modified: Thu 10 Aug 2017 17:08:30 (Bob Heckel)
+# Modified: Mon 08 Oct 2018 15:00:42 (Bob Heckel)
 ##############################################################################
   
 F="$HOME/dotfiles/oneliners"
@@ -24,7 +22,7 @@ IGCASE=--ignore-case
 ###CANONICAL=0
 
 Usage() {
-  echo "Usage: `basename $0` [-c] PERLREGEX [(v)im|(s)as|(p)erl|(u)nix|(o)ther]
+  echo "Usage: `basename $0` [-c] PERLREGEX [(v)im|(s)as|(p)erl|(u)nix|(d)atabase|(m)isc]
              -c   case sensitive search (default is INsensitive)
              -0   no before and after context from grep(1)
 
@@ -79,10 +77,10 @@ elif test "$2" = 'pl'; then
   s=perl
 elif test "$2" = 'u'; then
   s=unix
-elif test "$2" = 'o'; then
-  s=other
+elif test "$2" = 'd'; then
+  s=database
 elif test "$2" = 'm'; then
-  s=other
+  s=misc
 elif test "$2" = 's'; then
   s=sas
 elif test "$2" = 'v'; then
@@ -90,7 +88,7 @@ elif test "$2" = 'v'; then
 else
   # An incorrect section was specified (skip if no section specified)
   if [ ! -z "$2" ]; then
-    echo "ERROR:  available sections are (v)im, (s)as, (p)erl, (u)nix, (o)ther/(m)isc"
+    echo "ERROR:  available sections are (m)isc, (d)atabase, (p)erl, (s)as, (u)nix, (v)im"
     exit 1
   fi
 fi
