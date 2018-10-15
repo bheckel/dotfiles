@@ -5269,10 +5269,10 @@ xxDATABASExx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 -- These words replace the comma between tablenames in old style Oracle (+) joins:
 LEFT OUTER JOIN
 
--- Only on one table (Oracle v8 can't use JOIN ON syntax!)
+-- Only on one table:
 select a.numb, b.numb from tmp1 a LEFT JOIN tmp2 b on a.numb=b.numb where b.numb IS NULL
 
--- Copy first few rows of Oracle table into new one that does not already exist:
+-- Copy first few rows of a table into a new table:
 INSERT INTO bobhlm SELECT * FROM links_material WHERE rownum<11;
 
 --Get Oracle database instance version rack etc information v9+
@@ -5285,8 +5285,6 @@ EXECUTE IMMEDIATE q'[ SELECT sys_context('setars_context', 'employee_id') from d
 (select * from z_REF_CORPORATE_INITIATIVE minus select * from REF_CORPORATE_INITIATIVE) -- all rows that are in T1 but not in T2
 union all
 (select * from REF_CORPORATE_INITIATIVE minus select * from z_REF_CORPORATE_INITIATIVE)  -- all rows that are in T2 but not in T1
-
-CREATE OR REPLACE FUNCTION f RETURN SYS_REFCURSOR AS c SYS_REFCURSOR; BEGIN OPEN c FOR select * from dual; RETURN c; END; /
 
 SELECT INSTR('CORPORATE FLOOR','OR', 3, 2) FROM dual  -- 14 here, 0 if not found
 
@@ -5500,6 +5498,52 @@ SQL> desc mytable
 
 -- Oracle list view names
 SQL> select * from all_views where view_name like '%SPEC%'
+
+-- Oracle deep copy clone table:
+select dbms_metadata.get_ddl('TABLE', 'ACTIVITY_SEARCH') from dual;
+select dbms_metadata.get_dependent_ddl('TABLE', 'ACTIVITY_SEARCH') from dual;
+
+-- Oracle random comma separated list of ids
+SELECT listagg(account_search_id,',') WITHIN GROUP (ORDER BY account_search_id) FROM account_search SAMPLE(0.1) WHERE ROWNUM<99
+
+CREATE OR REPLACE FUNCTION f RETURN SYS_REFCURSOR AS c SYS_REFCURSOR; BEGIN OPEN c FOR select * from dual; RETURN c; END; /
+
+-- Strong cursor.  SYS_REFCURSOR is always weak.
+TYPE book_data_t IS REF CURSOR RETURN book%ROWTYPE;
+
+where decode( col1, col2, 1, 0 ) = 1  -- finds sameness - even if both NULL
+
+-- PLSQL null comparison (decode won't work):
+IF (updated1 = updated0) AND (updatedby1 = updatedby0) AND ( (search_match_code1 = search_match_code0) OR ((search_match_code1 IS NULL) AND (search_match_code0 IS NULL)) ) THEN
+
+-- Canonical sqlplus
+SQL> define_editor=gvim
+SQL> ed foo  -- sqlplus adds an .sql extension so probably don't need the -c vim stuff
+SQL> @foo
+
+-- Canonical sqlplus save spool output to file
+set termout off; set linesize 2000; set pagesize 9999; spool u:/serevent.out; ...SQL...; spool off; quit;
+
+-- userid/password@hostname
+$ sqlplus pks/ev123dba@sdev388
+$ sqlplus pks/ev123dba@sdev388 @c:/cygwin//home/rheckel/code/misccode/_sqlplusrc.sql
+$ sqlplus pks/ev123dba@sdev388 @t.sql --need an exit; in t.sql to run standalone
+
+SQL> define_editor='c:/program files/vim/vim70/gvim -c "set filetype=sql"'
+SQL> set linesize 1000;  -- avoid truncation of results
+
+-- Oracle PL/SQL print
+set serveroutput on;  -- or set serveroutput on size unl;
+BEGIN DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('Hello World' || chr(10)); END; -- then type /
+
+-- SQL DDL make a copy of a database table:
+CREATE TABLE mycopy AS SELECT * FROM origtbl
+
+-- Oracle nonaggregated expression (rownum) in an aggregated query - SQL hack:
+select rownum, a.* from (select cust, count(ord) from tbl group by cust) a;
+
+-- Oracle view constraints if your drop table doesn't work:
+select * from user_constraints where table_name = 'COUNTRIES';
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5785,35 +5829,6 @@ select * from tst_rslt_summary where samp_id=&&sampy;
 shutdown.exe -a
 :: or 
 /cygdrive/c/WINDOWS/system32/shutdown -a
-
--- Canonical sqlplus
-SQL> define_editor=gvim
-SQL> ed foo  -- sqlplus adds an .sql extension so probably don't need the -c vim stuff
-SQL> @foo
-
--- Canonical sqlplus save spool output to file
-set termout off; set linesize 2000; set pagesize 9999; spool u:/serevent.out; ...SQL...; spool off; quit;
-
--- userid/password@hostname
-$ sqlplus pks/ev123dba@sdev388
-$ sqlplus pks/ev123dba@sdev388 @c:/cygwin//home/rheckel/code/misccode/_sqlplusrc.sql
-$ sqlplus pks/ev123dba@sdev388 @t.sql --need an exit; in t.sql to run standalone
-
-SQL> define_editor='c:/program files/vim/vim70/gvim -c "set filetype=sql"'
-SQL> set linesize 1000;  -- avoid truncation of results
-
--- Oracle PL/SQL print
-set serveroutput on;  -- or set serveroutput on size unl;
-BEGIN DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('Hello World' || chr(10)); END; -- then type /
-
--- SQL DDL make a copy of a database table:
-CREATE TABLE mycopy AS SELECT * FROM origtbl
-
--- Oracle nonaggregated expression (rownum) in an aggregated query - SQL hack:
-select rownum, a.* from (select cust, count(ord) from tbl group by cust) a;
-
--- Oracle view constraints if your drop table doesn't work:
-select * from user_constraints where table_name = 'COUNTRIES';
 
 86400 seconds in a day
 
@@ -6255,19 +6270,16 @@ git log --pretty=oneline
 git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
 git log --since="3 months ago" --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %d [%an]" --graph --date=short
 
-# git new branch:
-git branch mynewbranch; git checkout mynewbranch # or just branch and checkout in one swoop: git checkout -b mynewbranch
+# git create new then checkout branch:
+git branch mynewbranch; git checkout mynewbranch
+git checkout -b mynewbranch
 
 # git poke around:
-git branch -a; git remote -v; git remote show origin;
-
-# git switch branches
-git checkout master
+git status; git log; git branch -a; git remote -v; git remote show origin;
 
 # git commit mantra git mantra:
 git add . && git commit -m 'cleanup' && git push origin master
 git add . && git commit -m 'mod'  # or better  git commit -a -m 'mod'
-git add cfg/DataPost_Configuration.xml && git commit -m 'mod single file'
 
 # github commit mantra (github is origin):
 gs |grep modified
@@ -6303,10 +6315,6 @@ git commit --amend -m 'this changes your last, wrong, commit message to this'
 # List git branch dates sorted descending
 git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)"
 
-# Diff anything uncommitted:
-git diff 97a158d 5e4abd2 # or git diff (assumes HEAD) or git diff cfg/ or git diff cfg/DataPost_Configuration.xml
-git difftool  # uses vimdiff if previously  $ git config --global merge.tool vimdiff
-
 # Diff with last commit:
 git show
 # View git old version of file from different branch (in pager):
@@ -6317,12 +6325,19 @@ git show master:cfg/DataPost_Configuration.html |vi -
 # git edit modify rewrite previous existing git commit message:
 git commit --amend -m 'change your previous, last, wrong, commit message to this'
 
+# Diff anything uncommitted:
+git diff 97a158d 5e4abd2 # or git diff (assumes HEAD) or git diff cfg/ or git diff cfg/DataPost_Configuration.xml
+
+git difftool  # uses vimdiff if previously  $ git config --global merge.tool vimdiff
+
+# Compare commits:
+git difftool 3a93bc3 1fb24fe
+
 # git compare a file from another branch:
-git difftool anotherbranch code/DataPost_Trend.sas  # see what's different, if that's ok then...
-git fshow anotherbranch  # see just the last mod filenames in anotherbranch
-git checkout anotherbranch code/DataPost_Trend.sas  # ...replace the current branch's file
-# Compare old version of file from different commit to this commit - current (hash-less) commit must come 2nd!!:
-git difftool eacbd91:code/ods_0002e.sas code/ods_0002e.sas
+git difftool master SET_MATCH_CODE.prc
+
+# Compare old version of file from different commit - hash-less filename must come 2nd!!:
+git difftool 1908af7:./PTG.pck PTG.pck
 
 # Rename branch local (current) branch:
 git branch -m mynewbranchname
@@ -6336,9 +6351,6 @@ git clone git@github.com:bheckel/dotfiles.git && git remote add origin git@githu
 # But may need this first or instead of remote add if your clone was git clone git://github.com/bheckel/misc.git
 git remote set-url origin git@github.com:bheckel/dotfiles.git
 
-# Compare commits:
-git difftool 3a93bc3 1fb24fe
-
 # Test AJAX etc that won't work using file:// etc.
 $ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
 
@@ -6346,13 +6358,9 @@ $ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
 dateadd(dd,0, datediff(dd,0, fwn.VariableStp.dtSplTakenTime)) as dt
 
 <!-- Predefined character entities -->
-&lt; &gt; &quot; &amp; &apos;  &#169; or &#xA9 is copyright symbol
+&lt; &gt; &quot; &amp; &apos;  &#169; or &#xA9 is copyright symbol ©
 
-<![CDATA[ ...protected stuff goes here... ]]>
-
-<ExtractString><![CDATA[
-      foo
-]]></ExtractString>
+<ExtractString><![CDATA[ protected stuff goes here...  ]]></ExtractString>
 
 private static final String[] items={"java", "strings", "in", "array"};
 
@@ -6765,5 +6773,7 @@ alert( Math.round(6.35 * 10) / 10); // 6.35 -> 63.5 -> 64(rounded) -> 6.4
 
 -- case when
 select ch.clientid, '' as x1, case when ac.actioncodeid=20109 then 'IMM_FAMILY=AV_HEPATITIS' when ac.actioncodeid=20114 then 'IMM_FAMILY=AV_INFLUENZA' end as x9 from ...
+
+SELECT cast(sys_context('mycontext', 'actual_employee_id') AS NUMBER) FROM dual
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
