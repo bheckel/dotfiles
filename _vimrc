@@ -1902,6 +1902,7 @@ if !exists("autocommands_loaded")
     " au BufEnter all.sql set foldmethod=marker
   " end Temporary project-specific
   end
+  cab SqL e /cygdrive/c/Orion/workspace/data/Source/SQL/
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 
 endif  " ! autocommands_loaded

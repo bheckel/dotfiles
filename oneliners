@@ -5275,7 +5275,7 @@ select a.numb, b.numb from tmp1 a LEFT JOIN tmp2 b on a.numb=b.numb where b.numb
 -- Copy first few rows of a table into a new table:
 INSERT INTO bobhlm SELECT * FROM links_material WHERE rownum<11;
 
---Get Oracle database instance version rack etc information v9+
+--Get Oracle database instance version, rack, status etc information v9+:
 select * from v$instance;
 
 -- Oracle userid
@@ -5301,7 +5301,7 @@ select s.sid ,s.serial# ,s.username ,s.machine ,s.status ,s.lockwait ,t.used_ubl
 -- Random ids 0.1% of all records in Oracle table:
 SELECT account_id FROM account_name SAMPLE(0.1);
 
-rc := SQL%ROWCOUNT; dbms_output.put_line('rows affected: ' || rc);  -- place this before COMMIT
+rc PLS_INTEGER; rc := SQL%ROWCOUNT; dbms_output.put_line('rows affected: ' || rc);
 
 TYPE varray_type IS VARRAY(4) OF VARCHAR2(15);  -- Oracle collection
 TYPE associativearray_type_str IS TABLE OF INTEGER INDEX BY VARCHAR2(10);  -- Oracle collection
@@ -5354,7 +5354,8 @@ SELECT OBJECT_NAME, count(*) FROM dba_procedures WHERE OWNER = 'SETARS' AND OBJE
 -- Oracle quoting masking also max varchar2:
 foo CONSTANT  varchar2(4000) := q'[bar 'ok']';
 
-ALTER PACKAGE test_ora04068 COMPILE PACKAGE;
+ALTER PACKAGE ZTESTBOB COMPILE PACKAGE; show errors PACKAGE ZTESTBOB;
+ALTER PACKAGE ZTESTBOB COMPILE PACKAGE BODY; show errors PACKAGE BODY ZTESTBOB;
 
 SQL> alter procedure z_set_activ_match_code compile;  show errors
 
@@ -5424,9 +5425,10 @@ select ABS(round(dbms_random.normal*100,-1)) from dual;
 
 select rpad('Melanie', 10, '*') Melanie, lpad('Caffrey', 10, '.') Caffrey
 
--- Oracle update query samples: 
-update pks_extraction_control set pks_level='' where pks_level='.';
+-- Oracle update query: 
 update retain.fnsh_prod set prod_sel = 'N', prod_sel_dt = NULL;
+
+Oracle YYYYMMDDHH24MISS date vaguely like epoch: 20070304184943
 
 -- Oracle SQL*Plus (like SELECT TOP 10 *... in SQL Server)
 select * from activity_log where rownum<10;
@@ -5544,6 +5546,19 @@ select rownum, a.* from (select cust, count(ord) from tbl group by cust) a;
 
 -- Oracle view constraints if your drop table doesn't work:
 select * from user_constraints where table_name = 'COUNTRIES';
+
+BEGIN FOR i IN x.FIRST .. x.LAST LOOP DBMS_OUTPUT.PUT_LINE(x(i)); END LOOP;
+
+-- Oracle DDL for DROP all procedures matching pattern:
+SELECT 'DROP PROCEDURE "'||owner||'"."'||object_name||'";' FROM all_procedures WHERE procedure_name IS NULL AND UPPER(object_name) LIKE 'Z_SET_%';
+
+-- Oracle select year only
+extract(year from h.updated) in (2017,2018)
+
+-- sleep pause execution for 60 seconds 
+SELECT sysdate INTO l_now FROM DUAL; LOOP EXIT WHEN l_now +(60 * (1 / 86400)) = sysdate; END LOOP;
+
+select SYSTIMESTAMP from dual;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5864,9 +5879,6 @@ Foreign Key is that same value stored within MULTIPLE rows of the "detail" table
 CREATE TABLE foo ( ..., employee_id INTEGER NOT NULL REFERENCES employee(employee_id), ... );
 
 c:> echo %random%
-
-Oracle YYYYMMDDHH24MISS date sample:
-20070304184943
 
 Hidden startup executables (not found in Programs:StartUp see also Powershell approach):
 HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
@@ -6346,7 +6358,9 @@ git branch mynewbranch master  # copy branch from a specific branch, in this cas
 
 git add README  # use git add -f README to force add if it's excluded by .gitignore
 
-# Existing github repo on a new foreign box (do git remote rm origin first if get "you can't push to" error):
+git clone https://github.com/grayghostvisuals/Practice-Git.git
+
+# Existing github repo on a new foreign box:
 git clone git@github.com:bheckel/dotfiles.git && git remote add origin git@github.com:bheckel/dotfiles.git; ...edit/add/commit... git pull origin master && git push origin master
 # But may need this first or instead of remote add if your clone was git clone git://github.com/bheckel/misc.git
 git remote set-url origin git@github.com:bheckel/dotfiles.git
@@ -6775,5 +6789,11 @@ alert( Math.round(6.35 * 10) / 10); // 6.35 -> 63.5 -> 64(rounded) -> 6.4
 select ch.clientid, '' as x1, case when ac.actioncodeid=20109 then 'IMM_FAMILY=AV_HEPATITIS' when ac.actioncodeid=20114 then 'IMM_FAMILY=AV_INFLUENZA' end as x9 from ...
 
 SELECT cast(sys_context('mycontext', 'actual_employee_id') AS NUMBER) FROM dual
+
+-- git delete branch
+git branch -d feature/ORION-31587 && git push origin --delete feature/ORION-31587 && git branch -r && git fetch -p
+
+-- Oracle random subset
+CREATE TABLE zzorion32822 AS SELECT * FROM zorion32822 SAMPLE(0.01)
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
