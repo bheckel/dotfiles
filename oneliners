@@ -5560,6 +5560,36 @@ SELECT sysdate INTO l_now FROM DUAL; LOOP EXIT WHEN l_now +(60 * (1 / 86400)) = 
 
 select SYSTIMESTAMP from dual;
 
+-- List all Oracle tables:
+SELECT owner, table_name FROM all_tables where owner = 'myschema';
+SELECT table_name FROM user_tables;
+-- List all Oracle tables & views with a certain field name poke around:
+SELECT table_name, column_name FROM cols WHERE lower(table_name) LIKE 'accou%' AND lower(column_name) LIKE '%id%';
+
+select * from dba_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
+
+select * from SYS.USER_SOURCE t WHERE t.TYPE='PACKAGE BODY' AND (upper(t.TEXT) LIKE '%CONSTANT%' OR UPPER(t.text) LIKE '%TYPE%')
+
+-- SQL Server list information about each owner's table in a database:
+select * from information_schema.tables where table_type='BASE TABLE' and table_schema='rheckel'
+
+CREATE TEMP TABLE _bob AS select atebpatientid FROM public.hppatientstarpdc;
+
+-- Oracle parent hierarchy:
+SELECT LOV.LIST_OF_VALUES_ID, LOV.VALUE FROM LIST_OF_VALUES LOV WHERE LOV.RETIRED = 0 START WITH LOV.LIST_OF_VALUES_ID IN (1,2,3) CONNECT BY PRIOR LOV.LIST_OF_VALUES_ID = LOV.PARENT_ID
+select sys_connect_by_path (job, '/') job_path, sys_connect_by_path (ename, '/') ename_path from scott.emp start with mgr is null connect by prior empno=mgr
+
+-- Oracle hostname
+SELECT SYS_CONTEXT('USERENV', 'SERVER_HOST') FROM DUAL;
+
+-- Oracle primary (P) foreign (R) keys:
+SELECT * FROM ALL_CONSTRAINTS WHERE owner=USER
+
+-- Correlated update query:
+UPDATE contact_note SET original_contact_ID=contact_id WHERE contact_id IN (SELECT contact_id FROM zzorion32806) AND original_contact_ID IS NULL
+
+rc pls_integer := 0; rc := SQL%ROWCOUNT; dbms_output.put_line('rows affected: ' || rc); 
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1

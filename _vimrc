@@ -10,7 +10,7 @@
 "           toys, effectively expert-proofed -- Tom Christiansen
 "
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Mon 27 Aug 2018 11:58:39 (Bob Heckel)
+" Modified: Mon 22 Oct 2018 11:31:55 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -440,13 +440,6 @@ set diffexpr="--ignore-blank-lines"
 
 "                               17 mapping {{{2
 
-"""if ( unixbox == 'sverige' || unixbox == 'otaku' || unixbox == 'iceland' || unixbox == 'sdf' ) 
-""""""  set ttimeoutlen=50
-"""  set nottyfast
-""""""else
-""""""  set ttimeoutlen=10
-"""endif
-
 " Mapping delay.  E.g. ,m   Also need to change HelpPager() if change this.
 set timeoutlen=333
 
@@ -805,15 +798,6 @@ nnoremap ,a a <ESC>
 " z66-like map).  Works to cycle through horizontal AND vertical split
 " windows.  Also see nnoremap zz to cycle windows without maximizing.
 nnoremap ,b <C-W>w<C-W>_
-
-" Quick (c)o(p)y entire file to clipboard and exit:
-"""if has('win32unix')
-"""	nnoremap ,cp :%!putclip<CR><CR>u<CR>:q
-"""elseif has('unix')
-"""	nnoremap ,cp :%!xclip<CR>:q<CR>
-"""elseif has('gui_running')
-"""  nnoremap ,cp mzggVG<Esc>`z
-"""endif
 
 " Edit another file in the same directory as the current file that you navigated to (without having to change pwd via cd %:h):
 if has('unix')
@@ -1667,7 +1651,7 @@ if !exists("autocommands_loaded")
   " Filter SAS Log for error-like lines (and lines that should be errors) only
   au BufNewFile,BufRead,BufEnter *.log nnoremap <silent> <F8> :g!/^ERROR:\\\|^WARNING:\\\|lines were truncated\\\|^NOTE: Invalid data for\\\|^NOTE: Variable/d<CR>
   " au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR:/<CR>
-  au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\|^WARNING:/<CR>
+  au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\\|^WARNING:/<CR>
   " au BufNewFile,BufRead,BufEnter *.log set guifont=Consolas:h8
   au BufNewFile,BufRead,BufEnter *.pck,*.prc set filetype=plsql
   au BufNewFile,BufRead,BufEnter *.pck,*.prc let b:match_words = '\<begin\>:\<end\>,\<loop\>:\<end loop\>'
@@ -1903,6 +1887,7 @@ if !exists("autocommands_loaded")
   " end Temporary project-specific
   end
   cab SqL e /cygdrive/c/Orion/workspace/data/Source/SQL/
+  iab DbO dbms_output.put_line();<Esc><Left>i
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 
 endif  " ! autocommands_loaded
