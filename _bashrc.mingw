@@ -1,0 +1,37 @@
+# _bashrc.mingw
+# Avoid using my monstrous .bashrc in MINGW environments
+# Modified: Mon 29 Oct 2018 12:07:07 (Bob Heckel)
+
+set -o vi
+alias by=exit
+alias cod='git checkout develop'
+alias f=fg
+alias h='history|tail -n20'
+alias gpull='git pull'
+alias gs='git status'
+alias vi='vi -R'
+
+bak() {
+  cp -iv ${1} ${1}.bak
+}
+
+# Git Log
+gl() {
+  # e.g. gl mybranch 20
+  echo 'What changed between commits e.g. git difftool 2576255 2704773'
+	local branch=$1
+  test  "x$branch" = "x" && branch='CURRENT BRANCH'
+  local days=$2
+  test  "x$days" = "x" && days=25
+  git log --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %d [%an]" \
+	        --graph \
+					--date=short $1 \
+					|sed "s/^\* //g" \
+					|head -n$days; \
+					echo -n; echo; echo "${fg_darkgray} ...displaying last $days $branch";
+}
+
+rmv() {
+  mkdir --parent ~/tmp
+  mv "$1" ~/tmp
+}

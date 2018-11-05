@@ -2589,9 +2589,9 @@ xxUNIXxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 date +%d%b%y  # 31Mar16 like SAS DATE7.
 TODAY=`date +%Y%m%d`  # 20160331
 
-# Canonical find and then grep
+# Canonical find and then grep:
+for f in $(find . | grep orion-32 | grep -P '.*pck|.*sql|.*prc|.*fnc'); do grep --with-filename bheck $f; done >| ~/tmp/t.out; vi ~/tmp/t.out
 find /opt/QCServer/A.05.00/svr/files -name 'Inspec_Lot-*' -mtime -3 | xargs grep "Error:"
-ssh tpsh005 'find /opt/QCServer/A.05.00/svr/files -name 'Inspec_Lot-*' -mtime -3 -exec grep "Error:" {} \;'
 ssh tpsh005 'find /opt/QCServer/A.05.00/svr/files -name 'Inspec_Lot-*' -mtime -3 -exec grep "Error:" {} \; | tail'
 
 # Find newish file that is not empty:
@@ -5269,10 +5269,15 @@ xxDATABASExx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 -- These words replace the comma between tablenames in old style Oracle (+) joins:
 LEFT OUTER JOIN
 
--- Only on one table:
+-- Only on one table not in the other table:
 select a.numb, b.numb from tmp1 a LEFT JOIN tmp2 b on a.numb=b.numb where b.numb IS NULL
 
--- Copy first few rows of a table into a new table:
+-- Only on one table not in the other table:
+(select * from z_REF_CORPORATE_INITIATIVE minus select * from REF_CORPORATE_INITIATIVE) -- all rows that are in T1 but not in T2
+union all
+(select * from REF_CORPORATE_INITIATIVE minus select * from z_REF_CORPORATE_INITIATIVE)  -- all rows that are in T2 but not in T1
+
+-- Copy first few rows of Oracle table into a new table:
 INSERT INTO bobhlm SELECT * FROM links_material WHERE rownum<11;
 
 --Get Oracle database instance version, rack, status etc information v9+:
@@ -5280,11 +5285,6 @@ select * from v$instance;
 
 -- Oracle userid
 EXECUTE IMMEDIATE q'[ SELECT sys_context('setars_context', 'employee_id') from dual ]' INTO whoami;
-
--- In one table not in the other table:
-(select * from z_REF_CORPORATE_INITIATIVE minus select * from REF_CORPORATE_INITIATIVE) -- all rows that are in T1 but not in T2
-union all
-(select * from REF_CORPORATE_INITIATIVE minus select * from z_REF_CORPORATE_INITIATIVE)  -- all rows that are in T2 but not in T1
 
 SELECT INSTR('CORPORATE FLOOR','OR', 3, 2) FROM dual  -- 14 here, 0 if not found
 
@@ -5297,9 +5297,6 @@ select constraint_name, constraint_type from user_constraints@sep WHERE constrai
 
 -- Find uncommitted transactions
 select s.sid ,s.serial# ,s.username ,s.machine ,s.status ,s.lockwait ,t.used_ublk ,t.used_urec ,t.start_time from v$transaction t inner join v$session s on t.addr = s.taddr;
-
--- Random ids 0.1% of all records in Oracle table:
-SELECT account_id FROM account_name SAMPLE(0.1);
 
 rc PLS_INTEGER; rc := SQL%ROWCOUNT; dbms_output.put_line('rows affected: ' || rc);
 
@@ -5412,7 +5409,7 @@ WHERE prod_sel_dt BETWEEN TO_DATE('01-JAN-10','DD-MON-YY') AND TO_DATE('31-JAN-1
 -- Oracle last few days search (if activity_dt is DATE formatted):
 select count(*) from activity_log where activity_dt > (SYSDATE-3);
 
--- Oracle same as standard SAS DATE9.
+-- Oracle 11/2/2018 9:08:23 AM becomes 11/2/2018
 select trunc(sysdate) from dual
 
 -- Oracle date only this month:
@@ -5441,10 +5438,6 @@ dbms_output.put_line('rpt at: ' || TO_CHAR(sysdate, 'dd-mon-yy hh:mipm'));
 -- Oracle Business hours only
 ...if (TO_CHAR(sysdate, 'DY') in ('SAT', 'SUN') or
 (TO_CHAR(sysdate, 'HH24') not between '08' and '18') ...
-
--- Oracle CASE or IF-THEN-ELSE shortcut, replacement
---                                IF  THEN     IF       THEN  ELSE
-select prod_nm, decode(prod_grp,'MDPI','m','Solid Dose','sd','unk') from samp;
 
 -- Format Oracle format if column too wide that truncation occurs in sql*plus window:
 sql> col[umn] MFG_SPEC_TXT_A format a15
@@ -5513,10 +5506,15 @@ CREATE OR REPLACE FUNCTION f RETURN SYS_REFCURSOR AS c SYS_REFCURSOR; BEGIN OPEN
 -- Strong cursor.  SYS_REFCURSOR is always weak.
 TYPE book_data_t IS REF CURSOR RETURN book%ROWTYPE;
 
-where decode( col1, col2, 1, 0 ) = 1  -- finds sameness - even if both NULL
+-- Oracle CASE or IF-THEN-ELSE replacement:
+SELECT symbol, DECODE(earnings, 0, NULL, price / earnings)
+--                                IF  THEN     IF       THEN  ELSE
+select prod_nm, decode(prod_grp,'MDPI','m','Solid Dose','sd','unk') from samp;
 
--- PLSQL null comparison (decode won't work):
+-- PLSQL null comparison (decode better?):
 IF (updated1 = updated0) AND (updatedby1 = updatedby0) AND ( (search_match_code1 = search_match_code0) OR ((search_match_code1 IS NULL) AND (search_match_code0 IS NULL)) ) THEN
+
+where decode( col1, col2, 1, 0 ) = 1  -- finds sameness - even if both NULL
 
 -- Canonical sqlplus
 SQL> define_editor=gvim
@@ -5537,9 +5535,6 @@ SQL> set linesize 1000;  -- avoid truncation of results
 -- Oracle PL/SQL print
 set serveroutput on;  -- or set serveroutput on size unl;
 BEGIN DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('Hello World' || chr(10)); END; -- then type /
-
--- SQL DDL make a copy of a database table:
-CREATE TABLE mycopy AS SELECT * FROM origtbl
 
 -- Oracle nonaggregated expression (rownum) in an aggregated query - SQL hack:
 select rownum, a.* from (select cust, count(ord) from tbl group by cust) a;
@@ -5589,6 +5584,17 @@ SELECT * FROM ALL_CONSTRAINTS WHERE owner=USER
 UPDATE contact_note SET original_contact_ID=contact_id WHERE contact_id IN (SELECT contact_id FROM zzorion32806) AND original_contact_ID IS NULL
 
 rc pls_integer := 0; rc := SQL%ROWCOUNT; dbms_output.put_line('rows affected: ' || rc); 
+
+-- Oracle random subset:
+CREATE TABLE zzorion32822 AS SELECT * FROM zorion32822 SAMPLE(0.01)
+-- Random ids 0.1% of all records in Oracle table:
+SELECT account_id FROM account_name SAMPLE(0.1);
+
+-- Oracle error message exception:
+dbms_output.put_line(SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
+
+-- Oracle recompile entire schema:
+DBMS_UTILITY.compile_schema('SETARS', false);
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6314,7 +6320,7 @@ git log --since="3 months ago" --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %
 
 # git create new then checkout branch:
 git branch mynewbranch; git checkout mynewbranch
-git checkout -b mynewbranch
+git checkout -b mynewbranch  # same
 
 # git poke around:
 git status; git log; git branch -a; git remote -v; git remote show origin;
@@ -6324,15 +6330,16 @@ git add . && git commit -m 'cleanup' && git push origin master
 git add . && git commit -m 'mod'  # or better  git commit -a -m 'mod'
 
 # github commit mantra (github is origin):
-gs |grep modified
 git add _bashrc _vimrc oneliners && git commit -m 'mod' && git push origin master
 
-# git merge something into current branch:
+# git merge something into master branch:
 git checkout master && git merge mynewbranch && git branch -d mynewbranch
 
-# git discard throw away trash changes:
+# git revert discard throw away trash changes:
 git checkout -- DataPost_Configuration.map  # BEST single file trash changes
 git checkout .   # abandon all pending changes "not staged for commit"
+# git revert discard a pull:
+git reset --hard ORIG_HEAD; git gc;
 
 # git whatif changes:
 git stash
@@ -6347,8 +6354,6 @@ git stash apply stash@{1}
 git checkout .
 
 # git delete branch if merged (-D if not):
-git branch -d killthisbranch
-
 git ls-files  # list which files are tracked under git source control not just staged
 
 # Edit git existing previous git commit messages:
@@ -6374,6 +6379,11 @@ git difftool  # uses vimdiff if previously  $ git config --global merge.tool vim
 
 # Compare commits:
 git difftool 3a93bc3 1fb24fe
+
+# See what changes you are committing:
+git diff HEAD
+# See what changes you are committing including previous commit:
+git diff HEAD^
 
 # git compare a file from another branch:
 git difftool master SET_MATCH_CODE.prc
@@ -6820,10 +6830,14 @@ select ch.clientid, '' as x1, case when ac.actioncodeid=20109 then 'IMM_FAMILY=A
 
 SELECT cast(sys_context('mycontext', 'actual_employee_id') AS NUMBER) FROM dual
 
--- git delete branch
-git branch -d feature/ORION-31587 && git push origin --delete feature/ORION-31587 && git branch -r && git fetch -p
+git branch --set-upstream-to=origin feature/ORION-33077  # now you can pull BUT this breaks pull requests so...
+git push -set-upstream origin feature/ORION-33077  # Branch 'feature/ORION-33077' set up to track remote branch 'feature/ORION-33077' 
 
--- Oracle random subset
-CREATE TABLE zzorion32822 AS SELECT * FROM zorion32822 SAMPLE(0.01)
+-- git delete branch:
+git branch -a
+git branch -d feature/ORION-31587 && git push origin --delete feature/ORION-31587 && git fetch -p && git branch -a
+
+-- git delete branch (after UI delete button):
+git branch -d feature/ORION-31587 && git fetch -p && git branch -a
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
