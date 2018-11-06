@@ -379,7 +379,7 @@ set undolevels=5000
 " When using C-X + C-P, look in current file and buffers.  See inoremap <TAB>.
 set complete=.,w,b
 
-" Add angle brackets to the % functionality
+" Add angle brackets to the % bounce functionality
 set matchpairs+=<:>
 
 set joinspaces
@@ -1003,7 +1003,7 @@ nnoremap ;z :echon ";z 'compile' map not implemented for this filetype"<CR>
   """let @u=":!bfp % 'bqh0.pgm.lib(%:t:r)'"
 """endif
 
-" Resize window with number keypad
+" Resize window (most convenient with number keypad)
 if bufwinnr(1)
   nnoremap + <C-W>+
   nnoremap - <C-W>-
@@ -1011,7 +1011,6 @@ endif
 
 " Jump to the exact position where you left, not to beginning of line
 nnoremap ' `
-"""nnoremap ' `z.
 
 " Hack to fix the stray pixel problem with monospaced fonts under Cygwin rxvt
 " nnoremap <Esc><Esc> <C-L>
@@ -1028,7 +1027,7 @@ nnoremap Q :q
 " Typo protection
 nnoremap :W :w
 
-" Normalize Yank until end of line with D and C, otherwise it's a yy
+" Normalize yank until end of line with D and C
 nnoremap Y y$
 
 " The command {number}CTRL-G show the current buffer number.  Prevent a loop in
@@ -1653,8 +1652,9 @@ if !exists("autocommands_loaded")
   " au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR:/<CR>
   au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\\|^WARNING:/<CR>
   " au BufNewFile,BufRead,BufEnter *.log set guifont=Consolas:h8
-  au BufNewFile,BufRead,BufEnter *.pck,*.prc set filetype=plsql
-  au BufNewFile,BufRead,BufEnter *.pck,*.prc let b:match_words = '\<begin\>:\<end\>,\<loop\>:\<end loop\>'
+	au BufRead,BufNewFile *.plsql,*.pkg,*.pck,*.spc set filetype=PLSQL
+  " au BufNewFile,BufRead,BufEnter *.plsql,*.pck,*.prc,*.fnc set filetype=plsql
+  au BufNewFile,BufRead,BufEnter *.plsql,*.pck,*.prc,*.fnc let b:match_words = '\<begin\>:\<end\>,\<loop\>:\<end loop\>'
 
   " TOGGLE. Delete the yearly warning lines that appear when SAS License is about to expire
   """au BufRead *.log :g/^WARNING: The Base Product\|installation repres/d
@@ -1662,8 +1662,6 @@ if !exists("autocommands_loaded")
   """au BufRead *.log :g/Please contact your SAS/d
   """au BufRead *.log :g/information.  The SAS System will no longer function on or after that/d
   """au BufRead *.log :g/representative to have it renewed/d
-  " Ateb
-  " au BufRead *.log :g/WARNING: Libref funcdata may not have assigned correctly from logical server./d
 
   au BufNewFile,BufRead,BufEnter *.pl nmap ,p :!perl -c %<CR>
   au BufNewFile,BufRead,BufEnter *.pl nmap ;z :!echo && echo && perl %<CR>
@@ -1835,8 +1833,6 @@ if !exists("autocommands_loaded")
     " Avoid opening this tempfile accidentally via my ,e map etc. It is never useful.
     " au BufEnter ~/bob/tmp/.vimxfer :echom 'an autocommand is deleting this buffer' | :bd
   " endif
-
-	au BufRead,BufNewFile *.pkg,*.pck,*.spc set filetype=PLSQL
 
   "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_

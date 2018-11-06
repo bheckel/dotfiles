@@ -4,7 +4,7 @@
 # Summary: bash config for at least Unix/Linux, Cygwin 1.3/1.5/1.7 and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Mon 29 Oct 2018 11:27:21 (Bob Heckel)
+# Modified: Tue 06 Nov 2018 09:17:55 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -373,14 +373,20 @@ md() {
 }
 
 
+# Re-attach to existing session
 tm() {
-  tmux -u -2 a -t "s${1}"
-  echo 'try tmn if not found'
+  if [ ! -z ${1} ]; then
+    tmux -u -2 a -t "s${1}"
+  else
+    tmux -u -2 a -t "s1"
+  fi
   tmux list-sessions
 }
 
+# New session
 tmn() {
   if [ ! -z ${1} ]; then
+    # Name your session
     tmux -u -2 new -s "s${1}"
   else
     tmux -u -2 new -s "s1"

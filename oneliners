@@ -7,7 +7,7 @@
 #           Comments are often written for searching, not proper English
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Mon 08 Oct 2018 15:01:22 (Bob Heckel)
+# Modified: Tue 06 Nov 2018 09:02:52 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -422,6 +422,7 @@ map ,d Go<CR><C-R>=strftime("%Y-%m-%d")<CR>
 
 " Run vim commands from shell command line without opening file:
 vim -c "s/hello/goodbye cruel/" -c "wq" fun.txt
+vi -c ':se nohls' -c ':se tw=50'
 
 " Matches any line meeting the constraints: 1) contains anything (.*) followed by ObjectName 2) starts (^) with something which isn't 'import' (\(import\)\@!)
 /.*ObjectName\&^\(import\)\@!
@@ -5262,7 +5263,6 @@ while (<>) { s/(.*):(.*)/$2:$1/; print; }
 xxPERLxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
-
 xxDATABASExx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
 -- Outer joins preserve the rows that don't match and pad the remaining columns with NULLs.  OUTER keyword is optional.
@@ -5506,15 +5506,20 @@ CREATE OR REPLACE FUNCTION f RETURN SYS_REFCURSOR AS c SYS_REFCURSOR; BEGIN OPEN
 -- Strong cursor.  SYS_REFCURSOR is always weak.
 TYPE book_data_t IS REF CURSOR RETURN book%ROWTYPE;
 
+-- Oracle IF THEN ELSE
+(CASE WHEN TO_CHAR(b.sample_status_date,'DY')='SAT' THEN 1 ELSE 0 END)
+
 -- Oracle CASE or IF-THEN-ELSE replacement:
 SELECT symbol, DECODE(earnings, 0, NULL, price / earnings)
 --                                IF  THEN     IF       THEN  ELSE
-select prod_nm, decode(prod_grp,'MDPI','m','Solid Dose','sd','unk') from samp;
+select prod_nm, DECODE(prod_grp,'MDPI','m','Solid Dose','sd','unk') from samp;
 
--- PLSQL null comparison (decode better?):
+-- PLSQL null comparison (DECODE better?):
 IF (updated1 = updated0) AND (updatedby1 = updatedby0) AND ( (search_match_code1 = search_match_code0) OR ((search_match_code1 IS NULL) AND (search_match_code0 IS NULL)) ) THEN
 
-where decode( col1, col2, 1, 0 ) = 1  -- finds sameness - even if both NULL
+-- Compare NULL:
+where  ... and nvl(width,0) = nvl(length,0)  -- finds only if both are NULL
+where decode(col1, col2, 1, 0) = 1  -- finds sameness of col1 & col2 - even if both NULL
 
 -- Canonical sqlplus
 SQL> define_editor=gvim
@@ -5532,7 +5537,7 @@ $ sqlplus pks/ev123dba@sdev388 @t.sql --need an exit; in t.sql to run standalone
 SQL> define_editor='c:/program files/vim/vim70/gvim -c "set filetype=sql"'
 SQL> set linesize 1000;  -- avoid truncation of results
 
--- Oracle PL/SQL print
+-- Oracle PLSQL print
 set serveroutput on;  -- or set serveroutput on size unl;
 BEGIN DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('Hello World' || chr(10)); END; -- then type /
 
@@ -5553,7 +5558,8 @@ extract(year from h.updated) in (2017,2018)
 -- sleep pause execution for 60 seconds 
 SELECT sysdate INTO l_now FROM DUAL; LOOP EXIT WHEN l_now +(60 * (1 / 86400)) = sysdate; END LOOP;
 
-select SYSTIMESTAMP from dual;
+-- Oracle date calculations:
+SELECT (systimestamp - INTERVAL '0.001' SECOND), SYSTIMESTAMP, (SYSDATE - INTERVAL '1' MONTH) FROM dual
 
 -- List all Oracle tables:
 SELECT owner, table_name FROM all_tables where owner = 'myschema';
@@ -5596,7 +5602,330 @@ dbms_output.put_line(SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
 -- Oracle recompile entire schema:
 DBMS_UTILITY.compile_schema('SETARS', false);
 
+-- An autonomous routine never reads or writes database state (i.e., it neither queries nor updates any table):
+... DECLARE PRAGMA AUTONOMOUS_TRANSACTION; ... BEGIN INSERT INTO log (...)
+
+SELECT trigger_name, trigger_type, triggering_event, table_name, status FROM USER_TRIGGERS WHERE table_name LIKE 'CONTACT_NOT%' ORDER BY 3, 2, 1
+
+-- Update only if value is NULL:
+UPDATE contact_note SET original_contact_id = contact_id WHERE contact_id IN (SELECT contact_id FROM zzorion32806) AND original_contact_ID IS NULL
+UPDATE contact_note SET original_contact_id = contact_id WHERE NVL(original_contact_id, -1) = -1
+
+-- Expire Oracle user password
+ALTER USER LIMSARCH PASSWORD EXPIRE;
+
+-- Change Oracle user password
+ALTER USER limsarch IDENTIFIED BY new2dayJuly;
+ALTER USER limsarch IDENTIFIED BY "new2dayJuly" REPLACE "oldpw";
+
+-- Change password Postgres password
+ALTER USER heckel WITH PASSWORD 'myPass';
+
+-- SQL sum count a group flag.  Good for later excluding a group of records if any record contains 'CANCEL':
+sum(case when status = 'CANCEL' then 1 else 0 end) as cancelflag
+
+-- Postgres dates:
+created > date('now') - 365
+created > date('now') - interval '1 year'
+-- Postgres today date:
+select date('now') - interval '1 month' as x
+-- Postgres data from last 2 days:
+select clientid, taskdate, hpprogramid, count(*) from naalytics.ehalthplanpatients_test where taskdate > date('now')-interval '2 day' group by clientid, taskdate, hpprogramid order by taskdate desc
+
+-- Cancel Postgres jobs status of jobs I am running:
+select * from pg_stat_activity where usename='bheckel'
+
+-- Postgres change datatype:
+select stre_id as stid, cast (value as integer) as Waitime ...
+
+-- Postgres commandline ODBC:
+isql -v jaspre bheckel mypw
+
+-- Postgres commandline:
+psql -h ajsperdb1.edp.atbe.com TEBMART
+psql -U atbleau -h db-02.twa.taeb.com teb
+psql -h db-06.twa.taeb.com TAEBMART -c "select * from analytics.reportinglog where reportname='TMMRep_Reporting_Automation' order by lastmodified desc LIMIT 1"
+
+-- Postgres empty a table:
+TRUNCATE bigtable, fattable;
+
+-- Postgres remove leading zeros to find 01, 1, 03, 3:
+where trim(leading '0' from storeid) in ('1','3')
+select distinct concat(a.clientid::text,trim(leading '0' from b.clientstoreid::text),pharmacypatientid::text) as upid
+
+-- Postgres cast convert type:
+select * from stores where clients_fkid=999 and storeid::int4=3
+
+-- Postgres version
+select version();
+
+:: Send To folder c:\temp
+%APPDATA%\Microsoft\Windows\SendTo
+
+-- SQL GROUP BY count more than one
+select patientid, count(*) from analytics.health group by patientid having count(*)>1
+-- Select only those with 2 or more maskedkey for one patient:
+select id, count(distinct maskedkey) from xrfilldata where id in ('999','888') group by id having count(distinct maskedkey)>1;
+
+-- SQL convert timestamp to date then sum pickeduptimestamp if picked up in a during month, a range of dates:
+sum(case when date(pickeduptimestamp) between '01MAY2015' and '31MAY2015' then 1 else 0 end) as May2015, ...
+...and (date(pickeduptimestamp) between date('2016-02-01') and date('2016-04-30'))...
+
+-- Set binary date flags in SQL:
+sum(case when date(pickeduptimestamp) between '01MAR2015' and '31MAR2015' then 1 else 0 end) as Mar2015
+
+-- Postgres what is running. Terminate query, self-kill a Postgres kill query:
+select current_query, procpid from pg_stat_activity where usename = 'bheckel'
+select pg_cancel_backend(8501);
+
+-- SQL take only the highest value:
+where listdate = (select max(listdate) from test.master_npi)
+
+-- Postgres date range, pull data from last year for patients over 50:
+filldate > date('now') - interval '1 year'  and  patientdob < date('now') - interval '50 year'
+
+-- Postgres date range specific start date, go back 18 days:
+and filldate>=(date('2016-05-15')-18) and filldate <='2016-05-15'
+
+-- Postgres determine birthdate age range:
+case when extract(years FROM age(patientdob))>=90 then 90 else extract(years FROM age(patientdob)) end as age
+date_part('year',age(patientdob))>=41 and date_part('year',age(patientdob))<=75
+
+-- Postgres calculate age:
+date_part('year'::text, age(pd.dateofbirth::timestamp with time zone)) AS age
+... patientdob < date('now') - interval '18 year'
+
+-- Postgres min max calculate age:
+select min(date_part('year',age(dateofbirth))), max(date_part('year',age(dateofbirth))) ...
+
+-- Postgres date truncate:
+date_trunc('day', etl_ts)
+
+-- Postgres date selection, capture all activity for the 14th
+select * from generate_series('2015-12-13'::timestamp without time zone, '2015-12-15'::timestamp without time zone, '1 second'::interval)
+where date(generate_series) <= date('2015-12-14')
+
+-- Postgres psql save write output to file:
+select distinct pmapuserid, loginname as pmapusername, defaultclientid as clientid
+\o saveoutput.txt  (\o to quit)  then run query
+
+-- Postgres date truncation:
+where date_trunc('minute', ahpp.lastmodified) = '2016-02-23 08:56:00'::timestamp
+
+-- Postgres help $ psql help  \?
+
+fulljoin FULL JOIN: an INNER JOIN that has been augmented with rows in either table that are not in the other table (fills in NULLs for missing matches on either side)
+
+selfjoin SELF JOIN: a recursive join that results when a set of data is joined back to itself.
+Typically encountered when a parent-child relationship in a hierarchy needs to be traversed.
+When using ANSI syntax to accomplish this, only the JOIN...ON syntax will work, and the keyword INNER can be used for clarity.
+
+-- Find next Postgres sequence number:
+select nextval('analytics.tmm_enrollmentperf_tmm_enrollmentperfid_seq');
+
+-- Postgres remove seconds from timestamp:
+psql -h db-06.twa.taeb.com TAEBMART -c "select to_char(lastmodified, 'yyyy-mm-dd HH24:MI') from analytics.reportinglog where reportname='TMMRep_Reporting_Automation' order by lastmodified desc limit 1"
+
+-- Postgres between two dates date range:
+where created>='2016-05-11' and created<'2016-05-12'
+-- Postgres 2016-09-01 thru 2016-09-30 date range:
+select min(filldate), max(filldate) from sdfarchive where filldate >= date_trunc('MONTH', now())-'1 month'::interval and filldate < date_trunc('month', NOW())-'1 month'::interval+'1 month'::interval;
+
+-- Postgres datetime truncated to date for grouping:
+select count(*), created::date from cce.ccepatientstaging where created >'2016-12-28' and clientid=2000000 group by created::date;
+
+-- Postgres extract months:
+select clientstoreid, to_char(filldate, 'YYYY-MM') as mymonth, count(*) as cnt ...
+select SUM(amount) as sales, date_trunc('month', created_at)::date as date from orders group by date order by date DESC;
+
+-- Postgres substr:
+select distinct substring(cr.gpi,1,10)
+
+-- Postgres reformat date no dashes:
+select 'EXPIRE='||to_char(date('now')+365,'YYYYMMDD') as x2
+
+-- Yesterday in Postgres date:
+and lastmodified >= CURRENT_DATE-1
+
+To save postgresql output to comma pipe delimited csv file (warning - multiple runs append so \q when done):
+psql> \o t.out
+psql> \f '|' \a \o /Drugs/Personnel/bob/t.csv
+psql> \f ',' \a \t \o ~/tmp/bob/withoutheader.csv
+psql> \f '\t' \a \t \o /sasdata/Personnel/bob/tabdelimited.out
+
+-- Postgres commit transactions (case-sensitive).  Or use:  BEGIN; update tbl set field=0; COMMIT; (or ROLLBACK;):
+\set AUTOCOMMIT off
+commit;
+
+-- Zero pad a number in postgresql:
+select distinct lpad(clientstoreid::text, &sidlen, '0') as clientstoreid, ...
+
+-- Postgres double pipe || alternative it does a SAS compress(clientstoreid)||compress(pharmacypatientid): 
+select patientdateofbirth, concat(clientstoreid::text,pharmacypatientid::text) as upid
+select patientdateofbirth, concat(trim(leading '0' from clientstoreid::text),pharmacypatientid::text) as upid
+
+-- Yesterday (24 hours ago) SQL Server SQLServer date interval:
+SELECT CURRENT_TIMESTAMP-1
+
+-- SQL Server - similar to DESCRIBE in other databases SQLServer
+USE sandbox
+EXEC sp_help lu_prescriber
+-- or less helpfully
+EXEC sp_columns lu_prescriber
+
+-- SQL Server whoami
+select user_name()
+
+SQL Server < 2005 alternative to Microsoft SQL Server Management Studio
+osql -L   # list available SQL Servers on network
+osql -E -S 'W23PSQL02\PRODUCTION' -i t.sql -o t.out
+osql -n -E -w 200 -d bpms_nd -S 'W23PSQL02\PRODUCTION' -i ckbpmsoutliers.step07.sql 
+Interactive (GO to run and QUIT to exit)
+osql -n -E -S 'w23psql02\PRODUCTION' -d bpms_mt
+Interactive but feeding it from the commandline:
+osql -n -E -w 200 -d bpms_ak -S 'W23PSQL02\PRODUCTION' -Q "select count(*) from bpmsoutliers"
+
+-- sqlserver 2005 command line, counterpart to oracle's sqlplus
+$ sqlcmd -S zebsamoc00 -d uprd120 -i input.sql -o output.txt
+
+SQL Server 2005 (like Oracle's sqlplus, replaces osql & isql).  Must use cmd, not cygwin
+U:\>sqlcmd -S zebsamoc00 -d sprd120
+1> select top 5 * from fwn.variablestp    2> go   ...n rows affected...   1> quit
+
+U:\>sqlcmd /?
+U:\>sqlcmd -S rtpsamoc008 -d ustst1236 -i t.qry -o t.res
+
+-- now() for SQL Server SQLServer
+select getdate()  or  select current_timestamp
+
+-- Size of table in SQL Server database SQLServer
+EXEC SP_SPACEUSED N'rheckel.[bpmsoutliersnc60]'
+
+-- Copy an SQL Server table into a new one that does not already exist:
+SELECT * INTO xBpmsOutliersNC60 FROM BpmsOutliersNC60 
+
+-- Delete table (even if records exist in it):
+DROP TABLE bobhlm;
+
+-- Oracle how many rows of data in table (with a safeguard):
+select max(rownum) from pks_extraction_control where rownum<1000000;
+
+-- WARNING: LEFT INNER JOIN is a syntax error
+
+-- Oracle's MINUS is EXCEPT in ANSI SQL
+
+INSERT INTO links_material (matl_desc) VALUES ('Waiting for update from SAP')
+INSERT INTO links_material (matl_desc, matl_mfg_dt, matl_exp_dt, matl_nbr, batch_nbr, matl_typ) VALUES ('Waiting for update from SAP', '01-JAN-1960', '01-JAN-1960', '0737003', '6ZP8404', 'MANL')
+
+-- Oracle prompt (1st time only) for saved environment substitution variable:
+select * from tst_rslt_summary where samp_id=&&sampy;
+
+-- Oracle version:
+SELECT * FROM v$version
+
+-- Also allows determination of which oracle version(s) are installed
+/oracle/app/oracle/product/9208HP64DB1_PAR/bin/tnslsnr LISTENER
+/oracle/app/oracle/product/8.0.6/bin/tnslsnr LISTENER -inherit
+
+c:\oracle\ora920\network\admin\tnsnames.ora
+
+-- Oracle are you listening listener?
+$ ps -ef |grep lsn  # /oracle/app/oracle/product/8.0.6/bin/tnslsnr LISTENER -inherit
+$ tnsping usdev100
+
+-- Oracle are you pingable?
+$ while true; do tnsping sprd25|grep OK|awk '{print $2}'|sed 's/^.//'; sleep 120; done;
+
+-- Postgres first day of last month:
+select date_trunc('MONTH', now())-'1 month'::interval;
+-- Postgres earlier than first of this month:
+select distinct clientid, dashstart from dshbrd.dashboardclients where deactivated != TRUE and dashstart < date_trunc('MONTH', now());
+
+-- Postgres bulk load a textfile to a table:
+\COPY analytics.obcdaily (client_name, , job_type_extra, att_count) FROM /Data/psql_import_temp.csv CSV HEADER
+
+-- Postgres windowing function, attach department average calculation to each row by department:
+SELECT depname, empno, salary, avg(salary) OVER (PARTITION BY depname) FROM empsalary;
+
+first_value(an.account_name) over(partition by ab.ACCOUNT_ID order by an.override_account_name desc) as account_name,
+
+masked_patientkey = encode(digest(coalesce(split_part(patientnamefirst, ' ', 1),'') || patientnamelast || (case when patientdob is not null then to_char(patientdob,'yyyy-MM-dd') else '' end) || substring(coalesce(patientposctalcode, ''), 1,5), 'sha256'),'hex')
+select digest(patientnamefirst,'sha1') from rxfilldata_parent limit 1;
+
+-- Postgres client encrypted using salt 'theirsalt', encrypt to compare with original pharmacypatientids hash
+select pharmacypatientid, encode(digest(pharmacypatientid||'theirsalt','sha1'), 'hex') as patient_num2, filldate
+
+-- Postgres rounding percentages
+select clientid, avg(enrolledratio)::decimal(5,2)
+
+-- Postgres datetime criteria:
+select * from analytics.tmm_enrollmentperf where created > '2017-01-30 09:00:00'::timestamp;
+
+-- Do we have 12 months for each client?:
+select clientid, year, count(*) from (select distinct clientid, year, month from dshbrd.pdctracksummary where year=2016) as t group by clientid, year order by clientid, year;
+
+-- Postgres WITH temporary table creation:
+with val as ( values ('1427315266'),('1003048109'),('1003109422'),('1003128414') ) select column1 from val;
+
+-- Postgres age today and at end of year e.g. 51 years 8 mons 4 days | 52:
+select age('1965-10-30'::date), date_part('year', age('2017-12-31', '1965-10-30'))
+
+-- Postgres first day of year beginning of year
+SELECT date_trunc('year', now())::date;
+
+ALTER TABLE Customer DROP COLUMN Birth_Date;
+ALTER TABLE analytics.build ADD COLUMN rundatacheck boolean NOT NULL DEFAULT TRUE;
+ALTER TABLE analytics.archivebuildconfig ADD COLUMN job_type text NOT NULL DEFAULT 'Imports';
+
+-- Run Postgres script:
+bheckel@db-dev-01.twa.taeb.com:TAEBMART \i /sasdata/Personnel/bob/DashboardETLenroll/Dev_to_db-06_20171111_final.sql
+
+-- Postgres copy table:
+CREATE TABLE mycopy (LIKE mytable INCLUDING ALL); INSERT INTO mycopy SELECT * FROM mytable;
+
+-- Postgres insert a file into a table:
+\copy bob from 't.txt' (delimiter ',');
+
+$ psql -h db-dev-01.twa.taeb.com TAEBMART -c "\copy public.bob from 't.txt' (delimiter ',');"
+
+-- Postgres execute sql from file command line:
+psql -h db-dev-01.twa.taeb.com TAEBMART -f /sasdata/Dev_to_db-06_20180316_dshbrd_hppatientstarpdc.sql
+
+-- CASE WHEN
+select ch.clientid, '' as x1, case when ac.actioncodeid=20109 then 'IMM_FAMILY=AV_HEPATITIS' when ac.actioncodeid=20114 then 'IMM_FAMILY=AV_INFLUENZA' end as x9 from ...
+
+SELECT cast(sys_context('mycontext', 'actual_employee_id') AS NUMBER) FROM dual
+
+-- PL/SQL Developer user prompt msgbox:
+... AND UPPER(a.sample_id) like &< name = "Sample Id or mask.  Wildcard is %" hint = "Entry not required" type = "string" uppercase = "yes" default = "%" ifempty = "%" > ...
+
+-- Exit sqlite3: .q
+-- View attached sqlite3 databases: .databases
+-- View available sqlite3 tables: .tables
+-- View various sqlite3 settings: .show
+-- View field names sqlite3: .schema mytbl
+$ sqlite3 test.db "SELECT * FROM Cars;"
+
+-- Cartesian join cross join:
+SELECT Name, Day FROM Customers, Reservations;
+-- A shirt manufacturer with many different products. They have a set of sizes (S, M, L, etc.). They create each shirt in every size. You need to generate stock rows for every shirt in every size:
+select * from shirts cross join shirt_sizes
+
+start_time := dbms_utility.get_time();
+
+-- Oracle unconditional multitable insert:
+insert all  into teddies values ('Dinosaur King', 'red')  into bricks values ('sphere', 'green', 100)  select * from dual
+
+insert all into people values (full_name) when hire_date is not null then into staff values (hire_date) when nhs_number is not null then into patients values (nhs_number) select * from people_details;
+
+-- Oracle exception handler:
+WHEN others THEN dbms_output.put_line(SQLCODE || ':' || SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
+
+-- Oracle which database are we on?:
+SELECT SYS_CONTEXT('USERENV', 'DB_UNIQUE_NAME') FROM dual
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
+
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
@@ -5797,52 +6126,9 @@ SELECT DATEDIFF (YEAR, '1/1/2002', '1/1/2005')
 
 Fast exit icon c:\windows\rundll32.exe user.exe,ExitWindows
 
--- Yesterday (24 hours ago) SQL Server SQLServer
-SELECT CURRENT_TIMESTAMP-1
-
--- SQL Server - similar to DESCRIBE in other databases SQLServer
-USE sandbox
-EXEC sp_help lu_prescriber
--- or less helpfully
-EXEC sp_columns lu_prescriber
-
--- SQL Server whoami
-select user_name()
-
-SQL Server < 2005 alternative to Microsoft SQL Server Management Studio
-osql -L   # list available SQL Servers on network
-osql -E -S 'W23PSQL02\PRODUCTION' -i t.sql -o t.out
-osql -n -E -w 200 -d bpms_nd -S 'W23PSQL02\PRODUCTION' -i ckbpmsoutliers.step07.sql 
-Interactive (GO to run and QUIT to exit)
-osql -n -E -S 'w23psql02\PRODUCTION' -d bpms_mt
-Interactive but feeding it from the commandline:
-osql -n -E -w 200 -d bpms_ak -S 'W23PSQL02\PRODUCTION' -Q "select count(*) from bpmsoutliers"
-
--- sqlserver 2005 command line, counterpart to oracle's sqlplus
-$ sqlcmd -S zebsamoc00 -d uprd120 -i input.sql -o output.txt
-
 -- ADO/SQLServer connection strings
 Provider=OraOLEDB.Oracle.1;Persist Security Info=True;User ID=ods_zeb;Password=ZEBODS_ZB842;Data Source=ukprd613;
 Provider=SQLOLEDB.1;Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=sprd1208;Data Source=zebsamoc007
-
-SQL Server 2005 (like Oracle's sqlplus, replaces osql & isql).  Must use cmd, not cygwin
-U:\>sqlcmd -S zebsamoc00 -d sprd120
-1> select top 5 * from fwn.variablestp    2> go   ...n rows affected...   1> quit
-
-U:\>sqlcmd /?
-U:\>sqlcmd -S rtpsamoc008 -d ustst1236 -i t.qry -o t.res
-
--- now() for SQL Server SQLServer
-select getdate()  or  select current_timestamp
-
--- Size of table in SQL Server database SQLServer
-EXEC SP_SPACEUSED N'rheckel.[bpmsoutliersnc60]'
-
--- Copy an SQL Server table into a new one that does not already exist:
-SELECT * INTO xBpmsOutliersNC60 FROM BpmsOutliersNC60 
-
--- Delete table (even if records exist in it):
-DROP TABLE bobhlm;
 
 :: AT command cron for Windows:
 at 20:42 /interactive notepad
@@ -5862,19 +6148,6 @@ response.write "foo" & lstrEntryType
 MyCheck = "aBBBa" Like "a*a"
 
 <form method="POST" name="foo" action="t.asp?MenuType=Batch Data">
-
--- Oracle how many rows of data in table (with a safeguard):
-select max(rownum) from pks_extraction_control where rownum<1000000;
-
--- WARNING: LEFT INNER JOIN is a syntax error
-
--- Oracle's MINUS is EXCEPT in ANSI SQL
-
-INSERT INTO links_material (matl_desc) VALUES ('Waiting for update from SAP')
-INSERT INTO links_material (matl_desc, matl_mfg_dt, matl_exp_dt, matl_nbr, batch_nbr, matl_typ) VALUES ('Waiting for update from SAP', '01-JAN-1960', '01-JAN-1960', '0737003', '6ZP8404', 'MANL')
-
--- Oracle prompt (1st time only) for saved environment substitution variable:
-select * from tst_rslt_summary where samp_id=&&sampy;
 
 :: abort auto shutdown on WinXP
 shutdown.exe -a
@@ -5914,6 +6187,7 @@ SELECT * FROM funds ORDER BY transdt DESC  -- ASC is default
 Foreign Key is that same value stored within MULTIPLE rows of the "detail" table
 CREATE TABLE foo ( ..., employee_id INTEGER NOT NULL REFERENCES employee(employee_id), ... );
 
+:: DOS wildcard:
 c:> echo %random%
 
 Hidden startup executables (not found in Programs:StartUp see also Powershell approach):
@@ -6005,22 +6279,6 @@ Windows shortcut Properties target box:
 
 XML declaration header: <?xml version="1.0" ?> or <?xml version="1.0" encoding="UTF-8"?>
 
--- Oracle version:
-SELECT * FROM v$version
-
--- Also allows determination of which oracle version(s) are installed
-/oracle/app/oracle/product/9208HP64DB1_PAR/bin/tnslsnr LISTENER
-/oracle/app/oracle/product/8.0.6/bin/tnslsnr LISTENER -inherit
-
-c:\oracle\ora920\network\admin\tnsnames.ora
-
--- Oracle are you listening listener?
-$ ps -ef |grep lsn  # /oracle/app/oracle/product/8.0.6/bin/tnslsnr LISTENER -inherit
-$ tnsping usdev100
-
--- Oracle are you pingable?
-$ while true; do tnsping sprd25|grep OK|awk '{print $2}'|sed 's/^.//'; sleep 120; done;
-
 $ telnet locahost http
 # or
 $ telnet locahost 80
@@ -6053,9 +6311,6 @@ Dim date1 As Date = #4/10/2008 6:30AM#
 -- Oracle calculate business non-weekdays days:
 (TO_CHAR(b.sample_status_date,'J')-TO_CHAR(b.sample_received_date,'J'))+1 - ((((TRUNC(b.sample_status_date,'D'))-(TRUNC(b.sample_received_date,'D')))/7)*2) -
   (CASE WHEN TO_CHAR(b.sample_received_date,'DY')='SUN' THEN 1 ELSE 0 END) - (CASE WHEN TO_CHAR(b.sample_status_date,'DY')='SAT' THEN 1 ELSE 0 END) as BusinessDays
-
--- Oracle if then else
-(CASE WHEN TO_CHAR(b.sample_status_date,'DY')='SAT' THEN 1 ELSE 0 END)
 
 ' Excel count workdays date range only (e.g. custom format '03-Apr-09 16:00 06-Apr-09 10:30 spans wkend and returns 0.77
 =NETWORKDAYS(C2,D2)-1-MOD(C2,1)+MOD(D2,1)
@@ -6289,16 +6544,6 @@ select count(*), object_type from dba_objects where owner='PKS' group by object_
 
 <a href="javascript:void(0);" onclick="alert('Hello, world!');">Test</a>
 
--- Expire Oracle user password
-ALTER USER LIMSARCH PASSWORD EXPIRE;
-
--- Change Oracle user password
-ALTER USER limsarch IDENTIFIED BY new2dayJuly;
-ALTER USER limsarch IDENTIFIED BY "new2dayJuly" REPLACE "oldpw";
-
--- Change password Postgres password
-ALTER USER heckel WITH PASSWORD 'myPass';
-
 Windows work gvim GUI Target: icon:
 "C:\Program Files\Vim\vim73\gvim.exe" -u u:\code\misccode\_vimrc
 or better just point to your .vimrc using D:\Program Files (x86)\Vim\_vimrc:  source d:/cygwin64/home/bob.heckel/dotfiles/_vimrc
@@ -6458,22 +6703,9 @@ strcat = '<a href=http://www.dhammawheel.com/viewtopic.php?f=20&t=>' + rnd2 + '<
 
 ISO 8601 date time format: 2013-04-27T18:00:00-05:00  2013-04-27T18:00:00,1-05:00
 
--- PL/SQL Developer user prompt msgbox:
-... AND UPPER(a.sample_id) like &< name = "Sample Id or mask.  Wildcard is %" hint = "Entry not required" type = "string" uppercase = "yes" default = "%" ifempty = "%" > ...
-
--- Exit sqlite3: .q
--- View attached sqlite3 databases: .databases
--- View available sqlite3 tables: .tables
--- View various sqlite3 settings: .show
--- View field names sqlite3: .schema mytbl
-$ sqlite3 test.db "SELECT * FROM Cars;"
-
 Modulo finds the remainder of division of one number by another:
 11 % 3 = 2 because 3 goes into 11 three times with a remainder of 2.
 15 % 3 = 0
-
--- Cartesian inner join:
-SELECT Name, Day FROM Customers, Reservations;
 
 http://simplynoise.com/classic/noiseVol.swf
 
@@ -6550,153 +6782,10 @@ vi '\\okpsawn557\d$\oracle\ora81\network\ADMIN\Tnsnames.ora'
 ' Excel difference in cell values:
 =IF(A6<>BD6, "yes", "no")
 
--- SQL sum count a group flag.  Good for later excluding a group of records if any record contains 'CANCEL':
-sum(case when status = 'CANCEL' then 1 else 0 end) as cancelflag
-
--- Postgres dates:
-created > date('now') - 365
-created > date('now') - interval '1 year'
--- Postgres today date:
-select date('now') - interval '1 month' as x
--- Postgres data from last 2 days:
-select clientid, taskdate, hpprogramid, count(*) from naalytics.ehalthplanpatients_test where taskdate > date('now')-interval '2 day' group by clientid, taskdate, hpprogramid order by taskdate desc
-
--- Cancel Postgres jobs status of jobs I am running:
-select * from pg_stat_activity where usename='bheckel'
-
--- Postgres change datatype:
-select stre_id as stid, cast (value as integer) as Waitime ...
-
--- Postgres commandline ODBC:
-isql -v jaspre bheckel mypw
-
--- Postgres commandline:
-psql -h ajsperdb1.edp.atbe.com TEBMART
-psql -U atbleau -h db-02.twa.taeb.com teb
-psql -h db-06.twa.taeb.com TAEBMART -c "select * from analytics.reportinglog where reportname='TMMRep_Reporting_Automation' order by lastmodified desc LIMIT 1"
-
--- Postgres empty a table:
-TRUNCATE bigtable, fattable;
-
--- Postgres remove leading zeros to find 01, 1, 03, 3:
-where trim(leading '0' from storeid) in ('1','3')
-select distinct concat(a.clientid::text,trim(leading '0' from b.clientstoreid::text),pharmacypatientid::text) as upid
-
--- Postgres cast convert type:
-select * from stores where clients_fkid=999 and storeid::int4=3
-
--- Postgres version
-select version();
-
-:: Send To folder c:\temp
-%APPDATA%\Microsoft\Windows\SendTo
-
--- SQL GROUP BY count more than one
-select patientid, count(*) from analytics.health group by patientid having count(*)>1
--- Select only those with 2 or more maskedkey for one patient:
-select id, count(distinct maskedkey) from xrfilldata where id in ('999','888') group by id having count(distinct maskedkey)>1;
-
--- SQL convert timestamp to date then sum pickeduptimestamp if picked up in a during month, a range of dates:
-sum(case when date(pickeduptimestamp) between '01MAY2015' and '31MAY2015' then 1 else 0 end) as May2015, ...
-...and (date(pickeduptimestamp) between date('2016-02-01') and date('2016-04-30'))...
-
--- Set binary date flags in SQL:
-sum(case when date(pickeduptimestamp) between '01MAR2015' and '31MAR2015' then 1 else 0 end) as Mar2015
-
--- Postgres what is running. Terminate query, self-kill a Postgres kill query:
-select current_query, procpid from pg_stat_activity where usename = 'bheckel'
-select pg_cancel_backend(8501);
-
--- SQL take only the highest value:
-where listdate = (select max(listdate) from test.master_npi)
-
--- Postgres date range, pull data from last year for patients over 50:
-filldate > date('now') - interval '1 year'  and  patientdob < date('now') - interval '50 year'
-
--- Postgres date range specific start date, go back 18 days:
-and filldate>=(date('2016-05-15')-18) and filldate <='2016-05-15'
-
--- Postgres determine birthdate age range:
-case when extract(years FROM age(patientdob))>=90 then 90 else extract(years FROM age(patientdob)) end as age
-date_part('year',age(patientdob))>=41 and date_part('year',age(patientdob))<=75
-
--- Postgres calculate age:
-date_part('year'::text, age(pd.dateofbirth::timestamp with time zone)) AS age
-... patientdob < date('now') - interval '18 year'
-
--- Postgres min max calculate age:
-select min(date_part('year',age(dateofbirth))), max(date_part('year',age(dateofbirth))) ...
-
--- Postgres date truncate:
-date_trunc('day', etl_ts)
-
--- Postgres date selection, capture all activity for the 14th
-select * from generate_series('2015-12-13'::timestamp without time zone, '2015-12-15'::timestamp without time zone, '1 second'::interval)
-where date(generate_series) <= date('2015-12-14')
-
--- Postgres psql save write output to file:
-select distinct pmapuserid, loginname as pmapusername, defaultclientid as clientid
-\o saveoutput.txt  (\o to quit)  then run query
-
 curl -o ~/tmp/breaching_whale.jpg -OL https://cdn.learnenough.com/breaching_whale.jpg
-
--- Postgres date truncation:
-where date_trunc('minute', ahpp.lastmodified) = '2016-02-23 08:56:00'::timestamp
-
--- Postgres help $ psql help  \?
-
-fulljoin FULL JOIN: an INNER JOIN that has been augmented with rows in either table that are not in the other table (fills in NULLs for missing matches on either side)
-
-selfjoin SELF JOIN: a recursive join that results when a set of data is joined back to itself.
-Typically encountered when a parent-child relationship in a hierarchy needs to be traversed.
-When using ANSI syntax to accomplish this, only the JOIN...ON syntax will work, and the keyword INNER can be used for clarity.
 
 -- Activate blank Windows screensaver from a .bat:
 start %windir%\system32\scrnsave.scr -s
-
--- Find next Postgres sequence number:
-select nextval('analytics.tmm_enrollmentperf_tmm_enrollmentperfid_seq');
-
--- Postgres remove seconds from timestamp:
-psql -h db-06.twa.taeb.com TAEBMART -c "select to_char(lastmodified, 'yyyy-mm-dd HH24:MI') from analytics.reportinglog where reportname='TMMRep_Reporting_Automation' order by lastmodified desc limit 1"
-
--- Postgres between two dates date range:
-where created>='2016-05-11' and created<'2016-05-12'
--- Postgres 2016-09-01 thru 2016-09-30 date range:
-select min(filldate), max(filldate) from sdfarchive where filldate >= date_trunc('MONTH', now())-'1 month'::interval and filldate < date_trunc('month', NOW())-'1 month'::interval+'1 month'::interval;
-
--- Postgres datetime truncated to date for grouping:
-select count(*), created::date from cce.ccepatientstaging where created >'2016-12-28' and clientid=2000000 group by created::date;
-
--- Postgres extract months:
-select clientstoreid, to_char(filldate, 'YYYY-MM') as mymonth, count(*) as cnt ...
-select SUM(amount) as sales, date_trunc('month', created_at)::date as date from orders group by date order by date DESC;
-
--- Postgres substr:
-select distinct substring(cr.gpi,1,10)
-
--- Postgres reformat date no dashes:
-select 'EXPIRE='||to_char(date('now')+365,'YYYYMMDD') as x2
-
--- Yesterday in Postgres date:
-and lastmodified >= CURRENT_DATE-1
-
-To save postgresql output to comma pipe delimited csv file (warning - multiple runs append so \q when done):
-psql> \o t.out
-psql> \f '|' \a \o /Drugs/Personnel/bob/t.csv
-psql> \f ',' \a \t \o ~/tmp/bob/withoutheader.csv
-psql> \f '\t' \a \t \o /sasdata/Personnel/bob/tabdelimited.out
-
--- Postgres commit transactions (case-sensitive).  Or use:  BEGIN; update tbl set field=0; COMMIT; (or ROLLBACK;):
-\set AUTOCOMMIT off
-commit;
-
--- Zero pad a number in postgresql:
-select distinct lpad(clientstoreid::text, &sidlen, '0') as clientstoreid, ...
-
--- Postgres double pipe || alternative it does a SAS compress(clientstoreid)||compress(pharmacypatientid): 
-select patientdateofbirth, concat(clientstoreid::text,pharmacypatientid::text) as upid
-select patientdateofbirth, concat(trim(leading '0' from clientstoreid::text),pharmacypatientid::text) as upid
 
 -- Windows System Information Tool
 msinfo32
@@ -6711,34 +6800,6 @@ select * from analytics.healthplanpatients hp where row(hpprogramid, externalpat
 select string_agg(distinct taebpatientid::varchar,',') from cce.ccepatientstaging where clientid=22;
 
 ' Excel multiply two columns and produce a scalar: =SUMPRODUCT(O37:O38,P37:P38)
-
--- Postgres first day of last month:
-select date_trunc('MONTH', now())-'1 month'::interval;
--- Postgres earlier than first of this month:
-select distinct clientid, dashstart from dshbrd.dashboardclients where deactivated != TRUE and dashstart < date_trunc('MONTH', now());
-
--- Postgres bulk load a textfile to a table:
-\COPY analytics.obcdaily (client_name, , job_type_extra, att_count) FROM /Data/psql_import_temp.csv CSV HEADER
-
--- Postgres windowing function, attach department average calculation to each row by department:
-SELECT depname, empno, salary, avg(salary) OVER (PARTITION BY depname) FROM empsalary;
-
-first_value(an.account_name) over(partition by ab.ACCOUNT_ID order by an.override_account_name desc) as account_name,
-
-masked_patientkey = encode(digest(coalesce(split_part(patientnamefirst, ' ', 1),'') || patientnamelast || (case when patientdob is not null then to_char(patientdob,'yyyy-MM-dd') else '' end) || substring(coalesce(patientposctalcode, ''), 1,5), 'sha256'),'hex')
-select digest(patientnamefirst,'sha1') from rxfilldata_parent limit 1;
-
--- Postgres client encrypted using salt 'theirsalt', encrypt to compare with original pharmacypatientids hash
-select pharmacypatientid, encode(digest(pharmacypatientid||'theirsalt','sha1'), 'hex') as patient_num2, filldate
-
--- Postgres rounding percentages
-select clientid, avg(enrolledratio)::decimal(5,2)
-
--- Postgres datetime criteria:
-select * from analytics.tmm_enrollmentperf where created > '2017-01-30 09:00:00'::timestamp;
-
--- Do we have 12 months for each client?:
-select clientid, year, count(*) from (select distinct clientid, year, month from dshbrd.pdctracksummary where year=2016) as t group by clientid, year order by clientid, year;
 
 -- Hadoop shell ls equivalent:
 hdfs dfs -ls /tmp/.pigscripts/riskfactorpig-2017-02-15_07-56.pig
@@ -6760,7 +6821,7 @@ is.na(x)
 # Compute rate per 10,000 
 df %>% mutate(rate = cases / population * 10000)
 
-# Flights per day count
+# R flights per day count:
 library(nycflights13)
 by_day <- flights %>% count(day)
 
@@ -6770,36 +6831,8 @@ library(stringr); x <- c("apple","banana","pear"); sum(!str_detect(x, "^b"));
 -- Calculate percent of total after adding total in subquery:
 select a.*, b.*, a.UPID/b.tot as pct format=PERCENT8.2 from report1_nRx a join (select nRx, sum(upid) as tot from report1_nRx) b on a.nRx=b.nRx
 
--- Postgres WITH temporary table creation
-with val as ( values ('1427315266'),('1003048109'),('1003109422'),('1003128414') )
-select column1 from val;
-
--- Postgres age today and at end of year e.g. 51 years 8 mons 4 days | 52:
-select age('1965-10-30'::date), date_part('year', age('2017-12-31', '1965-10-30'))
-
 ' Weighted average in Excel (patient count in C, lift % in col F):
 =SUMPRODUCT(F7:F23,C7:C23)/SUM(C7:C23)
-
--- Postgres first day of year beginning of year
-SELECT date_trunc('year', now())::date;
-
-ALTER TABLE Customer DROP COLUMN Birth_Date;
-ALTER TABLE analytics.build ADD COLUMN rundatacheck boolean NOT NULL DEFAULT TRUE;
-ALTER TABLE analytics.archivebuildconfig ADD COLUMN job_type text NOT NULL DEFAULT 'Imports';
-
--- Run Postgres script:
-bheckel@db-dev-01.twa.taeb.com:TAEBMART \i /sasdata/Personnel/bob/DashboardETLenroll/Dev_to_db-06_20171111_final.sql
-
--- Postgres copy table:
-CREATE TABLE mycopy (LIKE mytable INCLUDING ALL); INSERT INTO mycopy SELECT * FROM mytable;
-
--- Postgres insert a file into a table:
-\copy bob from 't.txt' (delimiter ',');
-
-$ psql -h db-dev-01.twa.taeb.com TAEBMART -c "\copy public.bob from 't.txt' (delimiter ',');"
-
--- Postgres execute sql from file command line:
-psql -h db-dev-01.twa.taeb.com TAEBMART -f /sasdata/Dev_to_db-06_20180316_dshbrd_hppatientstarpdc.sql
 
 -- Remote Desktop multiple monitors:
 %windir%\system32\mstsc.exe /span
@@ -6825,19 +6858,13 @@ alert( 6.35.toFixed(20) ); // 6.34999999999999964473
 alert( (6.35 * 10).toFixed(20) ); // 63.50000000000000000000
 alert( Math.round(6.35 * 10) / 10); // 6.35 -> 63.5 -> 64(rounded) -> 6.4
 
--- case when
-select ch.clientid, '' as x1, case when ac.actioncodeid=20109 then 'IMM_FAMILY=AV_HEPATITIS' when ac.actioncodeid=20114 then 'IMM_FAMILY=AV_INFLUENZA' end as x9 from ...
+git branch --set-upstream-to=origin feature/ORION-33077  # ???now you can pull BUT this breaks pull requests so do this instead???:
+git push --set-upstream origin feature/ORION-33077  # "Branch 'feature/ORION-33077' set up to track remote branch 'feature/ORION-33077' from 'origin'."
 
-SELECT cast(sys_context('mycontext', 'actual_employee_id') AS NUMBER) FROM dual
-
-git branch --set-upstream-to=origin feature/ORION-33077  # now you can pull BUT this breaks pull requests so...
-git push -set-upstream origin feature/ORION-33077  # Branch 'feature/ORION-33077' set up to track remote branch 'feature/ORION-33077' 
-
--- git delete branch:
+-- git delete branch local and remote:
 git branch -a
 git branch -d feature/ORION-31587 && git push origin --delete feature/ORION-31587 && git fetch -p && git branch -a
-
--- git delete branch (after UI delete button):
+-- git delete branch (after github UI delete button):
 git branch -d feature/ORION-31587 && git fetch -p && git branch -a
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
