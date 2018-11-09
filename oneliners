@@ -5295,7 +5295,7 @@ alter table CONTAC add constraint NN_CONTAC_ORIGIN_LOV_ID check("ORIGIN_LOV_ID" 
 
 select constraint_name, constraint_type from user_constraints@sep WHERE constraint_name LIKE 'NN%ORIGIN%';
 
--- Find uncommitted transactions
+-- Find uncommitted transactions locks:
 select s.sid ,s.serial# ,s.username ,s.machine ,s.status ,s.lockwait ,t.used_ublk ,t.used_urec ,t.start_time from v$transaction t inner join v$session s on t.addr = s.taddr;
 
 rc PLS_INTEGER; rc := SQL%ROWCOUNT; dbms_output.put_line('rows affected: ' || rc);
@@ -5537,7 +5537,7 @@ $ sqlplus pks/ev123dba@sdev388 @t.sql --need an exit; in t.sql to run standalone
 SQL> define_editor='c:/program files/vim/vim70/gvim -c "set filetype=sql"'
 SQL> set linesize 1000;  -- avoid truncation of results
 
--- Oracle PLSQL print
+-- Oracle print:
 set serveroutput on;  -- or set serveroutput on size unl;
 BEGIN DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('Hello World' || chr(10)); END; -- then type /
 
@@ -5646,7 +5646,7 @@ psql -h ajsperdb1.edp.atbe.com TEBMART
 psql -U atbleau -h db-02.twa.taeb.com teb
 psql -h db-06.twa.taeb.com TAEBMART -c "select * from analytics.reportinglog where reportname='TMMRep_Reporting_Automation' order by lastmodified desc LIMIT 1"
 
--- Postgres empty a table:
+-- Empty 2 tables (implicit COMMIT):
 TRUNCATE bigtable, fattable;
 
 -- Postgres remove leading zeros to find 01, 1, 03, 3:
@@ -5658,9 +5658,6 @@ select * from stores where clients_fkid=999 and storeid::int4=3
 
 -- Postgres version
 select version();
-
-:: Send To folder c:\temp
-%APPDATA%\Microsoft\Windows\SendTo
 
 -- SQL GROUP BY count more than one
 select patientid, count(*) from analytics.health group by patientid having count(*)>1
@@ -5844,8 +5841,9 @@ select distinct clientid, dashstart from dshbrd.dashboardclients where deactivat
 -- Postgres bulk load a textfile to a table:
 \COPY analytics.obcdaily (client_name, , job_type_extra, att_count) FROM /Data/psql_import_temp.csv CSV HEADER
 
--- Postgres windowing function, attach department average calculation to each row by department:
-SELECT depname, empno, salary, avg(salary) OVER (PARTITION BY depname) FROM empsalary;
+-- Windowing function:
+SELECT depname, empno, salary, avg(salary) OVER (PARTITION BY depname) FROM empsalary;  -- attach department average calculation to each row by department
+sum(nvl(ri.at_risk_amount,0)) over (partition by rp.risk_id) as tot_at_risk_amt
 
 first_value(an.account_name) over(partition by ab.ACCOUNT_ID order by an.override_account_name desc) as account_name,
 
@@ -5923,6 +5921,23 @@ WHEN others THEN dbms_output.put_line(SQLCODE || ':' || SQLERRM || ': ' || DBMS_
 
 -- Oracle which database are we on?:
 SELECT SYS_CONTEXT('USERENV', 'DB_UNIQUE_NAME') FROM dual
+
+-- Check for recent recompilation:
+SELECT owner, object_name, object_type, status, last_ddl_time FROM dba_objects WHERE object_name = 'USER_ON' AND object_type LIKE 'PACKAGE%'
+
+SELECT SYSTIMESTAMP INTO starting_time FROM DUAL;
+
+-- Create an empty zero record table:
+CREATE TABLE rejected_orders AS SELECT * FROM valid_orders WHERE 1 = 0;
+
+-- Comma delimited string to number:
+SELECT to_number(TRIM(regexp_substr(accounts, '[^,]+', 1, LEVEL))) AS account_id FROM (SELECT '123,456' AS accounts FROM dual) CONNECT BY regexp_substr(accounts, '[^,]+', 1, LEVEL) IS NOT NULL;
+
+-- Oracle date time interval:
+SELECT (SYSTIMESTAMP - INTERVAL '5' minute) AS five_minutes_ago, SYSTIMESTAMP FROM dual
+
+-- Oracle full date time with timezone:
+select to_char(SYSTIMESTAMP, 'DD-MON-YYYY HH.MI.SS.FF4 AM TZR') from dual;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6866,5 +6881,8 @@ git branch -a
 git branch -d feature/ORION-31587 && git push origin --delete feature/ORION-31587 && git fetch -p && git branch -a
 -- git delete branch (after github UI delete button):
 git branch -d feature/ORION-31587 && git fetch -p && git branch -a
+
+:: Send To folder c:\temp
+%APPDATA%\Microsoft\Windows\SendTo
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
