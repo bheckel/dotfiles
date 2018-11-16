@@ -737,8 +737,8 @@ nnoremap <Up> gk
 nnoremap <Down> gj
 
 " Quickfix output navigation
-nnoremap <F1> :cnext<CR>
-nnoremap <F2> :cprevious<CR>
+" nnoremap <F1> :cnext<CR>
+" nnoremap <F2> :cprevious<CR>
 
 " Widen gvim to max column width
 if has('gui')
@@ -746,17 +746,15 @@ if has('gui')
   nnoremap <F4><F4> :call SetOpt('columns', 80)<CR>
 endif
 
-nnoremap <F6> :se guifont=Consolas:h5<CR>z.
-nnoremap <F7> :se guifont=Consolas:h7<CR>z.
-nnoremap <F8> :se guifont=Consolas:h9<CR>z.
-nnoremap <F9> :se guifont=Consolas:h12<CR>z.
-nnoremap <F10> :se guifont=Consolas:h15<CR>z.
-" TODO for win32 gui
-"""nnoremap <C-ScrollWheelUp> :set guifont=Consolas:h15
+"""nnoremap <F6> :se guifont=Consolas:h5<CR>z.
+"""nnoremap <F7> :se guifont=Consolas:h7<CR>z.
+"""nnoremap <F8> :se guifont=Consolas:h9<CR>z.
+"""nnoremap <F9> :se guifont=Consolas:h12<CR>z.
+"""nnoremap <F10> :se guifont=Consolas:h15<CR>z.
 
 if has('win32')
   " Minimize gvim (like alt-spacebar-n) to taskbar
-  nnoremap <F2> :simalt ~n<CR>
+  " nnoremap <F2> :simalt ~n<CR>
   " Maximize gvim
   nnoremap <F11> :simalt ~x<CR>
   " Restore gvim
@@ -1698,14 +1696,14 @@ if !exists("autocommands_loaded")
 
   " au BufNewFile,BufRead,BufEnter *vimperatorrc* source ~/code/misccode/vimperator.vim
 
-	" My ~/code/perl/bgrep searching code
+	" Conveniences for my custom searching code e.g. ~/code/perl/bgrep or ~/code/misccode/prj
   au BufNewFile,BufEnter */tmp/*.grep source ~/code/misccode/bgrep.vim
   au BufNewFile,BufEnter */tmp/*.grep map <CR> <C-W>f :set winheight=9999<CR>/<C-R>/<CR>
-  au BufNewFile,BufEnter */tmp/*.grep map q :q<CR>
-  au BufNewFile,BufEnter */tmp/*.grep echon '.vimrc: <CR> to select file, q to quit'
+  au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out map q :q<CR>
+  au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out echon '.vimrc: <CR> to select file, q to quit'
 
-  " Don't wrap these                           bash fc temp files
-"""  au BufRead,BufEnter *.htm*,*.asp,*.cgi,*.sql,*/tmp/bash*,afiedt.buf set tw=0 wm=0
+  " Don't wrap these
+  au BufRead,BufEnter *.htm*,*.cgi,*/tmp/bash*,afiedt.buf set tw=0 wm=0
 
   au BufRead,BufEnter *.sql,afiedt.buf iab LI limit 10
   au BufRead,BufEnter *.sql,afiedt.buf iab OB order by 1
@@ -3073,11 +3071,50 @@ autocmd FileType vim setlocal commentstring=\"\ %s
 " TODO deprecate my code in favor of this
 "}}}
 
+" 2018-11-16 inlined FontSize {{{
+let g:fnt_types = ['Consolas', 'Arial' ]
+let g:fnt_sizes = [ 8, 9, 10, 11, 12, 13, 14, 15, 16 ]
+
+let g:fnt_index = 0
+let g:fnt_size  = g:fnt_sizes[g:fnt_index]
+
+function! CycleFont()
+  let g:fnt_index = (g:fnt_index + 1) % len(g:fnt_types)
+  let g:fnt_size  = g:fnt_sizes[g:fnt_index]
+  call ResetFont()
+endfunction
+
+function! ResetFont ()
+  if has('gui_running')
+    exe ':set guifont=' . g:fnt_types[g:fnt_index] . ':h' . string(g:fnt_size)
+  endif
+endfunction
+
+call ResetFont()
+
+function! FontSizePlus ()
+  let g:fnt_size = g:fnt_size + 1
+  call ResetFont()
+endfunction
+
+function! FontSizeMinus ()
+  let g:fnt_size = g:fnt_size - 1
+  call ResetFont()
+endfunction
+
+nnoremap <F1> :call FontSizeMinus()<cr>
+nnoremap <F2> :call FontSizePlus()<cr>
+" nnoremap cot :call CycleFont()<cr>
+" Fails on Win10 16-Nov-18 
+" nnoremap <C-ScrollWheelUp> :call FontSizePlus()<CR>
+" nnoremap <C-ScrollWheelDown> :call FontSizeMinus()<CR>
+"}}}
+
 " end 3rd Party Plugins
 "--------------------------------------------------------------------------
 
 
-" Machine or security-sensitive settings:
+" Machine or security-sensitive settings: {{{1
 if filereadable(glob("~/.vimrc.local")) 
   source ~/.vimrc.local
 endif

@@ -5443,10 +5443,10 @@ dbms_output.put_line('rpt at: ' || TO_CHAR(sysdate, 'dd-mon-yy hh:mipm'));
 sql> col[umn] MFG_SPEC_TXT_A format a15
 sql> column MFG_SPEC_NUM format 999      -- number width w/o zeros
 
--- Oracle update
 UPDATE user_role SET user_role=5 WHERE user_nm LIKE '%Heckel%'
+
 -- Oracle substring replace
-UPDATE pec SET pks_txt=REPLACE(pks_txt,'GEN','new') WHERE pks_txt like '%GEN%';
+UPDATE pec SET pks_txt=REPLACE(pks_txt,'GEN','GEN_') ...
 
 -- Oracle date
 select to_char(sysdate, 'Dy DD-Mon-YYYY HH:MI:SS AM') as "Current Time" from dual;  -- Wed 19-Aug-2009 02:51:33 PM  TODO is the 'AM' correct??
@@ -5606,6 +5606,9 @@ DBMS_UTILITY.compile_schema('SETARS', false);
 ... DECLARE PRAGMA AUTONOMOUS_TRANSACTION; ... BEGIN INSERT INTO log (...)
 
 SELECT trigger_name, trigger_type, triggering_event, table_name, status FROM USER_TRIGGERS WHERE table_name LIKE 'CONTACT_NOT%' ORDER BY 3, 2, 1
+
+-- Toggle trigger off/on:
+SET_TRIGGER_CONTEXT('ACCOUNT_ATTRIBUTE', 'true'); ...  SET_TRIGGER_CONTEXT('ACCOUNT_ATTRIBUTE', 'false');
 
 -- Update only if value is NULL:
 UPDATE contact_note SET original_contact_id = contact_id WHERE contact_id IN (SELECT contact_id FROM zzorion32806) AND original_contact_ID IS NULL
@@ -5920,7 +5923,7 @@ insert all into people values (full_name) when hire_date is not null then into s
 WHEN others THEN dbms_output.put_line(SQLCODE || ':' || SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
 
 -- Oracle which database are we on?:
-SELECT SYS_CONTEXT('USERENV', 'DB_UNIQUE_NAME') FROM dual
+IF (SYS_CONTEXT('USERENV', 'DB_UNIQUE_NAME') = 'ESPDB') THEN ...
 
 -- Check for recent recompilation:
 SELECT owner, object_name, object_type, status, last_ddl_time FROM dba_objects WHERE object_name = 'USER_ON' AND object_type LIKE 'PACKAGE%'
@@ -5938,6 +5941,11 @@ SELECT (SYSTIMESTAMP - INTERVAL '5' minute) AS five_minutes_ago, SYSTIMESTAMP FR
 
 -- Oracle full date time with timezone:
 select to_char(SYSTIMESTAMP, 'DD-MON-YYYY HH.MI.SS.FF4 AM TZR') from dual;
+
+SELECT job_name, start_date, regexp_replace(start_date, '[AP]M -\d\d:\d\d.*$', 'EST5EDT') from user_scheduler_jobs
+
+-- Oracle repeat character tab:
+dbms_output.put_line('modifying: ' || j.full_job_name || rpad(chr(09), 4, chr(09)) || ' ' || j.start_date || ' to ' || j.new_start_date);
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6568,7 +6576,14 @@ c:\> wmic cpu get loadpercentage
 
 cygcheck -cv w3m  # is package OK?
 
-git stash && git stash apply  # git snapshot
+# git snapshot
+git stash  && git stash apply
+git stash --include-untracked 'my named stash' && git stash apply 
+
+# git stash restore
+git stash pop
+# or if >1 exist
+git stash apply stash@{1}
 
 git config user.name  # whoami
 cat ~/.gitconfig # whoami
@@ -6595,21 +6610,12 @@ git add _bashrc _vimrc oneliners && git commit -m 'mod' && git push origin maste
 # git merge something into master branch:
 git checkout master && git merge mynewbranch && git branch -d mynewbranch
 
-# git revert discard throw away trash changes:
-git checkout -- DataPost_Configuration.map  # BEST single file trash changes
+# git revert discard throw away trash changes staged:
+git checkout -- DataPost_Configuration.map
 git checkout .   # abandon all pending changes "not staged for commit"
 # git revert discard a pull:
 git reset --hard ORIG_HEAD; git gc;
 
-# git whatif changes:
-git stash
-git stash save 'saved because too lazy to branch';  # then  $ git stash drop  or to delete ALL stashes later when You Are Sure: $ git stash clear 
-
-# git canonical stash and restore:
-git stash; git checkout emergencybranch; ...hack... ; git checkout branchistashed; git stash list; git stash pop
-
-# git stash restore
-git stash apply stash@{1}
 # Throw away a restored stash (or any changes really):
 git checkout .
 
@@ -6648,7 +6654,7 @@ git diff HEAD^
 # git compare a file from another branch:
 git difftool master SET_MATCH_CODE.prc
 
-# Compare old version of file from different commit - hash-less filename must come 2nd!!:
+# Compare old version of file from different commit - current (hash-less) filename must come 2nd!!:
 git difftool 1908af7:./PTG.pck PTG.pck
 
 # Rename branch local (current) branch:
