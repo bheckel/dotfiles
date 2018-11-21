@@ -1870,7 +1870,7 @@ data _null_; x=put(20188, DATE9.); put x=; run;
 data _null_; set _LAST_; file LOG; put (_ALL_)(=); put; run;
 
  /* printf for debugging */
-data _NULL_; set _LAST_; file LOG; put '!!!DataLinkSQLPlusWSAdapterCon=================='; put (_ALL_)(=); put; run;
+data _NULL_; set _LAST_; file LOG; put '!!!DataLink'; put (_ALL_)(=); put; run;
 
  /* Determine how many parameters were passed in */
 %let l1=%length(&SYSPARM); %let c=%sysfunc(compress(&SYSPARM)); %let l2=%length(&c); %let csp=%eval(&l1-&l2+1);
@@ -2541,11 +2541,6 @@ count_of_Y_survey_responses = countc(cats(of Q1-Q5),'y','i');
 
  /* Debug options */
 options source NOcenter dsoptions=note2err msglevel=n nostsuffix sastrace=',,,ds' sastraceloc=saslog sql_ip_trace=source dbidirectexec; 
-
- /* Exclude null/missing values regardless of whether SAS or the RDBMS processes the comparison: */
-where Profit < 0 and Profit is not null
- /* On the other hand, if you do want to include null/missing values: */
-where Profit < 0 or Profit is null
 
 data subset; if _N_=1 then do; declare hash h(dataset:'small'); h.defineKey('id'); h.defineDone(); end; set large; if h.find() = 0 then output; run; 
 
@@ -5341,10 +5336,6 @@ SELECT REGEXP_COUNT ('Oracle PL/SQL By Example Updated for Oracle 11g', 'ora', 1
 -- Oracle user sessions Who is logged:
 select * from v$session where username is not null order by logon_time, sid
 
--- Oracle run script plsql developer SQL> @C:\cygwin64\home\obheck\code\misccode\query.sql:
-$ sqlplus -S me/pw@esd @query.sql
-$ vi ~/code/misccode/query.sql && (cd ~/code/misccode/ && sqlplus -S me/pw@esd @query.sql && vi $c/temp/query.out)
-
 -- Oracle package count:
 SELECT OBJECT_NAME, count(*) FROM dba_procedures WHERE OWNER = 'SETARS' AND OBJECT_TYPE IN('PROCEDURE' , 'PACKAGE','FUNCTION') AND procedure_name IS NOT NULL GROUP BY object_name;
 
@@ -5936,8 +5927,10 @@ CREATE TABLE rejected_orders AS SELECT * FROM valid_orders WHERE 1 = 0;
 -- Comma delimited string to number:
 SELECT to_number(TRIM(regexp_substr(accounts, '[^,]+', 1, LEVEL))) AS account_id FROM (SELECT '123,456' AS accounts FROM dual) CONNECT BY regexp_substr(accounts, '[^,]+', 1, LEVEL) IS NOT NULL;
 
--- Oracle date time interval:
+-- Oracle date time interval in the last 5 minutes:
 SELECT (SYSTIMESTAMP - INTERVAL '5' minute) AS five_minutes_ago, SYSTIMESTAMP FROM dual
+WHERE execute_time >= (SYSTIMESTAMP - INTERVAL '5' minute)
+start_date := cast(SYSTIMESTAMP + (1/(24*60) * 5) AS TIMESTAMP);  -- 5 minutes from now
 
 -- Oracle full date time with timezone:
 select to_char(SYSTIMESTAMP, 'DD-MON-YYYY HH.MI.SS.FF4 AM TZR') from dual;
@@ -5946,6 +5939,40 @@ SELECT job_name, start_date, regexp_replace(start_date, '[AP]M -\d\d:\d\d.*$', '
 
 -- Oracle repeat character tab:
 dbms_output.put_line('modifying: ' || j.full_job_name || rpad(chr(09), 4, chr(09)) || ' ' || j.start_date || ' to ' || j.new_start_date);
+
+Oracle SQLPlus
+SQL> ed  -- edits afiedt.buf (assuming a query has already been run)
+SQL> r  -- run query
+
+-- Pass a parameter to sqlplus
+... AND spid='&1'; ...
+
+-- Oracle sqlplus do not display query results (usually when sending output to .out file)
+set termout off
+
+-- Oracle run script plsql developer SQL> @C:\cygwin64\home\obheck\code\misccode\query.sql:
+$ sqlplus -S me/pw@esd @query.sql
+$ vi ~/code/misccode/query.sql && (cd ~/code/misccode/ && sqlplus -S me/pw@esd @query.sql && vi $c/temp/query.out)
+
+-- SQL Server date datetime literal or  { d '1990-10-02' }  { t '13:33:41' }
+WHERE fwn.VariableStp.dtSplTakenTime= {ts '2008-11-21 15:46:59.727'}
+-- SQL Server like Oracle TO_DATE: 
+WHERE  batch_time > {ts '2008-02-13 00:00:00.000'}
+-- but if simple SQL Server date just use:
+WHERE batch_time > '2008-02-13'
+
+-- SQL Server version:  SELECT @@VERSION
+
+SELECT * FROM DICTIONARY WHERE table_name like 'USER%' ORDER BY table_name;  -- Oracle
+
+ /* Exclude null/missing values: */
+where Profit < 0 and Profit IS NOT NULL
+ /* On the other hand, if you do want to include null/missing values: */
+where Profit < 0 or Profit IS NULL  /* just 'where Profit < 0' will wrongly skip the nulls because the result of comparing NULL to anything is unknown, not < 0 */
+ /* Oracle way: */
+where nvl(Profit, -1) < 0
+
+select colour, shape, weight from bricks order by weight desc fetch first 2 rows with ties;  -- Oracle 12c +
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6340,22 +6367,6 @@ Dim date1 As Date = #4/10/2008 6:30AM#
 ' or total business hours to resolve
 =(NETWORKDAYS(C2,D2)-1-MOD(C2,1)+MOD(D2,1))*8
 
-' Subquery (Oracle at least)
-select * from eforms_extract.zebulon_request_detail where request_id=(select max(request_id) from eforms_extract.zebulon_request_detail)
-
-Oracle SQLPlus
-SQL> ed  -- edits afiedt.buf (assuming a query has already been run)
-SQL> r  -- run query
-
--- SQL Server date datetime literal or  { d '1990-10-02' }  { t '13:33:41' }
-WHERE fwn.VariableStp.dtSplTakenTime= {ts '2008-11-21 15:46:59.727'}
--- SQL Server like Oracle TO_DATE: 
-WHERE  batch_time > {ts '2008-02-13 00:00:00.000'}
--- but if simple SQL Server date just use:
-WHERE batch_time > '2008-02-13'
-
--- SQL Server version:  SELECT @@VERSION
-
 <!-- Clear textbox on entry click -->
 <INPUT NAME="the_batch" TYPE="text" VALUE="Enter batch" onClick="javascript:value=''; return false">
 <INPUT NAME="mytextbox" TYPE="text" VALUE="Click to begin editing" SIZE=70 onClick="this.value='';return false">
@@ -6407,12 +6418,6 @@ To see logged on users in Windows 2003 - "Computer Management" "Shared Folders" 
 
 ^ is DOS cmd line continuation... like a backslash at the end of the line in unix
 
--- Pass a parameter to sqlplus
-... AND spid='&1'; ...
-
--- Oracle sqlplus do not display query results (usually when sending output to .out file)
-set termout off
-
 <div style="font-family:arial; color:blue; text-decoration:underline; font-weight:bold; font-size:200%">Newer approach - HTML using CSS</div>
 
 @font-face { font-family: 'myf'; src: url('PRISTINA.ttf') format('truetype'); font-weight: normal; font-style: normal; }
@@ -6457,8 +6462,8 @@ msconfig
 # Benchmark a network speed problem
 $ time vi -c :q $u/junk
 
--- Increment counter in Oracle
-ROW_NUMBER() OVER (ORDER BY MATERIAL_BATCH_NUMBER ASC) AS myindexN
+-- Average on every row:
+select avg(amt) OVER () grand_avg
 
 runas /User:Administrative_AccountName"mmc %systemroot%\system32\inetsrv\iis.msc"
 
@@ -6496,9 +6501,6 @@ Ctrl-r odbc commandline odbcad32
 
 -- Build Oracle GRANT statements for @myfilesql (run as pks)
 select  'grant select,insert,update,delete on ' || tname || ' to pks_user' from tab
-
--- Build Oracle SYNONYM statements for @myfilesql2 (build these as pks but run them as pks_user) $ sqlplus pks_user/pksu388@ustst581 @synonyms.sql
-select 'create synonym PKS_USER.' || tname || ' for PKS.' || tname || ';' from tab
 
 Remote Desktop C:\WINDOWS\system32\mstsc.exe /admin
 Remote Desktop restore full screen from maximized window: Ctr+Alt+Break
@@ -6581,6 +6583,7 @@ git stash  && git stash apply
 git stash --include-untracked 'my named stash' && git stash apply 
 
 # git stash restore
+git stash list
 git stash pop
 # or if >1 exist
 git stash apply stash@{1}
