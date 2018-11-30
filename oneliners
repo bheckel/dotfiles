@@ -5408,9 +5408,6 @@ WHERE order_dt > TRUNC(SYSDATE, 'MONTH')
 
 select * from retain.fnsh_prod where prod_sel='Y' and trunc(prod_sel_dt)=trunc(sysdate);
 
--- Oracle generate random positive integer:
-select ABS(round(dbms_random.normal*100,-1)) from dual;
-
 select rpad('Melanie', 10, '*') Melanie, lpad('Caffrey', 10, '.') Caffrey
 
 -- Oracle update query: 
@@ -5973,6 +5970,17 @@ where Profit < 0 or Profit IS NULL  /* just 'where Profit < 0' will wrongly skip
 where nvl(Profit, -1) < 0
 
 select colour, shape, weight from bricks order by weight desc fetch first 2 rows with ties;  -- Oracle 12c +
+
+-- Oracle generate random number dice:
+SELECT DBMS_RANDOM.VALUE(1, 6) FROM dual  -- 3.32932424
+SELECT trunc(DBMS_RANDOM.VALUE(1, 6)) FROM dual  -- 3
+SELECT ADD_MONTHS(SYSDATE, -1 * DBMS_RANDOM.VALUE(1, 6)) FROM dual  -- 8/29/2018 11:20:27 AM  or 9/29...etc
+
+cast(trunc(aa.duns_nbr) AS VARCHAR2(90)) duns_nbr
+
+-- Avoid sqlplus prompts for ampersands:
+SQL> set define off;
+SQL> @C:\Users\bheck\OneDri~1\workspace\data\Source\SQL\3.50OrionScripts\ORION-33855_ddl_change.sql
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6883,7 +6891,7 @@ alert( (6.35 * 10).toFixed(20) ); // 63.50000000000000000000
 alert( Math.round(6.35 * 10) / 10); // 6.35 -> 63.5 -> 64(rounded) -> 6.4
 
 git branch --set-upstream-to=origin feature/ORION-33077  # ???now you can pull BUT this breaks pull requests so do this instead???:
-git push --set-upstream origin feature/ORION-33077  # "Branch 'feature/ORION-33077' set up to track remote branch 'feature/ORION-33077' from 'origin'."
+git checkout -b feature/ORION-33817 && git push --set-upstream origin feature/ORION-33817  # "Branch 'feature/ORION-33817' set up to track remote branch 'feature/ORION-33817' from 'origin'."
 
 -- git delete branch local and remote:
 git branch -a
@@ -6893,5 +6901,7 @@ git branch -d feature/ORION-31587 && git fetch -p && git branch -a
 
 :: Send To folder c:\temp
 %APPDATA%\Microsoft\Windows\SendTo
+
+Double arrows « »
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

@@ -109,21 +109,22 @@ alias datecalc=$HOME/code/perl/datecalc
 alias ddg='w3m http://duckduckgo.com/lite'
 alias f='fg'  # jobs -s  to list what's suspended
 alias g=$HOME/dotfiles/gone.sh
+# Can't use sed to eliminate leading spaces or it breaks coloring
+alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
+alias gcom='echo "ok to git commit?" && read && git add . && git commit -m "mod"'
 alias gitup='echo "ok to gitup?" && read && git status && git add . && git commit -m "mod" && git pull origin master && git push origin master'
 alias gpul='git pull origin master'
 alias gpus='git push origin master'
-alias gcom='echo "ok to git commit?" && read && git add . && git commit -m "mod"'
-# Can't use sed to eliminate leading spaces or it breaks coloring
-alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
+alias gstash='git stash save --include-untracked'
 # alias gdot="cd ~/dotfiles && git add . && git commit -m'gdot' && git pull origin master && git push origin master && cd -"
 # alias grunt='pig -x local'
 alias gs='git status'
 ###alias gskfrom="echo 'retrieving from github...';echo; cd ~/dotfiles && git pull origin master; echo; cd ~/transfer && git pull origin master; echo 'extracting...'; ls -l ~/transfer/c; tar tvfz ~/transfer/c; sleep 7; cd ~ && tar xfz ~/transfer/c" 
-alias gskfrom="echo 'retrieving from github...';echo; cd ~/transfer && git pull origin master; echo 'extracting...'; ls -l ~/transfer/c; tar tvfz ~/transfer/c; sleep 7; cd ~ && tar xfz ~/transfer/c" 
+# alias gskfrom="echo 'retrieving from github...';echo; cd ~/transfer && git pull origin master; echo 'extracting...'; ls -l ~/transfer/c; tar tvfz ~/transfer/c; sleep 7; cd ~ && tar xfz ~/transfer/c" 
 alias h='history|tail -n20'
 # Poor-man's file sync.  See gskto gskfrom.  Using suffix-less tarball to discourage email filtering.
 # Assumes we have sent the weekend work attachment ~/Downloads/c.NEW from home to github.  Monday morning run usually.
-alias homefrom="cd ~/transfer && git pull origin master; cd ~; echo 'extracting...'; ls -l ~/transfer/c.NEW && sleep 5; tar xvfz ~/transfer/c.NEW; rmv ~/transfer/c.NEW; cd -"
+# alias homefrom="cd ~/transfer && git pull origin master; cd ~; echo 'extracting...'; ls -l ~/transfer/c.NEW && sleep 5; tar xvfz ~/transfer/c.NEW; rmv ~/transfer/c.NEW; cd -"
 alias j="jobs -s"  # only show STOPPED (e.g. skip RUNNING blink.exe &) jobs
 alias l='ls'
 # Overridden later if non-GNU ls is present.  Do not move.
@@ -190,11 +191,6 @@ ses() {
 sesrm() {
   # E.g. sesrm /mnt/nfs/home/bheckel/bob/RFD/AN-5087_weisoptout
   mv -i $1/{Session.vim,Session.vimx} && mv -i $1/ ~/bob/_old/ 
-}
-
-# Session grep.  Search comma-separated project session keyword files.  Debug: find ~/bob/ -name .keyword|xargs head
-sesg() {
-  find ~/bob/ -name '.keyword*' | xargs grep -i "$1"
 }
 
 sesh() {
@@ -290,7 +286,7 @@ d() {
   \dirs | awk  '{gsub(/ ~/, "!~"); gsub(/ \//, "!/") ; n=split($0,arr,"!") ; 
   for (i=1;i<=n;++i) print (i-1)" -> "arr[i] }'
 }
-# Note: We can not directly write «dirs() { \dirs | ... }» as it would
+# Note: We cannot directly write «dirs() { \dirs | ... }» as it would
 # end in an infinite loop. Hence the declaration of «d(){}» and dirs as
 # an alias for d.
 alias dirs=d
