@@ -5295,11 +5295,9 @@ select s.sid ,s.serial# ,s.username ,s.machine ,s.status ,s.lockwait ,t.used_ubl
 
 rc PLS_INTEGER; rc := SQL%ROWCOUNT; dbms_output.put_line('rows affected: ' || rc);
 
-TYPE varray_type IS VARRAY(4) OF VARCHAR2(15);  -- Oracle collection
-TYPE associativearray_type_str IS TABLE OF INTEGER INDEX BY VARCHAR2(10);  -- Oracle collection
-TYPE nestedtable_type IS TABLE OF VARCHAR2(15)  -- Oracle collection
-
-DROP PACKAGE test_bob;
+TYPE varray_type IS VARRAY(4) OF VARCHAR2(4000);  -- Oracle collection
+TYPE associativearray_type IS TABLE OF INTEGER INDEX BY VARCHAR2(10);  -- Oracle collection
+[CREATE OR REPLACE] TYPE nestedtable_type IS TABLE OF VARCHAR2(15)  -- Oracle collection
 
 -- Partial row record variable:
 DECLARE CURSOR c IS SELECT fnm, lnm FROM employees; friend c%ROWTYPE; BEGIN friend.fnm := 'John'; END; /
@@ -5342,10 +5340,15 @@ SELECT OBJECT_NAME, count(*) FROM dba_procedures WHERE OWNER = 'SETARS' AND OBJE
 -- Oracle quoting masking also max varchar2:
 foo CONSTANT  varchar2(4000) := q'[bar 'ok']';
 
-ALTER PACKAGE ZTESTBOB COMPILE PACKAGE; show errors PACKAGE ZTESTBOB;
-ALTER PACKAGE ZTESTBOB COMPILE PACKAGE BODY; show errors PACKAGE BODY ZTESTBOB;
+DROP PACKAGE test_bob;
 
-SQL> alter procedure z_set_activ_match_code compile;  show errors
+ALTER PACKAGE ZTESTBOB COMPILE PACKAGE; show errors PACKAGE ZTESTBOB;
+ALTER PACKAGE ZTESTBOB COMPILE PACKAGE BODY; show err PACKAGE BODY ZTESTBOB;
+
+SQL> alter procedure z_set_activ_match_code compile;  show error
+
+-- SHOW ERR[ORS] in sqlplus uses this table:
+SELECT * FROM USER_ERRORS WHERE name IN ('PLCH_PKG', 'PLCH_GET_NUMBERS')
 
 -- Oracle cross database:
 SELECT \*+ DRIVING_SITE(SITE) *\ COUNT(*) FROM DB_OWNER.DI_SITE_DATA@DNB_XXXX SITE WHERE SITE.DUNS_NBR = :1
@@ -5982,6 +5985,19 @@ cast(trunc(aa.duns_nbr) AS VARCHAR2(90)) duns_nbr
 SQL> set define off;
 SQL> @C:\Users\bheck\OneDri~1\workspace\data\Source\SQL\3.50OrionScripts\ORION-33855_ddl_change.sql
 
+-- Benchmarking:
+SELECT st.VALUE FROM v$mystat st, v$statname sn WHERE st.statistic# = sn.statistic# AND sn.name = 'Oracle session pga memory';
+
+select * from DDL_EVENT de, ddl_event_sql des where de.ddl_event_id = des.event_id and de.event_date>'08nov2018' and de.osuser='scmk' order by de.event_date desc, des.sql_line  
+
+-- Don't error on no_data_found if count is 0:
+SELECT COUNT(*) FROM account_base WHERE 1 = 1 AND account_id = 42;
+
+-- Is parent or any children in the hierarchy an existing cust?:
+SELECT count(1) FROM account_base b WHERE b.account_id = 181477 AND EXISTS (SELECT 1 FROM account_base sup, account_base detail WHERE sup.account_id = b.sup_account_id AND detail.sup_account_id = sup.account_id) AND detail.existing_customer = 1);
+
+FUNCTION get_dept_info(dept_id NUMBER) RETURN dept_info_record RESULT_CACHE;
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -6446,8 +6462,7 @@ Factorial: 6! is 6*5*4*3*2*1
 
 Fibonacci each number is the sum of the preceding two: 0 1 1 2 3 5 8 13 21 ...
 
-OldNew percentage change %: To calculate the percentage increase: First: work out the difference (increase) between the two numbers you are comparing. Then: divide the increase by the ORIGINAL number and multiply the answer by 100. If your answer is a negative number then this is a percentage decrease.
-
+OldNew percentage change % before after: To calculate the percentage increase: Subtract the original value from the new value, then divide the result by the original value. 
 Disable screensaver lock Windows XP (see also code\misccode\ScreenSaverIsSecure_Make0.reg)
 \HKCU\Software\Policies\Microsoft\Windows\ControlPanel\Desktop
 ScreenSaverIsSecure 0
@@ -6596,6 +6611,9 @@ git stash pop
 # or if >1 exist
 git stash apply stash@{1}
 
+# Delete ALL stashes:
+git stash clear 
+
 git config user.name  # whoami
 cat ~/.gitconfig # whoami
 git config user.email
@@ -6649,18 +6667,16 @@ git show master:cfg/DataPost_Configuration.html |vi -
 # git edit modify rewrite previous existing git commit message:
 git commit --amend -m 'change your previous, last, wrong, commit message to this'
 
-# Diff anything uncommitted:
-git diff 97a158d 5e4abd2 # or git diff (assumes HEAD) or git diff cfg/ or git diff cfg/DataPost_Configuration.xml
-
+# Diff your pre-committed change:
 git difftool  # uses vimdiff if previously  $ git config --global merge.tool vimdiff
+# Same:
+git diff HEAD
+
+# See what changes you are committing including previous commit:
+git diff HEAD^
 
 # Compare commits:
 git difftool 3a93bc3 1fb24fe
-
-# See what changes you are committing:
-git diff HEAD
-# See what changes you are committing including previous commit:
-git diff HEAD^
 
 # git compare a file from another branch:
 git difftool master SET_MATCH_CODE.prc
@@ -6903,5 +6919,10 @@ git branch -d feature/ORION-31587 && git fetch -p && git branch -a
 %APPDATA%\Microsoft\Windows\SendTo
 
 Double arrows « »
+
+# View git history of a file (--follow even if filename has changed, --all branches, -p all patches):
+gitk --follow --all -p SUP_HAS_ACTIVE_SITES.fnc
+# View git revision and author last modified history for each line of a file:
+git blame SUP_HAS_ACTIVE_SITES.fnc
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

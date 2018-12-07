@@ -1650,8 +1650,7 @@ if !exists("autocommands_loaded")
   " au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR:/<CR>
   au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\\|^WARNING:/<CR>
   " au BufNewFile,BufRead,BufEnter *.log set guifont=Consolas:h8
-	au BufRead,BufNewFile *.plsql,*.pkg,*.pck,*.spc set filetype=PLSQL
-  " au BufNewFile,BufRead,BufEnter *.plsql,*.pck,*.prc,*.fnc set filetype=plsql
+	au BufRead,BufNewFile *.plsql,*.pkg,*.pck,*.spc,*.prc,*.fnc set filetype=PLSQL
   au BufNewFile,BufRead,BufEnter *.plsql,*.pck,*.prc,*.fnc let b:match_words = '\<begin\>:\<end\>,\<loop\>:\<end loop\>'
 
   " TOGGLE. Delete the yearly warning lines that appear when SAS License is about to expire
@@ -1880,7 +1879,7 @@ if !exists("autocommands_loaded")
     " au BufEnter all.sql set foldmethod=marker
   " end Temporary project-specific
   end
-  cab SqL e /cygdrive/c/Orion/workspace/data/Source/SQL/
+  " cab SqL e /cygdrive/c/Orion/workspace/data/Source/SQL/
   iab DbO dbms_output.put_line();<Esc><Left>i
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 
