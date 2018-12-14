@@ -3,6 +3,8 @@
 	diff = auto
 [core]
 	pager = less -+F -+S -+X
+[diff]
+	tool = vimdiff
 [merge]
 	tool = vimdiff
 [push]

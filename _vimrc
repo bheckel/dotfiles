@@ -10,22 +10,23 @@
 "           toys, effectively expert-proofed -- Tom Christiansen
 "
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Mon 22 Oct 2018 11:31:55 (Bob Heckel)
+" Modified: Wed 12 Dec 2018 08:55:06 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "--------------------------------------------------------------------------
 "   Initialization  	{{{1
 "--------------------------------------------------------------------------
-" DEBUG toggle -- watch initialization, etc.  Or use $ vim -V
-"""set verbose=1
-" DEBUG toggle -- watch changes to text happen slowly (default is 0)
-"""set writedelay=5
+" DEBUG toggle:
+"""scriptnames
 """echo 'reach'
-" Often unsychronized gvimrc is here C:/Program Files (x86)/Vim/_vimrc):
+" Watch initialization, etc.  Or use $ vim -V
+"""set verbose=1
+" Watch changes to text happen slowly (default is 0)
+"""set writedelay=5
 
 let THISBOX = hostname()
-let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWL14H50510', 'sas-01.twa.ateb.com', 'sasdev-01.twa.ateb.com', 'sas-01.mrk.ateb.com', 'TWAVWS-05-BHECK' ]
+let WORKBOXARRAY = [ 'L-ANA-BHECK', 'TWAVWS-05-BHECK' ]
 
 if has ('win32unix')
   let g:netrw_cygwin=1  " scp to be provided by Cygwin
@@ -111,7 +112,6 @@ set encoding=utf-8
 " ~/code/misccode/print_all_terminal_colors.sh or
 " ~/code/misccode/vim_colors.txt
 "--------------------------------------------------------------------------
-
 syntax enable
 
 " Avoid reading text presented like it was written on a light bulb.  We're
@@ -199,9 +199,12 @@ hi WarningMsg ctermfg=Magenta ctermbg=Yellow guifg=Magenta guibg=Yellow
 """hi ColorizeFirst10 ctermbg=red guibg=red
 """match ColorizeFirst10 /^........../
 
-hi EvilChars ctermbg=red guibg=yellow cterm=undercurl gui=undercurl
 " Microsoft comma fancy apostrophes of death cause vim 'CONVERSION ERROR'
+hi EvilChars ctermbg=red guibg=yellow cterm=undercurl gui=undercurl
 match EvilChars /\%u2018\|\%u2019/
+
+hi GitCollision ctermbg=red guibg=yellow
+match GitCollision /^\(<\|=\|>\)\{7\}\([^=].\+\)\?$/
 
 " end Color Syntax
 
@@ -435,6 +438,7 @@ set foldopen-=search
 " set diffopt=filler,vertical,iwhite
 set diffopt+=iwhite
 set diffopt+=filler
+" set diffopt+=algorithm:patience
 set diffexpr="--ignore-blank-lines"
 
 
@@ -687,8 +691,6 @@ iab PeW while ( (my $k, my $v) = each %h ) { print "$k=$v\\n"; }
 
 """""
 " SAS
-" Date seconds is used as a weak random number generator to avoid collisions
-iab SaB <Esc>0i%macro bobh<C-R>=strftime("%d%m%y%M%S")<Esc>; /* {{{ */<CR>%mend bobh<C-R>=strftime("%d%m%y%M%S")<Esc>; /* }}} */<Esc>dd
 " SAS/(C)onnect
 """iab SaC options ls=max;<CR>%include "&HOME/code/sas/connect_setup.sas";<CR>signon cdcjes2;<CR>%global CHICKENPARM;<CR>%syslput CHICKENPARM=&SYSPARM;<CR>rsubmit;<CR><CR><CR><CR><CR><CR>endrsubmit;<CR>signoff cdcjes2;
 " Debug Log inline, best:
@@ -697,15 +699,12 @@ iab SaD options ls=max;<Esc>0idata _NULL_; set _LAST_(obs=100 where=(myid in:('f
 iab SaE %let START=%sysfunc(time());<CR>%put !!! (&SYSCC) Elapsed minutes: %sysevalf((%sysfunc(time())-&START)/60);
 iab SaL options ls=180 ps=max; libname l '.';
 iab SaO filename F 'junk'; data t(rename=(PRODDESC=nm APRCLASS=class)); infile F truncover; input PRODDESC= $100. APRCLASS= $100.; run;
-"""iab SaP <Esc>0ititle "&SYSDSN";proc print data=_LAST_(obs=10) width=minimum heading=H;run;title; data;file PRINT;put '~~~~~~~~~~~~~~~~~~~~~~';put;run;
 iab SaP <Esc>0ititle "&SYSDSN";proc print data=_LAST_(obs=10) width=minimum heading=H;run;title;
-" iab SaQ proc sql;<CR>  create table t as<CR>select count(*)<CR>from t<CR>where<CR>group by<CR>;<CR><Left><Left>quit;<Esc><Up><Up><Up>
 iab SaQ proc sql;<CR>  create table t as<CR>select *<CR>from t a join t2 b on a.foo=b.foo<CR>where<CR>group by<CR>;<CR><Left><Left>quit;<Esc><Up><Up><Up>
 iab SaS select ( myvar );<CR><Space><Space>when ( 42 ) delete;<CR><Space><Space>otherwise;<CR><Left><Left>end;
 
 cab Sy0 source $VIMRUNTIME/syntax/nosyntax.vim
 cab SyH source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/html.vim
-"""cab SyL source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/sas/saslog.vim
 cab SyL source $HOME/code/sas/saslog.vim
 cab SyJ source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/javascript.vim
 cab SyQ source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/sql.vim 
@@ -713,6 +712,7 @@ cab SyS source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/sas/sas.vim
 cab SyS source $HOME/code/sas/sas.vim
 cab SyV source $HOME/.vimrc
 
+iab DbO dbms_output.put_line();<Esc><Left>i
 
 " end Abbreviations-
 
@@ -720,7 +720,7 @@ cab SyV source $HOME/.vimrc
 "--------------------------------------------------------------------------
 "   Mappings 	{{{1  
 "
-" Must come after Settings for <> notation.
+" Must come after Settings for <> notation
 "--------------------------------------------------------------------------
 
 " Assumes stty -ixon in .bashrc
@@ -767,7 +767,7 @@ endif
 
 nnoremap <F12> :qa<CR>
 
-" Like gv but for paste buffer
+" Like gv but for paste buffer.  Some day i may actually remember to use this...
 nnoremap <expr> gb '`[' . strpart(getregtype(), 0, 1) . '`]'
 
 
@@ -837,11 +837,6 @@ nnoremap ,n :bn<CR>
 
 nnoremap ,qq :q!<CR>
 
-" if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
-  " Ugly hack to get word (SAS macro name) under cursor into a path/filename for gf.  Then ,e & u:
-  " nnoremap ,r :let @z=substitute(expand("<cword>"),".*","/Drugs/Macros/&.sas","g")<CR>ciw<C-R>z<ESC>gf<ESC>
-" endif
-
 " Quick search template:
 nnoremap ,s :%s::g<Left><Left>
 
@@ -857,6 +852,9 @@ nnoremap ,w :call WrapToggle()<CR>
 
 nnoremap ,hdr :-1read ~/code/sas/Headertmplt.sas<CR>
 
+" Also copy visual mode selection to system clipboard. Vaguely like gvim's default, this works for terminals
+" like mintty.
+vnoremap <silent> y  "*y
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Begin ';' semicolon map leader
@@ -1261,13 +1259,13 @@ endfu
 command! -nargs=0 Maxl call MaxLineLen(1)  " }}}
 
 
-fu! SetOpt(opt, val)  " {{{2
+function! SetOpt(opt, val)  " {{{2
   " Used to widen gvim to max column width
   let s:opt = a:opt
   let s:val = a:val
 
   execute("set " . s:opt . "=" . s:val)
-endfu  " }}}
+endfunction  " }}}
 
 
 fu! BkupFile(vtpth)  " {{{2
@@ -1605,6 +1603,16 @@ endfu
 " }}}
 
 
+fu! WhichEnv() abort  " {{{2
+  " ...else if (WhichEnv() =~# 'LINUX')
+  if has('win64') || has('win32') || has('win16')
+      return 'WINDOWS'
+  else
+     return toupper(substitute(system('uname'), '\n', '', ''))
+  endif
+endfu
+" }}}
+
 " end Functions-
 
 
@@ -1792,7 +1800,8 @@ if !exists("autocommands_loaded")
   au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
   au BufEnter oneliners,.vimrc,_vimrc,.bashrc,_bashrc set foldmethod=marker
   au BufEnter .vimrc echo ".vimrc: $MYVIMRC:" $MYVIMRC
-  au BufEnter readme.txt :set tw=99999
+  au BufRead,BufEnter *.txt set wrap
+
 
   " We'll probably never need to edit a tarball:
   au FileType TAR map q :q<CR>
@@ -1826,15 +1835,9 @@ if !exists("autocommands_loaded")
     au BufNewFile,BufRead,BufEnter *.sas | syntax clear | source $HOME/code/sas/sas.vim
   endif
 
-  " if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
-    " Avoid opening this tempfile accidentally via my ,e map etc. It is never useful.
-    " au BufEnter ~/bob/tmp/.vimxfer :echom 'an autocommand is deleting this buffer' | :bd
-  " endif
-
-  "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
   "
-	" TODO move to ~/.vimrc.project
+	" TODO move to ~/.vimrc.project or something
   " Temporary project-specific hacks to normalize messy problem-spaces:
 
   if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
@@ -1872,15 +1875,12 @@ if !exists("autocommands_loaded")
 		"""au BufRead,BufNewFile *.map set filetype=xslt
 """    au BufReadPre,FileReadPre /Drugs/Macros/* set noswapfile
 """    au BufReadPre,FileReadPre /Drugs/Cron/* set directory=/Drugs/Personnel/bob/
-"""    au BufReadPre,FileReadPre /Drugs/RFD/* set noswapfile
 """    au BufReadPre,FileReadPre /Drugs/HealthPlans/* set noswapfile
-"""    au BufReadPre,FileReadPre /Drugs/TMMEligibility/* set noswapfile
 
     " au BufEnter all.sql set foldmethod=marker
   " end Temporary project-specific
   end
   " cab SqL e /cygdrive/c/Orion/workspace/data/Source/SQL/
-  iab DbO dbms_output.put_line();<Esc><Left>i
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 
 endif  " ! autocommands_loaded

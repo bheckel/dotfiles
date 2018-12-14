@@ -632,6 +632,8 @@ bheckel@db-dev-01.twa.taeb.com:TAEBMART \ef analytics.tmm_client_build_config
 -- Search alternation in vimrc
 au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\\\|^WARNING:/<CR>
 
+" Windows gvimrc is sometimes here C:/Program Files (x86)/Vim/_vimrc
+
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -5357,6 +5359,7 @@ SELECT \*+ DRIVING_SITE(SITE) *\ COUNT(*) FROM DB_OWNER.DI_SITE_DATA@DNB_XXXX SI
 ..., actual_updatedby = nvl(sys_context('mystars_context', 'employee_id'), 0)
 
 -- Kill Oracle session (session id, serial #):
+select * from v$session where osuser='bheck' order by status, logon_time, sid
 SQL> exec sys.kill_session(51,6449);
 
 -- Rename Oracle table:
@@ -5421,7 +5424,7 @@ Oracle YYYYMMDDHH24MISS date vaguely like epoch: 20070304184943
 -- Oracle SQL*Plus (like SELECT TOP 10 *... in SQL Server)
 select * from activity_log where rownum<10;
 
--- Oracle last month
+-- Oracle last month months ago:
 select ADD_MONTHS(sysdate,-1) from dual;
 
 dbms_output.put_line('rpt at: ' || TO_CHAR(sysdate, 'dd-mon-yy hh:mipm'));
@@ -5543,8 +5546,9 @@ BEGIN FOR i IN x.FIRST .. x.LAST LOOP DBMS_OUTPUT.PUT_LINE(x(i)); END LOOP;
 -- Oracle DDL for DROP all procedures matching pattern:
 SELECT 'DROP PROCEDURE "'||owner||'"."'||object_name||'";' FROM all_procedures WHERE procedure_name IS NULL AND UPPER(object_name) LIKE 'Z_SET_%';
 
--- Oracle select year only
-extract(year from h.updated) in (2017,2018)
+-- Oracle select year only between years periods:
+extract(year from h.updated) in(2017,2018)
+if (extract(year from sysdate) not between (compYear - 1) and (compYear + 1)) then...
 
 -- sleep pause execution for 60 seconds 
 SELECT sysdate INTO l_now FROM DUAL; LOOP EXIT WHEN l_now +(60 * (1 / 86400)) = sysdate; END LOOP;
@@ -5832,6 +5836,9 @@ select date_trunc('MONTH', now())-'1 month'::interval;
 -- Postgres earlier than first of this month:
 select distinct clientid, dashstart from dshbrd.dashboardclients where deactivated != TRUE and dashstart < date_trunc('MONTH', now());
 
+-- Oracle count group by month last 3 months:
+SELECT to_char(TRUNC(o.updated, 'MONTH'),'YYYY-MM') AS mo, COUNT(o.updated) AS COUNT FROM opp o WHERE o.updated  > ADD_MONTHS(SYSDATE,-3) GROUP BY TRUNC(o.updated, 'MONTH') ORDER BY 1 DESC
+
 -- Postgres bulk load a textfile to a table:
 \COPY analytics.obcdaily (client_name, , job_type_extra, att_count) FROM /Data/psql_import_temp.csv CSV HEADER
 
@@ -5916,7 +5923,7 @@ WHEN others THEN dbms_output.put_line(SQLCODE || ':' || SQLERRM || ': ' || DBMS_
 -- Oracle which database are we on?:
 IF (SYS_CONTEXT('USERENV', 'DB_UNIQUE_NAME') = 'ESPDB') THEN ...
 
--- Check for recent recompilation:
+-- Check for recent recompilation or invalid status:
 SELECT owner, object_name, object_type, status, last_ddl_time FROM dba_objects WHERE object_name = 'USER_ON' AND object_type LIKE 'PACKAGE%'
 
 SELECT SYSTIMESTAMP INTO starting_time FROM DUAL;
@@ -5997,6 +6004,24 @@ SELECT COUNT(*) FROM account_base WHERE 1 = 1 AND account_id = 42;
 SELECT count(1) FROM account_base b WHERE b.account_id = 181477 AND EXISTS (SELECT 1 FROM account_base sup, account_base detail WHERE sup.account_id = b.sup_account_id AND detail.sup_account_id = sup.account_id) AND detail.existing_customer = 1);
 
 FUNCTION get_dept_info(dept_id NUMBER) RETURN dept_info_record RESULT_CACHE;
+
+CREATE SEQUENCE UID_OPPORTUNITY_OPT_OUT MINVALUE 1000 MAXVALUE 999999999999999999999999999 START WITH 1001 INCREMENT BY 1 CACHE 5;
+
+SELECT GREATEST(SYSDATE, to_date('01JAN29', 'YYYY-MM-DD HH24:MI:SS')) FROM dual
+
+-- sqlplus BOOLEAN parameters are translated from/to integers 0/1/null <--> false/true/null:
+in_debug boolean := sys.diutil.int_to_bool(:in_debug);
+
+-- Counts of 0, 1 and NULL:
+SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,999)), POOR_CLOSEOUT_OPT_OUT FROM OPPORTUNITY_OPT_OUT GROUP BY POOR_CLOSEOUT_OPT_OUT
+
+-- Sample database table 5 years 2018-01-02 to 2022-12-31:
+create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dual connect by level <= 365*5;
+
+alter table movies add primary key ( name )
+
+-- Who to blame last modified an Oracle object:
+SELECT * FROM DDL_EVENT Order by DDL_EVENT_ID DESC
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6803,7 +6828,7 @@ d2 <- read.csv(file="readfile.csv.r.txt",head=TRUE,sep=",")  # same
 
 -- Canonical SQL count function 
 COUNT(*)                returns the number of rows in a table
-COUNT(DISTINCT ColName) returns the number of unique values for column ColName
+COUNT(DISTINCT ColName) returns the number of unique values for column ColName (can't use * !)
 COUNT(ColName)          returns the number of rows that have a non null value for ColName
 
 -- Only those columns explicitly listed in the GROUP BY clause may appear un-aggregated (i.e. not as a parameter of an aggregate function) in the SELECT or HAVING clauses.  That usually means the SELECT is equal or shorter to the GROUP BY.
@@ -6912,7 +6937,7 @@ git checkout -b feature/ORION-33817 && git push --set-upstream origin feature/OR
 -- git delete branch local and remote:
 git branch -a
 git branch -d feature/ORION-31587 && git push origin --delete feature/ORION-31587 && git fetch -p && git branch -a
--- git delete branch (after github UI delete button):
+-- git delete branch and prune remote branches (after github UI delete button):
 git branch -d feature/ORION-31587 && git fetch -p && git branch -a
 
 :: Send To folder c:\temp
