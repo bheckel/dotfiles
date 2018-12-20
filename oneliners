@@ -634,6 +634,8 @@ au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\\\|^WARNING:/<CR>
 
 " Windows gvimrc is sometimes here C:/Program Files (x86)/Vim/_vimrc
 
+nnoremap ,hdr :-1read ~/code/sas/Headertmplt.sas<CR>
+
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -5292,8 +5294,8 @@ alter table CONTAC add constraint NN_CONTAC_ORIGIN_LOV_ID check("ORIGIN_LOV_ID" 
 
 select constraint_name, constraint_type from user_constraints@sep WHERE constraint_name LIKE 'NN%ORIGIN%';
 
--- Find uncommitted transactions locks:
-select s.sid ,s.serial# ,s.username ,s.machine ,s.status ,s.lockwait ,t.used_ublk ,t.used_urec ,t.start_time from v$transaction t inner join v$session s on t.addr = s.taddr;
+-- Oracle find uncommitted transactions locks:
+SELECT s.OSUSER, s.sid ,s.serial# ,s.username ,s.machine ,s.status ,s.lockwait ,t.used_ublk ,t.used_urec ,t.start_time from v$transaction t inner join v$session s on t.addr = s.taddr;
 
 rc PLS_INTEGER; rc := SQL%ROWCOUNT; dbms_output.put_line('rows affected: ' || rc);
 
@@ -5319,11 +5321,10 @@ INSERT INTO...; SAVEPOINT bobora; INSERT INTO...; ROLLBACK TO bobora;
 -- Oracle regex:
 select object_name, object_type from user_objects where object_type in ('PACKAGE') AND regexp_like(object_name, '.*BOBONCALL.*')
 
--- Oracle what objects are available? ls for db:
+-- Oracle which objects are available, what is invalid? ls for db (all_objects is similar):
 select object_name, object_type from user_objects where object_type in ('VIEW','TABLE','PACKAGE','PROCEDURE','FUNCTION') and lower(object_name) like '%acc%' order by 2,1
-
--- Oracle invalid objects:
-select * from user_objects o where object_type != 'JAVA CLASS' and status = 'INVALID';
+-- Oracle which objects are invalid objects:
+select * from user_objects o where object_type != 'JAVA CLASS' and status = 'INVALID' ORDER BY last_ddl_time;
 
 -- Oracle date subtraction:
 where lc.updated >= TRUNC(SYSDATE - (365 * 2)) -- 2 year window
@@ -5346,7 +5347,6 @@ DROP PACKAGE test_bob;
 
 ALTER PACKAGE ZTESTBOB COMPILE PACKAGE; show errors PACKAGE ZTESTBOB;
 ALTER PACKAGE ZTESTBOB COMPILE PACKAGE BODY; show err PACKAGE BODY ZTESTBOB;
-
 SQL> alter procedure z_set_activ_match_code compile;  show error
 
 -- SHOW ERR[ORS] in sqlplus uses this table:
@@ -5382,8 +5382,11 @@ select object_type, count(*) from dba_objects where owner='PKS_USER' group by ob
 
 OPEN c1; LOOP FETCH c1 INTO v_lastname, v_jobid; EXIT WHEN c1%NOTFOUND; DBMS_OUTPUT.PUT_LINE( RPAD(v_lastname, 25, ' ') || v_jobid ); END LOOP; CLOSE c1;
 
--- Increase sqlplus buffer:
+-- Increase sqlplus buffer to maximum unlimited:
 dbms_output.enable(1000000);
+dbms_output.enable(NULL);  -- same
+
+dbms_output.disable;
 
 -- Oracle prevent nulls from propagating:
 SELECT ename, comm, sal, 12*sal+NVL(comm,0) ...
@@ -5575,8 +5578,10 @@ CREATE TEMP TABLE _bob AS select atebpatientid FROM public.hppatientstarpdc;
 SELECT LOV.LIST_OF_VALUES_ID, LOV.VALUE FROM LIST_OF_VALUES LOV WHERE LOV.RETIRED = 0 START WITH LOV.LIST_OF_VALUES_ID IN (1,2,3) CONNECT BY PRIOR LOV.LIST_OF_VALUES_ID = LOV.PARENT_ID
 select sys_connect_by_path (job, '/') job_path, sys_connect_by_path (ename, '/') ename_path from scott.emp start with mgr is null connect by prior empno=mgr
 
--- Oracle hostname
+-- Oracle hostname:
 SELECT SYS_CONTEXT('USERENV', 'SERVER_HOST') FROM DUAL;
+-- Oracle database name:
+l_db_name VARCHAR2(20) := SYS_CONTEXT('USERENV', 'DB_NAME');  if (l_db_name IN ('SEPS')) THEN...
 
 -- Oracle primary (P) foreign (R) keys:
 SELECT * FROM ALL_CONSTRAINTS WHERE owner=USER
@@ -5594,7 +5599,7 @@ SELECT account_id FROM account_name SAMPLE(0.1);
 -- Oracle error message exception:
 dbms_output.put_line(SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
 
--- Oracle recompile entire schema:
+-- Oracle recompile entire schema's invalid objects:
 DBMS_UTILITY.compile_schema('SETARS', false);
 
 -- An autonomous routine never reads or writes database state (i.e., it neither queries nor updates any table):
@@ -5846,7 +5851,11 @@ SELECT to_char(TRUNC(o.updated, 'MONTH'),'YYYY-MM') AS mo, COUNT(o.updated) AS C
 SELECT depname, empno, salary, avg(salary) OVER (PARTITION BY depname) FROM empsalary;  -- attach department average calculation to each row by department
 sum(nvl(ri.at_risk_amount,0)) over (partition by rp.risk_id) as tot_at_risk_amt
 
-first_value(an.account_name) over(partition by ab.ACCOUNT_ID order by an.override_account_name desc) as account_name,
+-- Most recent:
+FIRST_VALUE(an2.account_name_id) over(partition by an2.account_id order by updated desc) as latest_primary
+
+-- Ranked by their full remuneration package:
+RANK() OVER ( ORDER BY sal + NVL(comm,0))
 
 masked_patientkey = encode(digest(coalesce(split_part(patientnamefirst, ' ', 1),'') || patientnamelast || (case when patientdob is not null then to_char(patientdob,'yyyy-MM-dd') else '' end) || substring(coalesce(patientposctalcode, ''), 1,5), 'sha256'),'hex')
 select digest(patientnamefirst,'sha1') from rxfilldata_parent limit 1;
@@ -5910,8 +5919,6 @@ SELECT Name, Day FROM Customers, Reservations;
 -- A shirt manufacturer with many different products. They have a set of sizes (S, M, L, etc.). They create each shirt in every size. You need to generate stock rows for every shirt in every size:
 select * from shirts cross join shirt_sizes
 
-start_time := dbms_utility.get_time();
-
 -- Oracle unconditional multitable insert:
 insert all  into teddies values ('Dinosaur King', 'red')  into bricks values ('sphere', 'green', 100)  select * from dual
 
@@ -5921,7 +5928,7 @@ insert all into people values (full_name) when hire_date is not null then into s
 WHEN others THEN dbms_output.put_line(SQLCODE || ':' || SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
 
 -- Oracle which database are we on?:
-IF (SYS_CONTEXT('USERENV', 'DB_UNIQUE_NAME') = 'ESPDB') THEN ...
+IF (SYS_CONTEXT('USERENV', 'DB_NAME') in ('SER', 'SETS')) THEN RETURN; END IF;
 
 -- Check for recent recompilation or invalid status:
 SELECT owner, object_name, object_type, status, last_ddl_time FROM dba_objects WHERE object_name = 'USER_ON' AND object_type LIKE 'PACKAGE%'
@@ -5994,8 +6001,7 @@ SQL> @C:\Users\bheck\OneDri~1\workspace\data\Source\SQL\3.50OrionScripts\ORION-3
 
 -- Benchmarking:
 SELECT st.VALUE FROM v$mystat st, v$statname sn WHERE st.statistic# = sn.statistic# AND sn.name = 'Oracle session pga memory';
-
-select * from DDL_EVENT de, ddl_event_sql des where de.ddl_event_id = des.event_id and de.event_date>'08nov2018' and de.osuser='scmk' order by de.event_date desc, des.sql_line  
+start_time NUMBER; BEGIN start_time := dbms_utility.get_time(); ... dbms_output.put_line(dbms_utility.get_time()-start_time);
 
 -- Don't error on no_data_found if count is 0:
 SELECT COUNT(*) FROM account_base WHERE 1 = 1 AND account_id = 42;
@@ -6022,6 +6028,19 @@ alter table movies add primary key ( name )
 
 -- Who to blame last modified an Oracle object:
 SELECT * FROM DDL_EVENT Order by DDL_EVENT_ID DESC
+select * from DDL_EVENT de, ddl_event_sql des where de.ddl_event_id = des.event_id and de.event_date>'08nov2018' and de.osuser='scmk' order by de.event_date desc, des.sql_line  
+
+-- View Oracle grants:
+select * from dba_tab_privs@sed WHERE table_name = 'ACCOUNT'
+
+BEGIN sys.dbms_scheduler.create_job( job_name => 'NIGHTLY_RISK_IP_UPDATE_JOB', job_type => 'PLSQL_BLOCK', job_action => 'BEGIN RISK_PKG.periodicRiskUpdate; END;', start_date => '19-DEC-18 12.30.00PM EST5EDT', repeat_interval => 'FREQ=Daily', end_date => to_date(null), job_class => 'DEFAULT_JOB_CLASS', enabled => true, auto_drop => false,  -- run more than once comments => 'Nightly update job'); END;
+BEGIN dbms_scheduler.drop_schedule('DAILY_SCHEDULE'); dbms_scheduler.drop_job('DAILY_JOB'); END;
+-- Oracle  scheduled job details:
+select a.job_name, a.JOB_TYPE, a.JOB_ACTION, a.start_date, a.REPEAT_INTERVAL, a.end_date, a.JOB_CLASS, a.ENABLED, a.AUTO_DROP, a.comments from all_scheduler_jobs a ORDER BY 1
+-- Oracle scheduled job outcome log:
+SELECT * FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE JOB_NAME LIKE 'PTG%'
+-- Oracle scheduled job next run:
+SELECT * from user_scheduler_jobs@sed WHERE job_name in ('PERIODIC_LIFECYCLE_UPDATE')
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 

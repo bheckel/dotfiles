@@ -10,13 +10,20 @@
 "           toys, effectively expert-proofed -- Tom Christiansen
 "
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Wed 12 Dec 2018 08:55:06 (Bob Heckel)
+" Modified: Thu 20 Dec 2018 15:32:20 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
+"   Settings 	{{{1
+"    ordered by :option option-window convention
 "--------------------------------------------------------------------------
-"   Initialization  	{{{1
-"--------------------------------------------------------------------------
+"                                1 initialization {{{2
+" Unleash the beast VIVIVI:
+set nocompatible
+
+" Show '$' on C and s actions, i.e. emulate vi:
+set cpoptions=s$
+
 " DEBUG toggle:
 """scriptnames
 """echo 'reach'
@@ -100,11 +107,71 @@ set encoding=utf-8
 """execute pathogen#infect()
 " cd ~/.vim/bundle && git clone git://github.com/tpope/vim-commentary.git
 
-" end Initialization
+"                                2 moving around, searching and pattern {{{2
+" H, M, L, gg, etc commands move cursor to first blank in line.
+set startofline
+
+" Search pwd and subdirs when using gf, :find, etc.
+"""set path=.,**/*
+if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
+  set path=/sasdata/Macros,**
+else
+  set path=**
+endif
+
+set wrapscan
+
+set incsearch
+
+set magic
+
+" Override noignorecase with /\c... but smartcase should be smart enough to
+" not require that.
+set ignorecase 
+
+" Sadly can't use smartcase because using [I while sitting on an upper or mixed
+" case word - we will not find all matches.  Use /\Cfoo for now.
+set nosmartcase
+
+
+"                                3 tags {{{2
+
+
+"                                4 displaying text {{{2
+
+set sidescroll=5
+
+set nowrap
+
+" Overriden later depending on file type.  gvim window coordinates.
+if has('gui_running')
+  winpos 295 295
+  set columns=85
+  " Most of the time we're just doing fast edits so make it small.
+  set lines=30
+endif
+
+if version > 702
+  set relativenumber
+  " :se rnu gutter at 7pt font should rarely go > 100
+  set numberwidth=3
+endif
+
+set lazyredraw
+
+set nolinebreak
+
+set showbreak=^
+
+set scrollopt=hor,ver
+
+
+"                                5 syntax, highlighting and spelling {{{2
+
+" Adjusted by filetype below:
+set hlsearch
 
 "--------------------------------------------------------------------------
-"   Color Syntax 	{{{1
-"
 "  View current highlighting:  :hi or  :so $VIMRUNTIME/syntax/hitest.vim
 "  To test term:  :runtime syntax/colortest.vim
 "
@@ -205,91 +272,6 @@ match EvilChars /\%u2018\|\%u2019/
 
 hi GitCollision ctermbg=red guibg=yellow
 match GitCollision /^\(<\|=\|>\)\{7\}\([^=].\+\)\?$/
-
-" end Color Syntax
-
-"--------------------------------------------------------------------------
-"   Settings 	{{{1
-"    ordered by :option option-window convention
-"--------------------------------------------------------------------------
-"                                1 important {{{2
-" Unleash the beast VIVIVI:
-set nocompatible
-
-" Show '$' on C and s actions, i.e. emulate vi:
-set cpoptions=s$
-
-
-"                                2 moving around, searching and pattern {{{2
-" H, M, L, gg, etc commands move cursor to first blank in line.
-set startofline
-
-" Search pwd and subdirs when using gf, :find, etc.
-"""set path=.,**/*
-if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
-  set path=/sasdata/Macros,**
-else
-  set path=**
-endif
-
-set wrapscan
-
-set incsearch
-
-set magic
-
-" Override noignorecase with /\c... but smartcase should be smart enough to
-" not require that.
-set ignorecase 
-
-" Sadly can't use smartcase because using [I while sitting on an upper or mixed
-" case word - we will not find all matches.  Use /\Cfoo for now.
-set nosmartcase
-
-
-"                                3 tags {{{2
-
-
-"                                4 displaying text {{{2
-
-set sidescroll=5
-
-set nowrap
-
-" Overriden later depending on file type.  gvim window coordinates.
-if has('gui_running')
-  winpos 295 295
-  set columns=85
-  " Most of the time we're just doing fast edits so make it small.
-  set lines=30
-endif
-
-if version > 702
-  set relativenumber
-  " :se rnu gutter at 7pt font should rarely go > 100
-  set numberwidth=3
-endif
-
-set lazyredraw
-
-set nolinebreak
-
-set showbreak=^
-
-set scrollopt=hor,ver
-
-
-"                                5 syntax, highlighting and spelling {{{2
-
-" Adjusted by filetype below:
-set hlsearch
-" turn off highlighted results (set nohlsearch) when pressing enter.
-" just pressing n or N will turn the highlight back again
-"""autocmd CmdwinEnter * map <buffer> <F5> <CR>q:
-"""nnoremap <CR> :nohlsearch <CR>
-" Don't interfere with normal q: use of CR TODO not working
-"""autocmd CmdwinEnter * unmap <CR>
-
 
 "                                6 multiple windows {{{2
 
@@ -602,13 +584,11 @@ set shellslash
 " ab's with  :iab H  Do :abclear to remove all.
 "--------------------------------------------------------------------------
 
-"""""
 " Personal
 iab BoB Bob Heckel
 iab RoB Robert S. Heckel Jr.
 iab @@ rsh@rshdev.com
 
-"""""
 " Misc
 iab AlP ABCDEFGHIJKLMNOPQRSTUVWXYZ
 iab MoN January February March April May June July August September October November December
@@ -617,28 +597,20 @@ iab NuM 1234567890123456789012345678901234567890123456789012345678901234567890
 iab RuL ----+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8----+----9----+----0
 iab ShE #!/bin/bash
 
-"""""
 " Date/Time (see man strftime or date --help.  Convention stolen from Sven Guckes):
-
-" Default.  Overridden later in au commands.
-" E.g. Created: Tue 02 Mar 1999 11:19:32 (Bob Heckel)
+" Default.  Overridden later in au commands.  E.g. Created: Tue 02 Mar 1999 11:19:32 (Bob Heckel)
 iab YdC Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)
-
 " Default.  Overridden later in au commands.
 " E.g. Modified: Tue 02 Mar 1999 11:19:32 (Bob Heckel)
 " Can't simply use "%c" because gvim interprets it badly. 
 iab YdM Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)
-
 " Default.  Overridden later in au commands.
 iab YdA  Adapted: <C-R>=strftime("%c")<CR> (Bob Heckel)
-
 " Short.  ISO-8601 format.  E.g. 2002-07-05
 iab YdS <C-R>=strftime("%Y-%m-%d")<CR>
-
 " GSK style
 iab YdG <C-R>=strftime("%d-%b-%y")<CR>
 
-"""""
 " HTML (also see :TOhtml)
 " 'It takes more time working around the annoying pathologies of web authoring
 " tools than it takes to just write the thing in html source to begin with.' ~ Anonymous
@@ -673,11 +645,9 @@ iab HtT <table><CR>  <tr><td> </td></tr><CR><Left><Left></table>
 """" n tilde (no '#')
 """iab palit <Backspace>&ntilde;
 
-"""""
 " Mutt
 """iab MuX X-message-flag: Magic 8Ball says 'Outlook not so good.'  Let me ask about MS Exchange Server...
 
-"""""
 " Perl
 iab PeD require Data::Dumper; print STDERR "DEBUG: ", Data::Dumper::Dumper( %h ),"\n";
 " Use PeD for hash dumping, this for everything else on symbol table
@@ -689,7 +659,6 @@ iab PeR #!/usr/bin/perl -w<CR><CR>use v5.10;<CR>
 """iab PeS #!/usr/bin/perl -wT<CR><CR>use strict qw(refs subs vars);<CR># DEBUG<CR>use CGI::Carp qw(fatalsToBrowser);
 iab PeW while ( (my $k, my $v) = each %h ) { print "$k=$v\\n"; }
 
-"""""
 " SAS
 " SAS/(C)onnect
 """iab SaC options ls=max;<CR>%include "&HOME/code/sas/connect_setup.sas";<CR>signon cdcjes2;<CR>%global CHICKENPARM;<CR>%syslput CHICKENPARM=&SYSPARM;<CR>rsubmit;<CR><CR><CR><CR><CR><CR>endrsubmit;<CR>signoff cdcjes2;
@@ -723,14 +692,12 @@ iab DbO dbms_output.put_line();<Esc><Left>i
 " Must come after Settings for <> notation
 "--------------------------------------------------------------------------
 
+" Toggle search highlighting
+nnoremap <Return> :set nohlsearch<Return><Return>
+nnoremap <Return><Return> :set hlsearch<Return><Return>
+
 " Assumes stty -ixon in .bashrc
 nnoremap <C-S> :w
-
-" Highlight last paste.  (G)et (p)aste.
-nnoremap <expr> gp '`[' . strpart(getregtype(), 0, 1) . '`]'
-
-" Open a window for the file under cursor.  (G)et this file a (w)indow.
-nnoremap gw <Esc>:sp<CR>gf
 
 " Easily navigate wrapped '^...' long lines with arrow keys
 nnoremap <Up> gk
@@ -740,8 +707,11 @@ nnoremap <Down> gj
 " nnoremap <F1> :cnext<CR>
 " nnoremap <F2> :cprevious<CR>
 
-" Widen gvim to max column width
 if has('gui')
+  " Don't need this pair for mintty because CONTROL+MOUSEWHEEL works properly
+  nnoremap <F1> :call FontSizeMinus()<cr>
+  nnoremap <F2> :call FontSizePlus()<cr>
+  " Widen gvim to max column width
   nnoremap <F4> :call SetOpt('columns', MaxLineLen(0))<CR>
   nnoremap <F4><F4> :call SetOpt('columns', 80)<CR>
 endif
@@ -770,234 +740,15 @@ nnoremap <F12> :qa<CR>
 " Like gv but for paste buffer.  Some day i may actually remember to use this...
 nnoremap <expr> gb '`[' . strpart(getregtype(), 0, 1) . '`]'
 
+" Highlight last paste - (g)et (p)aste
+nnoremap <expr> gp '`[' . strpart(getregtype(), 0, 1) . '`]'
 
-""""""""""""""""""""""""""""""
-" Begin ',' comma map leader 
-""""""""""""""""""""""""""""""
-" Greenbar highlight every other line.  Also see HighlightCurrentLine()
-nnoremap ,<Tab> :set hls<CR>/\\n.*\\n/<CR>
+" Open a window for the file under cursor - (g)et this file a (w)indow
+nnoremap gw <Esc>:split<CR>gf
 
-" Pad current line's parameters with spaces e.g if(foo) { ...   to  if ( foo ) { ...      
-nnoremap ,0 :s# \*(\\([^ ].*[^ ]\\))# ( \\1 )#<CR>
-
-" Mnemonic remove '3 stars':
-nnoremap ,3 :s:\\/\\*\\*\\*\\\|\\*\\*\\*\\/::g<CR>:se nohls<CR>
-
-" Single quote a word
-nnoremap ,, :let @z=substitute(expand("<cword>"),".*","'&'","g")<CR>ciw<C-R>z<ESC>
-
-" Double quote a word
-nnoremap ,. :let @z=substitute(expand('<cword>'),'.*','\"&\"','g')<CR>ciw<C-R>z<ESC>
-
-" Must keep space between a and <ESC>
-nnoremap ,a a <ESC>
-
-" Use for simple window jumping & maximizing (think [b]ig [b]uffer and my ;b
-" z66-like map).  Works to cycle through horizontal AND vertical split
-" windows.  Also see nnoremap zz to cycle windows without maximizing.
-nnoremap ,b <C-W>w<C-W>_
-
-" Edit another file in the same directory as the current file that you navigated to (without having to change pwd via cd %:h):
-if has('unix')
-  nnoremap ,d :e <C-R>=expand("%:p:h") . "/" <CR>
-else
-  nnoremap ,d :e <C-R>=expand("%:p:h") . "\" <CR>
-endif
-
-" Toggle between two buffers (e fails if 2+ files are opened together and have never used :n)
-nnoremap ,e :e#<CR>
-
-" Auto reflow text:
-nnoremap ,f :set formatoptions=aw2tq<CR>
-  
-" Split window and open file under cursor.  Usually used to view query results
-" within my b(g)rep (which is why it also jumps to the last search register '/' as
-" defined by bgrep)
-nnoremap ,g <C-W>f :set winheight=9999<CR>/<C-R>/<CR>
-
-" Copy w(h)ole buffer to Clipboard:
-if has('win32unix')
-  nnoremap ,h :%!putclip<CR><Esc>u
-elseif has('unix')
-  nnoremap ,h :%!xclip<CR>
-elseif has('gui_running')
-  nnoremap ,h mz<ESC>ggvG"*Y`z
-endif
-
-" (L)owercase a word
-nnoremap ,l mzviwu\|:echon '.vimrc: word lowercased'<CR>`z
-
-" Comment out and yank/paste current line.  Default (may be overridden below, see au commands).  TODO use FileType instead of *.foo in au commands below
-nnoremap ,m yy0I***<ESC>p
-
-" Deprecated, see gn:
-nnoremap ,n :bn<CR>
-
-" ,p is an autocmd
-
-nnoremap ,qq :q!<CR>
-
-" Quick search template:
-nnoremap ,s :%s::g<Left><Left>
-
-" (T)oggle this prior to pasting:
-"""nnoremap ,t mz \| :set invpaste<CR>`z \| :se paste?<CR>
-" nnoremap ,t :set invpaste<CR>`z \| :se paste?<CR> ``
-nnoremap ,t :set invpaste<CR>
-
-" Uppercase a word (see also ;u) and stay on the same character
-nnoremap ,u mzviwU \| :echon '.vimrc: word uppercased'<CR>`z
-
-nnoremap ,w :call WrapToggle()<CR>
-
-nnoremap ,hdr :-1read ~/code/sas/Headertmplt.sas<CR>
-
-" Also copy visual mode selection to system clipboard. Vaguely like gvim's default, this works for terminals
+" Copy visual mode selection to system clipboard. Like gvim's default but this works for terminals
 " like mintty.
 vnoremap <silent> y  "*y
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Begin ';' semicolon map leader
-" (RSI warning: don't use uppercase, leave those contortions for emacs)
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Comment out (using the most common comment style '###' for suffix-less files).
-" This default may be overridden by au commands below.
-"""nnoremap ;; :call setline('.', Commentout(getline('.'), 'default'))<CR>
-" 07-Mar-17 use Commentary instead
-noremap ;; :Commentary<CR>
-" If filetype isn't set for /* this style */
-"""nnoremap ;;; :silent s:^:/\*\*\*:g \| :s:$:\*\*\*/:g<CR>
-"""nnoremap ;;;; :silent s:^/\\*\\*\\*::g \| :s:\\*\\*\\*/$::g<CR>
-
-if has('unix')
-"""  nnoremap ;0 <ESC>:!/usr/bin/google-chrome 'https://google.com/search?q=<C-R>=Websearch()<CR>'<CR><CR>
-  nnoremap ;0 <ESC>:!/usr/bin/firefox 'https://google.com/search?q=<C-R>=Websearch()<CR>'<CR><CR>
-endif
-
-" Quick save as (usually) ~/tmp/1 for diff, etc.
-nnoremap ;1 :%call WriteToFile(VTMP, 1, 0)<CR>
-nnoremap ;2 :%call WriteToFile(VTMP, 2, 0)<CR>
-nnoremap ;3 :%call WriteToFile(VTMP, 3, 0)<CR>
-nnoremap ;4 :%call WriteToFile(VTMP, 4, 0)<CR>
-
-" Checkpoint backup current file:
-" map ;5 :silent write! /c/temp/%:t<CR>
-nnoremap ;5 :call BkupFile(VTMP)<CR>
-
-" Maximize window.  Alternative to z99.  <C-W>_ makes my hands hurt just
-" looking at the chording.  Same as map ,b without the jumping.  (B)ig
-" buffer.  Also see nnoremap zz for cycling windows.
-nnoremap ;b <C-W>_
-
-" Same as  'ab YdC' but replaces existing Created line first:
-nnoremap ;c 0Di#  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>
-
-" Change (d)irectory to where the open file resides:
-nnoremap ;d :call CDtoThisFilesLoc()<CR>
-
-nnoremap ;ev :split $MYVIMRC<CR>
-
-" Unflatten toggle, reflow to current tw:
-nnoremap ;ff mfvipJ`f
-" (F)latten paragraph to single line - prepare text for paste into an input
-" box, etc.
-nnoremap ;f vipgq
-
-" (G)et Clipboard contents:
-if has('win32')
-  nnoremap ;g "*p<ESC> 
-elseif has('win32unix')
-  nnoremap ;g :r!/bin/getclip<CR>
-elseif has('unix')
-  nnoremap ;g :r!xclip -o<CR>
-endif
-
-" Jump to leftside window without chording
-nnoremap ;h <C-W>h
-
-" Jump to lower window without chording
-nnoremap ;j <C-W>j
-
-" Jump to upper window without chording
-nnoremap ;k <C-W>k
-
-" Jump to rightside window without chording.  Non-intutitive but ';l' is
-" already taken.
-nnoremap ;ll <C-W>l
-
-nnoremap ;l :ls<CR>:e#
-
-" Same as  'ab YdM' but replaces existing Modified line first.
-nnoremap ;m 0Di# Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
-
-" Simplify navigating the output of :makeprg (use :cN to reverse) when using
-" Vim as an IDE.
-nnoremap ;n :cn<CR>
-
-if has('win32')
-  nnoremap ;o :silent !explorer /e, . <CR>
-elseif has('win32unix')
-  nnoremap ;o :silent !cygstart %:p:h <CR>
-endif
-
-" Swap exchange flip two items (foo, bar):
-nnoremap ;q viw"zxllciwhhpll"zp
-
-" Pt. 1 Transfer/read and write one block of text between vim sessions/terminals:
-"""if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
-"""  nmap ;r :call ReadFromFile(VTMP, '.vimxfer')<CR>
-"""  echon VTMP 'x' THISBOX
-  " Temporary ugly hack for XP vs. Win7 Cygwin permission battle
-"""  nmap ;rx :!chmod 755 $u/temp/.vimxfer
-"""else
-  " nmap ;r :call ReadFromFile(VTMP, '.vimxfer')<CR>
-  nmap ;r :call ReadFromFile(VTMP, '.vimxfer')<CR>
-"""  echon VTMP 'x' THISBOX
-"""endif
-
-" Pt. 2 Transfer/read and write one block of text between vim sessions:
-noremap ;a :call WriteToFile(VTMP, '.vimxfer', 1)<CR>
-vnoremap ;a :call WriteToFile(VTMP, '.vimxfer', 1)<CR>
-noremap ;w :call WriteToFile(VTMP, '.vimxfer', 0)<CR>
-vnoremap ;w :call WriteToFile(VTMP, '.vimxfer', 0)<CR>
-" The non-overengineered version:
-" map ;w :'<,'>write! /c/temp/.vimxfer<CR>
-
-nnoremap ;sv :source $MYVIMRC<CR>
-
-"""nnoremap ;t mz<Esc>:se tw=99999<CR>\|:echon '.vimrc: tw set to 99999'<CR>'z
-"""nnoremap ;tt mz<Esc>:se tw=78<CR>\|:echon '.vimrc: tw set to 78'<CR>'z
-" nnoremap ;t :set nornu<CR>
-
-" Upload file to mainframe (basename without extension):
-"""nnoremap ;u :!bfp % 'bqh0.pgm.lib(%:t:r)'<CR>
-
-" Display gvim text as if it were presented on a lightbulb:
-nnoremap ;v :highlight Normal guibg=white guifg=black
-
-" Toggle ROT13 - scramble entire file against inquiring minds that want to know:
-nnoremap ;x mzggVGg?`z
-
-" Default if no aucommand:
-nnoremap ;z :echon ";z 'compile' map not implemented for this filetype"<CR>
-
-"                                Pseudo maps 
-" (weaknesses - won't accept <CR>, can be accidentally overwritten):
-" Mutt on sdf
-" Treo 650 pssh width
-"""let @t=':se tw=53'
-" For mutt mail editing
-"""let @6=':se tw=68'
-" Mostly for Mutt after a region has been highlighted.
-"""let @p='!par'
-" Strip trailing spaces.
-"""let @s=":%:s:\\s*$::g|''"
-" Upload.
-"""if ( box == 'IPO1')
-  """let @u=':!cpsub % '
-"""else
-  """let @u=":!bfp % 'bqh0.pgm.lib(%:t:r)'"
-"""endif
 
 " Resize window (most convenient with number keypad)
 if bufwinnr(1)
@@ -1042,14 +793,15 @@ nnoremap <C-E> 2<C-E>
 nnoremap <C-Y> 2<C-Y>
 
 " Use for simple window jumping.  Use C-W for complex jumps.  Normal zz is the
-" same as z. so override it here since z. is better.  Also see maps ,b ;b ;h ;j
-" ;k ;ll
+" same as z. so override it here since z. is better.  Also see maps ,b ;b ;h ;j ;k ;ll
 nnoremap zz <C-W>w
 
 " Bondage & discipline
 " inoremap <Esc> <NOP>
-" I'm too lazy to deal with CapsLock remapping
-inoremap jk <Esc>
+" I'm too lazy to reach <Esc> or deal with CapsLock remapping. The menu
+" showing completion candidates will close it with <C-e> instead of exiting
+" insert mode with <Esc>
+inoremap <expr> jk pumvisible() ? "<C-e>" : "<Esc>"
 
 " Reformat current paragraph to gq while in insert mode (avoid vap etc):
 " inoremap <F1> <C-L><ESC>gqap{/<C-L><CR>xi
@@ -1104,6 +856,219 @@ inoremap <C-U> <Esc>viwUea
 " gvim - do not use, we need right click for Paste on Linux (where there are multiple clipboards)
 """nnoremap <RightMouse> <Insert>
 """inoremap <RightMouse> <ESC>
+
+""""""""""""""""""""""""""""""
+" Begin ',' comma map leader 
+""""""""""""""""""""""""""""""
+" Greenbar highlight every other line.  Also see HighlightCurrentLine()
+nnoremap ,<Tab> :set hls<CR>/\\n.*\\n/<CR>
+
+" Single quote a word
+nnoremap ,, :let @z=substitute(expand("<cword>"),".*","'&'","g")<CR>ciw<C-R>z<ESC>
+
+" Double quote a word
+nnoremap ,. :let @z=substitute(expand('<cword>'),'.*','\"&\"','g')<CR>ciw<C-R>z<ESC>
+
+" Pad current line's parameters with spaces e.g if(foo) { ...   to  if ( foo ) { ...      
+nnoremap ,0 :s# \*(\\([^ ].*[^ ]\\))# ( \\1 )#<CR>
+
+" Mnemonic remove '3 stars':
+" nnoremap ,3 :s:\\/\\*\\*\\*\\\|\\*\\*\\*\\/::g<CR>:se nohls<CR>
+
+" Insert (a) space
+nnoremap ,a a <ESC>
+
+" Use for simple window jumping & maximizing (think [b]ig [b]uffer and my ;b
+" z66-like map).  Works to cycle through horizontal AND vertical split
+" windows.  Also see nnoremap zz to cycle windows without maximizing.
+nnoremap ,b <C-W>w<C-W>_
+
+" Edit another file in the same directory as the current file that you navigated to (without having to change pwd via cd %:h):
+if has('unix')
+  nnoremap ,d :e <C-R>=expand("%:p:h") . "/" <CR>
+else
+  nnoremap ,d :e <C-R>=expand("%:p:h") . "\" <CR>
+endif
+
+" Toggle between two buffers (e fails if 2+ files are opened together and have never used :n)
+nnoremap ,e :e#<CR>
+
+" Auto reflow text:
+nnoremap ,f :set formatoptions=aw2tq<CR>
+  
+" Split window and open file under cursor.  Usually used to view query results
+" within my b(g)rep (which is why it also jumps to the last search register '/' as
+" defined by bgrep)
+nnoremap ,g <C-W>f :set winheight=9999<CR>/<C-R>/<CR>
+
+" Copy w(h)ole buffer to Clipboard:
+if has('win32unix')
+  nnoremap ,h :%!putclip<CR><Esc>u
+elseif has('unix')
+  nnoremap ,h :%!xclip<CR>
+elseif has('gui_running')
+  nnoremap ,h mz<ESC>ggvG"*Y`z
+endif
+
+" (L)owercase a word and stay on the same character
+nnoremap ,l mzviwu\|:echon '.vimrc: word lowercased'<CR>`z
+
+" Comment out and yank/paste current line.  Default (may be overridden below, see au commands).  TODO use FileType instead of *.foo in au commands below
+" nnoremap ,m yy0I***<ESC>p
+
+nnoremap ,n :bnext<CR>
+
+" ,p is an autocmd
+
+nnoremap ,qq :q!<CR>
+
+" Quick search template:
+nnoremap ,s :%s::g<Left><Left>
+
+" (T)oggle this prior to pasting
+nnoremap ,t :set invpaste<CR>\|:set paste?<CR>
+
+" Uppercase a word and stay on the same character
+nnoremap ,u mzviwU \| :echon '.vimrc: word uppercased'<CR>`z
+
+nnoremap ,w :call WrapToggle()<CR>
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Begin ';' semicolon map leader
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Comment out (using the most common comment style '###' for suffix-less files).
+" This default may be overridden by au commands below.
+"""nnoremap ;; :call setline('.', Commentout(getline('.'), 'default'))<CR>
+" If filetype isn't set for /* this style */
+"""nnoremap ;;; :silent s:^:/\*\*\*:g \| :s:$:\*\*\*/:g<CR>
+"""nnoremap ;;;; :silent s:^/\\*\\*\\*::g \| :s:\\*\\*\\*/$::g<CR>
+" 07-Mar-17 just use Commentary
+noremap ;; :Commentary<CR>
+
+if has('unix')
+"""  nnoremap ;0 <ESC>:!/usr/bin/google-chrome 'https://google.com/search?q=<C-R>=Websearch()<CR>'<CR><CR>
+  nnoremap ;0 <ESC>:!/usr/bin/firefox 'https://google.com/search?q=<C-R>=Websearch()<CR>'<CR><CR>
+endif
+
+" Quick save as (usually) ~/tmp/1 for diffs, etc.
+nnoremap ;1 :%call WriteToFile(VTMP, 1, 0)<CR>
+nnoremap ;2 :%call WriteToFile(VTMP, 2, 0)<CR>
+nnoremap ;3 :%call WriteToFile(VTMP, 3, 0)<CR>
+nnoremap ;4 :%call WriteToFile(VTMP, 4, 0)<CR>
+
+" Checkpoint backup current file:
+" map ;5 :silent write! /c/temp/%:t<CR>
+nnoremap ;5 :call BkupFile(VTMP)<CR>
+
+" Maximize window without RSI.  Alternative to z99.  Same as map ,b without
+" the jumping.  (B)ig buffer.  Also see nnoremap zz for cycling windows.
+nnoremap ;b <C-W>_
+
+" Same as  'ab YdC' but replaces existing Created line first:
+nnoremap ;c 0Di#  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>
+
+" Change (d)irectory to where the open file resides:
+nnoremap ;d :call CDtoThisFilesLoc()<CR>
+
+nnoremap ;e :split $MYVIMRC<CR>
+
+" (F)latten paragraph to single line - prepare text for paste into an input box, etc.
+nnoremap ;f vipgq
+" Unflatten toggle, reflow to current tw:
+nnoremap ;ff mfvipJ`f
+
+" (G)et Clipboard contents:
+"if has('win32')
+"  nnoremap ;g "*p<ESC> 
+"elseif has('win32unix')
+"  nnoremap ;g :r!/bin/getclip<CR>
+"elseif has('unix')
+"  nnoremap ;g :r!xclip -o<CR>
+"endif
+
+" Jump to leftside window without chording
+nnoremap ;h <C-W>h
+
+" Jump to lower window without chording
+nnoremap ;j <C-W>j
+
+" Jump to upper window without chording
+nnoremap ;k <C-W>k
+
+" Buffer navigation
+nnoremap ;l :ls<CR>:e#
+
+" Jump to rightside window without chording.  Non-intutitive but ';l' is already taken.
+nnoremap ;ll <C-W>l
+
+" Same as  'ab YdM' but replaces existing Modified line first.
+nnoremap ;m 0Di# Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
+
+" Simplify navigating the output of :makeprg (use :cN to reverse) when using Vim as an IDE.
+" nnoremap ;n :cn<CR>
+nnoremap ;n :set norelativenumber<CR>
+nnoremap ;nn :set relativenumber<CR>
+
+if has('win32')
+  nnoremap ;o :silent !explorer /e, . <CR>
+elseif has('win32unix')
+  nnoremap ;o :silent !cygstart %:p:h <CR>
+endif
+
+" Swap exchange flip two parameters (foo, bar) TODO function to handle all cases
+nnoremap ;q viw"zxllciwhhpll"zp
+
+" Pt. 1 Transfer/read and write one block of text between vim sessions/terminals:
+"""if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
+"""  nmap ;r :call ReadFromFile(VTMP, '.vimxfer')<CR>
+"""  echon VTMP 'x' THISBOX
+  " Temporary ugly hack for XP vs. Win7 Cygwin permission battle
+"""  nmap ;rx :!chmod 755 $u/temp/.vimxfer
+"""else
+  " nmap ;r :call ReadFromFile(VTMP, '.vimxfer')<CR>
+  nmap ;r :call ReadFromFile(VTMP, '.vimxfer')<CR>
+"""  echon VTMP 'x' THISBOX
+"""endif
+
+" Pt. 2 Transfer/read and write one block of text between vim sessions:
+noremap ;a :call WriteToFile(VTMP, '.vimxfer', 1)<CR>
+vnoremap ;a :call WriteToFile(VTMP, '.vimxfer', 1)<CR>
+noremap ;w :call WriteToFile(VTMP, '.vimxfer', 0)<CR>
+vnoremap ;w :call WriteToFile(VTMP, '.vimxfer', 0)<CR>
+" The non-overengineered version:
+" map ;w :'<,'>write! /c/temp/.vimxfer<CR>
+
+" nnoremap ;sv :source $MYVIMRC<CR>
+
+"""nnoremap ;t mz<Esc>:se tw=99999<CR>\|:echon '.vimrc: tw set to 99999'<CR>'z
+"""nnoremap ;tt mz<Esc>:se tw=78<CR>\|:echon '.vimrc: tw set to 78'<CR>'z
+nnoremap ;t :term bash<CR>
+" Hijack the muscle memory of tmux when we're in a terminal
+tnoremap <C-A> <C-W>w
+
+" Upload file to mainframe (basename without extension)
+"""nnoremap ;u :!bfp % 'bqh0.pgm.lib(%:t:r)'<CR>
+
+" Display gvim text as if it were presented on a lightbulb
+nnoremap ;v :highlight Normal guibg=white guifg=black<CR>
+
+" Toggle ROT13 - scramble entire file against inquiring minds that want to know:
+nnoremap ;x mzggVGg?`z
+
+" Default if no execution code aucommand exists
+nnoremap ;z :echon ";z 'compile' map not implemented for this filetype"<CR>
+
+"                                Pseudo maps 
+" (weaknesses - won't accept <CR>, can be accidentally overwritten):
+" Mutt on sdf
+" Treo 650 pssh width
+"""let @t=':se tw=53'
+" For mutt mail editing
+"""let @6=':se tw=68'
+" Mostly for Mutt after a region has been highlighted.
+"""let @p='!par'
+" Strip trailing spaces.
+"""let @s=":%:s:\\s*$::g|''"
 
 " end Mappings-
 
@@ -1587,7 +1552,7 @@ endfu
 
 fu! WrapToggle()  " {{{2
   if &textwidth == 0
-    setlocal textwidth=78
+    setlocal textwidth=80
     setlocal linebreak
     setlocal wrap
     map j gj
@@ -1878,6 +1843,7 @@ if !exists("autocommands_loaded")
 """    au BufReadPre,FileReadPre /Drugs/HealthPlans/* set noswapfile
 
     " au BufEnter all.sql set foldmethod=marker
+
   " end Temporary project-specific
   end
   " cab SqL e /cygdrive/c/Orion/workspace/data/Source/SQL/
@@ -1885,16 +1851,13 @@ if !exists("autocommands_loaded")
 
 endif  " ! autocommands_loaded
 
-
 " end Autocommands-
 
 "--------------------------------------------------------------------------}}}
 "  Inlined Plugins  {{{1
-" Simple plugins that are easier to store here than ~/.vim/plugin/
-" Improve portability (e.g. Cygwin vs gvim problems).  But vimballs are
-" probably easier to just install: vi Align.vba.gz then :so %
-"
-" Has to be located after Autocommands.
+" Simple plugins that are easier to lazily store here rather than ~/.vim/plugin/
+" And to improve portability (e.g. Cygwin vs gvim problems).
+" This section has to be located after Autocommands.
 "--------------------------------------------------------------------------
 
 " 2007-08-08 inlined Inc {{{
@@ -3100,20 +3063,18 @@ function! FontSizeMinus ()
   let g:fnt_size = g:fnt_size - 1
   call ResetFont()
 endfunction
-
-nnoremap <F1> :call FontSizeMinus()<cr>
-nnoremap <F2> :call FontSizePlus()<cr>
 " nnoremap cot :call CycleFont()<cr>
+
 " Fails on Win10 16-Nov-18 
 " nnoremap <C-ScrollWheelUp> :call FontSizePlus()<CR>
 " nnoremap <C-ScrollWheelDown> :call FontSizeMinus()<CR>
 "}}}
 
-" end 3rd Party Plugins
+" end Inlined Plugins-
 "--------------------------------------------------------------------------
 
 
-" Machine or security-sensitive settings: {{{1
+" Machine / security settings: {{{1
 if filereadable(glob("~/.vimrc.local")) 
   source ~/.vimrc.local
-endif
+endif  "}}}
