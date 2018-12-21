@@ -5600,7 +5600,7 @@ SELECT account_id FROM account_name SAMPLE(0.1);
 dbms_output.put_line(SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
 
 -- Oracle recompile entire schema's invalid objects:
-DBMS_UTILITY.compile_schema('SETARS', false);
+EXEC DBMS_UTILITY.compile_schema('SETARS', false);
 
 -- An autonomous routine never reads or writes database state (i.e., it neither queries nor updates any table):
 ... DECLARE PRAGMA AUTONOMOUS_TRANSACTION; ... BEGIN INSERT INTO log (...)
@@ -5987,6 +5987,7 @@ where Profit < 0 or Profit IS NULL  /* just 'where Profit < 0' will wrongly skip
 where nvl(Profit, -1) < 0
 
 select colour, shape, weight from bricks order by weight desc fetch first 2 rows with ties;  -- Oracle 12c +
+select empno, ename, sal, deptno from  emp order by sal desc fetch first 20 percent rows only;
 
 -- Oracle generate random number dice:
 SELECT DBMS_RANDOM.VALUE(1, 6) FROM dual  -- 3.32932424
@@ -6041,6 +6042,17 @@ select a.job_name, a.JOB_TYPE, a.JOB_ACTION, a.start_date, a.REPEAT_INTERVAL, a.
 SELECT * FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE JOB_NAME LIKE 'PTG%'
 -- Oracle scheduled job next run:
 SELECT * from user_scheduler_jobs@sed WHERE job_name in ('PERIODIC_LIFECYCLE_UPDATE')
+
+AUTHID DEFINER is the default permission, check SQL at compile-time
+AUTHID CURRENT_USER, check SQL at run-time
+
+sum(sal) OVER ( partition by deptno order by ename) as running_total
+
+-- Analytic function quartile buckets:
+select empno, ename, job, hiredate, sal, deptno, ntile(4) over ( order by hiredate ) as grp from  emp order by grp;
+
+-- Analytic function to get the employee(s) with the 3rd highest salary:
+select * from ( select empno, ename, job, hiredate, sal, comm, dense_rank() OVER (order by sal desc) r from  emp ) where r = 3;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
