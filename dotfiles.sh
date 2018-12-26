@@ -63,8 +63,6 @@ echo
 echo ...completed $majordots
 
 echo "Consider installing:"
-echo "sudo apt install git"
-echo "sudo apt install ssh"
 echo "sudo apt install tmux"
 echo "sudo apt install vim-nox"
 echo "sudo apt install w3m"
