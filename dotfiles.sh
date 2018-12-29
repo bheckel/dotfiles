@@ -61,6 +61,7 @@ mkdir $HOME/tmp
 
 echo
 echo ...completed $majordots
+echo
 
 ls -la ~
 
