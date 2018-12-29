@@ -4438,6 +4438,9 @@ whatismyip=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '
 
 sudo timedatectl set-timezone America/New_York
 
+# Fix Linux timezone:
+sudo dpkg-reconfigure tzdata
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -6984,7 +6987,7 @@ gitk --follow --all -p SUP_HAS_ACTIVE_SITES.fnc
 git blame SUP_HAS_ACTIVE_SITES.fnc
 
 # git "you can't push"
-vi ~/_dotfiles/.git/config
+vi ~/dotfiles/.git/config
 url = git@github.com:bheckel/dotfiles.git
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

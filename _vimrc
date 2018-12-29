@@ -549,7 +549,7 @@ set viewdir=~/.vim/view
 if has('gui_win32')
   set guifont=Consolas:h8
 elseif has('gui_gtk3')
- set guifont=Cousine\ 8
+ set guifont=Cousine\ 9
 endif
 
 if has('gui')

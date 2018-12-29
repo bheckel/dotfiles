@@ -67,3 +67,4 @@ ls -la ~
 
 echo "Consider installing:"
 echo "sudo apt-get install tmux vim-nox w3m bc"
+echo "sudo apt-get install tmux vim-gtk3 w3m bc"
