@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  Created: Tue 03 May 2015 09:01:11 (Bob Heckel) 
-# Modified: Sat 02 Jun 2018 10:22:38 (Bob Heckel)
+# Modified: Sat 29 Dec 2018 11:30:03 (Bob Heckel)
 
 # No leading dots!
 majordots='bashrc vimrc tmux.conf gitconfig'
@@ -62,7 +62,7 @@ mkdir $HOME/tmp
 echo
 echo ...completed $majordots
 
+ls -la ~
+
 echo "Consider installing:"
-echo "sudo apt install tmux"
-echo "sudo apt install vim-nox"
-echo "sudo apt install w3m"
+echo "sudo apt-get install tmux vim-nox w3m bc"
