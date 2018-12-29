@@ -4,7 +4,7 @@
 # Summary: bash config for at least Unix/Linux, Cygwin 1.3/1.5/1.7 and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Sun 16 Dec 2018 09:17:10 (Bob Heckel)
+# Modified: Tue 25 Dec 2018 22:57:26 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -839,12 +839,9 @@ case "$OSTYPE" in
       ###fi
   ;;
 esac # }}}1
-
-# Tempoarary project-specific additions:
-alias cdg='cd /cygdrive/c/Orion/workspace/data/Source/SQL'
-alias vit="vi $HOME/onedrive/t.sas"
-
-# Security-sensitive additions:
+# Security or project additions:  #{{{1
 if [ -e $HOME/.bashrc.project ]; then
   source $HOME/.bashrc.project
 fi
+alias cdg='cd /cygdrive/c/Orion/workspace/data/Source/SQL'
+alias vit="vi $HOME/onedrive/t.sas"

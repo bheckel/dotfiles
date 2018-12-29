@@ -7,7 +7,7 @@
 #           Comments are often written for searching, not proper English
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Tue 06 Nov 2018 09:02:52 (Bob Heckel)
+# Modified: Tue 25 Dec 2018 22:59:17 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -4436,6 +4436,8 @@ whatismyip=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '
 
 50 15 * * * ssh bheckel@sas-01.mrk.taeb.com ~/bin/saslog_grep.pl -x /sasdata/Cron/Daily/TMMTargetedList/tmm_run_check.log
 
+sudo timedatectl set-timezone America/New_York
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 
@@ -6980,5 +6982,9 @@ Double arrows « »
 gitk --follow --all -p SUP_HAS_ACTIVE_SITES.fnc
 # View git revision and author last modified history for each line of a file:
 git blame SUP_HAS_ACTIVE_SITES.fnc
+
+# git "you can't push"
+vi ~/_dotfiles/.git/config
+url = git@github.com:bheckel/dotfiles.git
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

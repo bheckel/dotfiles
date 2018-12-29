@@ -10,7 +10,7 @@
 "           toys, effectively expert-proofed -- Tom Christiansen
 "
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Thu 20 Dec 2018 15:32:20 (Bob Heckel)
+" Modified: Wed 26 Dec 2018 02:51:17 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -546,18 +546,19 @@ set viewdir=~/.vim/view
 " Copy to Linux clipboard
 """set clipboard=unnamed
 
+if has('gui_win32')
+  set guifont=Consolas:h8
+elseif has('gui_gtk3')
+ set guifont=Cousine\ 8
+endif
+
 if has('gui')
   set guioptions+=a
   set guioptions+=b
   set guioptions+=r
   set guioptions-=T
   set guioptions-=m
-  if has('gui_win32')
-    set guifont=Consolas:h8
-  elseif has('gui_gtk2')
-    set guifont=Consolas\ 9
-  endif
-end
+endif
 
 " Use  :set guifont=*  to browse
 """if matchstr(HOMEBOXARRAY, THISBOX) == THISBOX
@@ -748,7 +749,9 @@ nnoremap gw <Esc>:split<CR>gf
 
 " Copy visual mode selection to system clipboard. Like gvim's default but this works for terminals
 " like mintty.
-vnoremap <silent> y  "*y
+if has('patch518')
+  vnoremap <silent> y  "*y
+endif
 
 " Resize window (most convenient with number keypad)
 if bufwinnr(1)
@@ -1042,9 +1045,11 @@ vnoremap ;w :call WriteToFile(VTMP, '.vimxfer', 0)<CR>
 
 """nnoremap ;t mz<Esc>:se tw=99999<CR>\|:echon '.vimrc: tw set to 99999'<CR>'z
 """nnoremap ;tt mz<Esc>:se tw=78<CR>\|:echon '.vimrc: tw set to 78'<CR>'z
-nnoremap ;t :term bash<CR>
+if version > 800
+  nnoremap ;t :term bash<CR>
 " Hijack the muscle memory of tmux when we're in a terminal
-tnoremap <C-A> <C-W>w
+  tnoremap <C-A> <C-W>w
+endif
 
 " Upload file to mainframe (basename without extension)
 """nnoremap ;u :!bfp % 'bqh0.pgm.lib(%:t:r)'<CR>
@@ -1623,10 +1628,10 @@ if !exists("autocommands_loaded")
   " au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR:/<CR>
   au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\\|^WARNING:/<CR>
   " au BufNewFile,BufRead,BufEnter *.log set guifont=Consolas:h8
-	au BufRead,BufNewFile *.plsql,*.pkg,*.pck,*.spc,*.prc,*.fnc set filetype=PLSQL
+	au BufRead,BufNewFile *.plsql,*.pkg,*.pck,*.spc,*.prc,*.fnc set filetype=plsql
   au BufNewFile,BufRead,BufEnter *.plsql,*.pck,*.prc,*.fnc let b:match_words = '\<begin\>:\<end\>,\<loop\>:\<end loop\>'
 
-  " TOGGLE. Delete the yearly warning lines that appear when SAS License is about to expire
+  " TOGGLE. Delete the yearly warning lines
   """au BufRead *.log :g/^WARNING: The Base Product\|installation repres/d
   """au BufRead *.log :g/^WARNING: Your system is scheduled to expire on/d
   """au BufRead *.log :g/Please contact your SAS/d
@@ -1759,6 +1764,7 @@ if !exists("autocommands_loaded")
     " Always maximize gvim when using vimdiff
     au GUIEnter * simalt ~x
     """set guifont=Andale_Mono:h7
+    " TODO gtk
     set guifont=Consolas:h7
   endif
 
@@ -3034,7 +3040,7 @@ autocmd FileType vim setlocal commentstring=\"\ %s
 "}}}
 
 " 2018-11-16 inlined FontSize {{{
-let g:fnt_types = ['Consolas', 'Arial' ]
+let g:fnt_types = ['Consolas', 'Arial', 'Cousine' ]
 let g:fnt_sizes = [ 8, 9, 10, 11, 12, 13, 14, 15, 16 ]
 
 let g:fnt_index = 0
@@ -3052,7 +3058,9 @@ function! ResetFont ()
   endif
 endfunction
 
-call ResetFont()
+" if ! has('gui_gtk3')
+"   call ResetFont()
+" endif
 
 function! FontSizePlus ()
   let g:fnt_size = g:fnt_size + 1
