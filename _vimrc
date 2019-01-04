@@ -1773,14 +1773,13 @@ if !exists("autocommands_loaded")
   au BufEnter .vimrc echo ".vimrc: $MYVIMRC:" $MYVIMRC
   au BufRead,BufEnter *.txt set wrap
 
+  " We'll never need to edit a tarball or QuickFix list
+  au FileType TAR,QF map q :q<CR>
 
-  " We'll probably never need to edit a tarball:
-  au FileType TAR map q :q<CR>
-
-  " Act like gvim when a file was changed behind your back:
+  " Act like gvim when a file was changed behind our back:
   au WinEnter * checktime
 
-  " Always edit git commit messages at 1L,1C
+  " Always edit git commit messages at position 1L,1C
   au FileType GITCOMMIT :1
 
   au BufNewFile,BufRead *.md   set syntax=markdown
@@ -1790,8 +1789,9 @@ if !exists("autocommands_loaded")
 	au BufEnter NetrwTreeListing `n
 
   " TODO
-  au BufNewFile,BufEnter *.py set tabstop=4
+  " au BufNewFile,BufEnter *.py set tabstop=4
 
+  " Enterprise Guide files
   au BufReadCmd *.egp call zip#Browse(expand("<amatch>"))
 
   " See my .bashrc function ses()
