@@ -114,6 +114,7 @@ alias g=$HOME/dotfiles/gone.sh
 alias gb='git branch'
 alias gcom='echo "ok to git commit?" && read && git add . && git commit -m "mod"'
 alias gitup='echo "ok to gitup?" && read && git status && git add . && git commit -m "mod" && git pull origin master && git push origin master'
+alias gitall="$HOME/code/misccode/gitall"
 alias gpul='git pull origin master'
 alias gpus='git push origin master'
 alias gstash='git stash save --include-untracked'
