@@ -110,7 +110,8 @@ alias ddg='w3m http://duckduckgo.com/lite'
 alias f='fg'  # jobs -s  to list what's suspended
 alias g=$HOME/dotfiles/gone.sh
 # Can't use sed to eliminate leading spaces or it breaks coloring
-alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
+# alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
+alias gb='git branch'
 alias gcom='echo "ok to git commit?" && read && git add . && git commit -m "mod"'
 alias gitup='echo "ok to gitup?" && read && git status && git add . && git commit -m "mod" && git pull origin master && git push origin master'
 alias gpul='git pull origin master'
@@ -400,6 +401,14 @@ rme() {
   $HOME/code/rme/rme "$1"
 }
 
+# If locate() not available
+function loc() {
+  find $HOME/code | grep -i "$1" | grep -v '\.git' | xargs ls -ltG >|/tmp/.vimxfer_ses && vim -R /tmp/.vimxfer_ses
+}
+
+function rme() {
+  find $HOME/code/rme | grep -i "$1" | grep -v '\.git' | xargs ls -ltG >|/tmp/.vimxfer_ses && vim -R /tmp/.vimxfer_ses
+}
 # Generic Functions end
 
 
@@ -448,11 +457,6 @@ case "$OSTYPE" in
     #-------------------
     # Functions Cygwin  #{{{2
     #-------------------
-
-    # If locate() not available
-    function loc() {
-      find $HOME/code | grep -i "$1" | grep -v '\.git' | xargs ls -lt >|/tmp/.vimxfer_ses && vim -R /tmp/.vimxfer_ses
-    }
 
     # end Functions Cygwin
 

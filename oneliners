@@ -365,8 +365,6 @@ g Ctrl-g
 
 " DEPRECATED. Edit all .c files containing the word frame_counter:
 vim `grep -l frame_counter *.c`
-" Recursive vim search
-:vimgrep /frame_counter/ **/*.c
 
 " Search Vim help:
 :echo $VIMRUNTIME   # e.g. /usr/share/vim/vim74
@@ -374,15 +372,11 @@ vim `grep -l frame_counter *.c`
 :helpgrep holy-grail\c
 :vim[grep] /holy-grail/ /usr/share/vim/vim70/doc/*
 
-" If you need to search but have several open files and don't want to shell out:
-:vimgrep /select.*into/ *.plsql
-:vimgrep /\CSELECT.*into/ *.plsql  " uppercase case sensitive search
-" Then :cw or :cope to open results window
+:vimgrep /\CSELECT.*into/j *.plsql  " uppercase case sensitive search, j to not auto open first match
+" then :cw or :cope to open quickfix results window
 " Recursive search using star-star (slashes optional if not using a regex):
 :vimgrep /select.*into/ **/*.plsql
-" Picks up .vimrc's case sensitivity setting - override case-insensitive:
-:vim Unexpected\C *.sas 
-" Alternatively on systems with grep(1) - faster but won't recurse, use vimgrep:
+" Alternatively on systems with grep(1) - faster but won't recurse:
 :grep -i unexpected *.sas 
 
 " Search and replace all open buffers:
@@ -510,7 +504,7 @@ vnoremap <C-P> "ey:call CalcBC()<CR>
 
 :args **/*.sas | args cfg/* | args **/*.map
 
-vi -u NORC               <---skip .vimrc
+vi -u NORC foo.txt       <---skip .vimrc
 vi -R foo.txt            <---readonly
 vi -V2                   <---verify runtime startup etc
 vi -S [Session.vim]      <---restore project folds, windows, etc. :mksession!
@@ -5316,10 +5310,31 @@ define_editor="C:\Program Files (x86)\Vim\vim74\gvim.exe -u C:\Users\obheck\_gvi
 -- Oracle date constant TIMESTAMP '2012-10-29 12:01:01'
 select DATE '1978-12-25' from dual;
 
+-- Set zero to null:
+to_char(CASE WHEN a.result_number=0 THEN null ELSE a.result_number END) as result_number
+
 select NVL(NULL, 'it is NULL') from dual;  -- returns 'it is NULL'
 select NVL(TO_CHAR(3), 'NULL') from dual;  -- returns 3
 DBMS_OUTPUT.PUT(NVL(TO_CHAR(name.age.years), 'NULL') || ' yrs ');
 NVL2(x, return_value1_bc_x_isNOTnull, return_value2_bc_x_ISnull);
+
+-- Oracle prevent nulls from propagating:
+SELECT ename, comm, sal, 12*sal+NVL(comm,0) ...
+IF NVL(l_salary,0) <= 40000 ...
+
+-- Use my id or superowner's if i do not exist:
+..., actual_updatedby = nvl(sys_context('mystars_context', 'employee_id'), 0)
+
+-- Compare NULL:
+where  ... and nvl(width,0) = nvl(length,0)  -- finds only if both are NULL
+where decode(col1, col2, 1, 0) = 1  -- finds sameness of col1 & col2 - even if both NULL
+
+-- Update only if value is NULL:
+UPDATE contact_note SET original_contact_id = contact_id WHERE contact_id IN (SELECT contact_id FROM zzorion32806) AND original_contact_ID IS NULL
+UPDATE contact_note SET original_contact_id = contact_id WHERE NVL(original_contact_id, -1) = -1
+
+-- Counts of 0, 1 and NULL:
+SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,999)), POOR_CLOSEOUT_OPT_OUT FROM OPPORTUNITY_OPT_OUT GROUP BY POOR_CLOSEOUT_OPT_OUT
 
 INSERT INTO...; SAVEPOINT bobora; INSERT INTO...; ROLLBACK TO bobora;
 
@@ -5345,8 +5360,8 @@ select * from v$session where username is not null order by logon_time, sid
 -- Oracle package count:
 SELECT OBJECT_NAME, count(*) FROM dba_procedures WHERE OWNER = 'SETARS' AND OBJECT_TYPE IN('PROCEDURE' , 'PACKAGE','FUNCTION') AND procedure_name IS NOT NULL GROUP BY object_name;
 
--- Oracle quoting masking also max varchar2:
-foo CONSTANT  varchar2(4000) := q'[bar 'ok']';
+-- Oracle single quote quoting masking EXECUTE IMMEDIATE:
+foo CONSTANT  varchar2(4000) := q'[bar 'ok' then 4000 is max varchar2]';
 
 DROP PACKAGE test_bob;
 
@@ -5359,9 +5374,6 @@ SELECT * FROM USER_ERRORS WHERE name IN ('PLCH_PKG', 'PLCH_GET_NUMBERS')
 
 -- Oracle cross database:
 SELECT \*+ DRIVING_SITE(SITE) *\ COUNT(*) FROM DB_OWNER.DI_SITE_DATA@DNB_XXXX SITE WHERE SITE.DUNS_NBR = :1
-
--- Use my id or superowner's if i do not exist:
-..., actual_updatedby = nvl(sys_context('mystars_context', 'employee_id'), 0)
 
 -- Kill Oracle session (session id, serial #):
 select * from v$session where osuser='bheck' order by status, logon_time, sid
@@ -5392,10 +5404,6 @@ dbms_output.enable(1000000);
 dbms_output.enable(NULL);  -- same
 
 dbms_output.disable;
-
--- Oracle prevent nulls from propagating:
-SELECT ename, comm, sal, 12*sal+NVL(comm,0) ...
-IF NVL(l_salary,0) <= 40000 ...
 
 -- Oracle case insensitive
 where ename LIKE UPPER('foo%')
@@ -5519,10 +5527,6 @@ select prod_nm, DECODE(prod_grp,'MDPI','m','Solid Dose','sd','unk') from samp;
 -- PLSQL null comparison (DECODE better?):
 IF (updated1 = updated0) AND (updatedby1 = updatedby0) AND ( (search_match_code1 = search_match_code0) OR ((search_match_code1 IS NULL) AND (search_match_code0 IS NULL)) ) THEN
 
--- Compare NULL:
-where  ... and nvl(width,0) = nvl(length,0)  -- finds only if both are NULL
-where decode(col1, col2, 1, 0) = 1  -- finds sameness of col1 & col2 - even if both NULL
-
 -- Canonical sqlplus
 SQL> define_editor=gvim
 SQL> ed foo  -- sqlplus adds an .sql extension so probably don't need the -c vim stuff
@@ -5614,10 +5618,6 @@ SELECT trigger_name, trigger_type, triggering_event, table_name, status FROM USE
 
 -- Toggle trigger off/on:
 SET_TRIGGER_CONTEXT('ACCOUNT_ATTRIBUTE', 'true'); ...  SET_TRIGGER_CONTEXT('ACCOUNT_ATTRIBUTE', 'false');
-
--- Update only if value is NULL:
-UPDATE contact_note SET original_contact_id = contact_id WHERE contact_id IN (SELECT contact_id FROM zzorion32806) AND original_contact_ID IS NULL
-UPDATE contact_note SET original_contact_id = contact_id WHERE NVL(original_contact_id, -1) = -1
 
 -- Expire Oracle user password
 ALTER USER LIMSARCH PASSWORD EXPIRE;
@@ -5852,9 +5852,18 @@ SELECT to_char(TRUNC(o.updated, 'MONTH'),'YYYY-MM') AS mo, COUNT(o.updated) AS C
 -- Postgres bulk load a textfile to a table:
 \COPY analytics.obcdaily (client_name, , job_type_extra, att_count) FROM /Data/psql_import_temp.csv CSV HEADER
 
--- Windowing function:
+-- Windowing function POW:
 SELECT depname, empno, salary, avg(salary) OVER (PARTITION BY depname) FROM empsalary;  -- attach department average calculation to each row by department
 sum(nvl(ri.at_risk_amount,0)) over (partition by rp.risk_id) as tot_at_risk_amt
+rank() over (order by d) orderbydt -- 1,2,3,3,5...
+dense_rank() over (order by d) orderbydt_dense -- 1,2,3,3,4...
+sum(amt) OVER (order by d) as running_total
+sum(amt) OVER (order by d rows between unbounded preceding and current row) running_total2
+avg(amt) OVER (order by d rows between 1 preceding and 1 following) moving_average
+avg(amt) OVER (order by d range between interval '2' day preceding and current row) moving_average_2day
+sum(amt) OVER (order by d range between interval '2' day preceding and current row) running_total_2day
+sum(amt) OVER () grand_sum
+avg(amt) OVER () grand_avg
 
 -- Most recent:
 FIRST_VALUE(an2.account_name_id) over(partition by an2.account_id order by updated desc) as latest_primary
@@ -5943,8 +5952,18 @@ SELECT SYSTIMESTAMP INTO starting_time FROM DUAL;
 -- Create an empty zero record table:
 CREATE TABLE rejected_orders AS SELECT * FROM valid_orders WHERE 1 = 0;
 
--- Comma delimited string to number:
+-- Oracle regex - returns 250/50 MCG
+select regexp_substr(upper('A Disk Inh Pwdr 250/50 mcg 60D'),'\d+/[^/]* *MCG') as strength2 from dual
+
+-- Comma delimited string to number CSV parse split:
 SELECT to_number(TRIM(regexp_substr(accounts, '[^,]+', 1, LEVEL))) AS account_id FROM (SELECT '123,456' AS accounts FROM dual) CONNECT BY regexp_substr(accounts, '[^,]+', 1, LEVEL) IS NOT NULL;
+
+-- Comma delimited CSV input string to numbers:
+...AND territory_lov_id IN(SELECT to_number(column_value) FROM xmltable(('"' || REPLACE(terrlist, ',', '","') || '"')))  -- terrlist is a varchar2 holding '123,456'
+-- Accomodate cases where no comma delimited input parameter passed to procedure:
+...AND ( territory_lov_id IN(SELECT to_number(column_value) FROM xmltable(('"' || REPLACE(terrlist, ',', '","') || '"'))) OR terrlist IS NULL );
+
+CURSOR account_ids_c IS SELECT to_number(TRIM(regexp_substr(accounts, '[^,]+', 1, LEVEL))) AS account_id FROM (SELECT in_account_ids AS accounts FROM dual) CONNECT BY regexp_substr(accounts, '[^,]+', 1, LEVEL) IS NOT NULL;
 
 -- Oracle date time interval in the last 5 minutes:
 SELECT (SYSTIMESTAMP - INTERVAL '5' minute) AS five_minutes_ago, SYSTIMESTAMP FROM dual
@@ -6024,9 +6043,8 @@ SELECT GREATEST(SYSDATE, to_date('01JAN29', 'YYYY-MM-DD HH24:MI:SS')) FROM dual
 -- sqlplus BOOLEAN parameters are translated from/to integers 0/1/null <--> false/true/null:
 in_debug boolean := sys.diutil.int_to_bool(:in_debug);
 
--- Counts of 0, 1 and NULL:
-SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,999)), POOR_CLOSEOUT_OPT_OUT FROM OPPORTUNITY_OPT_OUT GROUP BY POOR_CLOSEOUT_OPT_OUT
-
+-- Sample database table with 1 column named id and 10 rows:
+CREATE TABLE t AS SELECT LEVEL id FROM dual CONNECT BY LEVEL <=10;
 -- Sample database table 5 years 2018-01-02 to 2022-12-31:
 create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dual connect by level <= 365*5;
 
@@ -6058,6 +6076,15 @@ select empno, ename, job, hiredate, sal, deptno, ntile(4) over ( order by hireda
 
 -- Analytic function to get the employee(s) with the 3rd highest salary:
 select * from ( select empno, ename, job, hiredate, sal, comm, dense_rank() OVER (order by sal desc) r from  emp ) where r = 3;
+
+-- Unique random GUID:
+select to_number(sys_guid(), 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') from dual
+
+-- Update table to new value if newloc not null otherwise leave it alone:
+update departments set location = decode(newloc, NULL, location, newloc);
+
+-- PLSQL return BOOLEAN:
+RETURN(CASE WHEN(l_column_count > 0) THEN TRUE ELSE FALSE END);
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6561,9 +6588,6 @@ application/xhtml+xml
 <!DOCTYPE html>
 <html lang="en"> ... </html>
 
--- Oracle regex - returns 250/50 MCG
-select regexp_substr(upper('A Disk Inh Pwdr 250/50 mcg 60D'),'\d+/[^/]* *MCG') as strength2 from dual
-
 Virtual Box after setting \code (put the mount cmd in /etc/rc.local for debian distros)
 mkdir ~/code; sudo mount -t vboxsf -o uid=1000,gid=1000 code /home/rheckel/code
 
@@ -6694,7 +6718,7 @@ git status; git log; git branch -a; git remote -v; git remote show origin;
 git add . && git commit -m 'cleanup' && git push origin master
 git add . && git commit -m 'mod'  # or better  git commit -a -m 'mod'
 
-# github commit mantra (github is origin):
+# github commit mantra (github is origin, PUSH TO):
 git add _bashrc _vimrc oneliners && git commit -m 'mod' && git push origin master
 
 # git merge something into master branch:
@@ -6712,8 +6736,8 @@ git checkout .
 # git delete branch if merged (-D if not):
 git ls-files  # list which files are tracked under git source control not just staged
 
-# Edit git existing previous git commit messages:
-git commit --amend -m 'this changes your last, wrong, commit message to this'
+# git edit modify rewrite previous existing git commit message:
+git commit --amend -m 'change your previous, last, wrong, commit message to this'
 
 # List git branch dates sorted descending
 git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)"
@@ -6725,21 +6749,18 @@ git show eacbd91:code/ods_0002e.sas
 # View git old version of file from different branch (in editor):
 git show master:cfg/DataPost_Configuration.html |vi -
 
-# git edit modify rewrite previous existing git commit message:
-git commit --amend -m 'change your previous, last, wrong, commit message to this'
-
-# Diff your pre-committed change:
+# git diff your pre-committed change:
 git difftool  # uses vimdiff if previously  $ git config --global merge.tool vimdiff
 # Same:
 git diff HEAD
 
-# See what changes you are committing including previous commit:
+# git see what changes you are committing including previous commit:
 git diff HEAD^
 
-# Compare commits:
+# git compare commits:
 git difftool 3a93bc3 1fb24fe
 
-# git compare a file from another branch:
+# git compare a file from another branch across branches:
 git difftool master SET_MATCH_CODE.prc
 
 # Compare old version of file from different commit - current (hash-less) filename must come 2nd!!:
@@ -6753,11 +6774,11 @@ git branch mynewbranch master  # copy branch from a specific branch, in this cas
 git add README  # use git add -f README to force add if it's excluded by .gitignore
 
 git clone https://github.com/grayghostvisuals/Practice-Git.git
+# But may need this first or instead of remote add if your clone was git clone git://github.com/bheckel/misc.git
+git remote set-url origin git@github.com:bheckel/dotfiles.git
 
 # Existing github repo on a new foreign box:
 git clone git@github.com:bheckel/dotfiles.git && git remote add origin git@github.com:bheckel/dotfiles.git; ...edit/add/commit... git pull origin master && git push origin master
-# But may need this first or instead of remote add if your clone was git clone git://github.com/bheckel/misc.git
-git remote set-url origin git@github.com:bheckel/dotfiles.git
 
 # git "you can't push"
 vi ~/dotfiles/.git/config
@@ -6779,8 +6800,6 @@ private static final String[] items={"java", "strings", "in", "array"};
 Canonical test lorem ipsum debug string:
 "lorem", "ipsum", "dolor", "sit", "amet", "consectetuer", "adipiscing", "elit", "morbi", "vel", "ligula", "vitae", "arcu", "aliquet", "mollis", "etiam", "vel", "erat", "placerat", "ante", "porttitor", "sodales", "pellentesque", "augue", "purus"
 Lorem ipsum dolor sit amet consectetuer adipiscing elit.
-
-Log.d(getClass().getSimpleName(),"my debug wtf");
 
 ISO 8601 date format (UTC)
 2008-08-30T01:45:36.123Z
@@ -6855,9 +6874,6 @@ netsh interface tcp set global autotuninglevel=normal
 
 :: Force delete remove rm Windows hidden file that Cygwin can't rm:
 u:\misc> del /A:H Thumbs.db
-
--- Oracle set zero to null:
-to_char(CASE WHEN a.result_number=0 THEN null ELSE a.result_number END) as result_number
 
 Javascript floating point numbers:
 var n1 = 100.12
