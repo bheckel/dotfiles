@@ -6759,6 +6759,10 @@ git clone git@github.com:bheckel/dotfiles.git && git remote add origin git@githu
 # But may need this first or instead of remote add if your clone was git clone git://github.com/bheckel/misc.git
 git remote set-url origin git@github.com:bheckel/dotfiles.git
 
+# git "you can't push"
+vi ~/dotfiles/.git/config
+url = git@github.com:bheckel/dotfiles.git
+
 # Test AJAX etc that won't work using file:// etc.
 $ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
 
@@ -6985,9 +6989,5 @@ Double arrows « »
 gitk --follow --all -p SUP_HAS_ACTIVE_SITES.fnc
 # View git revision and author last modified history for each line of a file:
 git blame SUP_HAS_ACTIVE_SITES.fnc
-
-# git "you can't push"
-vi ~/dotfiles/.git/config
-url = git@github.com:bheckel/dotfiles.git
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
