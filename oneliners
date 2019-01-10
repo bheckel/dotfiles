@@ -7,7 +7,7 @@
 #           Comments are often written for searching, not proper English
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Tue 25 Dec 2018 22:59:17 (Bob Heckel)
+# Modified: Wed 09 Jan 2019 14:00:06 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -631,7 +631,6 @@ au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\\\|^WARNING:/<CR>
 nnoremap ,hdr :-1read ~/code/sas/Headertmplt.sas<CR>
 
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
-
 
 xxSASxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
@@ -2576,7 +2575,6 @@ options DATASTMTCHK=COREKEYWORDS;
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
-
 xxUNIXxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
 # Canonical date stamp:
@@ -4437,7 +4435,6 @@ sudo dpkg-reconfigure tzdata
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
-
 xxPERLxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
 # Commandline switch -n says not to autoprint, -p says to print while looping, -a autosplits $_ into @F
@@ -5258,8 +5255,9 @@ if ( -f "/mnt/nfs/home/bheckel/bin/myls" ) { system "/mnt/nfs/home/bheckel/bin/m
 # Swap items on either side of a delimiter:
 while (<>) { s/(.*):(.*)/$2:$1/; print; }
 
-xxPERLxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
+#!/usr/bin/perl -wT<CR><CR>use strict qw(refs subs vars);<CR># DEBUG<CR>use CGI::Carp qw(fatalsToBrowser);
 
+xxPERLxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxDATABASExx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
@@ -5329,6 +5327,9 @@ IF NVL(l_salary,0) <= 40000 ...
 where  ... and nvl(width,0) = nvl(length,0)  -- finds only if both are NULL
 where decode(col1, col2, 1, 0) = 1  -- finds sameness of col1 & col2 - even if both NULL
 
+-- Update table to new value if newloc not null otherwise leave it alone:
+update departments set location = decode(newloc, NULL, location, newloc);
+
 -- Update only if value is NULL:
 UPDATE contact_note SET original_contact_id = contact_id WHERE contact_id IN (SELECT contact_id FROM zzorion32806) AND original_contact_ID IS NULL
 UPDATE contact_note SET original_contact_id = contact_id WHERE NVL(original_contact_id, -1) = -1
@@ -5375,8 +5376,9 @@ SELECT * FROM USER_ERRORS WHERE name IN ('PLCH_PKG', 'PLCH_GET_NUMBERS')
 -- Oracle cross database:
 SELECT \*+ DRIVING_SITE(SITE) *\ COUNT(*) FROM DB_OWNER.DI_SITE_DATA@DNB_XXXX SITE WHERE SITE.DUNS_NBR = :1
 
--- Kill Oracle session (session id, serial #):
-select * from v$session where osuser='bheck' order by status, logon_time, sid
+-- Find Oracle session (session id, serial number):
+select * from v$session where osuser='oheck' order by status, logon_time, sid
+-- Kill Oracle session (session id, serial number):
 SQL> exec sys.kill_session(51,6449);
 
 -- Rename Oracle table:
@@ -5508,8 +5510,10 @@ SQL> select * from all_views where view_name like '%SPEC%'
 select dbms_metadata.get_ddl('TABLE', 'ACTIVITY_SEARCH') from dual;
 select dbms_metadata.get_dependent_ddl('TABLE', 'ACTIVITY_SEARCH') from dual;
 
--- Oracle random comma separated list of ids
+-- Build concatenate a random comma separated CSV list of ids:
 SELECT listagg(account_search_id,',') WITHIN GROUP (ORDER BY account_search_id) FROM account_search SAMPLE(0.1) WHERE ROWNUM<99
+-- Determine the min and prove it with a list of all radiuses for that class, using listagg as an Analytic function:
+select class, planet, min(radius), listagg(min(radius),',') within group ( order by planet ) over ( partition by class ) class_radii from named_moons group by class, planet order by 1,2
 
 CREATE OR REPLACE FUNCTION f RETURN SYS_REFCURSOR AS c SYS_REFCURSOR; BEGIN OPEN c FOR select * from dual; RETURN c; END; /
 
@@ -5521,6 +5525,7 @@ TYPE book_data_t IS REF CURSOR RETURN book%ROWTYPE;
 
 -- Oracle CASE or IF-THEN-ELSE replacement:
 SELECT symbol, DECODE(earnings, 0, NULL, price / earnings)
+select dt, ticker, decode(transact, 'Buy', +1, -1)*qty qty 
 --                                IF  THEN     IF       THEN  ELSE
 select prod_nm, DECODE(prod_grp,'MDPI','m','Solid Dose','sd','unk') from samp;
 
@@ -5558,7 +5563,7 @@ BEGIN FOR i IN x.FIRST .. x.LAST LOOP DBMS_OUTPUT.PUT_LINE(x(i)); END LOOP;
 -- Oracle DDL for DROP all procedures matching pattern:
 SELECT 'DROP PROCEDURE "'||owner||'"."'||object_name||'";' FROM all_procedures WHERE procedure_name IS NULL AND UPPER(object_name) LIKE 'Z_SET_%';
 
--- Oracle select year only between years periods:
+-- Oracle select year portion year part only between years periods:
 extract(year from h.updated) in(2017,2018)
 if (extract(year from sysdate) not between (compYear - 1) and (compYear + 1)) then...
 
@@ -5581,8 +5586,6 @@ select * from SYS.USER_SOURCE t WHERE t.TYPE='PACKAGE BODY' AND (upper(t.TEXT) L
 -- SQL Server list information about each owner's table in a database:
 select * from information_schema.tables where table_type='BASE TABLE' and table_schema='rheckel'
 
-CREATE TEMP TABLE _bob AS select atebpatientid FROM public.hppatientstarpdc;
-
 -- Oracle parent hierarchy:
 SELECT LOV.LIST_OF_VALUES_ID, LOV.VALUE FROM LIST_OF_VALUES LOV WHERE LOV.RETIRED = 0 START WITH LOV.LIST_OF_VALUES_ID IN (1,2,3) CONNECT BY PRIOR LOV.LIST_OF_VALUES_ID = LOV.PARENT_ID
 select sys_connect_by_path (job, '/') job_path, sys_connect_by_path (ename, '/') ename_path from scott.emp start with mgr is null connect by prior empno=mgr
@@ -5600,13 +5603,14 @@ UPDATE contact_note SET original_contact_ID=contact_id WHERE contact_id IN (SELE
 
 rc pls_integer := 0; rc := SQL%ROWCOUNT; dbms_output.put_line('rows affected: ' || rc); 
 
--- Oracle random subset:
+-- Oracle random subset test table:
 CREATE TABLE zzorion32822 AS SELECT * FROM zorion32822 SAMPLE(0.01)
 -- Random ids 0.1% of all records in Oracle table:
 SELECT account_id FROM account_name SAMPLE(0.1);
+CREATE TEMP TABLE _bob AS select atebpatientid FROM public.hppatientstarpdc;
 
--- Oracle error message exception:
-dbms_output.put_line(SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
+-- Error exception handler (if you don't give SQLERRM a valid Oracle error code it uses SQLCODE as the error code):
+WHEN others THEN dbms_output.put_line(SQLCODE || ': ' || SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
 
 -- Oracle recompile entire schema's invalid objects:
 EXEC DBMS_UTILITY.compile_schema('SETARS', false);
@@ -5619,14 +5623,20 @@ SELECT trigger_name, trigger_type, triggering_event, table_name, status FROM USE
 -- Toggle trigger off/on:
 SET_TRIGGER_CONTEXT('ACCOUNT_ATTRIBUTE', 'true'); ...  SET_TRIGGER_CONTEXT('ACCOUNT_ATTRIBUTE', 'false');
 
--- Expire Oracle user password
+-- Oracle calculate business non-weekdays days:
+(TO_CHAR(b.sample_status_date,'J')-TO_CHAR(b.sample_received_date,'J'))+1 - ((((TRUNC(b.sample_status_date,'D'))-(TRUNC(b.sample_received_date,'D')))/7)*2) -
+  (CASE WHEN TO_CHAR(b.sample_received_date,'DY')='SUN' THEN 1 ELSE 0 END) - (CASE WHEN TO_CHAR(b.sample_status_date,'DY')='SAT' THEN 1 ELSE 0 END) as BusinessDays
+
+-- Oracle angle bracket formatting e.g. <7,592.59>:
+to_char(rate*qty,'999,999.99pr') amt
+
+-- Expire Oracle user password:
 ALTER USER LIMSARCH PASSWORD EXPIRE;
 
--- Change Oracle user password
+-- Change Oracle user password:
 ALTER USER limsarch IDENTIFIED BY new2dayJuly;
 ALTER USER limsarch IDENTIFIED BY "new2dayJuly" REPLACE "oldpw";
-
--- Change password Postgres password
+-- Change password Postgres password:
 ALTER USER heckel WITH PASSWORD 'myPass';
 
 -- SQL sum count a group flag.  Good for later excluding a group of records if any record contains 'CANCEL':
@@ -5852,24 +5862,33 @@ SELECT to_char(TRUNC(o.updated, 'MONTH'),'YYYY-MM') AS mo, COUNT(o.updated) AS C
 -- Postgres bulk load a textfile to a table:
 \COPY analytics.obcdaily (client_name, , job_type_extra, att_count) FROM /Data/psql_import_temp.csv CSV HEADER
 
--- Windowing function POW:
-SELECT depname, empno, salary, avg(salary) OVER (PARTITION BY depname) FROM empsalary;  -- attach department average calculation to each row by department
-sum(nvl(ri.at_risk_amount,0)) over (partition by rp.risk_id) as tot_at_risk_amt
-rank() over (order by d) orderbydt -- 1,2,3,3,5...
-dense_rank() over (order by d) orderbydt_dense -- 1,2,3,3,4...
-sum(amt) OVER (order by d) as running_total
-sum(amt) OVER (order by d rows between unbounded preceding and current row) running_total2
-avg(amt) OVER (order by d rows between 1 preceding and 1 following) moving_average
-avg(amt) OVER (order by d range between interval '2' day preceding and current row) moving_average_2day
-sum(amt) OVER (order by d range between interval '2' day preceding and current row) running_total_2day
-sum(amt) OVER () grand_sum
-avg(amt) OVER () grand_avg
+-- Analytic Windowing function POW:
+,row_number() OVER (partition by d order by d) rownumbyday
+,rank() OVER (order by d) orderbydt -- 1,2,3,3,5...
+,dense_rank() OVER (order by d) orderbydt_dense -- 1,2,3,3,4...
+,first_value(amt) OVER (order by d) firstdot
+-- Good for cols where only the first appearance holds empno and rest are blank (like a report for human consumption)
+,last_value(amt IGNORE NULLS) OVER (order by d)  lastdot_fillin_the_blank
+,nvl(amt, lag(amt IGNORE NULLS) OVER (partition by d order by d)) fillin_the_blank_handle_nulls
+,nth_value(amt,2) OVER (order by d) second_highest_skip_outliers
+,round(amt/nth_value(amt,2) over (order by d),2)*100 percent_diff
+,sum(amt) OVER (order by d) as running_total
+,sum(amt) OVER (order by d rows between unbounded preceding and current row) running_total2
+,avg(amt) OVER (order by d rows between 1 preceding and 1 following) moving_average
+,sum(amt) OVER (order by d rows between MYFUNC(foo) preceding and 0 following) running_total2
+-- Use RANGE not ROWS to avoid missing data
+,avg(amt) OVER (order by d range between interval '2' day preceding and current row) moving_average_2day
+,sum(amt) OVER (order by d range between interval '2' day preceding and current row) running_total_2day
+,lag(amt) OVER (partition by d order by d) amt_before  -- good for status updates when you have daily data
+,lead(amt) OVER (partition by d order by d) amt_after  -- good for status updates when you have daily data
+,sum(amt) OVER () grand_sum
+,avg(amt) OVER () grand_avg
 
--- Most recent:
-FIRST_VALUE(an2.account_name_id) over(partition by an2.account_id order by updated desc) as latest_primary
+-- Analytic function quartile buckets:
+select empno, ename, job, hiredate, sal, deptno, ntile(4) over ( order by hiredate ) as grp from  emp order by grp;
 
--- Ranked by their full remuneration package:
-RANK() OVER ( ORDER BY sal + NVL(comm,0))
+-- Analytic function to get the employee(s) with the 3rd highest salary:
+select * from ( select empno, ename, job, hiredate, sal, comm, dense_rank() OVER (order by sal desc) r from  emp ) where r = 3;
 
 masked_patientkey = encode(digest(coalesce(split_part(patientnamefirst, ' ', 1),'') || patientnamelast || (case when patientdob is not null then to_char(patientdob,'yyyy-MM-dd') else '' end) || substring(coalesce(patientposctalcode, ''), 1,5), 'sha256'),'hex')
 select digest(patientnamefirst,'sha1') from rxfilldata_parent limit 1;
@@ -5886,8 +5905,9 @@ select * from analytics.tmm_enrollmentperf where created > '2017-01-30 09:00:00'
 -- Do we have 12 months for each client?:
 select clientid, year, count(*) from (select distinct clientid, year, month from dshbrd.pdctracksummary where year=2016) as t group by clientid, year order by clientid, year;
 
--- Postgres WITH temporary table creation:
+-- WITH temporary table creation:
 with val as ( values ('1427315266'),('1003048109'),('1003109422'),('1003128414') ) select column1 from val;
+with v as ( select date '2000-01-01' d, 10 amt from dual union all select date '2000-01-02', 11 from dual) select d FROM v;
 
 -- Postgres age today and at end of year e.g. 51 years 8 mons 4 days | 52:
 select age('1965-10-30'::date), date_part('year', age('2017-12-31', '1965-10-30'))
@@ -5913,9 +5933,6 @@ $ psql -h db-dev-01.twa.taeb.com TAEBMART -c "\copy public.bob from 't.txt' (del
 -- Postgres execute sql from file command line:
 psql -h db-dev-01.twa.taeb.com TAEBMART -f /sasdata/Dev_to_db-06_20180316_dshbrd_hppatientstarpdc.sql
 
--- CASE WHEN
-select ch.clientid, '' as x1, case when ac.actioncodeid=20109 then 'IMM_FAMILY=AV_HEPATITIS' when ac.actioncodeid=20114 then 'IMM_FAMILY=AV_INFLUENZA' end as x9 from ...
-
 SELECT cast(sys_context('mycontext', 'actual_employee_id') AS NUMBER) FROM dual
 
 -- PL/SQL Developer user prompt msgbox:
@@ -5938,9 +5955,6 @@ insert all  into teddies values ('Dinosaur King', 'red')  into bricks values ('s
 
 insert all into people values (full_name) when hire_date is not null then into staff values (hire_date) when nhs_number is not null then into patients values (nhs_number) select * from people_details;
 
--- Oracle exception handler:
-WHEN others THEN dbms_output.put_line(SQLCODE || ':' || SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
-
 -- Oracle which database are we on?:
 IF (SYS_CONTEXT('USERENV', 'DB_NAME') in ('SER', 'SETS')) THEN RETURN; END IF;
 
@@ -5953,22 +5967,17 @@ SELECT SYSTIMESTAMP INTO starting_time FROM DUAL;
 CREATE TABLE rejected_orders AS SELECT * FROM valid_orders WHERE 1 = 0;
 
 -- Oracle regex - returns 250/50 MCG
-select regexp_substr(upper('A Disk Inh Pwdr 250/50 mcg 60D'),'\d+/[^/]* *MCG') as strength2 from dual
+select regexp_substr(upper('Disk Inh Pwdr 250/50 mcg 60D'),'\d+/[^/]* *MCG') as stren from dual
 
--- Comma delimited string to number CSV parse split:
+-- Comma separated delimited parse split CSV input string to numbers column:
 SELECT to_number(TRIM(regexp_substr(accounts, '[^,]+', 1, LEVEL))) AS account_id FROM (SELECT '123,456' AS accounts FROM dual) CONNECT BY regexp_substr(accounts, '[^,]+', 1, LEVEL) IS NOT NULL;
-
--- Comma delimited CSV input string to numbers:
 ...AND territory_lov_id IN(SELECT to_number(column_value) FROM xmltable(('"' || REPLACE(terrlist, ',', '","') || '"')))  -- terrlist is a varchar2 holding '123,456'
--- Accomodate cases where no comma delimited input parameter passed to procedure:
-...AND ( territory_lov_id IN(SELECT to_number(column_value) FROM xmltable(('"' || REPLACE(terrlist, ',', '","') || '"'))) OR terrlist IS NULL );
-
-CURSOR account_ids_c IS SELECT to_number(TRIM(regexp_substr(accounts, '[^,]+', 1, LEVEL))) AS account_id FROM (SELECT in_account_ids AS accounts FROM dual) CONNECT BY regexp_substr(accounts, '[^,]+', 1, LEVEL) IS NOT NULL;
+...AND ( territory_lov_id IN(SELECT to_number(column_value) FROM xmltable(('"' || REPLACE(terrlist, ',', '","') || '"'))) OR terrlist IS NULL )  -- accomodate cases where no comma delimited input parameter passed to procedure:
 
 -- Oracle date time interval in the last 5 minutes:
 SELECT (SYSTIMESTAMP - INTERVAL '5' minute) AS five_minutes_ago, SYSTIMESTAMP FROM dual
 WHERE execute_time >= (SYSTIMESTAMP - INTERVAL '5' minute)
-start_date := cast(SYSTIMESTAMP + (1/(24*60) * 5) AS TIMESTAMP);  -- 5 minutes from now
+start_date := cast(SYSTIMESTAMP + (1/(24*60) * 5) AS TIMESTAMP);  -- 5 minutes from now in future
 
 -- Oracle full date time with timezone:
 select to_char(SYSTIMESTAMP, 'DD-MON-YYYY HH.MI.SS.FF4 AM TZR') from dual;
@@ -6050,8 +6059,8 @@ create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dua
 
 alter table movies add primary key ( name )
 
--- Who to blame last modified an Oracle object:
-SELECT * FROM DDL_EVENT Order by DDL_EVENT_ID DESC
+-- Who to blame last modified compiled an Oracle object:
+SELECT * FROM DDL_EVENT WHERE event_date>sysdate-1 ORDER BY DDL_EVENT_ID DESC
 select * from DDL_EVENT de, ddl_event_sql des where de.ddl_event_id = des.event_id and de.event_date>'08nov2018' and de.osuser='scmk' order by de.event_date desc, des.sql_line  
 
 -- View Oracle grants:
@@ -6069,25 +6078,22 @@ SELECT * from user_scheduler_jobs@sed WHERE job_name in ('PERIODIC_LIFECYCLE_UPD
 AUTHID DEFINER is the default permission, check SQL at compile-time
 AUTHID CURRENT_USER, check SQL at run-time
 
-sum(sal) OVER ( partition by deptno order by ename) as running_total
-
--- Analytic function quartile buckets:
-select empno, ename, job, hiredate, sal, deptno, ntile(4) over ( order by hiredate ) as grp from  emp order by grp;
-
--- Analytic function to get the employee(s) with the 3rd highest salary:
-select * from ( select empno, ename, job, hiredate, sal, comm, dense_rank() OVER (order by sal desc) r from  emp ) where r = 3;
-
--- Unique random GUID:
+-- Generate unique random GUID:
 select to_number(sys_guid(), 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') from dual
-
--- Update table to new value if newloc not null otherwise leave it alone:
-update departments set location = decode(newloc, NULL, location, newloc);
 
 -- PLSQL return BOOLEAN:
 RETURN(CASE WHEN(l_column_count > 0) THEN TRUE ELSE FALSE END);
 
-xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
+-- Build temporary index if not already existing:
+select count(1) into cnt from USER_INDEXES s where s.index_name = 'MY_IX'; if (cnt = 0) then execute immediate 'create index MY_IX on SALES_CRED(Sdm_Business_Key, Deal_Id)'; end if; ... execute immediate 'drop index MY_IX';
 
+-- Insert if not exists already:
+insert into bricks_1  select * from bricks_2 b2 where NOT exists ( select 1 from bricks_1 b1 where b1.brick_id=b2.brick_id)
+
+-- Full drop:
+drop table mytbl cascade constraints purge
+
+xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
@@ -6470,10 +6476,6 @@ Dim date1 As Date = #4/10/2008 6:30AM#
 
 =WORKDAY(TODAY(),B17)  ' Excel where B17 is number of business days into the future
 
--- Oracle calculate business non-weekdays days:
-(TO_CHAR(b.sample_status_date,'J')-TO_CHAR(b.sample_received_date,'J'))+1 - ((((TRUNC(b.sample_status_date,'D'))-(TRUNC(b.sample_received_date,'D')))/7)*2) -
-  (CASE WHEN TO_CHAR(b.sample_received_date,'DY')='SUN' THEN 1 ELSE 0 END) - (CASE WHEN TO_CHAR(b.sample_status_date,'DY')='SAT' THEN 1 ELSE 0 END) as BusinessDays
-
 ' Excel count workdays date range only (e.g. custom format '03-Apr-09 16:00 06-Apr-09 10:30 spans wkend and returns 0.77
 =NETWORKDAYS(C2,D2)-1-MOD(C2,1)+MOD(D2,1)
 ' or total business hours to resolve
@@ -6779,6 +6781,9 @@ git remote set-url origin git@github.com:bheckel/dotfiles.git
 
 # Existing github repo on a new foreign box:
 git clone git@github.com:bheckel/dotfiles.git && git remote add origin git@github.com:bheckel/dotfiles.git; ...edit/add/commit... git pull origin master && git push origin master
+
+# Manual pull request completion without using github buttons:
+git checkout develop && git pull && git merge --no-ff feature/ORION-31587 && git push && git branch -d feature/ORION-31587 && git fetch -p && git push origin --delete feature/ORION-31587
 
 # git "you can't push"
 vi ~/dotfiles/.git/config

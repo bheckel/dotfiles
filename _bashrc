@@ -103,9 +103,8 @@ alias cdm="cd $HOME/code/misccode"
 alias cdp="cd $HOME/code/perl"
 alias cds="cd $HOME/code/sas"
 alias cls=clear
-alias commit='git add . && git commit -m "mod"'
 alias cro='crontab -e'
-alias datecalc=$HOME/code/perl/datecalc
+alias datecalc="$HOME/code/perl/datecalc"
 alias ddg='w3m http://duckduckgo.com/lite'
 alias f='fg'  # jobs -s  to list what's suspended
 alias g=$HOME/dotfiles/gone.sh
@@ -115,8 +114,8 @@ alias gb='git branch'
 alias gcom='echo "ok to git commit?" && read && git add . && git commit -m "mod"'
 alias gitup='echo "ok to gitup?" && read && git status && git add . && git commit -m "mod" && git pull origin master && git push origin master'
 alias gitall="$HOME/code/misccode/gitall"
-alias gpul='git pull origin master'
-alias gpus='git push origin master'
+alias gpull='git pull'
+alias gpush='git push'
 alias gstash='git stash save --include-untracked'
 # alias gdot="cd ~/dotfiles && git add . && git commit -m'gdot' && git pull origin master && git push origin master && cd -"
 # alias grunt='pig -x local'
@@ -143,7 +142,7 @@ alias pull='git pull origin master'
 alias push='git push origin master'
 alias pse="ps -ef|grep ^$USER|grep -vP 'ps -ef|grep'"
 ###alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
-alias qr=$HOME/code/misccode/quickref_find.sh
+alias qr="$HOME/code/misccode/quickref_find.sh"
 alias robots="export ROBOTOPTS=moveheaps,showscores,screwdriver,fastrobots; robots"
 alias sasrun=$HOME/code/sas/sasrun
 alias sdf='ssh -l bheckel sdf.org; date'
@@ -398,17 +397,13 @@ bak() {
   fi
 }
 
-rme() {
-  $HOME/code/rme/rme "$1"
-}
-
 # If locate() not available
 function loc() {
-  find $HOME/code | grep -i "$1" | grep -v '\.git' | xargs ls -ltG >|/tmp/.vimxfer_ses && vim -R /tmp/.vimxfer_ses
+  find $HOME/code | grep -i "$1" | grep -v '\.git' | xargs ls -ltG >|/tmp/.vimxfer_ses && vim /tmp/.vimxfer_ses
 }
 
 function rme() {
-  find $HOME/code/rme | grep -i "$1" | grep -v '\.git' | xargs ls -ltG >|/tmp/.vimxfer_ses && vim -R /tmp/.vimxfer_ses
+  find $HOME/code/rme | grep -i "$1" | grep -v '\.git' | xargs ls -ltG >|/tmp/.vimxfer_ses && vim /tmp/.vimxfer_ses
 }
 # Generic Functions end
 
@@ -620,16 +615,15 @@ case "$OSTYPE" in
       # Assumes we've downloaded the gsk tarball as ~/Downloads/c.  home* are run on workbox (usually Friday), gsk* are run on homebox
 ###      alias gskfrom="echo 'retrieving from github...';echo; cd ~/Downloads && git pull origin master; echo;echo 'extracting...'; ls -l ~/Downloads/c; sleep 5; cd ~ && tar xvfz ~/Downloads/c && mv ~/Downloads/{c,c.PREV} && cd ~/code/misccode; gs"
       # Assumes we have recent home changes ready to tar and use at work Monday after we git it, Sunday evening run usually.  Should be a function.
-      alias gskto="cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV | grep -v '/.git/' | grep -v '.swp' | xargs tar cvfz ~/Downloads/c.NEW && cd ~/Downloads && git add c.NEW && git commit -m'gskto' && git push origin master"
+      # alias gskto="cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV | grep -v '/.git/' | grep -v '.swp' | xargs tar cvfz ~/Downloads/c.NEW && cd ~/Downloads && git add c.NEW && git commit -m'gskto' && git push origin master"
       # Assumes we have Mon-Fri changes to be sync'd.  Friday afternoon run usually.
 ###      alias hometo="ls -l ~/transfer/c && echo '...files newer than ^^^this^^^ one will be added to tarball...' && sleep 5 && cd ~ && find code/ -type f -newer ~/transfer/c -not -name '*.swp' | xargs tar cvfz ~/transfer/c; echo; echo 'sending to github...'; cd ~/transfer; git pull origin master; git add c && git commit -m'hometo' && git push origin master; cd -; cd ~/dotfiles && git add . && git commit -m'hometo' && git push origin master; cd -"
-      alias hometo="ls -l ~/transfer/c && echo '...files newer than ^^^this^^^ one will be added to tarball...' && sleep 5 && cd ~ && find code/ -type f -newer ~/transfer/c -not -name '*.swp' | xargs tar cvfz ~/transfer/c; echo; echo 'sending to github...'; cd ~/transfer; git pull origin master && git add . && git commit -m'hometo' && git push origin master"
+      # alias hometo="ls -l ~/transfer/c && echo '...files newer than ^^^this^^^ one will be added to tarball...' && sleep 5 && cd ~ && find code/ -type f -newer ~/transfer/c -not -name '*.swp' | xargs tar cvfz ~/transfer/c; echo; echo 'sending to github...'; cd ~/transfer; git pull origin master && git add . && git commit -m'hometo' && git push origin master"
       alias ll='ls -lh --color --group-directories-first'
       ###alias moz='export DISPLAY=158.111.250.170:0.0; mozilla&'
       ###alias sqlplus=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/sqlplus
       # Print Windows Working Directory.  Command is $ pwd|sed 's/\//\\/g'" before backslashitis.
       alias pwwd="pwd|sed 's/\\//\\\\/g'"
-      alias srcb="source $HOME/dotfiles/_bashrc"
 
       #----------------
       # Functions Linux  #{{{2 

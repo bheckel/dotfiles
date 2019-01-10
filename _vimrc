@@ -3,11 +3,8 @@
 "     Name: $HOME/.vimrc
 "  Summary: Platform-independent, overly ambitious, Vim config file
 "                                                                         
-"           In pursuit of the dubious goal of producing idiot-proof,
-"           zero-learning-curve programs, even programs intended for
-"           heavy-duty use such as editors--arguably the most important 
-"           piece of software you'll use--have been turned into children's 
-"           toys, effectively expert-proofed -- Tom Christiansen
+"           The mechanic that would perfect his work must first sharpen
+"           his tools -- Confucius
 "
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
 " Modified: Wed 26 Dec 2018 02:51:17 (Bob Heckel)
@@ -15,6 +12,7 @@
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
+"   Who set it last e.g.:  :verbose se shiftwidth?
 "    ordered by :option option-window convention
 "--------------------------------------------------------------------------
 "                                1 initialization {{{2
@@ -78,6 +76,10 @@ else
     " Linux terminal
     let VTMP = '~/tmp'
   endif
+endif
+
+if has('gui')
+  
 endif
 
 " Fix leftward movement problem on mainframe z/OS:
@@ -273,6 +275,8 @@ match EvilChars /\%u2018\|\%u2019/
 hi GitCollision ctermbg=red guibg=yellow
 match GitCollision /^\(<\|=\|>\)\{7\}\([^=].\+\)\?$/
 
+au BufRead * if @% =~ 'oneliners$' | hi Oneliners ctermbg=Black ctermfg=DarkGray guifg=DarkGray guibg=Black | match Oneliners @^--.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@
+
 "                                6 multiple windows {{{2
 
 " Mandatory for displaying a status line:
@@ -459,8 +463,9 @@ set suffixesadd=.sas
 
 " Avoid placing swapfiles where other users might be confused by them
 if has('gui_win32')
-  " TODO determine drive letter and user
-  set directory=C:\cygwin64\home\boheck\tmp
+  if $HOMEDRIVE == 'C:' && $HOMEPATH == '\Users\boheck'
+    set directory=C:\cygwin64\home\boheck\tmp
+  endif
 else
     set directory=~/tmp/
 endif
@@ -579,7 +584,7 @@ set shellslash
 
 "--------------------------------------------------------------------------
 "   Abbreviations 	{{{1
-"
+"   Who set it last e.g.:  :verbose ab BoB
 " To get a literal (e.g. HtM) type CTRL-V *after* you finish typing the 
 " abbreviation.  Do :ab to view your abbreviations.  Or e.g. view all HTML
 " ab's with  :iab H  Do :abclear to remove all.
@@ -613,8 +618,6 @@ iab YdS <C-R>=strftime("%Y-%m-%d")<CR>
 iab YdG <C-R>=strftime("%d-%b-%y")<CR>
 
 " HTML (also see :TOhtml)
-" 'It takes more time working around the annoying pathologies of web authoring
-" tools than it takes to just write the thing in html source to begin with.' ~ Anonymous
 iab HtA <a href="http://example.com">example link</a>
 iab HtM <!DOCTYPE html><CR><html><CR>  <head><meta charset="utf-8"><title></title></head><CR><body></body><CR><Left><Left></html>
 iab HtT <table><CR>  <tr><td> </td></tr><CR><Left><Left></table>
@@ -657,7 +660,6 @@ iab PeH foreach my $k ( sort keys %h ) { print "$k=$h{$k}\n"; }
 """iab PeO open FH, 'foo' or die "Error: $0: $!";<CR><CR>while ( <FH> ){<CR>}<Up>
 iab PeO open my $read, '<', $file or die "Error: $0: $!";<CR><CR>while ( <$read> ){<CR>}<Up>
 iab PeR #!/usr/bin/perl -w<CR><CR>use v5.10;<CR>
-"""iab PeS #!/usr/bin/perl -wT<CR><CR>use strict qw(refs subs vars);<CR># DEBUG<CR>use CGI::Carp qw(fatalsToBrowser);
 iab PeW while ( (my $k, my $v) = each %h ) { print "$k=$v\\n"; }
 
 " SAS
@@ -1598,18 +1600,9 @@ if !exists("autocommands_loaded")
   let autocommands_loaded = 1
  
 	" Return to the line and column of last edited position
-	autocmd BufReadPost * if line("'\"") | exe "normal '\"" | endif
-
-  if has('gui')
-    " Maximize window upon opening
-    " au GUIEnter *.log simalt ~x
-    " Run SAS on current .sas file:
-    au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!c:/Progra~1/SASIns~1/SAS/V8/sas.exe -sysin %<CR>:args %:r.lst %:r.log<CR>
-  else
-    " Run my execute SAS shell script in a terminal:
-    " au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!~/code/sas/sasrun %:p<CR>
-    au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!~/code/sas/sasrun2 "%:p"<CR>
-  endif
+	" autocmd BufReadPost * if line("'\"") | exe "normal '\"" | endif
+	autocmd BufReadPost [^vimxfer_ses] if line("'\"") | exe "normal '\"" | endif
+	autocmd BufReadPost \.vimxfer_ses exe "normal $"
 
   " Handle my ~/bin/sasrun script files
   au BufRead tmpsas.*.log,tmpsas.*.lst map q :qa!<CR>
@@ -1720,41 +1713,19 @@ if !exists("autocommands_loaded")
   " TODO check for existence of antiword, otherwise use cygstart
   au BufReadPost *.doc %!antiword "%"
 
-  " View binaries, PDFs using xxd
   augroup Binary
     au!
-    au BufReadPre  *.exe,*.pdf let &bin=1
-    au BufReadPost *.exe,*.pdf if &bin | %!xxd
-    au BufReadPost *.exe,*.pdf set ft=xxd | endif
-    au BufWritePre *.exe,*.pdf if &bin | %!xxd -r
-    au BufWritePre *.exe,*.pdf endif
-    au BufWritePost *.exe,*.pdf if &bin | %!xxd
-    au BufWritePost *.exe,*.pdf set nomod | endif
+    au BufReadPre  *.exe let &bin=1
+    au BufReadPost *.exe if &bin | %!xxd
+    au BufReadPost *.exe set ft=xxd | endif
+    au BufWritePre *.exe if &bin | %!xxd -r
+    au BufWritePre *.exe endif
+    au BufWritePost *.exe if &bin | %!xxd
+    au BufWritePost *.exe set nomod | endif
   augroup END
 
-" TODO not working
-"  augroup encrypted
-"    au!
-"    autocmd BufReadPre,FileReadPre      *.gpg set ff=unix
-"    " First make sure nothing is written to ~/.viminfo while editing
-"    " an encrypted file.
-"    au BufReadPre,FileReadPre      *.gpg set viminfo=
-"    au BufReadPre,FileReadPre      *.gpg set noswapfile
-"    " Switch to binary mode to read the encrypted file
-"    au BufReadPre,FileReadPre      *.gpg set bin
-"    au BufReadPre,FileReadPre      *.gpg let ch_save = &ch|set ch=2
-"    au BufReadPost,FileReadPost    *.gpg '[,']!gpg --decrypt 2> /dev/null
-"    " Switch to normal mode for editing
-"    au BufReadPost,FileReadPost    *.gpg set nobin
-"    au BufReadPost,FileReadPost    *.gpg let &ch = ch_save|unlet ch_save
-"    au BufReadPost,FileReadPost    *.gpg execute ":doautocmd BufReadPost " . expand("%:r")
-"
-"    " Convert all text to encrypted text before writing
-"    au BufWritePre,FileWritePre    *.gpg '[,']!gpg -ca 2>/dev/null
-"    " Undo the encryption so we are back in the normal text, directly
-"    " after the file has been written.
-"    au BufWritePost,FileWritePost    *.gpg u
-"  augroup END
+  "TODO handle Cygwin paths
+  " au BufRead *.pdf silent execute "!explorer" . shellescape(expand("%:p")) . " &>/dev/null &" | buffer# | bdelete# | redraw! | syntax on
 
   " This block must be placed near end of au commands for syntax coloring to
   " be disabled.
@@ -1853,6 +1824,17 @@ if !exists("autocommands_loaded")
   " end Temporary project-specific
   end
   " cab SqL e /cygdrive/c/Orion/workspace/data/Source/SQL/
+  
+  if has('gui')
+    " Maximize window upon opening
+    " au GUIEnter *.log simalt ~x
+    " Run SAS on current .sas file:
+    au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!c:/Progra~1/SASIns~1/SAS/V8/sas.exe -sysin %<CR>:args %:r.lst %:r.log<CR>
+  else
+    " Run my execute SAS shell script in a terminal:
+    " au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!~/code/sas/sasrun %:p<CR>
+    au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!~/code/sas/sasrun2 "%:p"<CR>
+  endif
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 
 endif  " ! autocommands_loaded
