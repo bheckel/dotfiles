@@ -275,7 +275,10 @@ match EvilChars /\%u2018\|\%u2019/
 hi GitCollision ctermbg=red guibg=yellow
 match GitCollision /^\(<\|=\|>\)\{7\}\([^=].\+\)\?$/
 
-au BufRead * if @% =~ 'oneliners$' | hi Oneliners ctermbg=Black ctermfg=DarkGray guifg=DarkGray guibg=Black | match Oneliners @^--.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@
+au BufRead * if @% =~ 'oneliners$' 
+  hi Oneliners ctermbg=Black ctermfg=DarkGray guifg=DarkGray guibg=Black 
+  " Match # " :: /*  style comments
+  match Oneliners @^".*$\|^--.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@
 
 "                                6 multiple windows {{{2
 

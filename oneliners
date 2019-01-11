@@ -5287,7 +5287,29 @@ SELECT INSTR('CORPORATE FLOOR','OR', 3, 2) FROM dual  -- 14 here, 0 if not found
 -- Overflows using PLS_INTEGER ok with INTEGER:
 DECLARE p1 PLS_INTEGER := 2147483647; p2 INTEGER := 1; n NUMBER; BEGIN n := p1 + p2; END; /
 
+-- Expire Oracle user password:
+ALTER USER LIMSARCH PASSWORD EXPIRE;
+-- Change Oracle user password:
+ALTER USER limsarch IDENTIFIED BY new2dayJuly;
+ALTER USER limsarch IDENTIFIED BY "new2dayJuly" REPLACE "oldpw";
+-- Change password Postgres password:
+ALTER USER heckel WITH PASSWORD 'myPass';
+
 alter table CONTAC add constraint NN_CONTAC_ORIGIN_LOV_ID check("ORIGIN_LOV_ID" IS NOT NULL);
+
+alter table movies add primary key ( name )
+
+-- Rename Oracle table:
+ALTER TABLE user_role1 RENAME TO user_role2;
+
+ALTER TABLE zorion34774 RENAME COLUMN orion_contact_id TO contact_id;
+
+ALTER PACKAGE ZTESTBOB COMPILE PACKAGE; show errors PACKAGE ZTESTBOB;
+ALTER PACKAGE ZTESTBOB COMPILE PACKAGE BODY; show err PACKAGE BODY ZTESTBOB;
+
+ALTER TABLE Customer DROP COLUMN Birth_Date;
+ALTER TABLE analytics.build ADD COLUMN rundatacheck boolean NOT NULL DEFAULT TRUE;
+ALTER TABLE analytics.archivebuildconfig ADD COLUMN job_type text NOT NULL DEFAULT 'Imports';
 
 select constraint_name, constraint_type from user_constraints@sep WHERE constraint_name LIKE 'NN%ORIGIN%';
 
@@ -5366,8 +5388,6 @@ foo CONSTANT  varchar2(4000) := q'[bar 'ok' then 4000 is max varchar2]';
 
 DROP PACKAGE test_bob;
 
-ALTER PACKAGE ZTESTBOB COMPILE PACKAGE; show errors PACKAGE ZTESTBOB;
-ALTER PACKAGE ZTESTBOB COMPILE PACKAGE BODY; show err PACKAGE BODY ZTESTBOB;
 SQL> alter procedure z_set_activ_match_code compile;  show error
 
 -- SHOW ERR[ORS] in sqlplus uses this table:
@@ -5380,9 +5400,6 @@ SELECT \*+ DRIVING_SITE(SITE) *\ COUNT(*) FROM DB_OWNER.DI_SITE_DATA@DNB_XXXX SI
 select * from v$session where osuser='oheck' order by status, logon_time, sid
 -- Kill Oracle session (session id, serial number):
 SQL> exec sys.kill_session(51,6449);
-
--- Rename Oracle table:
-ALTER TABLE user_role1 RENAME TO user_role2;
 
 -- Oracle move rename table:
 CREATE TABLE fooTMP AS SELECT * FROM user_role; DROP TABLE foo; CREATE TABLE foo AS SELECT * FROM fooTMP;
@@ -5629,15 +5646,6 @@ SET_TRIGGER_CONTEXT('ACCOUNT_ATTRIBUTE', 'true'); ...  SET_TRIGGER_CONTEXT('ACCO
 
 -- Oracle angle bracket formatting e.g. <7,592.59>:
 to_char(rate*qty,'999,999.99pr') amt
-
--- Expire Oracle user password:
-ALTER USER LIMSARCH PASSWORD EXPIRE;
-
--- Change Oracle user password:
-ALTER USER limsarch IDENTIFIED BY new2dayJuly;
-ALTER USER limsarch IDENTIFIED BY "new2dayJuly" REPLACE "oldpw";
--- Change password Postgres password:
-ALTER USER heckel WITH PASSWORD 'myPass';
 
 -- SQL sum count a group flag.  Good for later excluding a group of records if any record contains 'CANCEL':
 sum(case when status = 'CANCEL' then 1 else 0 end) as cancelflag
@@ -5915,10 +5923,6 @@ select age('1965-10-30'::date), date_part('year', age('2017-12-31', '1965-10-30'
 -- Postgres first day of year beginning of year
 SELECT date_trunc('year', now())::date;
 
-ALTER TABLE Customer DROP COLUMN Birth_Date;
-ALTER TABLE analytics.build ADD COLUMN rundatacheck boolean NOT NULL DEFAULT TRUE;
-ALTER TABLE analytics.archivebuildconfig ADD COLUMN job_type text NOT NULL DEFAULT 'Imports';
-
 -- Run Postgres script:
 bheckel@db-dev-01.twa.taeb.com:TAEBMART \i /sasdata/Personnel/bob/DashboardETLenroll/Dev_to_db-06_20171111_final.sql
 
@@ -6056,8 +6060,6 @@ in_debug boolean := sys.diutil.int_to_bool(:in_debug);
 CREATE TABLE t AS SELECT LEVEL id FROM dual CONNECT BY LEVEL <=10;
 -- Sample database table 5 years 2018-01-02 to 2022-12-31:
 create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dual connect by level <= 365*5;
-
-alter table movies add primary key ( name )
 
 -- Who to blame last modified compiled an Oracle object:
 SELECT * FROM DDL_EVENT WHERE event_date>sysdate-1 ORDER BY DDL_EVENT_ID DESC
