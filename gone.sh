@@ -9,11 +9,13 @@
 #           NOTE: Keep 2 blank lines before the xxFOOxx lines in oneliners
 #           to avoid seeing the tag in search results.
 #
+#           Depends on .bashrc's $fg_... 
+#
 #           TODO fix inability to pass -c -0
 #           TODO add CANONICAL switch
 #
 #  Created: Wed 20 Nov 2002 12:54:09 (Bob Heckel)
-# Modified: Mon 08 Oct 2018 15:00:42 (Bob Heckel)
+# Modified: Mon 14 Jan 2019 09:08:58 (Bob Heckel)
 ##############################################################################
   
 F="$HOME/dotfiles/oneliners"
@@ -22,7 +24,7 @@ IGCASE=--ignore-case
 ###CANONICAL=0
 
 Usage() {
-  echo "Usage: `basename $0` [-c] PERLREGEX [(v)im|(s)as|(p)erl|(u)nix|(d)atabase|(m)isc]
+  echo "Usage: `basename $0` [-c] PERLREGEX [ (d)atabase | (s)as | s(c)ripting | (u)nix | (v)im | (m)isc ]
              -c   case sensitive search (default is INsensitive)
              -0   no before and after context from grep(1)
 
@@ -67,28 +69,30 @@ while getopts c0 opt; do
    esac
 done
 
-if test "$2" = 'vim' || test "$2" = 'sas' || test "$2" = 'perl' || test "$2" = 'unix' || test "$2" = 'other'; then
+if test "$2" = 'vim' || test "$2" = 'sas' || test "$2" = 'scripting' || test "$2" = 'unix' || test "$2" = 'misc'; then
   s=$2
   echo
 # Shortcut the >3 char section tags
-elif test "$2" = 'p'; then
-  s=perl
-elif test "$2" = 'pl'; then
-  s=perl
+elif test "$2" = 'p'; then  # perl
+  s=scripting
+elif test "$2" = 'c'; then
+  s=scripting
 elif test "$2" = 'u'; then
   s=unix
-elif test "$2" = 'd'; then
-  s=database
+elif test "$2" = 'o'; then
+  s=other
 elif test "$2" = 'm'; then
-  s=misc
+  s=other
 elif test "$2" = 's'; then
   s=sas
 elif test "$2" = 'v'; then
   s=vim
+elif test "$2" = 'd'; then
+  s=database
 else
   # An incorrect section was specified (skip if no section specified)
   if [ ! -z "$2" ]; then
-    echo "ERROR:  available sections are (m)isc, (d)atabase, (p)erl, (s)as, (u)nix, (v)im"
+    echo "ERROR:  available sections are (d)atabase, (s)as, s(c)ripting, (u)nix, (v)im, (o)ther/(m)isc"
     exit 1
   fi
 fi
@@ -115,4 +119,3 @@ grep $IGCASE --before-context=$BEFORECONTEXT --after-context=$AFTERCONTEXT --col
 rc=`grep $IGCASE --count "$1" $F`
 echo ${fg_darkgray}xxxxxxxxxxx $rc hits${normal}
 echo
-

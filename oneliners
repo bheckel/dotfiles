@@ -7,7 +7,7 @@
 #           Comments are often written for searching, not proper English
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Wed 09 Jan 2019 14:00:06 (Bob Heckel)
+# Modified: Mon 14 Jan 2019 09:05:27 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -629,6 +629,9 @@ au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\\\|^WARNING:/<CR>
 " Windows gvimrc is sometimes here C:/Program Files (x86)/Vim/_vimrc
 
 nnoremap ,hdr :-1read ~/code/sas/Headertmplt.sas<CR>
+
+" Use vim as a filter:
+$ printf 'a\nb\nc\nb\n' | vim - -es --not-a-term +'g/b/norm gUUixx' +2 +'norm yy2p' '+%p' '+qa!' | tr x z
 
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -4435,7 +4438,7 @@ sudo dpkg-reconfigure tzdata
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
-xxPERLxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
+xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
 # Commandline switch -n says not to autoprint, -p says to print while looping, -a autosplits $_ into @F
 
@@ -5257,12 +5260,48 @@ while (<>) { s/(.*):(.*)/$2:$1/; print; }
 
 #!/usr/bin/perl -wT<CR><CR>use strict qw(refs subs vars);<CR># DEBUG<CR>use CGI::Carp qw(fatalsToBrowser);
 
-xxPERLxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
+' Determine which sheet you're using:
+MsgBox "'" & ActiveSheet.Name & "' is the currently active worksheet."
+
+:: Add append directory to DOS path:
+set PATH=d:\newpath;%PATH%
+
+' Find last used cell in an Excel worksheet:
+Sheets("Centura").Cells.SpecialCells(xlCellTypeLastCell).Row
+
+' Iterate all Excel cells in a column range:
+For Each c In [b1:b400]
+
+' Excel -- recognize a letter in a cell.
+=If(find("G",A1),1,0)
+
+:: Test for existence of a file in BAT (note no quotes on echo):
+if exist foo.txt echo ok
+
+Python help for open function:
+>>> print open.__doc__
+>>> help("open")  # or help(open)
+>>> quit()
+
+// Scripting processing instruction (or use <![CDATA[ ):
+<? ... >
+
+// Javascript arrays
+coffees = ["French Roast", "Columbian", "Kona"]; myArray = new Array("Hello", myVar, 3.14159)
+
+# Where Ruby libraries are installed
+ruby -e "puts $:"
+
+# Test AJAX etc that won't work using file:// etc.
+$ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
+
+xxSCRIPTINGxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxDATABASExx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
--- Outer joins preserve the rows that don't match and pad the remaining columns with NULLs.  OUTER keyword is optional.
--- These words replace the comma between tablenames in old style Oracle (+) joins:
+-- Only those columns explicitly listed in the GROUP BY clause may appear un-aggregated (i.e. not as a parameter of an aggregate function) in the SELECT or HAVING clauses.  That usually means the SELECT is equal or shorter to the GROUP BY.
+
+-- Outer joins preserve the rows that don't match and pad the remaining columns with NULLs. OUTER keyword is optional. These words replace the comma between tablenames in old style Oracle (+) joins:
 LEFT OUTER JOIN
 
 -- Only on one table not in the other table:
@@ -5565,9 +5604,9 @@ $ sqlplus pks/ev123dba@sdev388 @t.sql --need an exit; in t.sql to run standalone
 SQL> define_editor='c:/program files/vim/vim70/gvim -c "set filetype=sql"'
 SQL> set linesize 1000;  -- avoid truncation of results
 
--- Oracle print:
-set serveroutput on;  -- or set serveroutput on size unl;
-BEGIN DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('Hello World' || chr(10)); END; -- then type /
+-- Oracle print with carriage return linefeed:
+set serveroutput on;  -- or set serveroutput on size unl; BEGIN DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('Hello World' || chr(13) || chr(10)); END; -- then type /
+crlf CONSTANT VARCHAR2(2) := CHR(13) || CHR(10);
 
 -- Oracle nonaggregated expression (rownum) in an aggregated query - SQL hack:
 select rownum, a.* from (select cust, count(ord) from tbl group by cust) a;
@@ -5589,6 +5628,9 @@ SELECT sysdate INTO l_now FROM DUAL; LOOP EXIT WHEN l_now +(60 * (1 / 86400)) = 
 
 -- Oracle date calculations:
 SELECT (systimestamp - INTERVAL '0.001' SECOND), SYSTIMESTAMP, (SYSDATE - INTERVAL '1' MONTH) FROM dual
+
+-- Oracle 15 minutes ago:
+SELECT CURRENT_TIMESTAMP - NUMTODSINTERVAL(15, 'MINUTE') FROM dual
 
 -- List all Oracle tables:
 SELECT owner, table_name FROM all_tables where owner = 'myschema';
@@ -6056,8 +6098,8 @@ SELECT GREATEST(SYSDATE, to_date('01JAN29', 'YYYY-MM-DD HH24:MI:SS')) FROM dual
 -- sqlplus BOOLEAN parameters are translated from/to integers 0/1/null <--> false/true/null:
 in_debug boolean := sys.diutil.int_to_bool(:in_debug);
 
--- Sample database table with 1 column named id and 10 rows:
-CREATE TABLE t AS SELECT LEVEL id FROM dual CONNECT BY LEVEL <=10;
+-- Sample database table with 1 column and 10 rows:
+CREATE TABLE t AS SELECT LEVEL FROM dual CONNECT BY LEVEL <=10;
 -- Sample database table 5 years 2018-01-02 to 2022-12-31:
 create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dual connect by level <= 365*5;
 
@@ -6094,6 +6136,37 @@ insert into bricks_1  select * from bricks_2 b2 where NOT exists ( select 1 from
 
 -- Full drop:
 drop table mytbl cascade constraints purge
+
+/* Check for data existence: */
+EXECUTE IMMEDIATE 'select count(*) from accounts ast, site s where ast.site_id=s.site_id and s.site_number=trim(:1)' into cnt_orion using l_curr_site;
+
+-- Run MySQL from command line:
+$ mysql -t mydatabase < mysql.sql
+
+-- Postgres variables are created through the \set command but strings need this contortion:  \set dt '\'20180501\''
+\set myvariable value
+SELECT * FROM :myvariable.table1;
+
+select top 10 * from tbl  -- SQL Server & Access
+select * from tbl where rownum<9  -- Oracle
+
+-- Oracle user defined exception:
+failure_in_forall EXCEPTION; PRAGMA EXCEPTION_INIT (failure_in_forall, -24381);  -- ORA-24381: error(s) in array DML
+
+-- Oracle date in minutes 2019-01-15 15:37
+SELECT to_char(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI') FROM dual
+
+-- Oracle create sample data and round to 15 minute increments intervals:
+WITH v AS (select trunc(sysdate)+548/1440+rownum/1440 d1 from dual connect by level <= 10 ) SELECT TRUNC(d1, 'hh24') + ROUND(to_char(d1,'MI') / 15) * 15 / 1440 round_to_15min_intervals FROM v
+
+-- Oracle date timestamp literal:
+select * from SQL_HISTORY t WHERE t.min_end_time> '16jan19'
+select * from SQL_HISTORY t WHERE t.min_end_time> TIMESTAMP '2019-01-16 08:26:50'
+
+-- Bulk collect:
+DECLARE TYPE mynt_t IS TABLE of my_tbl%ROWTYPE; mynt mynt_t; cursor c is SELECT * FROM my_tbl; BEGIN open c; loop fetch c bulk collect into mynt limit 100; exit when mynt.count = 0; FOR i in 1..mynt.COUNT LOOP dbms_output.put_line('Dept('||i||'):' || mynt(i).dept); END LOOP; end loop; close c; END;
+
+EXECUTE IMMEDIATE 'ALTER TABLE EMAIL_MESSAGES ADD CONSTRAINT CONTACT_CONTACT_CDHU_FK FOREIGN KEY ("CONTACT_CDHU_ID") REFERENCES "SETARS"."CONTACT_BASE" ("CONTACT_ID") ON DELETE CASCADE';
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6161,21 +6234,6 @@ if c:/foobar exist goto foo_ok ... :foo_ok
 if errorlevel 0 goto y_is_available
 if [%1] == [] echo 'no args passed to this .BAT'
 
-' Determine which sheet you're using:
-MsgBox "'" & ActiveSheet.Name & "' is the currently active worksheet."
-
-:: Add append directory to DOS path:
-set PATH=d:\newpath;%PATH%
-
-' Find last used cell in an Excel worksheet:
-Sheets("Centura").Cells.SpecialCells(xlCellTypeLastCell).Row
-
-Run MySQL from command-line
-$ mysql -t mydatabase < mysql.sql
-
-' Iterate all Excel cells in a column range:
-For Each c In [b1:b400]
-
 Prevent other sites displaying your pages inside their frames:
 <META HTTP-EQUIV="Window-target" CONTENT="_top">
 
@@ -6192,12 +6250,6 @@ RGB hex  FF=100% (white)  CC=80%  99=60%  66=40%  33=20%  00=0% (black)
 E.g. #00FF00 is 0% red, 100% green, 0% blue
 
 Byte size increments: mega, giga, tera, peta, exa, zetta, yotta
-
-' Excel -- recognize a letter in a cell.
-=If(find("G",A1),1,0)
-
-:: Test for existence of a file in BAT (note no quotes on echo):
-if exist foo.txt echo ok
 
 Dial-up connectoids by command line:
 rasdial     <---to determine active connection name
@@ -6273,11 +6325,6 @@ Copy and submit a mainframe job via Vim on USS.  Mainframe copy cp.
 Chain two commands in Vim.
 :!cp % "//'bqh0.pgm.lib(%:t:r)'" \| :!sub 'bqh0.pgm.lib(tsaaaaq)'
 
-Python help for open function:
->>> print open.__doc__
->>> help("open")  # or help(open)
->>> quit()
-
 View an MVS mainframe file on HFS side:
 cat "//'bqh0.pgm.lib(tsaaaaa)'" | vi -
 
@@ -6326,15 +6373,6 @@ shutdown.exe -a
 
 86400 seconds in a day
 
-// Scripting processing instruction (or use <![CDATA[ ):
-<? ... >
-
-// Javascript arrays
-coffees = ["French Roast", "Columbian", "Kona"]; myArray = new Array("Hello", myVar, 3.14159)
-
-# Where Ruby libraries are installed
-ruby -e "puts $:"
-
 Windows runs on little-endian platforms
 
 Use gvim to edit source in Firefox:
@@ -6364,9 +6402,6 @@ Hidden startup executables (not found in Programs:StartUp see also Powershell ap
 HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
 or under Cygwin:
 $ regtool -v list '\machine\SOFTWARE\Microsoft\Windows\CurrentVersion\Run'
-
-select top 10 * from tbl  ' SQL Server & Access
-select * from tbl where rownum<11  ' Oracle
 
 :: doskey in DOS == alias in Unix
 doskey vi=vim $1
@@ -6791,9 +6826,6 @@ git checkout develop && git pull && git merge --no-ff feature/ORION-31587 && git
 vi ~/dotfiles/.git/config
 url = git@github.com:bheckel/dotfiles.git
 
-# Test AJAX etc that won't work using file:// etc.
-$ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
-
 -- SQL Server hideous datepart splitout complement of Oracle TRUNC:
 dateadd(dd,0, datediff(dd,0, fwn.VariableStp.dtSplTakenTime)) as dt
 
@@ -6894,10 +6926,6 @@ COUNT(*)                returns the number of rows in a table
 COUNT(DISTINCT ColName) returns the number of unique values for column ColName (can't use * !)
 COUNT(ColName)          returns the number of rows that have a non null value for ColName
 
--- Only those columns explicitly listed in the GROUP BY clause may appear un-aggregated (i.e. not as a parameter of an aggregate function) in the SELECT or HAVING clauses.  That usually means the SELECT is equal or shorter to the GROUP BY.
-
-UPDATE Professor SET Salary=Salary*1.1, Dept="IT" WHERE Dept='555';
-
 <iframe src="https://zdatapostd.gsk.com/datapostDEMO/DataPost_Results.html" width="850px" height="10000px" frameborder="0"> <p>Your browser does not support iframes.</p></iframe>
 
 <!--  «  a left-pointing double angle html entity -->
@@ -6978,10 +7006,6 @@ select filldate from rxfilldata_201709 where clientid=19 order by 1 desc limit 1
 
 <!-- White on gray -->
 <body bgcolor="#cccccc" text="#000000">
-
--- Postgres variables are created through the \set command but strings need this contortion:  \set dt '\'20180501\''
-\set myvariable value
-SELECT * FROM :myvariable.table1;
 
 // JavaScript
 let num = 255; alert( num.toString(16) );  // ff

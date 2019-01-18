@@ -703,7 +703,7 @@ nnoremap <Return> :set nohlsearch<Return><Return>
 nnoremap <Return><Return> :set hlsearch<Return><Return>
 
 " Assumes stty -ixon in .bashrc
-nnoremap <C-S> :w
+nnoremap <C-S> :w<CR>
 
 " Easily navigate wrapped '^...' long lines with arrow keys
 nnoremap <Up> gk
