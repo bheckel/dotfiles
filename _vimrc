@@ -103,8 +103,6 @@ if has('win32unix')
   let &t_te.="\e[0 q"
 endif
 
-set encoding=utf-8
-
 " $ mkdir -p ~/.vim/autoload ~/.vim/bundle && curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
 """execute pathogen#infect()
 " cd ~/.vim/bundle && git clone git://github.com/tpope/vim-commentary.git
@@ -277,21 +275,20 @@ match GitCollision /^\(<\|=\|>\)\{7\}\([^=].\+\)\?$/
 
 au BufRead * if @% =~ 'oneliners$' 
   hi Oneliners ctermbg=Black ctermfg=DarkGray guifg=DarkGray guibg=Black 
-  " Match # " :: /*  style comments
-  match Oneliners @^".*$\|^--.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@
+  " Match # " -- // :: /*  style comments
+  match Oneliners @^".*$\|^--.*$\|^\/\/.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@
 
 "                                6 multiple windows {{{2
 
 " Mandatory for displaying a status line:
 set laststatus=2
 
-" TODO add paste indicator
-" TODO add DEBUG indicator
 " Depends on this being set above:
 " hi User1 term=inverse,bold cterm=inverse,bold ctermfg=red guifg=red
 " ...and $VIMSTATUSL being set in .bashrc 
-" E.g. ~/code/misccode/_vimrc [+,VIM,unix,b1] rsh868@ZEBWL12H99999   485/4494L,1C(10%)
-set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)
+" E.g. ~/.vimrc [+,VIM,unix,b1] rsh868@ZEBWL12H99999   485/4494L,1C(10%)
+" set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)
+set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)%{AmIPasting()}
 
 " Use <C-W>= to force equal as needed:
 set noequalalways
@@ -531,6 +528,7 @@ set isfname=@,48-57,/,.,-,_,+,,,#,$,~,=
 
 "                               24 multi-byte characters {{{2
 
+set encoding=utf-8
 set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<
 
 "                               25 other {{{2
@@ -1588,6 +1586,17 @@ fu! WhichEnv() abort  " {{{2
 endfu
 " }}}
 
+
+function! AmIPasting()  " {{{2
+  if &paste
+		" :echohl WarningMsg | echo "Don't panic!" | echohl None
+    return ' <<<     P A S T E     >>>'
+  else
+    return ''
+  endif
+endfunction
+" }}}
+
 " end Functions-
 
 
@@ -1743,8 +1752,11 @@ if !exists("autocommands_loaded")
   endif
 
   au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
+
   au BufEnter oneliners,.vimrc,_vimrc,.bashrc,_bashrc set foldmethod=marker
+
   au BufEnter .vimrc echo ".vimrc: $MYVIMRC:" $MYVIMRC
+
   au BufRead,BufEnter *.txt set wrap
 
   " We'll never need to edit a tarball or QuickFix list
@@ -1802,8 +1814,6 @@ if !exists("autocommands_loaded")
     " vim
 """    au BufRead,BufWinEnter /cygdrive/c/*    hi StatusLine   ctermfg=Blue ctermbg=White
 """    au BufRead,BufWinLeave /cygdrive/c/*    hi StatusLineNC ctermfg=Blue ctermbg=Gray gui=inverse,bold
-"""    au BufRead,BufWinEnter /cygdrive/x/*    hi StatusLine   ctermfg=Green ctermbg=Black 
-"""    au BufRead,BufWinLeave /cygdrive/x/*    hi StatusLineNC ctermfg=Green ctermbg=Gray gui=inverse,bold
 """    au BufRead,BufWinEnter /cygdrive/z/*    hi StatusLine   ctermfg=Red ctermbg=Black
 """    au BufRead,BufWinLeave /cygdrive/z/*    hi StatusLineNC ctermfg=Red ctermbg=Gray gui=inverse,bold
 
@@ -1822,11 +1832,10 @@ if !exists("autocommands_loaded")
 """    au BufReadPre,FileReadPre /Drugs/Cron/* set directory=/Drugs/Personnel/bob/
 """    au BufReadPre,FileReadPre /Drugs/HealthPlans/* set noswapfile
 
-    " au BufEnter all.sql set foldmethod=marker
+  " cab SqL e /cygdrive/c/Orion/workspace/data/Source/SQL/
 
   " end Temporary project-specific
   end
-  " cab SqL e /cygdrive/c/Orion/workspace/data/Source/SQL/
   
   if has('gui')
     " Maximize window upon opening

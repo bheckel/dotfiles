@@ -2,7 +2,8 @@
 	status = auto
 	diff = auto
 [core]
-	pager = less -+F -+S -+X
+	; pager = less -+F -+S -+X
+	pager = ""
 [diff]
 	tool = vimdiff
 [merge]

@@ -447,9 +447,9 @@ case "$OSTYPE" in
     export TEMP=/cygdrive/c/temp
     export VIMSTATUSL="${USERNAME}@`echo ${HOSTNAME} | tr [A-Z] [a-z]`"
 
-###    if [ $HOSTNAME = 'SAS-01' ] || [ $HOSTNAME = 'SAS-02' ]; then
-      export SASV9_OPTIONS='-validvarname=any'
-###    fi
+    # if [ $HOSTNAME = 'SAS-01' ] || [ $HOSTNAME = 'SAS-02' ]; then
+    #   export SASV9_OPTIONS='-validvarname=any'
+    # fi
     #-------------------
     # Functions Cygwin  #{{{2
     #-------------------

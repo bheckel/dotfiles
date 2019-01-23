@@ -2576,6 +2576,10 @@ options DATASTMTCHK=COREKEYWORDS;
 
 %let bom_previous=%sysfunc(intnx(MONTH, "&SYSDATE"d, -1, B),YYMMDDN.); data _null_; if fileexist("/Drugs/TMMEligibility/BRStores/Dashboard/&bom_previous") then put 'previous month folder directory exists'; run;
 
+# Read a csv file in R language:
+d <- read.table('/home/rsh86800/t.csv',header=TRUE,sep=',')
+d2 <- read.csv(file="readfile.csv.r.txt",head=TRUE,sep=",")  # same
+
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxUNIXxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -4712,7 +4716,7 @@ $ perl -ne '$_ =~ m/.{76}(..)/; print "$_" if $1 == 15' foo.txt
 # or for character queries:
 perl -ne 'm/.{174}(\w)/; print if $1 eq "Y"' foo.txt
 
-# To sort on a specific column, see the Schwartzian transformation.
+# To sort on a specific column, see the Schwartzian transformation
 
 # Current time timestamp since the Epoch:
 print localtime();
@@ -5364,6 +5368,9 @@ TYPE associativearray_type IS TABLE OF INTEGER INDEX BY VARCHAR2(10);  -- Oracle
 -- Partial row record variable:
 DECLARE CURSOR c IS SELECT fnm, lnm FROM employees; friend c%ROWTYPE; BEGIN friend.fnm := 'John'; END; /
 
+--Oracle select literal underscore:
+WHERE UPPER(mat_desc) LIKE '%\_TH%' ESCAPE '\'
+
 define_editor="C:\Program Files (x86)\Vim\vim74\gvim.exe -u C:\Users\obheck\_gvimrc"
 
 -- Oracle date constant TIMESTAMP '2012-10-29 12:01:01'
@@ -5513,7 +5520,7 @@ sql> column MFG_SPEC_NUM format 999      -- number width w/o zeros
 
 UPDATE user_role SET user_role=5 WHERE user_nm LIKE '%Heckel%'
 
--- Oracle substring replace
+-- Oracle substring replace:
 UPDATE pec SET pks_txt=REPLACE(pks_txt,'GEN','GEN_') ...
 
 -- Oracle date
@@ -5529,6 +5536,13 @@ select TO_DATE('15-may-2006 16:00:01','dd-mon-yyyy hh24:mi:ss') from dual; -- 15
 SS.EntryTs >= TO_DATE('01-JAN-05','DD-MON-YY') AND SS.EntryTs <= TO_DATE('31-DEC-05','DD-MON-YY')
 -- SQL Server date between
 WHERE batch_time >= {ts '2011-01-03 00:00:00'} and batch_time <= {ts '2011-01-04 00:00:00'}
+
+-- Oracle date in minutes 2019-01-15 15:37
+SELECT to_char(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI') FROM dual
+
+-- Oracle date timestamp literal:
+select * from SQL_HISTORY t WHERE t.min_end_time> '16jan19'
+select * from SQL_HISTORY t WHERE t.min_end_time> TIMESTAMP '2019-01-16 08:26:50'
 
 -- Oracle spool (Windows).  Save Oracle SQL*Plus output to file foo.LST
 sql> spool %TEMP%/foo
@@ -5573,8 +5587,8 @@ select class, planet, min(radius), listagg(min(radius),',') within group ( order
 
 CREATE OR REPLACE FUNCTION f RETURN SYS_REFCURSOR AS c SYS_REFCURSOR; BEGIN OPEN c FOR select * from dual; RETURN c; END; /
 
--- Strong cursor.  SYS_REFCURSOR is always weak.
-TYPE book_data_t IS REF CURSOR RETURN book%ROWTYPE;
+-- Strong cursor because Weak types do not have a RETURN clause.  SYS_REFCURSOR is always weak, almost always used with dynamic queries.
+DECLARE TYPE book_data_t IS REF CURSOR RETURN book%ROWTYPE;  cv book_data_t;  BEGIN ...
 
 -- Oracle IF THEN ELSE
 (CASE WHEN TO_CHAR(b.sample_status_date,'DY')='SAT' THEN 1 ELSE 0 END)
@@ -6153,20 +6167,42 @@ select * from tbl where rownum<9  -- Oracle
 -- Oracle user defined exception:
 failure_in_forall EXCEPTION; PRAGMA EXCEPTION_INIT (failure_in_forall, -24381);  -- ORA-24381: error(s) in array DML
 
--- Oracle date in minutes 2019-01-15 15:37
-SELECT to_char(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI') FROM dual
-
 -- Oracle create sample data and round to 15 minute increments intervals:
 WITH v AS (select trunc(sysdate)+548/1440+rownum/1440 d1 from dual connect by level <= 10 ) SELECT TRUNC(d1, 'hh24') + ROUND(to_char(d1,'MI') / 15) * 15 / 1440 round_to_15min_intervals FROM v
-
--- Oracle date timestamp literal:
-select * from SQL_HISTORY t WHERE t.min_end_time> '16jan19'
-select * from SQL_HISTORY t WHERE t.min_end_time> TIMESTAMP '2019-01-16 08:26:50'
 
 -- Bulk collect:
 DECLARE TYPE mynt_t IS TABLE of my_tbl%ROWTYPE; mynt mynt_t; cursor c is SELECT * FROM my_tbl; BEGIN open c; loop fetch c bulk collect into mynt limit 100; exit when mynt.count = 0; FOR i in 1..mynt.COUNT LOOP dbms_output.put_line('Dept('||i||'):' || mynt(i).dept); END LOOP; end loop; close c; END;
 
 EXECUTE IMMEDIATE 'ALTER TABLE EMAIL_MESSAGES ADD CONSTRAINT CONTACT_CONTACT_CDHU_FK FOREIGN KEY ("CONTACT_CDHU_ID") REFERENCES "SETARS"."CONTACT_BASE" ("CONTACT_ID") ON DELETE CASCADE';
+
+-- Sequence:
+INSERT INTO email_messages (EMAIL_MESSAGES_ID, subject) VALUES (uid_email_messages.NEXTVAL, 'test'); COMMIT;
+
+-- List describe browse Postgres tables in psql:
+\d
+
+-- Canonical SQL count function 
+COUNT(*)                returns the number of rows in a table
+COUNT(DISTINCT ColName) returns the number of unique values for column ColName (can't use * !)
+COUNT(ColName)          returns the number of rows that have a non null value for ColName
+
+-- Faster alternative to max() on unindexed table:
+select filldate from rxfilldata_201709 where clientid=19 order by 1 desc limit 1 ;
+
+-- KEEP analytic to get person with lowest salary in each dept (without using correlated self join subquery).  "Carry" additional column values through the standard GROUP BY aggregation syntax:
+select deptno, min(sal), min(empno) KEEP ( dense_rank FIRST order by sal) empno from emp group by deptno
+
+-- Want percentage of total salary:
+100*ratio_to_report(sal) over () as pct_sal
+
+-- Group by quarter:
+...group by prod_category, to_char(trunc(time_id,'Q'),'MON')
+
+-- Order by date month:
+order by to_date(quarter,'MON')
+
+-- Modified analytic outer join to get every hr, every room and who reserved it:
+select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6755,7 +6791,6 @@ git status; git log; git branch -a; git remote -v; git remote show origin;
 
 # git commit mantra git mantra:
 git add . && git commit -m 'cleanup' && git push origin master
-git add . && git commit -m 'mod'  # or better  git commit -a -m 'mod'
 
 # github commit mantra (github is origin, PUSH TO):
 git add _bashrc _vimrc oneliners && git commit -m 'mod' && git push origin master
@@ -6763,17 +6798,29 @@ git add _bashrc _vimrc oneliners && git commit -m 'mod' && git push origin maste
 # git merge something into master branch:
 git checkout master && git merge mynewbranch && git branch -d mynewbranch
 
+# If you 'git add' a file to the staging area by mistake, use the following command to unstage back to working area:
+git reset whoops_undo_unstageme.txt
+# Discard all commits (or staged files) after commit c4c9473 and bring changed code AFTER that into the working area:
+git reset c4c9473
+# Discard all commits AFTER commit c4c9473 and will changed code after that into the staging area:
+git reset --soft c4c9473
+# Discard all commits AFTER commit c4c9473 and destroy all changed code after that (ignoring any untrackeds!)
+git reset --hard c4c9473
 # git revert discard throw away trash changes staged:
 git checkout -- DataPost_Configuration.map
 git checkout .   # abandon all pending changes "not staged for commit"
 # git revert discard a pull:
 git reset --hard ORIG_HEAD; git gc;
+# Abandon a merge collision (remove conflict markers from the file but you still have merge conflicts when you do git pull next time):
+git merge --abort  # or git reset --merge
+# Use the other guy's commit on collision:
+git reset --merge 2e40a3
 
 # Throw away a restored stash (or any changes really):
 git checkout .
 
-# git delete branch if merged (-D if not):
-git ls-files  # list which files are tracked under git source control not just staged
+# ls list which files are tracked under git source control not just staged:
+git ls-files 
 
 # git edit modify rewrite previous existing git commit message:
 git commit --amend -m 'change your previous, last, wrong, commit message to this'
@@ -6819,8 +6866,14 @@ git remote set-url origin git@github.com:bheckel/dotfiles.git
 # Existing github repo on a new foreign box:
 git clone git@github.com:bheckel/dotfiles.git && git remote add origin git@github.com:bheckel/dotfiles.git; ...edit/add/commit... git pull origin master && git push origin master
 
-# Manual pull request completion without using github buttons:
+# Manual pull request completion without using github UI merge & delete branch buttons:
 git checkout develop && git pull && git merge --no-ff feature/ORION-31587 && git push && git branch -d feature/ORION-31587 && git fetch -p && git push origin --delete feature/ORION-31587
+
+# git delete branch local then remote (instead of using github UI delete branch button):
+git branch -a  # make sure your remote is there
+git branch -d feature/ORION-31587 && git push origin --delete feature/ORION-31587 && git fetch -p && git branch -a
+# git delete local branch and prune remote branches (after github UI delete button):
+git branch -d feature/ORION-31587 && git fetch -p && git branch -a
 
 # git "you can't push"
 vi ~/dotfiles/.git/config
@@ -6836,18 +6889,12 @@ dateadd(dd,0, datediff(dd,0, fwn.VariableStp.dtSplTakenTime)) as dt
 
 private static final String[] items={"java", "strings", "in", "array"};
 
-Canonical test lorem ipsum debug string:
+Canonical test lorem ipsum test dummy sample debug string:
 "lorem", "ipsum", "dolor", "sit", "amet", "consectetuer", "adipiscing", "elit", "morbi", "vel", "ligula", "vitae", "arcu", "aliquet", "mollis", "etiam", "vel", "erat", "placerat", "ante", "porttitor", "sodales", "pellentesque", "augue", "purus"
 Lorem ipsum dolor sit amet consectetuer adipiscing elit.
 
 ISO 8601 date format (UTC)
 2008-08-30T01:45:36.123Z
-
---Count all test_end_date and non-null test_end_date at the same time:
-SELECT material_description, count(*), count(test_end_date)
-
---Oracle select literal underscore
-WHERE UPPER(mat_desc) LIKE '%\_TH%' ESCAPE '\'
 
 // JQuery debug print
 console.log("the_form.cbo.value=%o", the_form.cbo.value);
@@ -6866,7 +6913,7 @@ select count(distinct sampname) from result where sampcreatets between to_date('
 :javas alert(jedi.age)
 :javas jedi.talk()
 
-Cygwin Windows free diskspace free
+# Cygwin Windows free diskspace free
 while true; do df -h '//opsawn557/e$'; sleep 60; done
 
  /* Javascript concatenation */
@@ -6874,11 +6921,9 @@ strcat = '<a href=http://www.dhammawheel.com/viewtopic.php?f=20&t=>' + rnd2 + '<
 
 ISO 8601 date time format: 2013-04-27T18:00:00-05:00  2013-04-27T18:00:00,1-05:00
 
-Modulo finds the remainder of division of one number by another:
+# Modulo finds the remainder of division of one number by another:
 11 % 3 = 2 because 3 goes into 11 three times with a remainder of 2.
 15 % 3 = 0
-
-http://simplynoise.com/classic/noiseVol.swf
 
 There are two cscript.exe in the 64-bit OSes. One is located at
 %WINDOWS%\System32, other one is located at %WINDOWS%\SysWOW64.  The one under
@@ -6894,7 +6939,7 @@ System.out.println("Return".concat(" of").concat(" the king."));
 // Java array
 int[] array = new int[5] { 1, 2, 3, 4, 5 };
 
-Win7 Administrator cmd.exe command prompt:
+:: Win7 Administrator cmd.exe command prompt:
 Run : type cmd : Ctrl-Shift-Enter
 Win7 Administrator Cygwin/vim:
 Run : C:\cygwin64\bin\mintty.exe : Ctrl-Shift-Enter
@@ -6913,18 +6958,6 @@ netsh interface tcp set global autotuninglevel=normal
 
 :: Force delete remove rm Windows hidden file that Cygwin can't rm:
 u:\misc> del /A:H Thumbs.db
-
-Javascript floating point numbers:
-var n1 = 100.12
-
-# Read a csv file in R language:
-d <- read.table('/home/rsh86800/t.csv',header=TRUE,sep=',')
-d2 <- read.csv(file="readfile.csv.r.txt",head=TRUE,sep=",")  # same
-
--- Canonical SQL count function 
-COUNT(*)                returns the number of rows in a table
-COUNT(DISTINCT ColName) returns the number of unique values for column ColName (can't use * !)
-COUNT(ColName)          returns the number of rows that have a non null value for ColName
 
 <iframe src="https://zdatapostd.gsk.com/datapostDEMO/DataPost_Results.html" width="850px" height="10000px" frameborder="0"> <p>Your browser does not support iframes.</p></iframe>
 
@@ -6956,9 +6989,6 @@ msinfo32
 
 -- Find duplicates Postgres
 select * from analytics.healthplanpatients hp where row(hpprogramid, externalpatientid, cardholderid, pharmacyid) in (select hpprogramid, externalpatientid, cardholderid, pharmacyid from analytics.healthplanpatients_test);
-
--- List describe browse Postgres tables in psql:
-\d
 
 -- Comma separated column
 select string_agg(distinct taebpatientid::varchar,',') from cce.ccepatientstaging where clientid=22;
@@ -7001,9 +7031,6 @@ select a.*, b.*, a.UPID/b.tot as pct format=PERCENT8.2 from report1_nRx a join (
 -- Remote Desktop multiple monitors:
 %windir%\system32\mstsc.exe /span
 
--- Faster alternative to max() on unindexed table:
-select filldate from rxfilldata_201709 where clientid=19 order by 1 desc limit 1 ;
-
 <!-- White on gray -->
 <body bgcolor="#cccccc" text="#000000">
 
@@ -7018,23 +7045,24 @@ alert( 6.35.toFixed(20) ); // 6.34999999999999964473
 alert( (6.35 * 10).toFixed(20) ); // 63.50000000000000000000
 alert( Math.round(6.35 * 10) / 10); // 6.35 -> 63.5 -> 64(rounded) -> 6.4
 
+# Set remote tracking branch. Assumes push.default=upstream
 git branch --set-upstream-to=origin feature/ORION-33077  # ???now you can pull BUT this breaks pull requests so do this instead???:
 git checkout -b feature/ORION-33817 && git push --set-upstream origin feature/ORION-33817  # "Branch 'feature/ORION-33817' set up to track remote branch 'feature/ORION-33817' from 'origin'."
-
--- git delete branch local and remote:
-git branch -a
-git branch -d feature/ORION-31587 && git push origin --delete feature/ORION-31587 && git fetch -p && git branch -a
--- git delete branch and prune remote branches (after github UI delete button):
-git branch -d feature/ORION-31587 && git fetch -p && git branch -a
 
 :: Send To folder c:\temp
 %APPDATA%\Microsoft\Windows\SendTo
 
-Double arrows « »
+Double arrows unicode « »
 
 # View git history of a file (--follow even if filename has changed, --all branches, -p all patches):
 gitk --follow --all -p SUP_HAS_ACTIVE_SITES.fnc
 # View git revision and author last modified history for each line of a file:
 git blame SUP_HAS_ACTIVE_SITES.fnc
+
+# All configuration set by e.g. git config --global user.name "Your name"
+git list
+
+# Remove untracked files:
+git clean --dry-run
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
