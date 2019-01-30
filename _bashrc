@@ -342,17 +342,16 @@ parse_git_branch() {
 }
 
 
+# For informational searches e.g. $ google oracle error codes
 function urlencode() { echo -n $@ | perl -pe's/([^-_.~A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg'; }
-
-
-function google() { w3m http://www.google.com/search?hl=en#q="`urlencode $@`" ;}
+function google() { w3m http://www.google.com/search?q="`urlencode $@`" ;}
 
 
 # Git Log
 gl() {
-  # e.g. gl mybranch 20
-  local branch=$1
-  test  "x$branch" = "x" && branch='CURRENT BRANCH'
+  # e.g. gl mybranch_or_filename 20
+  local filebranch=$1
+  test  "x$filebranch" = "x" && filebranch='CURRENT BRANCH'
   local days=$2
   test  "x$days" = "x" && days=25
   git log --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %d [%an]" \
@@ -360,7 +359,7 @@ gl() {
           --date=short $1 \
           |sed "s/^\* //g" \
           |head -n$days; \
-          echo -n; echo; echo "${fg_darkgray} ...displaying last $days $branch";
+          echo -n; echo; echo "${fg_darkgray} ...displaying last $days $filebranch";
 }
 
 
@@ -397,13 +396,13 @@ bak() {
   fi
 }
 
-# If locate() not available
+# If locate() is not available
 function loc() {
-  find $HOME/code | grep -i "$1" | grep -v '\.git' | xargs ls -ltG >|/tmp/.vimxfer_ses && vim /tmp/.vimxfer_ses
+  find $HOME/code | grep -i "$1" | grep -v '\.git' | xargs ls -ltG >|/tmp/.loc && vim /tmp/.loc
 }
 
 function rme() {
-  find $HOME/code/rme | grep -i "$1" | grep -v '\.git' | xargs ls -ltG >|/tmp/.vimxfer_ses && vim /tmp/.vimxfer_ses
+  find $HOME/code/rme | grep -i "$1" | grep -v '\.git' | xargs ls -ltG >|/tmp/.rme && vim /tmp/.rme
 }
 # Generic Functions end
 
@@ -629,11 +628,6 @@ case "$OSTYPE" in
       # Functions Linux  #{{{2 
       #----------------
 
-      # If locate() not available
-      function loc() {
-        find $HOME/code | grep -i "$1" | grep -v '\.git' | xargs ls -lt >|/tmp/.vimxfer_ses && vim /tmp/.vimxfer_ses
-      }
-
       #----------------
       # Ubuntu #{{{2
       #----------------
@@ -684,11 +678,6 @@ case "$OSTYPE" in
         # This sometimes keeps things from failing when the minimal vim is installed as vi
         export EDITOR=/mnt/nfs/home/bheckel/usr/local/bin/vim
         export SASV9_OPTIONS='-validvarname=any'
-
-        # If locate() not available
-        function loc() {
-          find $HOME/code | grep -i "$1" | grep -v '\.git' | xargs ls -lt >|~/bob/tmp/.vimxfer_ses && $HOME/usr/local/bin/vim ~/bob/tmp/.vimxfer_ses
-        }
 
         # E.g. Mar  3 07:32 /Drugs/Cron/Daily/tmm_enroll_ratio/tmm_enroll_ratio.log
         function myls() {

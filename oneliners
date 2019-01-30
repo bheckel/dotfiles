@@ -637,14 +637,6 @@ xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSASxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
-http://support.sas.com/documentation/cdl/en/syntaxidx/68719/HTML/default/index.htm#/documentation/cdl/en/syntaxidx/68719/HTML/default/shared/start.htm
-http://support.sas.com/documentation/onlinedoc/bookshelf/94/desktop.html
-http://support.sas.com/documentation/cdl/en/lefunctionsref/67960/HTML/default/viewer.htm#n1mj2bizbsd7ktn1sf9lz111kku3.htm
-http://support.sas.com/documentation/cdl/en/lestmtsref/67407/HTML/default/viewer.htm#p08st7rzfn0dgin1fml8hq40hlho.htm
-http://support.sas.com/documentation/cdl/en/allprodsproc/68038/HTML/default/viewer.htm#procedures.htm
-https://support.sas.com/rnd/base/ods/scratch/styles-tips.pdf
-https://support.sas.com/rnd/base/ods/odsmarkup/TipSheet_ods_xl_xp.pdf
-
 proc contents data=sashelp._all_; run;
 
 Missing value '.' always sort lower than char or num and ._ sorts lowest of all.  A blank space ' ' is MISSING to SAS but not to SQL where it is a character.
@@ -680,7 +672,6 @@ put '0D0A'x;  /* carriage return line feed */
 Runaway GUI SAS killer:
 /* '; * "; */; %mend; quit; run;
 ;*';*";*/;quit;run; /*Quote and Comment Killer*/
-
 
  /* Free up space - delete datasets */
 proc datasets library=WORK; kill; QUIT;  /* !not just RUN; */
@@ -833,10 +824,8 @@ substr(mystr, mylen+1) = '00'x
 %put basename only of currently running program: &SYSPROCESSNAME
 %put NOTE: fully qualified name of the currently this program running: %let thispgm=%sysfunc(getoption(SYSIN));
 
- /* CLASS categorical variables:  almost always stored as chars, identify classes (discrete categories) on which calculations are done.  E.g. gender, country, state, zip.
-  *
-  * VAR analysis variables:  numbers, usually continuous, appropriate for calculating averages, sums, etc.  E.g. salary, number of orders.
-  */
+ /* CLASS categorical variables:  almost always stored as chars, identify classes (discrete categories) on which calculations are done.  E.g. gender, country, state, zip. */
+ /* VAR analysis variables:  numbers, usually continuous, appropriate for calculating averages, sums, etc.  E.g. salary, number of orders. */
 
  /* Pick off 'MOR' from the suffix */
 %let FN=BF19.FIX0342.MORMER1; %let EVT=%substr(%scan(&FN, 3, '.'), 1, 3);
@@ -5410,15 +5399,24 @@ INSERT INTO...; SAVEPOINT bobora; INSERT INTO...; ROLLBACK TO bobora;
 -- Oracle regex:
 select object_name, object_type from user_objects where object_type in ('PACKAGE') AND regexp_like(object_name, '.*BOBONCALL.*')
 
--- Oracle which objects are available, what is invalid? ls for db (all_objects is similar):
+-- Oracle which objects are available? An ls for db (all_objects is similar):
 select object_name, object_type from user_objects where object_type in ('VIEW','TABLE','PACKAGE','PROCEDURE','FUNCTION') and lower(object_name) like '%acc%' order by 2,1
+
 -- Oracle which objects are invalid objects:
 select * from user_objects o where object_type != 'JAVA CLASS' and status = 'INVALID' ORDER BY last_ddl_time;
+
+-- Who to blame for invalid object last modified compiled an Oracle object:
+SELECT * FROM DDL_EVENT WHERE event_date>sysdate-1 and ora_dict_obj_name='MYOBJ' ORDER BY DDL_EVENT_ID DESC
+-- What SQL was run by that user:
+select * from DDL_EVENT de, ddl_event_sql des where de.ddl_event_id = des.event_id and de.event_date>'08nov2018' and de.osuser='scmk' order by de.event_date desc, des.sql_line  
+
+-- Oracle recompile entire schema's invalid objects:
+EXEC DBMS_UTILITY.compile_schema('SETARS', false);
 
 -- Oracle date subtraction:
 where lc.updated >= TRUNC(SYSDATE - (365 * 2)) -- 2 year window
 
--- Oracle function declaration:
+-- Oracle function declaration default parameter:
 FUNCTION hasLinkages(in_accountId NUMBER, in_contextBeingUsed NUMBER DEFAULT 2) RETURN NUMBER;
 
 SELECT REGEXP_COUNT ('Oracle PL/SQL By Example Updated for Oracle 11g', 'ora', 1, 'i') FROM dual;
@@ -5684,9 +5682,6 @@ CREATE TEMP TABLE _bob AS select atebpatientid FROM public.hppatientstarpdc;
 
 -- Error exception handler (if you don't give SQLERRM a valid Oracle error code it uses SQLCODE as the error code):
 WHEN others THEN dbms_output.put_line(SQLCODE || ': ' || SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
-
--- Oracle recompile entire schema's invalid objects:
-EXEC DBMS_UTILITY.compile_schema('SETARS', false);
 
 -- An autonomous routine never reads or writes database state (i.e., it neither queries nor updates any table):
 ... DECLARE PRAGMA AUTONOMOUS_TRANSACTION; ... BEGIN INSERT INTO log (...)
@@ -6117,10 +6112,6 @@ CREATE TABLE t AS SELECT LEVEL FROM dual CONNECT BY LEVEL <=10;
 -- Sample database table 5 years 2018-01-02 to 2022-12-31:
 create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dual connect by level <= 365*5;
 
--- Who to blame last modified compiled an Oracle object:
-SELECT * FROM DDL_EVENT WHERE event_date>sysdate-1 ORDER BY DDL_EVENT_ID DESC
-select * from DDL_EVENT de, ddl_event_sql des where de.ddl_event_id = des.event_id and de.event_date>'08nov2018' and de.osuser='scmk' order by de.event_date desc, des.sql_line  
-
 -- View Oracle grants:
 select * from dba_tab_privs@sed WHERE table_name = 'ACCOUNT'
 
@@ -6203,6 +6194,8 @@ order by to_date(quarter,'MON')
 
 -- Modified analytic outer join to get every hr, every room and who reserved it:
 select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2
+
+EXPLAIN PLAN FOR SELECT * FROM email_messages WHERE actual_updated > (SYSTIMESTAMP - INTERVAL '42' minute); select * from table(dbms_xplan.display);
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 

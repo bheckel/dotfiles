@@ -273,11 +273,6 @@ match EvilChars /\%u2018\|\%u2019/
 hi GitCollision ctermbg=red guibg=yellow
 match GitCollision /^\(<\|=\|>\)\{7\}\([^=].\+\)\?$/
 
-au BufRead * if @% =~ 'oneliners$' 
-  hi Oneliners ctermbg=Black ctermfg=DarkGray guifg=DarkGray guibg=Black 
-  " Match # " -- // :: /*  style comments
-  match Oneliners @^".*$\|^--.*$\|^\/\/.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@
-
 "                                6 multiple windows {{{2
 
 " Mandatory for displaying a status line:
@@ -1614,7 +1609,9 @@ if !exists("autocommands_loaded")
 	" Return to the line and column of last edited position
 	" autocmd BufReadPost * if line("'\"") | exe "normal '\"" | endif
 	autocmd BufReadPost [^vimxfer_ses] if line("'\"") | exe "normal '\"" | endif
-	autocmd BufReadPost \.vimxfer_ses exe "normal $"
+
+  " Move cursor to filename for gf
+	autocmd BufReadPost /tmp/.loc,/tmp/.rme exe "normal $"
 
   " Handle my ~/bin/sasrun script files
   au BufRead tmpsas.*.log,tmpsas.*.lst map q :qa!<CR>
@@ -1657,7 +1654,7 @@ if !exists("autocommands_loaded")
   " TODO use &ft instead of python, need function?
   au BufNewFile,BufRead,BufEnter *.py nmap ;z :!echo && echo && python %<CR>
 
-  au FileType sh set fileformat=unix
+  " au FileType sh set fileformat=unix
   au BufWritePost *.sh silent !chmod a+x <afile>
   au FileType basic map ,m yy0I'''<ESC>p
   au FileType basic map ;s :s:^:''':<CR>
@@ -1684,8 +1681,11 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out map q :q<CR>
   au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out echon '.vimrc: <CR> to select file, q to quit'
 
+  "TODO how to keep non-txt bufs that are switched into from being se wrap?
+  " au BufRead,BufEnter *.txt set wrap
+
   " Don't wrap these
-  au BufRead,BufEnter *.htm*,*.cgi,*/tmp/bash*,afiedt.buf set tw=0 wm=0
+  au BufRead,BufEnter *.htm*,*.cgi,*/tmp/bash*,afiedt.buf,*.sql set tw=0 wm=0
 
   au BufRead,BufEnter *.sql,afiedt.buf iab LI limit 10
   au BufRead,BufEnter *.sql,afiedt.buf iab OB order by 1
@@ -1757,8 +1757,6 @@ if !exists("autocommands_loaded")
 
   au BufEnter .vimrc echo ".vimrc: $MYVIMRC:" $MYVIMRC
 
-  au BufRead,BufEnter *.txt set wrap
-
   " We'll never need to edit a tarball or QuickFix list
   au FileType TAR,QF map q :q<CR>
 
@@ -1814,8 +1812,6 @@ if !exists("autocommands_loaded")
     " vim
 """    au BufRead,BufWinEnter /cygdrive/c/*    hi StatusLine   ctermfg=Blue ctermbg=White
 """    au BufRead,BufWinLeave /cygdrive/c/*    hi StatusLineNC ctermfg=Blue ctermbg=Gray gui=inverse,bold
-"""    au BufRead,BufWinEnter /cygdrive/z/*    hi StatusLine   ctermfg=Red ctermbg=Black
-"""    au BufRead,BufWinLeave /cygdrive/z/*    hi StatusLineNC ctermfg=Red ctermbg=Gray gui=inverse,bold
 
     " au BufReadPre,FileReadPre [ETHR]:/* set noswapfile
     " TODO what event is a diff window open
@@ -1830,7 +1826,6 @@ if !exists("autocommands_loaded")
 		"""au BufRead,BufNewFile *.map set filetype=xslt
 """    au BufReadPre,FileReadPre /Drugs/Macros/* set noswapfile
 """    au BufReadPre,FileReadPre /Drugs/Cron/* set directory=/Drugs/Personnel/bob/
-"""    au BufReadPre,FileReadPre /Drugs/HealthPlans/* set noswapfile
 
   " cab SqL e /cygdrive/c/Orion/workspace/data/Source/SQL/
 
@@ -1848,6 +1843,11 @@ if !exists("autocommands_loaded")
     au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!~/code/sas/sasrun2 "%:p"<CR>
   endif
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+
+  au BufRead * if @% =~ 'oneliners$' 
+    hi Oneliners ctermbg=Black ctermfg=DarkGray guifg=DarkGray guibg=Black 
+    " Match all # " -- // :: /*  style comments.  Has to be at end of autocommands
+    match Oneliners @^".*$\|^--.*$\|^\/\/.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@
 
 endif  " ! autocommands_loaded
 
