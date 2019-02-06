@@ -2,12 +2,16 @@
 #     Name: $HOME/code/misccode/oneliners
 #
 #  Summary: Programming and sysadmin fragments I've collected over the 
-#           years.  Section-searchable via my gone.sh.
+#           years.  Section-searchable via my gone.sh.  Comments are often
+#           written for searching, not proper English
 #
-#           Comments are often written for searching, not proper English
+#           - Don't create work for your boss
+#           - Don't create work for your coworkers
+#           - Don't ask a question without researching first
+#           - Write down the answer to avoid asking it again
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Mon 14 Jan 2019 09:05:27 (Bob Heckel)
+# Modified: Tue 05 Feb 2019 09:51:04 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -2582,24 +2586,24 @@ for f in $(find . | grep orion-32 | grep -P '.*pck|.*sql|.*prc|.*fnc'); do grep 
 find /opt/QCServer/A.05.00/svr/files -name 'Inspec_Lot-*' -mtime -3 | xargs grep "Error:"
 ssh tpsh005 'find /opt/QCServer/A.05.00/svr/files -name 'Inspec_Lot-*' -mtime -3 -exec grep "Error:" {} \; | tail'
 
-# Find newish file that is not empty:
+# Find newish file that is not empty zero bytes:
 ssh tpsh005 find /home/gaaadmin/GAAAdapter/gaa/logs -name 'InspectionRes*error*' -mtime -7 -a -size +0
 
 # Specify different user to login as:
 ssh -l root 192.168.0.108
 
-# grep but skip, ignore, the string 'foo' if in the same line:
+# grep for 'findme' but skip ignore string 'foo' if in the same line:
 grep findme * | grep -v foo
+
 find . -name '*.sas7bdat' -a -not -name '*tr_*' |xargs \ls -l
 
-# Look in Julie chats for password related info (with context)
+# Look for password in Julie's files:
 find . -name '*Julie*.txt' -print0 | xargs -0 grep -3 -i 'password'
 
 # Poor man's copy cp:
 $ cat <original.txt >duplicate.txt
 
 # Remove or uninstall accidentally untarred mess from a directory.  Tar undo.
-# (Note: sometimes must gunzip first before untar; often must cd to / )
 $ tar xvfj ~/w3m-0.5.2-2.tar.bz2  # original extraction
 $ tar -tf ~/w3m-0.5.2-2.tar.bz2 | xargs rm -v  # reverse untar mistake
 
@@ -2612,9 +2616,6 @@ $ apt-get upgrade | tee ~/tmp/apt-get-upgrade-$(date +%F).log
 $ make 2>&1 | tee build.log
 # To append further log to build.log, continue with:
 $ make modules 2>&1 | tee -a build.log
-
-# grep search for more than one pattern:
-egrep 'foo bar|%JET' *
 
 # Copy everything (except dot files) in a dir except for one file (smb.txt in this case):
 cp /notathome/[^smb.txt]* /foodir
@@ -2647,7 +2648,7 @@ echo -n 'count me' | wc
 # Count how many Vim Scripts use ``execute''?:
 $ find /usr/local/share/vim -type f -name \*.vim -exec grep -l '\<exe\(c\(u\(te\?\)\?\)\?\)\?\>' {} \; | wc -l
 
-# Enable readline on command line
+# Enable readline on command line:
 set -o vi
 
 # Reset terminal: 
@@ -2657,20 +2658,18 @@ stty erase ^H  # or stty ^?
 # Turn off echoing of keystrokes (stty echo to turn back on)
 stty -echo  
 
-# List contents of file, breaking it up into one word per line. 
+# List contents of file, breaking it up into one word per line:
 cat foo.txt | xargs -n1
 
-# Keep checking on dead server with a shell do-loop or use my ruup - bash
+# Keep checking on dead server with a shell do-loop:
 while true; do ping -n 2 mainframe; date; sleep 600; done;
 # or
 while : ;do ping 47.143.212.20; sleep 600; done
 
-# Infinite loop from the command line - ksh
-while [ 1 ]; do date; sleep 10; done;
-# or
+# Infinite loop from the command line:
 while [ true ]; do date; sleep 10; done;
 
-# Canonical Shell do loop.  Do something in a loop 3 times:
+# Canonical shell do loop.  Do something in a loop 3 times:
 $ for i in 1 2 3; do echo 'bobh'; sleep $i; done
 
 # Remote copy syntax example
@@ -2703,7 +2702,7 @@ $ export DISPLAY=158.111.250.163:0.0 && mozilla&
 59 5 6 * * mailx -s "Automated reminder from Bob" aendbmom@yahoo.com </arpa/af/b/rheckel/mailxmsg.txt
 
 # Watch file sizes using cron and email every day at 2:05
-5 2 * * * find /apache/logs/access_log -size +10000000c  | mailx -s "file is getting too big" admin@rocket.ugu.com
+5 2 * * * find /apache/logs/access_log -size +10000000c  | mailx -s "file is getting too big" admin@foo.com
 # Rotate if filesize is half a gigabyte or larger:
 15 4 * * * find /opt/apache/logs/access_log -size +500000000c && /opt/bin/rotatelog
 
@@ -2711,7 +2710,6 @@ $ export DISPLAY=158.111.250.163:0.0 && mozilla&
 
 # cron every other week (errors at EOY):
 49 15 * * 3 [ `expr \`date +\%V\` \% 2` -eq 0 ] && ~/crontest.sh
-49 15 * * 3 [ `expr \`date +\%V\` \% 2` -eq 1 ] && ~/crontest.sh
 
 # Human readable disk space Solaris
 df -h
@@ -2818,13 +2816,7 @@ for i in `find /Drugs/Personnel -maxdepth 1 -type d`; do du -sh $i; done | sort 
 # Solaris Administration Tool -- admintool or sam
 # Solaris top is prstat
 
-# The first tar command creates (cf) an archive of thedir and places it into
-# a buffer, instead of creating a file or writing it off to a tape. While the
-# data is in the buffered area (-), it is sent to the remote host. When the
-# data arrives at the remote host, the command changes to the directory /home
-# and begins to extract ( xvfB) the contents of the archive from the buffer
-# where it resides.  (B) is used for blocking and should be used to prevent
-# data loss across the network.
+# The first tar command creates (cf) an archive of thedir and places it into a buffer, instead of creating a file or writing it off to a tape. While the data is in the buffered area (-), it is sent to the remote host. When the data arrives at the remote host, the command changes to the directory /home and begins to extract ( xvfB) the contents of the archive from the buffer where it resides.  (B) is used for blocking and should be used to prevent data loss across the network:
 tar cf - tar_me | rsh theotherserver '( cd /home/rheckel/todel; tar xvfB - )'
 
 # Backup workbox code changes each weekday (where code/ is mounted, not symlinked) using a sentinel:
@@ -2862,7 +2854,7 @@ done
 nohup tar -cf /dev/tape /home &
 nohup while true; do date; sleep 5; done  # fails! must be in a script
 
-# Throw away 'Permission denied', etc. by dumping STDERR to null.
+# Throw away 'Permission denied', etc. by dumping STDERR to black hole device:
 find / -name foo 2>/dev/null
 
 # FIND (modify time could be == create time if file is new)
@@ -2916,9 +2908,8 @@ FILES=$(find $PTHCODE -type f -not -name baseline.md5 -a -not -name '*.log' -a -
 PDBSEXIST=$(find "$PDB" '*.pdb' -type f -printf "%s" 2>/dev/null)
 if [ -n  "$PDBSEXIST" ];then ...
 
-# Use rough date to find files earlier older than the last time you looked
-find '//Bredsntp002/uk_gms_wre_data_area/GDM Reporting Profiles/DATAPOST/Verified/' -newer /cygdrive/u/tmp/mdes.timestamp && touch $u/tmp/mdes.timestamp
-
+# Use rough date to find files earlier older than the last time you looked:
+find '//Bredsntp002/GDM Reporting Profiles/DATAPOST/Verified/' -newer /cygdrive/u/tmp/mdes.timestamp && touch $u/tmp/mdes.timestamp
 # Finding files between datestamp June 26 and June 30 (midnight):
 touch -t 200406260000 /tmp/t1 && touch -t 200406300000 /tmp/t2
 find . -newer /tmp/t1 ! -newer /tmp/t2
@@ -2926,7 +2917,7 @@ find . -newer /tmp/t1 ! -newer /tmp/t2
 # Watch, poll, directory for new files (but won't notice files copied with older timstamps)
 touch /tmp/f1 && while true;do find /home -newer /tmp/f1 2>/dev/null;touch /tmp/f1;sleep 5;done
 
-# Recursive touch
+# Recursively update timestamps on all files and directories from current one downward:
 $ find . -type f -mtime -40 -name '*sas' | xargs touch
 # Recursive touch(1) for dirs that might have spaces in names
 $ find from -print0 |xargs -0 touch
@@ -2975,9 +2966,6 @@ find . -inum 123 -ok rm {} \;
 find . -inum 123 | xargs rm -i;
 find . -inum 123 -exec rm -i {} \; 
 
-# Recursively update timestamps on all files and directories from current one downward:
-find . | xargs touch
-
 # Find files except for file named foo.log:
 find -name 'foo????' -a ! -name '*.log'
 
@@ -2997,7 +2985,7 @@ find $u/foodir -perm 000 |xargs chmod 755
 # Copy all the files in a directory tree into the same, one, single, large directory, preserving their properties:
 find . -type f -exec cp -p {} newdir/ \;
 
-# Collect all user's .bash_history files
+# Collect all user's .bash_history files into one file:
 find / -type f -name .bash_history | xargs cat > /tmp/history.txt
 
 # Find all dead symlinks and remove them:
@@ -3010,8 +2998,6 @@ find / -print | grep 'fin.*me'
 echo "This is a test." > /dev/lp0
 echo "Please ignore this print job." > /dev/lp0
 echo "^L" > /dev/lp0
-
-$ sort junk | uniq >| junk
 
 # Count number of blank (including whitespace chars) lines in Unix fmt textfile (see vi solution for better answer):
 cat foo.txt | awk ' /^['\ '|'\\t']*$/ { ++x } END{ print "Blanks = " x } '
@@ -3098,7 +3084,7 @@ set scale=3
 (echo obase=2; echo ibase=16; echo F) | bc  # 1111
 (echo obase=10; echo ibase=2; echo 1111) | bc  # 15
 
-# Binary addition subtraction multiplication division in bc:
+# Binary addition subtraction multiplication division in bc calculator:
 ibase=2;obase=2
 
 # Find size of certain files in dir:
@@ -3241,11 +3227,11 @@ rpm -Uvh foo.rpm          # install
 rpm -qa | grep -i pine    # determine if a pine RPM has been installed
 rpm -e emacs              # remove
 
-Athena scrollbars        middle mouse to drag the scroll bar up and down
-Athena scrollbars High   left mouse scrolls one line up
-Athena scrollbars Low    left mouse scrolls one page up
-Athena scrollbars High   right mouse scrolls one line down
-Athena scrollbars Low    right mouse scrolls one page down
+# Athena scrollbars        middle mouse to drag the scroll bar up and down
+# Athena scrollbars High   left mouse scrolls one line up
+# Athena scrollbars Low    left mouse scrolls one page up
+# Athena scrollbars High   right mouse scrolls one line down
+# Athena scrollbars Low    right mouse scrolls one page down
 
 # Checkout a repository on a remote machine:
 export CVSROOT=:ext:rheckel@parsifal:/home/rheckel/repository && cvs co eandb
@@ -3275,10 +3261,10 @@ prtconf -pv
 
 # Echo rxvt text in color (type  echo "foo" with this after foo and before the closequote:  Ctrl-V Esc then [0;31;40mThis Is In Red")
 
-A reasonable xterm font:
+# A reasonable xterm font:
 -b&h-arial-medium-*-*-*-12-*-*-*-*-*-iso8859-1
 
-Cygwin/Linux - to get man -k working, must run makewhatis, Solaris must run catman
+# Cygwin/Linux - to get man -k working, must run makewhatis, Solaris must run catman
 
 # Cut a specific part of a line of text (assumes you know number of fields):
 echo 'foo_bar_baz' | cut -d'_' -f1     <---returns baz
@@ -3649,7 +3635,7 @@ for y in 2003 2004 2005; do for e in NAT MOR FET; do mkdir -p mvds/$e/$y; done;
 
 # Paragrep.  Print select blank line separated paragraph if word is found:
 sed -e '/./{H;$!d;}' -e 'x;/illegal/!d;' bladerun_crawl
-# Less unintelligible but ff=unix is mandatory:
+# Less unintelligible paragrep but ff=unix is mandatory:
 perl -ne '$/="";@p=<>;for $p(@p){print "$p\n" if $p=~/illegal/;}' <bladerun_crawl
 
 # Debug .bashrc trouble on Cygwin without sourcing config file clean bashrc
@@ -3771,7 +3757,7 @@ svcs -x   # which failed to start
 svcadm disable sendmail
 svcs -v sendmail
 
-# Compare two Word docs using a temporary fifo(?) pipe.  Probably bash only.
+# Compare two Word docs using a temporary fifo(?) pipe:
 $ vi -d <(antiword 1.doc) <(antiword 2.doc)
 $ vi -d <(antiword Client\ Feedback\ Report\ clm_ID0509_TXT.doc) <(antiword Ctwo.doc)
 
@@ -4060,7 +4046,7 @@ urxvt-X.exe -display 127.0.0.1:0.0 -bc -e /bin/bash --login
 # Create empty directories and subdirs (skip files) TODO NOT SAFE FOR DIRS WITH SPACES:
 mkdir -p $c/datapost && find * -type d | while read d; do mkdir $c/datapost/${d}; done
 
-# bash calculator:
+# bash calculator if bc isn't installed:
 echo $[(5*3)-2]
 
 # For Windows users who don't have tar and gzip:
@@ -4302,7 +4288,7 @@ scp -r /Drugs/Drugs/AcmeControl bheckel@sas-01.twa.taeb.com:tmp/
 sudo yum install vim-enhanced.x86_64
 sudo yum install postgresql  # psql
 
-# CentOS reboot
+# CentOS reboot:
 sudo shutdown -r now
 
 # Sync a remote directory to the local system.  -a syncs recursively, preserves symlinks, special and device files, modification times, group, owner, and permissions, -P gives progress bar for the transfers and allows resume interrupted transfers
@@ -5314,7 +5300,11 @@ select * from v$instance;
 -- Oracle userid
 EXECUTE IMMEDIATE q'[ SELECT sys_context('setars_context', 'employee_id') from dual ]' INTO whoami;
 
-SELECT INSTR('CORPORATE FLOOR','OR', 3, 2) FROM dual  -- 14 here, 0 if not found
+-- Oracle substring:
+SELECT SUBSTR('CORPORATE FLOOR', 2, 4) FROM dual  -- ORPO
+
+-- Oracle find in string. searches beginning with the third character (R) for the second instance of the substring OR. It returns the value 14, which is the position of the second O in FLOOR
+SELECT INSTR('CORPORATE FLOOR','OR', 3, 2) FROM dual  -- 0 if not found
 
 -- Overflows using PLS_INTEGER ok with INTEGER:
 DECLARE p1 PLS_INTEGER := 2147483647; p2 INTEGER := 1; n NUMBER; BEGIN n := p1 + p2; END; /
@@ -5330,6 +5320,8 @@ ALTER USER heckel WITH PASSWORD 'myPass';
 alter table CONTAC add constraint NN_CONTAC_ORIGIN_LOV_ID check("ORIGIN_LOV_ID" IS NOT NULL);
 
 alter table movies add primary key ( name )
+EXECUTE IMMEDIATE 'ALTER TABLE EMAIL_MESSAGES ADD CONSTRAINT EMAIL_MESSAGES_PK PRIMARY KEY (EMAIL_MESSAGES_ID)';
+CREATE TABLE plch_employees ( employee_id   INTEGER PRIMARY KEY, last_name  VARCHAR2 (100), salary  NUMBER (3))
 
 -- Rename Oracle table:
 ALTER TABLE user_role1 RENAME TO user_role2;
@@ -5362,8 +5354,9 @@ WHERE UPPER(mat_desc) LIKE '%\_TH%' ESCAPE '\'
 
 define_editor="C:\Program Files (x86)\Vim\vim74\gvim.exe -u C:\Users\obheck\_gvimrc"
 
--- Oracle date constant TIMESTAMP '2012-10-29 12:01:01'
+-- Oracle date constants literals:
 select DATE '1978-12-25' from dual;
+select TIMESTAMP '2012-10-29 12:01:01' from dual
 
 -- Set zero to null:
 to_char(CASE WHEN a.result_number=0 THEN null ELSE a.result_number END) as result_number
@@ -5405,16 +5398,12 @@ select object_name, object_type from user_objects where object_type in ('VIEW','
 -- Oracle which objects are invalid objects:
 select * from user_objects o where object_type != 'JAVA CLASS' and status = 'INVALID' ORDER BY last_ddl_time;
 
--- Who to blame for invalid object last modified compiled an Oracle object:
-SELECT * FROM DDL_EVENT WHERE event_date>sysdate-1 and ora_dict_obj_name='MYOBJ' ORDER BY DDL_EVENT_ID DESC
--- What SQL was run by that user:
-select * from DDL_EVENT de, ddl_event_sql des where de.ddl_event_id = des.event_id and de.event_date>'08nov2018' and de.osuser='scmk' order by de.event_date desc, des.sql_line  
-
 -- Oracle recompile entire schema's invalid objects:
 EXEC DBMS_UTILITY.compile_schema('SETARS', false);
 
 -- Oracle date subtraction:
-where lc.updated >= TRUNC(SYSDATE - (365 * 2)) -- 2 year window
+where lc.updated >= SYSDATE - (365 * 2) -- 2 year window
+SELECT DATE '2019-03-05' - (365 * 2) FROM dual  -- 3/5/2017
 
 -- Oracle function declaration default parameter:
 FUNCTION hasLinkages(in_accountId NUMBER, in_contextBeingUsed NUMBER DEFAULT 2) RETURN NUMBER;
@@ -5530,6 +5519,7 @@ select * from activity_log where trunc(activity_dt)=TO_DATE('16-JAN-06','DD-MON-
 select TO_DATE('15-may-2006 16:00:01','dd-mon-yyyy hh24:mi:ss') from dual; -- 15-May-06 04:00:01 PM
 
 -- Oracle date between
+select count(distinct sampname) from result where sampcreatets between to_date('01-JAN-12','DD-MON-YY') and to_date('31-DEC-12','DD-MON-YY')
 (TEST_END_DATE BETWEEN TO_DATE('2012-09-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE('2014-06-13 23:59:59', 'YYYY-MM-DD HH24:MI:SS'))
 SS.EntryTs >= TO_DATE('01-JAN-05','DD-MON-YY') AND SS.EntryTs <= TO_DATE('31-DEC-05','DD-MON-YY')
 -- SQL Server date between
@@ -5643,6 +5633,9 @@ SELECT (systimestamp - INTERVAL '0.001' SECOND), SYSTIMESTAMP, (SYSDATE - INTERV
 
 -- Oracle 15 minutes ago:
 SELECT CURRENT_TIMESTAMP - NUMTODSINTERVAL(15, 'MINUTE') FROM dual
+
+-- What is my current schema name:
+select sys_context( 'userenv', 'current_schema' ) from dual;
 
 -- List all Oracle tables:
 SELECT owner, table_name FROM all_tables where owner = 'myschema';
@@ -6067,17 +6060,21 @@ WHERE batch_time > '2008-02-13'
 
 SELECT * FROM DICTIONARY WHERE table_name like 'USER%' ORDER BY table_name;  -- Oracle
 
- /* Exclude null/missing values: */
-where Profit < 0 and Profit IS NOT NULL
- /* On the other hand, if you do want to include null/missing values: */
-where Profit < 0 or Profit IS NULL  /* just 'where Profit < 0' will wrongly skip the nulls because the result of comparing NULL to anything is unknown, not < 0 */
- /* Oracle way: */
-where nvl(Profit, -1) < 0
+-- Won't include nulls as Profit because the result of comparing NULL to anything is unknown, not < 0:
+where Profit < 15 
+--  Will include null/missing values as Profit:
+where Profit < 15 or Profit IS NULL
+-- Better Oracle way to include nulls (you no longer need a separate "or column is null" test):
+where NVL(Profit, 0) < 15
+coalesce(patriots_didnt_cheat, honest_salesman, lowprice_at_disney, emacs_is_great, 0) coalesce_approach_1st_nonnull_is_returned
+
+-- Return anything but Y, regardless of existence of nulls (where val != 'Y' would not include any nulls):
+select * from basic_data where lnnvl(val = 'Y')
 
 select colour, shape, weight from bricks order by weight desc fetch first 2 rows with ties;  -- Oracle 12c +
 select empno, ename, sal, deptno from  emp order by sal desc fetch first 20 percent rows only;
 
--- Oracle generate random number dice:
+-- Oracle generate random number roll dice:
 SELECT DBMS_RANDOM.VALUE(1, 6) FROM dual  -- 3.32932424
 SELECT trunc(DBMS_RANDOM.VALUE(1, 6)) FROM dual  -- 3
 SELECT ADD_MONTHS(SYSDATE, -1 * DBMS_RANDOM.VALUE(1, 6)) FROM dual  -- 8/29/2018 11:20:27 AM  or 9/29...etc
@@ -6102,7 +6099,8 @@ FUNCTION get_dept_info(dept_id NUMBER) RETURN dept_info_record RESULT_CACHE;
 
 CREATE SEQUENCE UID_OPPORTUNITY_OPT_OUT MINVALUE 1000 MAXVALUE 999999999999999999999999999 START WITH 1001 INCREMENT BY 1 CACHE 5;
 
-SELECT GREATEST(SYSDATE, to_date('01JAN29', 'YYYY-MM-DD HH24:MI:SS')) FROM dual
+-- Choose highest value in list:
+SELECT GREATEST(SYSDATE, to_date('01JAN2029'), to_date('01jan2030')) FROM dual
 
 -- sqlplus BOOLEAN parameters are translated from/to integers 0/1/null <--> false/true/null:
 in_debug boolean := sys.diutil.int_to_bool(:in_debug);
@@ -6173,18 +6171,15 @@ INSERT INTO email_messages (EMAIL_MESSAGES_ID, subject) VALUES (uid_email_messag
 \d
 
 -- Canonical SQL count function 
-COUNT(*)                returns the number of rows in a table
-COUNT(DISTINCT ColName) returns the number of unique values for column ColName (can't use * !)
-COUNT(ColName)          returns the number of rows that have a non null value for ColName
+COUNT(*)                -- returns the number of rows in a table
+COUNT(ColName)          -- returns the number of rows that have a non null value for ColName
+COUNT(DISTINCT ColName) -- returns the number of unique values for column ColName (can't use * )
 
 -- Faster alternative to max() on unindexed table:
 select filldate from rxfilldata_201709 where clientid=19 order by 1 desc limit 1 ;
 
 -- KEEP analytic to get person with lowest salary in each dept (without using correlated self join subquery).  "Carry" additional column values through the standard GROUP BY aggregation syntax:
 select deptno, min(sal), min(empno) KEEP ( dense_rank FIRST order by sal) empno from emp group by deptno
-
--- Want percentage of total salary:
-100*ratio_to_report(sal) over () as pct_sal
 
 -- Group by quarter:
 ...group by prod_category, to_char(trunc(time_id,'Q'),'MON')
@@ -6196,6 +6191,31 @@ order by to_date(quarter,'MON')
 select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2
 
 EXPLAIN PLAN FOR SELECT * FROM email_messages WHERE actual_updated > (SYSTIMESTAMP - INTERVAL '42' minute); select * from table(dbms_xplan.display);
+
+SELECT LAST_DAY(DATE '2019-01-01') last_day_of_month FROM dual
+lastDayOfQuarter := LAST_DAY(TO_DATE(to_char((payoutQuarter * 3), '00') || '/01/' || targetYear, 'mm/dd/YYYY'));
+
+-- Want quarter in which a date falls:
+SELECT to_char(TRUNC(DATE '2019-11-20','Q'), 'MON') FROM dual -- OCT
+
+-- View all details of Oracle table:
+select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES','SETARS') from dual;
+-- View some details of Oracle table (like DESC in sqlplus):
+select column_name, nullable, concat(concat(concat(data_type,'('),data_length),')') from user_tab_columns where table_name = 'EMAIL_MESSAGES';
+
+-- Find Oracle data dictionary user_tables etc from which to further query:
+select * from DICTIONARY WHERE table_name LIKE 'USER%' ORDER BY 1
+
+-- Implicit cursor:
+FOR rec IN (SELECT * FROM err$_employees) LOOP DBMS_OUTPUT.put_line (rec.ora_err_mesg$); END LOOP;
+
+CREATE OR REPLACE TRIGGER on_schema_mod_trigger AFTER ALTER OR CREATE ON scott.SCHEMA WHEN (ORA_DICT_OBJ_TYPE = 'TABLE') BEGIN dbms_output.put_line('ok'); END;
+ALTER TABLE t ADD x NUMBER;
+
+-- Split string into pieces chunks 5 chars wide:
+select regexp_substr(s, '.{5}', 1, lvl) chunk from (select s, level lvl from (select '00000111112222233333' s from dual) connect by level <= length(s) / 5)
+-- or into 2 chunks of 18:
+with data as (select '00000111112222233333' s from dual) select substr(s, (level-1)*18+1, 18) chnk from data connect by level <= 2   
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6659,8 +6679,6 @@ application/xhtml+xml
 Virtual Box after setting \code (put the mount cmd in /etc/rc.local for debian distros)
 mkdir ~/code; sudo mount -t vboxsf -o uid=1000,gid=1000 code /home/rheckel/code
 
--- Oracle not equal !=
-
 /* Linking to external CSS stylesheet: */
 <head><link rel="stylesheet" type="text/css" href="stylesheet.css" /></head>
 
@@ -6804,7 +6822,7 @@ git checkout -- DataPost_Configuration.map
 git checkout .   # abandon all pending changes "not staged for commit"
 # git revert discard a pull:
 git reset --hard ORIG_HEAD; git gc;
-# Abandon a merge collision (remove conflict markers from the file but you still have merge conflicts when you do git pull next time):
+# Abandon discard a merge collision (remove conflict markers from the file but you still have merge conflicts when you do git pull next time):
 git merge --abort  # or git reset --merge
 # Use the other guy's commit on collision:
 git reset --merge 2e40a3
@@ -6812,7 +6830,7 @@ git reset --merge 2e40a3
 # Throw away a restored stash (or any changes really):
 git checkout .
 
-# ls list which files are tracked under git source control not just staged:
+# ls for git list which files are tracked under git source control not just staged:
 git ls-files 
 
 # git edit modify rewrite previous existing git commit message:
@@ -6850,7 +6868,7 @@ git branch -m mynewbranchname
 
 git branch mynewbranch master  # copy branch from a specific branch, in this case master, to new branch
 
-git add README  # use git add -f README to force add if it's excluded by .gitignore
+git add unforced.txt  # use git add -f README to force add if it's excluded by .gitignore
 
 git clone https://github.com/grayghostvisuals/Practice-Git.git
 # But may need this first or instead of remote add if your clone was git clone git://github.com/bheckel/misc.git
@@ -6895,8 +6913,6 @@ var foo="hello"; var bar="world"; console.log(foo + " " + bar);
 
 // JQuery chainable
 $('.myclass').css('background','red'}).height(100);
-
-select count(distinct sampname) from result where sampcreatets between to_date('01-JAN-12','DD-MON-YY') and to_date('31-DEC-12','DD-MON-YY')
 
 :: Which version of Windows are you running?: c:\> ver
 
