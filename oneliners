@@ -5492,7 +5492,7 @@ Oracle YYYYMMDDHH24MISS date vaguely like epoch: 20070304184943
 -- Oracle SQL*Plus (like SELECT TOP 10 *... in SQL Server)
 select * from activity_log where rownum<10;
 
--- Oracle last month months ago:
+-- Oracle last month months ago date calc:
 select ADD_MONTHS(sysdate,-1) from dual;
 
 dbms_output.put_line('rpt at: ' || TO_CHAR(sysdate, 'dd-mon-yy hh:mipm'));
@@ -5631,11 +5631,8 @@ SELECT sysdate INTO l_now FROM DUAL; LOOP EXIT WHEN l_now +(60 * (1 / 86400)) = 
 -- Oracle date calculations:
 SELECT (systimestamp - INTERVAL '0.001' SECOND), SYSTIMESTAMP, (SYSDATE - INTERVAL '1' MONTH) FROM dual
 
--- Oracle 15 minutes ago:
-SELECT CURRENT_TIMESTAMP - NUMTODSINTERVAL(15, 'MINUTE') FROM dual
-
--- What is my current schema name:
-select sys_context( 'userenv', 'current_schema' ) from dual;
+- Oracle date calculation 15 minutes ago (sysdate won't work here):
+SELECT CURRENT_TIMESTAMP - NUMTODSINTERVAL(15, 'MINUTE') localtime, systimestamp - NUMTODSINTERVAL(15, 'MINUTE') utcsometimes FROM dual
 
 -- List all Oracle tables:
 SELECT owner, table_name FROM all_tables where owner = 'myschema';
@@ -5646,6 +5643,16 @@ SELECT table_name, column_name FROM cols WHERE lower(table_name) LIKE 'accou%' A
 select * from dba_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
 
 select * from SYS.USER_SOURCE t WHERE t.TYPE='PACKAGE BODY' AND (upper(t.TEXT) LIKE '%CONSTANT%' OR UPPER(t.text) LIKE '%TYPE%')
+
+-- What is my current schema name:
+select sys_context('userenv', 'current_schema' ) from dual;
+-- View all details of Oracle table:
+select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES','SETARS') from dual;
+-- View some details of Oracle table (like DESC in sqlplus):
+select column_name, nullable, concat(concat(concat(data_type,'('),data_length),')') from user_tab_columns where table_name = 'EMAIL_MESSAGES';
+
+-- Find Oracle data dictionary user_tables etc from which to further query:
+select * from DICTIONARY WHERE table_name LIKE 'USER%' ORDER BY 1
 
 -- SQL Server list information about each owner's table in a database:
 select * from information_schema.tables where table_type='BASE TABLE' and table_schema='rheckel'
@@ -5998,9 +6005,9 @@ SELECT Name, Day FROM Customers, Reservations;
 -- A shirt manufacturer with many different products. They have a set of sizes (S, M, L, etc.). They create each shirt in every size. You need to generate stock rows for every shirt in every size:
 select * from shirts cross join shirt_sizes
 
--- Oracle unconditional multitable insert:
+-- INSERT ALL the shorthand multi-table INSERT (unconditional):
 insert all  into teddies values ('Dinosaur King', 'red')  into bricks values ('sphere', 'green', 100)  select * from dual
-
+-- INSERT ALL the shorthand multi-table INSERT (conditional):
 insert all into people values (full_name) when hire_date is not null then into staff values (hire_date) when nhs_number is not null then into patients values (nhs_number) select * from people_details;
 
 -- Oracle which database are we on?:
@@ -6106,7 +6113,7 @@ SELECT GREATEST(SYSDATE, to_date('01JAN2029'), to_date('01jan2030')) FROM dual
 in_debug boolean := sys.diutil.int_to_bool(:in_debug);
 
 -- Sample database table with 1 column and 10 rows:
-CREATE TABLE t AS SELECT LEVEL FROM dual CONNECT BY LEVEL <=10;
+CREATE TABLE t AS SELECT LEVEL mylevel FROM dual CONNECT BY LEVEL <=10;
 -- Sample database table 5 years 2018-01-02 to 2022-12-31:
 create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dual connect by level <= 365*5;
 
@@ -6184,9 +6191,6 @@ select deptno, min(sal), min(empno) KEEP ( dense_rank FIRST order by sal) empno 
 -- Group by quarter:
 ...group by prod_category, to_char(trunc(time_id,'Q'),'MON')
 
--- Order by date month:
-order by to_date(quarter,'MON')
-
 -- Modified analytic outer join to get every hr, every room and who reserved it:
 select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2
 
@@ -6198,13 +6202,8 @@ lastDayOfQuarter := LAST_DAY(TO_DATE(to_char((payoutQuarter * 3), '00') || '/01/
 -- Want quarter in which a date falls:
 SELECT to_char(TRUNC(DATE '2019-11-20','Q'), 'MON') FROM dual -- OCT
 
--- View all details of Oracle table:
-select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES','SETARS') from dual;
--- View some details of Oracle table (like DESC in sqlplus):
-select column_name, nullable, concat(concat(concat(data_type,'('),data_length),')') from user_tab_columns where table_name = 'EMAIL_MESSAGES';
-
--- Find Oracle data dictionary user_tables etc from which to further query:
-select * from DICTIONARY WHERE table_name LIKE 'USER%' ORDER BY 1
+-- Quarter in which date falls.  qtr is all '01-JAN-10', qtrnum is all '1':
+create table t1 as select date '2010-01-01'+rownum x, rownum y  from dual connect by level <= 35; select x, TRUNC(x,'Q') qtr, to_char(TRUNC(x,'Q'), 'Q') qtrnum from t1
 
 -- Implicit cursor:
 FOR rec IN (SELECT * FROM err$_employees) LOOP DBMS_OUTPUT.put_line (rec.ora_err_mesg$); END LOOP;
@@ -6212,10 +6211,19 @@ FOR rec IN (SELECT * FROM err$_employees) LOOP DBMS_OUTPUT.put_line (rec.ora_err
 CREATE OR REPLACE TRIGGER on_schema_mod_trigger AFTER ALTER OR CREATE ON scott.SCHEMA WHEN (ORA_DICT_OBJ_TYPE = 'TABLE') BEGIN dbms_output.put_line('ok'); END;
 ALTER TABLE t ADD x NUMBER;
 
--- Split string into pieces chunks 5 chars wide:
+-- Split string into pieces chunks 5 chars wide based on length:
 select regexp_substr(s, '.{5}', 1, lvl) chunk from (select s, level lvl from (select '00000111112222233333' s from dual) connect by level <= length(s) / 5)
--- or into 2 chunks of 18:
+-- Split string into pieces chunks 5 chars wide based on length:
+with data as (select '00000111112222233333' s from dual) select substr(s, (level-1)*5+1, 5) chnk from data connect by level <= length(s) / 5
+with data as (select '00000111112222233333' s, 5 len from dual) select substr(s, (level-1)*len+1, len) chnk from data connect by level <= length(s)/len
+-- Split string into pieces chunks into 2 chunks of 18:
 with data as (select '00000111112222233333' s from dual) select substr(s, (level-1)*18+1, 18) chnk from data connect by level <= 2   
+
+CREATE TABLE zorion35282 (a NUMBER, b NUMBER, c NUMBER, d NUMBER, e NUMBER, f NUMBER, g NUMBER)
+INSERT INTO zorion35282 VALUES (1, 2,3,4,5,6,7); COMMIT;
+ALTER TABLE zorion35282 RENAME COLUMN a3 TO a4;
+ALTER TABLE zorion35282 ADD  SQL_TEXT_ALL CLOB
+ALTER TABLE zorion35282 DROP COLUMN SQL_TEXT_ALL 
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 

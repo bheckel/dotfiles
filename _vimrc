@@ -383,9 +383,6 @@ set notildeop
 
 "                               14 tabs and indenting {{{2
 
-" :retab to convert tabs to 2 spaces
-set tabstop=2
-
 set shiftwidth=2
 
 " Tabs expanded to spaces.  Replaces the tabs you create when pressing <tab>
@@ -394,6 +391,9 @@ set shiftwidth=2
 " Without this, doing an 'o' on an indented line, or a '>>' anywhere, inserts a
 " new line that starts with one or more tabs.
 set expandtab
+
+" :retab to convert tabs to 2 spaces
+set tabstop=2
 
 set cinwords=if,elsif,else,while,do,for,switch,unless,until,when,otherwise,BEGIN,END
 
@@ -1687,6 +1687,8 @@ if !exists("autocommands_loaded")
   " Don't wrap these
   au BufRead,BufEnter *.htm*,*.cgi,*/tmp/bash*,afiedt.buf,*.sql set tw=0 wm=0
 
+  " 06-Feb-19 getting tab indentation some reason - block for now:
+  " au BufRead,BufEnter *.sql,afiedt.buf set noexpandtab
   au BufRead,BufEnter *.sql,afiedt.buf iab LI limit 10
   au BufRead,BufEnter *.sql,afiedt.buf iab OB order by 1
   au BufRead,BufEnter *.sql,afiedt.buf iab SF select * from
