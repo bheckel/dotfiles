@@ -2481,8 +2481,9 @@ dobq = quote(put(dob, yymmddd10.), "'");
  /* This month's number: */
 %put %sysfunc(month("&SYSDATE"d));
 
- /* Group by month count by month: */
+ /* Group by month counts by month: */
 proc sql; select count(distinct taebpatientid), month(filldate) from statin_final group by 2; quit;
+SELECT COUNT(u.msg), EXTRACT(YEAR FROM u.execute_time), EXTRACT(MONTH FROM u.execute_time)  FROM User_Oncall_Results u GROUP BY EXTRACT(YEAR FROM u.execute_time), EXTRACT(MONTH FROM u.execute_time)  ORDER BY 2,3
 
 proc ds2; thread thr / overwrite=yes; method run(); set { select  a.*, coalesce(b.gpi,a.productid) as gx, b.drugname as dx from l.rxfilldata as a left join l.medispan as b on a.ndc=b.ndc_upc_hri }; end; endthread; run; quit; proc ds2 scond=error; data rxfilldata0; declare thread thr thr_instance; method init(); end; method run(); set from thr_instance threads=4; end; enddata; run; quit;
 
@@ -3355,7 +3356,7 @@ cat foo.txt | awk '/OnlyTheseLines/{t+=$1} END{print t}'
 # or sum list
 for u in bxj9 cmc6; do du -sk $u|awk '{print $1}'; done | awk '{t+=$1} END{print t}'
 
-Poor man's editor (create new file only) using HEREDOC:
+# Poor man's editor (create new file only) using HEREDOC:
 cat > myfile.txt <<.    <---<CR>, then type, then end with . on it's own line
 
 # Print user id who created file
@@ -5642,6 +5643,8 @@ SELECT table_name, column_name FROM cols WHERE lower(table_name) LIKE 'accou%' A
 
 select * from dba_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
 
+-- Source code of compiled database objects:
+select text from SYS.USER_SOURCE t WHERE t.name='ORION34858'
 select * from SYS.USER_SOURCE t WHERE t.TYPE='PACKAGE BODY' AND (upper(t.TEXT) LIKE '%CONSTANT%' OR UPPER(t.text) LIKE '%TYPE%')
 
 -- What is my current schema name:
@@ -6224,6 +6227,13 @@ INSERT INTO zorion35282 VALUES (1, 2,3,4,5,6,7); COMMIT;
 ALTER TABLE zorion35282 RENAME COLUMN a3 TO a4;
 ALTER TABLE zorion35282 ADD  SQL_TEXT_ALL CLOB
 ALTER TABLE zorion35282 DROP COLUMN SQL_TEXT_ALL 
+ALTER TABLE email_messages MODIFY msgbody VARCHAR2(63)
+
+-- First and last day of last year:
+SELECT ADD_MONTHS(TRUNC(SYSDATE,'YEAR'), -12) jan_prev_yr, ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), -1) +30 dec_prev_yr FROM dual
+
+-- Enquote a date with single quotes:
+quoteddatestring := chr(39) || to_char(SYSDATE - 1, 'DDMONYY') || chr(39);
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6764,9 +6774,6 @@ let sorted_list = reverse(sort(copy(unsorted_list)))
 Pretty print indent XML
 xmllint --format t.xml
 
--- Compare Oracle schemas
-select count(*), object_type from dba_objects where owner='PKS' group by object_type;
-
 <div id="divTestArea3" style="width:50px; height:50px; display:none; background-color:#89BC38;"></div>
 
 <a href="javascript:void(0);" onclick="alert('Hello, world!');">Test</a>
@@ -6782,13 +6789,14 @@ cygcheck -cv w3m  # is package OK?
 
 # git snapshot
 git stash  && git stash apply
-git stash --include-untracked 'my named stash' && git stash apply 
 
 # git stash restore
 git stash list
 git stash pop
 # or if >1 exist
 git stash apply stash@{1}
+
+git stash save --include-untracked -m 'mynamedstash'
 
 # Delete ALL stashes:
 git stash clear 
@@ -6808,34 +6816,33 @@ git checkout -b mynewbranch  # same
 # git poke around:
 git status; git log; git branch -a; git remote -v; git remote show origin;
 
-# git commit mantra git mantra:
-git add . && git commit -m 'cleanup' && git push origin master
-
 # github commit mantra (github is origin, PUSH TO):
-git add _bashrc _vimrc oneliners && git commit -m 'mod' && git push origin master
+git add . && git commit -m 'mod' && git push origin master
 
 # git merge something into master branch:
 git checkout master && git merge mynewbranch && git branch -d mynewbranch
 
-# If you 'git add' a file to the staging area by mistake, use the following command to unstage back to working area:
+# If you 'git add' a file to the staging area by mistake, unstage it back to working area:
 git reset whoops_undo_unstageme.txt
-# Discard all commits (or staged files) after commit c4c9473 and bring changed code AFTER that into the working area:
+
+# Disaster discard abandon all commits (or staged files) after the previous commit and reset files to that older/good commit (ignoring any untrackeds!):
+git reset --hard HEAD^  # or git reset --hard HEAD~1 for DOS  or git reset --hard c4c9473 if it's not the previous you want to go back to but rather AFTER commit c4c9473
+# Discard abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area:
 git reset c4c9473
-# Discard all commits AFTER commit c4c9473 and will changed code after that into the staging area:
+# Discard abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area and leave your INDEX alone - lightest touch:
 git reset --soft c4c9473
-# Discard all commits AFTER commit c4c9473 and destroy all changed code after that (ignoring any untrackeds!)
-git reset --hard c4c9473
-# git revert discard throw away trash changes staged:
+
+# git revert abandon discard throw away trash changes staged:
 git checkout -- DataPost_Configuration.map
 git checkout .   # abandon all pending changes "not staged for commit"
 # git revert discard a pull:
 git reset --hard ORIG_HEAD; git gc;
-# Abandon discard a merge collision (remove conflict markers from the file but you still have merge conflicts when you do git pull next time):
+# Abandon discard a merge collision (remove conflict markers "master|MERGING" from the file but you still have merge conflicts when you do git pull next time):
 git merge --abort  # or git reset --merge
 # Use the other guy's commit on collision:
 git reset --merge 2e40a3
 
-# Throw away a restored stash (or any changes really):
+# Throw away discard trash a restored stash (or any changes really):
 git checkout .
 
 # ls for git list which files are tracked under git source control not just staged:
@@ -7066,9 +7073,6 @@ alert( Math.round(6.35 * 10) / 10); // 6.35 -> 63.5 -> 64(rounded) -> 6.4
 git branch --set-upstream-to=origin feature/ORION-33077  # ???now you can pull BUT this breaks pull requests so do this instead???:
 git checkout -b feature/ORION-33817 && git push --set-upstream origin feature/ORION-33817  # "Branch 'feature/ORION-33817' set up to track remote branch 'feature/ORION-33817' from 'origin'."
 
-:: Send To folder c:\temp
-%APPDATA%\Microsoft\Windows\SendTo
-
 Double arrows unicode « »
 
 # View git history of a file (--follow even if filename has changed, --all branches, -p all patches):
@@ -7081,5 +7085,11 @@ git list
 
 # Remove untracked files:
 git clean --dry-run
+
+:: Send To folder c:\temp
+%APPDATA%\Microsoft\Windows\SendTo
+
+:: Cygwin SendTo Properties
+C:\cygwin64\bin\mintty.exe -e c:\cygwin64\bin\vim
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

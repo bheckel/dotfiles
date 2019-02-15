@@ -1,9 +1,12 @@
+
+#                      git add           git commit              git push
+# UNTRACKED/UNSTAGED -----------> STAGED ----------> LOCAL REPO -------------> REMOTE REPO
+
 [color]
 	status = auto
 	diff = auto
 [core]
-	; pager = less -+F -+S -+X
-	pager = ""
+	pager = less -+F -+S -+X
 [diff]
 	tool = vimdiff
 [merge]

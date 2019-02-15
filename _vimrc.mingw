@@ -1,0 +1,22 @@
+" Usually for Git Bash
+" echo 'ok'
+
+if has('unix')
+  source /c/cygwin64/home/bheck/dotfiles/_vimrc
+else
+  source c:/cygwin64/home/bheck/dotfiles/_vimrc
+endif
+
+set diffopt+=algorithm:patience
+set noexpandtab
+
+map ;1 :silent! write! /c/temp/1<CR>
+map ;2 :silent! write! /c/temp/2<CR>
+map ;5 :silent! write! /c/temp/%:t<CR>
+map ;r :silent! read /c/temp/.vimxfer<CR>
+map ;w :. write! /c/temp/.vimxfer<CR>
+vmap ;w :'<,'>write! /c/temp/.vimxfer<CR>
+
+vnoremap <silent> y  "*y
+
+au BufWritePre,BufLeave * set nobomb

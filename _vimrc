@@ -652,10 +652,9 @@ iab HtT <table><CR>  <tr><td> </td></tr><CR><Left><Left></table>
 iab PeD require Data::Dumper; print STDERR "DEBUG: ", Data::Dumper::Dumper( %h ),"\n";
 " Use PeD for hash dumping, this for everything else on symbol table
 iab PeF open F, '>junkdumpmain'; for $s(sort keys %main::) { local *sym=$main::{$s}; print F "\\$$s is $$s\\n" if defined $sym; print F "\\@$s is @$s\\n" if defined @sym;}
-iab PeH foreach my $k ( sort keys %h ) { print "$k=$h{$k}\n"; }
 """iab PeO open FH, 'foo' or die "Error: $0: $!";<CR><CR>while ( <FH> ){<CR>}<Up>
 iab PeO open my $read, '<', $file or die "Error: $0: $!";<CR><CR>while ( <$read> ){<CR>}<Up>
-iab PeR #!/usr/bin/perl -w<CR><CR>use v5.10;<CR>
+iab PeR #!/usr/bin/perl<CR><CR>use warnings;<CR>use strict;<CR>use v5.10;<CR>
 iab PeW while ( (my $k, my $v) = each %h ) { print "$k=$v\\n"; }
 
 " SAS
@@ -1036,8 +1035,9 @@ noremap ;a :call WriteToFile(VTMP, '.vimxfer', 1)<CR>
 vnoremap ;a :call WriteToFile(VTMP, '.vimxfer', 1)<CR>
 noremap ;w :call WriteToFile(VTMP, '.vimxfer', 0)<CR>
 vnoremap ;w :call WriteToFile(VTMP, '.vimxfer', 0)<CR>
-" The non-overengineered version:
-" map ;w :'<,'>write! /c/temp/.vimxfer<CR>
+" The non-pathologically-overengineered version:
+" map ;w :. write! /c/temp/.vimxfer<CR>
+" vmap ;w :'<,'>write! /c/temp/.vimxfer<CR>
 
 " nnoremap ;sv :source $MYVIMRC<CR>
 
@@ -1256,7 +1256,8 @@ fu! BkupFile(vtpth)  " {{{2
     let s:all = s:head .'.'  . s:stamp 
   endif
 
-  exec("write! " . a:vtpth . "/" . s:all)
+  " exec("write! " . a:vtpth . "/" . s:all)
+  exec("silent write! " . a:vtpth . "/" . s:all)
 endfu  " }}}
 
 

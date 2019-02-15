@@ -1,15 +1,19 @@
 # _bashrc.mingw
 # Avoid using my monstrous .bashrc in MINGW environments
-# Modified: Mon 29 Oct 2018 12:07:07 (Bob Heckel)
+# Modified: Wed 13 Feb 2019 14:00:47 (Bob Heckel)
 
 set -o vi
+alias ..='cd ..'
 alias by=exit
 alias cod='git checkout develop'
 alias f=fg
 alias h='history|tail -n20'
+# alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
+alias gb='git branch'
 alias gpull='git pull'
+alias gpush='git push'
+alias gstash='git stash save --include-untracked'
 alias gs='git status'
-alias vi='vi -R'
 
 bak() {
   cp -iv ${1} ${1}.bak
@@ -18,7 +22,6 @@ bak() {
 # Git Log
 gl() {
   # e.g. gl mybranch 20
-  echo 'What changed between commits e.g. git difftool 2576255 2704773'
 	local branch=$1
   test  "x$branch" = "x" && branch='CURRENT BRANCH'
   local days=$2

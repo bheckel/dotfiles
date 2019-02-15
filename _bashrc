@@ -167,6 +167,14 @@ alias wget='wget -c'  # continue failures
 # Generic Functions  #{{{2
 #-----------------------------------
 
+# 'Windows-ish Start' a file or file manager in GUI
+case "$OSTYPE" in
+     cygwin) st() { explorer "${1:-.}"; } ;;
+  linux-gnu) st() { nautilus "${1:-.}"; } ;;
+    darwin*) st() { open     "${1:-.}"; } ;;
+          *) echo 'Unknown file manager.' >&2 ;;
+esac
+
 # cd lazy
 cdl(){
   command cd "$@" && command ls;
@@ -195,23 +203,6 @@ sesrm() {
 
 sesh() {
   ses|head
-}
-
-# 'Windows-ish Start' a file or file manager
-st() {
-  if [ $# = 0 ]; then
-    if [ $OSTYPE = 'cygwin' ];then
-      cygstart -x "$PWD"
-    else
-      thunar
-    fi
-  else
-    if [ $OSTYPE = 'cygwin' ];then
-      cygstart "$1"
-    else
-      thunar "$1" &
-    fi
-  fi
 }
 
 
