@@ -2802,6 +2802,8 @@ rsh zrtph128 'cat /home/rheckel/junk' | vi -
 ls -l | sort -r -n -k 5
 du -sh ~/bob/* | sort -h
 
+# Size of directory:
+$ du -sh ~/tmp
 # Top 20 largest files AND directories (Cygwin):
 sudo du -sk /saswork/* | sort -rn | head -n20  # must use the '*' or get dir tot only
 # Diskhogs
@@ -5381,12 +5383,25 @@ where decode(col1, col2, 1, 0) = 1  -- finds sameness of col1 & col2 - even if b
 -- Update table to new value if newloc not null otherwise leave it alone:
 update departments set location = decode(newloc, NULL, location, newloc);
 
+-- IF THEN ELSE database:
+CASE WHEN TO_CHAR(b.sample_status_date,'DY')='SAT' THEN 1 ELSE 0 END
+SELECT symbol, DECODE(earnings, 0, NULL, price / earnings)
+select dt, ticker, decode(transact, 'Buy', +1, -1)*qty qty 
+select prod_nm, DECODE(prod_grp,'MDPI','m','Solid Dose','sd','unk') from samp;
+DECODE(warehouse_id, 1, 'Southlake', 2, 'San Francisco', 3, 'New Jersey', 'Non-domestic') 
+CASE WHEN warehouse_id=1 THEN 'Southlake' WHEN warehouse_id=2 THEN 'San Francisco' WHEN warehouse_id=3 THEN 'New Jersey' ELSE 'Non-domestic' END
+
+-- PLSQL null comparison (DECODE is better):
+IF (updated1 = updated0) AND (updatedby1 = updatedby0) AND ( (search_match_code1 = search_match_code0) OR ((search_match_code1 IS NULL) AND (search_match_code0 IS NULL)) ) THEN
+
 -- Update only if value is NULL:
 UPDATE contact_note SET original_contact_id = contact_id WHERE contact_id IN (SELECT contact_id FROM zzorion32806) AND original_contact_ID IS NULL
 UPDATE contact_note SET original_contact_id = contact_id WHERE NVL(original_contact_id, -1) = -1
 
--- Counts of 0, 1 and NULL:
-SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,999)), POOR_CLOSEOUT_OPT_OUT FROM OPPORTUNITY_OPT_OUT GROUP BY POOR_CLOSEOUT_OPT_OUT
+-- Don't ignore NULLs in counts. Counts of 0, 1 and NULL (all same):
+SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,0)), POOR_CLOSEOUT_OPT_OUT FROM OPPORTUNITY_OPT_OUT GROUP BY POOR_CLOSEOUT_OPT_OUT
+SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,-1)), POOR_CLOSEOUT_OPT_OUT FROM OPPORTUNITY_OPT_OUT GROUP BY POOR_CLOSEOUT_OPT_OUT
+SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,99999)), POOR_CLOSEOUT_OPT_OUT FROM OPPORTUNITY_OPT_OUT GROUP BY POOR_CLOSEOUT_OPT_OUT
 
 INSERT INTO...; SAVEPOINT bobora; INSERT INTO...; ROLLBACK TO bobora;
 
@@ -5578,18 +5593,6 @@ CREATE OR REPLACE FUNCTION f RETURN SYS_REFCURSOR AS c SYS_REFCURSOR; BEGIN OPEN
 
 -- Strong cursor because Weak types do not have a RETURN clause.  SYS_REFCURSOR is always weak, almost always used with dynamic queries.
 DECLARE TYPE book_data_t IS REF CURSOR RETURN book%ROWTYPE;  cv book_data_t;  BEGIN ...
-
--- Oracle IF THEN ELSE
-(CASE WHEN TO_CHAR(b.sample_status_date,'DY')='SAT' THEN 1 ELSE 0 END)
-
--- Oracle CASE or IF-THEN-ELSE replacement:
-SELECT symbol, DECODE(earnings, 0, NULL, price / earnings)
-select dt, ticker, decode(transact, 'Buy', +1, -1)*qty qty 
---                                IF  THEN     IF       THEN  ELSE
-select prod_nm, DECODE(prod_grp,'MDPI','m','Solid Dose','sd','unk') from samp;
-
--- PLSQL null comparison (DECODE better?):
-IF (updated1 = updated0) AND (updatedby1 = updatedby0) AND ( (search_match_code1 = search_match_code0) OR ((search_match_code1 IS NULL) AND (search_match_code0 IS NULL)) ) THEN
 
 -- Canonical sqlplus
 SQL> define_editor=gvim
