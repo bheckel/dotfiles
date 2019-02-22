@@ -637,6 +637,11 @@ nnoremap ,hdr :-1read ~/code/sas/Headertmplt.sas<CR>
 " Use vim as a filter:
 $ printf 'a\nb\nc\nb\n' | vim - -es --not-a-term +'g/b/norm gUUixx' +2 +'norm yy2p' '+%p' '+qa!' | tr x z
 
+" Vimscript's wacky by-ref...:
+let sorted_list = reverse(sort(unsorted_list))
+" ...is almost always supposed to be:
+let sorted_list = reverse(sort(copy(unsorted_list)))
+
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSASxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -2481,10 +2486,6 @@ dobq = quote(put(dob, yymmddd10.), "'");
  /* This month's number: */
 %put %sysfunc(month("&SYSDATE"d));
 
- /* Group by month counts by month: */
-proc sql; select count(distinct taebpatientid), month(filldate) from statin_final group by 2; quit;
-SELECT COUNT(u.msg), EXTRACT(YEAR FROM u.execute_time), EXTRACT(MONTH FROM u.execute_time)  FROM User_Oncall_Results u GROUP BY EXTRACT(YEAR FROM u.execute_time), EXTRACT(MONTH FROM u.execute_time)  ORDER BY 2,3
-
 proc ds2; thread thr / overwrite=yes; method run(); set { select  a.*, coalesce(b.gpi,a.productid) as gx, b.drugname as dx from l.rxfilldata as a left join l.medispan as b on a.ndc=b.ndc_upc_hri }; end; endthread; run; quit; proc ds2 scond=error; data rxfilldata0; declare thread thr thr_instance; method init(); end; method run(); set from thr_instance threads=4; end; enddata; run; quit;
 
  /* Check does macrovariable &checkme exist: */
@@ -2664,16 +2665,13 @@ cat foo.txt | xargs -n1
 
 # Keep checking on dead server with a shell do-loop:
 while true; do ping -n 2 mainframe; date; sleep 600; done;
-# or
 while : ;do ping 47.143.212.20; sleep 600; done
-
 # Infinite loop from the command line:
 while [ true ]; do date; sleep 10; done;
 
 # Canonical shell do loop.  Do something in a loop 3 times:
-$ for i in 1 2 3; do echo 'bobh'; sleep $i; done
+$ for i in 1 2 3; do echo 'bash loop'; sleep $i; done
 
-# Remote copy syntax example
 rcp foo.txt zrtph128:/home/rheckel/tmp
 
 # On the REMOTE Unix box:
@@ -2755,8 +2753,7 @@ $ cat > foo                   # and start typing
 # or
 # cat >/mnt/floppy/brewery    # and start typing
 
-# Kill a user:
-$ kill -9 `ps -aef | grep jondoe | awk '{print $2}'`
+$ kill -9 `ps -aef | grep user_jondoe | awk '{print $2}'`
 for p in `pgrep httpd`; do kill -9 $p; done
 # Kill several related processes at once:
 ps | grep httpd | awk '{print $1}' | xargs kill -9
@@ -2798,10 +2795,9 @@ chmod -R 755 .
 #             -------remote----------   --local--
 rsh zrtph128 'cat /home/rheckel/junk' | vi -
 
-# Canonical sort by largest files (descending), assumes filesize is in 5th column
+# Sort by largest files (descending), assumes filesize is in 5th column:
 ls -l | sort -r -n -k 5
 du -sh ~/bob/* | sort -h
-
 # Size of directory:
 $ du -sh ~/tmp
 # Top 20 largest files AND directories (Cygwin):
@@ -2997,10 +2993,8 @@ find . -type l -print | perl -nle '-e || print' | xargs rm
 # Non-GNU find is restricted to finding entire filenames so use this:
 find / -print | grep 'fin.*me'
 
-# Test parallel printer (as root): Use Ctr-V Ctrl-l to get the ^L.  It sends a form feed to eject the paper.  Type the quotes around it literally.
-echo "This is a test." > /dev/lp0
-echo "Please ignore this print job." > /dev/lp0
-echo "^L" > /dev/lp0
+# Test parallel printer (as root): Use Ctr-V Ctrl-l to get the ^L.  It sends a form feed to eject the paper:
+echo "This is a test." > /dev/lp0; echo "Please ignore this print job." > /dev/lp0; echo "^L" > /dev/lp0
 
 # Count number of blank (including whitespace chars) lines in Unix fmt textfile (see vi solution for better answer):
 cat foo.txt | awk ' /^['\ '|'\\t']*$/ { ++x } END{ print "Blanks = " x } '
@@ -4418,6 +4412,9 @@ sudo timedatectl set-timezone America/New_York
 # Fix Linux timezone:
 sudo dpkg-reconfigure tzdata
 
+# Default shell bash variable:
+JIRA=${1:-99999999}
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -5281,8 +5278,6 @@ xxSCRIPTINGxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxDATABASExx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
--- Only those columns explicitly listed in the GROUP BY clause may appear un-aggregated (i.e. not as a parameter of an aggregate function) in the SELECT or HAVING clauses.  That usually means the SELECT is equal or shorter to the GROUP BY.
-
 -- Outer joins preserve the rows that don't match and pad the remaining columns with NULLs. OUTER keyword is optional. These words replace the comma between tablenames in old style Oracle (+) joins:
 LEFT OUTER JOIN
 
@@ -5357,9 +5352,11 @@ WHERE UPPER(mat_desc) LIKE '%\_TH%' ESCAPE '\'
 
 define_editor="C:\Program Files (x86)\Vim\vim74\gvim.exe -u C:\Users\obheck\_gvimrc"
 
--- Oracle date constants literals:
-select DATE '1978-12-25' from dual;
-select TIMESTAMP '2012-10-29 12:01:01' from dual
+-- Oracle date constants literals (client controls display format):
+select DATE '1978-12-25' from dual  -- midnight
+select to_date('1978-12-25 09:00 AM', 'YYYY-MM-DD HH:MI AM')  -- 9am
+-- Oracle datetime constants literals (client controls display format). Both are 29-OCT-12 12.01.01.123000000 PM:
+select TIMESTAMP '2012-10-29 12:01:01.123', to_timestamp('2012-10-29 12:01:01.123', 'YYYY-MM-DD HH:MI:SS.FF AM') from dual
 
 -- Set zero to null:
 to_char(CASE WHEN a.result_number=0 THEN null ELSE a.result_number END) as result_number
@@ -5387,8 +5384,8 @@ update departments set location = decode(newloc, NULL, location, newloc);
 CASE WHEN TO_CHAR(b.sample_status_date,'DY')='SAT' THEN 1 ELSE 0 END
 SELECT symbol, DECODE(earnings, 0, NULL, price / earnings)
 select dt, ticker, decode(transact, 'Buy', +1, -1)*qty qty 
-select prod_nm, DECODE(prod_grp,'MDPI','m','Solid Dose','sd','unk') from samp;
-DECODE(warehouse_id, 1, 'Southlake', 2, 'San Francisco', 3, 'New Jersey', 'Non-domestic') 
+select prod_nm, DECODE(prod_grp, 'MDPI','m', 'Solid Dose','sd', 'unk') from samp;
+DECODE(warehouse_id, 1,'Southlake', 2,'San Francisco', 3,'New Jersey', 'Non-domestic') 
 CASE WHEN warehouse_id=1 THEN 'Southlake' WHEN warehouse_id=2 THEN 'San Francisco' WHEN warehouse_id=3 THEN 'New Jersey' ELSE 'Non-domestic' END
 
 -- PLSQL null comparison (DECODE is better):
@@ -5562,32 +5559,9 @@ sql> show all
 sql> set linesize 1000;
 sql> set pagesize 9999;
 
--- Oracle high level view all database tables you own (current schema)
-SQL> SELECT table_name FROM user_tables;
-
--- Oracle high level view all database tables all available schema
-SQL> SELECT owner, table_name FROM all_tables;
-
--- Oracle list all schemas:
-SQL> SELECT username FROM all_users ORDER BY username;
-
--- Oracle select top 10 rows of a table in order:
-SQL> SELECT * FROM (SELECT * FROM t ORDER BY c) WHERE ROWNUM <= 10;
-
--- Oracle describe table
-SQL> desc mytable
-
--- Oracle list view names
-SQL> select * from all_views where view_name like '%SPEC%'
-
 -- Oracle deep copy clone table:
 select dbms_metadata.get_ddl('TABLE', 'ACTIVITY_SEARCH') from dual;
 select dbms_metadata.get_dependent_ddl('TABLE', 'ACTIVITY_SEARCH') from dual;
-
--- Build concatenate a random comma separated CSV list of ids:
-SELECT listagg(account_search_id,',') WITHIN GROUP (ORDER BY account_search_id) FROM account_search SAMPLE(0.1) WHERE ROWNUM<99
--- Determine the min and prove it with a list of all radiuses for that class, using listagg as an Analytic function:
-select class, planet, min(radius), listagg(min(radius),',') within group ( order by planet ) over ( partition by class ) class_radii from named_moons group by class, planet order by 1,2
 
 CREATE OR REPLACE FUNCTION f RETURN SYS_REFCURSOR AS c SYS_REFCURSOR; BEGIN OPEN c FOR select * from dual; RETURN c; END; /
 
@@ -5624,6 +5598,45 @@ BEGIN FOR i IN x.FIRST .. x.LAST LOOP DBMS_OUTPUT.PUT_LINE(x(i)); END LOOP;
 
 -- Oracle DDL for DROP all procedures matching pattern:
 SELECT 'DROP PROCEDURE "'||owner||'"."'||object_name||'";' FROM all_procedures WHERE procedure_name IS NULL AND UPPER(object_name) LIKE 'Z_SET_%';
+select * from user_procedures  -- like all_procedures but for schema only
+SELECT *  FROM all_objects WHERE  owner='SETARS' AND object_type NOT LIKE 'JAVA%'  -- jobs, indexes, triggers, tables, procedures, types...
+
+-- Oracle list view all database tables all available schema
+SELECT owner, table_name FROM all_tables where owner = 'myschema';
+
+-- List view all my schema Oracle tables:
+SELECT table_name FROM user_tables;
+-- List all Oracle tables & views with a certain field name poke around:
+SELECT table_name, column_name FROM cols WHERE lower(table_name) LIKE 'accou%' AND lower(column_name) LIKE '%id%';
+
+select * from dba_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
+
+-- What is my current schema name:
+select sys_context('userenv', 'current_schema' ) from dual;
+
+-- Oracle describe table sqlplus:
+desc mytable
+-- View all details of Oracle table:
+select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES','SETARS') from dual;
+-- View some details of Oracle table (like DESC in sqlplus):
+select column_name, nullable, concat(concat(concat(data_type,'('),data_length),')') from user_tab_columns where table_name = 'EMAIL_MESSAGES';
+-- Oracle list view table details:
+SELECT data_type, data_length, nullable, column_id, num_distinct, num_nulls, density from  user_tab_columns WHERE table_name LIKE 'USER_ON%'
+
+-- Find Oracle data dictionary user_tables etc from which to further query:
+select * from DICTIONARY WHERE table_name LIKE 'USER%' ORDER BY 1
+
+-- Oracle high level view all database tables you own (current schema)
+SELECT table_name FROM user_tables;
+
+-- Oracle list view all schemas:
+SELECT username FROM all_users ORDER BY username;
+
+-- Oracle list view names:
+select * from all_views where view_name like '%SPEC%'
+
+-- Oracle select top 10 rows of a table in order:
+SELECT * FROM (SELECT * FROM t ORDER BY c) WHERE ROWNUM <= 10;
 
 -- Oracle select year portion year part only between years periods:
 extract(year from h.updated) in(2017,2018)
@@ -5638,27 +5651,9 @@ SELECT (systimestamp - INTERVAL '0.001' SECOND), SYSTIMESTAMP, (SYSDATE - INTERV
 - Oracle date calculation 15 minutes ago (sysdate won't work here):
 SELECT CURRENT_TIMESTAMP - NUMTODSINTERVAL(15, 'MINUTE') localtime, systimestamp - NUMTODSINTERVAL(15, 'MINUTE') utcsometimes FROM dual
 
--- List all Oracle tables:
-SELECT owner, table_name FROM all_tables where owner = 'myschema';
-SELECT table_name FROM user_tables;
--- List all Oracle tables & views with a certain field name poke around:
-SELECT table_name, column_name FROM cols WHERE lower(table_name) LIKE 'accou%' AND lower(column_name) LIKE '%id%';
-
-select * from dba_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
-
--- Source code of compiled database objects:
+-- Full source code of all compiled database objects (not Views):
 select text from SYS.USER_SOURCE t WHERE t.name='ORION34858'
 select * from SYS.USER_SOURCE t WHERE t.TYPE='PACKAGE BODY' AND (upper(t.TEXT) LIKE '%CONSTANT%' OR UPPER(t.text) LIKE '%TYPE%')
-
--- What is my current schema name:
-select sys_context('userenv', 'current_schema' ) from dual;
--- View all details of Oracle table:
-select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES','SETARS') from dual;
--- View some details of Oracle table (like DESC in sqlplus):
-select column_name, nullable, concat(concat(concat(data_type,'('),data_length),')') from user_tab_columns where table_name = 'EMAIL_MESSAGES';
-
--- Find Oracle data dictionary user_tables etc from which to further query:
-select * from DICTIONARY WHERE table_name LIKE 'USER%' ORDER BY 1
 
 -- SQL Server list information about each owner's table in a database:
 select * from information_schema.tables where table_type='BASE TABLE' and table_schema='rheckel'
@@ -5794,11 +5789,9 @@ where date_trunc('minute', ahpp.lastmodified) = '2016-02-23 08:56:00'::timestamp
 
 -- Postgres help $ psql help  \?
 
-fulljoin FULL JOIN: an INNER JOIN that has been augmented with rows in either table that are not in the other table (fills in NULLs for missing matches on either side)
+-- full join fulljoin FULL [OUTER] JOIN: returns all rows from both tables, matching up the rows wherever a match can be made and placing NULLs in the places where no matching row exists.  I.e. a "double outer" join that returns all rows from A and B, extended with nulls if they do not satisfy the join condition
 
-selfjoin SELF JOIN: a recursive join that results when a set of data is joined back to itself.
-Typically encountered when a parent-child relationship in a hierarchy needs to be traversed.
-When using ANSI syntax to accomplish this, only the JOIN...ON syntax will work, and the keyword INNER can be used for clarity.
+-- selfjoin SELF JOIN: a recursive join that results when a set of data is joined back to itself.  Typically encountered when a parent-child relationship in a hierarchy needs to be traversed.  When using ANSI syntax to accomplish this, only the JOIN...ON syntax will work, and the keyword INNER can be used for clarity.
 
 -- Find next Postgres sequence number:
 select nextval('analytics.tmm_enrollmentperf_tmm_enrollmentperfid_seq');
@@ -5921,13 +5914,25 @@ select date_trunc('MONTH', now())-'1 month'::interval;
 -- Postgres earlier than first of this month:
 select distinct clientid, dashstart from dshbrd.dashboardclients where deactivated != TRUE and dashstart < date_trunc('MONTH', now());
 
+ /* Group by month counts by month: */
+select count(distinct taebpatientid), month(filldate) from statin_final group by 2;
 -- Oracle count group by month last 3 months:
-SELECT to_char(TRUNC(o.updated, 'MONTH'),'YYYY-MM') AS mo, COUNT(o.updated) AS COUNT FROM opp o WHERE o.updated  > ADD_MONTHS(SYSDATE,-3) GROUP BY TRUNC(o.updated, 'MONTH') ORDER BY 1 DESC
+SELECT to_char(TRUNC(o.updated, 'MONTH'),'YYYY-MM') AS mo, COUNT(o.updated) AS COUNT FROM opp o WHERE o.updated > ADD_MONTHS(SYSDATE,-3) GROUP BY TRUNC(o.updated, 'MONTH') ORDER BY 1 DESC
+-- Count group by month:
+SELECT COUNT(u.msg), EXTRACT(YEAR FROM u.execute_time), EXTRACT(MONTH FROM u.execute_time) FROM User_Oncall_Results u GROUP BY EXTRACT(YEAR FROM u.execute_time), EXTRACT(MONTH FROM u.execute_time)  ORDER BY 2,3
 
 -- Postgres bulk load a textfile to a table:
 \COPY analytics.obcdaily (client_name, , job_type_extra, att_count) FROM /Data/psql_import_temp.csv CSV HEADER
 
--- Analytic Windowing function POW:
+-- Only those columns explicitly listed in the GROUP BY clause may appear un-aggregated (i.e. not as a parameter of an aggregate function) in the SELECT or HAVING clauses.  That usually means the SELECT is equal or shorter to the GROUP BY.
+
+-- Build concatenate a random comma separated CSV list of ids:
+SELECT listagg(account_search_id,',') WITHIN GROUP (ORDER BY account_search_id) FROM account_search SAMPLE(0.1) WHERE ROWNUM<99
+
+-- Determine the min and prove it with a list of all radiuses for that class, using listagg as an Analytic function:
+select class, planet, min(radius), listagg(min(radius),',') within group ( order by planet ) over ( partition by class ) class_radii from named_moons group by class, planet order by 1,2
+
+-- Analytic Windowing function partition-order-window (POW):
 ,row_number() OVER (partition by d order by d) rownumbyday
 ,rank() OVER (order by d) orderbydt -- 1,2,3,3,5...
 ,dense_rank() OVER (order by d) orderbydt_dense -- 1,2,3,3,4...
@@ -5955,6 +5960,12 @@ select empno, ename, job, hiredate, sal, deptno, ntile(4) over ( order by hireda
 -- Analytic function to get the employee(s) with the 3rd highest salary:
 select * from ( select empno, ename, job, hiredate, sal, comm, dense_rank() OVER (order by sal desc) r from  emp ) where r = 3;
 
+-- Find employees with salary greater than the average revenue generated in their department.  Correlated subquery:
+SELECT * FROM employees WHERE salary > (SELECT AVG(revenue_generated) FROM employees AS dept_employees WHERE dept_employees.department = employees.department);
+
+-- Calculate percent of total after adding total in subquery:
+select a.*, b.*, a.UPID/b.tot as pct format=PERCENT8.2 from report1_nRx a join (select nRx, sum(upid) as tot from report1_nRx) b on a.nRx=b.nRx
+
 masked_patientkey = encode(digest(coalesce(split_part(patientnamefirst, ' ', 1),'') || patientnamelast || (case when patientdob is not null then to_char(patientdob,'yyyy-MM-dd') else '' end) || substring(coalesce(patientposctalcode, ''), 1,5), 'sha256'),'hex')
 select digest(patientnamefirst,'sha1') from rxfilldata_parent limit 1;
 
@@ -5970,7 +5981,7 @@ select * from analytics.tmm_enrollmentperf where created > '2017-01-30 09:00:00'
 -- Do we have 12 months for each client?:
 select clientid, year, count(*) from (select distinct clientid, year, month from dshbrd.pdctracksummary where year=2016) as t group by clientid, year order by clientid, year;
 
--- WITH temporary table creation:
+-- CTE WITH temporary table creation:
 with val as ( values ('1427315266'),('1003048109'),('1003109422'),('1003128414') ) select column1 from val;
 with v as ( select date '2000-01-01' d, 10 amt from dual union all select date '2000-01-02', 11 from dual) select d FROM v;
 
@@ -5988,7 +5999,6 @@ CREATE TABLE mycopy (LIKE mytable INCLUDING ALL); INSERT INTO mycopy SELECT * FR
 
 -- Postgres insert a file into a table:
 \copy bob from 't.txt' (delimiter ',');
-
 $ psql -h db-dev-01.twa.taeb.com TAEBMART -c "\copy public.bob from 't.txt' (delimiter ',');"
 
 -- Postgres execute sql from file command line:
@@ -6017,15 +6027,13 @@ insert all  into teddies values ('Dinosaur King', 'red')  into bricks values ('s
 insert all into people values (full_name) when hire_date is not null then into staff values (hire_date) when nhs_number is not null then into patients values (nhs_number) select * from people_details;
 
 -- Oracle which database are we on?:
+SELECT name FROM V$DATABASE;
 IF (SYS_CONTEXT('USERENV', 'DB_NAME') in ('SER', 'SETS')) THEN RETURN; END IF;
 
 -- Check for recent recompilation or invalid status:
 SELECT owner, object_name, object_type, status, last_ddl_time FROM dba_objects WHERE object_name = 'USER_ON' AND object_type LIKE 'PACKAGE%'
 
 SELECT SYSTIMESTAMP INTO starting_time FROM DUAL;
-
--- Create an empty zero record table:
-CREATE TABLE rejected_orders AS SELECT * FROM valid_orders WHERE 1 = 0;
 
 -- Oracle regex - returns 250/50 MCG
 select regexp_substr(upper('Disk Inh Pwdr 250/50 mcg 60D'),'\d+/[^/]* *MCG') as stren from dual
@@ -6118,6 +6126,9 @@ SELECT GREATEST(SYSDATE, to_date('01JAN2029'), to_date('01jan2030')) FROM dual
 -- sqlplus BOOLEAN parameters are translated from/to integers 0/1/null <--> false/true/null:
 in_debug boolean := sys.diutil.int_to_bool(:in_debug);
 
+-- Create an empty zero record table:
+CREATE TABLE rejected_orders AS SELECT * FROM valid_orders WHERE 1 = 0;
+
 -- Sample database table with 1 column and 10 rows:
 CREATE TABLE t AS SELECT LEVEL mylevel FROM dual CONNECT BY LEVEL <=10;
 -- Sample database table 5 years 2018-01-02 to 2022-12-31:
@@ -6147,8 +6158,10 @@ RETURN(CASE WHEN(l_column_count > 0) THEN TRUE ELSE FALSE END);
 -- Build temporary index if not already existing:
 select count(1) into cnt from USER_INDEXES s where s.index_name = 'MY_IX'; if (cnt = 0) then execute immediate 'create index MY_IX on SALES_CRED(Sdm_Business_Key, Deal_Id)'; end if; ... execute immediate 'drop index MY_IX';
 
--- Insert if not exists already:
-insert into bricks_1  select * from bricks_2 b2 where NOT exists ( select 1 from bricks_1 b1 where b1.brick_id=b2.brick_id)
+-- Insert if not exists already in another table:
+insert into bricks_target  select * from bricks_source b2 where NOT exists ( select 1 from bricks_target b1 where b1.brick_id=b2.brick_id )
+-- Upsert:
+merge into target a using ( select id, name, score from source ) b on (a.id=b.id)  when MATCHED then update set a.name=b.name, a.score=b.score  when NOT MATCHED then insert (a.id, a.name, a.score) values (b.id, b.name, b.score)
 
 -- Full drop:
 drop table mytbl cascade constraints purge
@@ -6237,6 +6250,15 @@ SELECT ADD_MONTHS(TRUNC(SYSDATE,'YEAR'), -12) jan_prev_yr, ADD_MONTHS(TRUNC(SYSD
 
 -- Enquote a date with single quotes:
 quoteddatestring := chr(39) || to_char(SYSDATE - 1, 'DDMONYY') || chr(39);
+
+-- Oracle number data type precision:
+NUMBER(3, 2)  -- min -9.99  max 9.99
+NUMBER(12, 2)  -- store up to one cent below $10B, $9,999,999,999.99
+
+-- A record is in second and third normal forms 3NF if every field is either part of the key or provides a (single-valued) fact about exactly the whole key and nothing else
+
+-- Wildcard find "Miss Smelly_bottom", the only toy_name that includes an underscore:
+select * from toys where  toy_name like '%\_%' escape '\';
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6745,7 +6767,7 @@ Excel uses exponentiation e.g. 1E+13 for large numbers - avoid by Format Cells :
 :: Find DNS info for a site (or IP)
 nslookup zdatapost.sgk.com
 
-What version of the hell that is java are you running:
+:: What version of the hell that is java are you running:
 c:\> C:\ProgramData\Oracle\Java\javapath\java -fullversion
 
 -- Oracle concatenation
@@ -6763,16 +6785,8 @@ au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
 alias lims='sqlplus sasrepor/sasrepor@sprd25'
 alias db6='psql -h db-06.wa.taeb.com TAEBMART'
 
-:: SELECT constant to provide an empty column 
-select '' as test_result, ...
-
 Ubuntu purple color hex: #290020  RGB: 41 00 32
 Ubuntu brown color hex: #965224  or RGB: 150 82 36
-
-" Vimscript's wacky by-ref...:
-let sorted_list = reverse(sort(unsorted_list))
-" ...is almost always supposed to be:
-let sorted_list = reverse(sort(copy(unsorted_list)))
 
 Pretty print indent XML
 xmllint --format t.xml
@@ -6790,23 +6804,22 @@ c:\> wmic cpu get loadpercentage
 
 cygcheck -cv w3m  # is package OK?
 
-# git snapshot
-git stash  && git stash apply
-
-# git stash restore
-git stash list
-git stash pop
-# or if >1 exist
-git stash apply stash@{1}
-
-git stash save --include-untracked -m 'mynamedstash'
-
-# Delete ALL stashes:
-git stash clear 
-
 git config user.name  # whoami
 cat ~/.gitconfig # whoami
 git config user.email
+
+git stash list
+# git show files in the stash
+git stash show
+git stash pop
+# or if >1 exist
+git stash apply stash@{1}  # or git stash apply 1
+git stash save --include-untracked -m 'mynamedstash'
+git stash drop 1  # if you have stash@{0} and stash@{1} only delete stash 1
+# Delete ALL stashes:
+git stash clear 
+# git snapshot
+git stash && git stash apply
 
 git log --pretty=oneline
 git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
@@ -6814,10 +6827,15 @@ git log --since="3 months ago" --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %
 
 # git create new then checkout branch:
 git branch mynewbranch; git checkout mynewbranch
-git checkout -b mynewbranch  # same
+git checkout -b mynewbranch  # faster
+# Rename branch local (current) branch:
+git branch -m mynewbranchname
+git branch mynewbranch master  # copy branch from a specific branch, in this case master, to new branch
 
 # git poke around:
 git status; git log; git branch -a; git remote -v; git remote show origin;
+# ls for git list which files are tracked under git source control not just staged:
+git ls-files 
 
 # github commit mantra (github is origin, PUSH TO):
 git add . && git commit -m 'mod' && git push origin master
@@ -6825,66 +6843,48 @@ git add . && git commit -m 'mod' && git push origin master
 # git merge something into master branch:
 git checkout master && git merge mynewbranch && git branch -d mynewbranch
 
-# If you 'git add' a file to the staging area by mistake, unstage it back to working area:
-git reset whoops_undo_unstageme.txt
-
-# Disaster discard abandon all commits (or staged files) after the previous commit and reset files to that older/good commit (ignoring any untrackeds!):
-git reset --hard HEAD^  # or git reset --hard HEAD~1 for DOS  or git reset --hard c4c9473 if it's not the previous you want to go back to but rather AFTER commit c4c9473
-# Discard abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area:
-git reset c4c9473
-# Discard abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area and leave your INDEX alone - lightest touch:
-git reset --soft c4c9473
-
-# git revert abandon discard throw away trash changes staged:
-git checkout -- DataPost_Configuration.map
-git checkout .   # abandon all pending changes "not staged for commit"
+# git revert abandon discard throw away trash changes NOT STAGED for commit:
+git checkout -- DataPost_Configuration.map  # can also try  git checkout .  for >1 file 'not staged for commit'
+# git revert abandon discard throw away trash changes unstage a bad STAGED for commit 'git add' back to the working area (not sure if need HEAD):
+git reset HEAD Daily_data_maintenance.pck
 # git revert discard a pull:
 git reset --hard ORIG_HEAD; git gc;
-# Abandon discard a merge collision (remove conflict markers "master|MERGING" from the file but you still have merge conflicts when you do git pull next time):
+# git abandon discard a merge collision (remove conflict markers "master|MERGING" from the file but you still have merge conflicts when you do git pull next time):
 git merge --abort  # or git reset --merge
-# Use the other guy's commit on collision:
+# git use the other guy's commit on collision:
 git reset --merge 2e40a3
 
-# Throw away discard trash a restored stash (or any changes really):
-git checkout .
-
-# ls for git list which files are tracked under git source control not just staged:
-git ls-files 
+# git disaster discard abandon all commits (or staged files) after the previous commit and reset files to that older/good commit (ignoring any untrackeds!):
+git reset --hard HEAD^  # or git reset --hard HEAD~1 for DOS  or git reset --hard c4c9473 if it's not the previous you want to go back to but rather AFTER commit c4c9473
+# git discard abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area:
+git reset c4c9473
+# git discard abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area and leave your INDEX alone - lightest touch:
+git reset --soft c4c9473
 
 # git edit modify rewrite previous existing git commit message:
 git commit --amend -m 'change your previous, last, wrong, commit message to this'
 
-# List git branch dates sorted descending
+# git list branch dates sorted descending
 git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)"
 
-# Diff with last commit:
+# git diff with last commit:
 git show
-# View git old version of file from different branch (in pager):
+# git view old version of file from different branch (in pager):
 git show eacbd91:code/ods_0002e.sas
-# View git old version of file from different branch (in editor):
+# git view old version of file from different branch (in editor):
 git show master:cfg/DataPost_Configuration.html |vi -
 
 # git diff your pre-committed change:
 git difftool  # uses vimdiff if previously  $ git config --global merge.tool vimdiff
-# Same:
-git diff HEAD
-
+git diff HEAD  # same
 # git see what changes you are committing including previous commit:
 git diff HEAD^
-
 # git compare commits:
 git difftool 3a93bc3 1fb24fe
-
 # git compare a file from another branch across branches:
 git difftool master SET_MATCH_CODE.prc
-
-# Compare old version of file from different commit - current (hash-less) filename must come 2nd!!:
+# git compare old version of file from different commit - current (hash-less) filename must come 2nd!!:
 git difftool 1908af7:./PTG.pck PTG.pck
-
-# Rename branch local (current) branch:
-git branch -m mynewbranchname
-
-git branch mynewbranch master  # copy branch from a specific branch, in this case master, to new branch
 
 git add unforced.txt  # use git add -f README to force add if it's excluded by .gitignore
 
@@ -6895,21 +6895,27 @@ git remote set-url origin git@github.com:bheckel/dotfiles.git
 # Existing github repo on a new foreign box:
 git clone git@github.com:bheckel/dotfiles.git && git remote add origin git@github.com:bheckel/dotfiles.git; ...edit/add/commit... git pull origin master && git push origin master
 
-# Manual pull request completion without using github UI merge & delete branch buttons:
+# git manual pull request completion without using Github UI merge & delete branch buttons:
 git checkout develop && git pull && git merge --no-ff feature/ORION-31587 && git push && git branch -d feature/ORION-31587 && git fetch -p && git push origin --delete feature/ORION-31587
 
-# git delete branch local then remote (instead of using github UI delete branch button):
+# git delete branch local then remote (instead of using Github UI delete branch button):
 git branch -a  # make sure your remote is there
 git branch -d feature/ORION-31587 && git push origin --delete feature/ORION-31587 && git fetch -p && git branch -a
 # git delete local branch and prune remote branches (after github UI delete button):
 git branch -d feature/ORION-31587 && git fetch -p && git branch -a
 
+# View git history of a file (--follow even if filename has changed, --all branches, -p all patches):
+gitk --follow --all -p SUP_HAS_ACTIVE_SITES.fnc
+
+# View git revision and author last modified history for each line of a file:
+git blame SUP_HAS_ACTIVE_SITES.fnc
+
+# Remove untracked files:
+git clean --dry-run
+
 # git "you can't push"
 vi ~/dotfiles/.git/config
 url = git@github.com:bheckel/dotfiles.git
-
--- SQL Server hideous datepart splitout complement of Oracle TRUNC:
-dateadd(dd,0, datediff(dd,0, fwn.VariableStp.dtSplTakenTime)) as dt
 
 <!-- Predefined character entities -->
 &lt; &gt; &quot; &amp; &apos;  &#169; or &#xA9 is copyright symbol ©
@@ -6999,9 +7005,8 @@ u:\misc> del /A:H Thumbs.db
 # Edit a Windows file using UNC path under Cygwin
 vi '\\okpsawn557\d$\oracle\ora81\network\ADMIN\Tnsnames.ora'
 
-' Excel:
+' Excel: B11 holds a code you dont understand, A2:B4 is the lookup "table" whose 1st col contains B11, its 2nd col contains the lookup value to put in the current cell. "2" indicates the table lookup value is in the 2nd column. FALSE=not sorted.
 =VLOOKUP(B11, A2:B4, 2, FALSE)
-' B11 holds a code you dont understand, A2:B4 is the lookup "table" whose 1st col contains B11, its 2nd col contains the lookup value to put in the current cell. "2" indicates the table lookup value is in the 2nd column. FALSE=not sorted.
 
 ' Excel difference in cell values:
 =IF(A6<>BD6, "yes", "no")
@@ -7020,13 +7025,13 @@ select * from analytics.healthplanpatients hp where row(hpprogramid, externalpat
 -- Comma separated column
 select string_agg(distinct taebpatientid::varchar,',') from cce.ccepatientstaging where clientid=22;
 
-' Excel multiply two columns and produce a scalar: =SUMPRODUCT(O37:O38,P37:P38)
+' Excel multiply two columns and produce a scalar:
+=SUMPRODUCT(O37:O38,P37:P38)
+' Excel weighted average (patient count in C, lift % in col F):
+=SUMPRODUCT(F7:F23,C7:C23)/SUM(C7:C23)
 
 -- Hadoop shell ls equivalent:
 hdfs dfs -ls /tmp/.pigscripts/riskfactorpig-2017-02-15_07-56.pig
-
--- SQL find employees with salary greater than the average revenue generated in their department.  Correlated subquery:
-SELECT * FROM employees WHERE salary > (SELECT AVG(revenue_generated) FROM employees AS dept_employees WHERE dept_employees.department = employees.department);
 
 -- De Morgan's logic AND OR law:
 !(x & y) is equivalent to !x | !y
@@ -7048,12 +7053,6 @@ by_day <- flights %>% count(day)
 
 # R regex how many don't start with 'b':
 library(stringr); x <- c("apple","banana","pear"); sum(!str_detect(x, "^b"));
-
--- Calculate percent of total after adding total in subquery:
-select a.*, b.*, a.UPID/b.tot as pct format=PERCENT8.2 from report1_nRx a join (select nRx, sum(upid) as tot from report1_nRx) b on a.nRx=b.nRx
-
-' Weighted average in Excel (patient count in C, lift % in col F):
-=SUMPRODUCT(F7:F23,C7:C23)/SUM(C7:C23)
 
 -- Remote Desktop multiple monitors:
 %windir%\system32\mstsc.exe /span
@@ -7078,21 +7077,13 @@ git checkout -b feature/ORION-33817 && git push --set-upstream origin feature/OR
 
 Double arrows unicode « »
 
-# View git history of a file (--follow even if filename has changed, --all branches, -p all patches):
-gitk --follow --all -p SUP_HAS_ACTIVE_SITES.fnc
-# View git revision and author last modified history for each line of a file:
-git blame SUP_HAS_ACTIVE_SITES.fnc
-
-# All configuration set by e.g. git config --global user.name "Your name"
-git list
-
-# Remove untracked files:
-git clean --dry-run
-
 :: Send To folder c:\temp
 %APPDATA%\Microsoft\Windows\SendTo
 
 :: Cygwin SendTo Properties
 C:\cygwin64\bin\mintty.exe -e c:\cygwin64\bin\vim
+
+/* JSON: */
+{ "Film": "Schema Wars Episode 1: The Unstructured Menance", "ReleaseYear": 2016, "Genre": "SQL Sci-fi", "Actors": [ "Chris Saxon", "Andre Williams", "Robin Williams", "PJ Tamayo" ] }
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
