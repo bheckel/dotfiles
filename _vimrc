@@ -30,9 +30,6 @@ set cpoptions=s$
 " Watch changes to text happen slowly (default is 0)
 """set writedelay=5
 
-let THISBOX = hostname()
-let WORKBOXARRAY = [ 'L-ANA-BHECK', 'TWAVWS-05-BHECK' ]
-
 if has ('win32unix')
   let g:netrw_cygwin=1  " scp to be provided by Cygwin
   let g:netrw_browsex_viewer='cygstart'
@@ -48,6 +45,9 @@ let g:netrw_sort_options="i"
 let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
 """let g:netrw_list_cmd = '\ls -l'
 """let g:netrw_list_cmd = '/cygdrive/c/windows/System32/WindowsPowerShell/v1.0/powershell -Command dir'
+
+let THISBOX = hostname()
+let WORKBOXARRAY = [ 'L-ANA-BHECK', 'TWAVWS-05-BHECK' ]
 
 " Setup tempspace that vim and gVim can share (if edit here, we may need to copy this .vimrc to C:/Program Files (x86)/Vim/_vimrc),
 " make sure both Linux & Windows hostnames are added to WORKBOXARRAY
@@ -76,10 +76,6 @@ else
     " Linux terminal
     let VTMP = '~/tmp'
   endif
-endif
-
-if has('gui')
-  
 endif
 
 " Fix leftward movement problem on mainframe z/OS:
@@ -1630,8 +1626,6 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufRead,BufEnter *.log nnoremap <silent> <F8> :g!/^ERROR:\\\|^WARNING:\\\|lines were truncated\\\|^NOTE: Invalid data for\\\|^NOTE: Variable/d<CR>
   " au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR:/<CR>
   au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\\|^WARNING:/<CR>
-  " au BufNewFile,BufRead,BufEnter *.log set guifont=Consolas:h8
-	au BufRead,BufNewFile *.plsql,*.pkg,*.pck,*.spc,*.prc,*.fnc set filetype=plsql
   au BufNewFile,BufRead,BufEnter *.plsql,*.pck,*.prc,*.fnc let b:match_words = '\<begin\>:\<end\>,\<loop\>:\<end loop\>'
 
   " TOGGLE. Delete the yearly warning lines
@@ -1651,9 +1645,13 @@ if !exists("autocommands_loaded")
   " endif
 """  au BufNewFile,BufRead,BufEnter *.pl,*.pm map ;; :call setline('.', Commentout(getline('.'), 'perl'))<CR>
   " end Perl
+  
+	au BufRead,BufNewFile *.plsql,*.pkg,*.pck,*.spc,*.prc,*.fnc set filetype=plsql
 
   " TODO use &ft instead of python, need function?
   au BufNewFile,BufRead,BufEnter *.py nmap ;z :!echo && echo && python %<CR>
+  " TODO
+  " au BufNewFile,BufEnter *.py set tabstop=4
 
   " au FileType sh set fileformat=unix
   au BufWritePost *.sh silent !chmod a+x <afile>
@@ -1757,26 +1755,24 @@ if !exists("autocommands_loaded")
   au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
 
   au BufEnter oneliners,.vimrc,_vimrc,.bashrc,_bashrc set foldmethod=marker
+	au BufRead,BufNewFile oneliners set filetype=txt
 
   au BufEnter .vimrc echo ".vimrc: $MYVIMRC:" $MYVIMRC
 
   " We'll never need to edit a tarball or QuickFix list
   au FileType TAR,QF map q :q<CR>
 
-  " Act like gvim when a file was changed behind our back:
-  au WinEnter * checktime
-
   " Always edit git commit messages at position 1L,1C
   au FileType GITCOMMIT :1
+
+  " Act like gvim when a file was changed behind our back:
+  au WinEnter * checktime
 
   au BufNewFile,BufRead *.md   set syntax=markdown
 
   " Without this, NetRW loses its place when returning to the tree (use buffer n because mz is taken by netrw):
 	au BufLeave NetrwTreeListing mn
 	au BufEnter NetrwTreeListing `n
-
-  " TODO
-  " au BufNewFile,BufEnter *.py set tabstop=4
 
   " Enterprise Guide files
   au BufReadCmd *.egp call zip#Browse(expand("<amatch>"))

@@ -4712,13 +4712,6 @@ my @fl = map /'(.*)'/, @filelist;
 # Create a hash using map on the fly:
 my %h = map /(BF19\.\w\wX(.*)\..*)/i, @fl;
 
-# Add the first and last columns (@F comes from using -a):
-perl -lane 'print $F[0] + $F[-1]' whitespace_separated_nums.txt
-# Thanks to the switches, this is what it's doing:
-while ( <> ) { @F = split(' '); print $F[0] + $F[-1]; } 
-# Compare with
-cat whitespace_separated_nums.txt | awk '{i = NF; print $1 + $i}'
-
 # Simple debug comment out a large block of code:
 =debugbobh  ...code...  =cut
 
@@ -4748,12 +4741,30 @@ perldoc -q sort
 # Syntax check a directory:
 for f in *.pl; do perl -c $f; done
 
-# Print field 3 like awk:
-perl -F'\|' -lane 'print $F[2]' pipedelimited.data
+cat /etc/*-release | grep VERSION | perl -pe 's/VERSION="//g'
+
+# Automatic command line Perl module installation:
+perl -MCPAN -e shell  # interactive mode
+perl -MCPAN -e 'install DBI'
+perl -MCPAN -e 'install DBD::mysql'
+
+# Commandline Perl:
 # perl -l  # add a newline to results
 # perl -a  # use @F which splits on whitespace
 # perl -n  # while(<>){...} loop - use -p instead to print
 # perl -e  # command line perl code in one line
+
+# Sum the 3rd column of a file
+perl -l -a -n -e '$n+=$F[2]; END{ print $n}' threecolumnsofnumbers.txt
+# Add the first and last columns (@F comes from using -a):
+perl -lane 'print $F[0] + $F[-1]' whitespace_separated_nums.txt
+# Thanks to the switches, this is what it's doing:
+while ( <> ) { @F = split(' '); print $F[0] + $F[-1]; } 
+# Compare with:
+cat whitespace_separated_nums.txt | awk '{i = NF; print $1 + $i}'
+
+# Print field 3 like awk:
+perl -F'\|' -lane 'print $F[2]' pipedelimited.data
 
 # Are columns 1 and 3 equal?
 perl -ne '@x=split; print if $x[0] != $x[2]' foo.txt
@@ -4776,18 +4787,10 @@ perl -ne '@x=split /\t/; print "@x" if $x[1]=~/foundme/' foo.txt
 # Search a tab-delimited file after removing header line (may want to use -a)
 perl -ne '@x=split /\t/; print "$x[0] and $x[1]\n" if $.>1' *.xls
 
-# Automatic command line Perl module installation:
-perl -MCPAN -e shell  # interactive mode
-perl -MCPAN -e 'install DBI'
-perl -MCPAN -e 'install DBD::mysql'
-
 # Remove nulls (ASCII 0) from a file (also works as :'<,'>!perl -pe 's/\0//g')
 perl -pe 's/\0//g' 
-# Remove single quotes from a file.  Simple substitution on the fly printing
-# changes to STDOUT
+# Remove single quotes from a file.  Simple substitution like sed:
 perl -pe "s/'//g" junk
-
-cat /etc/*-release | grep VERSION | perl -pe 's/VERSION="//g'
 
 # Replace all instances in files (without backups):
 perl -pi -e "s:#\!/usr/bin/perl:#\!/usr/pkg/bin/perl:" junk
@@ -4840,16 +4843,16 @@ perl -e '$foo="avenue";print "ok" if $foo=~/ave/'  # same
 # Parse on specific fixed column positions -- also see parse_fixed_width.pl
 perl -ne 'push @x, unpack "@1 A36 @37 A36",$_; END{$i=1;for(@x){print "$_\t"; if(++$i%2){print "\n"' foo.txt
 
-# Extract a section of a file where you know the start and end patterns.
-awk '/first word/, /last word/ {print}' startendpatt.txt
-# Same (don't need  while(<>){...}  when using -ne)
-perl -ne 'print if /first word/ .. /last word/' startendpatt.txt
-
-find /u/dwj2/mvds/NAT -type d | perl -ne 'print if /NAT/ and !/2004|2005/'; 
-
+# Extract print a section full lines of a file where you know the start and end patterns:
+awk '/a being/, /colonization of/ {print}' bladerun_crawl
+# Same (don't need  while(<>){...}  when using -ne):
+perl -ne 'print if /a being/ .. /colonization of/' bladerun_crawl
 # Extract print a section of a file where you know the start and end line numbers:
 perl -ne 'print if 15 .. 17' foo.txt  # inefficient but simple
 perl -ne 'print if $. >= 15; exit if $. >= 17;' foo.txt  # efficient but complex
+
+# Pipe file or directory names for perl to filter:
+find /u/dwj2/mvds/NAT -type d | perl -ne 'print if /NAT/ and !/2004|2005/'; 
 
 # Print repeat string 5 times:
 perl -e 'while($i++<5){print "ok "}'
@@ -4872,7 +4875,7 @@ perl -e 'print scalar localtime((stat "t.pl")[9])'
 perl -ne 's/ /|/g; print' foo.txt
 perl -pne 's/ /|/g' foo.txt > foopipes.txt
 
-# Get info about a perl module using -M
+# Get info about a perl module using -M:
 perl -MCPAN -e 'print $CPAN::VERSION'
 perl -MMail::Sendmail -e 'print $Mail::Sendmail::VERSION'
 
@@ -4891,6 +4894,9 @@ perl -e '($d,$m,$y) = (localtime)[3,4,5];print join "/", $m+1, $d, $y+1900'
 # Parse string into an array:
 perl -e '@words = "What did he say?" =~ /([A-Za-z]+)/g; END{print "@words"}'
 
+# Split CSV string into multiple lines:
+echo "a,b,c" | perl -pe 's/,/\n/g'
+
 # Use capturing parentheses to swap two items:
 grep -v fips | perl -pe 's/(.*) (.*)/\2 \1/'
 cat bladerun_crawl |sed 's/\(etire\)/FOO\1BAR /'
@@ -4902,15 +4908,61 @@ ls | perl -ne 'print "$1\n" if /.*(2001_\d+).*/'
 # Compare but do so less precisely since \d doesn't exist under awk
 ls | awk '/2001_\w/{print $1}'
 
-# Parse a date string:
-($mon, $day, $year) = (localtime())[4,3,5];
-
 # Do something alternating days, will return '1' every other day.
 date | awk '{print $3}' | perl -e '$x = (<> % 2); END {print $x}'
 
 # Does a file exist?  Pop message box if so:
 perl -e 'system msgbox if (-f "./myfile.txt")'
 perl -e 'print "ok" if (-e "./bladerun_crawl")'
+
+# Thin out, print 10 random lines from a file (good for creating small dummy files):
+cat bladerun_crawl | perl -e '@line=<>; for(1..9){print $line[int rand @line]}'
+perl -e '@line=<>; for(1..9){print $line[int rand @line]}' bladerun_crawl
+
+# Simple canonical inplace edit replace like vim :g/trendid_/d or sed -i -e '/trendid_/d' foo.txt (caution: sed will turn ff=unix)
+perl -i.bak -ne 'next if /trendid_/' foo.txt
+# Replace all occurences of number 55 with a random number less than 100
+perl -i.bak -pe "s/55/int rand(100)/eg"
+# Recursively for specific extensions
+perl -pi.bak -e "s/Output Compiled Data/Output_Compiled_Data/" `find . -name '*.sas'`
+# Substitute, inplace edit, and make backup from command line.  NOT recursive.
+perl -pi.bak -e "s/old/new/g" *.pl
+perl -pi.bak -e  's/old/new/g' `find . -name "foo.txt"`
+
+# Print a random number (automatically seeded by Perl):
+perl -e 'print rand()'               # <---floating point from 0 to 1
+perl -e 'print int rand 5'           # <---integer from 0 to 5
+perl -e 'print int(rand(4)) + 1'     # <---integer from 1 to 4
+perl -e 'print int(rand(51)) + 25;'  # <---integer from 25 to 75
+# Print 3 random numbers which will be 1, 2, 3 or 4
+for i in 1 2 3; do perl -e 'print int(rand(4)) + 1, "\n"'; done
+
+# Random password generator:
+perl -le 'print map { ("a".."z")[rand 26] } 1..8'
+
+# Print the longest line
+perl -ne '$l = $_ if length($_) > length($l); END { print $l }' bladerun_crawl
+
+# Poor man's tac(1) to reverse lines in a file:
+perl -e 'print reverse <>' foo.txt
+
+# Parse a textfile grid:
+perl -ne 'push @AoA, [ split ];END{print "$AoA[1][1]\n"}' junk.txt
+
+# Number of elements (minus 1 so say (0 .. $#a) ) in array:
+perl -e '@a=(1,2,3);print $#a'
+
+# Print the shortest line
+perl -ne '$s = $_ if $. == 1; $s = $_ if length($_) < length($s); END { print $s }' bladerun_crawl
+
+# Paragrep - delete entire paragraph if word found in it:
+perl -00 -lne 'unless (/genetic/) {print}' bladerun_crawl
+
+# Word frequency counter:
+perl -0777 -lape's/\s+/\n/g' bladerun_crawl | sort | uniq -c | sort -nr
+
+# Parse a date string:
+($mon, $day, $year) = (localtime())[4,3,5];
 
 print "Maximum commandline index: $#ARGV\n";
 print "Last commandline argument: $ARGV[$#ARGV]\n";
@@ -4955,9 +5007,6 @@ END { print join( $/, values %INC ), $/ }
 
 # Social security ssn number regex:
 [0-9]\{3\}-[0-9]\{2\}-[0-9}\{4\}
-
-# Poor man's tac(1) to reverse lines in a file:
-perl -e 'print reverse <>' foo.txt
 
 # Use reverse video for debugging (this doesn't require ctrl chars, just paste)
 print "DEBUG> \e[7mUnexpected format of 'mystr':\e[m\n";
@@ -5007,16 +5056,17 @@ print "Content-type: text/html\n\n";  # web CGI (HTTP/1.0 at least)
 # Split comma-delimited string into anonymous array and show 2nd element:
 $a='one,two,three'; $aa = [ split /\s*,\s*/, $a ]; print $$aa[1];
 
-# Unbuffer, i.e. make hot, the LOG filehandle (and switch back to the original):
+# Unbuffer the LOG filehandle and switch back to the original filehandle:
 select((select(LOG), $|=1)[0]);
 
 # Is timestamp recent?:
-perl -e 'print "ok" if (stat("prellg"))[9] > time-86400'
+perl -e 'print "ok" if (stat("myfile.txt"))[9] > time-86400'
 
 # Modify CPAN module settings (perl -MCPAN -e shell) TODO 2008-08-06 not working
 cpan> o conf http_proxy http://setproxy.sgk.com/proxy.pac
 cpan> o conf urllist push ftp://myurl/'
 
+# For each key value pair in hash:
 while ( ($key, $value) = each %myhash ) { ... 
 
 # Is module installed properly?:
@@ -5068,12 +5118,6 @@ $hash{string}[7]			# hash of arrays
 $hash{string}{'another string'}		# hash of hashes
 $hohoh{Robot}{Santa}{Claus}='mostly harmful';  # hash of hash of hash
 
-# Parse a textfile grid:
-perl -ne 'push @AoA, [ split ];END{print "$AoA[1][1]\n"}' junk.txt
-
-# Number of elements (minus 1 so say (0 .. $#a) ) in array:
-perl -e '@a=(1,2,3);print $#a'
-
 # Round a number:
 printf("%.3f", 3.1415926535);
 
@@ -5085,11 +5129,8 @@ $novowels =~ tr/aeiou/!/;  # change any vowel in $novowels into !
 
 ($HOST = $host) =~ tr/a-z/A-Z/;  # uppercase en passant (but it's better to use \U and \L for Unicode)
 
-# Sum the 3rd column of a file
-perl -l -a -n -e '$n+=$F[2]; END{ print $n}' threecolumnsofnumbers.txt
-
-Expressions - a sequence of literals, variables, function connected by one or more operators that evaluate to a single value-scalar or array. 
-Statements are a complete unit of instruction for the computer to process. Statement modifiers: if, unless, until, and while.
+# Expressions - a sequence of literals, variables, function connected by one or more operators that evaluate to a single value-scalar or array. 
+# Statements are a complete unit of instruction for the computer to process. Statement modifiers: if, unless, until, and while.
 
 # Canonical map:
 my @tripled = map { $_ * 3 } @numbers;
@@ -5110,42 +5151,11 @@ my ($firstname) = $name =~ /($firstname_precompiledregex)/;
 # Print the 3rd line in file:
 while ( <FH> ){ print if $. == 3; }
 
-# Print the shortest line
-perl -ne '$s = $_ if $. == 1; $s = $_ if length($_) < length($s); END { print $s }' bladerun_crawl
-
-local - saves the current value somewhere, creates a new value, and arranges that the old value will be restored at the end of the current block.
-my    - lexical scope does not create an entry in the symbol table, variables that you declare in one subroutine can't be tampered with by other subroutines. 
+# local - saves the current value somewhere, creates a new value, and arranges that the old value will be restored at the end of the current block.
+# my    - lexical scope does not create an entry in the symbol table, variables that you declare in one subroutine can't be tampered with by other subroutines. 
 
 # File into an array:
 open FH1, 'junk1.txt' or die "Error: $0: $!"; @foo = <FH1>;
-
-# Thin out, print 10 random lines from a file (good for creating small dummy files):
-cat bladerun_crawl | perl -e '@line=<>; for(1..9){print $line[int rand @line]}'
-perl -e '@line=<>; for(1..9){print $line[int rand @line]}' bladerun_crawl
-
-# Simple canonical inplace edit replace like vim :g/trendid_/d or sed -i -e '/trendid_/d' foo.txt (caution: sed will turn ff=unix)
-perl -i.bak -ne 'next if /trendid_/' foo.txt
-# Replace all occurences of number 55 with a random number less than 100
-perl -i.bak -pe "s/55/int rand(100)/eg"
-# Recursively for specific extensions
-perl -pi.bak -e "s/Output Compiled Data/Output_Compiled_Data/" `find . -name '*.sas'`
-# Substitute, inplace edit, and make backup from command line.  NOT recursive.
-perl -pi.bak -e "s/old/new/g" *.pl
-perl -pi.bak -e  's/old/new/g' `find . -name "foo.txt"`
-
-# Print a random number (automatically seeded by Perl):
-perl -e 'print rand()'               # <---floating point from 0 to 1
-perl -e 'print int rand 5'           # <---integer from 0 to 5
-perl -e 'print int(rand(4)) + 1'     # <---integer from 1 to 4
-perl -e 'print int(rand(51)) + 25;'  # <---integer from 25 to 75
-# Print 3 random numbers which will be 1, 2, 3 or 4
-for i in 1 2 3; do perl -e 'print int(rand(4)) + 1, "\n"'; done
-
-# Random password generator:
-perl -le 'print map { ("a".."z")[rand 26] } 1..8'
-
-# Print the longest line
-perl -ne '$l = $_ if length($_) > length($l); END { print $l }' bladerun_crawl
 
 # Paragrep - read in whole paragraph, not just one line
 $/ = '';
@@ -5160,12 +5170,6 @@ my $contents; { local $/ = undef; $contents = <DATA>; }
 
 # Slurp an entire file into a single variable -- make sure ff=unix !!
 my $contents = do { local $/=undef; open my $fh, '<', 'foo.txt' or die; <$fh>;};
-
-# Paragrep - delete entire paragraph if word found in it:
-perl -00 -lne 'unless (/genetic/) {print}' bladerun_crawl
-
-# Word frequency counter:
-perl -0777 -lape's/\s+/\n/g' bladerun_crawl | sort | uniq -c | sort -nr
 
 # Choose a random array value (int is optional):
 $surprise = $files[int rand @files];
@@ -5202,7 +5206,7 @@ use v5.10; say "$_" for 1 .. 10;  # vertical listing of topic variable
 
 @chars = 'a' .. 'z';  @nums = 1 .. 10;  # range operator
 
-undef is always false
+# undef is always false
 
 # Initialize an array from a list:
 @a = ('one', 'two', 'three');
@@ -5954,8 +5958,8 @@ select class, planet, min(radius), listagg(min(radius),',') within group ( order
 ,sum(amt) OVER () grand_sum
 ,avg(amt) OVER () grand_avg
 
--- Analytic function quartile buckets:
-select empno, ename, job, hiredate, sal, deptno, ntile(4) over ( order by hiredate ) as grp from  emp order by grp;
+-- Analytic function quartile split employees randomly into 4 buckets:
+select empno, ename, job, hiredate, sal, deptno, ntile(4) over ( order by DBMS_RANDOM.VALUE ) as grp from scott.emp order by grp;
 
 -- Analytic function to get the employee(s) with the 3rd highest salary:
 select * from ( select empno, ename, job, hiredate, sal, comm, dense_rank() OVER (order by sal desc) r from  emp ) where r = 3;
@@ -6910,7 +6914,7 @@ gitk --follow --all -p SUP_HAS_ACTIVE_SITES.fnc
 # View git revision and author last modified history for each line of a file:
 git blame SUP_HAS_ACTIVE_SITES.fnc
 
-# Remove untracked files:
+# Remove delete untracked files:
 git clean --dry-run
 
 # git "you can't push"
