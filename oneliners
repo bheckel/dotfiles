@@ -11,7 +11,7 @@
 #           - Write down the answer to avoid asking it again
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Tue 05 Feb 2019 09:51:04 (Bob Heckel)
+# Modified: Mon 04 Mar 2019 14:16:25 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -546,9 +546,6 @@ map ,<Tab> :set hls<CR>/\\n.*\\n/<CR>
 " Add more options to an existing vim setting:
 set sessionoptions+=buffers
 
-" Buffer plugin close buffer
-:Sbd
-
 " Toggle vim setting:
 nmap <silent> [[ :let &tabstop -= &tabstop > 1 ? 1 : 0<CR>
 
@@ -563,6 +560,8 @@ let w:check_words = exists('w:check_words') ? !w:check_words : 1
 
 " Undo by time:
 :earlier 5m
+" Undo to last write:
+:ea 1f
 
 :echom "Hello, " . "Vim concatenation world"
 :mess
@@ -570,17 +569,17 @@ let w:check_words = exists('w:check_words') ? !w:check_words : 1
 " List all files recursively:
 :echo split(globpath('.', '**'), '\n')
 
-" Convert disorganized quote separated mat codes ...foo('1234', '5678')bar... into a list:
-:%s:\v\D+:^M:g | g/^$/d
+" Very Magic parse convert disorganized list of numbers e.g. foo('1234', '5678')bar91011... into a CSV list:
+:%s:\v\D+:,:g | :%s:^,\|,$::g
+" Very Magic parse convert disorganized list of numbers e.g. foo('1234', '5678')bar91011... into a horizontal list:
+:%s:\v\D+::g | g/^$/d
 
 echon '.vimrc: unknown language: (' mylang ') so using default Commentout style'
-
-" From inside Gvim fix authentication problem at work:
-:!c:/cygwin/bin/chmod 755 /cygdrive/u/temp/.vimxfer
 
 " Vim fold folding
 :se fdm=manual
 
+" vim if then else:
 if hostname() == 'yoniso' ... else ... endif
 
 " Share ;w across network
@@ -589,14 +588,16 @@ scp bheckel@sas-01.twa.taeb.com://mnt/nfs/home/bheckel/tmp/.vimxfer ~/tmp
 " Copy this file to another host from vim (no warning on overwrite!):
 :w scp://bheckel@sas-01.mrk.taeb.com/bin/%
 
-# Share vimxfer file across machines:
+# Share my vimxfer file across machines:
 alias xfer='scp ~/tmp/.vimxfer bheckel@talon3:tmp/.vimxfer'
 
 # Set a shell variable:
-WHEREISVIMRUNTIME=`vim -e -T dumb --cmd 'exe "set t_cm=\<C-M>"|echo $VIMRUNTIME|quit' | tr -d '\015' `
+WHEREISVIMRUNTIME=`vim -e -T dumb --cmd 'exe "set t_cm=\<C-M>"|echo $VIMRUNTIME|quit' | tr -d '\015'`
+$ vim -e -T dumb --cmd 'exe "set t_cm=\<C-M>"|echo $VIMRUNTIME|quit'  
 
-" Keep only the first 12 characters, delete characters after column position 12:
+" Keep only the first 12 characters, delete any characters after column position 12:
 :s/^\(............\).*/\1/g
+:s/\(.\{12\}\).*/\1/
 
 " vim scp diff scp across networks using vim:
 vi -d /Drugs/update_shortname_ds.sas scp://bheckel@sas-01.mrk.taeb.com//Drugs/update_shortname_ds.sas
@@ -604,11 +605,8 @@ vi -d /Drugs/update_shortname_ds.sas scp://bheckel@sas-01.mrk.taeb.com//Drugs/up
 " Find two strings in any order:
 /.*reboot\&.*box
 
-" Quickfix window
+" Open Quickfix window:
 :cw
-
-;; Light Table keys config
-[:editor.keys.vim.normal "space" :editor.page-down
 
 " Vim array
 let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWL14H50510','sas-01.mrk.taeb.com' ]
@@ -617,7 +615,7 @@ if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
 " Delete duplicate lines
 :%s/^\(.*\)\(\n\1\)\+$/\1/
 
-" Custom Session:
+" Save Session:
 :mksession! .debug
 vim -S /mnt/nfs/home/bheckel/bob/ImmTasks/.debug
 
@@ -626,9 +624,6 @@ vim -c '/tmm_targeted_list_refresh' ~/template_print.sas
 
 -- Edit Postgres stored procedure in vim:
 bheckel@db-dev-01.twa.taeb.com:TAEBMART \ef analytics.tmm_client_build_config
-
--- Search alternation in vimrc
-au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\\\|^WARNING:/<CR>
 
 " Windows gvimrc is sometimes here C:/Program Files (x86)/Vim/_vimrc
 
@@ -5458,9 +5453,6 @@ CREATE TABLE fooTMP AS SELECT * FROM user_role; DROP TABLE foo; CREATE TABLE foo
 select to_char(sysdate-2, 'DD-MON-YY') from dual
 select sysdate-2 from dual
 
---SQLPlus formatting:
-COLUMN meth_spec_nm FORMAT a80; COLUMN meth_spec_num FORMAT 99;
-
 -- Oracle schema info
 select object_type, count(*) from dba_objects where owner='PKS_USER' group by object_type;
 
@@ -5468,22 +5460,11 @@ select object_type, count(*) from dba_objects where owner='PKS_USER' group by ob
 
 OPEN c1; LOOP FETCH c1 INTO v_lastname, v_jobid; EXIT WHEN c1%NOTFOUND; DBMS_OUTPUT.PUT_LINE( RPAD(v_lastname, 25, ' ') || v_jobid ); END LOOP; CLOSE c1;
 
--- Increase sqlplus buffer to maximum unlimited:
-dbms_output.enable(1000000);
-dbms_output.enable(NULL);  -- same
-
-dbms_output.disable;
-
 -- Oracle case insensitive
 where ename LIKE UPPER('foo%')
 
 -- Oracle exact date change
 update mdpi_shift_downtime set mfg_shift_dt=TO_DATE('9/4/2007','MM/DD/YYYY') where Comment_Txt='Assembly Downtime Test'
-
--- Canonical Oracle SQL*Plus date examples (Oracle date less than etc)
-WHERE e.hire_date < TO_DATE('12/31/1999', 'mm/dd/yyyy')
-WHERE birth_date < TO_DATE('19400101', 'YYYYMMDD')
-WHERE EntryTs >= TO_DATE('07-NOV-06 00:00:00','DD-MON-YY HH24:MI:SS')
 
 -- Canonical Oracle date range:
 WHERE prod_sel_dt BETWEEN TO_DATE('01-JAN-10','DD-MON-YY') AND TO_DATE('31-JAN-10','DD-MON-YY')
@@ -5549,19 +5530,57 @@ SELECT to_char(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI') FROM dual
 select * from SQL_HISTORY t WHERE t.min_end_time> '16jan19'
 select * from SQL_HISTORY t WHERE t.min_end_time> TIMESTAMP '2019-01-16 08:26:50'
 
--- Oracle spool (Windows).  Save Oracle SQL*Plus output to file foo.LST
-sql> spool %TEMP%/foo
-...run qry
-sql> spool off
-
 -- SQL check for duplicates, returns nothing if all samp_id are unique:
 select count(*) from samp group by samp_id having count(*)>1;
-select taebpatientid from final_to_insert group by taebpatientid having count(*)>1;
 
--- SQL*Plus
-sql> show all
-sql> set linesize 1000;
-sql> set pagesize 9999;
+-- Oracle spool (Windows).  Save Oracle sqlplus output to file foo.LST:
+sql> spool %TEMP%/foo
+-- ...run qry
+sql> spool off
+-- Canonical sqlplus
+SQL> define_editor='c:/program files/vim/vim70/gvim -c "set filetype=sql"'
+SQL> set linesize 1000;  -- avoid truncation of results
+SQL> ed foo  -- sqlplus adds an .sql extension so probably don't need the -c vim stuff
+SQL> @foo
+
+-- Canonical sqlplus save spool output to file
+set termout off; set linesize 2000; set pagesize 9999; spool u:/serevent.out; ...SQL...; spool off; quit;
+
+-- Oracle SQLPlus
+SQL> ed  -- edits afiedt.buf (assuming a query has already been run)
+SQL> r  -- run query
+
+-- Pass a parameter to sqlplus
+... AND spid='&1'; ...
+
+-- Oracle sqlplus do not display query results (usually when sending output to .out file)
+set termout off
+
+-- Oracle run script plsql developer SQL> @C:\cygwin64\home\obheck\code\misccode\query.sql:
+$ sqlplus -S me/pw@esd @query.sql
+$ vi ~/code/misccode/query.sql && (cd ~/code/misccode/ && sqlplus -S me/pw@esd @query.sql && vi $c/temp/query.out)
+
+-- Avoid sqlplus prompts for ampersands:
+SQL> set define off;
+SQL> @C:\Users\bheck\OneDri~1\workspace\data\Source\SQL\3.50OrionScripts\ORION-33855_ddl_change.sql
+-- sqlplus BOOLEAN parameters are translated from/to integers 0/1/null <--> false/true/null:
+in_debug boolean := sys.diutil.int_to_bool(:in_debug);
+--SQLPlus formatting:
+COLUMN meth_spec_nm FORMAT a80; COLUMN meth_spec_num FORMAT 99;
+
+-- Increase sqlplus buffer to maximum unlimited:
+dbms_output.enable(1000000);
+dbms_output.enable(NULL);  -- same
+dbms_output.disable;
+
+-- Oracle print with carriage return linefeed:
+set serveroutput on;  -- or set serveroutput on size unl; BEGIN DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('Hello World' || chr(13) || chr(10)); END; -- then type /
+crlf CONSTANT VARCHAR2(2) := CHR(13) || CHR(10);
+
+-- userid/password@hostname
+$ sqlplus pks/ev123dba@sdev388
+$ sqlplus pks/ev123dba@sdev388 @c:/cygwin//home/rheckel/code/misccode/_sqlplusrc.sql
+$ sqlplus pks/ev123dba@sdev388 @t.sql --need an exit; in t.sql to run standalone
 
 -- Oracle deep copy clone table:
 select dbms_metadata.get_ddl('TABLE', 'ACTIVITY_SEARCH') from dual;
@@ -5571,26 +5590,6 @@ CREATE OR REPLACE FUNCTION f RETURN SYS_REFCURSOR AS c SYS_REFCURSOR; BEGIN OPEN
 
 -- Strong cursor because Weak types do not have a RETURN clause.  SYS_REFCURSOR is always weak, almost always used with dynamic queries.
 DECLARE TYPE book_data_t IS REF CURSOR RETURN book%ROWTYPE;  cv book_data_t;  BEGIN ...
-
--- Canonical sqlplus
-SQL> define_editor=gvim
-SQL> ed foo  -- sqlplus adds an .sql extension so probably don't need the -c vim stuff
-SQL> @foo
-
--- Canonical sqlplus save spool output to file
-set termout off; set linesize 2000; set pagesize 9999; spool u:/serevent.out; ...SQL...; spool off; quit;
-
--- userid/password@hostname
-$ sqlplus pks/ev123dba@sdev388
-$ sqlplus pks/ev123dba@sdev388 @c:/cygwin//home/rheckel/code/misccode/_sqlplusrc.sql
-$ sqlplus pks/ev123dba@sdev388 @t.sql --need an exit; in t.sql to run standalone
-
-SQL> define_editor='c:/program files/vim/vim70/gvim -c "set filetype=sql"'
-SQL> set linesize 1000;  -- avoid truncation of results
-
--- Oracle print with carriage return linefeed:
-set serveroutput on;  -- or set serveroutput on size unl; BEGIN DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('Hello World' || chr(13) || chr(10)); END; -- then type /
-crlf CONSTANT VARCHAR2(2) := CHR(13) || CHR(10);
 
 -- Oracle nonaggregated expression (rownum) in an aggregated query - SQL hack:
 select rownum, a.* from (select cust, count(ord) from tbl group by cust) a;
@@ -6022,13 +6021,13 @@ $ sqlite3 test.db "SELECT * FROM Cars;"
 
 -- Cartesian join cross join:
 SELECT Name, Day FROM Customers, Reservations;
--- A shirt manufacturer with many different products. They have a set of sizes (S, M, L, etc.). They create each shirt in every size. You need to generate stock rows for every shirt in every size:
-select * from shirts cross join shirt_sizes
+-- E.g. shirt manufacturer with many different products. They have a set of sizes (S, M, L). They create each shirt in every size. Generate stock rows for every shirt in every size:
+select * from shirts CROSS JOIN shirt_sizes  -- be explicit instead of just ','
 
--- INSERT ALL the shorthand multi-table INSERT (unconditional):
-insert all  into teddies values ('Dinosaur King', 'red')  into bricks values ('sphere', 'green', 100)  select * from dual
--- INSERT ALL the shorthand multi-table INSERT (conditional):
-insert all into people values (full_name) when hire_date is not null then into staff values (hire_date) when nhs_number is not null then into patients values (nhs_number) select * from people_details;
+-- INSERT ALL - the shorthand multi-table INSERT rows into 2 or more tables at once (unconditional version - every row from the source query goes into every table):
+INSERT ALL INTO teddies values ('Dinosaur King', 'red')  into bricks values ('sphere', 'green', 100)  select * from dual
+-- INSERT ALL - the shorthand multi-table INSERT rows into 2 or more tables at once (conditional version - every row from the source query goes into every table where the clause is true) Use INSERT FIRST to ensure source rows only go into ONE of the target tables, but if you use INSERT FIRST, you must have a WHEN clause before your tables:
+INSERT ALL INTO people values (full_name) WHEN hire_date is not null THEN into staff values (hire_date) WHEN nhs_number is not null THEN into patients values (nhs_number) select * from people_details;
 
 -- Oracle which database are we on?:
 SELECT name FROM V$DATABASE;
@@ -6059,20 +6058,6 @@ SELECT job_name, start_date, regexp_replace(start_date, '[AP]M -\d\d:\d\d.*$', '
 
 -- Oracle repeat character tab:
 dbms_output.put_line('modifying: ' || j.full_job_name || rpad(chr(09), 4, chr(09)) || ' ' || j.start_date || ' to ' || j.new_start_date);
-
-Oracle SQLPlus
-SQL> ed  -- edits afiedt.buf (assuming a query has already been run)
-SQL> r  -- run query
-
--- Pass a parameter to sqlplus
-... AND spid='&1'; ...
-
--- Oracle sqlplus do not display query results (usually when sending output to .out file)
-set termout off
-
--- Oracle run script plsql developer SQL> @C:\cygwin64\home\obheck\code\misccode\query.sql:
-$ sqlplus -S me/pw@esd @query.sql
-$ vi ~/code/misccode/query.sql && (cd ~/code/misccode/ && sqlplus -S me/pw@esd @query.sql && vi $c/temp/query.out)
 
 -- SQL Server date datetime literal or  { d '1990-10-02' }  { t '13:33:41' }
 WHERE fwn.VariableStp.dtSplTakenTime= {ts '2008-11-21 15:46:59.727'}
@@ -6106,10 +6091,6 @@ SELECT ADD_MONTHS(SYSDATE, -1 * DBMS_RANDOM.VALUE(1, 6)) FROM dual  -- 8/29/2018
 
 cast(trunc(aa.duns_nbr) AS VARCHAR2(90)) duns_nbr
 
--- Avoid sqlplus prompts for ampersands:
-SQL> set define off;
-SQL> @C:\Users\bheck\OneDri~1\workspace\data\Source\SQL\3.50OrionScripts\ORION-33855_ddl_change.sql
-
 -- Benchmarking:
 SELECT st.VALUE FROM v$mystat st, v$statname sn WHERE st.statistic# = sn.statistic# AND sn.name = 'Oracle session pga memory';
 start_time NUMBER; BEGIN start_time := dbms_utility.get_time(); ... dbms_output.put_line(dbms_utility.get_time()-start_time);
@@ -6126,9 +6107,6 @@ CREATE SEQUENCE UID_OPPORTUNITY_OPT_OUT MINVALUE 1000 MAXVALUE 99999999999999999
 
 -- Choose highest value in list:
 SELECT GREATEST(SYSDATE, to_date('01JAN2029'), to_date('01jan2030')) FROM dual
-
--- sqlplus BOOLEAN parameters are translated from/to integers 0/1/null <--> false/true/null:
-in_debug boolean := sys.diutil.int_to_bool(:in_debug);
 
 -- Create an empty zero record table:
 CREATE TABLE rejected_orders AS SELECT * FROM valid_orders WHERE 1 = 0;
@@ -6263,6 +6241,9 @@ NUMBER(12, 2)  -- store up to one cent below $10B, $9,999,999,999.99
 
 -- Wildcard find "Miss Smelly_bottom", the only toy_name that includes an underscore:
 select * from toys where  toy_name like '%\_%' escape '\';
+
+-- 10 (prove linefeed appended):
+dbms_output.put_line(ASCII(SUBSTR(DBMS_UTILITY.FORMAT_ERROR_STACK, -1)));
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6813,7 +6794,7 @@ cat ~/.gitconfig # whoami
 git config user.email
 
 git stash list
-# git show files in the stash
+# git show files in the stash:
 git stash show
 git stash pop
 # or if >1 exist
@@ -6822,8 +6803,9 @@ git stash save --include-untracked -m 'mynamedstash'
 git stash drop 1  # if you have stash@{0} and stash@{1} only delete stash 1
 # Delete ALL stashes:
 git stash clear 
-# git snapshot
-git stash && git stash apply
+
+# git snapshot ...
+git stash --include-untracked -m'mynamedstash' && git stash apply
 
 git log --pretty=oneline
 git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
@@ -6847,22 +6829,22 @@ git add . && git commit -m 'mod' && git push origin master
 # git merge something into master branch:
 git checkout master && git merge mynewbranch && git branch -d mynewbranch
 
-# git revert abandon discard throw away trash changes NOT STAGED for commit:
+# git revert abandon discard throw away trash abandon changes NOT STAGED for commit:
 git checkout -- DataPost_Configuration.map  # can also try  git checkout .  for >1 file 'not staged for commit'
-# git revert abandon discard throw away trash changes unstage a bad STAGED for commit 'git add' back to the working area (not sure if need HEAD):
+# git revert abandon discard throw away trash abandon changes unstage a bad STAGED for commit 'git add' back to the working area (not sure if need HEAD):
 git reset HEAD Daily_data_maintenance.pck
-# git revert discard a pull:
+# git revert discard throw away trash abandon a pull:
 git reset --hard ORIG_HEAD; git gc;
-# git abandon discard a merge collision (remove conflict markers "master|MERGING" from the file but you still have merge conflicts when you do git pull next time):
+# git abandon discard throw away trash abandon a merge collision (remove conflict markers "master|MERGING" from the file but you still have merge conflicts when you do git pull next time):
 git merge --abort  # or git reset --merge
 # git use the other guy's commit on collision:
 git reset --merge 2e40a3
 
-# git disaster discard abandon all commits (or staged files) after the previous commit and reset files to that older/good commit (ignoring any untrackeds!):
+# git disaster discard throw away trash abandon all commits (or staged files) after the previous commit and reset files to that older/good commit (ignoring any untrackeds!):
 git reset --hard HEAD^  # or git reset --hard HEAD~1 for DOS  or git reset --hard c4c9473 if it's not the previous you want to go back to but rather AFTER commit c4c9473
-# git discard abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area:
+# git discard throw away trash abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area:
 git reset c4c9473
-# git discard abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area and leave your INDEX alone - lightest touch:
+# git discard throw away trash abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area and leave your INDEX alone - lightest touch:
 git reset --soft c4c9473
 
 # git edit modify rewrite previous existing git commit message:
@@ -6878,25 +6860,26 @@ git show eacbd91:code/ods_0002e.sas
 # git view old version of file from different branch (in editor):
 git show master:cfg/DataPost_Configuration.html |vi -
 
-# git diff your pre-committed change:
-git difftool  # uses vimdiff if previously  $ git config --global merge.tool vimdiff
-git diff HEAD  # same
-# git see what changes you are committing including previous commit:
-git diff HEAD^
-# git compare commits:
+$ git config --global merge.tool vimdiff
+# git diff your pre-committed change, same as  $ git difftool HEAD:
+git difftool
+# git diff see what changes you will be committing INCLUDING PREVIOUS COMMIT:
+git difftool HEAD^
+# git diff compare commits:
 git difftool 3a93bc3 1fb24fe
-# git compare a file from another branch across branches:
+# git diff compare a file from another branch across branches:
 git difftool master SET_MATCH_CODE.prc
-# git compare old version of file from different commit - current (hash-less) filename must come 2nd!!:
+# git diff compare old version of file from different commit - current (hash-less) filename must come 2nd!!:
 git difftool 1908af7:./PTG.pck PTG.pck
 
-git add unforced.txt  # use git add -f README to force add if it's excluded by .gitignore
+# git force staging if it's excluded by .gitignore:
+git add -f t.txt
 
 git clone https://github.com/grayghostvisuals/Practice-Git.git
 # But may need this first or instead of remote add if your clone was git clone git://github.com/bheckel/misc.git
 git remote set-url origin git@github.com:bheckel/dotfiles.git
 
-# Existing github repo on a new foreign box:
+# git want clone existing github repo to a new foreign box:
 git clone git@github.com:bheckel/dotfiles.git && git remote add origin git@github.com:bheckel/dotfiles.git; ...edit/add/commit... git pull origin master && git push origin master
 
 # git manual pull request completion without using Github UI merge & delete branch buttons:
@@ -6908,16 +6891,16 @@ git branch -d feature/ORION-31587 && git push origin --delete feature/ORION-3158
 # git delete local branch and prune remote branches (after github UI delete button):
 git branch -d feature/ORION-31587 && git fetch -p && git branch -a
 
-# View git history of a file (--follow even if filename has changed, --all branches, -p all patches):
+# git view history of a file (--follow even if filename has changed, --all branches, -p all patches):
 gitk --follow --all -p SUP_HAS_ACTIVE_SITES.fnc
 
-# View git revision and author last modified history for each line of a file:
+# git view revision and author last modified history for each line of a file:
 git blame SUP_HAS_ACTIVE_SITES.fnc
 
-# Remove delete untracked files:
+# git remove delete untracked files:
 git clean --dry-run
 
-# git "you can't push"
+# git "you can't push":
 vi ~/dotfiles/.git/config
 url = git@github.com:bheckel/dotfiles.git
 

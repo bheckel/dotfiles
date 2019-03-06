@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Wed 26 Dec 2018 02:51:17 (Bob Heckel)
+" Modified: Wed 06 Mar 2019 09:07:53 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -540,9 +540,6 @@ set viminfo='1000,\"750,:5000
 " For :mkview & :loadview.  Force gvim to Cygwin's default.
 set viewdir=~/.vim/view
 
-" Copy to Linux clipboard
-"""set clipboard=unnamed
-
 if has('gui_win32')
   set guifont=Consolas:h8
 elseif has('gui_gtk3')
@@ -740,8 +737,9 @@ nnoremap <expr> gp '`[' . strpart(getregtype(), 0, 1) . '`]'
 " Open a window for the file under cursor - (g)et this file a (w)indow
 nnoremap gw <Esc>:split<CR>gf
 
-" Copy visual mode selection to system clipboard. Like gvim's default but this works for terminals
-" like mintty.
+" Copy visual mode selection to system clipboard. Like gVim's default but this works for
+" mintty, etc. Unfortunately we can no longer yank into other registers. see
+" also :set clipboard=
 if has('patch518')
   vnoremap <silent> y  "*y
 endif
@@ -972,15 +970,6 @@ nnoremap ;e :split $MYVIMRC<CR>
 nnoremap ;f vipgq
 " Unflatten toggle, reflow to current tw:
 nnoremap ;ff mfvipJ`f
-
-" (G)et Clipboard contents:
-"if has('win32')
-"  nnoremap ;g "*p<ESC> 
-"elseif has('win32unix')
-"  nnoremap ;g :r!/bin/getclip<CR>
-"elseif has('unix')
-"  nnoremap ;g :r!xclip -o<CR>
-"endif
 
 " Jump to leftside window without chording
 nnoremap ;h <C-W>h
