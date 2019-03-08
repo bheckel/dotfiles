@@ -12,8 +12,8 @@ alias h='history|tail -n20'
 alias gb='git branch'
 alias gpull='git pull'
 alias gpush='git push'
-alias gstash='git stash save --include-untracked'
 alias gs='git status'
+alias gsl='git stash list'
 
 bak() {
   cp -iv ${1} ${1}.bak
@@ -35,6 +35,6 @@ gl() {
 }
 
 rmv() {
-  mkdir --parent ~/tmp
-  mv "$1" ~/tmp
+  mkdir --parent /c/temp
+  mv "$1" /c/temp
 }

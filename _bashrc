@@ -120,6 +120,7 @@ alias gstash='git stash save --include-untracked'
 # alias gdot="cd ~/dotfiles && git add . && git commit -m'gdot' && git pull origin master && git push origin master && cd -"
 # alias grunt='pig -x local'
 alias gs='git status'
+alias gsl='git stash list'
 ###alias gskfrom="echo 'retrieving from github...';echo; cd ~/dotfiles && git pull origin master; echo; cd ~/transfer && git pull origin master; echo 'extracting...'; ls -l ~/transfer/c; tar tvfz ~/transfer/c; sleep 7; cd ~ && tar xfz ~/transfer/c" 
 # alias gskfrom="echo 'retrieving from github...';echo; cd ~/transfer && git pull origin master; echo 'extracting...'; ls -l ~/transfer/c; tar tvfz ~/transfer/c; sleep 7; cd ~ && tar xfz ~/transfer/c" 
 alias h='history|tail -n20'

@@ -3160,6 +3160,8 @@ cat clipboardme.html | putclip
 getclip > clipped.txt
 
 sed 's/day/night/' <old.txt >new.txt
+# In place substitution edit:
+sed -i .bak 's/day/night/' old.txt
 
 # Remove all double quote quotation marks.
 sed 's/"//g' foo.txt > dequoted.txt
@@ -4409,6 +4411,9 @@ sudo dpkg-reconfigure tzdata
 
 # Default shell bash variable:
 JIRA=${1:-99999999}
+
+# Find all control characters like BOM (handles spaces in filename):
+$ find . -type f -print0 | xargs -0 grep --color='auto' -P -n "[\x80-\xFF]"
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5727,8 +5732,8 @@ psql -h ajsperdb1.edp.atbe.com TEBMART
 psql -U atbleau -h db-02.twa.taeb.com teb
 psql -h db-06.twa.taeb.com TAEBMART -c "select * from analytics.reportinglog where reportname='TMMRep_Reporting_Automation' order by lastmodified desc LIMIT 1"
 
--- Empty 2 tables (implicit COMMIT):
-TRUNCATE bigtable, fattable;
+-- Empty 2 tables (implicit COMMIT because it's DDL, DDL statements issue a commit BEFORE and AFTER they run). Faster than DELETE:
+TRUNCATE bigtable, fattable;  -- no WHERE clause allowed
 
 -- Postgres remove leading zeros to find 01, 1, 03, 3:
 where trim(leading '0' from storeid) in ('1','3')
@@ -6826,8 +6831,8 @@ git ls-files
 # github commit mantra (github is origin, PUSH TO):
 git add . && git commit -m 'mod' && git push origin master
 
-# git merge something into master branch:
-git checkout master && git merge mynewbranch && git branch -d mynewbranch
+# git merge your branch into master branch:
+git checkout master && git merge myfeaturebranch && git branch -d myfeaturebranch
 
 # git revert abandon discard throw away trash abandon changes NOT STAGED for commit:
 git checkout -- DataPost_Configuration.map  # can also try  git checkout .  for >1 file 'not staged for commit'
@@ -6894,11 +6899,17 @@ git branch -d feature/ORION-31587 && git fetch -p && git branch -a
 # git view history of a file (--follow even if filename has changed, --all branches, -p all patches):
 gitk --follow --all -p SUP_HAS_ACTIVE_SITES.fnc
 
-# git view revision and author last modified history for each line of a file:
+# git view revision and author last modified history for each line of a file, it does not tell you anything about lines which have been deleted or replaced:
 git blame SUP_HAS_ACTIVE_SITES.fnc
 
 # git remove delete untracked files:
 git clean --dry-run
+
+# Which branches are tracking which remote/upstream branch:
+git remote show origin
+
+# git update a feature branch:
+git checkout develop && git fetch -p origin && git merge origin/develop && git checkout myfeaturebranch && git merge develop
 
 # git "you can't push":
 vi ~/dotfiles/.git/config

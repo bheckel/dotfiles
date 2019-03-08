@@ -3063,7 +3063,6 @@ endfunction
 " end Inlined Plugins-
 "--------------------------------------------------------------------------
 
-
 " Machine / security settings: {{{1
 if filereadable(glob("~/.vimrc.local")) 
   source ~/.vimrc.local
