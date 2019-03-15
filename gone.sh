@@ -110,6 +110,7 @@ else
 fi
 
 
+# Red search term highlight comes from grep's --color=always
 ###if test $CANONICAL -ne 1; then
 grep $IGCASE --before-context=$BEFORECONTEXT --after-context=$AFTERCONTEXT --color=always "$1" $F
 ###else

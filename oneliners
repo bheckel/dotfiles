@@ -508,25 +508,53 @@ vnoremap <C-P> "ey:call CalcBC()<CR>
 
 :args **/*.sas | args cfg/* | args **/*.map
 
-vi -u NORC foo.txt       <---skip .vimrc
-vi -R foo.txt            <---readonly
-vi -V2                   <---verify runtime startup etc
-vi -S [Session.vim]      <---restore project folds, windows, etc. :mksession!
-K                        <---on (K)eyword for help or man etc.
-:helpgrep foo bar\c      <---then :cw[indow] to navigate results
-:h quickref              <---C-] and C-t  ctags fwd back navigation
-:h function-list
-:mes[sage]               <---show previous messages, errors, etc.
-:echo loaded_matchit     <---1 if plugin is loaded (and 'let loaded_matchit=1' is in matchit.vim)
-:scriptnames             <---or verify all plugins and .vimrc location
-:echo has('foo')         <---test existence of Vim variables
-:echo &modifiable        <---boolean checking (scripts mainly)
-:echo $VIMRUNTIME        <---determine Vim's location
-:map z                   <---check if any z* keys are mapped
-:so ~/.vimrc             <---reload me
-:so $MYVIMRC             <---reload me
-:let                     <---view all current Vim variable values
-if &diff                 <---is diff running
+" Skip .vimrc:
+vi -u NORC foo.txt
+" Readonly:
+vi -R foo.txt
+" Verify runtime startup etc:
+vi -V2                   
+
+" Restore project folds, windows, etc. :mksession!:
+vi -S [Session.vim]      
+
+" On (K)eyword for help or man etc.:
+K                        
+
+" Then :cw[indow] to navigate results:
+:helpgrep foo bar\c      
+
+" c-] and C-t  ctags fwd back navigation:
+:h quickref              
+
+" Show previous messages, errors, etc.:
+:mes[sage]               
+
+" 1 if plugin is loaded (and 'let loaded_matchit=1' is in matchit.vim):
+:echo loaded_matchit     
+
+" All plugins and .vimrc locations:
+:scriptnames             
+
+" Test existence of Vim variables:
+:echo has('foo')         
+
+" Boolean checking (scripts mainly):
+:echo &modifiable        
+" Is diff running:
+if &diff                 
+
+" Determine Vim's location:
+:echo $VIMRUNTIME        
+
+" Check if any z* keys are mapped:
+:map z                   
+
+" Reload me:
+:so $MYVIMRC             
+
+" View all current Vim variable values:
+:let                     
 
 " Chain two commands (unfortunately shortcircuits on 'Pattern not found'):
 %s:<ExtractEnabled>1<\/ExtractEnabled>:<ExtractEnabled>0<\/ExtractEnabled>:g | :%s:<TransformEnabled>1<\/TransformEnabled>:<TransformEnabled>0<\/TransformEnabled>:g | :%s:<TrendEnabled>1<\/TrendEnabled>:<TrendEnabled>0<\/TrendEnabled>:g
@@ -534,13 +562,13 @@ if &diff                 <---is diff running
 " Chain global ex command regex
 g!/10000000059062\|10000000060721/d
 
-" Toggle XML flags
+" Toggle HTML XML flags:
 %s:<\(Extract\|Transform\)Enabled>1<:<\1Enabled>0<:gc
 
-" display search results with their line numbers
+" Display search results with their line numbers:
 :g/Line/#
 
-" Highlight (via search hls) every other line greenbar
+" Highlight greenbar every other contiguous line:
 map ,<Tab> :set hls<CR>/\\n.*\\n/<CR>
 
 " Add more options to an existing vim setting:
@@ -552,15 +580,15 @@ nmap <silent> [[ :let &tabstop -= &tabstop > 1 ? 1 : 0<CR>
 " Toggle a flag, creating it if it doesn't already exist:
 let w:check_words = exists('w:check_words') ? !w:check_words : 1
 
-" Sort unique without external uniq
+" Sort file unique without external uniq:
 :%sort u
 
-" Force syntax coloring
+" Force syntax coloring:
 :sy off | se ft=sas | so $VIMRUNTIME/syntax/sas.vim
 
 " Undo by time:
 :earlier 5m
-" Undo to last write:
+" Undo everything back to last write:
 :ea 1f
 
 :echom "Hello, " . "Vim concatenation world"
@@ -619,7 +647,7 @@ if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
 :mksession! .debug
 vim -S /mnt/nfs/home/bheckel/bob/ImmTasks/.debug
 
-" Open file at specific search place:
+" Open file from command line at specific search place location:
 vim -c '/tmm_targeted_list_refresh' ~/template_print.sas
 
 -- Edit Postgres stored procedure in vim:
@@ -636,6 +664,8 @@ $ printf 'a\nb\nc\nb\n' | vim - -es --not-a-term +'g/b/norm gUUixx' +2 +'norm yy
 let sorted_list = reverse(sort(unsorted_list))
 " ...is almost always supposed to be:
 let sorted_list = reverse(sort(copy(unsorted_list)))
+
+/find start of line after this search pattern/+1
 
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5294,7 +5324,7 @@ union all
 (select * from REF_CORPORATE_INITIATIVE minus select * from z_REF_CORPORATE_INITIATIVE)  -- all rows that are in T2 but not in T1
 
 -- Copy first few rows of Oracle table into a new table:
-INSERT INTO bobhlm SELECT * FROM links_material WHERE rownum<11;
+INSERT INTO bobhlm SELECT * FROM links_material WHERE rownum<11; commit;
 
 --Get Oracle database instance version, rack, status etc information v9+:
 select * from v$instance;
@@ -5500,9 +5530,8 @@ select ADD_MONTHS(sysdate,-1) from dual;
 
 dbms_output.put_line('rpt at: ' || TO_CHAR(sysdate, 'dd-mon-yy hh:mipm'));
 
--- Oracle Business hours only
-...if (TO_CHAR(sysdate, 'DY') in ('SAT', 'SUN') or
-(TO_CHAR(sysdate, 'HH24') not between '08' and '18') ...
+-- Oracle Business hours only:
+if (TO_CHAR(sysdate, 'DY') in ('SAT', 'SUN') or (TO_CHAR(sysdate, 'HH24') not between '08' and '18')
 
 -- Format Oracle format if column too wide that truncation occurs in sql*plus window:
 sql> col[umn] MFG_SPEC_TXT_A format a15
@@ -5532,8 +5561,8 @@ WHERE batch_time >= {ts '2011-01-03 00:00:00'} and batch_time <= {ts '2011-01-04
 SELECT to_char(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI') FROM dual
 
 -- Oracle date timestamp literal:
-select * from SQL_HISTORY t WHERE t.min_end_time> '16jan19'
-select * from SQL_HISTORY t WHERE t.min_end_time> TIMESTAMP '2019-01-16 08:26:50'
+select * from t WHERE t.min_end_time> '16jan19'
+select * from t WHERE t.min_end_time> TIMESTAMP '2019-01-16 08:26:50'
 
 -- SQL check for duplicates, returns nothing if all samp_id are unique:
 select count(*) from samp group by samp_id having count(*)>1;
@@ -5876,10 +5905,10 @@ U:\>sqlcmd -S zebsamoc00 -d sprd120
 U:\>sqlcmd /?
 U:\>sqlcmd -S rtpsamoc008 -d ustst1236 -i t.qry -o t.res
 
--- now() for SQL Server SQLServer
+-- now() for SQL Server SQLServer:
 select getdate()  or  select current_timestamp
 
--- Size of table in SQL Server database SQLServer
+-- Size of table in SQL Server database SQLServer:
 EXEC SP_SPACEUSED N'rheckel.[bpmsoutliersnc60]'
 
 -- Copy an SQL Server table into a new one that does not already exist:
@@ -5893,10 +5922,9 @@ select max(rownum) from pks_extraction_control where rownum<1000000;
 
 -- WARNING: LEFT INNER JOIN is a syntax error
 
--- Oracle's MINUS is EXCEPT in ANSI SQL
-
-INSERT INTO links_material (matl_desc) VALUES ('Waiting for update from SAP')
-INSERT INTO links_material (matl_desc, matl_mfg_dt, matl_exp_dt, matl_nbr, batch_nbr, matl_typ) VALUES ('Waiting for update from SAP', '01-JAN-1960', '01-JAN-1960', '0737003', '6ZP8404', 'MANL')
+-- Oracle's MINUS is EXCEPT in ANSI SQL:
+INSERT INTO links_material (matl_desc) VALUES ('Waiting for update from SAP'); commit;
+INSERT INTO links_material (matl_desc, matl_mfg_dt, matl_exp_dt, matl_nbr, batch_nbr, matl_typ) VALUES ('Waiting for update from SAP', '01-JAN-1960', '01-JAN-1960', '0737003', '6ZP8404', 'MANL'); commit;
 
 -- Oracle prompt (1st time only) for saved environment substitution variable:
 select * from tst_rslt_summary where samp_id=&&sampy;
@@ -5904,7 +5932,7 @@ select * from tst_rslt_summary where samp_id=&&sampy;
 -- Oracle version:
 SELECT * FROM v$version
 
--- Also allows determination of which oracle version(s) are installed
+-- Also allows determination of which oracle version(s) are installed:
 /oracle/app/oracle/product/9208HP64DB1_PAR/bin/tnslsnr LISTENER
 /oracle/app/oracle/product/8.0.6/bin/tnslsnr LISTENER -inherit
 
@@ -6130,7 +6158,7 @@ BEGIN dbms_scheduler.drop_schedule('DAILY_SCHEDULE'); dbms_scheduler.drop_job('D
 select a.job_name, a.JOB_TYPE, a.JOB_ACTION, a.start_date, a.REPEAT_INTERVAL, a.end_date, a.JOB_CLASS, a.ENABLED, a.AUTO_DROP, a.comments from all_scheduler_jobs a ORDER BY 1
 -- Oracle scheduled job outcome log:
 SELECT * FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE JOB_NAME LIKE 'PTG%'
--- Oracle scheduled job next run:
+-- Oracle scheduled job next run and what it executes:
 SELECT * from user_scheduler_jobs@sed WHERE job_name in ('PERIODIC_LIFECYCLE_UPDATE')
 
 AUTHID DEFINER is the default permission, check SQL at compile-time
@@ -6249,6 +6277,14 @@ select * from toys where  toy_name like '%\_%' escape '\';
 
 -- 10 (prove linefeed appended):
 dbms_output.put_line(ASCII(SUBSTR(DBMS_UTILITY.FORMAT_ERROR_STACK, -1)));
+-- Embedded quote q:
+dbms_output.put_line(q'[quote has been ok'd]');
+
+-- All SQL run in last 2 months:
+select v.SQL_TEXT, v.PARSING_SCHEMA_NAME, v.FIRST_LOAD_TIME, v.DISK_READS, v.ROWS_PROCESSED, v.ELAPSED_TIME, v.service from v$sql v where to_date(v.FIRST_LOAD_TIME,'YYYY-MM-DD hh24:mi:ss')>ADD_MONTHS(trunc(sysdate,'MM'),-2)
+
+-- Multiple substitutions:
+ffColumnPrefix := replace(replace(replace(inFlexTablePrefix, 'ACCOUNT', 'ACCT'), 'ACTIVITY', 'ACT'), 'OPPORTUNITY', 'OPP');
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6893,7 +6929,7 @@ git checkout develop && git pull && git merge --no-ff feature/ORION-31587 && git
 # git delete branch local then remote (instead of using Github UI delete branch button):
 git branch -a  # make sure your remote is there
 git branch -d feature/ORION-31587 && git push origin --delete feature/ORION-31587 && git fetch -p && git branch -a
-# git delete local branch and prune remote branches (after github UI delete button):
+# git delete local branch and prune remote branches (after using github UI delete button):
 git branch -d feature/ORION-31587 && git fetch -p && git branch -a
 
 # git view history of a file (--follow even if filename has changed, --all branches, -p all patches):
