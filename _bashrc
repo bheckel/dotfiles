@@ -323,10 +323,9 @@ lt() {
 }
 
 
-# For PS1
 parse_git_dirty() {
-  GS=$(git status 2> /dev/null | tail -n1)
-  [[ ${GS:0:17} != 'nothing to commit' ]] && echo '*'
+  GS_PS1=$(git status 2> /dev/null | tail -n1)
+  [[ ${GS_PS1:0:17} != 'nothing to commit' ]] && echo '*'
 }
 parse_git_branch() {
   # Assumes  export GIT_DISCOVERY_ACROSS_FILESYSTEM=1  to avoid slowness on network drives

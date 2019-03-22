@@ -197,13 +197,13 @@ if match(wrd, "\\<re\\%[tur]\\>") > -1 ...do something...  endif
 
 " Alternate unicode foreign character digraph method (better if don't know the code):
 :dig         <---determine digraph's decimal code on (right side)
-Ctrl-v 174   <---in insertmode e.g. copyright � symbol is 169
+Ctrl-v 174   <---in insertmode e.g. copyright © symbol is 169
 To do unicode, must do this first:
 set encoding=utf-8
 :se digraph
 Then in insertmode (e.g copyright symbol):
-C<BS>o   <---Produces �
-s<BS>s   <---Produces German � 
+C<BS>o   <---Produces ©
+s<BS>s   <---Produces German ß 
 
 " Show where all tabs, EOLs, control, hidden chars, etc are on a whole a file:
 :se list
@@ -2608,24 +2608,11 @@ xxUNIXxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 date +%d%b%y  # 31Mar16 like SAS DATE7.
 TODAY=`date +%Y%m%d`  # 20160331
 
-# Canonical find and then grep:
-for f in $(find . | grep orion-32 | grep -P '.*pck|.*sql|.*prc|.*fnc'); do grep --with-filename bheck $f; done >| ~/tmp/t.out; vi ~/tmp/t.out
-find /opt/QCServer/A.05.00/svr/files -name 'Inspec_Lot-*' -mtime -3 | xargs grep "Error:"
-ssh tpsh005 'find /opt/QCServer/A.05.00/svr/files -name 'Inspec_Lot-*' -mtime -3 -exec grep "Error:" {} \; | tail'
-
 # Find newish file that is not empty zero bytes:
 ssh tpsh005 find /home/gaaadmin/GAAAdapter/gaa/logs -name 'InspectionRes*error*' -mtime -7 -a -size +0
 
 # Specify different user to login as:
 ssh -l root 192.168.0.108
-
-# grep for 'findme' but skip ignore string 'foo' if in the same line:
-grep findme * | grep -v foo
-
-find . -name '*.sas7bdat' -a -not -name '*tr_*' |xargs \ls -l
-
-# Look for password in Julie's files:
-find . -name '*Julie*.txt' -print0 | xargs -0 grep -3 -i 'password'
 
 # Poor man's copy cp:
 $ cat <original.txt >duplicate.txt
@@ -2878,8 +2865,8 @@ done
 nohup tar -cf /dev/tape /home &
 nohup while true; do date; sleep 5; done  # fails! must be in a script
 
-# Throw away 'Permission denied', etc. by dumping STDERR to black hole device:
-find / -name foo 2>/dev/null
+# Sum file sizes WITHOUT using awk.  Shell's SET creates numbered variables for each whitespace-separated element, size happens to be in position $3
+t=0; for f in $(ls); do set -- $(ls -lgo $f); ((t=$t+$3)); done; echo $t
 
 # FIND (modify time could be == create time if file is new)
 find . -type f -amin -10 -print # files accessed in last 10 minutes
@@ -2893,6 +2880,12 @@ find . -type f -atime +30       # files that have not been read in 30+ days
 find . -size 42c                # files exactly 42 bytes
 find . -maxdepth 1              # only look in CWD, do not recurse
 find . -path '*bqh0'            # directories with the word 'bqh0' at the end
+
+# Do something to each file for each
+for f in $( find /Drugs/TMMEligibility -print | grep 20180601 | grep DSBRDTMMPATADD ); do ls $f done
+
+# Throw away 'Permission denied', etc. by dumping STDERR to blackhole device any errors to the bit bucket:
+find / -name '*.mac' 2>/dev/null
 
 # Canonical Cygwin-safe spaces safe find - what changed during the last week?
 find . -mtime -7 -type f -print0 | xargs -0 ls -lt
@@ -2914,11 +2907,21 @@ find . -maxdepth 1 -name '*.xls' -print0 | xargs -0 ls -l | awk '{s+=$5}END{prin
 # Recursively delete files older than 2 weeks old - spaces in name safe:
 find . -mtime +14 -print0 | xargs -0 rm
 
-# Sum file sizes WITHOUT using awk.  Shell's SET creates numbered variables for each whitespace-separated element, size happens to be in position $3
-t=0; for f in $(ls); do set -- $(ls -lgo $f); ((t=$t+$3)); done; echo $t
+# Canonical find and then grep:
+for f in $(find . | grep orion-32 | grep -P '.*pck|.*sql|.*prc|.*fnc'); do grep --with-filename bheck $f; done >| ~/tmp/t.out; vi ~/tmp/t.out
+find /opt/QCServer/A.05.00/svr/files -name 'Inspec_Lot-*' -mtime -3 | xargs grep "Error:"
+ssh tpsh005 'find /opt/QCServer/A.05.00/svr/files -name 'Inspec_Lot-*' -mtime -3 -exec grep "Error:" {} \; | tail'
 
-# Do something to each file for each
-for f in $( find /Drugs/TMMEligibility -print | grep 20180601 | grep DSBRDTMMPATADD ); do ls $f done
+# Skip exclude the dirs pattern:
+(cd ~ && find ~/bob/ -maxdepth 2 -not -path '*/tmp/*' -name 'Session.vim')
+
+# grep for 'findme' but skip ignore string 'foo' if in the same line:
+grep findme * | grep -v foo
+
+find . -name '*.sas7bdat' -a -not -name '*tr_*' |xargs \ls -l
+
+# Look for password in Julie's files:
+find . -name '*Julie*.txt' -print0 | xargs -0 grep -3 -i 'password'
 
 # Show only files starting with b, c or containing 'part' somewhere in the name:
 ls foo.{b*,c*,prc,*part*}
@@ -2937,9 +2940,6 @@ find '//Bredsntp002/GDM Reporting Profiles/DATAPOST/Verified/' -newer /cygdrive/
 # Finding files between datestamp June 26 and June 30 (midnight):
 touch -t 200406260000 /tmp/t1 && touch -t 200406300000 /tmp/t2
 find . -newer /tmp/t1 ! -newer /tmp/t2
-
-# Watch, poll, directory for new files (but won't notice files copied with older timstamps)
-touch /tmp/f1 && while true;do find /home -newer /tmp/f1 2>/dev/null;touch /tmp/f1;sleep 5;done
 
 # Recursively update timestamps on all files and directories from current one downward:
 $ find . -type f -mtime -40 -name '*sas' | xargs touch
@@ -3017,6 +3017,9 @@ find . -type l -print | perl -nle '-e || print' | xargs rm
 
 # Non-GNU find is restricted to finding entire filenames so use this:
 find / -print | grep 'fin.*me'
+
+# Watch, poll, directory for new files (but won't notice files copied with older timstamps)
+touch /tmp/f1 && while true;do find /home -newer /tmp/f1 2>/dev/null;touch /tmp/f1;sleep 5;done
 
 # Test parallel printer (as root): Use Ctr-V Ctrl-l to get the ^L.  It sends a form feed to eject the paper:
 echo "This is a test." > /dev/lp0; echo "Please ignore this print job." > /dev/lp0; echo "^L" > /dev/lp0
@@ -3648,10 +3651,10 @@ find /home -newer /tmp/f1 -name '*PDF' 2>/dev/null | perl -ne "print if s#......
 # Which package did a file come from (Solaris):
 grep /my/missing/file /var/sadm/install/contents
 
-# Tape drive swap tapes
+# Tape drive swap tapes:
 mt rewind; mt offline
 
-# Solaris patches information
+# Solaris patches information:
 showrev -p 
 
 # Nested for loop to build test directories:
@@ -3769,9 +3772,6 @@ $ /bin/updatedb --localpaths='/home/rsh8680/code' --prunepaths='/home/rsh8680/co
 # Canonical Linux
 $ sudo updatedb --database-root='/home/bheckel/code' --output='/var/lib/locatedb.code'
 
-# Skip prune tmp dir:
-(cd ~ && find ~/bob/ -maxdepth 2 -not -path '*/tmp/*' -name 'Session.vim')
-
 # Calculate the day before assumes GNU date(1):
 date -d '20050801 2 day ago' +"%Y%m%d"
 
@@ -3885,9 +3885,6 @@ awk "/<ExtractString>/,/<\/ExtractString>/ {print}" cfg/DataPost_Configuration.x
 # Create backup filename with today's date datestamp
 touch foo`date +%d%b%y`.txt
 mv //192.168.52.128/callcenter-compile/{Custody.pl,Custody.`date +%d%b`.pl}
-
-# Any errors to the bit bucket:
-find / -name '*.mac' 2>/dev/null
 
 # Reset, blank titlebar title bar
 unset PROMPT_COMMAND; echo -ne '\033]0;\007'
@@ -4444,6 +4441,9 @@ JIRA=${1:-99999999}
 
 # Find all control characters like BOM (handles spaces in filename):
 $ find . -type f -print0 | xargs -0 grep --color='auto' -P -n "[\x80-\xFF]"
+
+# Remove last 4 characters from end of string (space mandatory!):
+echo ${PS1:0: -4}
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5952,6 +5952,7 @@ select distinct clientid, dashstart from dshbrd.dashboardclients where deactivat
 
  /* Group by month counts by month: */
 select count(distinct taebpatientid), month(filldate) from statin_final group by 2;
+SELECT COUNT(1), TRUNC(created, 'month') FROM lifecyc WHERE created>'01jan16' GROUP BY TRUNC(created, 'month')
 -- Oracle count group by month last 3 months:
 SELECT to_char(TRUNC(o.updated, 'MONTH'),'YYYY-MM') AS mo, COUNT(o.updated) AS COUNT FROM opp o WHERE o.updated > ADD_MONTHS(SYSDATE,-3) GROUP BY TRUNC(o.updated, 'MONTH') ORDER BY 1 DESC
 -- Count group by month:
@@ -6040,8 +6041,6 @@ $ psql -h db-dev-01.twa.taeb.com TAEBMART -c "\copy public.bob from 't.txt' (del
 -- Postgres execute sql from file command line:
 psql -h db-dev-01.twa.taeb.com TAEBMART -f /sasdata/Dev_to_db-06_20180316_dshbrd_hppatientstarpdc.sql
 
-SELECT cast(sys_context('mycontext', 'actual_employee_id') AS NUMBER) FROM dual
-
 -- PL/SQL Developer user prompt msgbox:
 ... AND UPPER(a.sample_id) like &< name = "Sample Id or mask.  Wildcard is %" hint = "Entry not required" type = "string" uppercase = "yes" default = "%" ifempty = "%" > ...
 
@@ -6079,10 +6078,14 @@ SELECT to_number(TRIM(regexp_substr(accounts, '[^,]+', 1, LEVEL))) AS account_id
 ...AND territory_lov_id IN(SELECT to_number(column_value) FROM xmltable(('"' || REPLACE(terrlist, ',', '","') || '"')))  -- terrlist is a varchar2 holding '123,456'
 ...AND ( territory_lov_id IN(SELECT to_number(column_value) FROM xmltable(('"' || REPLACE(terrlist, ',', '","') || '"'))) OR terrlist IS NULL )  -- accomodate cases where no comma delimited input parameter passed to procedure:
 
+SELECT cast(sys_context('mycontext', 'actual_employee_id') AS NUMBER) FROM dual
+
 -- Oracle date time interval in the last 5 minutes:
 SELECT (SYSTIMESTAMP - INTERVAL '5' minute) AS five_minutes_ago, SYSTIMESTAMP FROM dual
 WHERE execute_time >= (SYSTIMESTAMP - INTERVAL '5' minute)
 start_date := cast(SYSTIMESTAMP + (1/(24*60) * 5) AS TIMESTAMP);  -- 5 minutes from now in future
+-- 18-MAR-19 09.40.30.000000 AM   18-MAR-19 09.40.30.000000 AM       3/18/2019 09:40:30 AM   33/18/2019 09:40:30 AM      3/20/2019 09:38:30 AM
+SELECT cast(SYSTIMESTAMP + (.000694 * 2) AS TIMESTAMP) AS cast_ddmmmyy, CAST(sysdate + interval '2' minute AS TIMESTAMP) AS cast_ddmmmyy2, SYSTIMESTAMP + (.000694 * 2) AS mddyyyy, sysdate + interval '2' MINUTE AS mmddyyyy2, SYSTIMESTAMP + 2 AS days FROM dual
 
 -- Oracle full date time with timezone:
 select to_char(SYSTIMESTAMP, 'DD-MON-YYYY HH.MI.SS.FF4 AM TZR') from dual;
@@ -6134,7 +6137,10 @@ SELECT COUNT(*) FROM account_base WHERE 1 = 1 AND account_id = 42;
 -- Is parent or any children in the hierarchy an existing cust?:
 SELECT count(1) FROM account_base b WHERE b.account_id = 181477 AND EXISTS (SELECT 1 FROM account_base sup, account_base detail WHERE sup.account_id = b.sup_account_id AND detail.sup_account_id = sup.account_id) AND detail.existing_customer = 1);
 
-FUNCTION get_dept_info(dept_id NUMBER) RETURN dept_info_record RESULT_CACHE;
+-- Oracle will cache input values and return values for the duration of the SQL statement. If the function is called more than once with the same input values, Oracle will only execute the function body the first time.
+FUNCTION get_dept_info(dept_id NUMBER) RETURN dept_info_record DETERMINISTIC;
+-- If a session makes a change to a table on which a cache is reliant, but that session does not commit those changes, then the cache is disabled for the CURRENT SESSION ONLY. The cache is still valid for and used by all other sessions.
+FUNCTION get_dept_info(dept_id NUMBER) RETURN dept_info_record RESULT_CACHE; -- Function Result Cache
 
 CREATE SEQUENCE UID_OPPORTUNITY_OPT_OUT MINVALUE 1000 MAXVALUE 999999999999999999999999999 START WITH 1001 INCREMENT BY 1 CACHE 5;
 
@@ -6285,6 +6291,13 @@ select v.SQL_TEXT, v.PARSING_SCHEMA_NAME, v.FIRST_LOAD_TIME, v.DISK_READS, v.ROW
 
 -- Multiple substitutions:
 ffColumnPrefix := replace(replace(replace(inFlexTablePrefix, 'ACCOUNT', 'ACCT'), 'ACTIVITY', 'ACT'), 'OPPORTUNITY', 'OPP');
+
+-- Oracle SELECT compare NLSCOMP collation foreign characters:
+SELECT custom_property_id FROM custom_property c WHERE convert(c.property_name,'US7ASCII') IN('Počet zamstnanc')  -- find Czech accented char č but not char like á
+SELECT custom_property_id FROM custom_property c WHERE c.property_name in('TOP 100 v ČR','Verifikován') OR CONVERT(PROPERTY_NAME,'US7ASCII') in('TOP 100 v ČR','Verifikován')  -- find both TODO better way for 11g?
+
+-- Oracle histogram:
+select min(sal), max(sal), rpad('*', count(1), '*') AS Bar, count(1) from ( select sal, ntile(4) over ( order by sal ) as grp from scott.emp ) group by grp order by 1
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6835,12 +6848,13 @@ cat ~/.gitconfig # whoami
 git config user.email
 
 git stash list
-# git show files in the stash:
+# git show the changes recorded in the stash entry as a diff between the stashed contents and the commit back when the stash entry was first created:
 git stash show
+git stash save --include-untracked -m 'mynamedstash'
+# Remove a single stashed state from the stash list and apply it on top of the current working tree state. When no <stash> is given, stash@{0} is assumed, otherwise <stash> must be a reference of the form stash@{<revision>}. Applying the state can fail with conflicts; in this case, it is not removed from the stash list. You need to resolve the conflicts by hand and call git stash drop manually afterwards:
 git stash pop
 # or if >1 exist
 git stash apply stash@{1}  # or git stash apply 1
-git stash save --include-untracked -m 'mynamedstash'
 git stash drop 1  # if you have stash@{0} and stash@{1} only delete stash 1
 # Delete ALL stashes:
 git stash clear 
@@ -6864,7 +6878,7 @@ git status; git log; git branch -a; git remote -v; git remote show origin;
 # ls for git list which files are tracked under git source control not just staged:
 git ls-files 
 
-# github commit mantra (github is origin, PUSH TO):
+# github commit mantra (github is origin, PUSH TO origin FROM master), update index and HEAD:
 git add . && git commit -m 'mod' && git push origin master
 
 # git merge your branch into master branch:
@@ -6872,21 +6886,24 @@ git checkout master && git merge myfeaturebranch && git branch -d myfeaturebranc
 
 # git revert abandon discard throw away trash abandon changes NOT STAGED for commit:
 git checkout -- DataPost_Configuration.map  # can also try  git checkout .  for >1 file 'not staged for commit'
-# git revert abandon discard throw away trash abandon changes unstage a bad STAGED for commit 'git add' back to the working area (not sure if need HEAD):
-git reset HEAD Daily_data_maintenance.pck
-# git revert discard throw away trash abandon a pull:
+# git unstage a bad staged file i.e. revert last 'git add' back to the working area:
+git reset [HEAD] Daily_data_maintenance.pck
+# git revert abandon discard throw away trash abandon changes i.e. undo your last commit, but also unstage everything i.e. roll back to before you ran all your git add and git commit commands:
+git reset [--mixed] HEAD^ 
+
+# git revert discard throw away trash abandon a pull - not WD safe!:
 git reset --hard ORIG_HEAD; git gc;
 # git abandon discard throw away trash abandon a merge collision (remove conflict markers "master|MERGING" from the file but you still have merge conflicts when you do git pull next time):
 git merge --abort  # or git reset --merge
 # git use the other guy's commit on collision:
 git reset --merge 2e40a3
 
-# git disaster discard throw away trash abandon all commits (or staged files) after the previous commit and reset files to that older/good commit (ignoring any untrackeds!):
-git reset --hard HEAD^  # or git reset --hard HEAD~1 for DOS  or git reset --hard c4c9473 if it's not the previous you want to go back to but rather AFTER commit c4c9473
+# git discard throw away trash abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area and leave your INDEX alone. You could now git add and git commit again to accomplish what git commit --amend would have done:
+git reset --soft c4c9473
 # git discard throw away trash abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area:
 git reset c4c9473
-# git discard throw away trash abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area and leave your INDEX alone - lightest touch:
-git reset --soft c4c9473
+# git disaster discard throw away trash abandon all commits (or staged files) after the previous commit and reset files to that older/good commit (ignoring any untrackeds!). Make the working directory look like the index - not WD safe!:
+git reset --hard HEAD^  # or git reset --hard HEAD~1 for DOS  or git reset --hard c4c9473 if it's not the previous you want to go back to but rather a specific commit
 
 # git edit modify rewrite previous existing git commit message:
 git commit --amend -m 'change your previous, last, wrong, commit message to this'
@@ -6902,7 +6919,7 @@ git show eacbd91:code/ods_0002e.sas
 git show master:cfg/DataPost_Configuration.html |vi -
 
 $ git config --global merge.tool vimdiff
-# git diff your pre-committed change, same as  $ git difftool HEAD:
+# git diff "Changes not staged for commit" (your pre-committed change), same as  $ git difftool HEAD:
 git difftool
 # git diff see what changes you will be committing INCLUDING PREVIOUS COMMIT:
 git difftool HEAD^
@@ -6916,18 +6933,22 @@ git difftool 1908af7:./PTG.pck PTG.pck
 # git force staging if it's excluded by .gitignore:
 git add -f t.txt
 
+# git want clone existing github repo to a new foreign server AKA origin (a bookmark) which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
+git clone git@github.com:bheckel/dotfiles.git && git remote add origin git@github.com:bheckel/dotfiles.git; ...edit/add/commit... git pull origin master && git push origin master
+# if 'you cant push'
+git config --local -e  # or vi ~/dotfiles/.git/config then edit to: url = git@github.com:bheckel/dotfiles.git
+
 git clone https://github.com/grayghostvisuals/Practice-Git.git
 # But may need this first or instead of remote add if your clone was git clone git://github.com/bheckel/misc.git
 git remote set-url origin git@github.com:bheckel/dotfiles.git
 
-# git want clone existing github repo to a new foreign box:
-git clone git@github.com:bheckel/dotfiles.git && git remote add origin git@github.com:bheckel/dotfiles.git; ...edit/add/commit... git pull origin master && git push origin master
-
 # git manual pull request completion without using Github UI merge & delete branch buttons:
 git checkout develop && git pull && git merge --no-ff feature/ORION-31587 && git push && git branch -d feature/ORION-31587 && git fetch -p && git push origin --delete feature/ORION-31587
 
-# git delete branch local then remote (instead of using Github UI delete branch button):
-git branch -a  # make sure your remote is there
+# Which branches are tracking which remote/upstream branch:
+git remote show origin
+
+# git delete branch local then remote (instead of using Github UI delete branch button). First make sure your remote is there: git branch -a 
 git branch -d feature/ORION-31587 && git push origin --delete feature/ORION-31587 && git fetch -p && git branch -a
 # git delete local branch and prune remote branches (after using github UI delete button):
 git branch -d feature/ORION-31587 && git fetch -p && git branch -a
@@ -6941,18 +6962,14 @@ git blame SUP_HAS_ACTIVE_SITES.fnc
 # git remove delete untracked files:
 git clean --dry-run
 
-# Which branches are tracking which remote/upstream branch:
-git remote show origin
-
 # git update a feature branch:
-git checkout develop && git fetch -p origin && git merge origin/develop && git checkout myfeaturebranch && git merge develop
+git checkout develop && git fetch -p origin && git merge origin/develop && git checkout myfeaturebranch && git merge develop && git push
 
-# git "you can't push":
-vi ~/dotfiles/.git/config
-url = git@github.com:bheckel/dotfiles.git
+# Set remote tracking branch. Assumes push.default=upstream.  Later, since you’re on a tracking branch and you git pull, Git automatically knows which server to fetch from and which branch to merge in.
+git checkout -b feature/ORION-9999 && git push --set-upstream origin feature/ORION-9999  # "Branch 'feature/ORION-9999' set up to track remote branch 'feature/ORION-9999' from 'origin'."
 
 <!-- Predefined character entities -->
-&lt; &gt; &quot; &amp; &apos;  &#169; or &#xA9 is copyright symbol �
+&lt; &gt; &quot; &amp; &apos;  &#169; or &#xA9 is copyright symbol ©
 
 <ExtractString><![CDATA[ protected stuff goes here...  ]]></ExtractString>
 
@@ -7028,7 +7045,7 @@ u:\misc> del /A:H Thumbs.db
 
 <iframe src="https://zdatapostd.gsk.com/datapostDEMO/DataPost_Results.html" width="850px" height="10000px" frameborder="0"> <p>Your browser does not support iframes.</p></iframe>
 
-<!--  �  a left-pointing double angle html entity -->
+<!--  «  a left-pointing double angle html entity -->
 &#171;
 
 <!-- xslt if AND -->
@@ -7105,11 +7122,7 @@ alert( 6.35.toFixed(20) ); // 6.34999999999999964473
 alert( (6.35 * 10).toFixed(20) ); // 63.50000000000000000000
 alert( Math.round(6.35 * 10) / 10); // 6.35 -> 63.5 -> 64(rounded) -> 6.4
 
-# Set remote tracking branch. Assumes push.default=upstream
-git branch --set-upstream-to=origin feature/ORION-33077  # ???now you can pull BUT this breaks pull requests so do this instead???:
-git checkout -b feature/ORION-33817 && git push --set-upstream origin feature/ORION-33817  # "Branch 'feature/ORION-33817' set up to track remote branch 'feature/ORION-33817' from 'origin'."
-
-Double arrows unicode � �
+Double arrows unicode « »
 
 :: Send To folder c:\temp
 %APPDATA%\Microsoft\Windows\SendTo
