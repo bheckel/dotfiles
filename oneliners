@@ -5439,15 +5439,6 @@ INSERT INTO...; SAVEPOINT bobora; INSERT INTO...; ROLLBACK TO bobora;
 -- Oracle regex:
 select object_name, object_type from user_objects where object_type in ('PACKAGE') AND regexp_like(object_name, '.*BOBONCALL.*')
 
--- Oracle which objects are available? An ls for db (all_objects is similar):
-select object_name, object_type from user_objects where object_type in ('VIEW','TABLE','PACKAGE','PROCEDURE','FUNCTION') and lower(object_name) like '%acc%' order by 2,1
-
--- Oracle which objects are invalid objects:
-select * from user_objects o where object_type != 'JAVA CLASS' and status = 'INVALID' ORDER BY last_ddl_time;
-
--- Oracle recompile entire schema's invalid objects:
-EXEC DBMS_UTILITY.compile_schema('SETARS', false);
-
 -- Oracle date subtraction:
 where lc.updated >= SYSDATE - (365 * 2) -- 2 year window
 SELECT DATE '2019-03-05' - (365 * 2) FROM dual  -- 3/5/2017
@@ -5467,11 +5458,6 @@ SELECT OBJECT_NAME, count(*) FROM dba_procedures WHERE OWNER = 'SETARS' AND OBJE
 foo CONSTANT  varchar2(4000) := q'[bar 'ok' then 4000 is max varchar2]';
 
 DROP PACKAGE test_bob;
-
-SQL> alter procedure z_set_activ_match_code compile;  show error
-
--- SHOW ERR[ORS] in sqlplus uses this table:
-SELECT * FROM USER_ERRORS WHERE name IN ('PLCH_PKG', 'PLCH_GET_NUMBERS')
 
 -- Oracle cross database:
 SELECT \*+ DRIVING_SITE(SITE) *\ COUNT(*) FROM DB_OWNER.DI_SITE_DATA@DNB_XXXX SITE WHERE SITE.DUNS_NBR = :1
@@ -5646,6 +5632,7 @@ SELECT table_name FROM user_tables;
 -- List all Oracle tables & views with a certain field name poke around:
 SELECT table_name, column_name FROM cols WHERE lower(table_name) LIKE 'accou%' AND lower(column_name) LIKE '%id%';
 
+select * from user_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
 select * from dba_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
 
 -- What is my current schema name:
@@ -5653,6 +5640,8 @@ select sys_context('userenv', 'current_schema' ) from dual;
 
 -- Oracle describe table sqlplus:
 desc mytable
+-- Oracle search for fieldname column name:
+SELECT * from  user_tab_columns WHERE column_name LIKE '%NEW%'
 -- View all details of Oracle table:
 select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES','SETARS') from dual;
 -- View some details of Oracle table (like DESC in sqlplus):
@@ -5750,8 +5739,8 @@ select clientid, taskdate, hpprogramid, count(*) from naalytics.ehalthplanpatien
 -- Cancel Postgres jobs status of jobs I am running:
 select * from pg_stat_activity where usename='bheckel'
 
--- Postgres change datatype:
-select stre_id as stid, cast (value as integer) as Waitime ...
+-- Change field's datatype:
+select stre_id as stid, cast(value as TIMESTAMP) as Waitime ...
 
 -- Postgres commandline ODBC:
 isql -v jaspre bheckel mypw
@@ -6070,13 +6059,15 @@ SELECT owner, object_name, object_type, status, last_ddl_time FROM dba_objects W
 
 SELECT SYSTIMESTAMP INTO starting_time FROM DUAL;
 
--- Oracle regex - returns 250/50 MCG
+-- Oracle regex - returns 250/50 MCG:
 select regexp_substr(upper('Disk Inh Pwdr 250/50 mcg 60D'),'\d+/[^/]* *MCG') as stren from dual
 
 -- Comma separated delimited parse split CSV input string to numbers column:
 SELECT to_number(TRIM(regexp_substr(accounts, '[^,]+', 1, LEVEL))) AS account_id FROM (SELECT '123,456' AS accounts FROM dual) CONNECT BY regexp_substr(accounts, '[^,]+', 1, LEVEL) IS NOT NULL;
 ...AND territory_lov_id IN(SELECT to_number(column_value) FROM xmltable(('"' || REPLACE(terrlist, ',', '","') || '"')))  -- terrlist is a varchar2 holding '123,456'
 ...AND ( territory_lov_id IN(SELECT to_number(column_value) FROM xmltable(('"' || REPLACE(terrlist, ',', '","') || '"'))) OR terrlist IS NULL )  -- accomodate cases where no comma delimited input parameter passed to procedure:
+-- Better delimited list of numbers:
+CURSOR c1 IS SELECT account_id FROM account_base WHERE account_id IN (SELECT in_id FROM (SELECT TO_NUMBER(COLUMN_VALUE) in_id FROM XMLTABLE(TRIM(in_ids))));
 
 SELECT cast(sys_context('mycontext', 'actual_employee_id') AS NUMBER) FROM dual
 
@@ -6298,6 +6289,27 @@ SELECT custom_property_id FROM custom_property c WHERE c.property_name in('TOP 1
 
 -- Oracle histogram:
 select min(sal), max(sal), rpad('*', count(1), '*') AS Bar, count(1) from ( select sal, ntile(4) over ( order by sal ) as grp from scott.emp ) group by grp order by 1
+
+-- SHOW ERR[ORS] in sqlplus uses this table:
+SELECT * FROM USER_ERRORS WHERE name IN ('PLCH_PKG', 'PLCH_GET_NUMBERS')
+
+-- Oracle DBA_OBJECTS : All objects in the database  ALL_OBJECTS : All objects accessible to the user  USER_OBJECTS : All objects owned by the user
+
+-- Oracle which objects are available? An ls for db (all_objects is similar):
+select object_name, object_type from user_objects where object_type in ('VIEW','TABLE','PACKAGE','PROCEDURE','FUNCTION') and lower(object_name) like '%acc%' order by 2,1
+
+-- Oracle which objects are invalid objects:
+select * from user_objects o where object_type != 'JAVA CLASS' and status = 'INVALID' ORDER BY last_ddl_time;
+
+-- Compile selectively:
+SQL> alter procedure z_set_activ_match_code compile;  -- if compilation errors type  show error
+-- Compile entire schema's invalid objects:
+EXEC DBMS_UTILITY.compile_schema('SETARS', FALSE);  -- FALSE = compile only INVALID objects
+
+-- After dropping table TEMPTBL, verify no invalids check object validity:
+select object_name, object_type, status from all_objects where object_name like 'TEMP%';
+-- If INVALID, why (some, like VIEWS, will only get an entry after we make an attempt to access them):
+select name, type, line, position, text from all_errors where name like 'TEMP%';
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7025,7 +7037,7 @@ int[] array = new int[5] { 1, 2, 3, 4, 5 };
 
 :: Win7 Administrator cmd.exe command prompt:
 Run : type cmd : Ctrl-Shift-Enter
-Win7 Administrator Cygwin/vim:
+:: Win7 Administrator Cygwin/vim:
 Run : C:\cygwin64\bin\mintty.exe : Ctrl-Shift-Enter
 
 # mintty taskbar properties
@@ -7033,6 +7045,9 @@ C:\cygwin64\bin\mintty.exe -i /Cygwin-Terminal.ico -
 
 mintty.exe -i /Cygwin-Terminal.ico -p 0,30 -s 312,75 -e ssh -l bheckel sas-01.twa.taeb.com &
 mintty.exe -i /Cygwin-Terminal.ico -p right -s maxheight -e ssh -l bheckel sas-01.twa.taeb.com
+
+:: Cygwin SendTo Properties open with:
+C:\cygwin64\bin\mintty.exe -e c:\cygwin64\bin\vim
 
 :: Win7 slow network debug (as Administrator):
 netsh interface tcp show global
@@ -7108,7 +7123,7 @@ library(stringr); x <- c("apple","banana","pear"); sum(!str_detect(x, "^b"));
 -- Remote Desktop multiple monitors:
 %windir%\system32\mstsc.exe /span
 
-<!-- White on gray -->
+<!-- White on gray HTML page -->
 <body bgcolor="#cccccc" text="#000000">
 
 // JavaScript
@@ -7117,7 +7132,6 @@ let num = 255; alert( num.toString(2) );   // 11111111
 
 // JavaScript precision rounding IEEE-754
 alert( 0.1.toFixed(20) ); // 0.10000000000000000555
-alert( 6.35.toFixed(1) ); // 6.3  WTF?
 alert( 6.35.toFixed(20) ); // 6.34999999999999964473
 alert( (6.35 * 10).toFixed(20) ); // 63.50000000000000000000
 alert( Math.round(6.35 * 10) / 10); // 6.35 -> 63.5 -> 64(rounded) -> 6.4
@@ -7127,10 +7141,7 @@ Double arrows unicode « »
 :: Send To folder c:\temp
 %APPDATA%\Microsoft\Windows\SendTo
 
-:: Cygwin SendTo Properties
-C:\cygwin64\bin\mintty.exe -e c:\cygwin64\bin\vim
-
-/* JSON: */
+/* Sample JSON: */
 { "Film": "Schema Wars Episode 1: The Unstructured Menance", "ReleaseYear": 2016, "Genre": "SQL Sci-fi", "Actors": [ "Chris Saxon", "Andre Williams", "Robin Williams", "PJ Tamayo" ] }
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
