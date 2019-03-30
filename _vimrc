@@ -1663,11 +1663,11 @@ if !exists("autocommands_loaded")
 
   " au BufNewFile,BufRead,BufEnter *vimperatorrc* source ~/code/misccode/vimperator.vim
 
-	" Conveniences for my custom searching code e.g. ~/code/perl/bgrep or ~/code/misccode/prj
+	" Conveniences for my custom searching code e.g. bgrep, rme or prj
   au BufNewFile,BufEnter */tmp/*.grep source ~/code/misccode/bgrep.vim
-  au BufNewFile,BufEnter */tmp/*.grep map <CR> <C-W>f :set winheight=9999<CR>/<C-R>/<CR>
-  au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out map q :q<CR>
-  au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out echon '.vimrc: <CR> to select file, q to quit'
+  au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme map <CR> <C-W>f :set winheight=9999<CR>/<C-R>/<CR>
+  au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme map q :q<CR>
+  au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme echon '.vimrc: <CR> to select file, q to quit'
 
   "TODO how to keep non-txt bufs that are switched into from being se wrap?
   " au BufRead,BufEnter *.txt set wrap

@@ -323,10 +323,9 @@ lt() {
 }
 
 
-# For PS1
 parse_git_dirty() {
-  GS=$(git status 2> /dev/null | tail -n1)
-  [[ ${GS:0:17} != 'nothing to commit' ]] && echo '*'
+  GS_PS1=$(git status 2> /dev/null | tail -n1)
+  [[ ${GS_PS1:0:17} != 'nothing to commit' ]] && echo '*'
 }
 parse_git_branch() {
   # Assumes  export GIT_DISCOVERY_ACROSS_FILESYSTEM=1  to avoid slowness on network drives
@@ -360,7 +359,7 @@ md() {
 }
 
 
-# Re-attach to existing session
+# Re-attach to existing session, usually named s1, s2...
 tm() {
   if [ ! -z ${1} ]; then
     tmux -u -2 a -t "s${1}"
@@ -380,6 +379,7 @@ tmn() {
   fi
 }
 
+
 bak() {
   if [ -e $HOME/code/misccode/bak ];then
     $HOME/code/misccode/bak ${1}
@@ -388,13 +388,16 @@ bak() {
   fi
 }
 
+
 # If locate() is not available
 function loc() {
-  find $HOME/code | grep -i "$1" | grep -v '\.git' | xargs ls -ltG >|/tmp/.loc && vim /tmp/.loc
+  find $HOME/code | grep -i "${1}" | grep -v '\.git' | xargs ls -ltG >|/tmp/.loc && vim -c "/${1}" /tmp/.loc
 }
 
+
+# Search my readme files
 function rme() {
-  find $HOME/code/rme | grep -i "$1" | grep -v '\.git' | xargs ls -ltG >|/tmp/.rme && vim /tmp/.rme
+  find $HOME/code/rme | grep -i "${1}" | grep -v '\.git' | xargs ls -ltG >|/tmp/.rme && vim -c "/${1}" /tmp/.rme
 }
 # Generic Functions end
 
@@ -824,3 +827,4 @@ if [ -e $HOME/.bashrc.project ]; then
 fi
 alias cdg='cd /cygdrive/c/Orion/workspace/data/Source/SQL'
 alias vit="vi $HOME/onedrive/t.sas"
+
