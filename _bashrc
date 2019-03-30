@@ -173,7 +173,7 @@ case "$OSTYPE" in
      cygwin) st() { explorer "${1:-.}"; } ;;
   linux-gnu) st() { nautilus "${1:-.}"; } ;;
     darwin*) st() { open     "${1:-.}"; } ;;
-          *) echo 'Unknown file manager.' >&2 ;;
+          *) echo '.bashrc: Unknown file manager' >&2 ;;
 esac
 
 # cd lazy
