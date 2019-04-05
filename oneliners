@@ -588,7 +588,7 @@ let w:check_words = exists('w:check_words') ? !w:check_words : 1
 
 " Undo by time:
 :earlier 5m
-" Undo everything back to last write:
+" Undo all file changes everything back to last write:
 :ea 1f
 
 :echom "Hello, " . "Vim concatenation world"
@@ -3018,6 +3018,9 @@ find . -type l -print | perl -nle '-e || print' | xargs rm
 # Non-GNU find is restricted to finding entire filenames so use this:
 find / -print | grep 'fin.*me'
 
+# Find grep both strings two strings in files matching pattern start with 'b':
+find . -name 'b*' -type f | xargs grep -l replicant | xargs grep 'called'
+
 # Watch, poll, directory for new files (but won't notice files copied with older timstamps)
 touch /tmp/f1 && while true;do find /home -newer /tmp/f1 2>/dev/null;touch /tmp/f1;sleep 5;done
 
@@ -3081,7 +3084,7 @@ mycommand >&2   # STDERR  same as 2>
 # Redirect both STDOUT and STDERR, send nothing to the console (error messages are written to STDOUT instead of STDERR)
 $ ls goodfile.txt nosuchfile.txt > lsOutputWithOnlyErrorMessages.txt 2>&1
 
-# mod modulo modulus division (every n item mod will equal 0).  Better might be to just use python.
+# mod modulo modulus division (every n item mod will equal 0):
 bc -lwq    # if need modulus, from within bc, set scale=0
 
 # mod modulo modulus division
@@ -5312,8 +5315,8 @@ xxSCRIPTINGxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxDATABASExx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
--- Outer joins preserve the rows that don't match and pad the remaining columns with NULLs. OUTER keyword is optional. These words replace the comma between tablenames in old style Oracle (+) joins:
-LEFT OUTER JOIN
+-- Outer joins preserve the rows that don't match and pads remaining columns with NULLs. OUTER keyword is optional. These words replace the comma between tablenames in old style Oracle  (+)  outer join operator joins (operator goes on the rightside table):
+select * from leftside LEFT OUTER JOIN rightside ...
 
 -- Only on one table not in the other table:
 select a.numb, b.numb from tmp1 a LEFT JOIN tmp2 b on a.numb=b.numb where b.numb IS NULL
@@ -5323,13 +5326,15 @@ select a.numb, b.numb from tmp1 a LEFT JOIN tmp2 b on a.numb=b.numb where b.numb
 union all
 (select * from REF_CORPORATE_INITIATIVE minus select * from z_REF_CORPORATE_INITIATIVE)  -- all rows that are in T2 but not in T1
 
--- Copy first few rows of Oracle table into a new table:
+-- Records common to both tables:
+select deptno from scott.emp INTERSECT select deptno from scott.dept  -- 10, 20, 30
+
+-- Copy first few rows of Oracle table into an existing table:
 INSERT INTO bobhlm SELECT * FROM links_material WHERE rownum<11; commit;
+-- Copy first few rows of Oracle table into a new table:
+CREATE bob AS select atebpatientid FROM public.hppatientstarpdc;
 
---Get Oracle database instance version, rack, status etc information v9+:
-select * from v$instance;
-
--- Oracle userid
+-- Capture Oracle userid:
 EXECUTE IMMEDIATE q'[ SELECT sys_context('setars_context', 'employee_id') from dual ]' INTO whoami;
 
 -- Oracle substring:
@@ -5406,6 +5411,8 @@ IF NVL(l_salary,0) <= 40000 ...
 
 -- Use my id or superowner's if i do not exist:
 ..., actual_updatedby = nvl(sys_context('mystars_context', 'employee_id'), 0)
+
+select DECODE(checkmefield, ifcheckmeisthis, thenuseme, elseuseme)
 
 -- Compare NULL:
 where  ... and nvl(width,0) = nvl(length,0)  -- finds only if both are NULL
@@ -5528,13 +5535,15 @@ UPDATE user_role SET user_role=5 WHERE user_nm LIKE '%Heckel%'
 -- Oracle substring replace:
 UPDATE pec SET pks_txt=REPLACE(pks_txt,'GEN','GEN_') ...
 
--- Oracle date
+-- Strip table name suffix:
+replace(ui.table_name,'_BASE','')
+
+-- Oracle date formatting
 select to_char(sysdate, 'Dy DD-Mon-YYYY HH:MI:SS AM') as "Current Time" from dual;  -- Wed 19-Aug-2009 02:51:33 PM  TODO is the 'AM' correct??
 select to_char(sysdate, 'Dy DD-Mon-YYYY HH24:MI:SS') as "Current Time" from dual;  -- Wed 19-Aug-2009 14:53:41
-select TO_DATE('16-JAN-06');  -- uses Oracle's default date format
+select TO_DATE('6-JAN-06'), TO_DATE('06JAN06'), TO_DATE('6JAN2006');  -- all same
 select TO_DATE('15-may-2006 16:00:01','dd-mon-yyyy hh24:mi:ss') from dual; -- 15-May-06 04:00:01 PM
 select * from activity_log where trunc(activity_dt)=TO_DATE('16-JAN-06','DD-MON-YY');
-select TO_DATE('15-may-2006 16:00:01','dd-mon-yyyy hh24:mi:ss') from dual; -- 15-May-06 04:00:01 PM
 
 -- Oracle date between
 select count(distinct sampname) from result where sampcreatets between to_date('01-JAN-12','DD-MON-YY') and to_date('31-DEC-12','DD-MON-YY')
@@ -5624,42 +5633,47 @@ SELECT 'DROP PROCEDURE "'||owner||'"."'||object_name||'";' FROM all_procedures W
 select * from user_procedures  -- like all_procedures but for schema only
 SELECT *  FROM all_objects WHERE  owner='SETARS' AND object_type NOT LIKE 'JAVA%'  -- jobs, indexes, triggers, tables, procedures, types...
 
--- Oracle list view all database tables all available schema
+--Get Oracle database instance version, rack, status etc information:
+select * from v$instance;
+
+-- Find Oracle data dictionary user_tables etc from which to further query:
+select * from DICTIONARY WHERE table_name LIKE 'USER%' ORDER BY 1
+
+-- Oracle list all schemas:
+SELECT username FROM all_users ORDER BY username;
+
+-- What is my current schema name:
+select sys_context('userenv', 'current_schema') from dual;
+
+-- Oracle list database tables you own:
+SELECT table_name FROM user_tables;
+
+-- Oracle list all views:
+select * from all_views where view_name like '%SPEC%'
+
+-- Oracle list all database tables all available schema. Then you can select * from hr.employees:
 SELECT owner, table_name FROM all_tables where owner = 'myschema';
 
--- List view all my schema Oracle tables:
-SELECT table_name FROM user_tables;
 -- List all Oracle tables & views with a certain field name poke around:
 SELECT table_name, column_name FROM cols WHERE lower(table_name) LIKE 'accou%' AND lower(column_name) LIKE '%id%';
 
 select * from user_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
 select * from dba_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
 
--- What is my current schema name:
-select sys_context('userenv', 'current_schema' ) from dual;
+-- Oracle primary (P) foreign (R) keys:
+SELECT * FROM ALL_CONSTRAINTS WHERE owner=USER
+select * from all_constraints where r_constraint_name in (select constraint_name from all_constraints where table_name LIKE 'CONTACT');
 
 -- Oracle describe table sqlplus:
 desc mytable
 -- Oracle search for fieldname column name:
 SELECT * from  user_tab_columns WHERE column_name LIKE '%NEW%'
--- View all details of Oracle table:
+-- View all details of Oracle table in a schema:
 select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES','SETARS') from dual;
 -- View some details of Oracle table (like DESC in sqlplus):
 select column_name, nullable, concat(concat(concat(data_type,'('),data_length),')') from user_tab_columns where table_name = 'EMAIL_MESSAGES';
 -- Oracle list view table details:
 SELECT data_type, data_length, nullable, column_id, num_distinct, num_nulls, density from  user_tab_columns WHERE table_name LIKE 'USER_ON%'
-
--- Find Oracle data dictionary user_tables etc from which to further query:
-select * from DICTIONARY WHERE table_name LIKE 'USER%' ORDER BY 1
-
--- Oracle high level view all database tables you own (current schema)
-SELECT table_name FROM user_tables;
-
--- Oracle list view all schemas:
-SELECT username FROM all_users ORDER BY username;
-
--- Oracle list view names:
-select * from all_views where view_name like '%SPEC%'
 
 -- Oracle select top 10 rows of a table in order:
 SELECT * FROM (SELECT * FROM t ORDER BY c) WHERE ROWNUM <= 10;
@@ -5668,7 +5682,7 @@ SELECT * FROM (SELECT * FROM t ORDER BY c) WHERE ROWNUM <= 10;
 extract(year from h.updated) in(2017,2018)
 if (extract(year from sysdate) not between (compYear - 1) and (compYear + 1)) then...
 
--- sleep pause execution for 60 seconds 
+-- Sleep pause execution for 60 seconds:
 SELECT sysdate INTO l_now FROM DUAL; LOOP EXIT WHEN l_now +(60 * (1 / 86400)) = sysdate; END LOOP;
 
 -- Oracle date calculations:
@@ -5693,9 +5707,6 @@ SELECT SYS_CONTEXT('USERENV', 'SERVER_HOST') FROM DUAL;
 -- Oracle database name:
 l_db_name VARCHAR2(20) := SYS_CONTEXT('USERENV', 'DB_NAME');  if (l_db_name IN ('SEPS')) THEN...
 
--- Oracle primary (P) foreign (R) keys:
-SELECT * FROM ALL_CONSTRAINTS WHERE owner=USER
-
 -- Correlated update query:
 UPDATE contact_note SET original_contact_ID=contact_id WHERE contact_id IN (SELECT contact_id FROM zzorion32806) AND original_contact_ID IS NULL
 
@@ -5705,7 +5716,6 @@ rc pls_integer := 0; rc := SQL%ROWCOUNT; dbms_output.put_line('rows affected: ' 
 CREATE TABLE zzorion32822 AS SELECT * FROM zorion32822 SAMPLE(0.01)
 -- Random ids 0.1% of all records in Oracle table:
 SELECT account_id FROM account_name SAMPLE(0.1);
-CREATE TEMP TABLE _bob AS select atebpatientid FROM public.hppatientstarpdc;
 
 -- Error exception handler (if you don't give SQLERRM a valid Oracle error code it uses SQLCODE as the error code):
 WHEN others THEN dbms_output.put_line(SQLCODE || ': ' || SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
@@ -5781,6 +5791,9 @@ select pg_cancel_backend(8501);
 
 -- SQL take only the highest value:
 where listdate = (select max(listdate) from test.master_npi)
+
+-- Most recent date Oracle:
+select greatest(nvl(an.updated, ac.updated), nvl(an_parent.updated, ac.updated), nvl(an_sup.updated, ac.updated)
 
 -- Postgres date range, pull data from last year for patients over 50:
 filldate > date('now') - interval '1 year'  and  patientdob < date('now') - interval '50 year'
@@ -5958,27 +5971,46 @@ SELECT listagg(account_search_id,',') WITHIN GROUP (ORDER BY account_search_id) 
 -- Determine the min and prove it with a list of all radiuses for that class, using listagg as an Analytic function:
 select class, planet, min(radius), listagg(min(radius),',') within group ( order by planet ) over ( partition by class ) class_radii from named_moons group by class, planet order by 1,2
 
--- Analytic Windowing function partition-order-window (POW):
-,row_number() OVER (partition by d order by d) rownumbyday
-,rank() OVER (order by d) orderbydt -- 1,2,3,3,5...
-,dense_rank() OVER (order by d) orderbydt_dense -- 1,2,3,3,4...
-,first_value(amt) OVER (order by d) firstdot
--- Good for cols where only the first appearance holds empno and rest are blank (like a report for human consumption)
-,last_value(amt IGNORE NULLS) OVER (order by d)  lastdot_fillin_the_blank
-,nvl(amt, lag(amt IGNORE NULLS) OVER (partition by d order by d)) fillin_the_blank_handle_nulls
-,nth_value(amt,2) OVER (order by d) second_highest_skip_outliers
-,round(amt/nth_value(amt,2) over (order by d),2)*100 percent_diff
-,sum(amt) OVER (order by d) as running_total
-,sum(amt) OVER (order by d rows between unbounded preceding and current row) running_total2
-,avg(amt) OVER (order by d rows between 1 preceding and 1 following) moving_average
-,sum(amt) OVER (order by d rows between MYFUNC(foo) preceding and 0 following) running_total2
--- Use RANGE not ROWS to avoid missing data
-,avg(amt) OVER (order by d range between interval '2' day preceding and current row) moving_average_2day
-,sum(amt) OVER (order by d range between interval '2' day preceding and current row) running_total_2day
-,lag(amt) OVER (partition by d order by d) amt_before  -- good for status updates when you have daily data
-,lead(amt) OVER (partition by d order by d) amt_after  -- good for status updates when you have daily data
-,sum(amt) OVER () grand_sum
-,avg(amt) OVER () grand_avg
+-- Analytic SQL function partition-order-windowing:
+,count(1) OVER (order by d) cnt_cumul_grp  -- 1,2,4,4,5,6
+,row_number() OVER (order by d) row_seq_in_dt_order  -- 1,2,3,4,5,6
+,rank() OVER (order by d) orderbydt -- 1,2,3,3,5,6 Olympic has holes
+,dense_rank() OVER (order by d) orderbydt_dense -- 1,2,3,3,4,5,6 still have dups like Olympic but fill the holes
+,row_number() OVER (partition by d order by d) rownumbyday  -- 1,1,1,2,1,1
+-- Can be Top N by day if used as a subquery
+,rank() OVER (partition by d order by amt) rank_by_day -- 1,1,1,1,1,1 would be 1,1,1,1,3,1,1 if union all select date '2000-01-03', 99 from dual existed and dense_rank would make the 3 a 2
+,first_value(amt) OVER (partition by d order by d) firstdot  -- 10,11,30,30,10,14
+-- Good for cols where only the first appearance holds empno and rest are blank and need to be padded out (like a report for human consumption)
+,last_value(amt IGNORE NULLS) OVER (order by d)  lastdot_fillin_the_blank  -- 10,11,30,30,10,14
+,last_value(amt) OVER (order by d RANGE between current row and unbounded following) last_from_lastdategrp  -- 14,14,14,14,14,14
+-- The NTH_VALUE clause lets us identify boundary values that are not necessarily the minima and maxima which could be identified by FIRST_VALUE() and LAST_VALUE()
+,nth_value(amt,2) OVER (order by d) second_highest_skip_outliers  -- , 11, 11, 11, 11, 11
+,round(amt/nth_value(amt,2) over (order by d),2)*100 percent_diff  -- , 100, 273, 273, 91, 127
+-- Default windowing clause for ORDER BY is "RANGE between unbounded preceding and current row"
+,sum(amt) OVER (order by d) running_total0  -- 10,21,51,81,81,91,105
+-- But usually the default isn't what you want, normally running totals should only include values from previous ROWS
+,sum(amt) OVER (order by d ROWS between unbounded preceding and current row) running_total1  -- 10,21,51,81,91,105
+--      ,sum(amt) OVER (order by d ROWS between MYFUNC(foo) preceding and 0 following) running_total2
+--      ,sum(amt) OVER (order by d ROWS between MYSEQ-MYTRAILING_SEQ preceding and 0 following) running_total3
+,avg(amt) OVER (order by d ROWS between 1 preceding and 1 following) moving_average  -- 10.5,17,23.6666666,23.333333,18,12
+-- Use time RANGE not physical ROWS to avoid missing data
+,sum(amt) OVER (order by d RANGE between interval '2' day preceding and current row) running_total_2day  -- 10,21,81,81,81,84
+,avg(amt) OVER (order by d RANGE between interval '2' day preceding and current row) moving_average_2day  -- 10,10.5,20.25,20.25,20.25,21
+-- Always need an ORDER BY for LAG() & LEAD()
+,lag(amt) OVER (order by d) amt_before  -- NULL,10,11,30,30,10
+,lag(amt, 2, 0) OVER (order by d) amt_2before_nonull  -- 0,0,10,11,30,30
+,lead(amt) OVER (partition by d order by d) amt_after  -- , , 30, , ,  good for finding a change in status when you have daily data
+-- Want only first date in a contiguous series otherwise leave blank
+,case when nvl(lag(d) over (order by d), d) != d-1 then d end lowval_of_range  -- 01jan, , , 03jan, , 
+,nvl(amt, lag(amt IGNORE NULLS) OVER (partition by d order by d)) fillin_the_blank_handle_nulls  -- 10,11,30,30,10,14
+--_______________________________________ <--still just another aggregation function like count(1) or sum(amt)
+,listagg(d,', ') within group(order by d) OVER (partition by amt) csv
+,100*cume_dist() OVER ( order by d) as cumedist  -- 16.666, 33,333, 66,66, 66,66, 83,333, 100
+,100*percent_rank() OVER (order by d) as pctrank  -- 0, 20, 40, 40, 80, 100
+,ntile(4) OVER (order by amt) as quartile  -- 1(10), 1(10), 2(11), 2(14), 3(30), 4(30)
+,sum(amt) OVER () grand_sum  -- 105,105,105,105,105,105
+,avg(amt) OVER () grand_avg  -- 17.5,17.5,17.5,17.5,17.5,17.5
+,count(1) OVER () grand_sum -- 7,7,7,7,7,7
 
 -- Analytic function quartile split employees randomly into 4 buckets:
 select empno, ename, job, hiredate, sal, deptno, ntile(4) over ( order by DBMS_RANDOM.VALUE ) as grp from scott.emp order by grp;
@@ -6225,7 +6257,12 @@ select deptno, min(sal), min(empno) KEEP ( dense_rank FIRST order by sal) empno 
 -- Modified analytic outer join to get every hr, every room and who reserved it:
 select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2
 
+set autotrace traceonly explain -- then select ename from emp
+
 EXPLAIN PLAN FOR SELECT * FROM email_messages WHERE actual_updated > (SYSTIMESTAMP - INTERVAL '42' minute); select * from table(dbms_xplan.display);
+
+-- Create a histogram manually:
+SQL> exec DBMS_STATS.GATHER_TABLE_STATS('HR', 'EMPLOYEES', method_opt=>'FOR COLUMNS SIZE 254 JOB_ID');
 
 SELECT LAST_DAY(DATE '2019-01-01') last_day_of_month FROM dual
 lastDayOfQuarter := LAST_DAY(TO_DATE(to_char((payoutQuarter * 3), '00') || '/01/' || targetYear, 'mm/dd/YYYY'));
@@ -6257,6 +6294,9 @@ ALTER TABLE zorion35282 ADD  SQL_TEXT_ALL CLOB
 ALTER TABLE zorion35282 DROP COLUMN SQL_TEXT_ALL 
 ALTER TABLE email_messages MODIFY msgbody VARCHAR2(63)
 
+create table emp as select * from scott.emp;
+insert into emp values (999, 'joe', 'CLERK', 0, null, 10, null, 99);
+
 -- First and last day of last year:
 SELECT ADD_MONTHS(TRUNC(SYSDATE,'YEAR'), -12) jan_prev_yr, ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), -1) +30 dec_prev_yr FROM dual
 
@@ -6272,8 +6312,8 @@ NUMBER(12, 2)  -- store up to one cent below $10B, $9,999,999,999.99
 -- Wildcard find "Miss Smelly_bottom", the only toy_name that includes an underscore:
 select * from toys where  toy_name like '%\_%' escape '\';
 
--- 10 (prove linefeed appended):
-dbms_output.put_line(ASCII(SUBSTR(DBMS_UTILITY.FORMAT_ERROR_STACK, -1)));
+-- Prove linefeed was appended:
+dbms_output.put_line(ASCII(SUBSTR(DBMS_UTILITY.FORMAT_ERROR_STACK, -1))); -- 10 
 -- Embedded quote q:
 dbms_output.put_line(q'[quote has been ok'd]');
 
@@ -6310,6 +6350,12 @@ EXEC DBMS_UTILITY.compile_schema('SETARS', FALSE);  -- FALSE = compile only INVA
 select object_name, object_type, status from all_objects where object_name like 'TEMP%';
 -- If INVALID, why (some, like VIEWS, will only get an entry after we make an attempt to access them):
 select name, type, line, position, text from all_errors where name like 'TEMP%';
+
+delete from pks_extraction_control where rowid='AAB5QNACDAAARalAAo';
+
+-- Semi join compared to left join. More efficient using semi but you lose ability to select g.*:
+SELECT s.id FROM students s WHERE EXISTS (SELECT 1 FROM grades g WHERE g.student_id = s.id)
+SELECT s.id FROM students s LEFT JOIN grades g ON g.student_id = s.id WHERE g.student_id IS NOT NULL
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7143,5 +7189,7 @@ Double arrows unicode « »
 
 /* Sample JSON: */
 { "Film": "Schema Wars Episode 1: The Unstructured Menance", "ReleaseYear": 2016, "Genre": "SQL Sci-fi", "Actors": [ "Chris Saxon", "Andre Williams", "Robin Williams", "PJ Tamayo" ] }
+curl https://api.github.com/users/bheckel
+curl -d '{"key1":"value1", "key2":"value2"}' -H "Content-Type: application/json" -X POST http://localhost:3000/data
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

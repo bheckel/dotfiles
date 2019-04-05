@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Wed 06 Mar 2019 09:07:53 (Bob Heckel)
+" Modified: Fri 05 Apr 2019 11:34:12 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -742,12 +742,6 @@ nnoremap gw <Esc>:split<CR>gf
 " also :set clipboard=
 if has('patch518')
   vnoremap <silent> y  "*y
-endif
-
-" Resize window (most convenient with number keypad)
-if bufwinnr(1)
-  nnoremap + <C-W>+
-  nnoremap - <C-W>-
 endif
 
 " Jump to the exact position where you left, not to beginning of line
@@ -1667,6 +1661,7 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufEnter */tmp/*.grep source ~/code/misccode/bgrep.vim
   au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme map <CR> <C-W>f :set winheight=9999<CR>/<C-R>/<CR>
   au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme map q :q<CR>
+  au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme set hls
   au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme echon '.vimrc: <CR> to select file, q to quit'
 
   "TODO how to keep non-txt bufs that are switched into from being se wrap?
@@ -1777,6 +1772,12 @@ if !exists("autocommands_loaded")
   if THISBOX == 'appa'
     au BufNewFile,BufRead,BufEnter *.sas | syntax clear | source $HOME/code/sas/sas.vim
   endif
+
+  " Resize buffer (most convenient with number keypad) if more than one exists
+  au BufEnter * if len(getbufinfo({'buflisted':1})) > 1 | exe "nnoremap + <C-W>+" | endif
+  au BufEnter * if len(getbufinfo({'buflisted':1})) > 1 | exe "nnoremap - <C-W>-" | endif
+  "TODO reset when back to 1 buf
+  " au BufEnter * if len(getbufinfo({'buflisted':1})) == 1 | exe "nnoremap - noop" | endif
 
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
   "
