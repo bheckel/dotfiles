@@ -5654,7 +5654,7 @@ select * from all_views where view_name like '%SPEC%'
 -- Oracle list all database tables all available schema. Then you can select * from hr.employees:
 SELECT owner, table_name FROM all_tables where owner = 'myschema';
 
--- List all Oracle tables & views with a certain field name poke around:
+-- Find query all Oracle tables & views with a certain field name column name poke around:
 SELECT table_name, column_name FROM cols WHERE lower(table_name) LIKE 'accou%' AND lower(column_name) LIKE '%id%';
 
 select * from user_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
@@ -6357,6 +6357,20 @@ delete from pks_extraction_control where rowid='AAB5QNACDAAARalAAo';
 SELECT s.id FROM students s WHERE EXISTS (SELECT 1 FROM grades g WHERE g.student_id = s.id)
 SELECT s.id FROM students s LEFT JOIN grades g ON g.student_id = s.id WHERE g.student_id IS NOT NULL
 
+-- Custom sort order:
+order by decode(TOP_LEVEL_ITEM_TEXT, 'accounts', 1, 'contacts', 2, 'opportunities', 3, 999)
+
+BEGIN SYS.DBMS_SCHEDULER.disable('SETARS.PERIODIC_LIFECYCLE_UPDATE'); END;
+
+-- Want max highest most recent date using analytic:
+SELECT * FROM ( SELECT d.JOB_NAME , d.LOG_DATE, d.STATUS, d.ADDITIONAL_INFO, j.SCHEDULE_NAME ,  row_number() OVER (PARTITION BY trunc(log_date) ORDER BY log_date DESC) rownbr FROM USER_SCHEDULER_JOB_RUN_DETAILS d LEFT JOIN USER_SCHEDULER_JOBS j ON j.JOB_NAME=d.JOB_NAME WHERE d.STATUS != 'SUCCEEDED' AND d.LOG_DATE > (SYSDATE-1)) WHERE rownbr = 1
+
+-- Compare Oracle table to csv list:
+SELECT aid, ab.account_id FROM (SELECT to_number(column_value) aid FROM xmltable(('"' || REPLACE('123,456', ',', '","') || '"'))) csv LEFT JOIN account_base ab ON csv.aid=ab.account_id
+
+-- Collapse to single day for counting e.g. 01/Aug/07 01:30:08, 01/Aug/07 01:33:08 ...:
+select distinct trunc(prod_sel_dt) psd, count(*) from RETAIN.FNSH_PROD group by trunc(prod_sel_dt) 
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -6939,9 +6953,6 @@ git ls-files
 # github commit mantra (github is origin, PUSH TO origin FROM master), update index and HEAD:
 git add . && git commit -m 'mod' && git push origin master
 
-# git merge your branch into master branch:
-git checkout master && git merge myfeaturebranch && git branch -d myfeaturebranch
-
 # git revert abandon discard throw away trash abandon changes NOT STAGED for commit:
 git checkout -- DataPost_Configuration.map  # can also try  git checkout .  for >1 file 'not staged for commit'
 # git unstage a bad staged file i.e. revert last 'git add' back to the working area:
@@ -7000,13 +7011,16 @@ git clone https://github.com/grayghostvisuals/Practice-Git.git
 # But may need this first or instead of remote add if your clone was git clone git://github.com/bheckel/misc.git
 git remote set-url origin git@github.com:bheckel/dotfiles.git
 
-# git manual pull request completion without using Github UI merge & delete branch buttons:
-git checkout develop && git pull && git merge --no-ff feature/ORION-31587 && git push && git branch -d feature/ORION-31587 && git fetch -p && git push origin --delete feature/ORION-31587
-
 # Which branches are tracking which remote/upstream branch:
 git remote show origin
 
-# git delete branch local then remote (instead of using Github UI delete branch button). First make sure your remote is there: git branch -a 
+# git manual pull request completion without using Github UI merge & delete branch buttons:
+git checkout develop && git pull && git merge --no-ff feature/ORION-31587 && git push && git branch -d feature/ORION-31587 && git fetch -p && git push origin --delete feature/ORION-31587
+
+# git merge your branch into master branch:
+git checkout master && git merge myfeaturebranch && git branch -d myfeaturebranch
+
+# git delete branch local then remote (without using Github UI delete branch button). First make sure your remote is there: git branch -a 
 git branch -d feature/ORION-31587 && git push origin --delete feature/ORION-31587 && git fetch -p && git branch -a
 # git delete local branch and prune remote branches (after using github UI delete button):
 git branch -d feature/ORION-31587 && git fetch -p && git branch -a
