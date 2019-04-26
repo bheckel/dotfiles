@@ -11,7 +11,7 @@
 #           - Write down the answer to avoid asking it again
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Mon 04 Mar 2019 14:16:25 (Bob Heckel)
+# Modified: Tue 23 Apr 2019 10:44:08 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -5420,6 +5420,8 @@ where decode(col1, col2, 1, 0) = 1  -- finds sameness of col1 & col2 - even if b
 
 -- Update table to new value if newloc not null otherwise leave it alone:
 update departments set location = decode(newloc, NULL, location, newloc);
+-- Update the CODE column for 10 rows, setting it to itself for 8 rows and to the value NULL for 2 rows:
+UPDATE dest SET code = DECODE(id, 9, NULL, 10, NULL, code) WHERE id BETWEEN 1 AND 10;
 
 -- IF THEN ELSE database:
 CASE WHEN TO_CHAR(b.sample_status_date,'DY')='SAT' THEN 1 ELSE 0 END
@@ -5428,6 +5430,9 @@ select dt, ticker, decode(transact, 'Buy', +1, -1)*qty qty
 select prod_nm, DECODE(prod_grp, 'MDPI','m', 'Solid Dose','sd', 'unk') from samp;
 DECODE(warehouse_id, 1,'Southlake', 2,'San Francisco', 3,'New Jersey', 'Non-domestic') 
 CASE WHEN warehouse_id=1 THEN 'Southlake' WHEN warehouse_id=2 THEN 'San Francisco' WHEN warehouse_id=3 THEN 'New Jersey' ELSE 'Non-domestic' END
+
+-- Custom sort order:
+order by decode(TOP_LEVEL_ITEM_TEXT, 'accounts', 1, 'contacts', 2, 'opportunities', 3, 999)
 
 -- PLSQL null comparison (DECODE is better):
 IF (updated1 = updated0) AND (updatedby1 = updatedby0) AND ( (search_match_code1 = search_match_code0) OR ((search_match_code1 IS NULL) AND (search_match_code0 IS NULL)) ) THEN
@@ -6086,7 +6091,7 @@ INSERT ALL INTO people values (full_name) WHEN hire_date is not null THEN into s
 SELECT name FROM V$DATABASE;
 IF (SYS_CONTEXT('USERENV', 'DB_NAME') in ('SER', 'SETS')) THEN RETURN; END IF;
 
--- Check for recent recompilation or invalid status:
+-- Check for recent last recompilation or invalid status:
 SELECT owner, object_name, object_type, status, last_ddl_time FROM dba_objects WHERE object_name = 'USER_ON' AND object_type LIKE 'PACKAGE%'
 
 SELECT SYSTIMESTAMP INTO starting_time FROM DUAL;
@@ -6205,7 +6210,7 @@ select count(1) into cnt from USER_INDEXES s where s.index_name = 'MY_IX'; if (c
 -- Insert if not exists already in another table:
 insert into bricks_target  select * from bricks_source b2 where NOT exists ( select 1 from bricks_target b1 where b1.brick_id=b2.brick_id )
 -- Upsert:
-merge into target a using ( select id, name, score from source ) b on (a.id=b.id)  when MATCHED then update set a.name=b.name, a.score=b.score  when NOT MATCHED then insert (a.id, a.name, a.score) values (b.id, b.name, b.score)
+MERGE into target a using ( select id, name, score from source ) b on (a.id=b.id) WHEN MATCHED then update set a.name=b.name, a.score=b.score WHEN NOT MATCHED then insert (a.id, a.name, a.score) values (b.id, b.name, b.score)
 
 -- Full drop:
 drop table mytbl cascade constraints purge
@@ -6357,9 +6362,6 @@ delete from pks_extraction_control where rowid='AAB5QNACDAAARalAAo';
 SELECT s.id FROM students s WHERE EXISTS (SELECT 1 FROM grades g WHERE g.student_id = s.id)
 SELECT s.id FROM students s LEFT JOIN grades g ON g.student_id = s.id WHERE g.student_id IS NOT NULL
 
--- Custom sort order:
-order by decode(TOP_LEVEL_ITEM_TEXT, 'accounts', 1, 'contacts', 2, 'opportunities', 3, 999)
-
 BEGIN SYS.DBMS_SCHEDULER.disable('SETARS.PERIODIC_LIFECYCLE_UPDATE'); END;
 
 -- Want max highest most recent date using analytic:
@@ -6370,6 +6372,11 @@ SELECT aid, ab.account_id FROM (SELECT to_number(column_value) aid FROM xmltable
 
 -- Collapse to single day for counting e.g. 01/Aug/07 01:30:08, 01/Aug/07 01:33:08 ...:
 select distinct trunc(prod_sel_dt) psd, count(*) from RETAIN.FNSH_PROD group by trunc(prod_sel_dt) 
+
+-- Use the RETURNING clause to retrieve details from the employee's modified row, within the same context switch used to execute the UPDATE statement
+UPDATE employees SET salary = salary * 1.1 WHERE employee_id = 100 RETURNING last_name, salary INTO emp_rec;
+
+PROCEDURE send_cdhub(in_job_action VARCHAR2, in_job_prefix VARCHAR2 DEFAULT 'DELETE_ACCT_', in_start_date DATE DEFAULT SYSDATE + INTERVAL '1' MINUTE) IS ...
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7004,8 +7011,9 @@ git add -f t.txt
 
 # git want clone existing github repo to a new foreign server AKA origin (a bookmark) which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
 git clone git@github.com:bheckel/dotfiles.git && git remote add origin git@github.com:bheckel/dotfiles.git; ...edit/add/commit... git pull origin master && git push origin master
-# if 'you cant push'
-git config --local -e  # or vi ~/dotfiles/.git/config then edit to: url = git@github.com:bheckel/dotfiles.git
+# if 'you cant push':
+git config --local -e
+# or vi ~/dotfiles/.git/config then edit to: url = git@github.com:bheckel/dotfiles.git
 
 git clone https://github.com/grayghostvisuals/Practice-Git.git
 # But may need this first or instead of remote add if your clone was git clone git://github.com/bheckel/misc.git
