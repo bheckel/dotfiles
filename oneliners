@@ -4448,6 +4448,9 @@ $ find . -type f -print0 | xargs -0 grep --color='auto' -P -n "[\x80-\xFF]"
 # Remove last 4 characters from end of string (space mandatory!):
 echo ${PS1:0: -4}
 
+# Static libraries have names like libname.a, while shared libraries are libname.so.x.y.z where x.y.z is some form of version number. Shared libraries often also have links pointing to them.  The standard libraries come in both shared and static formats.  You can find out what shared libraries a program requires by using ldd (List Dynamic Dependencies):
+$ ldd /usr/bin/lynx
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -5594,6 +5597,9 @@ set termout off
 $ sqlplus -S me/pw@esd @query.sql
 $ vi ~/code/misccode/query.sql && (cd ~/code/misccode/ && sqlplus -S me/pw@esd @query.sql && vi $c/temp/query.out)
 
+-- Oracle prompt (1st time only) for saved environment substitution variable prompt:
+BEGIN DBMS_OUTPUT.PUT_LINE (‘Today is ‘||’&&sv_day‘); DBMS_OUTPUT.PUT_LINE (‘Today is still ‘||’&sv_day’); END;
+
 -- Avoid sqlplus prompts for ampersands:
 SQL> set define off;
 SQL> @C:\Users\bheck\OneDri~1\workspace\data\Source\SQL\3.50OrionScripts\ORION-33855_ddl_change.sql
@@ -5644,20 +5650,21 @@ select * from v$instance;
 -- Find Oracle data dictionary user_tables etc from which to further query:
 select * from DICTIONARY WHERE table_name LIKE 'USER%' ORDER BY 1
 
--- Oracle list all schemas:
-SELECT username FROM all_users ORDER BY username;
-
 -- What is my current schema name:
 select sys_context('userenv', 'current_schema') from dual;
+-- Oracle list browse all schemas poke around:
+SELECT username FROM all_users ORDER BY username;
+-- Oracle list browse all database tables all available schema:
+SELECT owner, table_name FROM all_tables where owner = 'SCOTT';
+-- Oracle list browse all views:
+select * from all_views where view_name like '%SPEC%'
+-- Oracle list browse table details:
+SELECT data_type, data_length, nullable, column_id, num_distinct, num_nulls, density from  user_tab_columns WHERE table_name LIKE 'USER_ON%'
+-- Oracle list browse all table details:
+SELECT table_name, column_name, data_type, data_length, nullable, num_distinct, low_value, high_value, density FROM all_tab_columns WHERE table_name in(SELECT table_name FROM all_tables where owner ='SCOTT') and owner ='SCOTT' ORDER BY table_name, column_name
 
 -- Oracle list database tables you own:
 SELECT table_name FROM user_tables;
-
--- Oracle list all views:
-select * from all_views where view_name like '%SPEC%'
-
--- Oracle list all database tables all available schema. Then you can select * from hr.employees:
-SELECT owner, table_name FROM all_tables where owner = 'myschema';
 
 -- Find query all Oracle tables & views with a certain field name column name poke around:
 SELECT table_name, column_name FROM cols WHERE lower(table_name) LIKE 'accou%' AND lower(column_name) LIKE '%id%';
@@ -5674,14 +5681,16 @@ desc mytable
 -- Oracle search for fieldname column name:
 SELECT * from  user_tab_columns WHERE column_name LIKE '%NEW%'
 -- View all details of Oracle table in a schema:
-select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES','SETARS') from dual;
+select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES', 'SETARS') from dual;
 -- View some details of Oracle table (like DESC in sqlplus):
 select column_name, nullable, concat(concat(concat(data_type,'('),data_length),')') from user_tab_columns where table_name = 'EMAIL_MESSAGES';
--- Oracle list view table details:
-SELECT data_type, data_length, nullable, column_id, num_distinct, num_nulls, density from  user_tab_columns WHERE table_name LIKE 'USER_ON%'
 
--- Oracle select top 10 rows of a table in order:
-SELECT * FROM (SELECT * FROM t ORDER BY c) WHERE ROWNUM <= 10;
+-- Oracle select top 5 rows of a table in order - this fails: SELECT * FROM scott.emp WHERE ROWNUM <= 5 ORDER BY ename 
+SELECT * FROM (SELECT * FROM scott.emp ORDER BY ename) WHERE ROWNUM <= 5;
+SELECT * FROM scott.emp ORDER BY ename FETCH FIRST 5 ROWS WITH TIES  -- Oracle 12c +
+
+-- Oracle select top 20% percent of rows of a table in order:
+select empno, ename, sal, deptno from  emp order by sal desc fetch first 20 percent rows only;
 
 -- Oracle select year portion year part only between years periods:
 extract(year from h.updated) in(2017,2018)
@@ -5693,8 +5702,11 @@ SELECT sysdate INTO l_now FROM DUAL; LOOP EXIT WHEN l_now +(60 * (1 / 86400)) = 
 -- Oracle date calculations:
 SELECT (systimestamp - INTERVAL '0.001' SECOND), SYSTIMESTAMP, (SYSDATE - INTERVAL '1' MONTH) FROM dual
 
-- Oracle date calculation 15 minutes ago (sysdate won't work here):
+-- Oracle date calculation 15 minutes ago (SYSDATE won't work here):
 SELECT CURRENT_TIMESTAMP - NUMTODSINTERVAL(15, 'MINUTE') localtime, systimestamp - NUMTODSINTERVAL(15, 'MINUTE') utcsometimes FROM dual
+
+-- SHOW ERR[ORS] in sqlplus uses this table (but only shows the latest error):
+SELECT * FROM USER_ERRORS WHERE name IN ('PLCH_PKG', 'PLCH_GET_NUMBERS')
 
 -- Full source code of all compiled database objects (not Views):
 select text from SYS.USER_SOURCE t WHERE t.name='ORION34858'
@@ -5707,9 +5719,9 @@ select * from information_schema.tables where table_type='BASE TABLE' and table_
 SELECT LOV.LIST_OF_VALUES_ID, LOV.VALUE FROM LIST_OF_VALUES LOV WHERE LOV.RETIRED = 0 START WITH LOV.LIST_OF_VALUES_ID IN (1,2,3) CONNECT BY PRIOR LOV.LIST_OF_VALUES_ID = LOV.PARENT_ID
 select sys_connect_by_path (job, '/') job_path, sys_connect_by_path (ename, '/') ename_path from scott.emp start with mgr is null connect by prior empno=mgr
 
--- Oracle hostname:
+-- PLSQL hostname:
 SELECT SYS_CONTEXT('USERENV', 'SERVER_HOST') FROM DUAL;
--- Oracle database name:
+-- PLSQL database name:
 l_db_name VARCHAR2(20) := SYS_CONTEXT('USERENV', 'DB_NAME');  if (l_db_name IN ('SEPS')) THEN...
 
 -- Correlated update query:
@@ -5717,8 +5729,8 @@ UPDATE contact_note SET original_contact_ID=contact_id WHERE contact_id IN (SELE
 
 rc pls_integer := 0; rc := SQL%ROWCOUNT; dbms_output.put_line('rows affected: ' || rc); 
 
--- Oracle random subset test table:
-CREATE TABLE zzorion32822 AS SELECT * FROM zorion32822 SAMPLE(0.01)
+-- Oracle random 50% subset create test table:
+CREATE TABLE zzorion32822 AS SELECT * FROM zorion32822 SAMPLE(50)
 -- Random ids 0.1% of all records in Oracle table:
 SELECT account_id FROM account_name SAMPLE(0.1);
 
@@ -5912,8 +5924,9 @@ U:\>sqlcmd -S zebsamoc00 -d sprd120
 U:\>sqlcmd /?
 U:\>sqlcmd -S rtpsamoc008 -d ustst1236 -i t.qry -o t.res
 
--- now() for SQL Server SQLServer:
-select getdate()  or  select current_timestamp
+-- now() for SQL Server:
+select getdate()
+select current_timestamp
 
 -- Size of table in SQL Server database SQLServer:
 EXEC SP_SPACEUSED N'rheckel.[bpmsoutliersnc60]'
@@ -5932,9 +5945,6 @@ select max(rownum) from pks_extraction_control where rownum<1000000;
 -- Oracle's MINUS is EXCEPT in ANSI SQL:
 INSERT INTO links_material (matl_desc) VALUES ('Waiting for update from SAP'); commit;
 INSERT INTO links_material (matl_desc, matl_mfg_dt, matl_exp_dt, matl_nbr, batch_nbr, matl_typ) VALUES ('Waiting for update from SAP', '01-JAN-1960', '01-JAN-1960', '0737003', '6ZP8404', 'MANL'); commit;
-
--- Oracle prompt (1st time only) for saved environment substitution variable:
-select * from tst_rslt_summary where samp_id=&&sampy;
 
 -- Oracle version:
 SELECT * FROM v$version
@@ -6145,9 +6155,6 @@ coalesce(patriots_didnt_cheat, honest_salesman, lowprice_at_disney, emacs_is_gre
 -- Return anything but Y, regardless of existence of nulls (where val != 'Y' would not include any nulls):
 select * from basic_data where lnnvl(val = 'Y')
 
-select colour, shape, weight from bricks order by weight desc fetch first 2 rows with ties;  -- Oracle 12c +
-select empno, ename, sal, deptno from  emp order by sal desc fetch first 20 percent rows only;
-
 -- Oracle generate random number roll dice:
 SELECT DBMS_RANDOM.VALUE(1, 6) FROM dual  -- 3.32932424
 SELECT trunc(DBMS_RANDOM.VALUE(1, 6)) FROM dual  -- 3
@@ -6335,9 +6342,6 @@ SELECT custom_property_id FROM custom_property c WHERE c.property_name in('TOP 1
 -- Oracle histogram:
 select min(sal), max(sal), rpad('*', count(1), '*') AS Bar, count(1) from ( select sal, ntile(4) over ( order by sal ) as grp from scott.emp ) group by grp order by 1
 
--- SHOW ERR[ORS] in sqlplus uses this table:
-SELECT * FROM USER_ERRORS WHERE name IN ('PLCH_PKG', 'PLCH_GET_NUMBERS')
-
 -- Oracle DBA_OBJECTS : All objects in the database  ALL_OBJECTS : All objects accessible to the user  USER_OBJECTS : All objects owned by the user
 
 -- Oracle which objects are available? An ls for db (all_objects is similar):
@@ -6377,6 +6381,12 @@ select distinct trunc(prod_sel_dt) psd, count(*) from RETAIN.FNSH_PROD group by 
 UPDATE employees SET salary = salary * 1.1 WHERE employee_id = 100 RETURNING last_name, salary INTO emp_rec;
 
 PROCEDURE send_cdhub(in_job_action VARCHAR2, in_job_prefix VARCHAR2 DEFAULT 'DELETE_ACCT_', in_start_date DATE DEFAULT SYSDATE + INTERVAL '1' MINUTE) IS ...
+
+-- PLSQL preprocessor version check:
+BEGIN $IF dbms_db_version.ver_le_11_2 $THEN dbms_output.put_line('ok') /*RESULT_CACHE*/ $END; END;
+
+-- Skip virtual columns:
+IF upper(trim(t_cols_tab(i).virtual_column)) = 'YES' THEN CONTINUE; END IF;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7211,6 +7221,7 @@ Double arrows unicode « »
 
 /* Sample JSON: */
 { "Film": "Schema Wars Episode 1: The Unstructured Menance", "ReleaseYear": 2016, "Genre": "SQL Sci-fi", "Actors": [ "Chris Saxon", "Andre Williams", "Robin Williams", "PJ Tamayo" ] }
+
 curl https://api.github.com/users/bheckel
 curl -d '{"key1":"value1", "key2":"value2"}' -H "Content-Type: application/json" -X POST http://localhost:3000/data
 
