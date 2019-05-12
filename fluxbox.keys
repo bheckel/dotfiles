@@ -13,7 +13,7 @@
 #           'Reconfigure' to apply changes
 #
 #  Created: Mon 12 Jan 2012 17:59:26 (Bob Heckel)
-# Modified: Sat 19 May 2018 12:01:37 (Bob Heckel)
+# Modified: Sat 11 May 2019 12:44:08 (Bob Heckel)
 ##############################################################################
 
 # Right-click on the desktop to get menus
@@ -74,11 +74,11 @@ Mod1 Shift Tab :PrevWindow {groups} (workspace=[current])
 ###Mod4 2 :Tab 2
 ###Mod4 3 :Tab 3
 
-# Synchronize these with  vi ~/.fluxbox/menu
+# Synchronize these with ~/.fluxbox/menu
 Mod4 c :If {Some Matches (google-chrome)} {NextWindow (google-chrome) (workspace=[current])} {Exec /opt/google/chrome/google-chrome}
 # File (e)xplorer
 Mod4 e :Exec /usr/bin/thunar
-Mod4 f :Exec /opt/google/chrome/chrome ~/misc/links/fire.htm
+# Mod4 f :Exec /opt/google/chrome/chrome ~/misc/links/fire.htm
 Mod4 g :Exec /usr/bin/gvim
 # Minimize all
 Mod4 m :ShowDesktop
