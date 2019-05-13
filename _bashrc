@@ -169,6 +169,7 @@ alias wget='wget -c'  # continue failures
 #-----------------------------------
 
 # 'Windows-ish Start' a file or file manager in GUI
+#TODO background the process
 case "$OSTYPE" in
      cygwin) st() { explorer "${1:-.}"; } ;;
   linux-gnu) st() { thunar   "${1:-.}"; } ;;
