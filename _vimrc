@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Fri 05 Apr 2019 11:34:12 (Bob Heckel)
+" Modified: Sat 11 May 2019 11:06:41 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -1588,10 +1588,11 @@ if !exists("autocommands_loaded")
   let autocommands_loaded = 1
  
 	" Return to the line and column of last edited position
-	" autocmd BufReadPost * if line("'\"") | exe "normal '\"" | endif
-	autocmd BufReadPost [^vimxfer_ses] if line("'\"") | exe "normal '\"" | endif
+	autocmd BufReadPost * if line("'\"") | exe "normal '\"" | endif
+	" autocmd BufReadPost [^vimxfer_ses] if line("'\"") | exe "normal '\"" | endif
 
   " Move cursor to filename for gf
+  "TODO broken 12-May-19 
 	autocmd BufReadPost /tmp/.loc,/tmp/.rme exe "normal $"
 
   " Handle my ~/bin/sasrun script files
@@ -1775,10 +1776,12 @@ if !exists("autocommands_loaded")
   endif
 
   " Resize buffer (most convenient with number keypad) if more than one exists
-  au BufEnter * if len(getbufinfo({'buflisted':1})) > 1 | exe "nnoremap + <C-W>+" | endif
-  au BufEnter * if len(getbufinfo({'buflisted':1})) > 1 | exe "nnoremap - <C-W>-" | endif
-  "TODO reset when back to 1 buf
-  " au BufEnter * if len(getbufinfo({'buflisted':1})) == 1 | exe "nnoremap - noop" | endif
+  if exists('+getbufinfo')
+    au BufEnter * if len(getbufinfo({'buflisted':1})) > 1 | exe "nnoremap + <C-W>+" | endif
+    au BufEnter * if len(getbufinfo({'buflisted':1})) > 1 | exe "nnoremap - <C-W>-" | endif
+    "TODO reset when back to 1 buf
+    " au BufEnter * if len(getbufinfo({'buflisted':1})) == 1 | exe "nnoremap - noop" | endif
+  endif
 
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
   "

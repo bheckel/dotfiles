@@ -169,9 +169,10 @@ alias wget='wget -c'  # continue failures
 #-----------------------------------
 
 # 'Windows-ish Start' a file or file manager in GUI
+#TODO background the process
 case "$OSTYPE" in
      cygwin) st() { explorer "${1:-.}"; } ;;
-  linux-gnu) st() { nautilus "${1:-.}"; } ;;
+  linux-gnu) st() { thunar   "${1:-.}"; } ;;
     darwin*) st() { open     "${1:-.}"; } ;;
           *) echo '.bashrc: Unknown file manager' >&2 ;;
 esac
