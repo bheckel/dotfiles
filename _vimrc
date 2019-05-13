@@ -202,7 +202,7 @@ hi Function ctermfg=Yellow guifg=LightYellow guibg=Black
 
 hi Identifier ctermfg=LightCyan guifg=LightCyan
 
-hi IncSearch ctermfg=White ctermbg=LightBlue guifg=White guibg=LightBlue
+" hi IncSearch ctermfg=White ctermbg=LightBlue guifg=White guibg=LightBlue
 
 hi CursorLineNr ctermfg=White ctermbg=DarkGray guifg=White guibg=DarkGray cterm=bold gui=bold
 
@@ -222,7 +222,8 @@ hi PmenuSel ctermfg=Blue ctermbg=Yellow guifg=Blue guibg=Yellow
 
 hi PreProc ctermfg=LightMagenta guifg=LightMagenta guibg=Black
 
-hi Search  ctermfg=White ctermbg=DarkGray guifg=White guibg=DarkGray 
+" hls
+hi Search ctermfg=White ctermbg=DarkGray guifg=White guibg=DarkGray 
 
 hi SpecialKey ctermfg=Black ctermbg=DarkMagenta guifg=Black guibg=DarkMagenta
 
