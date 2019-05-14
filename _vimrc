@@ -1591,9 +1591,8 @@ if !exists("autocommands_loaded")
 	autocmd BufReadPost * if line("'\"") | exe "normal '\"" | endif
 	" autocmd BufReadPost [^vimxfer_ses] if line("'\"") | exe "normal '\"" | endif
 
-  " Move cursor to filename for gf
-  "TODO broken 12-May-19 
-	autocmd BufReadPost /tmp/.loc,/tmp/.rme exe "normal $"
+  " Move cursor to filename for fast gf
+	" autocmd BufReadPost /tmp/.loc,/tmp/.rme exe "normal $"
 
   " Handle my ~/bin/sasrun script files
   au BufRead tmpsas.*.log,tmpsas.*.lst map q :qa!<CR>

@@ -310,7 +310,7 @@ $ vi foo`date +%s`.txt
 vi -c '/^ERROR\|^WARN/' foo.txt
 " Open file while copying and pasting (yanking and putting) the first line at the same time.
 vi -c ':y | put' foo.txt
-Open file to last line of file, set textwidth:
+" Open file to last line of file, set textwidth:
 vim -c 'set tw=68 et' +  foo.txt
 gvim -c 'set lines=20 columns=150'
 vi -c 'map q :q!<CR>' foo.txt
@@ -5352,32 +5352,6 @@ SELECT INSTR('CORPORATE FLOOR','OR', 3, 2) FROM dual  -- 0 if not found
 -- Overflows using PLS_INTEGER ok with INTEGER:
 DECLARE p1 PLS_INTEGER := 2147483647; p2 INTEGER := 1; n NUMBER; BEGIN n := p1 + p2; END; /
 
--- Expire Oracle user password:
-ALTER USER LIMSARCH PASSWORD EXPIRE;
--- Change Oracle user password:
-ALTER USER limsarch IDENTIFIED BY new2dayJuly;
-ALTER USER limsarch IDENTIFIED BY "new2dayJuly" REPLACE "oldpw";
--- Change password Postgres password:
-ALTER USER heckel WITH PASSWORD 'myPass';
-
-alter table CONTAC add constraint NN_CONTAC_ORIGIN_LOV_ID check("ORIGIN_LOV_ID" IS NOT NULL);
-
-alter table movies add primary key ( name )
-EXECUTE IMMEDIATE 'ALTER TABLE EMAIL_MESSAGES ADD CONSTRAINT EMAIL_MESSAGES_PK PRIMARY KEY (EMAIL_MESSAGES_ID)';
-CREATE TABLE plch_employees ( employee_id   INTEGER PRIMARY KEY, last_name  VARCHAR2 (100), salary  NUMBER (3))
-
--- Rename Oracle table:
-ALTER TABLE user_role1 RENAME TO user_role2;
-
-ALTER TABLE zorion34774 RENAME COLUMN orion_contact_id TO contact_id;
-
-ALTER PACKAGE ZTESTBOB COMPILE PACKAGE; show errors PACKAGE ZTESTBOB;
-ALTER PACKAGE ZTESTBOB COMPILE PACKAGE BODY; show err PACKAGE BODY ZTESTBOB;
-
-ALTER TABLE Customer DROP COLUMN Birth_Date;
-ALTER TABLE analytics.build ADD COLUMN rundatacheck boolean NOT NULL DEFAULT TRUE;
-ALTER TABLE analytics.archivebuildconfig ADD COLUMN job_type text NOT NULL DEFAULT 'Imports';
-
 select constraint_name, constraint_type from user_constraints@sep WHERE constraint_name LIKE 'NN%ORIGIN%';
 
 -- Oracle find uncommitted transactions locks:
@@ -5743,7 +5717,7 @@ SELECT account_id FROM account_name SAMPLE(0.1);
 -- Error exception handler (if you don't give SQLERRM a valid Oracle error code it uses SQLCODE as the error code):
 WHEN others THEN dbms_output.put_line(SQLCODE || ': ' || SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
 
--- An autonomous routine never reads or writes database state (i.e., it neither queries nor updates any table):
+-- An autonomous routine never reads or writes database state (i.e., it neither queries nor updates any table). Wrap EXECUTE IMMEDIATE DDL statements (which auto commit) in one of these to avoid accidental session commits:
 ... DECLARE PRAGMA AUTONOMOUS_TRANSACTION; ... BEGIN INSERT INTO log (...)
 
 -- Want triggers on a table:
@@ -5835,9 +5809,6 @@ date_part('year'::text, age(pd.dateofbirth::timestamp with time zone)) AS age
 
 -- Postgres min max calculate age:
 select min(date_part('year',age(dateofbirth))), max(date_part('year',age(dateofbirth))) ...
-
--- Postgres date truncate:
-date_trunc('day', etl_ts)
 
 -- Postgres date selection, capture all activity for the 14th
 select * from generate_series('2015-12-13'::timestamp without time zone, '2015-12-15'::timestamp without time zone, '1 second'::interval)
@@ -6187,20 +6158,67 @@ FUNCTION get_dept_info(dept_id NUMBER) RETURN dept_info_record DETERMINISTIC;
 -- If a session makes a change to a table on which a cache is reliant, but that session does not commit those changes, then the cache is disabled for the CURRENT SESSION ONLY. The cache is still valid for and used by all other sessions.
 FUNCTION get_dept_info(dept_id NUMBER) RETURN dept_info_record RESULT_CACHE; -- Function Result Cache
 
-CREATE SEQUENCE UID_OPPORTUNITY_OPT_OUT MINVALUE 1000 MAXVALUE 999999999999999999999999999 START WITH 1001 INCREMENT BY 1 CACHE 5;
+-- Expire Oracle user password:
+ALTER USER LIMSARCH PASSWORD EXPIRE;
+-- Change Oracle user password:
+ALTER USER limsarch IDENTIFIED BY new2dayJuly;
+ALTER USER limsarch IDENTIFIED BY "new2dayJuly" REPLACE "oldpw";
+-- Change password Postgres password:
+ALTER USER heckel WITH PASSWORD 'myPass';
+
+alter table CONTAC add constraint NN_CONTAC_ORIGIN_LOV_ID check("ORIGIN_LOV_ID" IS NOT NULL);
+
+alter table movies add primary key ( name )
+
+EXECUTE IMMEDIATE 'ALTER TABLE EMAIL_MESSAGES ADD CONSTRAINT EMAIL_MESSAGES_PK PRIMARY KEY (EMAIL_MESSAGES_ID)';
+
+CREATE TABLE plch_employees ( employee_id   INTEGER PRIMARY KEY, last_name  VARCHAR2 (100), salary  NUMBER (3))
+
+ALTER TABLE user_role1 RENAME TO user_role2;
+
+ALTER TABLE zorion34774 RENAME COLUMN orion_contact_id TO contact_id;
+
+ALTER PACKAGE ZTESTBOB COMPILE PACKAGE; show errors PACKAGE ZTESTBOB;
+ALTER PACKAGE ZTESTBOB COMPILE PACKAGE BODY; show err PACKAGE BODY ZTESTBOB;
+
+ALTER TABLE Customer DROP COLUMN Birth_Date;
+
+ALTER TABLE analytics.build ADD COLUMN rundatacheck BOOLEAN NOT NULL DEFAULT TRUE;
+
+ALTER TABLE analytics.archivebuildconfig ADD COLUMN job_type text NOT NULL DEFAULT 'Imports';
+
+CREATE TABLE zorion35282 (a NUMBER, b NUMBER, c NUMBER, d NUMBER, e NUMBER, f NUMBER, g NUMBER)
+INSERT INTO zorion35282 VALUES (1, 2,3,4,5,6,7); COMMIT;
+ALTER TABLE zorion35282 RENAME COLUMN a3 TO a4;
+ALTER TABLE zorion35282 ADD sql_text_all CLOB
+ALTER TABLE zorion35282 DROP COLUMN sql_text_all 
+ALTER TABLE email_messages MODIFY msgbody VARCHAR2(63)
+
+-- Compile selectively:
+SQL> ALTER PROCEDURE z_set_activ_match_code COMPILE;  -- if compilation errors: SHOW ERROR
+-- Compile entire schema's invalid objects:
+EXEC DBMS_UTILITY.compile_schema('SETARS', FALSE);  -- FALSE == compile only INVALID objects
+
+create table emp as select * from scott.emp; insert into emp values (999, 'joe', 'CLERK', 0, null, 10, null, 99);
+
+-- Create an empty zero record table based on another table:
+CREATE TABLE orion_37551 AS SELECT * FROM valid_orders WHERE 1=0;
+
+CREATE SEQUENCE UID_ORION_37551 MINVALUE 1 MAXVALUE 999999999999999999999999999 INCREMENT BY 10  START WITH 1 CACHE 20 NOORDER NOCYCLE 
+-- Increment sequence using it as a primary key:
+INSERT INTO ORION_37551 (email_messages_id, subject) VALUES (uid_orion_37551.NEXTVAL, 'test sequence'); COMMIT;
+
+CREATE OR REPLACE TRIGGER on_schema_mod_trigger AFTER ALTER OR CREATE ON scott.SCHEMA WHEN (ORA_DICT_OBJ_TYPE = 'TABLE') BEGIN dbms_output.put_line('ok'); END;
 
 -- Choose highest value in list:
 SELECT GREATEST(SYSDATE, to_date('01JAN2029'), to_date('01jan2030')) FROM dual
-
--- Create an empty zero record table:
-CREATE TABLE rejected_orders AS SELECT * FROM valid_orders WHERE 1 = 0;
 
 -- Sample database table with 1 column and 10 rows:
 CREATE TABLE t AS SELECT LEVEL mylevel FROM dual CONNECT BY LEVEL <=10;
 -- Sample database table 5 years 2018-01-02 to 2022-12-31:
 create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dual connect by level <= 365*5;
 
--- View Oracle grants:
+-- View Oracle grants privileges:
 select * from dba_tab_privs@sed WHERE table_name = 'ACCOUNT'
 
 BEGIN sys.dbms_scheduler.create_job( job_name => 'NIGHTLY_RISK_IP_UPDATE_JOB', job_type => 'PLSQL_BLOCK', job_action => 'BEGIN RISK_PKG.periodicRiskUpdate; END;', start_date => '19-DEC-18 12.30.00PM EST5EDT', repeat_interval => 'FREQ=Daily', end_date => to_date(null), job_class => 'DEFAULT_JOB_CLASS', enabled => true, auto_drop => false,  -- run more than once comments => 'Nightly update job'); END;
@@ -6210,15 +6228,14 @@ select a.job_name, a.JOB_TYPE, a.JOB_ACTION, a.start_date, a.REPEAT_INTERVAL, a.
 -- Oracle scheduled job outcome log:
 SELECT * FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE JOB_NAME LIKE 'PTG%'
 -- Oracle scheduled job next run and what it executes:
-SELECT * from user_scheduler_jobs@sed WHERE job_name in ('PERIODIC_LIFECYCLE_UPDATE')
+SELECT * from user_scheduler_jobs WHERE job_name LIKE '%MAINT%' or upper(job_action) like '%MAINT%'
 
-AUTHID DEFINER is the default permission, check SQL at compile-time
-AUTHID CURRENT_USER, check SQL at run-time
+AUTHID DEFINER is the default PLSQL permission, check SQL at compile-time. AUTHID CURRENT_USER, check SQL at run-time.
 
 -- Generate unique random GUID:
 select to_number(sys_guid(), 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') from dual
 
--- PLSQL return BOOLEAN:
+-- PLSQL return a BOOLEAN:
 RETURN(CASE WHEN(l_column_count > 0) THEN TRUE ELSE FALSE END);
 
 -- Build temporary index if not already existing:
@@ -6255,9 +6272,6 @@ WITH v AS (select trunc(sysdate)+548/1440+rownum/1440 d1 from dual connect by le
 DECLARE TYPE mynt_t IS TABLE of my_tbl%ROWTYPE; mynt mynt_t; cursor c is SELECT * FROM my_tbl; BEGIN open c; loop fetch c bulk collect into mynt limit 100; exit when mynt.count = 0; FOR i in 1..mynt.COUNT LOOP dbms_output.put_line('Dept('||i||'):' || mynt(i).dept); END LOOP; end loop; close c; END;
 
 EXECUTE IMMEDIATE 'ALTER TABLE EMAIL_MESSAGES ADD CONSTRAINT CONTACT_CONTACT_CDHU_FK FOREIGN KEY ("CONTACT_CDHU_ID") REFERENCES "SETARS"."CONTACT_BASE" ("CONTACT_ID") ON DELETE CASCADE';
-
--- Sequence:
-INSERT INTO email_messages (EMAIL_MESSAGES_ID, subject) VALUES (uid_email_messages.NEXTVAL, 'test'); COMMIT;
 
 -- List describe browse Postgres tables in psql:
 \d
@@ -6298,9 +6312,6 @@ create table t1 as select date '2010-01-01'+rownum x, rownum y  from dual connec
 -- Implicit cursor:
 FOR rec IN (SELECT * FROM err$_employees) LOOP DBMS_OUTPUT.put_line (rec.ora_err_mesg$); END LOOP;
 
-CREATE OR REPLACE TRIGGER on_schema_mod_trigger AFTER ALTER OR CREATE ON scott.SCHEMA WHEN (ORA_DICT_OBJ_TYPE = 'TABLE') BEGIN dbms_output.put_line('ok'); END;
-ALTER TABLE t ADD x NUMBER;
-
 -- Split string into pieces chunks 5 chars wide based on length:
 select regexp_substr(s, '.{5}', 1, lvl) chunk from (select s, level lvl from (select '00000111112222233333' s from dual) connect by level <= length(s) / 5)
 -- Split string into pieces chunks 5 chars wide based on length:
@@ -6308,16 +6319,6 @@ with data as (select '00000111112222233333' s from dual) select substr(s, (level
 with data as (select '00000111112222233333' s, 5 len from dual) select substr(s, (level-1)*len+1, len) chnk from data connect by level <= length(s)/len
 -- Split string into pieces chunks into 2 chunks of 18:
 with data as (select '00000111112222233333' s from dual) select substr(s, (level-1)*18+1, 18) chnk from data connect by level <= 2   
-
-CREATE TABLE zorion35282 (a NUMBER, b NUMBER, c NUMBER, d NUMBER, e NUMBER, f NUMBER, g NUMBER)
-INSERT INTO zorion35282 VALUES (1, 2,3,4,5,6,7); COMMIT;
-ALTER TABLE zorion35282 RENAME COLUMN a3 TO a4;
-ALTER TABLE zorion35282 ADD  SQL_TEXT_ALL CLOB
-ALTER TABLE zorion35282 DROP COLUMN SQL_TEXT_ALL 
-ALTER TABLE email_messages MODIFY msgbody VARCHAR2(63)
-
-create table emp as select * from scott.emp;
-insert into emp values (999, 'joe', 'CLERK', 0, null, 10, null, 99);
 
 -- First and last day of last year:
 SELECT ADD_MONTHS(TRUNC(SYSDATE,'YEAR'), -12) jan_prev_yr, ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), -1) +30 dec_prev_yr FROM dual
@@ -6359,11 +6360,6 @@ select object_name, object_type from user_objects where object_type in ('VIEW','
 
 -- Oracle which objects are invalid objects:
 select * from user_objects o where object_type != 'JAVA CLASS' and status = 'INVALID' ORDER BY last_ddl_time;
-
--- Compile selectively:
-SQL> alter procedure z_set_activ_match_code compile;  -- if compilation errors type  show error
--- Compile entire schema's invalid objects:
-EXEC DBMS_UTILITY.compile_schema('SETARS', FALSE);  -- FALSE = compile only INVALID objects
 
 -- After dropping table TEMPTBL, verify no invalids check object validity:
 select object_name, object_type, status from all_objects where object_name like 'TEMP%';

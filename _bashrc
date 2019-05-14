@@ -4,7 +4,7 @@
 # Summary: bash config for at least Unix/Linux, Cygwin 1.3/1.5/1.7 and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Mon 25 Feb 2019 10:24:00 (Bob Heckel)
+# Modified: Tue 14 May 2019 15:02:56 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -360,6 +360,18 @@ md() {
 }
 
 
+# tmux new session
+tmn() {
+  local unique=`date +%d%b_%H%M`
+
+  if [ -z ${1} ]; then
+    tmux -u -2 new -s "$unique"
+  else
+    tmux -u -2 new -s "s${1}"\; split-window -h
+  fi
+}
+
+
 # Re-attach to existing session, usually named s1, s2...
 tm() {
   if [ ! -z ${1} ]; then
@@ -368,16 +380,6 @@ tm() {
     tmux -u -2 a -t "s1"
   fi
   tmux list-sessions
-}
-
-# New session
-tmn() {
-  if [ ! -z ${1} ]; then
-    # Name your session
-    tmux -u -2 new -s "s${1}"
-  else
-    tmux -u -2 new -s "s1"
-  fi
 }
 
 
@@ -392,13 +394,14 @@ bak() {
 
 # If locate() is not available
 function loc() {
-  find $HOME/code | grep -i "${1}" | grep -v '\.git' | xargs ls -ltG >|/tmp/.loc && vim -c "/${1}" /tmp/.loc
+  # find $HOME/code | grep -i "${1}" | grep -v '\.git' | xargs ls -ltG >|/tmp/.loc && vim -c "/${1}" /tmp/.loc
+  find $HOME/code | grep -i "${1}" | grep -v '\.git' >|/tmp/.loc.grep && vim -R /tmp/.loc.grep
 }
 
 
-# Search my readme files
+# Find my README file by title
 function rme() {
-  find $HOME/code/rme | grep -i "${1}" | grep -v '\.git' | xargs ls -ltG >|/tmp/.rme && vim -c "/${1}" /tmp/.rme
+  find $HOME/code/rme | grep -i "${1}" | grep -v '\.git' >|/tmp/.rme.grep && vim -R /tmp/.rme.grep
 }
 # Generic Functions end
 
