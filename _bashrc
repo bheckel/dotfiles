@@ -640,6 +640,7 @@ case "$OSTYPE" in
       if [ $HOSTNAME = 'appa' ]; then
         alias brinno='sudo mount -t vfat /dev/sdb1 /media/brinno/ -o uid=1000,gid=100,utf8,dmask=027,fmask=137'
         alias ubrinno='sudo umount /media/brinno'
+        alias vim='/usr/local/bin/vim'
       fi
 
       # For ~/.fluxbox/menu.  Keep terminal open.

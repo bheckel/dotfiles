@@ -10,7 +10,7 @@
   [exec] (Iview)              {/home/bheckel/.wine/drive_c/Program\ Files\ \(x86\)/IrfanView/i_view32.exe} </home/bheckel/misc/computer/irfanview.png>
   [exec] (Thunar)             {/usr/bin/thunar} </usr/share/icons/hicolor/64x64/apps/Thunar.png>
   [exec] (VirtualBox)         {/usr/bin/virtualbox} </usr/share/icons/hicolor/32x32/apps/virtualbox.png>
-  [exec] (Volume)             {/usr/bin/pavucontrol}
+  /* [exec] (Volume)             {/usr/bin/pavucontrol} */
   [exec] (xterm)              {xterm -bg black -fa "xft:Consolas-9:antialias=true" -bc -sb -rightbar -sl 5000 -geometry "95x55+350+50"} </home/bheckel/misc/computer/xterm.jpeg>
   [exec] (xterm-tmux)         {xterm -bg black -fa "xft:Consolas-9:antialias=true" -bc -sb -rightbar -sl 5000 -geometry "195x60+200+175" -e 'tmux -2 new -s s1\; split-window -h'} </home/bheckel/misc/computer/xterm.jpeg>
   [separator] ()              {} 
