@@ -202,7 +202,7 @@ hi Function ctermfg=Yellow guifg=LightYellow guibg=Black
 
 hi Identifier ctermfg=LightCyan guifg=LightCyan
 
-hi IncSearch ctermfg=White ctermbg=LightBlue guifg=White guibg=LightBlue
+" hi IncSearch ctermfg=White ctermbg=LightBlue guifg=White guibg=LightBlue
 
 hi CursorLineNr ctermfg=White ctermbg=DarkGray guifg=White guibg=DarkGray cterm=bold gui=bold
 
@@ -222,7 +222,8 @@ hi PmenuSel ctermfg=Blue ctermbg=Yellow guifg=Blue guibg=Yellow
 
 hi PreProc ctermfg=LightMagenta guifg=LightMagenta guibg=Black
 
-hi Search  ctermfg=White ctermbg=DarkGray guifg=White guibg=DarkGray 
+" hls
+hi Search ctermfg=White ctermbg=DarkGray guifg=White guibg=DarkGray 
 
 hi SpecialKey ctermfg=Black ctermbg=DarkMagenta guifg=Black guibg=DarkMagenta
 
@@ -1590,9 +1591,8 @@ if !exists("autocommands_loaded")
 	autocmd BufReadPost * if line("'\"") | exe "normal '\"" | endif
 	" autocmd BufReadPost [^vimxfer_ses] if line("'\"") | exe "normal '\"" | endif
 
-  " Move cursor to filename for gf
-  "TODO broken 12-May-19 
-	autocmd BufReadPost /tmp/.loc,/tmp/.rme exe "normal $"
+  " Move cursor to filename for fast gf
+	" autocmd BufReadPost /tmp/.loc,/tmp/.rme exe "normal $"
 
   " Handle my ~/bin/sasrun script files
   au BufRead tmpsas.*.log,tmpsas.*.lst map q :qa!<CR>
