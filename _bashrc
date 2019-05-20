@@ -336,6 +336,7 @@ parse_git_branch() {
 
 # For informational searches e.g. $ google oracle error codes
 function urlencode() { echo -n $@ | perl -pe's/([^-_.~A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg'; }
+function goo() { w3m http://www.google.com/search?q="`urlencode $@`" ;}
 function google() { w3m http://www.google.com/search?q="`urlencode $@`" ;}
 
 
