@@ -632,7 +632,7 @@ case "$OSTYPE" in
 
       alias pse="ps -ef | grep ^$USER | grep -vP 'ps -ef|grep' | grep -v chrome"
       alias systeminfo='df -h && echo && free -m && echo && grep --color="never" name /proc/cpuinfo | uniq && echo && lspci | grep --color="never" VGA && echo && xrandr | grep --color="never" connected && echo && uname -rms'
-      alias usb='sudo fdisk -l; mount|grep "^/dev/sd"; sudo mkdir /media/usb; echo; echo "sudo mount -t vfat /dev/??? /media/usb -o uid=1000,gid=1000,utf8,dmask=027,fmask=137"; echo; echo "sudo umount /media/usb"'
+      alias usb='sudo fdisk -l; mount|grep "^/dev/sd"; sudo mkdir /media/usb; echo; echo "sudo mount -t vfat /dev/sdb /media/usb -o uid=1000,gid=1000,utf8,dmask=027,fmask=137"; echo; echo "usually /dev/sdb, to disconnect: sudo umount /media/usb"'
 
       if [ $HOSTNAME = 'yoniso' ]; then
         alias cdrom='sudo mount -t iso9660 /dev/cdrom /media/cdrom; mount|grep "^/dev/cd"; echo "sudo umount /media/cdrom"'
