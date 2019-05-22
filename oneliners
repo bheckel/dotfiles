@@ -803,7 +803,7 @@ length foo $2  car1-car4 $9;
  /* Super input statement uses the data itself to determine column position */
 input @'IP Address' n1 n2 n3 n4 3.;
 
- /* Move cursor one to the left, put a backspace, to squeeze colon against word: */
+ /* Move cursor one column to the left, put a backspace, to squeeze colon against word: */
 put @1 myname +(-1)":"  @30 myvalue;
 
  /* Multiple datasets on the set statement: */
@@ -5357,14 +5357,11 @@ select constraint_name, constraint_type from user_constraints@sep WHERE constrai
 -- Oracle find uncommitted transactions locks:
 SELECT s.OSUSER, s.sid ,s.serial# ,s.username ,s.machine ,s.status ,s.lockwait ,t.used_ublk ,t.used_urec ,t.start_time from v$transaction t inner join v$session s on t.addr = s.taddr;
 
-rc PLS_INTEGER; rc := SQL%ROWCOUNT; dbms_output.put_line('rows affected: ' || rc);
+rc PLS_INTEGER; rc := SQL%ROWCOUNT; dbms_output.new_line(); dbms_output.put_line('rows affected: ' || rc);
 
 TYPE varray_type IS VARRAY(4) OF VARCHAR2(4000);  -- Oracle collection
 TYPE associativearray_type IS TABLE OF INTEGER INDEX BY VARCHAR2(10);  -- Oracle collection
 [CREATE OR REPLACE] TYPE nestedtable_type IS TABLE OF VARCHAR2(15)  -- Oracle collection
-
--- Partial row record variable:
-DECLARE CURSOR c IS SELECT fnm, lnm FROM employees; friend c%ROWTYPE; BEGIN friend.fnm := 'John'; END; /
 
 --Oracle select literal underscore:
 WHERE UPPER(mat_desc) LIKE '%\_TH%' ESCAPE '\'
@@ -5606,18 +5603,30 @@ $ sqlplus pks/ev123dba@sdev388 @t.sql --need an exit; in t.sql to run standalone
 select dbms_metadata.get_ddl('TABLE', 'ACTIVITY_SEARCH') from dual;
 select dbms_metadata.get_dependent_ddl('TABLE', 'ACTIVITY_SEARCH') from dual;
 
+-- Implicit cursor simple:
+DECLARE r dual%ROWTYPE; BEGIN FOR r IN ( SELECT * FROM SYS.dual ) LOOP dbms_output.put_line(r.dummy); END LOOP; END;
+
+-- Return a cursor:
 CREATE OR REPLACE FUNCTION f RETURN SYS_REFCURSOR AS c SYS_REFCURSOR; BEGIN OPEN c FOR select * from dual; RETURN c; END; /
 
 -- Strong cursor because Weak types do not have a RETURN clause.  SYS_REFCURSOR is always weak, almost always used with dynamic queries.
 DECLARE TYPE book_data_t IS REF CURSOR RETURN book%ROWTYPE;  cv book_data_t;  BEGIN ...
 
--- Oracle nonaggregated expression (rownum) in an aggregated query - SQL hack:
-select rownum, a.* from (select cust, count(ord) from tbl group by cust) a;
+DECLARE cv SYS_REFCURSOR; en VARCHAR2(80); jo VARCHAR2(80); BEGIN OPEN cv FOR 'select 1, 1 from SYS.dual'; LOOP FETCH cv INTO en, jo; EXIT WHEN cv%NOTFOUND; dbms_output.put_line(en || ' is ' || jo); END LOOP; END;
 
--- Oracle view constraints if your drop table doesn't work:
+DECLARE TYPE mynt_t IS TABLE OF my_tbl%ROWTYPE; mynt mynt_t; CURSOR c IS SELECT * FROM my_tbl; BEGIN OPEN c; LOOP FETCH c BULK COLLECT INTO mynt LIMIT 100; EXIT WHEN mynt.COUNT = 0; FOR i in 1..mynt.COUNT LOOP dbms_output.put_line('Dept('||i||'):' || mynt(i).dept); END LOOP; END LOOP; CLOSE c; END;
+
+-- Dynamic cursor:
+DECLARE rn NUMBER := 1; myres varchar(1); cv SYS_REFCURSOR; BEGIN OPEN cv FOR 'select * from SYS.dual where rownum = :1' USING rn; FETCH cv INTO myres; dbms_output.put_line(myres); CLOSE cv; END;
+
+-- Oracle nonaggregated expression (ROWNUM) in an aggregated query - SQL hack:
+select ROWNUM, a.* from (select cust, count(ord) from tbl group by cust) a;
+
+-- Oracle view constraints if your DROP TABLE doesn't work:
 select * from user_constraints where table_name = 'COUNTRIES';
 
-BEGIN FOR i IN x.FIRST .. x.LAST LOOP DBMS_OUTPUT.PUT_LINE(x(i)); END LOOP;
+-- Iterate a sparse nested table collection:
+DECLARE TYPE x_t IS TABLE OF NUMBER; x x_t := x_t(9, NULL, 42); BEGIN FOR i IN x.FIRST .. x.LAST LOOP DBMS_OUTPUT.PUT_LINE(x(i)); END LOOP; END;
 
 -- Oracle DDL for DROP all procedures matching pattern:
 SELECT 'DROP PROCEDURE "'||owner||'"."'||object_name||'";' FROM all_procedures WHERE procedure_name IS NULL AND UPPER(object_name) LIKE 'Z_SET_%';
@@ -5634,17 +5643,22 @@ select * from DICTIONARY WHERE table_name LIKE 'USER%' ORDER BY 1
 select sys_context('userenv', 'current_schema') from dual;
 -- Oracle list browse all schemas poke around:
 SELECT username FROM all_users ORDER BY username;
--- Oracle list browse all database tables all available schema:
+-- Oracle list browse all database tables poke around all available schema:
 SELECT owner, table_name FROM all_tables where owner = 'SCOTT';
+SELECT owner, table_name FROM all_tables@xyz.us.oracle.com
 -- Oracle list browse all views:
 select * from all_views where view_name like '%SPEC%'
 -- Oracle list browse table details:
 SELECT data_type, data_length, nullable, column_id, num_distinct, num_nulls, density from  user_tab_columns WHERE table_name LIKE 'USER_ON%'
 -- Oracle list browse all table details:
 SELECT table_name, column_name, data_type, data_length, nullable, num_distinct, low_value, high_value, density FROM all_tab_columns WHERE table_name in(SELECT table_name FROM all_tables where owner ='SCOTT') and owner ='SCOTT' ORDER BY table_name, column_name
+SELECT table_name, column_name FROM all_tab_cols@xyz.us.oracle.com WHERE lower(column_name) LIKE '%prop%';
 
 -- Oracle list database tables you own:
 SELECT table_name FROM user_tables;
+
+-- Does table exist:
+SELECT COUNT(1) FROM all_tables a WHERE a.TABLE_NAME = 'TAXONOMYx'
 
 -- Find query all Oracle tables & views with a certain field name column name poke around:
 SELECT table_name, column_name FROM cols WHERE lower(table_name) LIKE 'accou%' AND lower(column_name) LIKE '%id%';
@@ -6012,7 +6026,8 @@ select empno, ename, job, hiredate, sal, deptno, ntile(4) over ( order by DBMS_R
 select * from ( select empno, ename, job, hiredate, sal, comm, dense_rank() OVER (order by sal desc) r from  emp ) where r = 3;
 
 -- Find employees with salary greater than the average revenue generated in their department.  Correlated subquery:
-SELECT * FROM employees WHERE salary > (SELECT AVG(revenue_generated) FROM employees AS dept_employees WHERE dept_employees.department = employees.department);
+SELECT * FROM employees e WHERE salary > (SELECT AVG(revenue_generated) FROM employees e2 WHERE d.department = d2.department);
+SELECT * FROM scott.emp e WHERE sal > (SELECT AVG(sal) FROM scott.emp e2 WHERE e.deptno=e2.deptno);
 
 -- Calculate percent of total after adding total in subquery:
 select a.*, b.*, a.UPID/b.tot as pct format=PERCENT8.2 from report1_nRx a join (select nRx, sum(upid) as tot from report1_nRx) b on a.nRx=b.nRx
@@ -6221,6 +6236,9 @@ create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dua
 -- View Oracle grants privileges:
 select * from dba_tab_privs@sed WHERE table_name = 'ACCOUNT'
 
+-- Build Oracle GRANT statements:
+select  'GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE ON ' || tname || ' to pks_user' from mytab
+
 BEGIN sys.dbms_scheduler.create_job( job_name => 'NIGHTLY_RISK_IP_UPDATE_JOB', job_type => 'PLSQL_BLOCK', job_action => 'BEGIN RISK_PKG.periodicRiskUpdate; END;', start_date => '19-DEC-18 12.30.00PM EST5EDT', repeat_interval => 'FREQ=Daily', end_date => to_date(null), job_class => 'DEFAULT_JOB_CLASS', enabled => true, auto_drop => false,  -- run more than once comments => 'Nightly update job'); END;
 BEGIN dbms_scheduler.drop_schedule('DAILY_SCHEDULE'); dbms_scheduler.drop_job('DAILY_JOB'); END;
 -- Oracle  scheduled job details:
@@ -6268,9 +6286,6 @@ failure_in_forall EXCEPTION; PRAGMA EXCEPTION_INIT (failure_in_forall, -24381); 
 -- Oracle create sample data and round to 15 minute increments intervals:
 WITH v AS (select trunc(sysdate)+548/1440+rownum/1440 d1 from dual connect by level <= 10 ) SELECT TRUNC(d1, 'hh24') + ROUND(to_char(d1,'MI') / 15) * 15 / 1440 round_to_15min_intervals FROM v
 
--- Bulk collect:
-DECLARE TYPE mynt_t IS TABLE of my_tbl%ROWTYPE; mynt mynt_t; cursor c is SELECT * FROM my_tbl; BEGIN open c; loop fetch c bulk collect into mynt limit 100; exit when mynt.count = 0; FOR i in 1..mynt.COUNT LOOP dbms_output.put_line('Dept('||i||'):' || mynt(i).dept); END LOOP; end loop; close c; END;
-
 EXECUTE IMMEDIATE 'ALTER TABLE EMAIL_MESSAGES ADD CONSTRAINT CONTACT_CONTACT_CDHU_FK FOREIGN KEY ("CONTACT_CDHU_ID") REFERENCES "SETARS"."CONTACT_BASE" ("CONTACT_ID") ON DELETE CASCADE';
 
 -- List describe browse Postgres tables in psql:
@@ -6284,11 +6299,22 @@ COUNT(DISTINCT ColName) -- returns the number of unique values for column ColNam
 -- Faster alternative to max() on unindexed table:
 select filldate from rxfilldata_201709 where clientid=19 order by 1 desc limit 1 ;
 
--- KEEP analytic to get person with lowest salary in each dept (without using correlated self join subquery).  "Carry" additional column values through the standard GROUP BY aggregation syntax:
-select deptno, min(sal), min(empno) KEEP ( dense_rank FIRST order by sal) empno from emp group by deptno
+-- KEEP analytic to get person with highest salary (and highest empno if ties) by dept (without using correlated self join subquery). "Carry" additional column values through the standard GROUP BY aggregation syntax:
+select deptno, max(sal), max(empno) KEEP ( dense_rank FIRST order by sal ) empno from scott.emp group by deptno;
+-- Get person with highest salary (and highest empno if ties) by dept using correlated self join subquery:
+select deptno, empno top_emp, sal from scott.emp e where not exists ( select 1 from scott.emp where deptno = e.deptno and (sal > e.sal) or (sal = e.sal and empno < e.empno))
 
 -- Group by quarter:
 ...group by prod_category, to_char(trunc(time_id,'Q'),'MON')
+
+SELECT LAST_DAY(DATE '2019-01-01') last_day_of_month FROM dual
+lastDayOfQuarter := LAST_DAY(TO_DATE(to_char((payoutQuarter * 3), '00') || '/01/' || targetYear, 'mm/dd/YYYY'));
+
+-- Want quarter in which a date falls:
+SELECT to_char(TRUNC(DATE '2019-11-20','Q'), 'MON') FROM dual -- OCT
+
+-- Quarter in which date falls.  qtr is all '01-JAN-10', qtrnum is all '1':
+create table t1 as select date '2010-01-01'+rownum x, rownum y  from dual connect by level <= 35; select x, TRUNC(x,'Q') qtr, to_char(TRUNC(x,'Q'), 'Q') qtrnum from t1
 
 -- Modified analytic outer join to get every hr, every room and who reserved it:
 select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2
@@ -6300,18 +6326,6 @@ EXPLAIN PLAN FOR SELECT * FROM email_messages WHERE actual_updated > (SYSTIMESTA
 -- Create a histogram manually:
 SQL> exec DBMS_STATS.GATHER_TABLE_STATS('HR', 'EMPLOYEES', method_opt=>'FOR COLUMNS SIZE 254 JOB_ID');
 
-SELECT LAST_DAY(DATE '2019-01-01') last_day_of_month FROM dual
-lastDayOfQuarter := LAST_DAY(TO_DATE(to_char((payoutQuarter * 3), '00') || '/01/' || targetYear, 'mm/dd/YYYY'));
-
--- Want quarter in which a date falls:
-SELECT to_char(TRUNC(DATE '2019-11-20','Q'), 'MON') FROM dual -- OCT
-
--- Quarter in which date falls.  qtr is all '01-JAN-10', qtrnum is all '1':
-create table t1 as select date '2010-01-01'+rownum x, rownum y  from dual connect by level <= 35; select x, TRUNC(x,'Q') qtr, to_char(TRUNC(x,'Q'), 'Q') qtrnum from t1
-
--- Implicit cursor:
-FOR rec IN (SELECT * FROM err$_employees) LOOP DBMS_OUTPUT.put_line (rec.ora_err_mesg$); END LOOP;
-
 -- Split string into pieces chunks 5 chars wide based on length:
 select regexp_substr(s, '.{5}', 1, lvl) chunk from (select s, level lvl from (select '00000111112222233333' s from dual) connect by level <= length(s) / 5)
 -- Split string into pieces chunks 5 chars wide based on length:
@@ -6320,7 +6334,7 @@ with data as (select '00000111112222233333' s, 5 len from dual) select substr(s,
 -- Split string into pieces chunks into 2 chunks of 18:
 with data as (select '00000111112222233333' s from dual) select substr(s, (level-1)*18+1, 18) chnk from data connect by level <= 2   
 
--- First and last day of last year:
+-- First and last day of last year date:
 SELECT ADD_MONTHS(TRUNC(SYSDATE,'YEAR'), -12) jan_prev_yr, ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), -1) +30 dec_prev_yr FROM dual
 
 -- Enquote a date with single quotes:
@@ -6390,6 +6404,14 @@ BEGIN $IF dbms_db_version.ver_le_11_2 $THEN dbms_output.put_line('ok') /*RESULT_
 
 -- Skip virtual columns:
 IF upper(trim(t_cols_tab(i).virtual_column)) = 'YES' THEN CONTINUE; END IF;
+
+CREATE MATERIALIZED VIEW TAXONOMY ON PREBUILT TABLE REFRESH COMPLETE ON DEMAND AS SELECT ...
+
+-- Keep only most recent of the dups duplicates by date using analytic:
+select * from ( select d, amt, row_number() OVER (partition by amt order by d DESC) r from v ) where r=1
+
+-- Display list want all columns in a table CSV list output:
+SELECT listagg(column_name, ',') within group (order by column_name) csv_list_of_the_columns FROM all_tab_columns WHERE lower(table_name) = 'email_messages' GROUP BY table_name;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6866,9 +6888,6 @@ body { margin:0; padding:8px 4px 12px 4px; color:#ffbf11; background:#000000 url
 > powercfg /hibernate on
 
 Ctrl-r odbc commandline odbcad32
-
--- Build Oracle GRANT statements for @myfilesql (run as pks)
-select  'grant select,insert,update,delete on ' || tname || ' to pks_user' from tab
 
 Remote Desktop C:\WINDOWS\system32\mstsc.exe /admin
 Remote Desktop restore full screen from maximized window: Ctr+Alt+Break
