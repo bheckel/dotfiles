@@ -5340,7 +5340,7 @@ INSERT INTO bobhlm SELECT * FROM links_material WHERE rownum<11; commit;
 -- Copy first few rows of Oracle table into a new table:
 CREATE bob AS select atebpatientid FROM public.hppatientstarpdc;
 
--- Capture Oracle userid:
+-- Capture Oracle userid (note no semicolon to terminate the SQL):
 EXECUTE IMMEDIATE q'[ SELECT sys_context('setars_context', 'employee_id') from dual ]' INTO whoami;
 
 -- Oracle substring:
@@ -6248,7 +6248,8 @@ SELECT * FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE JOB_NAME LIKE 'PTG%'
 -- Oracle scheduled job next run and what it executes:
 SELECT * from user_scheduler_jobs WHERE job_name LIKE '%MAINT%' or upper(job_action) like '%MAINT%'
 
-AUTHID DEFINER is the default PLSQL permission, check SQL at compile-time. AUTHID CURRENT_USER, check SQL at run-time.
+AUTHID DEFINER is the default PLSQL permission, aka define's rights, check SQL
+at compile-time. AUTHID CURRENT_USER, aka invoker's rights, check SQL at run-time
 
 -- Generate unique random GUID:
 select to_number(sys_guid(), 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') from dual
@@ -6412,6 +6413,8 @@ select * from ( select d, amt, row_number() OVER (partition by amt order by d DE
 
 -- Display list want all columns in a table CSV list output:
 SELECT listagg(column_name, ',') within group (order by column_name) csv_list_of_the_columns FROM all_tab_columns WHERE lower(table_name) = 'email_messages' GROUP BY table_name;
+
+l_my_ora_const CONSTANT NUMBER := 42;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
