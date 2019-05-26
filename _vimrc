@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Sat 11 May 2019 11:06:41 (Bob Heckel)
+" Modified: Sun 26 May 2019 08:45:25 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -741,9 +741,12 @@ nnoremap gw <Esc>:split<CR>gf
 " Copy visual mode selection to system clipboard. Like gVim's default but this works for
 " mintty, etc. Unfortunately we can no longer yank into other registers. see
 " also :set clipboard=
-if has('patch518')
+"if has('patch518')
+if v:version > 801 || has("patch148")
   vnoremap <silent> y  "*y
 endif
+"TODO detect termux, copy only highlighted word
+"vnoremap <silent> y :'<,'>!termux-clipboard-set<CR>
 
 " Jump to the exact position where you left, not to beginning of line
 nnoremap ' `
