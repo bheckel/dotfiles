@@ -6162,6 +6162,8 @@ cast(trunc(aa.duns_nbr) AS VARCHAR2(90)) duns_nbr
 SELECT st.VALUE FROM v$mystat st, v$statname sn WHERE st.statistic# = sn.statistic# AND sn.name = 'Oracle session pga memory';
 start_time NUMBER; BEGIN start_time := dbms_utility.get_time(); ... dbms_output.put_line(dbms_utility.get_time()-start_time);
 
+-- Throws NO_DATA_FOUND:
+declare eid number; begin SELECT e.empno INTO eid FROM emp e WHERE e.empno=99999; dbms_output.put_line(eid); end;
 -- Don't error on no_data_found if count is 0:
 SELECT COUNT(*) FROM account_base WHERE 1 = 1 AND account_id = 42;
 
@@ -6415,6 +6417,16 @@ select * from ( select d, amt, row_number() OVER (partition by amt order by d DE
 SELECT listagg(column_name, ',') within group (order by column_name) csv_list_of_the_columns FROM all_tab_columns WHERE lower(table_name) = 'email_messages' GROUP BY table_name;
 
 l_my_ora_const CONSTANT NUMBER := 42;
+
+-- Commit every 100 records (poor man's bulk collect forall):
+FOR rec IN c LOOP UPDATE ref_base reb SET reb.employee_id = 999, reb.updatedby = 0 WHERE reb.reference_id = rec.reference_id; dbms_output.put_line(rec.reference_id); cnt := cnt + 1;  IF (MOD(cnt, 100) = 0) THEN COMMIT; END IF; END LOOP; -- So last group will commit: COMMIT;
+
+-- Tablespace calculation:
+select segment_name table_name, sum(bytes)/(1024*1024) table_size_meg from user_extents where segment_type='TABLE' and tablespace_name = 'ES_NOLOG_01' group by segment_name
+
+-- Force compile ORA- errors for any PLW- warnings:
+ALTER SESSION SET plsql_warnings = 'ERROR:6002' -- upgrade the 'unreachable code' warning
+ALTER SESSION SET plsql_warnings = 'ERROR:ALL'
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
