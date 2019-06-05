@@ -4387,7 +4387,7 @@ $ rename 'fdw.csv' 'fdw.ORIG.csv' *.csv
 uuencode /Drugs/TMMEligibility/Studies/QC_DelhcaInc.pdf | mail -s 'mail attachment' bob.heckel@taeb.com
 
 # Shell bash filetest file test operators comparisons flags:
--e  exists, -d is a directory, -f is an ordinary file, -r can be read by the process, -s has a nonzero length, -w can be written by the process, -x is executable, -L is a symbolic link
+-e  exists, -d is a directory, -f is an ordinary file, -r can be read by the process, -s has a nonzero length, -w can be written by the process, -x is executable, -L is a symbolic link, -z has zero length
 
 # Lookup username from user number id:
 getent passwd "594" | cut -d: -f1
@@ -5346,8 +5346,11 @@ EXECUTE IMMEDIATE q'[ SELECT sys_context('setars_context', 'employee_id') from d
 -- Oracle substring:
 SELECT SUBSTR('CORPORATE FLOOR', 2, 4) FROM dual  -- ORPO
 
--- Oracle find in string. searches beginning with the third character (R) for the second instance of the substring OR. It returns the value 14, which is the position of the second O in FLOOR
-SELECT INSTR('CORPORATE FLOOR','OR', 3, 2) FROM dual  -- 0 if not found
+SELECT INSTR('CORPORATE FLOOR', 'OR') FROM dual  -- 2
+SELECT INSTR('CORPORATE FLOOR', 'OR', 4) FROM dual  -- 5 start looking from pos 4
+SELECT INSTR('CORPORATE FLOOR', 'OR', 4, 2) FROM dual  -- 14  start looking from pos 4 but skip the first match at pos 5
+SELECT INSTR('CORPORATE FLOOR', 'XX') FROM dual  -- 0
+SELECT INSTR(NULL, 'ORA') FROM dual  -- NULL
 
 -- Overflows using PLS_INTEGER ok with INTEGER:
 DECLARE p1 PLS_INTEGER := 2147483647; p2 INTEGER := 1; n NUMBER; BEGIN n := p1 + p2; END; /
@@ -5630,7 +5633,7 @@ DECLARE TYPE x_t IS TABLE OF NUMBER; x x_t := x_t(9, NULL, 42); BEGIN FOR i IN x
 
 -- Oracle DDL for DROP all procedures matching pattern:
 SELECT 'DROP PROCEDURE "'||owner||'"."'||object_name||'";' FROM all_procedures WHERE procedure_name IS NULL AND UPPER(object_name) LIKE 'Z_SET_%';
-select * from user_procedures  -- like all_procedures but for schema only
+SELECT * FROM user_procedures a WHERE a.procedure_name like 'REMOVE_L%';  -- like all_procedures but for schema only
 SELECT *  FROM all_objects WHERE  owner='SETARS' AND object_type NOT LIKE 'JAVA%'  -- jobs, indexes, triggers, tables, procedures, types...
 
 --Get Oracle database instance version, rack, status etc information:
@@ -5713,9 +5716,10 @@ select * from information_schema.tables where table_type='BASE TABLE' and table_
 SELECT LOV.LIST_OF_VALUES_ID, LOV.VALUE FROM LIST_OF_VALUES LOV WHERE LOV.RETIRED = 0 START WITH LOV.LIST_OF_VALUES_ID IN (1,2,3) CONNECT BY PRIOR LOV.LIST_OF_VALUES_ID = LOV.PARENT_ID
 select sys_connect_by_path (job, '/') job_path, sys_connect_by_path (ename, '/') ename_path from scott.emp start with mgr is null connect by prior empno=mgr
 
--- PLSQL hostname:
+-- PLSQL hostname ordbxradm99:
 SELECT SYS_CONTEXT('USERENV', 'SERVER_HOST') FROM DUAL;
 -- PLSQL database name:
+select  SYS_CONTEXT('USERENV', 'DB_NAME') from dual;
 l_db_name VARCHAR2(20) := SYS_CONTEXT('USERENV', 'DB_NAME');  if (l_db_name IN ('SEPS')) THEN...
 
 -- Correlated update query:
@@ -6427,6 +6431,9 @@ select segment_name table_name, sum(bytes)/(1024*1024) table_size_meg from user_
 -- Force compile ORA- errors for any PLW- warnings:
 ALTER SESSION SET plsql_warnings = 'ERROR:6002' -- upgrade the 'unreachable code' warning
 ALTER SESSION SET plsql_warnings = 'ERROR:ALL'
+
+-- Populate dummy table with 100k random strings of length 30:
+insert into mytbl select level, dbms_random.string('a',30) from dual connect by level <= 100000
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
