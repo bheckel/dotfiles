@@ -4419,7 +4419,7 @@ cat ~/clids.txt | xargs ~bheckel/bin/isdata.sh; ssh bheckel@sas-01.mrk.taeb.com 
 nmcli dev show | grep DNS
 
 # Which distro am I using:
-cat /etc/*-release
+cat /etc/*-release | grep VERSION | perl -pe 's/VERSION="//g'
 
 # Largest temp files
 for i in `find ~/tmp`; do du -sh $i; done | sort -hr |head -n75
@@ -5635,6 +5635,7 @@ DECLARE TYPE x_t IS TABLE OF NUMBER; x x_t := x_t(9, NULL, 42); BEGIN FOR i IN x
 SELECT 'DROP PROCEDURE "'||owner||'"."'||object_name||'";' FROM all_procedures WHERE procedure_name IS NULL AND UPPER(object_name) LIKE 'Z_SET_%';
 SELECT * FROM user_procedures a WHERE a.procedure_name like 'REMOVE_L%';  -- like all_procedures but for schema only
 SELECT *  FROM all_objects WHERE  owner='SETARS' AND object_type NOT LIKE 'JAVA%'  -- jobs, indexes, triggers, tables, procedures, types...
+select * FROM all_objects WHERE OWNER = 'BOBHECKEL' and object_type = 'FUNCTION'
 
 --Get Oracle database instance version, rack, status etc information:
 select * from v$instance;
@@ -5932,9 +5933,6 @@ SELECT * INTO xBpmsOutliersNC60 FROM BpmsOutliersNC60
 
 -- Delete table (even if records exist in it):
 DROP TABLE bobhlm;
-
--- Oracle how many rows of data in table (with a safeguard):
-select max(rownum) from pks_extraction_control where rownum<1000000;
 
 -- WARNING: LEFT INNER JOIN is a syntax error
 
@@ -6298,10 +6296,25 @@ EXECUTE IMMEDIATE 'ALTER TABLE EMAIL_MESSAGES ADD CONSTRAINT CONTACT_CONTACT_CDH
 -- List describe browse Postgres tables in psql:
 \d
 
--- Canonical SQL count function 
-COUNT(*)                -- returns the number of rows in a table
+-- Canonical SQL count function:
+COUNT(1)                -- returns the number of rows in a table
 COUNT(ColName)          -- returns the number of rows that have a non null value for ColName
 COUNT(DISTINCT ColName) -- returns the number of unique values for column ColName (can't use * )
+-- Oracle faster but less accurate count function:
+SELECT NUM_ROWS FROM ALL_TABLES WHERE TABLE_NAME = 'CONTACTSTAGINGHIST';
+
+-- Oracle how many rows of data in table:
+select max(rownum) from pks_extraction_control
+
+-- Cross database access SQL Server:
+select count(*) from [W23PSQL01\Production].bpms_va.dbo.claims_pharmacy
+
+-- INNER JOIN eliminate the rows that *don't* match
+
+-- Built-in scalar date function SQL Server:
+SELECT CURRENT_TIMESTAMP
+
+SELECT DATEDIFF (YEAR, '1/1/2002', '1/1/2005')
 
 -- Faster alternative to max() on unindexed table:
 select filldate from rxfilldata_201709 where clientid=19 order by 1 desc limit 1 ;
@@ -6374,6 +6387,7 @@ SELECT custom_property_id FROM custom_property c WHERE c.property_name in('TOP 1
 -- Oracle histogram:
 select min(sal), max(sal), rpad('*', count(1), '*') AS Bar, count(1) from ( select sal, ntile(4) over ( order by sal ) as grp from scott.emp ) group by grp order by 1
 
+-- Poke around:
 -- Oracle DBA_OBJECTS : All objects in the database  ALL_OBJECTS : All objects accessible to the user  USER_OBJECTS : All objects owned by the user
 
 -- Oracle which objects are available? An ls for db (all_objects is similar):
@@ -6434,6 +6448,9 @@ ALTER SESSION SET plsql_warnings = 'ERROR:ALL'
 
 -- Populate dummy table with 100k random strings of length 30:
 insert into mytbl select level, dbms_random.string('a',30) from dual connect by level <= 100000
+
+-- View GRANTs:
+SELECT * FROM DBA_TAB_PRIVS d WHERE d.table_name LIKE 'RPT_TAX%'
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6597,16 +6614,6 @@ cat "//'bqh0.pgm.lib(tsaaaaa)'" | vi -
 
 Refresh fast quickly -- Windows registry.
 LOCAL/System/CurrentControlSet/Control/Update/UpdateMode 00 not 01
-
--- Across database access syntax SQL Server SQLServer
-select count(*) from [W23PSQL01\Production].bpms_va.dbo.claims_pharmacy
-
--- inner joins eliminate the rows that *don't* match
-
--- Built-in Scalar Function SQL Server SQLServer
-SELECT CURRENT_TIMESTAMP
-
-SELECT DATEDIFF (YEAR, '1/1/2002', '1/1/2005')
 
 Fast exit icon c:\windows\rundll32.exe user.exe,ExitWindows
 
@@ -6931,8 +6938,6 @@ h4 { color:#FFFF99; font-weight:bold; font-size:110%; font-style:italic; width:7
 UNION - match by column POSITION, UNION CORRESPONDING - match by column NAME (safer when using select *), using ALL in either causes dups to not be dropped (rare since records are then ambiguous but useful for stacking datasets like SAS' SET t1 t2)
 SELECT foo FROM tblfoo  UNION      SELECT bar FROM tblbar; -- stacks two tables and eliminates dups
 SELECT foo FROM tblfoo  UNION ALL  SELECT bar FROM tblbar; -- stacks two tables and keeps dups (rare since records are then ambiguous)
-
-DELETE FROM pks_extraction_control WHERE meth_spec_nm LIKE 'ATM02102%';
 
 Excel uses exponentiation e.g. 1E+13 for large numbers - avoid by Format Cells : Custom : Enter "#" in Type field
 
