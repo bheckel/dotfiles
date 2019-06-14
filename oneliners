@@ -4041,11 +4041,8 @@ while true; do date;sqlplus -S sasreport/sasreport@sprd25 @donothing; echo 'ok';
 # Poor man's progress bar timer - how long does it take to connect to database:
 i=0;x=0;y=0;while true; do x=`date +%s`;sqlplus -S sasreport/sasreport@sprd25 @donothing; y=`date +%s`;for i in expr $y - $x; do echo -n '.'; done; echo;sleep 300; done;
 
-# Passed-in shell variable $1 starts with 'http'
+# Shell parameter passed-in bash shell variable check for starts with chars:
 ... elif [ "${1:0:4}" = 'http' ];then ...
-
-# Iterate shell array list of filenames (bash only?)
-dotfiles=( .bashrc .vimrc ); for f in ${dotfiles[@]}; do echo $f; done
 
 ssh tpsh005 ps -ef | grep lms_client*|wc -l  # count LIMS users
 
@@ -4055,10 +4052,13 @@ lpr -dprinter_name file_name
 # Cygwin w3m compile finish
 find . -name "*.dll" -or -name "*.exe" | xargs -r strip
 
-# Choose a random line from a file (bash provides $RANDOM)
+# Choose a random line from a file (bash provides $RANDOM):
 F=dhammapada.txt; TOTLINES=`wc -l $F | awk '{print $1}'`; LINENUM=$[($RANDOM%${TOTLINES})+1]; sed -n "$LINENUM"p $F
 
-# bash ls skip do not show .orig files.  TODO not sure how robust this is - may need  $ find . -not -name '*orig'
+# Iterate loop shell array list of filenames:
+dotfiles=( .bashrc .vimrc ); for f in ${dotfiles[@]}; do echo $f; done
+
+# bash ls skip do not show .orig files:
 ls tzu!(.orig)
 
 # Canonical bash function definitions
@@ -4070,8 +4070,8 @@ urxvt-X.exe -display 127.0.0.1:0.0 -bc -e /bin/bash --login
 # Create empty directories and subdirs (skip files) TODO NOT SAFE FOR DIRS WITH SPACES:
 mkdir -p $c/datapost && find * -type d | while read d; do mkdir $c/datapost/${d}; done
 
-# bash calculator if bc isn't installed:
-echo $[(5*3)-2]
+# bash calculator if bc isn't installed poor man's bc:
+echo $[(5*3)-2 ]
 
 # For Windows users who don't have tar and gzip:
 find . -name '*png' |xargs zip plots14jun11.zip 
@@ -4113,9 +4113,12 @@ $ PROCSFILE=$(mktemp) && echo $PROCSFILE && ps -ef >$PROCSFILE
 
 # List all installed apt-get packages:
 sudo dpkg -l
-
-# Install debian ubuntu
+# Install package on debian ubuntu:
 sudo dpkg -i google-chrome-stable_current_i386.deb
+# Fix Linux timezone:
+sudo dpkg-reconfigure tzdata
+# Which large packages are taking up space?:
+dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
 
 # Query apt-get
 sudo apt-cache search vim
@@ -4436,9 +4439,6 @@ whatismyip=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '
 
 sudo timedatectl set-timezone America/New_York
 
-# Fix Linux timezone:
-sudo dpkg-reconfigure tzdata
-
 # Default shell bash variable:
 JIRA=${1:-99999999}
 
@@ -4450,9 +4450,6 @@ echo ${PS1:0: -4}
 
 # Static libraries have names like libname.a, while shared libraries are libname.so.x.y.z where x.y.z is some form of version number. Shared libraries often also have links pointing to them.  The standard libraries come in both shared and static formats.  You can find out what shared libraries a program requires by using ldd (List Dynamic Dependencies):
 $ ldd /usr/bin/lynx
-
-# Which are large packages taking up space?:
-dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6324,17 +6321,19 @@ select deptno, max(sal), max(empno) KEEP ( dense_rank FIRST order by sal ) empno
 -- Get person with highest salary (and highest empno if ties) by dept using correlated self join subquery:
 select deptno, empno top_emp, sal from scott.emp e where not exists ( select 1 from scott.emp where deptno = e.deptno and (sal > e.sal) or (sal = e.sal and empno < e.empno))
 
--- Group by quarter:
-...group by prod_category, to_char(trunc(time_id,'Q'),'MON')
-
-SELECT LAST_DAY(DATE '2019-01-01') last_day_of_month FROM dual
-lastDayOfQuarter := LAST_DAY(TO_DATE(to_char((payoutQuarter * 3), '00') || '/01/' || targetYear, 'mm/dd/YYYY'));
+SELECT TO_CHAR(SYSDATE, 'Q') numeric_quarter_qtr FROM dual
+SELECT TO_CHAR(TO_DATE(mydt, 'dd.mm.yyyy'), 'Q') numeric_quarter_qtr FROM mytbl
+-- Group by character quarter date:
+group by prod_category, to_char(trunc(time_id,'Q'),'MON')
 
 -- Want quarter in which a date falls:
 SELECT to_char(TRUNC(DATE '2019-11-20','Q'), 'MON') FROM dual -- OCT
 
 -- Quarter in which date falls.  qtr is all '01-JAN-10', qtrnum is all '1':
 create table t1 as select date '2010-01-01'+rownum x, rownum y  from dual connect by level <= 35; select x, TRUNC(x,'Q') qtr, to_char(TRUNC(x,'Q'), 'Q') qtrnum from t1
+
+SELECT LAST_DAY(DATE '2019-01-01') last_day_of_month FROM dual
+lastDayOfQuarter := LAST_DAY(TO_DATE(to_char((payoutQuarter * 3), '00') || '/01/' || targetYear, 'mm/dd/YYYY'));
 
 -- Modified analytic outer join to get every hr, every room and who reserved it:
 select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2
@@ -6360,7 +6359,7 @@ SELECT ADD_MONTHS(TRUNC(SYSDATE,'YEAR'), -12) jan_prev_yr, ADD_MONTHS(TRUNC(SYSD
 -- Enquote a date with single quotes:
 quoteddatestring := chr(39) || to_char(SYSDATE - 1, 'DDMONYY') || chr(39);
 
--- Oracle number data type precision:
+-- Oracle number data type precision & scale:
 NUMBER(3, 2)  -- min -9.99  max 9.99
 NUMBER(12, 2)  -- store up to one cent below $10B, $9,999,999,999.99
 
@@ -6431,7 +6430,10 @@ CREATE MATERIALIZED VIEW TAXONOMY ON PREBUILT TABLE REFRESH COMPLETE ON DEMAND A
 -- Keep only most recent of the dups duplicates by date using analytic:
 select * from ( select d, amt, row_number() OVER (partition by amt order by d DESC) r from v ) where r=1
 
--- Display list want all columns in a table CSV list output:
+-- Poke around for column name:
+select * FROM all_tab_columns WHERE lower(column_name) = 'duns_nbr_bkup'
+
+-- Display list all columns in a table CSV list output:
 SELECT listagg(column_name, ',') within group (order by column_name) csv_list_of_the_columns FROM all_tab_columns WHERE lower(table_name) = 'email_messages' GROUP BY table_name;
 
 l_my_ora_const CONSTANT NUMBER := 42;
@@ -6451,6 +6453,8 @@ insert into mytbl select level, dbms_random.string('a',30) from dual connect by 
 
 -- View GRANTs:
 SELECT * FROM DBA_TAB_PRIVS d WHERE d.table_name LIKE 'RPT_TAX%'
+
+-- Asume that in 1999 the database displays 01-JAN-11. If the date format uses DD-MON-RR, then 11 specifies 2011, if the format uses YY, then 11 specifies 1911
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
