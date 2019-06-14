@@ -444,6 +444,7 @@ endif
 
 " For security reasons, set to 'no'
 set nomodeline
+set nosourceany
 
 " Just use my ;5 checkpoint map before starting important changes
 set nobackup
@@ -1674,7 +1675,8 @@ if !exists("autocommands_loaded")
   " Don't wrap these
   au BufRead,BufEnter *.htm*,*.cgi,*/tmp/bash*,afiedt.buf,*.sql set tw=0 wm=0
 
-  " 06-Feb-19 getting tab indentation some reason - block for now:
+  au BufRead,BufEnter afiedt.buf set filetype=sql
+  " TODO 06-Feb-19 getting tab indentation some reason - block for now:
   " au BufRead,BufEnter *.sql,afiedt.buf set noexpandtab
   au BufRead,BufEnter *.sql,afiedt.buf iab LI limit 10
   au BufRead,BufEnter *.sql,afiedt.buf iab OB order by 1
@@ -1796,7 +1798,6 @@ if !exists("autocommands_loaded")
     " SQL*Plus hack to get table/field name completion
 """    au BufRead afiedt.buf winpos 37 55 | se lines=20 | se columns=170 | se tw=999999 | :new | silent :args $HOME/code/misccode/spool/links/*.LST | :hide | map :wq :wq! | noremap ZZ :wq!<CR>
     """au VimLeavePre afiedt.buf execute "w ~/tmp/afiedt.buf." . strftime("%m_%d-%H_%M_%S")
-"""    au BufRead DataPost_Configuration.xml set foldmethod=indent | set foldlevel=1
 
     " Platform warning indicators:
     " gvim
