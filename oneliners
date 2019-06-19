@@ -4055,7 +4055,7 @@ find . -name "*.dll" -or -name "*.exe" | xargs -r strip
 # Choose a random line from a file (bash provides $RANDOM):
 F=dhammapada.txt; TOTLINES=`wc -l $F | awk '{print $1}'`; LINENUM=$[($RANDOM%${TOTLINES})+1]; sed -n "$LINENUM"p $F
 
-# Iterate loop shell array list of filenames:
+# Iterate loop bash shell array list of strings filenames:
 dotfiles=( .bashrc .vimrc ); for f in ${dotfiles[@]}; do echo $f; done
 
 # bash ls skip do not show .orig files:
@@ -4271,9 +4271,6 @@ x=`uname`; if [ ${x:0:6} = CYGWIN ];then echo isCygwin; fi
 git show-ref --heads |cut -d' ' -f2
 git show-ref --heads |awk 'print{$2}'
 
-# Calculate mirror size 4884 1.0123+10 is 10GB in 4884 files
-curl -s ftp://mirror.cs.vt.edu/pub/cygwin/cygwin/x86/setup.ini | awk '/^install: / { T = T + $3 ; N++ }; END { print N, T }'
-
 # Open most recent file:
 vim $( ls /tmp/*.__* | sort -r | head -n 1 )
 
@@ -4450,6 +4447,15 @@ echo ${PS1:0: -4}
 
 # Static libraries have names like libname.a, while shared libraries are libname.so.x.y.z where x.y.z is some form of version number. Shared libraries often also have links pointing to them.  The standard libraries come in both shared and static formats.  You can find out what shared libraries a program requires by using ldd (List Dynamic Dependencies):
 $ ldd /usr/bin/lynx
+
+# Cygwin Windows free diskspace free
+while true; do df -h '//opsawn557/e$'; sleep 60; done
+
+# Capture current Cygpath in Cygwin:
+cygpath -w $PWD  # or cygpath -w `pwd`
+
+# Show Windows pids (winpid) on Cygwin:
+ps -W
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5414,6 +5420,9 @@ order by decode(TOP_LEVEL_ITEM_TEXT, 'accounts', 1, 'contacts', 2, 'opportunitie
 -- Avoid ugly double space 'John  Doe' while allowing 'John Q. Doe':
 SELECT x.*, trim(x.first_name || ' ' || x.middle_name || DECODE(x.middle_name, NULL, '', ' ') || x.last_name) as contact_name
 
+-- SQL Server
+WHERE datepart(year,insert_date)='2005' AND datepart(month,insert_date)='7' AND datepart(day,insert_date)='31'
+
 -- PLSQL null comparison (DECODE is better):
 IF (updated1 = updated0) AND (updatedby1 = updatedby0) AND ( (search_match_code1 = search_match_code0) OR ((search_match_code1 IS NULL) AND (search_match_code0 IS NULL)) ) THEN
 
@@ -5511,7 +5520,7 @@ dbms_output.put_line('rpt at: ' || TO_CHAR(sysdate, 'dd-mon-yy hh:mipm'));
 -- Oracle Business hours only:
 if (TO_CHAR(sysdate, 'DY') in ('SAT', 'SUN') or (TO_CHAR(sysdate, 'HH24') not between '08' and '18')
 
--- Format Oracle format if column too wide that truncation occurs in sql*plus window:
+-- Format Oracle format if column too wide that truncation occurs in sqlplus window:
 sql> col[umn] MFG_SPEC_TXT_A format a15
 sql> column MFG_SPEC_NUM format 999      -- number width w/o zeros
 
@@ -6229,6 +6238,8 @@ CREATE OR REPLACE TRIGGER on_schema_mod_trigger AFTER ALTER OR CREATE ON scott.S
 -- Choose highest value in list:
 SELECT GREATEST(SYSDATE, to_date('01JAN2029'), to_date('01jan2030')) FROM dual
 
+-- Sample database table:
+CREATE TABLE t AS SELECT owner, object_name, object_id FROM all_objects;
 -- Sample database table with 1 column and 10 rows:
 CREATE TABLE t AS SELECT LEVEL mylevel FROM dual CONNECT BY LEVEL <=10;
 -- Sample database table 5 years 2018-01-02 to 2022-12-31:
@@ -6242,7 +6253,7 @@ select  'GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE ON ' || tname || ' to pks_use
 
 BEGIN sys.dbms_scheduler.create_job( job_name => 'NIGHTLY_RISK_IP_UPDATE_JOB', job_type => 'PLSQL_BLOCK', job_action => 'BEGIN RISK_PKG.periodicRiskUpdate; END;', start_date => '19-DEC-18 12.30.00PM EST5EDT', repeat_interval => 'FREQ=Daily', end_date => to_date(null), job_class => 'DEFAULT_JOB_CLASS', enabled => true, auto_drop => false,  -- run more than once comments => 'Nightly update job'); END;
 BEGIN dbms_scheduler.drop_schedule('DAILY_SCHEDULE'); dbms_scheduler.drop_job('DAILY_JOB'); END;
--- Oracle  scheduled job details:
+-- Details of what's scheduled (in job_action):
 select a.job_name, a.JOB_TYPE, a.JOB_ACTION, a.start_date, a.REPEAT_INTERVAL, a.end_date, a.JOB_CLASS, a.ENABLED, a.AUTO_DROP, a.comments from all_scheduler_jobs a ORDER BY 1
 -- Oracle scheduled job outcome log:
 SELECT * FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE JOB_NAME LIKE 'PTG%'
@@ -6454,7 +6465,13 @@ insert into mytbl select level, dbms_random.string('a',30) from dual connect by 
 -- View GRANTs:
 SELECT * FROM DBA_TAB_PRIVS d WHERE d.table_name LIKE 'RPT_TAX%'
 
--- Asume that in 1999 the database displays 01-JAN-11. If the date format uses DD-MON-RR, then 11 specifies 2011, if the format uses YY, then 11 specifies 1911
+-- Asume that in 1999 the database displays 01-JAN-11. If Oracle date format uses DD-MON-RR, then 11 specifies 2011, if the format uses YY, then 11 specifies 1911
+
+SELECT to_char(12345.67, '$99,999.99') FROM dual  -- $12,345.67
+
+-- When 4000 char limit overflows use a CLOB:
+SELECT rtrim(xmlagg(XMLELEMENT(e,text,',').EXTRACT('//text()')).GetClobVal(),',') very_long_text FROM (SELECT to_char(to_date(level,'j'), 'jsp') text FROM dual CONNECT BY LEVEL < 250)
+WITH v AS( SELECT 'vvvvvvvvvvvv vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv vvvvvvvvvvvvvvvvvvvvv vvvvvvvvvvvvvvvery_long_text' bigstr FROM dual) SELECT rtrim(xmlagg(XMLELEMENT(e, bigstr, ',').EXTRACT('//text()') ).GetClobVal(), ',') FROM v
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6489,10 +6506,10 @@ net use * /delete
 :: Browse current connections (need single quotes only on Cygwin)
 net view '\\emiake'
 
-Register a DLL on WinXP
+:: Register a DLL on WinXP
 c:\WINDOWS\system32\regsvr32.exe c:\WINDOWS\system32\MSRDO20.DLL
 
-Microsoft's /dev/null
+:: Microsoft's /dev/null
 > attrib missingfile >nul
 
 The colon ':' in a make Makefile can be read as 'depends on'
@@ -6513,7 +6530,7 @@ HTML email link:
 ' VB plural vs. singular display:
 sPlural = IIf((iFileCnt > 1), "s" & Chr(32), Chr(32))
 
-User settings are saved in the Registry here:
+:: User settings are saved in the Registry here:
 HKEY_CURRENT_USER\Software\VB and VBA Program Settings\
 
 :: DOS BAT -- original errorlevel is always 0.  echo %errorlevel%
@@ -6539,7 +6556,7 @@ E.g. #00FF00 is 0% red, 100% green, 0% blue
 
 Byte size increments: mega, giga, tera, peta, exa, zetta, yotta
 
-Dial-up connectoids by command line:
+:: Dial-up connectoids by command line:
 rasdial     <---to determine active connection name
 rasdial "my connectoid" /d   <---or /disconnect
 
@@ -6552,18 +6569,11 @@ Well know ports file on W2K: /c/winnt/system32/drivers/etc/SERVICES
 Well known ports search (e.g. FTP is 21) on Unix:
 cat /etc/services | grep -e ^http -e ^ftp -e ^ssh|grep tcp
 
-Capture current Cygpath in Cygwin:
-cygpath -w $PWD
-cygpath -w `pwd`
-
 # Start PostgreSQL on Cygwin:
 ipc-daemon & postmaster -D ~/pg/data >| ~/pg/data/pg.log 2>&1 &
 # Stop PostgreSQL on Cygwin:
 pg_ctl -D ~/pg/data stop 
 kill -9 [ipc-daemon's pid]
-
-Show Windows pids (winpid) on Cygwin:
-ps -W
 
 ' Does a directory folder exist?
 If Dir(c.Value) = "" Then MsgBox c & " not exist"  End If <---FAILS!!!
@@ -6731,9 +6741,6 @@ $ /cygdrive/c/WINDOWS/system32/shutdown -r -m '\\zebwd08D26987'
 :: Remote shutdown a Windows workstation:
 c:\> shutdown -s -m \\zebwd04480k6c
 
-Don't load Mozilla Firefox3 extensions addons:
-c:\> firefox.exe -safe-mode
-
 ' VBA
 If lastgrp <> r.Value Then ... End If
 
@@ -6843,9 +6850,9 @@ chkdsk /f e:
 :: Check for a parameter passed
 if "%1"=="" goto noparms
 
-To see logged on users in Windows 2003 - "Computer Management" "Shared Folders" view current open shares and sessions 
+:: To see logged on users in Windows 2003 - "Computer Management" "Shared Folders" view current open shares and sessions 
 
-^ is DOS cmd line continuation... like a backslash at the end of the line in unix
+:: ^ is DOS cmd line continuation... like a backslash at the end of the line in unix
 
 <div style="font-family:arial; color:blue; text-decoration:underline; font-weight:bold; font-size:200%">Newer approach - HTML using CSS</div>
 
@@ -6872,10 +6879,10 @@ Disable screensaver lock Windows XP (see also code\misccode\ScreenSaverIsSecure_
 \HKCU\Software\Policies\Microsoft\Windows\ControlPanel\Desktop
 ScreenSaverIsSecure 0
 
-Windows Explorer shortcut Target box override force tree view:
+:: Windows Explorer shortcut Target box override force tree view:
 %windir%\explorer.exe /e,u:\_go
 
-WinXP icons
+:: WinXP icons
 %SystemRoot%\system32\SHELL32.dll
 
 :: Google DNS
@@ -6905,9 +6912,6 @@ application/xhtml+xml
 <!DOCTYPE html>
 <html lang="en"> ... </html>
 
-Virtual Box after setting \code (put the mount cmd in /etc/rc.local for debian distros)
-mkdir ~/code; sudo mount -t vboxsf -o uid=1000,gid=1000 code /home/rheckel/code
-
 /* Linking to external CSS stylesheet: */
 <head><link rel="stylesheet" type="text/css" href="stylesheet.css" /></head>
 
@@ -6928,9 +6932,6 @@ Remote Desktop Ctr+Alt+End is Ctr+Alt+Del
 
 :: Delete all files in a directory using .bat
 DEL z:\Data_Trending\MDPI\*.* /Q
-
--- SQL Server
-WHERE datepart(year,insert_date)='2005' AND datepart(month,insert_date)='7' AND datepart(day,insert_date)='31'
 
 :: Determine dotnet .NET Framework version - look for e.g. v4.0/:
 dir %windir%\Microsoft.NET\Framework\
@@ -7075,7 +7076,7 @@ git add -f t.txt
 # git want clone existing github repo to a new foreign server AKA origin (a bookmark) which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
 git clone git@github.com:bheckel/dotfiles.git && git remote add origin git@github.com:bheckel/dotfiles.git; ...edit/add/commit... git pull origin master && git push origin master
 # if 'you cant push':
-git config --local -e
+git config --local -e  #testgitcollision 17-Jun-19 
 # or vi ~/dotfiles/.git/config then edit to: url = git@github.com:bheckel/dotfiles.git
 
 git clone https://github.com/grayghostvisuals/Practice-Git.git
@@ -7091,9 +7092,9 @@ git checkout develop && git pull && git merge --no-ff feature/ORION-31587 && git
 # git merge your branch into master branch:
 git checkout master && git merge myfeaturebranch && git branch -d myfeaturebranch
 
-# git delete branch local then remote (without using Github UI delete branch button). First make sure your remote is there: git branch -a 
+# git delete branch local then remote (without using GitHub UI delete branch button). First make sure your remote is there: git branch -a:
 git branch -d feature/ORION-31587 && git push origin --delete feature/ORION-31587 && git fetch -p && git branch -a
-# git delete local branch and prune remote branches (after using github UI delete button):
+# git delete local branch and prune remote branches (after using GitHub UI delete branch button):
 git branch -d feature/ORION-31587 && git fetch -p && git branch -a
 
 # git view history of a file (--follow even if filename has changed, --all branches, -p all patches):
@@ -7105,7 +7106,7 @@ git blame SUP_HAS_ACTIVE_SITES.fnc
 # git remove delete untracked files:
 git clean --dry-run
 
-# git update a feature branch:
+# git update a feature branch catch up to after release night (may want to stash any feature changes first):
 git checkout develop && git fetch -p origin && git merge origin/develop && git checkout myfeaturebranch && git merge develop && git push
 
 # Set remote tracking branch. Assumes push.default=upstream.  Later, since you’re on a tracking branch and you git pull, Git automatically knows which server to fetch from and which branch to merge in.
@@ -7139,9 +7140,6 @@ $('.myclass').css('background','red'}).height(100);
  /* Javascript object usage */
 :javas alert(jedi.age)
 :javas jedi.talk()
-
-# Cygwin Windows free diskspace free
-while true; do df -h '//opsawn557/e$'; sleep 60; done
 
  /* Javascript concatenation */
 strcat = '<a href=http://www.dhammawheel.com/viewtopic.php?f=20&t=>' + rnd2 + '</a>';
@@ -7208,8 +7206,6 @@ vi '\\okpsawn557\d$\oracle\ora81\network\ADMIN\Tnsnames.ora'
 ' Excel difference in cell values:
 =IF(A6<>BD6, "yes", "no")
 
-curl -o ~/tmp/breaching_whale.jpg -OL https://cdn.learnenough.com/breaching_whale.jpg
-
 -- Activate blank Windows screensaver from a .bat:
 start %windir%\system32\scrnsave.scr -s
 
@@ -7275,7 +7271,12 @@ Double arrows unicode « »
 /* Sample JSON: */
 { "Film": "Schema Wars Episode 1: The Unstructured Menance", "ReleaseYear": 2016, "Genre": "SQL Sci-fi", "Actors": [ "Chris Saxon", "Andre Williams", "Robin Williams", "PJ Tamayo" ] }
 
+curl -o ~/tmp/breaching_whale.jpg -OL https://cdn.learnenough.com/breaching_whale.jpg
+
 curl https://api.github.com/users/bheckel
 curl -d '{"key1":"value1", "key2":"value2"}' -H "Content-Type: application/json" -X POST http://localhost:3000/data
+
+# Calculate mirror size 4884 1.0123+10 is 10GB in 4884 files
+curl -s ftp://mirror.cs.vt.edu/pub/cygwin/cygwin/x86/setup.ini | awk '/^install: / { T = T + $3 ; N++ }; END { print N, T }'
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
