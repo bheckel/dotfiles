@@ -47,7 +47,7 @@ let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
 """let g:netrw_list_cmd = '/cygdrive/c/windows/System32/WindowsPowerShell/v1.0/powershell -Command dir'
 
 let THISBOX = hostname()
-let WORKBOXARRAY = [ 'L-ANA-BHECK', 'TWAVWS-05-BHECK' ]
+let WORKBOXARRAY = [ 'L-ANA-BHEC', 'TWAVWS-05-BHEC' ]
 
 " Setup tempspace that vim and gVim can share (if edit here, we may need to copy this .vimrc to C:/Program Files (x86)/Vim/_vimrc),
 " make sure both Linux & Windows hostnames are added to WORKBOXARRAY

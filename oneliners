@@ -1223,7 +1223,7 @@ dm 'clear log; clear lst; wpgm';
 
  /* SAS/ACCESS passthru sandwich */
 proc sql; CONNECT TO ORACLE(USER=u ORAPW=p PATH=db); CREATE TABLE t AS SELECT * FROM CONNECTION TO ORACLE ( select * from my.oratbl ); DISCONNECT FROM ORACLE; quit;
-proc sql; connect to odbc as myconn (user=&user. password=&jasperpassword. dsn='db6' readbuff=7000); create table t as select * from connection to myconn ( select distinct taebpatientid from patient.taebpatient where clientid=17;); disconnect from myconn; quit;
+proc sql; connect to odbc as myconn (user=&user. password=&password. dsn='bd6' readbuff=7000); create table t as select * from connection to myconn ( select distinct taebpatientid from patient.taebpatient where clientid=17;); disconnect from myconn; quit;
 
  /* Add a dummy record to end of an existing dataset: */
 data t; set data.fnl end=e; output; if e then do; clientid=685; output; end; run;
@@ -1354,7 +1354,7 @@ ods listing;title "&SYSDSN";proc print data=_LAST_(where=(patientid=60279077)) w
 %put DEBUG: &SYSMACRONAME running &=myclid because &=is_independent;
 
  /* Implicit pass-through */
-libname ORA oracle user=pks password=pw path=ustst38;
+libname ORA oracle user=pks password=pw path=sutst38;
 options NOlabel; proc sql; select name from dictionary.columns where libname eq 'ORA' and memname eq 'USER_ROLE' ; quit;
 
  /* Count of active stores by clientid: */
@@ -1378,7 +1378,7 @@ proc sql NOPRINT; select memname into :DSETS TRIMMED separated by ' ' from dicti
 options ls=180 NOlabel;proc sql;select * from dictionary.columns where libname eq 'WORK' and memname eq 'EFORMSNUMCH';quit;
 
  /* Canonical sql libname */
-libname GDM_DIST oracle user=&username password=&password path=&database schema=gdm_dist;
+libname GDM_DIST oracle user=&username password=&password path=&database schema=dgm_dist;
 
 select distinct r.sampid, s.specname, put(r.sampid,F6.)||'-'||s.specname into :SAMPIDS separated by ',', :METHS separated by ' ', :METHPAIRS separated by ' '
 
@@ -2583,9 +2583,9 @@ options minoperator; %macro m/mindelimiter=','; %let clid=9; %let v2clids=1,2,3;
 %let m = %sysfunc(month("&sysdate"d),z2.);
 
  /* Direct connection without dsn tagging: */
-connect to postgres as myconn (user=&user password=&jasperpassword database=taeb server='db-103.twa.taeb.com' readbuff=7000);
+connect to postgres as myconn (user=&user password=&password database=taeb server='db-9.twa.taeb.com' readbuff=7000);
 
-proc sql; connect to odbc as myconn (user=&user password=&pw dsn=jasper readbuff=7000); EXECUTE ( update analytics.mtmtargeted set lasttargetdate=%bquote(')&date_max.%bquote(') where taebpatientid in (&taebpatientids)) by myconn; disconnect from myconn; quit;
+proc sql; connect to odbc as myconn (user=&user password=&pw dsn=jasp readbuff=7000); EXECUTE ( update analytics.mtmtargeted set lasttargetdate=%bquote(')&date_max.%bquote(') where taebpatientid in (&taebpatientids)) by myconn; disconnect from myconn; quit;
 
  /* Resets option to user's choice at end of program */
 proc sql; select setting into :TMPMPRINT from DICTIONARY.options where optname='MPRINT'; quit; options NOMPRINT;
@@ -3619,14 +3619,14 @@ ls -l | sort +4r | grep -v "total"
 # Give multiple users the same group and password:
 useradd -g daebstat -m -p N6lPzsXhb5TLg dwj
 
-mailx -s 'email subject type CTRL-D or dot on blank line to end' root@daeb
-mailx -s "mysubject" -r LMITHELP@cdc.gov -c 'boswell@cdc.gov rheckel@cdc.gov' 'ck@cdc.gov kj@cdc.gov' <junk
+mailx -s 'email subject type CTRL-D or dot on blank line to end' root@adeb
+mailx -s "mysubject" -r LMITHELP@dcc.gov -c 'boswell@dcc.gov rheckel@dcc.gov' 'ck@dcc.gov kj@dcc.gov' <junk
 ? touch *    # mark all as read and write to mbox in mailx...
 mailx -f ~/mbox   # ...and read them
 ssh tpsh005 'ls -l /home/gaaadmin/GAAAdapter/gaa/receive/Output_Data | mailx -s 'subject' rsh8680@sgk.com'
 
 # Monitor system status (Solaris at least):
-echo `uptime|awk '{print $11 $12 $13}' && df -k|grep /data|awk '{print $5}'` | mailx -s "load and /data space [cron tstdev]" 'bqh0@cdc.gov'
+echo `uptime|awk '{print $11 $12 $13}' && df -k|grep /data|awk '{print $5}'` | mailx -s "load and /data space [cron tstdev]" 'bqh0@dcc.gov'
 
 # Without an external file redirected in:
 $ echo 'ok' | mailx -s 'test4' rsh8680@sgk.com
@@ -3681,7 +3681,7 @@ mv FOO.txt `echo FOO.txt | tr A-Z a-z`
 
 # Lowercase an environment variable.  E.g.  export PS1=BAR  already set:
 export PS1=`echo $PS1 | tr A-Z a-z`
-export PS1=`echo "$LOGNAME@CDCJES$ " | tr A-Z a-z `
+export PS1=`echo "$LOGNAME@DCCJES$ " | tr A-Z a-z `
 
 # Uppercase all directories (assumes no files in the dir):
 for d in *; do mv $d `echo $d | tr a-z A-Z`; done
@@ -5169,7 +5169,8 @@ printf("%.3f", 3.1415926535);
 # Canonical perl translate:
 $novowels =~ tr/aeiou/!/;  # change any vowel in $novowels into !
 
-($HOST = $host) =~ tr/a-z/A-Z/;  # uppercase en passant (but it's better to use \U and \L for Unicode)
+# uppercase en passant (but it's better to use \U and \L for Unicode):
+($HOST = $host) =~ tr/a-z/A-Z/;
 
 # Expressions - a sequence of literals, variables, function connected by one or more operators that evaluate to a single value-scalar or array. 
 # Statements are a complete unit of instruction for the computer to process. Statement modifiers: if, unless, until, and while.
@@ -5341,7 +5342,7 @@ select deptno from scott.emp INTERSECT select deptno from scott.dept  -- 10, 20,
 -- Copy first few rows of Oracle table into an existing table:
 INSERT INTO bobhlm SELECT * FROM links_material WHERE rownum<11; commit;
 -- Copy first few rows of Oracle table into a new table:
-CREATE bob AS select atebpatientid FROM public.hppatientstarpdc;
+CREATE bob AS select patientid FROM public.hppatientstarpdc;
 
 -- Capture Oracle userid (note no semicolon to terminate the SQL):
 EXECUTE IMMEDIATE q'[ SELECT sys_context('setars_context', 'employee_id') from dual ]' INTO whoami;
@@ -6186,8 +6187,8 @@ FUNCTION get_dept_info(dept_id NUMBER) RETURN dept_info_record RESULT_CACHE; -- 
 -- Expire Oracle user password:
 ALTER USER LIMSARCH PASSWORD EXPIRE;
 -- Change Oracle user password:
-ALTER USER limsarch IDENTIFIED BY new2dayJuly;
-ALTER USER limsarch IDENTIFIED BY "new2dayJuly" REPLACE "oldpw";
+ALTER USER limsarc IDENTIFIED BY new2dayJuly;
+ALTER USER limsarc IDENTIFIED BY "new2dayJuly" REPLACE "oldpw";
 -- Change password Postgres password:
 ALTER USER heckel WITH PASSWORD 'myPass';
 
@@ -6516,7 +6517,7 @@ The colon ':' in a make Makefile can be read as 'depends on'
 
 HTML email link:
 <A HREF="mailto:mutt-users-digest-request@mutt.org?Subject=Subscribe Mutt Users Digest&Body=subscribe">mailme</A>
-<A HREF="mailto:bqh0@cdc.gov?Subject=Subscribe">mailme</A>
+<A HREF="mailto:bqh0@dcc.gov?Subject=Subscribe">mailme</A>
 <a href="mailto:&#98heckel&#64&#97&#116&#116&#46&#110&#101&#116">anti-spam email address</a>
 <a href="mailto:&#98heckel&#64&#99&#112&#97&#110&#46&#111&#114&#103">rheckel@cpan.org</a>
 
@@ -6584,12 +6585,12 @@ Determine a Windows user's hostname from an IP:
 c:> nslookup 158.111.250.165
 
 Pop up new window using only HTML
-<A HREF="http://www.cdc.gov" TARGET=_BLANK>Spawn new window
+<A HREF="http://www.dcc.gov" TARGET=_BLANK>Spawn new window
 
 Mozilla cookies:
 /c/Documents\ and\ Settings/bqh0/Application\ Data/Mozilla/Profiles/default/
 
-On CDC mainframe a cylinder is just less than 1MB:
+On mainframe a cylinder is just less than 1MB:
 Track==56,664 bytes  Cylinder==15 tracks (ie Cylinder==849,960 bytes)
 
 # HFS JCL job submission:
@@ -6632,8 +6633,8 @@ LOCAL/System/CurrentControlSet/Control/Update/UpdateMode 00 not 01
 Fast exit icon c:\windows\rundll32.exe user.exe,ExitWindows
 
 -- ADO/SQLServer connection strings
-Provider=OraOLEDB.Oracle.1;Persist Security Info=True;User ID=ods_zeb;Password=ZEBODS_ZB842;Data Source=ukprd613;
-Provider=SQLOLEDB.1;Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=sprd1208;Data Source=zebsamoc007
+Provider=OraOLEDB.Oracle.1;Persist Security Info=True;User ID=ods_zeb;Password=pw;Data Source=kuprd61;
+Provider=SQLOLEDB.1;Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=sprd1208;Data Source=ezbsamoc07
 
 :: AT command cron for Windows:
 at 20:42 /interactive notepad
@@ -7053,9 +7054,9 @@ git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:sho
 
 # git diff with last commit:
 git show
-# git view old version of file from different branch (in pager):
-git show eacbd91:code/ods_0002e.sas
-# git view old version of file from different branch (in editor):
+# git view previous old version of file from different branch (in pager):
+git show eacbd91:./ods_0002e.sas
+# git view previous old version of file from different branch (in editor):
 git show master:cfg/DataPost_Configuration.html |vi -
 
 $ git config --global merge.tool vimdiff
@@ -7187,7 +7188,7 @@ netsh interface tcp set global autotuninglevel=normal
 :: Force delete remove rm Windows hidden file that Cygwin can't rm:
 u:\misc> del /A:H Thumbs.db
 
-<iframe src="https://zdatapostd.gsk.com/datapostDEMO/DataPost_Results.html" width="850px" height="10000px" frameborder="0"> <p>Your browser does not support iframes.</p></iframe>
+<iframe src="https://zdatapostd.sgk.com/datapostDEMO/DataPost_Results.html" width="850px" height="10000px" frameborder="0"> <p>Your browser does not support iframes.</p></iframe>
 
 <!--  «  a left-pointing double angle html entity -->
 &#171;
