@@ -7073,8 +7073,9 @@ git difftool 1908af7:./PTG.pck PTG.pck
 git add -f t.txt
 
 # git want clone existing github repo to a new foreign server AKA origin (a bookmark) which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
-git clone git@github.com:bheckel/dotfiles.git && git remote add origin git@github.com:bheckel/dotfiles.git; ...edit/add/commit... git pull origin master && git push origin master
-# if 'you cant push':
+ssh-keygen; cat ~/.ssh/id_rsa.pub  # copy it to github
+git clone git@github.com:bheckel/dotfiles.git && git remote add origin git@github.com:bheckel/dotfiles.git; ...edit/git add/git commit... git pull origin master && git push origin master
+# but if 'you cant push' edit the git configuration file:
 git config --local -e
 # or vi ~/dotfiles/.git/config then edit to: url = git@github.com:bheckel/dotfiles.git
 
