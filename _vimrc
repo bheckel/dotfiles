@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Sun 26 May 2019 08:45:25 (Bob Heckel)
+" Modified: Sat 22 Jun 2019 12:13:31 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -545,7 +545,9 @@ set viewdir=~/.vim/view
 if has('gui_win32')
   set guifont=Consolas:h8
 elseif has('gui_gtk3')
- set guifont=Cousine\ 9
+  set guifont=Cousine\ 9
+else
+  set guifont=Terminal\ 8
 endif
 
 if has('gui')
