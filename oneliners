@@ -5438,17 +5438,12 @@ SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,99999)), POOR_CLOSEOUT_OPT_OUT FROM OPPOR
 
 INSERT INTO...; SAVEPOINT bobora; INSERT INTO...; ROLLBACK TO bobora;
 
--- Oracle regex:
-select object_name, object_type from user_objects where object_type in ('PACKAGE') AND regexp_like(object_name, '.*BOBONCALL.*')
-
 -- Oracle date subtraction:
 where lc.updated >= SYSDATE - (365 * 2) -- 2 year window
 SELECT DATE '2019-03-05' - (365 * 2) FROM dual  -- 3/5/2017
 
 -- Oracle function declaration default parameter:
 FUNCTION hasLinkages(in_accountId NUMBER, in_contextBeingUsed NUMBER DEFAULT 2) RETURN NUMBER;
-
-SELECT REGEXP_COUNT ('Oracle PL/SQL By Example Updated for Oracle 11g', 'ora', 1, 'i') FROM dual;
 
 -- Oracle user sessions Who is logged:
 select * from v$session where username is not null order by logon_time, sid
@@ -6108,8 +6103,15 @@ SELECT owner, object_name, object_type, status, last_ddl_time FROM dba_objects W
 
 SELECT SYSTIMESTAMP INTO starting_time FROM DUAL;
 
+-- Oracle regex:
+select object_name, object_type from user_objects where object_type in ('PACKAGE') AND regexp_like(object_name, '.*BOBONCALL.*')
+SELECT job_name, start_date, regexp_replace(start_date, '[AP]M -\d\d:\d\d.*$', 'EST5EDT') from user_scheduler_jobs
+SELECT REGEXP_COUNT ('Oracle PL/SQL By Example Updated for Oracle 11g', 'ora', 1, 'i') FROM dual;
 -- Oracle regex - returns 250/50 MCG:
 select regexp_substr(upper('Disk Inh Pwdr 250/50 mcg 60D'),'\d+/[^/]* *MCG') as stren from dual
+
+-- Concatenate full name without extra spaces when no middle name provided:
+RETURN (TRIM(REGEXP_REPLACE( (first_name_in || ' ' || middle_name_in || ' ' || last_name_in), ' +', ' ')) );
 
 -- Comma separated delimited parse split CSV input string to numbers column:
 SELECT to_number(TRIM(regexp_substr(accounts, '[^,]+', 1, LEVEL))) AS account_id FROM (SELECT '123,456' AS accounts FROM dual) CONNECT BY regexp_substr(accounts, '[^,]+', 1, LEVEL) IS NOT NULL;
@@ -6132,8 +6134,6 @@ SELECT cast(SYSTIMESTAMP + (.000694 * 2) AS TIMESTAMP) AS cast_ddmmmyy, CAST(sys
 
 -- Oracle full date time with timezone:
 select to_char(SYSTIMESTAMP, 'DD-MON-YYYY HH.MI.SS.FF4 AM TZR') from dual;
-
-SELECT job_name, start_date, regexp_replace(start_date, '[AP]M -\d\d:\d\d.*$', 'EST5EDT') from user_scheduler_jobs
 
 -- Oracle repeat character tab:
 dbms_output.put_line('modifying: ' || j.full_job_name || rpad(chr(09), 4, chr(09)) || ' ' || j.start_date || ' to ' || j.new_start_date);
