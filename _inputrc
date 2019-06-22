@@ -1,20 +1,26 @@
-# Modified: Tue 08 Sep 2015 08:22:14 (Bob Heckel)
+# Modified: Tue 18 Jun 2019 10:03:19 (Bob Heckel)
 #
-# To verify settings:
+# ln -s ~/dotfiles/_inputrc ~/.inputrc won't work 18-Jun-19
+#
+# Verify settings:
 # $ bind -P 
  
 set editing-mode vi
-set completion-query-items 100
 
-# Be more like Vim.  Allow single tab to show completions.
-set show-all-if-ambiguous on
-set visible-stats on
-set mark-directories on
 set completion-ignore-case on
 # Insensitivity between hyphens and underscores
 set completion-map-case on
+set completion-query-items 100
+
+set mark-directories on
+
 # No pager for large result list
 set page-completions off
+
+# Allow single tab to show completions
+set show-all-if-ambiguous on
+
+set visible-stats on
 
 # Assumes .bashrc is overriding the ctrl-s key of death with stty -ixon
 Control-s: re-read-init-file

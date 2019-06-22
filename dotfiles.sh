@@ -4,7 +4,8 @@
 # Modified: Sat 29 Dec 2018 11:30:03 (Bob Heckel)
 
 # No leading dots!
-majordots='bashrc vimrc tmux.conf gitconfig'
+#majordots='bashrc vimrc tmux.conf gitconfig'
+majordots='bashrc vimrc tmux.conf'
   
 if [ "$#" -gt 1 ]; then 
   cat <<EOT
