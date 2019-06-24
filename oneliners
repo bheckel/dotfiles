@@ -5994,7 +5994,7 @@ select class, planet, min(radius), listagg(min(radius),',') within group ( order
 ,dense_rank() OVER (order by d) orderbydt_dense -- 1,2,3,3,4,5,6 still have dups like Olympic but fill the holes
 ,row_number() OVER (partition by d order by d) rownumbyday  -- 1,1,1,2,1,1
 -- Can be Top N by day if used as a subquery
-,rank() OVER (partition by d order by amt) rank_by_day -- 1,1,1,1,1,1 would be 1,1,1,1,3,1,1 if union all select date '2000-01-03', 99 from dual existed and dense_rank would make the 3 a 2
+,rank() OVER (partition by d order by amt) rank_by_day -- 1,1,1,1,1,1 would be 1,1,1,1,3,1,1 --if union all select date '2000-01-03', 99 from dual existed and dense_rank would make the 3 a 2
 ,first_value(amt) OVER (partition by d order by d) firstdot  -- 10,11,30,30,10,14
 -- Good for cols where only the first appearance holds empno and rest are blank and need to be padded out (like a report for human consumption)
 ,last_value(amt IGNORE NULLS) OVER (order by d)  lastdot_fillin_the_blank  -- 10,11,30,30,10,14
@@ -6473,6 +6473,8 @@ SELECT to_char(12345.67, '$99,999.99') FROM dual  -- $12,345.67
 -- When 4000 char limit overflows use a CLOB:
 SELECT rtrim(xmlagg(XMLELEMENT(e,text,',').EXTRACT('//text()')).GetClobVal(),',') very_long_text FROM (SELECT to_char(to_date(level,'j'), 'jsp') text FROM dual CONNECT BY LEVEL < 250)
 WITH v AS( SELECT 'vvvvvvvvvvvv vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv vvvvvvvvvvvvvvvvvvvvv vvvvvvvvvvvvvvvery_long_text' bigstr FROM dual) SELECT rtrim(xmlagg(XMLELEMENT(e, bigstr, ',').EXTRACT('//text()') ).GetClobVal(), ',') FROM v
+
+select sql_id, sql_text, sql_fulltext from v$sql where sql_text like '%CUSTOMER%'
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7112,6 +7114,9 @@ git checkout develop && git fetch -p origin && git merge origin/develop && git c
 
 # Set remote tracking branch. Assumes push.default=upstream.  Later, since you’re on a tracking branch and you git pull, Git automatically knows which server to fetch from and which branch to merge in.
 git checkout -b feature/ORION-9999 && git push --set-upstream origin feature/ORION-9999  # "Branch 'feature/ORION-9999' set up to track remote branch 'feature/ORION-9999' from 'origin'."
+
+# github file >50M:
+git filter-branch --tree-filter 'rm -rf 02-White-Noise-60min.mp3' HEAD && git push && git pull
 
 <!-- Predefined character entities -->
 &lt; &gt; &quot; &amp; &apos;  &#169; or &#xA9 is copyright symbol ©
