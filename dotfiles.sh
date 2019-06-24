@@ -44,7 +44,7 @@ for f in $majordots; do
   ln -s $myhome/dotfiles/_$f $myhome/.$f
 done
 
-# 02-Jun-18 not sure still needed and breaks WSL mintty
+# 02-Jun-18 breaks WSL mintty
 # These won't source as a symlink:
 for f in inputrc; do
   echo setting up $myhome/.$f...
@@ -66,6 +66,6 @@ echo
 
 ls -la ~
 
-echo "Consider installing:"
-echo "sudo apt-get install tmux vim-nox w3m bc"
-echo "sudo apt-get install tmux vim-gtk3 w3m bc"
+#echo "Consider installing:"
+#echo "sudo apt-get install tmux vim-nox w3m bc"
+#echo "sudo apt-get install tmux vim-gtk3 w3m bc"
