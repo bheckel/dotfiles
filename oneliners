@@ -537,7 +537,7 @@ K
 :scriptnames             
 
 " Test existence of Vim variables:
-:echo has('foo')         
+:echo has('gui_gtk3')         
 
 " Boolean checking (scripts mainly):
 :echo &modifiable        
@@ -5438,17 +5438,12 @@ SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,99999)), POOR_CLOSEOUT_OPT_OUT FROM OPPOR
 
 INSERT INTO...; SAVEPOINT bobora; INSERT INTO...; ROLLBACK TO bobora;
 
--- Oracle regex:
-select object_name, object_type from user_objects where object_type in ('PACKAGE') AND regexp_like(object_name, '.*BOBONCALL.*')
-
 -- Oracle date subtraction:
 where lc.updated >= SYSDATE - (365 * 2) -- 2 year window
 SELECT DATE '2019-03-05' - (365 * 2) FROM dual  -- 3/5/2017
 
 -- Oracle function declaration default parameter:
 FUNCTION hasLinkages(in_accountId NUMBER, in_contextBeingUsed NUMBER DEFAULT 2) RETURN NUMBER;
-
-SELECT REGEXP_COUNT ('Oracle PL/SQL By Example Updated for Oracle 11g', 'ora', 1, 'i') FROM dual;
 
 -- Oracle user sessions Who is logged:
 select * from v$session where username is not null order by logon_time, sid
@@ -6108,8 +6103,15 @@ SELECT owner, object_name, object_type, status, last_ddl_time FROM dba_objects W
 
 SELECT SYSTIMESTAMP INTO starting_time FROM DUAL;
 
+-- Oracle regex:
+select object_name, object_type from user_objects where object_type in ('PACKAGE') AND regexp_like(object_name, '.*BOBONCALL.*')
+SELECT job_name, start_date, regexp_replace(start_date, '[AP]M -\d\d:\d\d.*$', 'EST5EDT') from user_scheduler_jobs
+SELECT REGEXP_COUNT ('Oracle PL/SQL By Example Updated for Oracle 11g', 'ora', 1, 'i') FROM dual;
 -- Oracle regex - returns 250/50 MCG:
 select regexp_substr(upper('Disk Inh Pwdr 250/50 mcg 60D'),'\d+/[^/]* *MCG') as stren from dual
+
+-- Concatenate full name without extra spaces when no middle name provided:
+RETURN (TRIM(REGEXP_REPLACE( (first_name_in || ' ' || middle_name_in || ' ' || last_name_in), ' +', ' ')) );
 
 -- Comma separated delimited parse split CSV input string to numbers column:
 SELECT to_number(TRIM(regexp_substr(accounts, '[^,]+', 1, LEVEL))) AS account_id FROM (SELECT '123,456' AS accounts FROM dual) CONNECT BY regexp_substr(accounts, '[^,]+', 1, LEVEL) IS NOT NULL;
@@ -6132,8 +6134,6 @@ SELECT cast(SYSTIMESTAMP + (.000694 * 2) AS TIMESTAMP) AS cast_ddmmmyy, CAST(sys
 
 -- Oracle full date time with timezone:
 select to_char(SYSTIMESTAMP, 'DD-MON-YYYY HH.MI.SS.FF4 AM TZR') from dual;
-
-SELECT job_name, start_date, regexp_replace(start_date, '[AP]M -\d\d:\d\d.*$', 'EST5EDT') from user_scheduler_jobs
 
 -- Oracle repeat character tab:
 dbms_output.put_line('modifying: ' || j.full_job_name || rpad(chr(09), 4, chr(09)) || ' ' || j.start_date || ' to ' || j.new_start_date);
@@ -7029,7 +7029,7 @@ git add . && git commit -m 'mod' && git push origin master
 
 # git revert abandon discard throw away trash abandon changes NOT STAGED for commit:
 git checkout -- DataPost_Configuration.map  # can also try  git checkout .  for >1 file 'not staged for commit'
-# git unstage a bad staged file i.e. revert last 'git add' back to the working area:
+# git unstage a bad staged file "Changes to be committed" i.e. revert last 'git add' back to the working area:
 git reset [HEAD] Daily_data_maintenance.pck
 # git revert abandon discard throw away trash abandon changes i.e. undo your last commit, but also unstage everything i.e. roll back to before you ran all your git add and git commit commands:
 git reset [--mixed] HEAD^ 
@@ -7040,6 +7040,9 @@ git reset --hard ORIG_HEAD; git gc;
 git merge --abort  # or git reset --merge
 # git use the other guy's commit on collision:
 git reset --merge 2e40a3
+
+# git error "CONFLICT (content): Merge conflict in"...:
+git mergetool  # C-W = in vim if needed then :diffg LOCAL or :diffg REMOTE
 
 # git discard throw away trash abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area and leave your INDEX alone. You could now git add and git commit again to accomplish what git commit --amend would have done:
 git reset --soft c4c9473
@@ -7064,7 +7067,7 @@ git show master:cfg/DataPost_Configuration.html |vi -
 $ git config --global merge.tool vimdiff
 # git diff "Changes not staged for commit" (your pre-committed change), same as  $ git difftool HEAD:
 git difftool
-# git diff see what changes you will be committing INCLUDING PREVIOUS COMMIT:
+# git diff see what changes you will be committing INCLUDING PREVIOUS COMMIT (HEAD^ is the parent of the current head commit):
 git difftool HEAD^
 # git diff compare commits:
 git difftool 3a93bc3 1fb24fe
@@ -7077,9 +7080,10 @@ git difftool 1908af7:./PTG.pck PTG.pck
 git add -f t.txt
 
 # git want clone existing github repo to a new foreign server AKA origin (a bookmark) which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
+ssh-keygen; cat ~/.ssh/id_rsa.pub  # copy it to github
 git clone git@github.com:bheckel/dotfiles.git && git remote add origin git@github.com:bheckel/dotfiles.git; ...edit/add/commit... git pull origin master && git push origin master
 # if 'you cant push':
-git config --local -e  #testgitcollision 17-Jun-19 
+git config --local -e
 # or vi ~/dotfiles/.git/config then edit to: url = git@github.com:bheckel/dotfiles.git
 
 git clone https://github.com/grayghostvisuals/Practice-Git.git
