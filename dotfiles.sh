@@ -1,11 +1,11 @@
 #!/bin/bash
 
 #  Created: Tue 03 May 2015 09:01:11 (Bob Heckel) 
-# Modified: Sat 29 Dec 2018 11:30:03 (Bob Heckel)
+# Modified: Mon 24 Jun 2019 14:05:12 (Bob Heckel)
 
 # No leading dots!
 #majordots='bashrc vimrc tmux.conf gitconfig'
-majordots='bashrc vimrc tmux.conf'
+majordots='bashrc vimrc tmux.conf minttyrc'
   
 if [ "$#" -gt 1 ]; then 
   cat <<EOT
@@ -44,7 +44,7 @@ for f in $majordots; do
   ln -s $myhome/dotfiles/_$f $myhome/.$f
 done
 
-# 02-Jun-18 not sure still needed and breaks WSL mintty
+# 02-Jun-18 breaks WSL mintty
 # These won't source as a symlink:
 for f in inputrc; do
   echo setting up $myhome/.$f...
@@ -58,7 +58,12 @@ for f in inputrc; do
 done
 
 # For vim swapfile
-mkdir $HOME/tmp
+if [ ! -e $HOME/tmp ]; then
+  mkdir $HOME/tmp
+fi
+if [ ! -e /cygdrive/c/temp ]; then
+  mkdir /cygdrive/c/temp
+fi
 
 echo
 echo ...completed $majordots
@@ -66,6 +71,6 @@ echo
 
 ls -la ~
 
-echo "Consider installing:"
-echo "sudo apt-get install tmux vim-nox w3m bc"
-echo "sudo apt-get install tmux vim-gtk3 w3m bc"
+#echo "Consider installing:"
+#echo "sudo apt-get install tmux vim-nox w3m bc"
+#echo "sudo apt-get install tmux vim-gtk3 w3m bc"

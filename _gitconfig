@@ -1,4 +1,11 @@
-# Modified: Fri 24 May 2019 08:56:53 (Bob Heckel)
+# Modified: Mon 24 Jun 2019 15:32:40 (Bob Heckel)
+#
+#                      git add           git commit              git push
+# UNTRACKED/UNSTAGED -----------> STAGED ----------> LOCAL REPO -------------> REMOTE REPO
+
+
+# git config --global pager.branch false
+
 [color]
 	status = auto
 	diff = auto
