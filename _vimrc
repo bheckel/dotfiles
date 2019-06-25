@@ -416,7 +416,9 @@ set foldopen-=search
 " set diffopt=filler,vertical,iwhite
 set diffopt+=iwhite
 set diffopt+=filler
-" set diffopt+=algorithm:patience
+if v:version > 801 || has("patch148")
+  set diffopt+=algorithm:patience
+endif
 set diffexpr="--ignore-blank-lines"
 
 
@@ -1828,6 +1830,7 @@ if !exists("autocommands_loaded")
   " cab SqL e /cygdrive/c/Orion/workspace/data/Source/SQL/
 
   " end Temporary project-specific
+    au BufWritePre,BufLeave * set nobomb
   end
   
   if has('gui')
