@@ -4,7 +4,7 @@
 # Summary: bash config for at least Unix/Linux, Cygwin 1.3/1.5/1.7 and z/OS
 #
 #  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Tue 14 May 2019 15:02:56 (Bob Heckel)
+# Modified: Wed 26 Jun 2019 10:41:28 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -52,6 +52,7 @@ export LESS='--ignore-case'  # but still honors 'ThisSearchPattern'
 export LS_COLORS='ow=30;42:*.swp=00;35:*.swo=00;35:*.bak=00;35:ex=00;32'
 export PAGER=less  # for man(1)
 export PARINIT='rTbgqR B=.?_A_a Q=_s>| w65'  # par formatter
+export PATH=$PATH:~/bin
 export PERLLIB=$HOME/perllib
 export PROMPT_COMMAND='echo -ne "\033]0;${PWD}\007";'
 export TMP=$HOME/tmp
@@ -831,6 +832,8 @@ esac # }}}1
 if [ -e $HOME/.bashrc.project ]; then
   source $HOME/.bashrc.project
 fi
+alias cod='git checkout develop'
 alias cdg='cd /cygdrive/c/Orion/workspace/data/Source/SQL'
+alias cdv='cd /cygdrive/c/Orion/workspace/data/Source/SQL_Views'
 alias vit="vi $HOME/onedrive/t.sas"
 
