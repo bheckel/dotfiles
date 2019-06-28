@@ -653,8 +653,6 @@ vim -c '/tmm_targeted_list_refresh' ~/template_print.sas
 -- Edit Postgres stored procedure in vim:
 bheckel@db-dev-01.twa.taeb.com:TAEBMART \ef analytics.tmm_client_build_config
 
-" Windows gvimrc is sometimes here C:/Program Files (x86)/Vim/_vimrc
-
 nnoremap ,hdr :-1read ~/code/sas/Headertmplt.sas<CR>
 
 " Use vim as a filter:
@@ -5672,14 +5670,22 @@ SELECT table_name, column_name FROM cols WHERE lower(table_name) LIKE 'accou%' A
 select * from user_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
 select * from dba_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
 
--- Oracle primary (P) foreign (R) keys:
+-- Is table indexed:
+SELECT * from user_indexes WHERE table_name LIKE 'LIST_OF%'  -- or SELECT * from all_ind_columns WHERE index_name LIKE 'LIST_OF%'
+
+-- Oracle primary key (P) foreign key (R):
 SELECT * FROM ALL_CONSTRAINTS WHERE owner=USER
 select * from all_constraints where r_constraint_name in (select constraint_name from all_constraints where table_name LIKE 'CONTACT');
+SELECT * FROM ALL_CONSTRAINTS WHERE table_name LIKE 'LIST_OF%' and constraint_type = 'P'
+-- Best poke around table:
+select DBMS_METADATA.GET_DDL('TABLE', 'LIST_OF_VAL', 'SETARS') from dual;
 
 -- Oracle describe table sqlplus:
 desc mytable
 -- Oracle search for fieldname column name:
 SELECT * from  user_tab_columns WHERE column_name LIKE '%NEW%'
+SELECT * from  user_tab_columns WHERE table_name LIKE '%NEW%'
+
 -- View all details of Oracle table in a schema:
 select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES', 'SETARS') from dual;
 -- View some details of Oracle table (like DESC in sqlplus):
@@ -6769,6 +6775,7 @@ Vimperator autoload Windows shortcut Properties target box:
 Windows shortcut Properties target box:
 "C:\Program Files\Vim\vim72\gvim.exe" -u u:\.vimrc
 "C:\Program Files (x86)\Vim\vim80\gvim.exe" -S C:/Users/bob.heckel/Session.vim
+C:\Users\boheck\vim\vim81\gvim.exe -u c:\cygwin64\home\bheck\dotfiles\_vimrc
 
 XML declaration header: <?xml version="1.0" ?> or <?xml version="1.0" encoding="UTF-8"?>
 
@@ -7079,9 +7086,9 @@ git difftool 1908af7:./PTG.pck PTG.pck
 # git force staging if it's excluded by .gitignore:
 git add -f t.txt
 
-# git want clone existing github repo to a new foreign server AKA origin (a bookmark) which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
-ssh-keygen; cat ~/.ssh/id_rsa.pub  # copy it to github
-git clone git@github.com:bheckel/dotfiles.git && git remote add origin git@github.com:bheckel/dotfiles.git; ...edit/add/commit... git pull origin master && git push origin master
+# git new bare box want clone existing github repo to a new foreign server (AKA origin,a bookmark) which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
+ssh-keygen; # then  cat ~/.ssh/id_rsa.pub  # copy it to github
+git clone git@github.com:bheckel/dotfiles.git && git remote add origin git@github.com:bheckel/dotfiles.git && git config --global --edit  # ...edit/add/commit... then  git pull origin master && git push origin master
 # if 'you cant push':
 git config --local -e
 # or vi ~/dotfiles/.git/config then edit to: url = git@github.com:bheckel/dotfiles.git
@@ -7090,11 +7097,14 @@ git clone https://github.com/grayghostvisuals/Practice-Git.git
 # But may need this first or instead of remote add if your clone was git clone git://github.com/bheckel/misc.git
 git remote set-url origin git@github.com:bheckel/dotfiles.git
 
-# Which branches are tracking which remote/upstream branch:
+# Which branches are tracking which remote/upstream branches:
 git remote show origin
 
 # git manual pull request completion without using Github UI merge & delete branch buttons:
 git checkout develop && git pull && git merge --no-ff feature/ORION-31587 && git push && git branch -d feature/ORION-31587 && git fetch -p && git push origin --delete feature/ORION-31587
+
+# git mantra:
+git add . && git commit -m'mod new laptop files' && git pull && git push
 
 # git merge your branch into master branch:
 git checkout master && git merge myfeaturebranch && git branch -d myfeaturebranch
