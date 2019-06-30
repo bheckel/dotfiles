@@ -4111,7 +4111,7 @@ $ PROCSFILE=$(mktemp) && echo $PROCSFILE && ps -ef >$PROCSFILE
 
 # List all installed apt-get packages:
 sudo dpkg -l
-# Install package on debian ubuntu:
+# Install .deb package on debian ubuntu:
 sudo dpkg -i google-chrome-stable_current_i386.deb
 # Fix Linux timezone:
 sudo dpkg-reconfigure tzdata
@@ -4173,8 +4173,8 @@ find . -maxdepth 1 -name 't[123].txt' | xargs sed -i  -e 's/04\/20\/2017"$/03\/3
 # Avoid having to cd / to untar a cygwin package:
 tar -C / -xvf connect-proxy-1.101-1.tar.gz
 
-# Ubuntu system information:
-df -h && free -m && grep name /proc/cpuinfo | uniq && lspci | grep VGA && xrandr | grep connected && uname -rms
+# Ubuntu system information poke around:
+df -h && echo && free -m && echo && grep name /proc/cpuinfo | uniq && lspci | grep VGA && echo && xrandr | grep connected && echo && uname -rms && echo && lscpu
 
 # Easy work synch backup using the previous tarball as a sentinel - Cygwin:
 ls -l ~/c && sleep 10 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c && cd -
@@ -4197,7 +4197,7 @@ find $z/datapost/dataDose/ |grep 'lims_.*t_.*sas7bdat' |xargs ls -l |awk '{print
 # Build HREF using substitution
 find /cygdrive/c/datapost/data/SGK/Zebulon/ -name '*.pdf'|sed 's/\/cygdrive\/c//' |perl -pe 's/(.*)\/(.*)/<a href=http:\/\/zdatapostd.sgk.com\1\/\2\/>\2<\/a>/'
 
-# Cygwin X
+# Run Cygwin X:
 xinit -- -multiwindow
 ssh -l bheckel -Y 10.11.12.13  # then in resulting xterm /sas/sashome/SASManagementConsole/9.4/sasmc
 
@@ -4454,6 +4454,9 @@ cygpath -w $PWD  # or cygpath -w `pwd`
 
 # Show Windows pids (winpid) on Cygwin:
 ps -W
+
+# fluxbox Resize window: Alt+drag with the right mouse button
+# fluxbox Move window: Alt+drag with the left mouse button
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7298,5 +7301,7 @@ curl -d '{"key1":"value1", "key2":"value2"}' -H "Content-Type: application/json"
 
 # Calculate mirror size 4884 1.0123+10 is 10GB in 4884 files
 curl -s ftp://mirror.cs.vt.edu/pub/cygwin/cygwin/x86/setup.ini | awk '/^install: / { T = T + $3 ; N++ }; END { print N, T }'
+
+Google search: rgb color picker
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

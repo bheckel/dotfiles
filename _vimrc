@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Sat 22 Jun 2019 12:13:31 (Bob Heckel)
+" Modified: Sat 29 Jun 2019 12:25:51 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -416,7 +416,7 @@ set foldopen-=search
 " set diffopt=filler,vertical,iwhite
 set diffopt+=iwhite
 set diffopt+=filler
-if v:version > 801 || has("patch148")
+if v:version > 801 && has("patch148")
   set diffopt+=algorithm:patience
 endif
 set diffexpr="--ignore-blank-lines"
@@ -1772,8 +1772,8 @@ if !exists("autocommands_loaded")
   au BufReadCmd *.egp call zip#Browse(expand("<amatch>"))
 
   " See my .bashrc function ses()
-  au BufReadCmd /tmp/bash-fc* nmap ;r :call ReadFromFile(VTMP, '.vimxfer_ses')<CR>
-  au BufEnter /tmp/bash-fc* set ff=unix
+  " au BufReadCmd /tmp/bash-fc* nmap ;r :call ReadFromFile(VTMP, '.vimxfer_ses')<CR>
+  " au BufEnter /tmp/bash-fc* set ff=unix
 
   " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source c:/cygwin64/home/bob.heckel/code/sas/saslog.vim
   au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim
