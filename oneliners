@@ -5591,9 +5591,8 @@ in_debug boolean := sys.diutil.int_to_bool(:in_debug);
 --SQLPlus formatting:
 COLUMN meth_spec_nm FORMAT a80; COLUMN meth_spec_num FORMAT 99;
 
--- Increase sqlplus buffer to maximum unlimited:
-dbms_output.enable(1000000);
-dbms_output.enable(NULL);  -- same
+-- Increase sqlplus buffer to maximum unlimited logging:
+dbms_output.enable(NULL);
 dbms_output.disable;
 
 -- Oracle print with carriage return linefeed:
@@ -6171,7 +6170,7 @@ select * from basic_data where lnnvl(val = 'Y')
 
 -- Oracle generate random number roll dice:
 SELECT DBMS_RANDOM.VALUE(1, 6) FROM dual  -- 3.32932424
-SELECT trunc(DBMS_RANDOM.VALUE(1, 6)) FROM dual  -- 3
+SELECT ROUND(DBMS_RANDOM.VALUE(1, 6)) FROM dual  -- 3
 SELECT ADD_MONTHS(SYSDATE, -1 * DBMS_RANDOM.VALUE(1, 6)) FROM dual  -- 8/29/2018 11:20:27 AM  or 9/29...etc
 
 cast(trunc(aa.duns_nbr) AS VARCHAR2(90)) duns_nbr

@@ -900,7 +900,8 @@ nnoremap ,g <C-W>f :set winheight=9999<CR>/<C-R>/<CR>
 
 " Copy w(h)ole buffer to Clipboard:
 if has('win32unix')
-  nnoremap ,h :%!putclip<CR><Esc>u
+  " nnoremap ,h :%!putclip<CR><Esc>u
+  nnoremap ,h :1,$ y *<CR>
 elseif has('unix')
   nnoremap ,h :%!xclip<CR>
 elseif has('gui_running')
