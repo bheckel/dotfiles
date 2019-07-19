@@ -2,16 +2,15 @@
 #     Name: $HOME/code/misccode/oneliners
 #
 #  Summary: Programming and sysadmin fragments I've collected over the 
-#           years.  Section-searchable via my gone.sh.  Comments are often
-#           written for searching, not proper English
+#           decades.  Section-searchable via my gone.sh.  Comments are often
+#           written for searching, not proper English.
 #
-#           - Don't create work for your boss
-#           - Don't create work for your coworkers
+#           - Don't create work for your boss or coworkers
 #           - Don't ask a question without researching first
-#           - Write down the answer to avoid asking it again
+#           - Write down the answer
 #
 #  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Tue 23 Apr 2019 10:44:08 (Bob Heckel)
+# Modified: Tue 16 Jul 2019 15:28:21 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -5491,17 +5490,18 @@ WHERE prod_sel_dt BETWEEN TO_DATE('01-JAN-10','DD-MON-YY') AND TO_DATE('31-JAN-1
 -- Oracle last few days search (if activity_dt is DATE formatted):
 select count(*) from activity_log where activity_dt > (SYSDATE-3);
 
--- Oracle 11/2/2018 9:08:23 AM becomes 11/2/2018
-select trunc(sysdate) from dual
+-- Oracle 11/2/2018 9:08:23 AM becomes 11/2/2018 00:00:00:
+select trunc(SYSDATE) from dual
+select trunc(SYSDATE, 'day') from dual
 
--- Oracle date only this month:
+-- Oracle date criteria only this month's orders:
 WHERE order_dt > TRUNC(SYSDATE, 'MONTH')
 
 select * from retain.fnsh_prod where prod_sel='Y' and trunc(prod_sel_dt)=trunc(sysdate);
 
 select rpad('Melanie', 10, '*') Melanie, lpad('Caffrey', 10, '.') Caffrey
 
--- Oracle update query: 
+-- Update query: 
 update retain.fnsh_prod set prod_sel = 'N', prod_sel_dt = NULL;
 
 Oracle YYYYMMDDHH24MISS date vaguely like epoch: 20070304184943
@@ -5543,7 +5543,7 @@ SS.EntryTs >= TO_DATE('01-JAN-05','DD-MON-YY') AND SS.EntryTs <= TO_DATE('31-DEC
 -- SQL Server date between
 WHERE batch_time >= {ts '2011-01-03 00:00:00'} and batch_time <= {ts '2011-01-04 00:00:00'}
 
--- Oracle date in minutes 2019-01-15 15:37
+-- Oracle date with hours minutes 2019-01-15 15:37
 SELECT to_char(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI') FROM dual
 
 -- Oracle date timestamp literal:
@@ -5705,13 +5705,22 @@ extract(year from h.updated) in(2017,2018)
 if (extract(year from sysdate) not between (compYear - 1) and (compYear + 1)) then...
 
 -- Sleep pause execution for 60 seconds:
-SELECT sysdate INTO l_now FROM DUAL; LOOP EXIT WHEN l_now +(60 * (1 / 86400)) = sysdate; END LOOP;
+CREATE OR REPLACE PROCEDURE SLEEP(P_MILLI_SECONDS IN NUMBER) AS LANGUAGE JAVA NAME 'java.lang.Thread.sleep(long)';
+BEGIN sleep(60 * 1000); END;
 
--- Oracle date calculations:
+-- Oracle date time yesterday one day ago:
+select (SYSDATE - INTERVAL '1' day) from dual  -- 17-JUL-19 12:11:48
+select (SYSTIMESTAMP - INTERVAL '1' day) from dual  -- 17-JUL-19 12.12.11.043644000 PM -04:00
+
+-- 18-JUL-19 12.13.00.755657000 PM -04:00 / 18-JUL-19 12.13.00.756657000 PM -04:00 / 18-JUN-19 12:13:00
 SELECT (systimestamp - INTERVAL '0.001' SECOND), SYSTIMESTAMP, (SYSDATE - INTERVAL '1' MONTH) FROM dual
 
 -- Oracle date calculation 15 minutes ago (SYSDATE won't work here):
 SELECT CURRENT_TIMESTAMP - NUMTODSINTERVAL(15, 'MINUTE') localtime, systimestamp - NUMTODSINTERVAL(15, 'MINUTE') utcsometimes FROM dual
+
+-- Max number of seconds that won't give ORA-01873:
+select numtodsinterval(power(2,31) - 1, 'SECOND') as interval from dual;
+select date '1970-01-01' + numtodsinterval(power(2,31) - 1, 'SECOND') as max_interval_from_epoch from dual; -- 19-JAN-38 03:14:07
 
 -- SHOW ERR[ORS] in sqlplus uses this table (but only shows the latest error):
 SELECT * FROM USER_ERRORS WHERE name IN ('PLCH_PKG', 'PLCH_GET_NUMBERS')
@@ -6143,6 +6152,13 @@ SELECT cast(SYSTIMESTAMP + (.000694 * 2) AS TIMESTAMP) AS cast_ddmmmyy, CAST(sys
 -- Oracle full date time with timezone:
 select to_char(SYSTIMESTAMP, 'DD-MON-YYYY HH.MI.SS.FF4 AM TZR') from dual;
 
+select SYSTIMESTAMP - INTERVAL '1' day full_timestamp from dual -- 17-JUL-19 11.59.01.335483000 AM -04:00
+
+select SYSTIMESTAMP - INTERVAL '1' day from dual                       -- 17-JUL-19 11.59.01.335483000 AM -04:00
+select cast(SYSTIMESTAMP - INTERVAL '1' day as timestamp) from dual    -- 17-JUL-19 11.59.01.335483000 AM
+select cast(SYSTIMESTAMP - INTERVAL '1' day as timestamp(1)) from dual -- 17-JUL-19 11.58.14.800000000 AM
+select cast(SYSTIMESTAMP - INTERVAL '1' day as timestamp(7)) from dual -- 17-JUL-19 11.59.01.335483000 AM
+
 -- Oracle repeat character tab:
 dbms_output.put_line('modifying: ' || j.full_job_name || rpad(chr(09), 4, chr(09)) || ' ' || j.start_date || ' to ' || j.new_start_date);
 
@@ -6393,7 +6409,7 @@ dbms_output.put_line(ASCII(SUBSTR(DBMS_UTILITY.FORMAT_ERROR_STACK, -1))); -- 10
 -- Embedded quote q:
 dbms_output.put_line(q'[quote has been ok'd]');
 
--- All SQL run in last 2 months:
+-- All SQL run in the last 2 months:
 select v.SQL_TEXT, v.PARSING_SCHEMA_NAME, v.FIRST_LOAD_TIME, v.DISK_READS, v.ROWS_PROCESSED, v.ELAPSED_TIME, v.service from v$sql v where to_date(v.FIRST_LOAD_TIME,'YYYY-MM-DD hh24:mi:ss')>ADD_MONTHS(trunc(sysdate,'MM'),-2)
 
 -- Multiple substitutions:
@@ -6456,7 +6472,7 @@ select * FROM all_tab_columns WHERE lower(column_name) = 'duns_nbr_bkup'
 -- Display list all columns in a table CSV list output:
 SELECT listagg(column_name, ',') within group (order by column_name) csv_list_of_the_columns FROM all_tab_columns WHERE lower(table_name) = 'email_messages' GROUP BY table_name;
 
-l_my_ora_const CONSTANT NUMBER := 42;
+l_my_oracle_const CONSTANT NUMBER := 42;
 
 -- Commit every 100 records (poor man's bulk collect forall):
 FOR rec IN c LOOP UPDATE ref_base reb SET reb.employee_id = 999, reb.updatedby = 0 WHERE reb.reference_id = rec.reference_id; dbms_output.put_line(rec.reference_id); cnt := cnt + 1;  IF (MOD(cnt, 100) = 0) THEN COMMIT; END IF; END LOOP; -- So last group will commit: COMMIT;
@@ -6482,7 +6498,7 @@ SELECT to_char(12345.67, '$99,999.99') FROM dual  -- $12,345.67
 SELECT rtrim(xmlagg(XMLELEMENT(e,text,',').EXTRACT('//text()')).GetClobVal(),',') very_long_text FROM (SELECT to_char(to_date(level,'j'), 'jsp') text FROM dual CONNECT BY LEVEL < 250)
 WITH v AS( SELECT 'vvvvvvvvvvvv vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv vvvvvvvvvvvvvvvvvvvvv vvvvvvvvvvvvvvvery_long_text' bigstr FROM dual) SELECT rtrim(xmlagg(XMLELEMENT(e, bigstr, ',').EXTRACT('//text()') ).GetClobVal(), ',') FROM v
 
-select sql_id, sql_text, sql_fulltext from v$sql where sql_text like '%CUSTOMER%'
+select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_text like '%CUSTOMER%'
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6777,7 +6793,7 @@ Vimperator autoload Windows shortcut Properties target box:
 Windows shortcut Properties target box:
 "C:\Program Files\Vim\vim72\gvim.exe" -u u:\.vimrc
 "C:\Program Files (x86)\Vim\vim80\gvim.exe" -S C:/Users/bob.heckel/Session.vim
-C:\Users\boheck\vim\vim81\gvim.exe -u c:\cygwin64\home\bheck\dotfiles\_vimrc
+C:\Users\bheck\vim\vim81\gvim.exe -u c:\cygwin64\home\bheck\dotfiles\_vimrc
 
 XML declaration header: <?xml version="1.0" ?> or <?xml version="1.0" encoding="UTF-8"?>
 
@@ -6787,7 +6803,7 @@ $ telnet locahost 80
 GET / HTTP/1.0
 <CR>
 
-:: Count network hops
+:: Count network hops:
 c:\> tracert yahoo.com
 
 Windows Task Manager alternative key combination: Ctrl+Shift+Esc 
@@ -6799,7 +6815,7 @@ Open Windows Event Viewer from command line:  eventvwr
 
 Windows Task Manager: Ctrl+Shift+Esc 
 
-:: Purge get new network IP address WinXP
+:: Purge get new network IP address WinXP:
 ipconfig /flushdns; ipconfig /release; ipconfig /renew
 
 :: computername, userid, domain, OS version ...
@@ -7074,7 +7090,7 @@ git show eacbd91:./ods_0002e.sas
 git show master:cfg/DataPost_Configuration.html |vi -
 
 $ git config --global merge.tool vimdiff
-# git diff "Changes not staged for commit" (your pre-committed change), same as  $ git difftool HEAD:
+# git diff view your changes before committing. "Changes not staged for commit" (your pre-committed change), same as  $ git difftool HEAD:
 git difftool
 # git diff see what changes you will be committing INCLUDING PREVIOUS COMMIT (HEAD^ is the parent of the current head commit):
 git difftool HEAD^
@@ -7090,7 +7106,9 @@ git add -f t.txt
 
 # git new bare box want clone existing github repo to a new foreign server (AKA origin,a bookmark) which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
 ssh-keygen; # then  cat ~/.ssh/id_rsa.pub  # copy it to github
-git clone git@github.com:bheckel/dotfiles.git && git remote add origin git@github.com:bheckel/dotfiles.git && git config --global --edit  # ...edit/add/commit... then  git pull origin master && git push origin master
+git clone git@github.com:bheckel/dotfiles.git && git config --global user.name "Bob Heckel" && git config --global user.email rsh@rshdev.com # ...edit/add/commit... then  git pull origin master && git push origin master
+# may be required for older git versions:
+git remote add origin git@github.com:bheckel/dotfiles.git
 # if 'you cant push':
 git config --local -e
 # or vi ~/dotfiles/.git/config then edit to: url = git@github.com:bheckel/dotfiles.git
@@ -7106,7 +7124,7 @@ git remote show origin
 git checkout develop && git pull && git merge --no-ff feature/ORION-31587 && git push && git branch -d feature/ORION-31587 && git fetch -p && git push origin --delete feature/ORION-31587
 
 # git mantra:
-git add . && git commit -m'mod new laptop files' && git pull && git push
+git add . && git commit -m'mod' && git pull && git push
 
 # git merge your branch into master branch:
 git checkout master && git merge myfeaturebranch && git branch -d myfeaturebranch

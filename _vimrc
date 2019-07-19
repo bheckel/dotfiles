@@ -139,10 +139,10 @@ set sidescroll=5
 
 set nowrap
 
-" Overriden later depending on file type.  gvim window coordinates.
+" Gvim window coordinates dimensions height/width. Overriden later depending on file type.
 if has('gui_running')
   winpos 295 295
-  set columns=85
+  set columns=95
   " Most of the time we're just doing fast edits so make it small.
   set lines=30
 endif
@@ -1605,9 +1605,9 @@ if !exists("autocommands_loaded")
 
   " Handle my ~/bin/sasrun script files
   au BufRead tmpsas.*.log,tmpsas.*.lst map q :qa!<CR>
-  au BufRead tmpsas.*.log,tmpsas.*.lst echo '.vimrc: q to exit all'
+  au BufRead tmpsas.*.log,tmpsas.*.lst echo '.vimrc: q to quit all'
   au BufRead /cygdrive/c/temp/query.out map q :qa!<CR>
-  au BufRead /cygdrive/c/temp/query.out echo '.vimrc: q to exit'
+  au BufRead /cygdrive/c/temp/query.out echo '.vimrc: q to quit all'
 
   " au BufNewFile,BufRead,BufEnter *.sas map ;; :call setline('.', Commentout(getline('.'), 'sas'))<CR>
   au BufNewFile,BufRead,BufEnter *.sas map ;c 0Di  *  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
@@ -1808,8 +1808,6 @@ if !exists("autocommands_loaded")
     " gvim
     " au BufRead,BufWinEnter H:/*             hi StatusLine   guifg=Green guibg=Black gui=inverse,bold
     " au BufRead,BufWinLeave H:/*             hi StatusLineNC guifg=Green guibg=Gray gui=inverse,bold
-"""    au BufRead,BufWinEnter Z:/*            hi StatusLine   guifg=Red guibg=Black gui=inverse,bold
-"""    au BufRead,BufWinLeave Z:/*            hi StatusLineNC guifg=Red guibg=Gray gui=inverse,bold
     " vim
 """    au BufRead,BufWinEnter /cygdrive/c/*    hi StatusLine   ctermfg=Blue ctermbg=White
 """    au BufRead,BufWinLeave /cygdrive/c/*    hi StatusLineNC ctermfg=Blue ctermbg=Gray gui=inverse,bold
