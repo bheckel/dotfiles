@@ -1,18 +1,21 @@
 #!/bin/bash
 
 #  Created: Tue 03 May 2015 09:01:11 (Bob Heckel) 
-# Modified: Sat 29 Dec 2018 11:30:03 (Bob Heckel)
+# Modified: Sun 21 Jul 2019 13:38:41 (Bob Heckel)
 
 # No leading dots!
 #majordots='bashrc vimrc tmux.conf gitconfig'
 majordots='bashrc vimrc tmux.conf'
   
-if [ "$#" -gt 1 ]; then 
+if [ "$#" -ge 1 ]; then 
   cat <<EOT
 Usage: $0
   Setup dotfiles in a new environment
 
   Assumes $HOME/dotfiles/ is where you cloned
+
+  Alternatively: 
+    $ echo 'source ~/dotfiles/_vimrc' >> ~/.vimrc && echo 'source ~/dotfiles/_bashrc' >> ~/.bashrc
 EOT
   exit 1
 fi
