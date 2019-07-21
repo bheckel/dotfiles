@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Sun 26 May 2019 08:45:25 (Bob Heckel)
+" Modified: Sat 29 Jun 2019 12:25:51 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -47,7 +47,7 @@ let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
 """let g:netrw_list_cmd = '/cygdrive/c/windows/System32/WindowsPowerShell/v1.0/powershell -Command dir'
 
 let THISBOX = hostname()
-let WORKBOXARRAY = [ 'L-ANA-BHECK', 'TWAVWS-05-BHECK' ]
+let WORKBOXARRAY = [ 'L-ANA-BHEC', 'TWAVWS-05-BHEC' ]
 
 " Setup tempspace that vim and gVim can share (if edit here, we may need to copy this .vimrc to C:/Program Files (x86)/Vim/_vimrc),
 " make sure both Linux & Windows hostnames are added to WORKBOXARRAY
@@ -139,10 +139,10 @@ set sidescroll=5
 
 set nowrap
 
-" Overriden later depending on file type.  gvim window coordinates.
+" Gvim window coordinates dimensions height/width. Overriden later depending on file type.
 if has('gui_running')
   winpos 295 295
-  set columns=85
+  set columns=95
   " Most of the time we're just doing fast edits so make it small.
   set lines=30
 endif
@@ -416,7 +416,9 @@ set foldopen-=search
 " set diffopt=filler,vertical,iwhite
 set diffopt+=iwhite
 set diffopt+=filler
-" set diffopt+=algorithm:patience
+if v:version > 801 && has("patch148")
+  set diffopt+=algorithm:patience
+endif
 set diffexpr="--ignore-blank-lines"
 
 
@@ -545,7 +547,9 @@ set viewdir=~/.vim/view
 if has('gui_win32')
   set guifont=Consolas:h8
 elseif has('gui_gtk3')
- set guifont=Cousine\ 9
+  set guifont=Cousine\ 9
+else
+  set guifont=Terminal\ 8
 endif
 
 if has('gui')
@@ -896,7 +900,8 @@ nnoremap ,g <C-W>f :set winheight=9999<CR>/<C-R>/<CR>
 
 " Copy w(h)ole buffer to Clipboard:
 if has('win32unix')
-  nnoremap ,h :%!putclip<CR><Esc>u
+  " nnoremap ,h :%!putclip<CR><Esc>u
+  nnoremap ,h :1,$ y *<CR>
 elseif has('unix')
   nnoremap ,h :%!xclip<CR>
 elseif has('gui_running')
@@ -1600,9 +1605,9 @@ if !exists("autocommands_loaded")
 
   " Handle my ~/bin/sasrun script files
   au BufRead tmpsas.*.log,tmpsas.*.lst map q :qa!<CR>
-  au BufRead tmpsas.*.log,tmpsas.*.lst echo '.vimrc: q to exit all'
+  au BufRead tmpsas.*.log,tmpsas.*.lst echo '.vimrc: q to quit all'
   au BufRead /cygdrive/c/temp/query.out map q :qa!<CR>
-  au BufRead /cygdrive/c/temp/query.out echo '.vimrc: q to exit'
+  au BufRead /cygdrive/c/temp/query.out echo '.vimrc: q to quit all'
 
   " au BufNewFile,BufRead,BufEnter *.sas map ;; :call setline('.', Commentout(getline('.'), 'sas'))<CR>
   au BufNewFile,BufRead,BufEnter *.sas map ;c 0Di  *  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
@@ -1768,8 +1773,8 @@ if !exists("autocommands_loaded")
   au BufReadCmd *.egp call zip#Browse(expand("<amatch>"))
 
   " See my .bashrc function ses()
-  au BufReadCmd /tmp/bash-fc* nmap ;r :call ReadFromFile(VTMP, '.vimxfer_ses')<CR>
-  au BufEnter /tmp/bash-fc* set ff=unix
+  " au BufReadCmd /tmp/bash-fc* nmap ;r :call ReadFromFile(VTMP, '.vimxfer_ses')<CR>
+  " au BufEnter /tmp/bash-fc* set ff=unix
 
   " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source c:/cygwin64/home/bob.heckel/code/sas/saslog.vim
   au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim
@@ -1803,8 +1808,6 @@ if !exists("autocommands_loaded")
     " gvim
     " au BufRead,BufWinEnter H:/*             hi StatusLine   guifg=Green guibg=Black gui=inverse,bold
     " au BufRead,BufWinLeave H:/*             hi StatusLineNC guifg=Green guibg=Gray gui=inverse,bold
-"""    au BufRead,BufWinEnter Z:/*            hi StatusLine   guifg=Red guibg=Black gui=inverse,bold
-"""    au BufRead,BufWinLeave Z:/*            hi StatusLineNC guifg=Red guibg=Gray gui=inverse,bold
     " vim
 """    au BufRead,BufWinEnter /cygdrive/c/*    hi StatusLine   ctermfg=Blue ctermbg=White
 """    au BufRead,BufWinLeave /cygdrive/c/*    hi StatusLineNC ctermfg=Blue ctermbg=Gray gui=inverse,bold
@@ -1826,6 +1829,7 @@ if !exists("autocommands_loaded")
   " cab SqL e /cygdrive/c/Orion/workspace/data/Source/SQL/
 
   " end Temporary project-specific
+    au BufWritePre,BufLeave * set nobomb
   end
   
   if has('gui')

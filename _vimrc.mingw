@@ -1,12 +1,15 @@
-" Usually for Git Bash
 " echo 'ok'
 
+" This block should replace C:\Users\bheck\vim\_vimrc for gVim right click / Open With Vim
 if has('unix')
+  " For Git Bash
   source /c/cygwin64/home/bheck/dotfiles/_vimrc
 else
   source c:/cygwin64/home/bheck/dotfiles/_vimrc
 endif
 
+" The rest is usually for Git Bash or project-specific hacks
+"
 set diffopt+=algorithm:patience
 
 map ;1 :silent! write! /c/temp/1<CR>
