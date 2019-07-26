@@ -492,15 +492,17 @@ set suffixes=.old,.old2,.OLD,OLD2,.o,.swp,.bak,.bak2,.BAK,.BAK2,~
 
 "                               21 executing external commands {{{2
 
-" We want the Unix version so make sure shell=/bin/sh, :se ep=  to restore
-" indent default (gg=G)
+" We want the Unix version so make sure shell=/bin/sh, :se ep=  to restore indent default (gg=G)
 set equalprg=sort
 
-" Default.  K to activate.  See au BufNewFile, etc. below (.vimrc, .pl .pm treated specially).
+" Default.  K to activate.  See Autocommands for exceptions.
 set keywordprg=man
 
 if has('win32')
-  set shell=c:\cygwin64\bin\bash.exe
+  " Allow uniq, etc. to run in Windows gvim
+  set shell=c:\cygwin64\bin\bash.exe\ -login
+  set shellcmdflag=-c
+  set shellquote=\"
 else
   set shell=bash
 endif
