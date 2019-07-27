@@ -1,3 +1,4 @@
+# ln -s ~/dotfiles/fluxbox.init ~/.fluxbox/init
 session.screen0.slit.alpha:	255
 session.screen0.slit.acceptKdeDockapps:	true
 session.screen0.slit.onhead:	0
@@ -61,7 +62,7 @@ session.screen0.tooltipDelay:	500
 session.styleOverlay:	/home/bheckel/.fluxbox/overlay
 session.forcePseudoTransparency:	false
 session.appsFile:	/home/bheckel/.fluxbox/apps
-session.styleFile:	/home/bheckel/.fluxbox/styles/fluxbox.theme.cfg
+session.styleFile: /home/bheckel/dotfiles/fluxbox.theme.cfg
 session.slitlistFile:	/home/bheckel/.fluxbox/slitlist
 session.ignoreBorder:	false
 session.cacheMax:	200

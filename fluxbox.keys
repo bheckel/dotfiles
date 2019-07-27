@@ -1,6 +1,8 @@
 ##############################################################################
 #     Name: .fluxbox/keys
 #
+#           ln -s ~/dotfiles/fluxbox.keys ~/.fluxbox/keys
+#
 #  Summary: Customized keybindings for fluxbox
 #
 #           Control==Ctrl Mod1==Alt, Mod4==WindowsKey
