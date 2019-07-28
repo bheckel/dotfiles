@@ -5389,7 +5389,11 @@ select NVL(TO_CHAR(3), 'NULL') from dual;  -- returns 3
 DBMS_OUTPUT.PUT(NVL(TO_CHAR(name.age.years), 'NULL') || ' yrs ');
 NVL2(x, return_value1_bc_x_isNOTnull, return_value2_bc_x_ISnull);
 
--- Oracle prevent nulls from propagating:
+-- If same, null otherwise first parameter:
+select nullif('a','a') from dual  -- NULL
+select nullif('a','b') from dual  -- a
+
+-- Oracle - prevent nulls from propagating:
 SELECT ename, comm, sal, 12*sal+NVL(comm,0) ...
 IF NVL(l_salary,0) <= 40000 ...
 
@@ -6002,8 +6006,8 @@ select class, planet, min(radius), listagg(min(radius),',') within group ( order
 -- Analytic SQL function partition-order-windowing:
 ,count(1) OVER (order by d) cnt_cumul_grp  -- 1,2,4,4,5,6
 ,row_number() OVER (order by d) row_seq_in_dt_order  -- 1,2,3,4,5,6
-,rank() OVER (order by d) orderbydt -- 1,2,3,3,5,6 Olympic has holes
-,dense_rank() OVER (order by d) orderbydt_dense -- 1,2,3,3,4,5,6 still have dups like Olympic but fill the holes
+,rank() OVER (order by d) orderbydt -- 1,2,3,3,5,6 have dups "Olympic" rank has holes
+,dense_rank() OVER (order by d) orderbydt_dense -- 1,2,3,3,4,5,6 still have dups but fill the holes, unlike Olympic
 ,row_number() OVER (partition by d order by d) rownumbyday  -- 1,1,1,2,1,1
 -- Can be Top N by day if used as a subquery
 ,rank() OVER (partition by d order by amt) rank_by_day -- 1,1,1,1,1,1 would be 1,1,1,1,3,1,1 --if union all select date '2000-01-03', 99 from dual existed and dense_rank would make the 3 a 2
