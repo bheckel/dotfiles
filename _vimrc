@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Sat 29 Jun 2019 12:25:51 (Bob Heckel)
+" Modified: Tue 30 Jul 2019 13:32:22 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -49,8 +49,7 @@ let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
 let THISBOX = hostname()
 let WORKBOXARRAY = [ 'L-ANA-BHEC', 'TWAVWS-05-BHEC' ]
 
-" Setup tempspace that vim and gVim can share (if edit here, we may need to copy this .vimrc to C:/Program Files (x86)/Vim/_vimrc),
-" make sure both Linux & Windows hostnames are added to WORKBOXARRAY
+" Setup tempspace that vim and gVim can share, make sure both Linux & Windows hostnames are added to WORKBOXARRAY
 if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
   if has('gui') && has('win32')
     " Windows gVim
@@ -78,7 +77,7 @@ else
   endif
 endif
 
-" Fix leftward movement problem on mainframe z/OS:
+" Fix leftward movement problem on z/OS:
 if has('ebcdic')
   set t_le=
 endif
@@ -600,18 +599,15 @@ iab NuM 1234567890123456789012345678901234567890123456789012345678901234567890
 iab RuL ----+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8----+----9----+----0
 iab ShE #!/bin/bash
 
-" Date/Time (see man strftime or date --help.  Convention stolen from Sven Guckes):
-" Default.  Overridden later in au commands.  E.g. Created: Tue 02 Mar 1999 11:19:32 (Bob Heckel)
-iab YdC Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)
+" Date/Time see man strftime or date --help.  Convention stolen from Sven Guckes:
+" iab YdC Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)
+iab YdC Created: <C-R>=strftime("%d-%b-%y")<CR> (Bob Heckel)
+iab YdM Modified: <C-R>=strftime("%d-%b-%y")<CR> (Bob Heckel)
 " Default.  Overridden later in au commands.
-" E.g. Modified: Tue 02 Mar 1999 11:19:32 (Bob Heckel)
-" Can't simply use "%c" because gvim interprets it badly. 
-iab YdM Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)
-" Default.  Overridden later in au commands.
-iab YdA  Adapted: <C-R>=strftime("%c")<CR> (Bob Heckel)
+iab YdA  Adapted: <C-R>=strftime("%d-%b-%y")<CR> (Bob Heckel)
 " Short.  ISO-8601 format.  E.g. 2002-07-05
 iab YdS <C-R>=strftime("%Y-%m-%d")<CR>
-" GSK style
+" 30-Jul-19
 iab YdG <C-R>=strftime("%d-%b-%y")<CR>
 
 " HTML (also see :TOhtml)
@@ -745,15 +741,14 @@ nnoremap <expr> gp '`[' . strpart(getregtype(), 0, 1) . '`]'
 " Open a window for the file under cursor - (g)et this file a (w)indow
 nnoremap gw <Esc>:split<CR>gf
 
-" Copy visual mode selection to system clipboard. Like gVim's default but this works for
-" mintty, etc. Unfortunately we can no longer yank into other registers. see
-" also :set clipboard=
-"if has('patch518')
+" Copy visual mode selection to system clipboard. Like gVim's default. See also :set clipboard=
 if v:version > 801 || has("patch148")
-  vnoremap <silent> y  "*y
+  if $PATH =~ 'termux'
+    vnoremap <silent> yx :'<,'>!termux-clipboard-set<CR>
+  else
+    vnoremap <silent> yx  "*y
+  endif
 endif
-"TODO detect termux, copy only highlighted word
-"vnoremap <silent> y :'<,'>!termux-clipboard-set<CR>
 
 " Jump to the exact position where you left, not to beginning of line
 nnoremap ' `
@@ -3078,6 +3073,7 @@ endfunction
 "--------------------------------------------------------------------------
 
 " Machine / security settings: {{{1
-if filereadable(glob("~/.vimrc.local")) 
-  source ~/.vimrc.local
+if filereadable(glob("~/.vimrc.project")) 
+  echo '~/.vimrc.project'
+  source ~/.vimrc.project
 endif  "}}}

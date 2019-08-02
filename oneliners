@@ -636,8 +636,10 @@ vi -d /Drugs/update_shortname_ds.sas scp://bheckel@sas-01.mrk.taeb.com//Drugs/up
 :cw
 
 " Vim array
-let WORKBOXARRAY = [ 'L-ANA-BHECKEL', 'ZEBWL14H50510','sas-01.mrk.taeb.com' ]
+let WORKBOXARRAY = [ 'L-ANA-BHECK', 'ZEBWL14H5','sas-01.taeb.com' ]
 if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
+
+if $MYENVVAR =~ 'my vim regex$' ... endif
 
 " Delete duplicate lines
 :%s/^\(.*\)\(\n\1\)\+$/\1/
@@ -5369,8 +5371,9 @@ rc PLS_INTEGER; rc := SQL%ROWCOUNT; dbms_output.new_line(); dbms_output.put_line
 TYPE varray_type IS VARRAY(4) OF VARCHAR2(4000);  -- Oracle collection
 TYPE associativearray_type IS TABLE OF INTEGER INDEX BY VARCHAR2(10);  -- Oracle collection
 [CREATE OR REPLACE] TYPE nestedtable_type IS TABLE OF VARCHAR2(15)  -- Oracle collection
+create type numbers_t as table of number;  -- Oracle collection
 
---Oracle select literal underscore:
+--Oracle select literal underscore by overriding SQL/LIKEs idea of the _ character:
 WHERE UPPER(mat_desc) LIKE '%\_TH%' ESCAPE '\'
 
 define_editor="C:\Program Files (x86)\Vim\vim74\gvim.exe -u C:\Users\obheck\_gvimrc"
@@ -5460,12 +5463,12 @@ foo CONSTANT  varchar2(4000) := q'[bar 'ok' then 4000 is max varchar2]';
 
 DROP PACKAGE test_bob;
 
--- Oracle cross database:
-SELECT \*+ DRIVING_SITE(SITE) *\ COUNT(*) FROM DB_OWNER.DI_SITE_DATA@DNB_XXXX SITE WHERE SITE.DUNS_NBR = :1
+-- Oracle cross database hint:
+SELECT \*+ DRIVING_SITE(SITE) *\ COUNT(*) FROM DB_OWNER.SITE_DATA@DNB_XXXX SITE WHERE SITE.DUNS_NBR = :1
 
 -- Find Oracle session (session id, serial number):
 select * from v$session where osuser='oheck' order by status, logon_time, sid
--- Kill Oracle session (session id, serial number):
+-- Kill Oracle session (sid, serial#):
 SQL> exec sys.kill_session(51,6449);
 
 -- Oracle move rename table:
@@ -5480,13 +5483,11 @@ select object_type, count(*) from dba_objects where owner='PKS_USER' group by ob
 
 -- Only those columns explicitly listed in the GROUP BY clause may appear un-aggregated (i.e. not as a parameter of an agg. function) in the SELECT or HAVING clauses. Put negatively, It is prohibited to use an un-aggregated column in the SELECT or HAVING clauses, unless it is explicitly listed in the GROUP BY clause.
 
+-- Loop a cursor:
 OPEN c1; LOOP FETCH c1 INTO v_lastname, v_jobid; EXIT WHEN c1%NOTFOUND; DBMS_OUTPUT.PUT_LINE( RPAD(v_lastname, 25, ' ') || v_jobid ); END LOOP; CLOSE c1;
 
--- Oracle case insensitive
+-- Oracle case insensitive:
 where ename LIKE UPPER('foo%')
-
--- Oracle exact date change
-update mdpi_shift_downtime set mfg_shift_dt=TO_DATE('9/4/2007','MM/DD/YYYY') where Comment_Txt='Assembly Downtime Test'
 
 -- Canonical Oracle date range:
 WHERE prod_sel_dt BETWEEN TO_DATE('01-JAN-10','DD-MON-YY') AND TO_DATE('31-JAN-10','DD-MON-YY')
@@ -5501,9 +5502,7 @@ select trunc(SYSDATE, 'day') from dual
 -- Oracle date criteria only this month's orders:
 WHERE order_dt > TRUNC(SYSDATE, 'MONTH')
 
-select * from retain.fnsh_prod where prod_sel='Y' and trunc(prod_sel_dt)=trunc(sysdate);
-
-select rpad('Melanie', 10, '*') Melanie, lpad('Caffrey', 10, '.') Caffrey
+select rpad('stars', 10, '*'), lpad('dots', 10, '.') from dual
 
 -- Update query: 
 update retain.fnsh_prod set prod_sel = 'N', prod_sel_dt = NULL;
@@ -5524,8 +5523,6 @@ if (TO_CHAR(sysdate, 'DY') in ('SAT', 'SUN') or (TO_CHAR(sysdate, 'HH24') not be
 -- Format Oracle format if column too wide that truncation occurs in sqlplus window:
 sql> col[umn] MFG_SPEC_TXT_A format a15
 sql> column MFG_SPEC_NUM format 999      -- number width w/o zeros
-
-UPDATE user_role SET user_role=5 WHERE user_nm LIKE '%Heckel%'
 
 -- Oracle substring replace:
 UPDATE pec SET pks_txt=REPLACE(pks_txt,'GEN','GEN_') ...
@@ -5653,6 +5650,8 @@ select * from DICTIONARY WHERE table_name LIKE 'USER%' ORDER BY 1
 select sys_context('userenv', 'current_schema') from dual;
 -- Oracle list browse all schemas poke around:
 SELECT username FROM all_users ORDER BY username;
+-- Does table exist:
+SELECT COUNT(1) FROM all_tables a WHERE a.TABLE_NAME = 'TAXONOMYx'
 -- Oracle list browse all database tables poke around all available schema:
 SELECT owner, table_name FROM all_tables where owner = 'SCOTT';
 SELECT owner, table_name FROM all_tables@xyz.us.oracle.com
@@ -5663,15 +5662,13 @@ SELECT data_type, data_length, nullable, column_id, num_distinct, num_nulls, den
 -- Oracle list browse all table details:
 SELECT table_name, column_name, data_type, data_length, nullable, num_distinct, low_value, high_value, density FROM all_tab_columns WHERE table_name in(SELECT table_name FROM all_tables where owner ='SCOTT') and owner ='SCOTT' ORDER BY table_name, column_name
 SELECT table_name, column_name FROM all_tab_cols@xyz.us.oracle.com WHERE lower(column_name) LIKE '%prop%';
-
 -- Oracle list database tables you own:
 SELECT table_name FROM user_tables;
 
--- Does table exist:
-SELECT COUNT(1) FROM all_tables a WHERE a.TABLE_NAME = 'TAXONOMYx'
-
 -- Find query all Oracle tables & views with a certain field name column name poke around:
 SELECT table_name, column_name FROM cols WHERE lower(table_name) LIKE 'accou%' AND lower(column_name) LIKE '%id%';
+-- Poke around for column name:
+select * FROM all_tab_columns WHERE lower(column_name) = 'duns_nbr_bkup'
 
 select * from user_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
 select * from dba_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
@@ -5699,10 +5696,10 @@ select column_name, nullable, concat(concat(concat(data_type,'('),data_length),'
 
 -- Oracle select top 5 rows of a table in order - this fails: SELECT * FROM scott.emp WHERE ROWNUM <= 5 ORDER BY ename 
 SELECT * FROM (SELECT * FROM scott.emp ORDER BY ename) WHERE ROWNUM <= 5;
-SELECT * FROM scott.emp ORDER BY ename FETCH FIRST 5 ROWS WITH TIES  -- Oracle 12c +
+SELECT * FROM scott.emp ORDER BY ename FETCH FIRST 5 ROWS WITH TIES  -- Oracle 12c+
 
--- Oracle select top 20% percent of rows of a table in order:
-select empno, ename, sal, deptno from  emp order by sal desc fetch first 20 percent rows only;
+-- Oracle select first top 20% percent of rows of a table in order:
+select empno, ename, sal, deptno from emp order by sal desc fetch first 20 percent rows only;
 
 -- Oracle select year portion year part only between years periods:
 extract(year from h.updated) in(2017,2018)
@@ -5753,8 +5750,8 @@ rc pls_integer := 0; rc := SQL%ROWCOUNT; dbms_output.put_line('rows affected: ' 
 
 -- Oracle random 50% subset create test table:
 CREATE TABLE zzorion32822 AS SELECT * FROM zorion32822 SAMPLE(50)
--- Random ids 0.1% of all records in Oracle table:
-SELECT account_id FROM account_name SAMPLE(0.1);
+-- Random subset 0.1% of all records in Oracle table:
+SELECT account_id FROM t SAMPLE(0.1);
 
 -- Error exception handler (if you don't give SQLERRM a valid Oracle error code it uses SQLCODE as the error code):
 WHEN others THEN dbms_output.put_line(SQLCODE || ': ' || SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
@@ -6131,6 +6128,10 @@ SELECT REGEXP_COUNT ('Oracle PL/SQL By Example Updated for Oracle 11g', 'ora', 1
 -- Oracle regex - returns 250/50 MCG:
 select regexp_substr(upper('Disk Inh Pwdr 250/50 mcg 60D'),'\d+/[^/]* *MCG') as stren from dual
 
+-- Split on semicolon FREQ=MINUTELY;INTERVAL=10;
+,regexp_substr(repeat_interval, '[^;]+;', 1, 1) time  -- FREQ=MINUTELY;
+,regexp_substr(repeat_interval, '[^;]+;', 1, 2) interval  -- INTERVAL=10;
+
 -- Concatenate full name without extra spaces when no middle name provided:
 RETURN (TRIM(REGEXP_REPLACE( (first_name_in || ' ' || middle_name_in || ' ' || last_name_in), ' +', ' ')) );
 
@@ -6267,11 +6268,12 @@ CREATE OR REPLACE TRIGGER on_schema_mod_trigger AFTER ALTER OR CREATE ON scott.S
 -- Choose highest value in list:
 SELECT GREATEST(SYSDATE, to_date('01JAN2029'), to_date('01jan2030')) FROM dual
 
--- Sample database table:
+-- Sample CTAS database table:
 CREATE TABLE t AS SELECT owner, object_name, object_id FROM all_objects;
--- Sample database table with 1 column and 10 rows:
-CREATE TABLE t AS SELECT LEVEL mylevel FROM dual CONNECT BY LEVEL <=10;
--- Sample database table 5 years 2018-01-02 to 2022-12-31:
+-- Sample CTAS database table with 1 column and 10 rows:
+CREATE TABLE t AS SELECT level mylevel FROM dual CONNECT BY LEVEL <=10;
+create table t(id primary key, tag) as select rownum id, to_char(rownum) tag from dual connect by level <=100;
+-- Sample CTAS database table load 5 years of data 2018-01-02 to 2022-12-31:
 create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dual connect by level <= 365*5;
 
 -- View Oracle grants privileges:
@@ -6470,9 +6472,6 @@ CREATE MATERIALIZED VIEW TAXONOMY ON PREBUILT TABLE REFRESH COMPLETE ON DEMAND A
 -- Keep only most recent of the dups duplicates by date using analytic:
 select * from ( select d, amt, row_number() OVER (partition by amt order by d DESC) r from v ) where r=1
 
--- Poke around for column name:
-select * FROM all_tab_columns WHERE lower(column_name) = 'duns_nbr_bkup'
-
 -- Display list all columns in a table CSV list output:
 SELECT listagg(column_name, ',') within group (order by column_name) csv_list_of_the_columns FROM all_tab_columns WHERE lower(table_name) = 'email_messages' GROUP BY table_name;
 
@@ -6498,11 +6497,24 @@ SELECT * FROM DBA_TAB_PRIVS d WHERE d.table_name LIKE 'RPT_TAX%'
 
 SELECT to_char(12345.67, '$99,999.99') FROM dual  -- $12,345.67
 
--- When 4000 char limit overflows use a CLOB:
+-- When 4000 char limit overflows, use a CLOB:
 SELECT rtrim(xmlagg(XMLELEMENT(e,text,',').EXTRACT('//text()')).GetClobVal(),',') very_long_text FROM (SELECT to_char(to_date(level,'j'), 'jsp') text FROM dual CONNECT BY LEVEL < 250)
 WITH v AS( SELECT 'vvvvvvvvvvvv vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv vvvvvvvvvvvvvvvvvvvvv vvvvvvvvvvvvvvvery_long_text' bigstr FROM dual) SELECT rtrim(xmlagg(XMLELEMENT(e, bigstr, ',').EXTRACT('//text()') ).GetClobVal(), ',') FROM v
 
 select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_text like '%CUSTOMER%'
+
+select replace('abcdef', 'abc', 'ABC') from dual -- ABCdef
+select translate('abc def', 'abcd', '1234') from dual -- 123 4ef
+select translate('abcdef', 'abcde', '1234') from dual -- 1234f
+
+-- Big sample table:
+CREATE TABLE million_rows AS SELECT ROWNUM AS id, RPAD('x',100) AS data FROM dual CONNECT BY ROWNUM < 1000000;  ALTER TABLE million_rows ADD CONSTRAINT million_rows_pk PRIMARY KEY (id);  BEGIN DBMS_STATS.GATHER_TABLE_STATS(USER, 'MILLION_ROWS', estimate_percent=>100); END;
+
+-- Size of code bytes:
+select SOURCE_SIZE from user_object_size where name in('ACCOUNTSPKG');
+
+-- Implicit single row cursor:
+DECLARE l_vc_first_name employees.first_name%type; l_vc_last_name employees.last_name%type; BEGIN SELECT first_name, last_name INTO l_vc_first_name, l_vc_last_name FROM employees WHERE employee_id=120; dbms_output.put_line('Number of rows processed: '||sql%rowcount); END;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7071,7 +7083,7 @@ git merge --abort  # or git reset --merge
 git reset --merge 2e40a3
 
 # git error "CONFLICT (content): Merge conflict in"...:
-git mergetool  # C-W = in vim if needed then :diffg LOCAL or :diffg REMOTE
+git mergetool  # C-W = in vim if windows are squashed
 
 # git discard throw away trash abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area and leave your INDEX alone. You could now git add and git commit again to accomplish what git commit --amend would have done:
 git reset --soft c4c9473
@@ -7147,14 +7159,17 @@ git blame SUP_HAS_ACTIVE_SITES.fnc
 # git remove delete untracked files:
 git clean --dry-run
 
-# git update a feature branch catch up to after release night (may want to stash any feature changes first):
+# git update refresh a feature branch to catch up to after release night (may want to stash any feature changes first):
 git checkout develop && git fetch -p origin && git merge origin/develop && git checkout myfeaturebranch && git merge develop && git push
 
-# Set remote tracking branch. Assumes push.default=upstream.  Later, since you’re on a tracking branch and you git pull, Git automatically knows which server to fetch from and which branch to merge in.
+# Set remote tracking branch. Assumes push.default=upstream.  Later, since you’re on a tracking branch and you git pull, Git automatically knows which server to fetch from and which branch to merge in:
 git checkout -b feature/ORION-9999 && git push --set-upstream origin feature/ORION-9999  # "Branch 'feature/ORION-9999' set up to track remote branch 'feature/ORION-9999' from 'origin'."
 
-# github file >50M:
+# github undo commit of a file >50M:
 git filter-branch --tree-filter 'rm -rf 02-White-Noise-60min.mp3' HEAD && git push && git pull
+
+# git branch has conflicts that must be resolved:
+git fetch origin && git checkout -b feature/ORION-999 origin/feature/ORION-999 && git merge develop
 
 <!-- Predefined character entities -->
 &lt; &gt; &quot; &amp; &apos;  &#169; or &#xA9 is copyright symbol ©
