@@ -151,13 +151,8 @@ alias sdf='ssh -l bheckel sdf.org; date'
 alias sl='ls --color=none'  # dyslexic daim branage
 alias sr="$HOME/code/sas/sasrun"
 alias srcb="source $HOME/dotfiles/_bashrc"
-alias tml='tmux list-sessions'
 alias tmls='tmux list-sessions'
 alias tmux='tmux -u'  # UTF8
-# tmux -2 new -s s1
-# alias tm1="tmux -2 a -t 's1'"
-# alias tm1new='tmux -2 new -s s1'
-# alias tm1="tmux -2 new -s s1 || tmux -2 a -t 's1'"
 ###alias tree="\ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
 alias uvi="$HOME/code/perl/uvi"  # don't change timestamp
 alias ve="vi $HOME/.vimrc"

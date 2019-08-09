@@ -5373,7 +5373,7 @@ TYPE associativearray_type IS TABLE OF INTEGER INDEX BY VARCHAR2(10);  -- Oracle
 [CREATE OR REPLACE] TYPE nestedtable_type IS TABLE OF VARCHAR2(15)  -- Oracle collection
 create type numbers_t as table of number;  -- Oracle collection
 
---Oracle select literal underscore by overriding SQL/LIKEs idea of the _ character:
+--Oracle select a literal underscore by overriding SQL/LIKEs idea of the _ character:
 WHERE UPPER(mat_desc) LIKE '%\_TH%' ESCAPE '\'
 
 define_editor="C:\Program Files (x86)\Vim\vim74\gvim.exe -u C:\Users\obheck\_gvimrc"
@@ -5458,7 +5458,7 @@ select * from v$session where username is not null order by logon_time, sid
 -- Oracle package count:
 SELECT OBJECT_NAME, count(*) FROM dba_procedures WHERE OWNER = 'SETARS' AND OBJECT_TYPE IN('PROCEDURE' , 'PACKAGE','FUNCTION') AND procedure_name IS NOT NULL GROUP BY object_name;
 
--- Oracle single quote quoting masking EXECUTE IMMEDIATE:
+-- Oracle single q quote quoting masking:
 foo CONSTANT  varchar2(4000) := q'[bar 'ok' then 4000 is max varchar2]';
 
 DROP PACKAGE test_bob;
@@ -5466,10 +5466,11 @@ DROP PACKAGE test_bob;
 -- Oracle cross database hint:
 SELECT \*+ DRIVING_SITE(SITE) *\ COUNT(*) FROM DB_OWNER.SITE_DATA@DNB_XXXX SITE WHERE SITE.DUNS_NBR = :1
 
--- Find Oracle session (session id, serial number):
-select * from v$session where osuser='oheck' order by status, logon_time, sid
+-- Find Oracle session to kill (session id, serial number):
+select sid, serial#, state, status, osuser, machine, program, sql_exec_start, logon_time, action, sql_id from v$session where osuser='heck' order by status, logon_time, sid;
 -- Kill Oracle session (sid, serial#):
 SQL> exec sys.kill_session(51,6449);
+select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, sid, serial#, state, status, osuser, machine, program, sql_exec_start, logon_time, action, sql_id from v$session where osuser='heck' order by status, logon_time, sid;
 
 -- Oracle move rename table:
 CREATE TABLE fooTMP AS SELECT * FROM user_role; DROP TABLE foo; CREATE TABLE foo AS SELECT * FROM fooTMP;
@@ -5521,8 +5522,8 @@ dbms_output.put_line('rpt at: ' || TO_CHAR(sysdate, 'dd-mon-yy hh:mipm'));
 if (TO_CHAR(sysdate, 'DY') in ('SAT', 'SUN') or (TO_CHAR(sysdate, 'HH24') not between '08' and '18')
 
 -- Format Oracle format if column too wide that truncation occurs in sqlplus window:
-sql> col[umn] MFG_SPEC_TXT_A format a15
-sql> column MFG_SPEC_NUM format 999      -- number width w/o zeros
+sql> column MFG_SPEC_NUM format 999  -- sqlplus number width w/o zeros
+sql> col MFG_SPEC_TXT_A format a15  -- sqlplus column width 15 characters
 
 -- Oracle substring replace:
 UPDATE pec SET pks_txt=REPLACE(pks_txt,'GEN','GEN_') ...
@@ -5654,6 +5655,7 @@ SELECT username FROM all_users ORDER BY username;
 SELECT COUNT(1) FROM all_tables a WHERE a.TABLE_NAME = 'TAXONOMYx'
 -- Oracle list browse all database tables poke around all available schema:
 SELECT owner, table_name FROM all_tables where owner = 'SCOTT';
+SELECT owner, table_name FROM user_tables where owner = 'SCOTT';
 SELECT owner, table_name FROM all_tables@xyz.us.oracle.com
 -- Oracle list browse all views:
 select * from all_views where view_name like '%SPEC%'
@@ -5665,8 +5667,12 @@ SELECT table_name, column_name FROM all_tab_cols@xyz.us.oracle.com WHERE lower(c
 -- Oracle list database tables you own:
 SELECT table_name FROM user_tables;
 
--- Find query all Oracle tables & views with a certain field name column name poke around:
+-- Find query search all Oracle tables & views with a certain field name column name poke around:
 SELECT table_name, column_name FROM cols WHERE lower(table_name) LIKE 'accou%' AND lower(column_name) LIKE '%id%';
+
+-- Find query search all Oracle tables & views with a certain table name poke around:
+SELECT table_name FROM user_tables WHERE lower(table_name) LIKE '%search%' order by 1;
+
 -- Poke around for column name:
 select * FROM all_tab_columns WHERE lower(column_name) = 'duns_nbr_bkup'
 
@@ -5680,8 +5686,6 @@ SELECT * from user_indexes WHERE table_name LIKE 'LIST_OF%'  -- or SELECT * from
 SELECT * FROM ALL_CONSTRAINTS WHERE owner=USER
 select * from all_constraints where r_constraint_name in (select constraint_name from all_constraints where table_name LIKE 'CONTACT');
 SELECT * FROM ALL_CONSTRAINTS WHERE table_name LIKE 'LIST_OF%' and constraint_type = 'P'
--- Best poke around table:
-select DBMS_METADATA.GET_DDL('TABLE', 'LIST_OF_VAL', 'SETARS') from dual;
 
 -- Oracle describe table sqlplus:
 desc mytable
@@ -5689,7 +5693,7 @@ desc mytable
 SELECT * from  user_tab_columns WHERE column_name LIKE '%NEW%'
 SELECT * from  user_tab_columns WHERE table_name LIKE '%NEW%'
 
--- View all details of Oracle table in a schema:
+-- View all details of Oracle table in a schema best poke around table:
 select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES', 'SETARS') from dual;
 -- View some details of Oracle table (like DESC in sqlplus):
 select column_name, nullable, concat(concat(concat(data_type,'('),data_length),')') from user_tab_columns where table_name = 'EMAIL_MESSAGES';
@@ -5754,7 +5758,10 @@ CREATE TABLE zzorion32822 AS SELECT * FROM zorion32822 SAMPLE(50)
 SELECT account_id FROM t SAMPLE(0.1);
 
 -- Error exception handler (if you don't give SQLERRM a valid Oracle error code it uses SQLCODE as the error code):
-WHEN others THEN dbms_output.put_line(SQLCODE || ': ' || SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
+WHEN OTHERS THEN dbms_output.put_line(SQLCODE || ': ' || SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
+
+-- Print Oracle error code description:
+BEGIN dbms_output.put_line(SQLERRM(0)); END; -- ORA-0000: normal, successful completion
 
 -- An autonomous routine never reads or writes database state (i.e., it neither queries nor updates any table). Wrap EXECUTE IMMEDIATE DDL statements (which auto commit) in one of these to avoid accidental session commits:
 ... DECLARE PRAGMA AUTONOMOUS_TRANSACTION; ... BEGIN INSERT INTO log (...)
@@ -6268,13 +6275,15 @@ CREATE OR REPLACE TRIGGER on_schema_mod_trigger AFTER ALTER OR CREATE ON scott.S
 -- Choose highest value in list:
 SELECT GREATEST(SYSDATE, to_date('01JAN2029'), to_date('01jan2030')) FROM dual
 
--- Sample CTAS database table:
-CREATE TABLE t AS SELECT owner, object_name, object_id FROM all_objects;
+-- Sample CTAS database table with tens of thousands of rows:
+CREATE TABLE dummy_table AS SELECT owner, object_name, object_id FROM all_objects;
 -- Sample CTAS database table with 1 column and 10 rows:
-CREATE TABLE t AS SELECT level mylevel FROM dual CONNECT BY LEVEL <=10;
-create table t(id primary key, tag) as select rownum id, to_char(rownum) tag from dual connect by level <=100;
+CREATE TABLE dummy_table AS SELECT level mylevel FROM dual CONNECT BY LEVEL <=10;
+create table dummy_table(id primary key, tag) as select rownum id, to_char(rownum) tag from dual connect by level <=10;
 -- Sample CTAS database table load 5 years of data 2018-01-02 to 2022-12-31:
 create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dual connect by level <= 365*5;
+-- Sample CTAS table using a csv list:
+create table dummy_table as SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE('123,456', ',', '","') || '"'));
 
 -- View Oracle grants privileges:
 select * from dba_tab_privs@sed WHERE table_name = 'ACCOUNT'
@@ -6487,7 +6496,7 @@ select segment_name table_name, sum(bytes)/(1024*1024) table_size_meg from user_
 ALTER SESSION SET plsql_warnings = 'ERROR:6002' -- upgrade the 'unreachable code' warning
 ALTER SESSION SET plsql_warnings = 'ERROR:ALL'
 
--- Populate dummy table with 100k random strings of length 30:
+-- Populate sample dummy table with 100k random strings of length 30:
 insert into mytbl select level, dbms_random.string('a',30) from dual connect by level <= 100000
 
 -- View GRANTs:
@@ -6515,6 +6524,13 @@ select SOURCE_SIZE from user_object_size where name in('ACCOUNTSPKG');
 
 -- Implicit single row cursor:
 DECLARE l_vc_first_name employees.first_name%type; l_vc_last_name employees.last_name%type; BEGIN SELECT first_name, last_name INTO l_vc_first_name, l_vc_last_name FROM employees WHERE employee_id=120; dbms_output.put_line('Number of rows processed: '||sql%rowcount); END;
+
+select count(*) from t -- counts NULLs
+select count(mycol) from t -- does not count NULLs
+select sum(mycol)/sum(*) from t -- counts NULLs so average will be lower
+select avg(mycol) from t -- does not count NULLs
+
+order by mycol ASC NULLS LAST  -- default e.g. 1,2,3,NULL
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
