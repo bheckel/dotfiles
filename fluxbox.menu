@@ -8,7 +8,7 @@
 #           "Reconfigure" to apply changes
 #
 #  Created: Sat 15 Mar 2014 13:17:17 (Bob Heckel)
-# Modified: Sun 30 Jun 2019 12:50:21 (Bob Heckel)
+# Modified: Sat 10 Aug 2019 12:22:15 (Bob Heckel)
 ##############################################################################
 [begin] (fluxbox)
 [include] (/etc/X11/fluxbox/fluxbox-menu)
@@ -24,7 +24,7 @@
   [exec] (VirtualBox)         {/usr/bin/virtualbox} </usr/share/icons/hicolor/32x32/apps/virtualbox.png>
   [exec] (Volume)             {/usr/bin/pavucontrol} </usr/share/icons/hicolor/32x32/apps/multimedia-volume-control.png>
   [exec] (xterm)              {xterm -bg black -fa "xft:Consolas-9:antialias=true" -bc -sb -rightbar -sl 5000 -geometry "95x55+350+50"} </home/bheckel/misc/computer/xterm.jpeg>
-  [exec] (xterm-tmux)         {xterm -bg black -fa "xft:Consolas-9:antialias=true" -bc -rightbar -sl 5000 -geometry "195x60+200+175" -e 'tmux -2 new -s s1\; split-window -h'} </home/bheckel/misc/computer/xterm.jpeg>
+  [exec] (xterm-tmux)         {xterm -bg black -fa "xft:Consolas-9:antialias=true" -bc -sl 5000 -geometry "195x60+200+175" -e 'tmux -2 new -s s1\; split-window -h'} </home/bheckel/misc/computer/xterm.jpeg>
   [separator] ()              {} 
   [submenu] (Misc)
     [exec] (alsamixer)        {urxvt -e /usr/bin/alsamixer} <>

@@ -3256,11 +3256,11 @@ rpm -Uvh foo.rpm          # install
 rpm -qa | grep -i pine    # determine if a pine RPM has been installed
 rpm -e emacs              # remove
 
-# Athena scrollbars        middle mouse to drag the scroll bar up and down
-# Athena scrollbars High   left mouse scrolls one line up
-# Athena scrollbars Low    left mouse scrolls one page up
-# Athena scrollbars High   right mouse scrolls one line down
-# Athena scrollbars Low    right mouse scrolls one page down
+# Athena scrollbar        middle mouse to drag the scroll bar up and down
+# Athena scrollbar High   left mouse scrolls one LINE up
+# Athena scrollbar High   right mouse scrolls one LINE down
+# Athena scrollbar Low    right mouse scrolls one PAGE down
+# Athena scrollbar Low    left mouse scrolls one PAGE up
 
 # Checkout a repository on a remote machine:
 export CVSROOT=:ext:rheckel@parsifal:/home/rheckel/repository && cvs co eandb
