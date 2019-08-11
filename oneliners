@@ -5387,14 +5387,26 @@ select TIMESTAMP '2012-10-29 12:01:01.123', to_timestamp('2012-10-29 12:01:01.12
 -- Set zero to null:
 to_char(CASE WHEN a.result_number=0 THEN null ELSE a.result_number END) as result_number
 
+-- If same then NULL otherwise first parameter:
+select nullif('a','a') from dual  -- NULL
+select nullif('a','b') from dual  -- a
+
+-- Won't include nulls as Profit because the result of comparing NULL to anything is unknown, not < 0:
+where Profit < 15 
+--  Will include null/missing values as Profit:
+where Profit < 15 or Profit IS NULL
+-- Better Oracle way to include nulls (you no longer need a separate "or column is null" test):
+where NVL(Profit, 0) < 15
+coalesce(patriots_didnt_cheat, honest_salesman, lowprice_at_disney, emacs_is_great, 0) coalesce_approach_1st_nonnull_is_returned
+
+-- Most recent date Oracle:
+select greatest(nvl(an.updated, ac.updated), nvl(an_parent.updated, ac.updated), nvl(an_sup.updated, ac.updated)
+
+-- When any part of an expression evaluates to NULL, the entire expression will evaluate to NULL unless wrapped in a function like NVL:
 select NVL(NULL, 'it is NULL') from dual;  -- returns 'it is NULL'
 select NVL(TO_CHAR(3), 'NULL') from dual;  -- returns 3
 DBMS_OUTPUT.PUT(NVL(TO_CHAR(name.age.years), 'NULL') || ' yrs ');
 NVL2(x, return_value1_bc_x_isNOTnull, return_value2_bc_x_ISnull);
-
--- If same, null otherwise first parameter:
-select nullif('a','a') from dual  -- NULL
-select nullif('a','b') from dual  -- a
 
 -- Oracle - prevent nulls from propagating:
 SELECT ename, comm, sal, 12*sal+NVL(comm,0) ...
@@ -5403,11 +5415,20 @@ IF NVL(l_salary,0) <= 40000 ...
 -- Use my id or superowner's if i do not exist:
 ..., actual_updatedby = nvl(sys_context('mystars_context', 'employee_id'), 0)
 
-select DECODE(checkmefield, ifcheckmeisthis, thenuseme, elseuseme)
-
 -- Compare NULL:
 where  ... and nvl(width,0) = nvl(length,0)  -- finds only if both are NULL
 where decode(col1, col2, 1, 0) = 1  -- finds sameness of col1 & col2 - even if both NULL
+
+-- Update only if value is NULL:
+UPDATE contact_note SET original_contact_id = contact_id WHERE contact_id IN (SELECT contact_id FROM zzorion32806) AND original_contact_ID IS NULL
+UPDATE contact_note SET original_contact_id = contact_id WHERE NVL(original_contact_id, -1) = -1
+
+-- Don't ignore NULLs in counts:
+SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,0)), POOR_CLOSEOUT_OPT_OUT FROM OPPORTUNITY_OPT_OUT GROUP BY POOR_CLOSEOUT_OPT_OUT
+SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,-1)), POOR_CLOSEOUT_OPT_OUT FROM OPPORTUNITY_OPT_OUT GROUP BY POOR_CLOSEOUT_OPT_OUT
+SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,99999)), POOR_CLOSEOUT_OPT_OUT FROM OPPORTUNITY_OPT_OUT GROUP BY POOR_CLOSEOUT_OPT_OUT
+
+select DECODE(checkmefield, ifcheckmeisthis, thenuseme, elseuseme)
 
 -- Update table to new value if newloc not null otherwise leave it alone:
 update departments set location = decode(newloc, NULL, location, newloc);
@@ -5433,15 +5454,6 @@ WHERE datepart(year,insert_date)='2005' AND datepart(month,insert_date)='7' AND 
 
 -- PLSQL null comparison (DECODE is better):
 IF (updated1 = updated0) AND (updatedby1 = updatedby0) AND ( (search_match_code1 = search_match_code0) OR ((search_match_code1 IS NULL) AND (search_match_code0 IS NULL)) ) THEN
-
--- Update only if value is NULL:
-UPDATE contact_note SET original_contact_id = contact_id WHERE contact_id IN (SELECT contact_id FROM zzorion32806) AND original_contact_ID IS NULL
-UPDATE contact_note SET original_contact_id = contact_id WHERE NVL(original_contact_id, -1) = -1
-
--- Don't ignore NULLs in counts. Counts of 0, 1 and NULL (all same):
-SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,0)), POOR_CLOSEOUT_OPT_OUT FROM OPPORTUNITY_OPT_OUT GROUP BY POOR_CLOSEOUT_OPT_OUT
-SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,-1)), POOR_CLOSEOUT_OPT_OUT FROM OPPORTUNITY_OPT_OUT GROUP BY POOR_CLOSEOUT_OPT_OUT
-SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,99999)), POOR_CLOSEOUT_OPT_OUT FROM OPPORTUNITY_OPT_OUT GROUP BY POOR_CLOSEOUT_OPT_OUT
 
 INSERT INTO...; SAVEPOINT bobora; INSERT INTO...; ROLLBACK TO bobora;
 
@@ -5836,9 +5848,6 @@ select pg_cancel_backend(8501);
 -- SQL take only the highest value:
 where listdate = (select max(listdate) from test.master_npi)
 
--- Most recent date Oracle:
-select greatest(nvl(an.updated, ac.updated), nvl(an_parent.updated, ac.updated), nvl(an_sup.updated, ac.updated)
-
 -- Postgres date range, pull data from last year for patients over 50:
 filldate > date('now') - interval '1 year'  and  patientdob < date('now') - interval '50 year'
 
@@ -6184,14 +6193,6 @@ WHERE batch_time > '2008-02-13'
 -- SQL Server version:  SELECT @@VERSION
 
 SELECT * FROM DICTIONARY WHERE table_name like 'USER%' ORDER BY table_name;  -- Oracle
-
--- Won't include nulls as Profit because the result of comparing NULL to anything is unknown, not < 0:
-where Profit < 15 
---  Will include null/missing values as Profit:
-where Profit < 15 or Profit IS NULL
--- Better Oracle way to include nulls (you no longer need a separate "or column is null" test):
-where NVL(Profit, 0) < 15
-coalesce(patriots_didnt_cheat, honest_salesman, lowprice_at_disney, emacs_is_great, 0) coalesce_approach_1st_nonnull_is_returned
 
 -- Return anything but Y, regardless of existence of nulls (where val != 'Y' would not include any nulls):
 select * from basic_data where lnnvl(val = 'Y')
