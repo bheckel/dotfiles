@@ -5384,9 +5384,6 @@ select to_date('1978-12-25 09:00 AM', 'YYYY-MM-DD HH:MI AM')  -- 9am
 -- Oracle datetime constants literals (client controls display format). Both are 29-OCT-12 12.01.01.123000000 PM:
 select TIMESTAMP '2012-10-29 12:01:01.123', to_timestamp('2012-10-29 12:01:01.123', 'YYYY-MM-DD HH:MI:SS.FF AM') from dual
 
--- Set zero to null:
-to_char(CASE WHEN a.result_number=0 THEN null ELSE a.result_number END) as result_number
-
 -- If same then NULL otherwise first parameter:
 select nullif('a','a') from dual  -- NULL
 select nullif('a','b') from dual  -- a
@@ -5435,13 +5432,32 @@ update departments set location = decode(newloc, NULL, location, newloc);
 -- Update the CODE column for 10 rows, setting it to itself for 8 rows and to the value NULL for 2 rows:
 UPDATE dest SET code = DECODE(id, 9, NULL, 10, NULL, code) WHERE id BETWEEN 1 AND 10;
 
--- IF THEN ELSE database:
+-- Set zero to null:
+to_char(CASE WHEN a.result_number=0 THEN null ELSE a.result_number END) as result_number
+
+-- IF THEN ELSE a database:
 CASE WHEN TO_CHAR(b.sample_status_date,'DY')='SAT' THEN 1 ELSE 0 END
 SELECT symbol, DECODE(earnings, 0, NULL, price / earnings)
 select dt, ticker, decode(transact, 'Buy', +1, -1)*qty qty 
 select prod_nm, DECODE(prod_grp, 'MDPI','m', 'Solid Dose','sd', 'unk') from samp;
 DECODE(warehouse_id, 1,'Southlake', 2,'San Francisco', 3,'New Jersey', 'Non-domestic') 
 CASE WHEN warehouse_id=1 THEN 'Southlake' WHEN warehouse_id=2 THEN 'San Francisco' WHEN warehouse_id=3 THEN 'New Jersey' ELSE 'Non-domestic' END
+
+-- SQL sum count a group flag.  Good for later excluding a group of records if any record contains 'CANCEL':
+sum(case when status = 'CANCEL' then 1 else 0 end) as cancelflag
+
+-- SQL convert timestamp to date then sum pickeduptimestamp if picked up in a during month, a range of dates:
+sum(case when date(pickeduptimestamp) between '01MAY2015' and '31MAY2015' then 1 else 0 end) as May2015, ...
+...and (date(pickeduptimestamp) between date('2016-02-01') and date('2016-04-30'))...
+
+-- Set binary date flags in SQL:
+sum(case when date(pickeduptimestamp) between '01MAR2015' and '31MAR2015' then 1 else 0 end) as Mar2015
+
+-- PLSQL return a BOOLEAN:
+RETURN(CASE WHEN(l_column_count > 0) THEN TRUE ELSE FALSE END);
+
+-- CASE WHEN between:
+case when (sal > (comm * .9) and sal < (comm * 1.1)) then 1 else 0 end value_is_in_range
 
 -- Custom sort order:
 order by decode(TOP_LEVEL_ITEM_TEXT, 'accounts', 1, 'contacts', 2, 'opportunities', 3, 999)
@@ -5477,6 +5493,9 @@ DROP PACKAGE test_bob;
 
 -- Oracle cross database hint:
 SELECT \*+ DRIVING_SITE(SITE) *\ COUNT(*) FROM DB_OWNER.SITE_DATA@DNB_XXXX SITE WHERE SITE.DUNS_NBR = :1
+
+-- Oracle use index scan - not full table scan hint:
+SELECT /*+ INDEX (employees emp_department_ix)*/ employee_id, department_id FROM employees WHERE department_id > 50;
 
 -- Find Oracle session to kill (session id, serial number):
 select sid, serial#, state, status, osuser, machine, program, sql_exec_start, logon_time, action, sql_id from v$session where osuser='heck' order by status, logon_time, sid;
@@ -5543,7 +5562,7 @@ UPDATE pec SET pks_txt=REPLACE(pks_txt,'GEN','GEN_') ...
 -- Strip table name suffix:
 replace(ui.table_name,'_BASE','')
 
--- Oracle date formatting
+-- Oracle date formatting https://docs.oracle.com/en/database/oracle/oracle-database/12.2/sqlrf/Format-Models.html#GUID-DFB23985-2943-4C6A-96DF-DF0F664CED96
 select to_char(sysdate, 'Dy DD-Mon-YYYY HH:MI:SS AM') as "Current Time" from dual;  -- Wed 19-Aug-2009 02:51:33 PM  TODO is the 'AM' correct??
 select to_char(sysdate, 'Dy DD-Mon-YYYY HH24:MI:SS') as "Current Time" from dual;  -- Wed 19-Aug-2009 14:53:41
 select TO_DATE('6-JAN-06'), TO_DATE('06JAN06'), TO_DATE('6JAN2006');  -- all same
@@ -5791,9 +5810,6 @@ SET_TRIGGER_CONTEXT('ACCOUNT_ATTRIBUTE', 'true'); ...  SET_TRIGGER_CONTEXT('ACCO
 -- Oracle angle bracket formatting e.g. <7,592.59>:
 to_char(rate*qty,'999,999.99pr') amt
 
--- SQL sum count a group flag.  Good for later excluding a group of records if any record contains 'CANCEL':
-sum(case when status = 'CANCEL' then 1 else 0 end) as cancelflag
-
 -- Postgres dates:
 created > date('now') - 365
 created > date('now') - interval '1 year'
@@ -5833,13 +5849,6 @@ select version();
 select patientid, count(*) from analytics.health group by patientid having count(*)>1
 -- Select only those with 2 or more maskedkey for one patient:
 select id, count(distinct maskedkey) from xrfilldata where id in ('999','888') group by id having count(distinct maskedkey)>1;
-
--- SQL convert timestamp to date then sum pickeduptimestamp if picked up in a during month, a range of dates:
-sum(case when date(pickeduptimestamp) between '01MAY2015' and '31MAY2015' then 1 else 0 end) as May2015, ...
-...and (date(pickeduptimestamp) between date('2016-02-01') and date('2016-04-30'))...
-
--- Set binary date flags in SQL:
-sum(case when date(pickeduptimestamp) between '01MAR2015' and '31MAR2015' then 1 else 0 end) as Mar2015
 
 -- Postgres what is running. Terminate query, self-kill a Postgres kill query:
 select current_query, procpid from pg_stat_activity where usename = 'bheckel'
@@ -6015,6 +6024,10 @@ SELECT listagg(account_search_id,',') WITHIN GROUP (ORDER BY account_search_id) 
 
 -- Determine the min and prove it with a list of all radiuses for that class, using listagg as an Analytic function:
 select class, planet, min(radius), listagg(min(radius),',') within group ( order by planet ) over ( partition by class ) class_radii from named_moons group by class, planet order by 1,2
+
+-- rank as an aggregate function:
+select rank(1600) WITHIN GROUP (order by sal desc) from emp;  -- 7 i.e. 7th place, vs. analytic OVER(ORDER BY...) gives whole table with ranks
+select dense_rank(1600) WITHIN GROUP (order by sal desc) from emp;  -- 6 i.e. 6th place
 
 -- Analytic SQL function partition-order-windowing:
 ,count(1) OVER (order by d) cnt_cumul_grp  -- 1,2,4,4,5,6
@@ -6206,7 +6219,7 @@ cast(trunc(aa.duns_nbr) AS VARCHAR2(90)) duns_nbr
 
 -- Benchmarking:
 SELECT st.VALUE FROM v$mystat st, v$statname sn WHERE st.statistic# = sn.statistic# AND sn.name = 'Oracle session pga memory';
-start_time NUMBER; BEGIN start_time := dbms_utility.get_time(); ... dbms_output.put_line(dbms_utility.get_time()-start_time);
+DECLARE t1 INTEGER; t2 INTEGER; BEGIN t1 := dbms_utility.get_time(); ...; t2 := (dbms_utility.get_time()-t1)/100; dbms_output.put_line(t2); END;
 
 -- Throws NO_DATA_FOUND:
 declare eid number; begin SELECT e.empno INTO eid FROM emp e WHERE e.empno=99999; dbms_output.put_line(eid); end;
@@ -6307,9 +6320,6 @@ at compile-time. AUTHID CURRENT_USER, aka invoker's rights, check SQL at run-tim
 -- Generate unique random GUID:
 select to_number(sys_guid(), 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') from dual
 
--- PLSQL return a BOOLEAN:
-RETURN(CASE WHEN(l_column_count > 0) THEN TRUE ELSE FALSE END);
-
 -- Build temporary index if not already existing:
 select count(1) into cnt from USER_INDEXES s where s.index_name = 'MY_IX'; if (cnt = 0) then execute immediate 'create index MY_IX on SALES_CRED(Sdm_Business_Key, Deal_Id)'; end if; ... execute immediate 'drop index MY_IX';
 
@@ -6392,10 +6402,12 @@ select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right out
 
 set autotrace traceonly explain -- then select ename from emp
 
-EXPLAIN PLAN FOR SELECT * FROM email_messages WHERE actual_updated > (SYSTIMESTAMP - INTERVAL '42' minute); select * from table(dbms_xplan.display);
+EXPLAIN PLAN FOR SELECT * FROM email_messages WHERE actual_updated > (SYSTIMESTAMP - INTERVAL '42' minute); select * from table(dbms_xplan.display); ROLLBACK;
 
 -- Create a histogram manually:
+BEGIN DBMS_STATS.GATHER_TABLE_STATS(USER, 'CONTACT_EXTERNAL2', estimate_percent=>100); END; 
 SQL> exec DBMS_STATS.GATHER_TABLE_STATS('HR', 'EMPLOYEES', method_opt=>'FOR COLUMNS SIZE 254 JOB_ID');
+select stale_stats from user_tab_statistics@sed where  table_name = 'RION39366_C';
 
 -- Split string into pieces chunks 5 chars wide based on length:
 select regexp_substr(s, '.{5}', 1, lvl) chunk from (select s, level lvl from (select '00000111112222233333' s from dual) connect by level <= length(s) / 5)
@@ -6463,7 +6475,7 @@ BEGIN SYS.DBMS_SCHEDULER.disable('SETARS.PERIODIC_LIFECYCLE_UPDATE'); END;
 -- Want max highest most recent date using analytic:
 SELECT * FROM ( SELECT d.JOB_NAME , d.LOG_DATE, d.STATUS, d.ADDITIONAL_INFO, j.SCHEDULE_NAME ,  row_number() OVER (PARTITION BY trunc(log_date) ORDER BY log_date DESC) rownbr FROM USER_SCHEDULER_JOB_RUN_DETAILS d LEFT JOIN USER_SCHEDULER_JOBS j ON j.JOB_NAME=d.JOB_NAME WHERE d.STATUS != 'SUCCEEDED' AND d.LOG_DATE > (SYSDATE-1)) WHERE rownbr = 1
 
--- Collapse to single day for counting e.g. 01/Aug/07 01:30:08, 01/Aug/07 01:33:08 ...:
+-- DATE data type in Oracle always includes the time of day. So to guarantee you have all the rows that fall on a given day, you can normalize the date to midnight. Collapse to single day for counting e.g. 01/Aug/07 01:30:08, 01/Aug/07 01:33:08 ...:
 select distinct trunc(prod_sel_dt) psd, count(*) from RETAIN.FNSH_PROD group by trunc(prod_sel_dt) 
 
 -- Use the RETURNING clause to retrieve details from the employee's modified row, within the same context switch used to execute the UPDATE statement
@@ -6497,7 +6509,7 @@ select segment_name table_name, sum(bytes)/(1024*1024) table_size_meg from user_
 ALTER SESSION SET plsql_warnings = 'ERROR:6002' -- upgrade the 'unreachable code' warning
 ALTER SESSION SET plsql_warnings = 'ERROR:ALL'
 
--- Populate sample dummy table with 100k random strings of length 30:
+-- Populate sample dummy Oracle table with 100k random strings of length 30:
 insert into mytbl select level, dbms_random.string('a',30) from dual connect by level <= 100000
 
 -- View GRANTs:
@@ -6532,6 +6544,15 @@ select sum(mycol)/sum(*) from t -- counts NULLs so average will be lower
 select avg(mycol) from t -- does not count NULLs
 
 order by mycol ASC NULLS LAST  -- default e.g. 1,2,3,NULL
+
+SELECT to_char(created,'SYYYY') FROM EVENT_BASE where created < to_date('01JAN1970'); --show normally obscured BC dates
+
+CREATE INDEX TMP_IX ON CONTACT_EXTERNAl2 (created);
+CREATE INDEX TMP_IX ON CONTACT_EXTERNAl2 (created DESC);  -- avoid a sort if most queries have "ORDER BY created DESC"
+DROP INDEX TMP_IX;
+
+-- Function index:
+create index upper_names_ix on table ( upper(myname) );  -- but only used when exactly matches: e.g. WHERE upper(myname) = 'foo'
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6789,8 +6810,11 @@ Private Sub Workbook_Open() ...
 :: Windows XP Desktop path:
 C:\Documents and Settings\rsh8680\Desktop
 
-# uptime for Windows 
+# uptime for Windows 7:
 $ systeminfo|grep 'Up T'
+
+# uptime for Windows 10:
+eventvwr.msc : Windows logs : System : Actions → Create Custom View : By sources : Kernel-Boot
 
 :: Remote restart reboot a Windows workstation:
 c:\> shutdown -r -m \\zebwd08D26987
@@ -7154,18 +7178,18 @@ git remote set-url origin git@github.com:bheckel/dotfiles.git
 git remote show origin
 
 # git manual pull request completion without using Github UI merge & delete branch buttons:
-git checkout develop && git pull && git merge --no-ff feature/ORION-31587 && git push && git branch -d feature/ORION-31587 && git fetch -p && git push origin --delete feature/ORION-31587
+git checkout develop && git pull && git merge --no-ff feature/RION-31587 && git push && git branch -d feature/RION-31587 && git fetch -p && git push origin --delete feature/RION-31587
 
 # git mantra:
 git add . && git commit -m'mod' && git pull && git push
 
-# git merge your branch into master branch:
-git checkout master && git merge myfeaturebranch && git branch -d myfeaturebranch
+# Done w/ this feat so git merge myfeaturebranch INTO HERE, I.E. THIS REPO's BRANCH (master) then ditch feat:
+git checkout master && git merge myfeaturebranch                                             && git branch -d myfeaturebranch
 
 # git delete branch local then remote (without using GitHub UI delete branch button). First make sure your remote is there: git branch -a:
-git branch -d feature/ORION-31587 && git push origin --delete feature/ORION-31587 && git fetch -p && git branch -a
+git branch -d feature/RION-31587 && git push origin --delete feature/RION-31587 && git fetch -p && git branch -a
 # git delete local branch and prune remote branches (after using GitHub UI delete branch button):
-git branch -d feature/ORION-31587 && git fetch -p && git branch -a
+git branch -d feature/RION-31587 && git fetch -p && git branch -a
 
 # git view history of a file (--follow even if filename has changed, --all branches, -p all patches):
 gitk --follow --all -p SUP_HAS_ACTIVE_SITES.fnc
@@ -7180,13 +7204,13 @@ git clean --dry-run
 git checkout develop && git fetch -p origin && git merge origin/develop && git checkout myfeaturebranch && git merge develop && git push
 
 # Set remote tracking branch. Assumes push.default=upstream.  Later, since you’re on a tracking branch and you git pull, Git automatically knows which server to fetch from and which branch to merge in:
-git checkout -b feature/ORION-9999 && git push --set-upstream origin feature/ORION-9999  # "Branch 'feature/ORION-9999' set up to track remote branch 'feature/ORION-9999' from 'origin'."
+git checkout -b feature/RION-9999 && git push --set-upstream origin feature/RION-9999  # "Branch 'feature/RION-9999' set up to track remote branch 'feature/RION-9999' from 'origin'."
 
 # github undo commit of a file >50M:
 git filter-branch --tree-filter 'rm -rf 02-White-Noise-60min.mp3' HEAD && git push && git pull
 
 # git branch has conflicts that must be resolved:
-git fetch origin && git checkout -b feature/ORION-999 origin/feature/ORION-999 && git merge develop
+git fetch origin && git checkout -b feature/RION-999 origin/feature/RION-999 && git merge develop
 
 <!-- Predefined character entities -->
 &lt; &gt; &quot; &amp; &apos;  &#169; or &#xA9 is copyright symbol ©
@@ -7355,6 +7379,8 @@ curl -d '{"key1":"value1", "key2":"value2"}' -H "Content-Type: application/json"
 # Calculate mirror size 4884 1.0123+10 is 10GB in 4884 files
 curl -s ftp://mirror.cs.vt.edu/pub/cygwin/cygwin/x86/setup.ini | awk '/^install: / { T = T + $3 ; N++ }; END { print N, T }'
 
-Google search: rgb color picker
+Google search: RGB color picker
+
+Same amount of work to access any value is (O(log n)), like a B-tree index
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
