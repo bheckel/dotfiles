@@ -600,8 +600,8 @@ iab RuL ----+----1----+----2----+----3----+----4----+----5----+----6----+----7--
 iab ShE #!/bin/bash
 
 " Date/Time see man strftime or date --help.  Convention stolen from Sven Guckes:
-" iab YdC Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)
-iab YdC Created: <C-R>=strftime("%d-%b-%y")<CR> (Bob Heckel)
+iab YdC Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)
+" iab YdC Created: <C-R>=strftime("%d-%b-%y")<CR> (Bob Heckel)
 iab YdM Modified: <C-R>=strftime("%d-%b-%y")<CR> (Bob Heckel)
 " Default.  Overridden later in au commands.
 iab YdA  Adapted: <C-R>=strftime("%d-%b-%y")<CR> (Bob Heckel)
