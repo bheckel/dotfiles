@@ -3,12 +3,21 @@
 #
 #           $ conky -x 5 -y 0
 #
+#           http://www.ifxgroup.net/conky.htm
+#
 #  Created: Sat 04 Feb 2012 21:38:40 (Bob Heckel - adapted from darcon at gmail.com)
-# Modified: Sat 10 Mar 2018 06:39:24 (Bob Heckel)
+# Modified: Fri 16 Aug 2019 05:12:51 (Bob Heckel)
 ################################################################################
 
 # set to yes if you want Conky to be forked in the background
 background yes
+
+use_xft yes
+
+# Xft font when Xft is enabled
+#xftfont Bitstream Vera Sans Mono:size=8
+# appa
+xftfont Consolas:size=9
 
 # X font when Xft is disabled, you can pick one with program xfontsel
 #font 5x7
@@ -18,14 +27,6 @@ background yes
 #font 9x15
 #font *mintsmild.se*
 #font -*-*-*-*-*-*-34-*-*-*-*-*-*-*
-
-# Use Xft?
-use_xft yes
-
-# Xft font when Xft is enabled
-#xftfont Bitstream Vera Sans Mono:size=8
-# appa
-xftfont Consolas:size=9
 
 # Text alpha when using Xft
 xftalpha 0.8
@@ -39,8 +40,7 @@ xftalpha 0.8
 # Update interval in seconds
 update_interval 4.0
 
-# This is the number of times Conky will update before quitting.
-# Set to zero to run forever.
+# This is the number of times Conky will update before quitting zero = run forever
 total_run_times 0
 
 # Create own window instead of using desktop (required in nautilus)
@@ -295,31 +295,26 @@ override_utf8_locale no
 # allows characters right after the variable and must be used in network
 # stuff because of an argument
 
-# stuff after 'TEXT' will be formatted on screen
+# stuff after 'TEXT' will be formatted on screen and blank lines matter
 
 TEXT
 
-###${offset 0}${font Consolas:size=10}Sabbe dhamma${font}
-# yoniso
-${offset 0}${color}${image /home/bheckel/Dropbox/Public/misc/computer/fb-icon48x48-metal.png}
+${color}${image /home/bheckel/Dropbox/Public/misc/computer/fb-icon48x48-metal.png}
 
 
 #${color dark goldenrod}${execi 2500 display-dhamma | par -w25}
-
 ###${color goldenrod}${execi 1500 ~/bin/display-dhamma -dhp bnnp | par -w75}
 ###${color goldenrod}${execi 1500 ~/bin/display-dhamma -dhp bn | par -w28}
 ###${offset 0}${font Arial Black:size=12}Sabbe dhamma${font}
 ###${offset 0}${font Arial Black:size=12}nalam abhinivesaya${font}
 ###${offset 0}${color slate grey}${time %a, } ${color }${time %e %B %G}
 ###${offset 0}${color slate grey}${time %Z,    }${color }${time %H:%M:%S}
-${color}${nodename} ${color slate grey}${offset 0}${color}$kernel ${color slate grey}
-Uptime:${color} $uptime_short ${color slate grey}
-Load:${color} $loadavg
-# yoniso
-###${color lightgrey}${execi 1200 sensors -f|grep 'Temp'|grep -v Core | cut -c -25}
-${color slate grey}TempF: ${color}${execi 120 sensors -f|grep 'Core 0' | cut -c -20 | perl -pe 's/.*\+//' | cut -c -5}
-# appa
-###${execi 1200 sensors -f|grep Core | cut -c -19}
+${color}${nodename} ${color slate grey}${offset 0}${color}$kernel ${addr wlan0}
+
+${color slate grey}Load:${color lightgrey} $loadavg
+${color slate grey}Uptime:${color lightgrey} $uptime_short
+${color slate grey}TempF: ${color lightgrey}${execi 120 sensors -f|grep 'Core 0' | cut -c -20 | perl -pe 's/.*\+//' | cut -c -5}
+#${execi 1200 sensors -f|grep Core | cut -c -19}
 
 ###${offset 0}${color slate grey}Processes/Running: ${color}$processes/${color}$running_processes
 ${offset 0}${color slate grey}Processes: ${color}$running_processes/${color}$processes
@@ -352,37 +347,38 @@ ${offset 0}${color lightgrey} ${top_mem name 4}${top_mem mem 4}
 ###${offset 0}${color slate grey}/home  ${color }${fs_free /home}/${fs_size /home}
 ###${offset 0}${color slate grey}/home  ${color }${fs_used /home}/${fs_free /home}
 ###${offset 0}${color slate grey}/home  ${color }${fs_free /home} free
-${offset 0}${color slate grey}Storage: ${color lightgrey} ${fs_used /home}/${fs_size /home}
+${offset 0}${color slate grey}Storage: ${color lightgrey}${fs_used /home}/${fs_size /home}
 ${offset 0}${color lightgrey}/home
 ${offset 0}${fs_bar 3,100 /home}
-###${offset 0}${color slate grey}SLACK:  ${color }${fs_free /mnt/slack}/${fs_size /mnt/slack}
-###${offset 0}${fs_bar 3,100 /mnt/slack}
 ###${offset 0}${color slate grey}NET: ${color}${addr wlan0}
-
 ###${offset 0}${color slate grey}Mounts: 
 ###${color lightgrey}${execi 60 mount|grep '^/dev' | fold -s -w25}
+
 ${offset 0}${color slate grey}Wifi: ${color lightgrey}${wireless_link_qual_perc wlan0}%
 ###${offset 0}${color}Up: ${color }${upspeed vlan1}
 ###${offset 0}${upspeedgraph vlan1 20,130 ffffff cc4444 -t}
 ###${offset 0}${color}Down: ${color }${downspeed vlan1}
 ###${offset 0}${downspeedgraph vlan1 20,130 ffffff cc4444 -t}
- Up:   ${upspeedf wlan0} KB/s
+ Up:   ${upspeed wlan0}
 # TODO how to scale graph so down & up aren't the same?
 ${offset 0}${upspeedgraph wlan0 20,130 ffffff cc4444 -t}
- Down: ${downspeedf wlan0} KB/s
+ Down: ${downspeed wlan0}
 ###${offset 0}${downspeedgraph wlan0 20,130 ffffff cc4444 -t}
 ${offset 0}${downspeedgraph wlan0 20,130 ffffff cc4444 -t}
+
+# USB connected items that are not hubs
+${color slate grey}USB:${color}
+${color lightgrey}${execpi 10 lsusb | grep -iv 'hub' | cut --fields=7- --delimiter=' '}
 
 ###${offset 0}${color slate grey}SENSORS: 
 ###${color lightgrey}${execi 1200 sensors -f|grep '^C'|grep -v Core | cut -c -25}
 ###${offset 0}${color slate grey}Syslog: 
 ###${color lightgrey}${execi 30 tail -n3 /var/log/syslog | fold -s -w25}
 ###${color lightgrey}${execi 30 tail -n3 /var/log/syslog | grep -v 'UFW BLOCK] IN=wlan0.*' | fold -s -w25}
-# yoniso
-${color lightgrey}${execi 30 grep -v 'UFW BLOCK] IN=wlan0.*' /var/log/syslog | grep -v '4-way handshake' | grep -v 'Group rekeying completed' | grep -v 'Warning - Got TX status' | grep -v 'Warning - TX status' | grep -v 'rt2x00usb' | grep -v 'rt2800usb' | grep -v 'CTRL-EVENT-SCAN-STARTED' | tail -n4 | fold -s -w25}
+###${color slate grey}/var/log/syslog:${color}
+###${color lightgrey}${execi 30 grep -v 'UFW BLOCK] IN=wlan0.*' /var/log/syslog | grep -v '4-way handshake' | grep -v 'Group rekeying completed' | grep -v 'Warning - Got TX status' | grep -v 'Warning - TX status' | grep -v 'rt2x00usb' | grep -v 'rt2800usb' | grep -v 'CTRL-EVENT-SCAN-STARTED' | tail -n6 | fold -s -w45}
 ###${color slate grey}/var/log/messages:
 ###${color}${exec tail -n20 /var/log/messages}
-###${color lightgrey}${execi 30 tail /var/log/syslog }
 # appa
-###${color lightgrey}${exec tail -n23 /var/log/syslog }
-
+${color slate grey}/var/log/syslog:${color}
+${color lightgrey}${execi 30 tail -n38 /var/log/syslog }

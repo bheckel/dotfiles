@@ -17,7 +17,7 @@
   [exec] (Firefox)            {/usr/bin/firefox} </usr/share/icons/hicolor/32x32/apps/firefox.png>
   [exec] (GENS)               {/usr/games/gens} </home/bheckel/misc/computer/GENS/gens.jpeg>
   [exec] (galculator)         {/usr/bin/galculator} </usr/share/pixmaps/galculator.xpm>
-  [exec] (gvim)               {/usr/bin/vim.gnome -g -f} </usr/share/pixmaps/vim-32.xpm>
+  [exec] (gVim)               {/usr/bin/vim.gnome -g -f} </usr/share/pixmaps/vim-32.xpm>
   [exec] (Iview)              {/home/bheckel/.wine/drive_c/Program\ Files\ \(x86\)/IrfanView/i_view32.exe} </home/bheckel/misc/computer/irfanview.png>
   [exec] (Midori)             {/usr/bin/midori} </usr/share/icons/hicolor/22x22/apps/midori.png>
   [exec] (Thunar)             {/usr/bin/thunar} </usr/share/icons/hicolor/64x64/apps/Thunar.png>
