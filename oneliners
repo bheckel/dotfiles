@@ -5327,7 +5327,7 @@ xxSCRIPTINGxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxDATABASExx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
--- Outer joins preserve the rows that don't match and pads remaining columns with NULLs. OUTER keyword is optional. These words replace the comma between tablenames in old style Oracle  (+)  outer join operator joins (operator goes on the rightside table):
+-- Outer joins preserve the rows that don't match and pads remaining columns with NULLs. OUTER keyword is optional. These words replace the comma between tablenames in old style Oracle (+) outer join operator joins (operator goes on the rightside table):
 select * from leftside LEFT OUTER JOIN rightside ...
 
 -- Only on one table not in the other table:
@@ -5348,6 +5348,19 @@ CREATE bob AS select patientid FROM public.hppatientstarpdc;
 
 -- Capture Oracle userid (note no semicolon to terminate the SQL):
 EXECUTE IMMEDIATE q'[ SELECT sys_context('setars_context', 'employee_id') from dual ]' INTO whoami;
+
+-- Oracle which database are we on?:
+SELECT name FROM V$DATABASE;
+IF (SYS_CONTEXT('USERENV', 'DB_NAME') in ('SER', 'SETS')) THEN RETURN; END IF;
+
+SELECT SYS_CONTEXT('USERENV', 'SERVER_HOST') FROM DUAL;
+select  SYS_CONTEXT('USERENV', 'DB_NAME') from dual;
+l_db_name VARCHAR2(20) := SYS_CONTEXT('USERENV', 'DB_NAME');  if (l_db_name IN ('SEPS')) THEN...
+
+-- What is my current schema name:
+select sys_context('userenv', 'current_schema') from dual;
+select SYS_CONTEXT('userenv','host') from dual;
+declare x varchar2(99); begin x := 'my schema ' || USER; dbms_output.put_line(x); end;
 
 -- Oracle substring:
 SELECT SUBSTR('CORPORATE FLOOR', 2, 4) FROM dual  -- ORPO
@@ -5455,6 +5468,9 @@ sum(case when date(pickeduptimestamp) between '01MAR2015' and '31MAR2015' then 1
 
 -- PLSQL return a BOOLEAN:
 RETURN(CASE WHEN(l_column_count > 0) THEN TRUE ELSE FALSE END);
+
+-- PLSQL check a column as BOOLEAN:
+... v_gonereason := (c.gonereason = 0); IF v_gonereason THEN ...
 
 -- CASE WHEN between:
 case when (sal > (comm * .9) and sal < (comm * 1.1)) then 1 else 0 end value_is_in_range
@@ -5678,8 +5694,6 @@ select * from v$instance;
 -- Find Oracle data dictionary user_tables etc from which to further query:
 select * from DICTIONARY WHERE table_name LIKE 'USER%' ORDER BY 1
 
--- What is my current schema name:
-select sys_context('userenv', 'current_schema') from dual;
 -- Oracle list browse all schemas poke around:
 SELECT username FROM all_users ORDER BY username;
 -- Does table exist:
@@ -5761,9 +5775,11 @@ select date '1970-01-01' + numtodsinterval(power(2,31) - 1, 'SECOND') as max_int
 -- SHOW ERR[ORS] in sqlplus uses this table (but only shows the latest error):
 SELECT * FROM USER_ERRORS WHERE name IN ('PLCH_PKG', 'PLCH_GET_NUMBERS')
 
--- Full source code of all compiled database objects (not Views):
+-- View full source code of all compiled database objects (not Views):
 select text from SYS.USER_SOURCE t WHERE t.name='ORION34858'
 select * from SYS.USER_SOURCE t WHERE t.TYPE='PACKAGE BODY' AND (upper(t.TEXT) LIKE '%CONSTANT%' OR UPPER(t.text) LIKE '%TYPE%')
+-- View full source code of all compiled database objects (not Views) for SYS:
+select * from dba_source s where s.name = 'MYSECURITY' order by s.type, s.line;
 
 -- SQL Server list information about each owner's table in a database:
 select * from information_schema.tables where table_type='BASE TABLE' and table_schema='rheckel'
@@ -5771,12 +5787,6 @@ select * from information_schema.tables where table_type='BASE TABLE' and table_
 -- Oracle parent hierarchy:
 SELECT LOV.LIST_OF_VALUES_ID, LOV.VALUE FROM LIST_OF_VALUES LOV WHERE LOV.RETIRED = 0 START WITH LOV.LIST_OF_VALUES_ID IN (1,2,3) CONNECT BY PRIOR LOV.LIST_OF_VALUES_ID = LOV.PARENT_ID
 select sys_connect_by_path (job, '/') job_path, sys_connect_by_path (ename, '/') ename_path from scott.emp start with mgr is null connect by prior empno=mgr
-
--- PLSQL hostname ordbxradm99:
-SELECT SYS_CONTEXT('USERENV', 'SERVER_HOST') FROM DUAL;
--- PLSQL database name:
-select  SYS_CONTEXT('USERENV', 'DB_NAME') from dual;
-l_db_name VARCHAR2(20) := SYS_CONTEXT('USERENV', 'DB_NAME');  if (l_db_name IN ('SEPS')) THEN...
 
 -- Correlated update query:
 UPDATE contact_note SET original_contact_ID=contact_id WHERE contact_id IN (SELECT contact_id FROM zzorion32806) AND original_contact_ID IS NULL
@@ -6141,10 +6151,6 @@ INSERT ALL INTO teddies values ('Dinosaur King', 'red')  into bricks values ('sp
 -- INSERT ALL - the shorthand multi-table INSERT rows into 2 or more tables at once (conditional version - every row from the source query goes into every table where the clause is true) Use INSERT FIRST to ensure source rows only go into ONE of the target tables, but if you use INSERT FIRST, you must have a WHEN clause before your tables:
 INSERT ALL INTO people values (full_name) WHEN hire_date is not null THEN into staff values (hire_date) WHEN nhs_number is not null THEN into patients values (nhs_number) select * from people_details;
 
--- Oracle which database are we on?:
-SELECT name FROM V$DATABASE;
-IF (SYS_CONTEXT('USERENV', 'DB_NAME') in ('SER', 'SETS')) THEN RETURN; END IF;
-
 -- Check for recent last recompilation or invalid status:
 SELECT owner, object_name, object_type, status, last_ddl_time FROM dba_objects WHERE object_name = 'USER_ON' AND object_type LIKE 'PACKAGE%'
 
@@ -6174,6 +6180,7 @@ CURSOR c1 IS SELECT account_id FROM account_base WHERE account_id IN (SELECT in_
 -- Compare Oracle table to csv list of numbers:
 SELECT aid, ab.account_id FROM (SELECT to_number(column_value) aid FROM xmltable(('"' || REPLACE('123,456', ',', '","') || '"'))) csv LEFT JOIN account_base ab ON csv.aid=ab.account_id
 
+select * from dba_context;
 SELECT cast(sys_context('mycontext', 'actual_employee_id') AS NUMBER) FROM dual
 
 -- Oracle date time interval in the last 5 minutes:
@@ -6545,7 +6552,9 @@ select avg(mycol) from t -- does not count NULLs
 
 order by mycol ASC NULLS LAST  -- default e.g. 1,2,3,NULL
 
-SELECT to_char(created,'SYYYY') FROM EVENT_BASE where created < to_date('01JAN1970'); --show normally obscured BC dates
+-- Make normally obscured BC dates visible:
+SELECT created, updated, to_char(updated,'SYYYY') yr, to_char(updated,'YYYY-MM-DD HH24:MI') FROM CONTAC_HIST where updated < to_date('01JAN1970'); --show BC dates
+SELECT to_char(created,'SYYYY') FROM EVENTS where created < to_date('01JAN1970');
 
 CREATE INDEX TMP_IX ON CONTACT_EXTERNAl2 (created);
 CREATE INDEX TMP_IX ON CONTACT_EXTERNAl2 (created DESC);  -- avoid a sort if most queries have "ORDER BY created DESC"
@@ -6553,6 +6562,14 @@ DROP INDEX TMP_IX;
 
 -- Function index:
 create index upper_names_ix on table ( upper(myname) );  -- but only used when exactly matches: e.g. WHERE upper(myname) = 'foo'
+
+ALTER package SYS.SETARS_SECURITY COMPILE PLSQL_CODE_TYPE=NATIVE;
+
+-- Faster insert hint:
+insert /*+ append */ into ...
+
+-- Convert hex from things like SELECT table_name, LOW_VALUE FROM user_tab_columns...:
+declare d date; begin dbms_stats.convert_raw_value(hextoraw('505707090E0801'), d); dbms_output.put_line(d); end;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7071,6 +7088,8 @@ c:\> wmic cpu get loadpercentage
 
 cygcheck -cv w3m  # is package OK?
 
+# git remove whitespace trash from github diff page: https://github.com/ion/data/compare/feature/RION-39172?w=1
+
 git config user.name  # whoami
 cat ~/.gitconfig # whoami
 git config user.email
@@ -7153,6 +7172,8 @@ git difftool
 git difftool HEAD^
 # git diff compare commits:
 git difftool 3a93bc3 1fb24fe
+# git diff compare a file in working directory (modified but not checked in) to last checked in version:
+git difftool SET_MATCH_CODE.prc
 # git diff compare a file from another branch across branches:
 git difftool master SET_MATCH_CODE.prc
 # git diff compare old version of file from different commit - current (hash-less) filename must come 2nd!!:
