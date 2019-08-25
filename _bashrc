@@ -166,9 +166,10 @@ alias wget='wget -c'  # continue failures
 # 'Windows-ish Start' a file or file manager in GUI
 #TODO background the process
 case "$OSTYPE" in
-     cygwin) st() { explorer "${1:-.}"; } ;;
-  linux-gnu) st() { thunar   "${1:-.}"; } ;;
-    darwin*) st() { open     "${1:-.}"; } ;;
+             cygwin) st() { explorer "${1:-.}"; } ;;
+          linux-gnu) st() { thunar   "${1:-.}"; } ;;
+            darwin*) st() { open     "${1:-.}"; } ;;
+  linux-androideabi) st() { vi       "${1:-.}"; } ;;
           *) echo '.bashrc: Unknown file manager' >&2 ;;
 esac
 
@@ -823,7 +824,7 @@ case "$OSTYPE" in
 esac # }}}1
 # Security or project additions:  #{{{1
 if [ -e $HOME/.bashrc.project ]; then
-  echo "$HOME/.bashrc.project"
+  echo "sourcing $HOME/.bashrc.project..."
   source $HOME/.bashrc.project
 fi
 alias cod='git checkout develop'
