@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Tue 30 Jul 2019 13:32:22 (Bob Heckel)
+" Modified: Sat 24 Aug 2019 13:28:15 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -744,7 +744,10 @@ nnoremap gw <Esc>:split<CR>gf
 " Copy visual mode selection to system clipboard. Like gVim's default. See also :set clipboard=
 if v:version > 801 || has("patch148")
   if $PATH =~ 'termux'
-    vnoremap <silent> yx :'<,'>!termux-clipboard-set<CR>
+    vnoremap <silent> yx :'<,'>!termux-clipboard-set<CR>u
+  elseif has('unix')
+    " Use the normal world's clipboard (for pasting into a VM etc)
+    vnoremap <silent> yx  "+y
   else
     vnoremap <silent> yx  "*y
   endif

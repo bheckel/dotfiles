@@ -6571,6 +6571,8 @@ insert /*+ append */ into ...
 -- Convert hex from things like SELECT table_name, LOW_VALUE FROM user_tab_columns...:
 declare d date; begin dbms_stats.convert_raw_value(hextoraw('505707090E0801'), d); dbms_output.put_line(d); end;
 
+ALTER USER scott ACCOUNT UNLOCK IDENTIFIED BY tiger;
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -7105,7 +7107,6 @@ git stash apply stash@{1}  # or git stash apply 1
 git stash drop 1  # if you have stash@{0} and stash@{1} only delete stash 1
 # Delete ALL stashes:
 git stash clear 
-
 # git snapshot ...
 git stash --include-untracked -m'mynamedstash' && git stash apply
 
@@ -7134,17 +7135,14 @@ git checkout -- DataPost_Configuration.map  # can also try  git checkout .  for 
 git reset [HEAD] Daily_data_maintenance.pck
 # git revert abandon discard throw away trash abandon changes i.e. undo your last commit, but also unstage everything i.e. roll back to before you ran all your git add and git commit commands:
 git reset [--mixed] HEAD^ 
-
 # git revert discard throw away trash abandon a pull - not WD safe!:
 git reset --hard ORIG_HEAD; git gc;
 # git abandon discard throw away trash abandon a merge collision (remove conflict markers "master|MERGING" from the file but you still have merge conflicts when you do git pull next time):
 git merge --abort  # or git reset --merge
+# git error "CONFLICT (content): Merge conflict in"... collision:
+git mergetool  # C-W = in vim if windows are squashed
 # git use the other guy's commit on collision:
 git reset --merge 2e40a3
-
-# git error "CONFLICT (content): Merge conflict in"...:
-git mergetool  # C-W = in vim if windows are squashed
-
 # git discard throw away trash abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area and leave your INDEX alone. You could now git add and git commit again to accomplish what git commit --amend would have done:
 git reset --soft c4c9473
 # git discard throw away trash abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area:
@@ -7180,10 +7178,11 @@ git difftool master SET_MATCH_CODE.prc
 git difftool 1908af7:./PTG.pck PTG.pck
 
 # git force staging if it's excluded by .gitignore:
-git add -f t.txt
+git add -f ignoreme.txt
 
-# git new bare box want clone existing github repo to a new foreign server (AKA origin,a bookmark) which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
-ssh-keygen; # then  cat ~/.ssh/id_rsa.pub  # copy it to github
+# git new bare box want clone an existing github repo to a new foreign server (AKA origin, a bookmark) which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
+ssh-keygen; # then  cat ~/.ssh/id_rsa.pub  # copy it to github UI
+# PULL FROM origin to master & PUSH TO origin FROM master:
 git clone git@github.com:bheckel/dotfiles.git && git config --global user.name "Bob Heckel" && git config --global user.email rsh@rshdev.com # ...edit/add/commit... then  git pull origin master && git push origin master
 # may be required for older git versions:
 git remote add origin git@github.com:bheckel/dotfiles.git
