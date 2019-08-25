@@ -98,7 +98,6 @@ alias bgrep="$HOME/code/perl/bgrep"
 alias by=exit  # keepin' up the FTP tradition
 alias cd..='cd ..; ls'
 alias cdd="cd $HOME/dotfiles"
-alias cdc="cd $HOME/code/c"
 alias cdh="cd $HOME/code/html"
 alias cdm="cd $HOME/code/misccode"
 alias cdp="cd $HOME/code/perl"
