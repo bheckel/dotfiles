@@ -5780,6 +5780,7 @@ select text from SYS.USER_SOURCE t WHERE t.name='ORION34858'
 select * from SYS.USER_SOURCE t WHERE t.TYPE='PACKAGE BODY' AND (upper(t.TEXT) LIKE '%CONSTANT%' OR UPPER(t.text) LIKE '%TYPE%')
 -- View full source code of all compiled database objects (not Views) for SYS:
 select * from dba_source s where s.name = 'MYSECURITY' order by s.type, s.line;
+select * from dba_source s as of TIMESTAMP (systimestamp - interval '25' minute) where s.name = 'MYSECURITY' order by s.type, s.line;
 
 -- SQL Server list information about each owner's table in a database:
 select * from information_schema.tables where table_type='BASE TABLE' and table_schema='rheckel'
@@ -6570,6 +6571,18 @@ insert /*+ append */ into ...
 
 -- Convert hex from things like SELECT table_name, LOW_VALUE FROM user_tab_columns...:
 declare d date; begin dbms_stats.convert_raw_value(hextoraw('505707090E0801'), d); dbms_output.put_line(d); end;
+
+CREATE USER scott IDENTIFIED BY tiger;
+GRANT ALL PRIVILEGES TO scott;
+
+-- whoami sqlplus:
+show user
+
+-- Database before recent DML changes:
+select count(*) from tbl_deleted_from as of timestamp (systimestamp - interval '15' minute);
+
+-- Restore a dropped table:
+drop table t; SELECT * FROM user_recyclebin; FLASHBACK TABLE t TO BEFORE DROP [RENAME TO rescuedog];
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
