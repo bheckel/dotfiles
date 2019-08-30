@@ -2593,7 +2593,7 @@ proc sql; select setting into :TMPMPRINT from DICTIONARY.options where optname='
  /* When coworker decides to call a dataset 'label'...: */
 options DATASTMTCHK=COREKEYWORDS;
 
-%let bom_previous=%sysfunc(intnx(MONTH, "&SYSDATE"d, -1, B),YYMMDDN.); data _null_; if fileexist("/Drugs/TMMEligibility/BRStores/Dashboard/&bom_previous") then put 'previous month folder directory exists'; run;
+%let bm_previous=%sysfunc(intnx(MONTH, "&SYSDATE"d, -1, B),YYMMDDN.); data _null_; if fileexist("/Drugs/TMMEligibility/BRStores/Dashboard/&bm_previous") then put 'previous month folder directory exists'; run;
 
 # Read a csv file in R language:
 d <- read.table('/home/rsh86800/t.csv',header=TRUE,sep=',')
@@ -4438,8 +4438,9 @@ sudo timedatectl set-timezone America/New_York
 # Default shell bash variable:
 JIRA=${1:-99999999}
 
-# Find all control characters like BOM (handles spaces in filename):
+# Find all control characters like BOM byte order mark (handles spaces in filename):
 $ find . -type f -print0 | xargs -0 grep --color='auto' -P -n "[\x80-\xFF]"
+grep --color='auto' -P -n "[\x80-\xFF]" SHADOW_INDEX.PRC
 
 # Remove last 4 characters from end of string (space mandatory!):
 echo ${PS1:0: -4}
@@ -5378,6 +5379,8 @@ select constraint_name, constraint_type from user_constraints@sep WHERE constrai
 
 -- Oracle find uncommitted transactions locks:
 SELECT s.OSUSER, s.sid ,s.serial# ,s.username ,s.machine ,s.status ,s.lockwait ,t.used_ublk ,t.used_urec ,t.start_time from v$transaction t inner join v$session s on t.addr = s.taddr;
+-- What user and sql is locking?:
+SELECT O.OBJECT_NAME, S.SID, S.SERIAL#, P.SPID, S.PROGRAM, SQ.SQL_FULLTEXT, S.LOGON_TIME FROM V$LOCKED_OBJECT L, DBA_OBJECTS O, V$SESSION S, V$PROCESS P, V$SQL SQ WHERE L.OBJECT_ID = O.OBJECT_ID AND L.SESSION_ID = S.SID AND S.PADDR = P.ADDR AND S.SQL_ADDRESS = SQ.ADDRESS;
 
 rc PLS_INTEGER; rc := SQL%ROWCOUNT; dbms_output.new_line(); dbms_output.put_line('rows affected: ' || rc);
 
@@ -5391,11 +5394,24 @@ WHERE UPPER(mat_desc) LIKE '%\_TH%' ESCAPE '\'
 
 define_editor="C:\Program Files (x86)\Vim\vim74\gvim.exe -u C:\Users\obheck\_gvimrc"
 
--- Oracle date constants literals (client controls display format):
+-- Oracle DATE literal:
+select * from t WHERE t.min_end_time> '16jan19'
+
+-- Oracle ANSI date constants literals (client controls display format):
 select DATE '1978-12-25' from dual  -- midnight
 select to_date('1978-12-25 09:00 AM', 'YYYY-MM-DD HH:MI AM')  -- 9am
--- Oracle datetime constants literals (client controls display format). Both are 29-OCT-12 12.01.01.123000000 PM:
+-- ANSI date literal must be YYYY-MM-DD             _________________:
+SELECT TO_DATE('21 JANUARY 2017','DD MONTH YYYY') - DATE '2017-01-01' "date diff" FROM DUAL;
+SELECT LAST_DAY(DATE '2019-01-01') last_day_of_month FROM dual
+lastDayOfQuarter := LAST_DAY(TO_DATE(to_char((payoutQuarter * 3), '00') || '/01/' || targetYear, 'mm/dd/YYYY'));
+
+-- Oracle ANSI datetime timestamp constants literals (client controls display format). Both are 29-OCT-12 12.01.01.123000000 PM:
 select TIMESTAMP '2012-10-29 12:01:01.123', to_timestamp('2012-10-29 12:01:01.123', 'YYYY-MM-DD HH:MI:SS.FF AM') from dual
+-- Oracle ANSI TIMESTAMP literal:
+select * from t WHERE t.min_end_time> TIMESTAMP '2019-01-16 08:26:50'
+INSERT INTO test_table (timestamp_col) VALUES (TIMESTAMP '2017-01-21 12:34:56.78');
+-- Oracle ANSI TIMESTAMP literal with timezone:
+INSERT INTO test_table (timestamp_tz_col) VALUES (to_timestamp_tz('2017-01-21 21:05:53.46 +02:00', 'YYYY-MM-DD HH24:MI:SS.FF TZH:TZM');
 
 -- If same then NULL otherwise first parameter:
 select nullif('a','a') from dual  -- NULL
@@ -5595,10 +5611,6 @@ WHERE batch_time >= {ts '2011-01-03 00:00:00'} and batch_time <= {ts '2011-01-04
 -- Oracle date with hours minutes 2019-01-15 15:37
 SELECT to_char(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI') FROM dual
 
--- Oracle date timestamp literal:
-select * from t WHERE t.min_end_time> '16jan19'
-select * from t WHERE t.min_end_time> TIMESTAMP '2019-01-16 08:26:50'
-
 -- SQL check for duplicates, returns nothing if all samp_id are unique:
 select count(*) from samp group by samp_id having count(*)>1;
 
@@ -5776,8 +5788,9 @@ select date '1970-01-01' + numtodsinterval(power(2,31) - 1, 'SECOND') as max_int
 SELECT * FROM USER_ERRORS WHERE name IN ('PLCH_PKG', 'PLCH_GET_NUMBERS')
 
 -- View full source code of all compiled database objects (not Views):
-select text from SYS.USER_SOURCE t WHERE t.name='ORION34858'
+select text from SYS.USER_SOURCE t WHERE t.name='RION34858'
 select * from SYS.USER_SOURCE t WHERE t.TYPE='PACKAGE BODY' AND (upper(t.TEXT) LIKE '%CONSTANT%' OR UPPER(t.text) LIKE '%TYPE%')
+select * from SYS.USER_SOURCE t WHERE t.TYPE='PACKAGE BODY' and t.name like 'RION%' AND (upper(t.TEXT) LIKE '%BHECK%');  -- my abandoned WIP packages
 -- View full source code of all compiled database objects (not Views) for SYS:
 select * from dba_source s where s.name = 'MYSECURITY' order by s.type, s.line;
 select * from dba_source s as of TIMESTAMP (systimestamp - interval '25' minute) where s.name = 'MYSECURITY' order by s.type, s.line;
@@ -6187,12 +6200,23 @@ SELECT cast(sys_context('mycontext', 'actual_employee_id') AS NUMBER) FROM dual
 -- Oracle date time interval in the last 5 minutes:
 SELECT (SYSTIMESTAMP - INTERVAL '5' minute) AS five_minutes_ago, SYSTIMESTAMP FROM dual
 WHERE execute_time >= (SYSTIMESTAMP - INTERVAL '5' minute)
-start_date := cast(SYSTIMESTAMP + (1/(24*60) * 5) AS TIMESTAMP);  -- 5 minutes from now in future
+start_date := cast(SYSTIMESTAMP + (1/(24*60) * 5) AS TIMESTAMP);  -- 5 minutes from now in future DEPRECATED
 -- 18-MAR-19 09.40.30.000000 AM   18-MAR-19 09.40.30.000000 AM       3/18/2019 09:40:30 AM   33/18/2019 09:40:30 AM      3/20/2019 09:38:30 AM
 SELECT cast(SYSTIMESTAMP + (.000694 * 2) AS TIMESTAMP) AS cast_ddmmmyy, CAST(sysdate + interval '2' minute AS TIMESTAMP) AS cast_ddmmmyy2, SYSTIMESTAMP + (.000694 * 2) AS mddyyyy, sysdate + interval '2' MINUTE AS mmddyyyy2, SYSTIMESTAMP + 2 AS days FROM dual
+-- 3 hours from now DEPRECATED:
+SELECT systimestamp + (3/24) FROM dual;
+-- 3 minutes from now DEPRECATED:
+SELECT systimestamp + (3/(24 * 60)) FROM dual;
+-- 23 months ago DEPRECATED:
+SELECT add_months(systimestamp,-23) FROM dual;
+SELECT last_day(TIMESTAMP '2017-01-21 21:32:48') "last day of month", next_day(SYSDATE', 'FRIDAY') "next day after friday" FROM dual;
+-- 17 years and 3 months from now DYNOMITE!:
+SELECT systimestamp + TO_YMINTERVAL('17-3') "distant future" FROM dual;
+-- 12 days 8 hours and 4 minutes from now DYNOMITE!:
+SELECT systimestamp + TO_DSINTERVAL('12 8:04:00') "near future" FROM dual;
 
--- Oracle full date time with timezone:
-select to_char(SYSTIMESTAMP, 'DD-MON-YYYY HH.MI.SS.FF4 AM TZR') from dual;
+-- Oracle default full date time with timezone, both same 27-AUG-19 04.17.21.981474000 PM -04:00:
+select to_char(SYSTIMESTAMP, 'DD-MON-YYYY HH.MI.SS.FF9 AM TZR'), SYSTIMESTAMP from dual;
 
 select SYSTIMESTAMP - INTERVAL '1' day full_timestamp from dual -- 17-JUL-19 11.59.01.335483000 AM -04:00
 
@@ -6358,8 +6382,6 @@ failure_in_forall EXCEPTION; PRAGMA EXCEPTION_INIT (failure_in_forall, -24381); 
 -- Oracle create sample data and round to 15 minute increments intervals:
 WITH v AS (select trunc(sysdate)+548/1440+rownum/1440 d1 from dual connect by level <= 10 ) SELECT TRUNC(d1, 'hh24') + ROUND(to_char(d1,'MI') / 15) * 15 / 1440 round_to_15min_intervals FROM v
 
-EXECUTE IMMEDIATE 'ALTER TABLE EMAIL_MESSAGES ADD CONSTRAINT CONTACT_CONTACT_CDHU_FK FOREIGN KEY ("CONTACT_CDHU_ID") REFERENCES "SETARS"."CONTACT_BASE" ("CONTACT_ID") ON DELETE CASCADE';
-
 -- List describe browse Postgres tables in psql:
 \d
 
@@ -6401,9 +6423,6 @@ SELECT to_char(TRUNC(DATE '2019-11-20','Q'), 'MON') FROM dual -- OCT
 
 -- Quarter in which date falls.  qtr is all '01-JAN-10', qtrnum is all '1':
 create table t1 as select date '2010-01-01'+rownum x, rownum y  from dual connect by level <= 35; select x, TRUNC(x,'Q') qtr, to_char(TRUNC(x,'Q'), 'Q') qtrnum from t1
-
-SELECT LAST_DAY(DATE '2019-01-01') last_day_of_month FROM dual
-lastDayOfQuarter := LAST_DAY(TO_DATE(to_char((payoutQuarter * 3), '00') || '/01/' || targetYear, 'mm/dd/YYYY'));
 
 -- Modified analytic outer join to get every hr, every room and who reserved it:
 select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2
@@ -6507,7 +6526,7 @@ SELECT listagg(column_name, ',') within group (order by column_name) csv_list_of
 
 l_my_oracle_const CONSTANT NUMBER := 42;
 
--- Commit every 100 records (poor man's bulk collect forall):
+-- Commit interval periodic commit every 100 records (poor man's BULK COLLECT FORALL):
 FOR rec IN c LOOP UPDATE ref_base reb SET reb.employee_id = 999, reb.updatedby = 0 WHERE reb.reference_id = rec.reference_id; dbms_output.put_line(rec.reference_id); cnt := cnt + 1;  IF (MOD(cnt, 100) = 0) THEN COMMIT; END IF; END LOOP; -- So last group will commit: COMMIT;
 
 -- Tablespace calculation:
@@ -6544,7 +6563,7 @@ CREATE TABLE million_rows AS SELECT ROWNUM AS id, RPAD('x',100) AS data FROM dua
 select SOURCE_SIZE from user_object_size where name in('ACCOUNTSPKG');
 
 -- Implicit single row cursor:
-DECLARE l_vc_first_name employees.first_name%type; l_vc_last_name employees.last_name%type; BEGIN SELECT first_name, last_name INTO l_vc_first_name, l_vc_last_name FROM employees WHERE employee_id=120; dbms_output.put_line('Number of rows processed: '||sql%rowcount); END;
+DECLARE l_vc_first_name employees.first_name%type; l_vc_last_name employees.last_name%type; BEGIN SELECT first_name, last_name INTO l_vc_first_name, l_vc_last_name FROM employees WHERE employee_id=120; dbms_output.put_line('Number rows processed per cursor attribute: '||SQL%ROWCOUNT); END;
 
 select count(*) from t -- counts NULLs
 select count(mycol) from t -- does not count NULLs
@@ -6580,11 +6599,19 @@ GRANT ALL PRIVILEGES TO scott;
 -- whoami sqlplus:
 show user
 
+select systimestamp, to_char(systimestamp, 'YYYY-MM-DD HH24:MI:SS.FF TZH:TZM') from dual;
+
 -- Database before recent DML changes:
-select count(*) from tbl_deleted_from as of timestamp (systimestamp - interval '15' minute);
+select count(*) from tbl_deleted_from as of TIMESTAMP (systimestamp - interval '15' minute);
+-- From your dbms_output  to_char(systimestamp, 'YYYY-MM-DD HH24:MI:SS.FF')  then use it:
+select count(*) from mytbl as of TIMESTAMP to_timestamp('2019-08-26 10:10:38.97', 'YYYY-MM-DD HH:MI:SS.FF');
 
 -- Restore a dropped table:
 drop table t; SELECT * FROM user_recyclebin; FLASHBACK TABLE t TO BEFORE DROP [RENAME TO rescuedog];
+
+TYPE numberTable IS TABLE OF NUMBER; TYPE dateTable IS TABLE OF DATE; TYPE varcharTable IS TABLE OF VARCHAR2(4000);
+
+SELECT * FROM v$parameter where description='PL/SQL compiler warnings settings';
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -6793,8 +6820,9 @@ ASP shorthand alternative to Response.Write(Date())
 
 SELECT * FROM funds ORDER BY transdt DESC  -- ASC is default
 
-Foreign Key is that same value stored within MULTIPLE rows of the "detail" table
+Foreign Key is that same value stored within MULTIPLE rows of the other aka "detail" table
 CREATE TABLE foo ( ..., employee_id INTEGER NOT NULL REFERENCES employee(employee_id), ... );
+ALTER TABLE CONTACT_OPP_BASE ADD CONSTRAINT OPP_CONTACT_OPP_FK FOREIGN KEY (OPP_ID) OPP_ID REFERENCES OPP_BASE (OPP_ID) ON DELETE CASCADE ENABLE;
 
 :: DOS wildcard:
 c:> echo %random%
@@ -6931,9 +6959,7 @@ start /b /min /wait notepad.exe
 :: waits for Notepad to exit before starting a new one
 start /b notepad.exe
 
-XML namespaces:
-<xyz xmlns:books="http://www.myco.com/books.dtd" 
-     xmlns:paintings="http://www.yourco.com/paintings.xsd">
+XML namespaces: <xyz xmlns:books="http://www.myco.com/books.dtd" xmlns:paintings="http://www.yourco.com/paintings.xsd">
 
 <xsl:for-each select="Configuration/Extracts/Extract">
 <xsl:for-each select="catalog/cd[artist='Bob Dylan']">
@@ -6952,9 +6978,6 @@ XML transformation/stylesheet linking .XSL(T) (other file) to the .XML doc (this
 
 <xsl:if test="ExecuteFrequency != 'sunday'">
 <xsl:if test="ExtractEnabled &gt; 0 and Folder='LIFT'"> 
-
-Given this xml for xslt to evaluate: <poem author="jm" year="1667">
-<xsl:template match="poem"> <xsl:if test="@author='jm'"> 1. The poem's author is jm.  </xsl:if> </xsl:template>
 
 Traditional languages: y = f(x); are this XSLT v1.0:
 <xsl:variable name="y"><xsl:call-template name="f"><xsl:with-param name="x"/></xsl:call-template></xsl:variable>
@@ -7153,7 +7176,7 @@ git reset --hard ORIG_HEAD; git gc;
 # git abandon discard throw away trash abandon a merge collision (remove conflict markers "master|MERGING" from the file but you still have merge conflicts when you do git pull next time):
 git merge --abort  # or git reset --merge
 # git error "CONFLICT (content): Merge conflict in"... collision:
-git mergetool  # C-W = in vim if windows are squashed
+git mergetool  # C-W = in vim if windows are collapsed
 # git use the other guy's commit on collision:
 git reset --merge 2e40a3
 # git discard throw away trash abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area and leave your INDEX alone. You could now git add and git commit again to accomplish what git commit --amend would have done:
@@ -7221,7 +7244,7 @@ git checkout master && git merge myfeaturebranch                                
 
 # git delete branch local then remote (without using GitHub UI delete branch button). First make sure your remote is there: git branch -a:
 git branch -d feature/RION-31587 && git push origin --delete feature/RION-31587 && git fetch -p && git branch -a
-# git delete local branch and prune remote branches (after using GitHub UI delete branch button):
+# git delete local branch and prune remote branches (after using GitHub UI delete branch button) could also $ git remote prune:
 git branch -d feature/RION-31587 && git fetch -p && git branch -a
 
 # git view history of a file (--follow even if filename has changed, --all branches, -p all patches):
@@ -7414,6 +7437,9 @@ curl -s ftp://mirror.cs.vt.edu/pub/cygwin/cygwin/x86/setup.ini | awk '/^install:
 
 Google search: RGB color picker
 
-Same amount of work to access any value is (O(log n)), like a B-tree index
+# Markdown URL:
+[Minion](http://octodex.github.com/images/minion.png)
+
+O(log n) the same amount of work to access any value, like a B-tree index
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:

@@ -827,6 +827,3 @@ if [ -e $HOME/.bashrc.project ]; then
   echo "sourcing $HOME/.bashrc.project..."
   source $HOME/.bashrc.project
 fi
-alias cod='git checkout develop'
-alias cdg='cd /cygdrive/c/Orion/workspace/data/Source/SQL'
-alias cdv='cd /cygdrive/c/Orion/workspace/data/Source/SQL_Views'
