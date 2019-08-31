@@ -1,16 +1,12 @@
 ###############################################################################
 #     Name: $HOME/code/misccode/oneliners
 #
-#  Summary: Programming and sysadmin fragments I've collected over the 
-#           decades.  Section-searchable via my gone.sh.  Comments are often
-#           written for searching, not proper English.
+#  Summary: Programming and sysadmin fragments I've collected over the last 
+#           two decades.  Section-searchable via ~/dotfiles/gone.sh.  Comments 
+#           are often written for searching, not proper English.
 #
-#           - Don't create work for your boss or coworkers
-#           - Don't ask a question without researching first
-#           - Write down the answer
-#
-#  Created: Tue 02 Jun 1998 10:52:11 (Bob Heckel)
-# Modified: Tue 16 Jul 2019 15:28:21 (Bob Heckel)
+#  Created: Tue 02-Jun-1998 (Bob Heckel)
+# Modified: Sat 31-Aug-2019 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -4676,10 +4672,11 @@ find . -name '*.html' -exec perl -pi.bak -e "s/BGCOLOR=\"#ffffff\"/BGCOLOR=\"#cc
 # Then if all is well:
 find -name '*.bak'|xargs rm
 
-# Canonical search and replace (interactive :bufdo %s/foo/bar/gic may be better):
+# Search and replace (interactive :bufdo %s/foo/bar/gic may be better):
 $ perl -pi.bak -e "s/foo/bar/" *.sas
 # Search and replace inside multiple files (there is no UNDO so may want a backup 1st  $ tar cvfz ~/tmp/bak.tgz *ss_wee*):
 find . -name '*ss_wee*'|xargs perl -pi -e "s/db6/jaspertwa/g"
+grep -RiIl --exclude-dir={subdir1,subdir2} 'search' | xargs sed 's/search/replace/g'
 
 # Delete multiple blocks paragraphs of text (consecutive with start and finish lines):  TODO why can't use xargs (it only mods first file)??
 for f in `find . -name dn.01.0.bodh.html`; do perl -i -e 'BEGIN{$/=undef}$x=<>;$x=~s#<link rel="shortcut icon.*</link>##sg;END{print $x}' $f; done
@@ -7126,7 +7123,7 @@ c:\> wmic cpu get loadpercentage
 
 cygcheck -cv w3m  # is package OK?
 
-# git remove whitespace trash from github diff page: https://github.com/ion/data/compare/feature/RION-39172?w=1
+# git remove whitespace trash from github diff webpage: https://github.com/ion/data/compare/feature/RION-39172?w=1
 
 git config user.name  # whoami
 cat ~/.gitconfig # whoami
@@ -7202,6 +7199,8 @@ git show master:cfg/DataPost_Configuration.html |vi -
 $ git config --global merge.tool vimdiff
 # git diff view your changes before committing. "Changes not staged for commit" (your pre-committed change), same as  $ git difftool HEAD:
 git difftool
+# git diff see what changes you will be pushing, d277a94 is the previous commit, not your recently committed one(s):
+git difftool d277a94
 # git diff see what changes you will be committing INCLUDING PREVIOUS COMMIT (HEAD^ is the parent of the current head commit):
 git difftool HEAD^
 # git diff compare commits:
@@ -7267,6 +7266,9 @@ git filter-branch --tree-filter 'rm -rf 02-White-Noise-60min.mp3' HEAD && git pu
 
 # git branch has conflicts that must be resolved:
 git fetch origin && git checkout -b feature/RION-999 origin/feature/RION-999 && git merge develop
+
+# git squash together all commits after d3fbfd5 (the one I didn't touch). Leave the first entry (oldest commit) alone as 'pick', set others to 's[quash]', next screen lets you edit the message, doing nothing uses all old messages, wipe and type for a new one:
+git rebase --interactive d3fbfd5
 
 <!-- Predefined character entities -->
 &lt; &gt; &quot; &amp; &apos;  &#169; or &#xA9 is copyright symbol ©

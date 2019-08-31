@@ -3,8 +3,8 @@
 #    Name: $HOME/.bashrc
 # Summary: bash config for at least Unix/Linux, Cygwin 1.3/1.5/1.7 and z/OS
 #
-#  Created: Tue 19 May 1998 08:21:18 (Bob Heckel)
-# Modified: Sun 21 Jul 2019 13:47:47 (Bob Heckel)
+#  Created: Tue 19-May-1998 (Bob Heckel)
+# Modified: Sat 31-Aug-2019 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -114,6 +114,7 @@ alias gb='git branch'
 alias gcom='echo "ok to git commit?" && read && git add . && git commit -m "mod"'
 alias gitup='echo "ok to gitup?" && read && git status && git add . && git commit -m "mod" && git pull origin master && git push origin master'
 alias gitall="$HOME/code/misccode/gitall"
+alias gpul='git pull'
 alias gpull='git pull'
 alias gpush='git push'
 alias gstash='git stash save --include-untracked'

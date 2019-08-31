@@ -6,8 +6,8 @@
 "           The mechanic that would perfect his work must first sharpen
 "           his tools -- Confucius
 "
-"  Created: Wed 06 Jun 1998 08:54:34 (Bob Heckel)
-" Modified: Sat 24 Aug 2019 13:28:15 (Bob Heckel)
+"  Created: Wed 06-Jun-1998 (Bob Heckel)
+" Modified: Sat 31-Aug-2019 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -963,7 +963,8 @@ nnoremap ;5 :call BkupFile(VTMP)<CR>
 nnoremap ;b <C-W>_
 
 " Same as  'ab YdC' but replaces existing Created line first:
-nnoremap ;c 0Di#  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>
+" nnoremap ;c 0Di#  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>
+nnoremap ;c 0Di#  Created: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>
 
 " Change (d)irectory to where the open file resides:
 nnoremap ;d :call CDtoThisFilesLoc()<CR>
@@ -991,7 +992,8 @@ nnoremap ;l :ls<CR>:e#
 nnoremap ;ll <C-W>l
 
 " Same as  'ab YdM' but replaces existing Modified line first.
-nnoremap ;m 0Di# Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
+" nnoremap ;m 0Di# Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
+nnoremap ;m 0Di# Modified: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
 
 " Simplify navigating the output of :makeprg (use :cN to reverse) when using Vim as an IDE.
 " nnoremap ;n :cn<CR>
@@ -1610,8 +1612,9 @@ if !exists("autocommands_loaded")
   au BufRead /cygdrive/c/temp/query.out echo '.vimrc: q to quit all'
 
   " au BufNewFile,BufRead,BufEnter *.sas map ;; :call setline('.', Commentout(getline('.'), 'sas'))<CR>
-  au BufNewFile,BufRead,BufEnter *.sas map ;c 0Di  *  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
-  au BufNewFile,BufRead,BufEnter *.sas map ;m 0Di  * Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
+  " au BufNewFile,BufRead,BufEnter *.sas map ;c 0Di  *  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
+  au BufNewFile,BufRead,BufEnter *.sas map ;c 0Di  *  Created: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
+  au BufNewFile,BufRead,BufEnter *.sas map ;m 0Di  * Modified: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.sas map ,m yy0I***<ESC>p
   " Define pairs to allow the 'bounce on %' plugin to work.  Case insensitive.  No spaces between pairs!
   au BufNewFile,BufRead,BufEnter *.sas let b:match_words = '\<do\>:\<end\>,\<data\s\+\w\+:\<run\;,%macro.*\;:\<mend\>.*\;,\<sql.*;:\<quit;'
@@ -1650,8 +1653,8 @@ if !exists("autocommands_loaded")
   au BufWritePost *.sh silent !chmod a+x <afile>
   au FileType basic map ,m yy0I'''<ESC>p
   au FileType basic map ;s :s:^:''':<CR>
-  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;c 0Di//  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
-  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;m 0Di// Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
+  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;c 0Di//  Created: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
+  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;m 0Di// Modified: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ,m yy0I///<ESC>p
 """  au FileType sh map ;; :call setline('.', Commentout(getline('.'), 'default'))<CR>
   " Default Vim make is for C, this handles C++
@@ -1707,8 +1710,9 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufRead,BufEnter *.vim,.vimrc,*.htm,*.html,*_vimrc set keywordprg=
   au FileType HELP set keywordprg=
 
-  au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;c 0Di"  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
-  au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;m 0Di" Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
+  " au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;c 0Di"  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
+  au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;c 0Di"  Created: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
+  au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;m 0Di" Modified: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ,m yy0I"""<ESC>p
 """  au BufNewFile,BufRead,BufEnter .bashrc,_bashrc* map ;; :call setline('.', Commentout(getline('.'), 'bash'))<CR>
   au BufNewFile,BufRead,BufEnter *.vim nmap ;z :source %<CR>
