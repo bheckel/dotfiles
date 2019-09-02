@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Sat 31-Aug-2019 (Bob Heckel)
+" Modified: Mon 02-Sep-2019 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -138,14 +138,6 @@ set sidescroll=5
 
 set nowrap
 
-" Gvim window coordinates dimensions height/width. Overriden later depending on file type.
-if has('gui_running')
-  winpos 295 295
-  set columns=95
-  " Most of the time we're just doing fast edits so make it small.
-  set lines=30
-endif
-
 if version > 702
   set relativenumber
   " :se rnu gutter at 7pt font should rarely go > 100
@@ -159,6 +151,42 @@ set nolinebreak
 set showbreak=^
 
 set scrollopt=hor,ver
+
+" :se guifont=*
+if has("gui_running")
+  " Gvim window coordinates dimensions height/width. Overriden later depending on file type.
+  winpos 295 295
+  set columns=85
+  " Most of the time we're just doing fast edits so make it small
+  set lines=30
+
+  if has("gui_gtk3")
+    set guifont=Cousine\ 9
+  elseif has("x11")
+    " set guifont=*-Consolas-medium-r-normal-*-*-180-*-*-m-*-*
+    set guifont=Consolas\ 8
+  elseif has("gui_win32")
+    set guifont=Consolas:h8
+  endif
+endif
+
+if has('gui')
+  set guioptions+=a
+  set guioptions+=b
+  set guioptions+=r
+  set guioptions-=T
+  set guioptions-=m
+endif
+
+" Use  :set guifont=*  to browse
+"""if matchstr(HOMEBOXARRAY, THISBOX) == THISBOX
+"""  set guifont=Consolas\ 8
+"""elseif has ('win32')
+"""  set guifont=Consolas:h8,Andale_Mono:h8,Lucida_Console:h8,Terminal:h8,Courier_new:h8,Courier:h7
+"""endif
+
+" For Win32 cmd only.  Unix uses t_ti and t_te.
+set restorescreen
 
 
 "                                5 syntax, highlighting and spelling {{{2
@@ -544,32 +572,6 @@ set viminfo='1000,\"750,:5000
 
 " For :mkview & :loadview.  Force gvim to Cygwin's default.
 set viewdir=~/.vim/view
-
-if has('gui_win32')
-  set guifont=Consolas:h8
-elseif has('gui_gtk3')
-  set guifont=Cousine\ 9
-else
-  set guifont=Terminal\ 8
-endif
-
-if has('gui')
-  set guioptions+=a
-  set guioptions+=b
-  set guioptions+=r
-  set guioptions-=T
-  set guioptions-=m
-endif
-
-" Use  :set guifont=*  to browse
-"""if matchstr(HOMEBOXARRAY, THISBOX) == THISBOX
-"""  set guifont=Consolas\ 8
-"""elseif has ('win32')
-"""  set guifont=Consolas:h8,Andale_Mono:h8,Lucida_Console:h8,Terminal:h8,Courier_new:h8,Courier:h7
-"""endif
-
-" For Win32 only.  Unix uses t_ti and t_te.
-set restorescreen
 
 " Allow e.g. :bro e /todel/testing instead of :bro e \todel\testing
 set shellslash
@@ -3079,8 +3081,8 @@ endfunction
 " end Inlined Plugins-
 "--------------------------------------------------------------------------
 
-" Machine / security settings: {{{1
+" Machine / Security Settings: {{{1
 if filereadable(glob("~/.vimrc.project")) 
-  echo '~/.vimrc.project'
-  source ~/.vimrc.project
+  echo 'sourcing ~/.vimrc.project'
+  source sourcing ~/.vimrc.project
 endif  "}}}

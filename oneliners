@@ -5563,7 +5563,7 @@ select trunc(SYSDATE, 'day') from dual
 -- Oracle date criteria only this month's orders:
 WHERE order_dt > TRUNC(SYSDATE, 'MONTH')
 
-select rpad('stars', 10, '*'), lpad('dots', 10, '.') from dual
+select rpad('5star', 10, '*'), lpad('6dot', 10, '.'), lpad('xxx', 2) || 'doublex' from dual
 
 -- Update query: 
 update retain.fnsh_prod set prod_sel = 'N', prod_sel_dt = NULL;
