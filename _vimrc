@@ -3081,7 +3081,7 @@ endfunction
 " end Inlined Plugins-
 "--------------------------------------------------------------------------
 
-" Machine / Security Settings: {{{1
+" Machine/Security Settings: {{{1
 if filereadable(glob("~/.vimrc.project")) 
   echo 'sourcing ~/.vimrc.project'
   source sourcing ~/.vimrc.project
