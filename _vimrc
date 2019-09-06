@@ -134,15 +134,7 @@ set nosmartcase
 
 "                                4 displaying text {{{2
 
-set sidescroll=5
-
 set nowrap
-
-if version > 702
-  set relativenumber
-  " :se rnu gutter at 7pt font should rarely go > 100
-  set numberwidth=3
-endif
 
 set lazyredraw
 
@@ -150,9 +142,17 @@ set nolinebreak
 
 set showbreak=^
 
+set sidescroll=5
+
 set scrollopt=hor,ver
 
-" :se guifont=*
+if version > 702
+  set relativenumber
+  " :se rnu gutter at 7pt font should rarely go > 100
+  set numberwidth=3
+endif
+
+" :se guifont=* to open OS-specific menu
 if has("gui_running")
   " Gvim window coordinates dimensions height/width. Overriden later depending on file type.
   winpos 295 295
@@ -3073,9 +3073,13 @@ function! FontSizeMinus ()
 endfunction
 " nnoremap cot :call CycleFont()<cr>
 
-" Fails on Win10 16-Nov-18 
-" nnoremap <C-ScrollWheelUp> :call FontSizePlus()<CR>
-" nnoremap <C-ScrollWheelDown> :call FontSizeMinus()<CR>
+if has('gui_running')
+  " Fails on Win10 16-Nov-18 
+  " nnoremap <C-ScrollWheelUp> :call FontSizePlus()<CR>
+  " nnoremap <C-ScrollWheelDown> :call FontSizeMinus()<CR>
+  nnoremap + :call FontSizePlus()<CR>
+  nnoremap - :call FontSizeMinus()<CR>
+endif
 "}}}
 
 " end Inlined Plugins-
@@ -3083,6 +3087,7 @@ endfunction
 
 " Machine/Security Settings: {{{1
 if filereadable(glob("~/.vimrc.project")) 
-  echo 'sourcing ~/.vimrc.project'
-  source sourcing ~/.vimrc.project
+  " echon 'sourcing ~/.vimrc.project'
+  " !echo -n 'sourcing ~/.vimrc.project'
+  source ~/.vimrc.project
 endif  "}}}

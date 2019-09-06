@@ -3147,6 +3147,7 @@ find -mtime -7 -type f -name '*.vb' -print0 | xargs -0 tar cvfz junk.tgz
 
 # Simple find and edit search string (like my bgrep but without duplicate filenames):
 find /sasdata/Cron/Daily/HPTask -name '*.sas'|xargs grep 'any deceased pat' |awk -F: '{print $1}'|sort|uniq >|~/bob/tmp/1
+vim `find . -type f -print0 | xargs -0 grep -i 'Ht.p' | awk -F: '{print $1}' | sort | uniq`
 
 vi `find . -name "*" -exec grep -l "bobh" {} \;`
 # or just show filenames:
@@ -4256,7 +4257,6 @@ head -n1 t.csv |sed 's/,/\n/g' |nl  # determine field nums
 awk -F, '{a[$1];}END{for (i in a)print i;}' t.csv  # filter only that field
 # Only list 2014 dates (SELECT DISTINCT * FROM COL28 WHERE COL28 LIKE '%2014%'):
 awk -F, '$28 ~ /2014/ {a[$28]} END{for (i in a) print i}' mondayOLS_0016T_vairDiskus.csv |sort |tail -n20| tac
-# Find test dates for this mat cod:
 grep 100000089317 t.csv | awk -F, '{a[$19];}END{for (i in a)print i;}' - |uniq |sort
 
 # Are we on Cygwin?:
@@ -5448,8 +5448,6 @@ UPDATE contact_note SET original_contact_id = contact_id WHERE NVL(original_cont
 
 -- Don't ignore NULLs in counts:
 SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,0)), POOR_CLOSEOUT_OPT_OUT FROM OPPORTUNITY_OPT_OUT GROUP BY POOR_CLOSEOUT_OPT_OUT
-SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,-1)), POOR_CLOSEOUT_OPT_OUT FROM OPPORTUNITY_OPT_OUT GROUP BY POOR_CLOSEOUT_OPT_OUT
-SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,99999)), POOR_CLOSEOUT_OPT_OUT FROM OPPORTUNITY_OPT_OUT GROUP BY POOR_CLOSEOUT_OPT_OUT
 
 select DECODE(checkmefield, ifcheckmeisthis, thenuseme, elseuseme)
 
@@ -6610,6 +6608,9 @@ TYPE numberTable IS TABLE OF NUMBER; TYPE dateTable IS TABLE OF DATE; TYPE varch
 
 SELECT * FROM v$parameter where description='PL/SQL compiler warnings settings';
 
+-- When was object last compiled:
+SELECT owner, object_name, object_type, status, last_ddl_time FROM dba_objects d WHERE d.object_name like 'RS_ASP%';
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -7123,6 +7124,9 @@ c:\> wmic cpu get loadpercentage
 
 cygcheck -cv w3m  # is package OK?
 
+#                      git add           git commit              git push
+# UNTRACKED/UNSTAGED -----------> STAGED ----------> LOCAL REPO -------------> REMOTE REPO
+
 # git remove whitespace trash from github diff webpage: https://github.com/ion/data/compare/feature/RION-39172?w=1
 
 git config user.name  # whoami
@@ -7229,9 +7233,6 @@ git clone https://github.com/grayghostvisuals/Practice-Git.git
 # But may need this first or instead of remote add if your clone was git clone git://github.com/bheckel/misc.git
 git remote set-url origin git@github.com:bheckel/dotfiles.git
 
-# Which branches are tracking which remote/upstream branches:
-git remote show origin
-
 # git manual pull request completion without using Github UI merge & delete branch buttons:
 git checkout develop && git pull && git merge --no-ff feature/RION-31587 && git push && git branch -d feature/RION-31587 && git fetch -p && git push origin --delete feature/RION-31587
 
@@ -7243,8 +7244,11 @@ git checkout master && git merge myfeaturebranch                                
 
 # git delete branch local then remote (without using GitHub UI delete branch button). First make sure your remote is there: git branch -a:
 git branch -d feature/RION-31587 && git push origin --delete feature/RION-31587 && git fetch -p && git branch -a
-# git delete local branch and prune remote branches (after using GitHub UI delete branch button) could also $ git remote prune:
+# git delete local branch and prune remote branches (after using GitHub UI delete branch button):
 git branch -d feature/RION-31587 && git fetch -p && git branch -a
+
+# Which branches are tracking which remote/upstream branches (prune is optional):
+git fetch -p && git remote show origin
 
 # git view history of a file (--follow even if filename has changed, --all branches, -p all patches):
 gitk --follow --all -p SUP_HAS_ACTIVE_SITES.fnc

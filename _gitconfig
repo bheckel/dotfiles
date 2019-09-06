@@ -1,16 +1,14 @@
-# Modified: Mon 24 Jun 2019 15:32:40 (Bob Heckel)
-#
-#                      git add           git commit              git push
-# UNTRACKED/UNSTAGED -----------> STAGED ----------> LOCAL REPO -------------> REMOTE REPO
+# Modified: Wed 04-Sep-2019 (Bob Heckel)
 
-
+# git config -e
 # git config --global pager.branch false
+# git config --global core.pager "less -r"
 
+[core]
+	pager = less -F -S -X -r
 [color]
 	status = auto
 	diff = auto
-[core]
-	pager = less -F -S -X
 [diff]
 	tool = vimdiff
 [merge]
