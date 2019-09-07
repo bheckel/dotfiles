@@ -12,8 +12,8 @@
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
-"   Who set it last e.g.:  :verbose se shiftwidth?
-"    ordered by :option option-window convention
+"    Who set it last e.g.:  :verbose se shiftwidth?
+"    Ordered by ':option option-window' convention
 "--------------------------------------------------------------------------
 "                                1 initialization {{{2
 " Unleash the beast VIVIVI:
@@ -706,8 +706,8 @@ nnoremap <Down> gj
 
 if has('gui')
   " Don't need this pair for mintty because CONTROL+MOUSEWHEEL works properly
-  nnoremap <F1> :call FontSizeMinus()<cr>
-  nnoremap <F2> :call FontSizePlus()<cr>
+""  nnoremap <F1> :call FontSizeMinus()<cr>
+""  nnoremap <F2> :call FontSizePlus()<cr>
   " Widen gvim to max column width
   nnoremap <F4> :call SetOpt('columns', MaxLineLen(0))<CR>
   nnoremap <F4><F4> :call SetOpt('columns', 80)<CR>
@@ -770,7 +770,7 @@ nnoremap G G$
 " Don't accidentally drop into ex mode
 nnoremap Q :q
 
-" Typo protection
+" Typo laziness
 nnoremap :W :w
 
 " Normalize yank until end of line with D and C
@@ -1791,11 +1791,14 @@ if !exists("autocommands_loaded")
   endif
 
   " Resize buffer (most convenient with number keypad) if more than one exists
-  if exists('+getbufinfo')
-    au BufEnter * if len(getbufinfo({'buflisted':1})) > 1 | exe "nnoremap + <C-W>+" | endif
-    au BufEnter * if len(getbufinfo({'buflisted':1})) > 1 | exe "nnoremap - <C-W>-" | endif
-    "TODO reset when back to 1 buf
-    " au BufEnter * if len(getbufinfo({'buflisted':1})) == 1 | exe "nnoremap - noop" | endif
+  " GUI uses + for font resizing (due to inability to use control-mousewheel)
+  if ! has('gui')
+    if exists('+getbufinfo')
+      au BufEnter * if len(getbufinfo({'buflisted':1})) > 1 | exe "nnoremap + <C-W>+" | endif
+      au BufEnter * if len(getbufinfo({'buflisted':1})) > 1 | exe "nnoremap - <C-W>-" | endif
+      "TODO reset when back to 1 buf
+      " au BufEnter * if len(getbufinfo({'buflisted':1})) == 1 | exe "nnoremap - noop" | endif
+    endif
   endif
 
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
