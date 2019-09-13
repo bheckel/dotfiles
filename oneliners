@@ -3147,7 +3147,7 @@ find -mtime -7 -type f -name '*.vb' -print0 | xargs -0 tar cvfz junk.tgz
 
 # Simple find and edit search string (like my bgrep but without duplicate filenames):
 find /sasdata/Cron/Daily/HPTask -name '*.sas'|xargs grep 'any deceased pat' |awk -F: '{print $1}'|sort|uniq >|~/bob/tmp/1
-vim `find . -type f -print0 | xargs -0 grep -i 'Ht.p' | awk -F: '{print $1}' | sort | uniq`
+vim `find . -type f -print0 | xargs -0 grep -i 'http.*' | awk -F: '{print $1}' | sort | uniq`
 
 vi `find . -name "*" -exec grep -l "bobh" {} \;`
 # or just show filenames:
@@ -4416,13 +4416,13 @@ nmcli dev show | grep DNS
 # Which distro am I using:
 cat /etc/*-release | grep VERSION | perl -pe 's/VERSION="//g'
 
-# Largest temp files
+# Largest temp files:
 for i in `find ~/tmp`; do du -sh $i; done | sort -hr |head -n75
 
 # Take first field in pipe delimited file in all 2017 folders
 for f in $(find /Drugs/TMMEligibility/GiantEagle/Imports/2017* -name 'GiantEagle_TMM_candidates_fdw.csv' ); do cut -d'|' -f1 $f >>~/junk20180417; done;
 
-# RGB in terminal:
+# RGB hex color picker in terminal:
 for i in {0..255} ; do printf "\x1b[38;5;${i}mcolour${i}\n"; done
 
 whatismyip=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
@@ -4431,7 +4431,7 @@ whatismyip=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '
 
 sudo timedatectl set-timezone America/New_York
 
-# Default shell bash variable:
+# Default shell bash variable if none provided:
 JIRA=${1:-99999999}
 
 # Find all control characters like BOM byte order mark (handles spaces in filename):
@@ -4450,11 +4450,11 @@ while true; do df -h '//opsawn557/e$'; sleep 60; done
 # Capture current Cygpath in Cygwin:
 cygpath -w $PWD  # or cygpath -w `pwd`
 
-# Show Windows pids (winpid) on Cygwin:
-ps -W
-
 # fluxbox Resize window: Alt+drag with the right mouse button
 # fluxbox Move window: Alt+drag with the left mouse button
+
+# Chain two search criteria i.e. first find x then find y in the x files - a double bgrep:
+vim `find . -type f -print0 | xargs -0 grep -i 'ACCOUNT_TEAM' | awk -F: '{print $1}' | sort | uniq | xargs grep -i 'approved' | awk -F: '{print $1}' | sort | uniq`
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5381,10 +5381,11 @@ SELECT O.OBJECT_NAME, S.SID, S.SERIAL#, P.SPID, S.PROGRAM, SQ.SQL_FULLTEXT, S.LO
 
 rc PLS_INTEGER; rc := SQL%ROWCOUNT; dbms_output.new_line(); dbms_output.put_line('rows affected: ' || rc);
 
-TYPE varray_type IS VARRAY(4) OF VARCHAR2(4000);  -- Oracle collection
-TYPE associativearray_type IS TABLE OF INTEGER INDEX BY VARCHAR2(10);  -- Oracle collection
-[CREATE OR REPLACE] TYPE nestedtable_type IS TABLE OF VARCHAR2(15)  -- Oracle collection
-create type numbers_t as table of number;  -- Oracle collection
+-- Oracle collections:
+[CREATE OR REPLACE] TYPE numberTable IS TABLE OF NUMBER; TYPE dateTable IS TABLE OF DATE; TYPE varcharTable IS TABLE OF VARCHAR2(4000); TYPE CursorTable IS TABLE OF c1%ROWTYPE; TYPE varray_type IS VARRAY(4) OF VARCHAR2(4000); TYPE associativearrayTable IS TABLE OF INTEGER INDEX BY VARCHAR2(10); TYPE aa_t IS TABLE OF scott.emp.deptno%TYPE INDEX BY BINARY_INTEGER; TYPE aa_t IS TABLE OF scott.emp%ROWTYPE INDEX BY BINARY_INTEGER; TYPE aa_numbers_t IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
+
+TYPE numberTable IS TABLE OF NUMBER; numtbl numberTable;
+IF numtbl IS NULL OR numtbl.COUNT = 0 THEN DBMS_OUTPUT.PUT_LINE('collection is empty'); END IF;
 
 --Oracle select a literal underscore by overriding SQL/LIKEs idea of the _ character:
 WHERE UPPER(mat_desc) LIKE '%\_TH%' ESCAPE '\'
@@ -5698,8 +5699,9 @@ select * FROM all_objects WHERE OWNER = 'BOBHECKEL' and object_type = 'FUNCTION'
 --Get Oracle database instance version, rack, status etc information:
 select * from v$instance;
 
--- Find Oracle data dictionary user_tables etc from which to further query:
+-- Find Oracle data dictionary USER_TABLES etc from which to further query poke around:
 select * from DICTIONARY WHERE table_name LIKE 'USER%' ORDER BY 1
+select table_name, comments from dict where table_name like 'DBA%SCHEDULER%' order by table_name;
 
 -- Oracle list browse all schemas poke around:
 SELECT username FROM all_users ORDER BY username;
@@ -5782,9 +5784,8 @@ select date '1970-01-01' + numtodsinterval(power(2,31) - 1, 'SECOND') as max_int
 -- SHOW ERR[ORS] in sqlplus uses this table (but only shows the latest error):
 SELECT * FROM USER_ERRORS WHERE name IN ('PLCH_PKG', 'PLCH_GET_NUMBERS')
 
--- View full source code of all compiled database objects (not Views):
-select text from SYS.USER_SOURCE t WHERE t.name='RION34858'
-select * from SYS.USER_SOURCE t WHERE t.TYPE='PACKAGE BODY' AND (upper(t.TEXT) LIKE '%CONSTANT%' OR UPPER(t.text) LIKE '%TYPE%')
+-- Search view full source code of all compiled database objects (except Views):
+select * from SYS.USER_SOURCE t WHERE t.TYPE='PACKAGE BODY' and lower(t.text) like '%assignment_approved%';
 select * from SYS.USER_SOURCE t WHERE t.TYPE='PACKAGE BODY' and t.name like 'RION%' AND (upper(t.TEXT) LIKE '%BHECK%');  -- my abandoned WIP packages
 -- View full source code of all compiled database objects (not Views) for SYS:
 select * from dba_source s where s.name = 'MYSECURITY' order by s.type, s.line;
@@ -6232,8 +6233,6 @@ WHERE batch_time > '2008-02-13'
 
 -- SQL Server version:  SELECT @@VERSION
 
-SELECT * FROM DICTIONARY WHERE table_name like 'USER%' ORDER BY table_name;  -- Oracle
-
 -- Return anything but Y, regardless of existence of nulls (where val != 'Y' would not include any nulls):
 select * from basic_data where lnnvl(val = 'Y')
 
@@ -6604,12 +6603,13 @@ select count(*) from mytbl as of TIMESTAMP to_timestamp('2019-08-26 10:10:38.97'
 -- Restore a dropped table:
 drop table t; SELECT * FROM user_recyclebin; FLASHBACK TABLE t TO BEFORE DROP [RENAME TO rescuedog];
 
-TYPE numberTable IS TABLE OF NUMBER; TYPE dateTable IS TABLE OF DATE; TYPE varcharTable IS TABLE OF VARCHAR2(4000);
-
 SELECT * FROM v$parameter where description='PL/SQL compiler warnings settings';
 
 -- When was object last compiled:
 SELECT owner, object_name, object_type, status, last_ddl_time FROM dba_objects d WHERE d.object_name like 'RS_ASP%';
+
+-- Display a reasonable amount of text from a CLOB:
+SELECT sql_text as only_1k_chars, substr(regexp_replace(sql_fulltext, '\s+', ' '), 1, 3999) FROM v$sql 
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
