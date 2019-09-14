@@ -7,8 +7,8 @@
 #
 #           "Reconfigure" to apply changes
 #
-#  Created: Sat 15 Mar 2014 13:17:17 (Bob Heckel)
-# Modified: Sat 10 Aug 2019 12:22:15 (Bob Heckel)
+#  Created: Sat 15-Mar-2014 (Bob Heckel)
+# Modified: Sat 07-Sep-2019 (Bob Heckel)
 ##############################################################################
 [begin] (fluxbox)
 [include] (/etc/X11/fluxbox/fluxbox-menu)
@@ -20,7 +20,8 @@
   [exec] (gVim)               {/usr/bin/vim.gnome -g -f} </usr/share/pixmaps/vim-32.xpm>
   [exec] (Iview)              {/home/bheckel/.wine/drive_c/Program\ Files\ \(x86\)/IrfanView/i_view32.exe} </home/bheckel/misc/computer/irfanview.png>
   [exec] (Midori)             {/usr/bin/midori} </usr/share/icons/hicolor/22x22/apps/midori.png>
-  [exec] (Thunar)             {/usr/bin/thunar} </usr/share/icons/hicolor/64x64/apps/Thunar.png>
+  # [exec] (Thunar)             {/usr/bin/thunar} </usr/share/icons/hicolor/64x64/apps/Thunar.png>
+  [exec] (PCManFM)            {/usr/bin/pcmanfm} </usr/share/icons/hicolor/64x64/apps/Thunar.png>
   [exec] (VirtualBox)         {/usr/bin/virtualbox} </usr/share/icons/hicolor/32x32/apps/virtualbox.png>
   [exec] (Volume)             {/usr/bin/pavucontrol} </usr/share/icons/hicolor/32x32/apps/multimedia-volume-control.png>
   [exec] (xterm)              {xterm -bg black -fa "xft:Consolas-9:antialias=true" -bc -sb -rightbar -sl 5000 -geometry "95x55+350+50"} </home/bheckel/misc/computer/xterm.jpeg>
