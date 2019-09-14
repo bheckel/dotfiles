@@ -111,6 +111,7 @@ alias g=$HOME/dotfiles/gone.sh
 # Can't use sed to eliminate leading spaces or it breaks coloring
 # alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
 alias gb='git branch'
+alias gdt='git difftool '
 alias gcom='echo "ok to git commit?" && read && git add . && git commit -m "mod"'
 alias gitup='echo "ok to gitup?" && read && git status && git add . && git commit -m "mod" && git pull origin master && git push origin master'
 alias gitall="$HOME/code/misccode/gitall"

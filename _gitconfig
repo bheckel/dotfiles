@@ -1,11 +1,12 @@
-# Modified: Wed 04-Sep-2019 (Bob Heckel)
+# Modified: Mon 09-Sep-2019 (Bob Heckel)
 
-# git config -e
+# git config -e  # ./.git/config
+# git config --global -e  # ~/.gitconfig
 # git config --global pager.branch false
 # git config --global core.pager "less -r"
 
 [core]
-	pager = less -F -S -X -r
+	pager = less -r -F
 [color]
 	status = auto
 	diff = auto
