@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Mon 02-Sep-2019 (Bob Heckel)
+" Modified: Fri 20-Sep-2019 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -198,8 +198,8 @@ set hlsearch
 "  View current highlighting:  :hi or  :so $VIMRUNTIME/syntax/hitest.vim
 "  To test term:  :runtime syntax/colortest.vim
 "
-" To determine number:
-" ~/code/misccode/print_all_terminal_colors.sh or
+" To determine cterm color number:
+" for i in {0..255} ; do printf "\x1b[38;5;${i}mcolour${i}\n"; done
 " ~/code/misccode/vim_colors.txt
 "--------------------------------------------------------------------------
 syntax enable
@@ -290,7 +290,7 @@ hi WarningMsg ctermfg=Magenta ctermbg=Yellow guifg=Magenta guibg=Yellow
 """hi ColorizeFirst10 ctermbg=red guibg=red
 """match ColorizeFirst10 /^........../
 
-" Microsoft comma fancy apostrophes of death cause vim 'CONVERSION ERROR'
+" Microsoft comma fancy apostrophes of death cause vim 'CONVERSION ERROR' among other trauma
 hi EvilChars ctermbg=red guibg=yellow cterm=undercurl gui=undercurl
 match EvilChars /\%u2018\|\%u2019/
 
@@ -604,9 +604,9 @@ iab ShE #!/bin/bash
 " Date/Time see man strftime or date --help.  Convention stolen from Sven Guckes:
 iab YdC Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)
 " iab YdC Created: <C-R>=strftime("%d-%b-%y")<CR> (Bob Heckel)
-iab YdM Modified: <C-R>=strftime("%d-%b-%y")<CR> (Bob Heckel)
+iab YdM Modified: <C-R>=strftime("%d-%b-%Y")<CR> (Bob Heckel)
 " Default.  Overridden later in au commands.
-iab YdA  Adapted: <C-R>=strftime("%d-%b-%y")<CR> (Bob Heckel)
+iab YdA  Adapted: <C-R>=strftime("%d-%b-%Y")<CR> (Bob Heckel)
 " Short.  ISO-8601 format.  E.g. 2002-07-05
 iab YdS <C-R>=strftime("%Y-%m-%d")<CR>
 " 30-Jul-19

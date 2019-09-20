@@ -44,8 +44,6 @@ export HISTCONTROL=ignoreboth
 export HISTTIMEFORMAT='%F %T '
 export IGNOREEOF=1  # require 2 ctr-d to exit
 export LESS='--ignore-case'  # but still honors 'ThisSearchPattern'
-# More portable than the cleaner  if [ "${OSTYPE:0:6}" = 'CYGWIN' ]; then ...
-###export ISCYG=`echo ${OSTYPE} | /usr/bin/perl -pe 's/(.{6}).*/$1/'`
 # Prevent ugly default bolding
 ###export LS_COLORS='*.swp=00;35:*.swo=00;35:*.bak=00;35:ex=00;32:*.java=00;32:*.pm=00;32:no=00:fi=00:di=01;34:ln=00;36:*.lnk=00;36:*.gz=00;31:*.bz2=00;31:*.zip=00;31:*.tgz=00;31:*.7z=00;31'
 # ow= avoid hard-to-read gray on green for rwxrwxrwx files
@@ -68,13 +66,16 @@ export VIMSTATUSL='?@?'
 #fi
 #export GREP_OPTIONS
 
-# Used by at least PS1, also good for use in shell scripts.  But bad for when printing env
-# Ctrl-v escape to insert the ^[
+# Used by at least PS1, also good for use in shell scripts.  But bad for printing env.
+# Ctrl-v escape to insert the ^[ because  "\[\033[01;38;5;52m\]"  won't work.
+# Use this to find e.g. 243 for darkgray
+# for i in {0..255} ; do printf "\x1b[38;5;${i}mcolour${i}\n"; done;
 export normal="[0m"
-export fg_black="[0;30m"
 export fg_whitebold="[1;37m"
+export fg_black="[0;30m"
 export fg_lightgray="[0;37m"
-export fg_darkgray="[1;30m"
+# export fg_darkgray="[1;30m"
+export fg_darkgray="[0;38;5;243m"
 export fg_bluebold="[1;34m"
 export fg_blue="[0;34m"
 export fg_greenbold="[1;32m"
@@ -436,7 +437,7 @@ case "$OSTYPE" in
     # '\[ ... \]' says "ignore this material while calculating the size of the prompt".
     # Want our history appended (-a) and other term's history merged into ours (-n)
     # export PROMPT_COMMAND='history -a; echo -ne "\033]0;${PWD}\007";'
-    export PS1='${fg_darkgray}\j ${fg_green}\u@${LCHOSTNAME}${fg_darkgray}$(parse_git_branch) \w/ \d \t ${normal} \n\$ '
+    export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${LCHOSTNAME}${fg_darkgray}$(parse_git_branch) \w/ \d \t ${normal} \n\$ '
     export PS2=' '  # allow multiple line copy to clipboard 
     # export SENSIBLE_BROWSER='/cygdrive/c/Program\ Files/mozilla\ firefox/firefox.exe'
     export TEMP=/cygdrive/c/temp

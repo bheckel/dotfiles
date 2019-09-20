@@ -3244,8 +3244,8 @@ awk 'BEGIN{FS=":"} $7 ~/bash/ {print $5}' /etc/passwd
 awk -F: '$7 ~ /bash/ {print $5}' /etc/passwd
 
 # Select a range of rows:
-awk 'NR < 5 {print}' 8_2_ntlx72ba.bom
-awk 'NR >5 && NR <11 {print}' 8_2_ntlx72ba.bom
+awk 'NR < 5 {print}' 8_2_ntlx72ba.bm
+awk 'NR >5 && NR <11 {print}' 8_2_ntlx72ba.bm
 
 rpm -qip foo.rpm          # query
 rpm -qf /usr/sbin/bind    # give the installed pkg name & num
@@ -4422,7 +4422,7 @@ for i in `find ~/tmp`; do du -sh $i; done | sort -hr |head -n75
 # Take first field in pipe delimited file in all 2017 folders
 for f in $(find /Drugs/TMMEligibility/GiantEagle/Imports/2017* -name 'GiantEagle_TMM_candidates_fdw.csv' ); do cut -d'|' -f1 $f >>~/junk20180417; done;
 
-# RGB hex color picker in terminal:
+# RGB hex color picker in terminal print colors available to tmux and vim:
 for i in {0..255} ; do printf "\x1b[38;5;${i}mcolour${i}\n"; done
 
 whatismyip=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
@@ -4435,14 +4435,14 @@ sudo timedatectl set-timezone America/New_York
 JIRA=${1:-99999999}
 
 # Find all control characters like BOM byte order mark (handles spaces in filename):
-$ find . -type f -print0 | xargs -0 grep --color='auto' -P -n "[\x80-\xFF]"
+find . -type f -print0 | xargs -0 grep --color='auto' -P -n "[\x80-\xFF]"
 grep --color='auto' -P -n "[\x80-\xFF]" SHADOW_INDEX.PRC
 
 # Remove last 4 characters from end of string (space mandatory!):
 echo ${PS1:0: -4}
 
 # Static libraries have names like libname.a, while shared libraries are libname.so.x.y.z where x.y.z is some form of version number. Shared libraries often also have links pointing to them.  The standard libraries come in both shared and static formats.  You can find out what shared libraries a program requires by using ldd (List Dynamic Dependencies):
-$ ldd /usr/bin/lynx
+ldd /usr/bin/lynx
 
 # Cygwin Windows free diskspace free
 while true; do df -h '//opsawn557/e$'; sleep 60; done
@@ -5736,10 +5736,15 @@ select * from dba_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
 -- Is table indexed:
 SELECT * from user_indexes WHERE table_name LIKE 'LIST_OF%'  -- or SELECT * from all_ind_columns WHERE index_name LIKE 'LIST_OF%'
 
+-- Foreign Key is that same value stored within MULTIPLE rows of the other aka "detail" table
+CREATE TABLE foo ( ..., employee_id INTEGER NOT NULL REFERENCES employee(employee_id), ... );
+ALTER TABLE CONTACT_OPP_BASE ADD CONSTRAINT OPP_CONTACT_OPP_FK FOREIGN KEY (OPP_ID) OPP_ID REFERENCES OPP_BASE (OPP_ID) ON DELETE CASCADE ENABLE;
+
 -- Oracle primary key (P) foreign key (R):
-SELECT * FROM ALL_CONSTRAINTS WHERE owner=USER
-select * from all_constraints where r_constraint_name in (select constraint_name from all_constraints where table_name LIKE 'CONTACT');
-SELECT * FROM ALL_CONSTRAINTS WHERE table_name LIKE 'LIST_OF%' and constraint_type = 'P'
+SELECT * FROM all_constraints WHERE owner=USER; -- same as select * from user_constraints
+-- Does any other table reference this table LIST_OF_VALUES i.e. do any foreign keys exist:
+ALTER TABLE SAP_TERRITORY ADD CONSTRAINT SAP_TERRITORY_TERRITORY_ID_FK FOREIGN KEY ("TERRITORY_LOV_ID") REFERENCES LIST_OF_VALUES" ("LIST_OF_VALUES_ID") ON DELETE CASCADE ENABLE;
+select * FROM all_constraints WHERE constraint_type = 'R' and r_constraint_name IN (select constraint_name from all_constraints where table_name like 'LIST_OF_VALUES%') order by table_name;
 
 -- Oracle describe table sqlplus:
 desc mytable
@@ -5852,7 +5857,7 @@ psql -h ajsperdb1.edp.atbe.com TEBMART
 psql -U atbleau -h db-02.twa.taeb.com teb
 psql -h db-06.twa.taeb.com TAEBMART -c "select * from analytics.reportinglog where reportname='TMMRep_Reporting_Automation' order by lastmodified desc LIMIT 1"
 
--- Empty 2 tables (implicit COMMIT because it's DDL, DDL statements issue a commit BEFORE and AFTER they run). Faster than DELETE:
+-- Empty 2 tables (implicit COMMIT because it's DDL, DDL statements issue a commit BEFORE and AFTER they run). Faster than DELETE. (1) it does an implicit commit (exceptions: PostgreSQL and SQL Server); (2) it does not execute any triggers:
 TRUNCATE bigtable, fattable;  -- no WHERE clause allowed
 
 -- Postgres remove leading zeros to find 01, 1, 03, 3:
@@ -6368,7 +6373,6 @@ $ mysql -t mydatabase < mysql.sql
 SELECT * FROM :myvariable.table1;
 
 select top 10 * from tbl  -- SQL Server & Access
-select * from tbl where rownum<9  -- Oracle
 
 -- Oracle user defined exception:
 failure_in_forall EXCEPTION; PRAGMA EXCEPTION_INIT (failure_in_forall, -24381);  -- ORA-24381: error(s) in array DML
@@ -6611,6 +6615,9 @@ SELECT owner, object_name, object_type, status, last_ddl_time FROM dba_objects d
 -- Display a reasonable amount of text from a CLOB:
 SELECT sql_text as only_1k_chars, substr(regexp_replace(sql_fulltext, '\s+', ' '), 1, 3999) FROM v$sql 
 
+--Ignore issues during the 3AM hour specific hour range:
+if (to_char(sysdate, 'HH24MI') not between '0300' and '0400') Then
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -6815,12 +6822,6 @@ ASP multiple statments on one line
 
 ASP shorthand alternative to Response.Write(Date())
 <%= Date() %>
-
-SELECT * FROM funds ORDER BY transdt DESC  -- ASC is default
-
-Foreign Key is that same value stored within MULTIPLE rows of the other aka "detail" table
-CREATE TABLE foo ( ..., employee_id INTEGER NOT NULL REFERENCES employee(employee_id), ... );
-ALTER TABLE CONTACT_OPP_BASE ADD CONSTRAINT OPP_CONTACT_OPP_FK FOREIGN KEY (OPP_ID) OPP_ID REFERENCES OPP_BASE (OPP_ID) ON DELETE CASCADE ENABLE;
 
 :: DOS wildcard:
 c:> echo %random%
@@ -7146,6 +7147,8 @@ git stash drop 1  # if you have stash@{0} and stash@{1} only delete stash 1
 git stash clear 
 # git snapshot ...
 git stash --include-untracked -m'mynamedstash' && git stash apply
+# If the apply tries to modify a file that you’ve since modified, you’ll get a merge conflict and will have to try to resolve it. This creates a new branch for you, checks out the commit you were on when you stashed your work, reapplies your work there, and then drops the stash if it applies successfully:
+git stash branch teststashbranch
 
 git log --pretty=oneline
 git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
@@ -7441,7 +7444,7 @@ curl -d '{"key1":"value1", "key2":"value2"}' -H "Content-Type: application/json"
 # Calculate mirror size 4884 1.0123+10 is 10GB in 4884 files
 curl -s ftp://mirror.cs.vt.edu/pub/cygwin/cygwin/x86/setup.ini | awk '/^install: / { T = T + $3 ; N++ }; END { print N, T }'
 
-Google search: RGB color picker
+Google search string: RGB color picker
 
 # Markdown URL:
 [Minion](http://octodex.github.com/images/minion.png)
