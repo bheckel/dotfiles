@@ -1,5 +1,5 @@
 !
-! Modified: Sun 25 Mar 2018 09:05:37 (Bob Heckel)
+! Modified: Sat 14-Sep-2019 (Bob Heckel)
 !
 ! $ ln -s ~/code/misccode/_Xmodmap ~/.Xmodmap
 !
@@ -19,8 +19,8 @@
 pointer = 1 2 3 4 5
 
 ! Make Capslock act like Tab
-keycode 66 = Tab
-clear lock
+!!keycode 66 = Tab
+!!clear lock
 
 ! Set keypad to numeric values as if Numlock is always on 
 !!!keycode 79=7
