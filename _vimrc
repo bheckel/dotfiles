@@ -156,7 +156,7 @@ endif
 if has("gui_running")
   " Gvim window coordinates dimensions height/width. Overriden later depending on file type.
   winpos 295 295
-  set columns=85
+  set columns=100
   " Most of the time we're just doing fast edits so make it small
   set lines=30
 
