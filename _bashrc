@@ -360,12 +360,12 @@ md() {
 
 # tmux new session
 tmn() {
-  local unique=`date +%d%b_%H%M`
+  # local unique=`date +%d%b_%H%M`
 
   if [ -z ${1} ]; then
-    tmux -u -2 new -s "$unique"
-  else
     tmux -u -2 new -s "s${1}"\; split-window -h
+  else
+    tmux -u -2 new -s s1\; split-window -h
   fi
 }
 
