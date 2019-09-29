@@ -1,11 +1,10 @@
 #!/bin/bash
 
-#  Created: Tue 03 May 2015 09:01:11 (Bob Heckel) 
-# Modified: Sat 24 Aug 2019 12:53:19 (Bob Heckel)
+#  Created: 03 May 2015 (Bob Heckel) 
+# Modified: 29 Sep 2019 (Bob Heckel)
 
 # No leading dots!
-#majordots='bashrc vimrc tmux.conf gitconfig'
-majordots='bashrc vimrc tmux.conf inputrc minttyrc'
+majordots='bashrc vimrc tmux.conf inputrc minttyrc gitconfig'
   
 if [ "$#" -ge 1 ]; then 
   cat <<EOT
@@ -30,7 +29,7 @@ fi
 cd $myhome
 
 echo
-echo -n "Setup dotfiles in $myhome? Ctl-c to cancel "
+echo -n "Setup dotfiles in $myhome? Ctr-C to cancel "
 read
 echo
 echo 'setting up dotfiles...'
@@ -65,15 +64,17 @@ if [ ! -e $HOME/tmp ]; then
   mkdir $HOME/tmp
 fi
 if [ ! -e /cygdrive/c/temp ]; then
-  mkdir /cygdrive/c/temp
+  echo 'consider running $ mkdir -p /cygdrive/c/temp'
 fi
 
 echo
-echo ...completed $majordots
+echo ...completed $majordots installation
 echo
 
 ls -la ~
 
-#echo "Consider installing:"
-#echo "sudo apt-get install tmux vim-nox w3m bc"
-#echo "sudo apt-get install tmux vim-gtk3 w3m bc"
+echo
+echo "Consider installing:"
+echo "$ sudo apt-get install tmux vim-nox w3m bc"
+echo 'or'
+echo "$ sudo apt-get install tmux vim-gtk3 w3m bc"
