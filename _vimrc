@@ -85,7 +85,7 @@ endif
 " Make sure this comes before the syntax area of this file:
 set t_Co=256
 """set t_ut=
-set background=dark
+" set background=dark
 
 " Force vim to clear itself when exiting:
 """set t_ti=7[r[?47h
@@ -208,7 +208,9 @@ syntax enable
 " relying on .mintty or .Xdefaults so this is only for gvim.
 hi Normal guifg=White guibg=Black
 
-hi Comment ctermbg=Black ctermfg=DarkGray guifg=DarkGray guibg=Black
+"TODO
+" hi Comment ctermbg=Black ctermfg=DarkGray guibg=Black guifg=DarkGray
+" hi Comment ctermbg=green ctermfg=blue 
 
 hi Conditional ctermfg=LightGreen guifg=LightGreen
 
@@ -250,7 +252,7 @@ hi PmenuSel ctermfg=Blue ctermbg=Yellow guifg=Blue guibg=Yellow
 hi PreProc ctermfg=LightMagenta guifg=LightMagenta guibg=Black
 
 " hls
-hi Search ctermfg=White ctermbg=DarkGray guifg=White guibg=DarkGray 
+hi Search ctermfg=Yellow ctermbg=DarkGray guifg=White guibg=DarkGray 
 
 hi SpecialKey ctermfg=Black ctermbg=DarkMagenta guifg=Black guibg=DarkMagenta
 
@@ -1072,6 +1074,7 @@ nnoremap ;z :echon ";z 'compile' map not implemented for this filetype"<CR>
 "   Commands 	{{{1  
 "--------------------------------------------------------------------------
 
+" Render an HTML file
 command! Htm :!w3m "%"
 
 " Speed quickfixing.
@@ -1783,12 +1786,12 @@ if !exists("autocommands_loaded")
   " au BufEnter /tmp/bash-fc* set ff=unix
 
   " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source c:/cygwin64/home/bob.heckel/code/sas/saslog.vim
-  au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim
+  " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim
   " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $VIMRUNTIME\syntax\saslog.vim
 
-  if THISBOX == 'appa'
-    au BufNewFile,BufRead,BufEnter *.sas | syntax clear | source $HOME/code/sas/sas.vim
-  endif
+  " if THISBOX == 'appa'
+    " au BufNewFile,BufRead,BufEnter *.sas | syntax clear | source $HOME/code/sas/sas.vim
+  " endif
 
   " Resize buffer (most convenient with number keypad) if more than one exists
   " GUI uses + for font resizing (due to inability to use control-mousewheel)

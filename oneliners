@@ -662,6 +662,9 @@ let sorted_list = reverse(sort(copy(unsorted_list)))
 
 /find start of line after this search pattern/+1
 
+" Change filetype from SQL to PLSQL for certain filenames directories:
+au BufRead,BufNewFile,BufEnter *RION-* set filetype=plsql
+
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSASxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -5376,6 +5379,11 @@ DECLARE p1 PLS_INTEGER := 2147483647; p2 INTEGER := 1; n NUMBER; BEGIN n := p1 +
 select * from user_constraints where table_name = 'COUNTRIES';
 select constraint_name, constraint_type from user_constraints@sep WHERE constraint_name LIKE 'NN%';
 
+-- Find active sessions active for more than 10 seconds:
+select s.sid||','||s.serial# sess, s.osuser, s.USERNAME, s.last_call_et, s.status, s.sql_address, s.program from v$session s where ( s.status = 'ACTIVE' and s.last_call_et > 10 );
+-- Find inactive sessions older than 20 minutes:
+select s.sid||','||s.serial# sess, s.osuser, s.USERNAME, s.last_call_et, s.status, s.sql_address, s.program from v$session s where ( s.status != 'ACTIVE' and s.last_call_et > 1200 );
+
 -- Oracle find uncommitted transactions locks:
 SELECT s.OSUSER, s.sid ,s.serial# ,s.username ,s.machine ,s.status ,s.lockwait ,t.used_ublk ,t.used_urec ,t.start_time from v$transaction t inner join v$session s on t.addr = s.taddr;
 -- What user and sql is locking?:
@@ -5726,30 +5734,28 @@ SELECT table_name, column_name FROM cols WHERE lower(table_name) LIKE 'accou%' A
 -- Find query search all Oracle tables & views with a certain table name poke around:
 SELECT table_name FROM user_tables WHERE lower(table_name) LIKE '%search%' order by 1;
 
--- Poke around for column name:
+-- Poke around search all tables for column name:
 select * FROM all_tab_columns WHERE lower(column_name) = 'duns_nbr_bkup'
+SELECT * from  user_tab_columns WHERE column_name LIKE '%NEW%'
 
-select * from user_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
 select * from dba_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
+-- What the object references:
+select * from user_dependencies where name = 'ACCOUNT_TEAM' and referenced_type not in ('SYNONYM') order by 4;
+-- What references the object:
+select * from user_dependencies where REFERENCED_NAME = 'ACCOUNT_TEAM' and referenced_type not in ('SYNONYM') order by 4;
 
 -- Is table indexed:
 SELECT * from user_indexes WHERE table_name LIKE 'LIST_OF%'  -- or SELECT * from all_ind_columns WHERE index_name LIKE 'LIST_OF%'
 
 -- Foreign Key is that same value stored within MULTIPLE rows of the other aka "detail" table
-CREATE TABLE foo ( ..., employee_id INTEGER NOT NULL REFERENCES employee(employee_id), ... );
-ALTER TABLE CONTACT_OPP_BASE ADD CONSTRAINT OPP_CONTACT_OPP_FK FOREIGN KEY (OPP_ID) OPP_ID REFERENCES OPP_BASE (OPP_ID) ON DELETE CASCADE ENABLE;
+create table emp(empid number(20) PRIMARY KEY, ename varchar2(20), sal number(10,2), dept_id number(10) REFERENCES dept(dept_id) ON DELETE CASCADE);
+ALTER TABLE CONTACT_OPP ADD CONSTRAINT OPP_CONTACT_OPP_FK FOREIGN KEY (OPP_ID) OPP_ID REFERENCES OPP (OPP_ID) ON DELETE CASCADE ENABLE;
 
--- Oracle primary key (P) foreign key (R):
+-- Oracle Primary key (P) foReign key (R):
 SELECT * FROM all_constraints WHERE owner=USER; -- same as select * from user_constraints
 -- Does any other table reference this table LIST_OF_VALUES i.e. do any foreign keys exist:
 ALTER TABLE SAP_TERRITORY ADD CONSTRAINT SAP_TERRITORY_TERRITORY_ID_FK FOREIGN KEY ("TERRITORY_LOV_ID") REFERENCES LIST_OF_VALUES" ("LIST_OF_VALUES_ID") ON DELETE CASCADE ENABLE;
 select * FROM all_constraints WHERE constraint_type = 'R' and r_constraint_name IN (select constraint_name from all_constraints where table_name like 'LIST_OF_VALUES%') order by table_name;
-
--- Oracle describe table sqlplus:
-desc mytable
--- Oracle search for fieldname column name:
-SELECT * from  user_tab_columns WHERE column_name LIKE '%NEW%'
-SELECT * from  user_tab_columns WHERE table_name LIKE '%NEW%'
 
 -- View all details of Oracle table in a schema best poke around table:
 select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES', 'SETARS') from dual;
@@ -5762,10 +5768,6 @@ SELECT * FROM scott.emp ORDER BY ename FETCH FIRST 5 ROWS WITH TIES  -- Oracle 1
 
 -- Oracle select first top 20% percent of rows of a table in order:
 select empno, ename, sal, deptno from emp order by sal desc fetch first 20 percent rows only;
-
--- Oracle select year portion year part only between years periods:
-extract(year from h.updated) in(2017,2018)
-if (extract(year from sysdate) not between (compYear - 1) and (compYear + 1)) then...
 
 -- Sleep pause execution for 60 seconds:
 CREATE OR REPLACE PROCEDURE SLEEP(P_MILLI_SECONDS IN NUMBER) AS LANGUAGE JAVA NAME 'java.lang.Thread.sleep(long)';
@@ -5894,6 +5896,10 @@ date_part('year',age(patientdob))>=41 and date_part('year',age(patientdob))<=75
 -- Postgres calculate age:
 date_part('year'::text, age(pd.dateofbirth::timestamp with time zone)) AS age
 ... patientdob < date('now') - interval '18 year'
+
+-- Oracle select year portion year part only between years periods date part:
+extract(year from h.updated) in(2017,2018)
+if (extract(year from sysdate) not between (compYear - 1) and (compYear + 1)) then...
 
 -- Postgres min max calculate age:
 select min(date_part('year',age(dateofbirth))), max(date_part('year',age(dateofbirth))) ...
@@ -6610,8 +6616,11 @@ SELECT owner, object_name, object_type, status, last_ddl_time FROM dba_objects d
 -- Display a reasonable amount of text from a CLOB:
 SELECT sql_text as only_1k_chars, substr(regexp_replace(sql_fulltext, '\s+', ' '), 1, 3999) FROM v$sql 
 
---Ignore issues during the 3AM hour specific hour range:
+--Ignore issues during the 3AM hour specific hour timeframe range:
 if (to_char(sysdate, 'HH24MI') not between '0300' and '0400') Then
+
+-- Index NULLs:
+CREATE INDEX with_null ON table_name (nullable_column, '1');
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
