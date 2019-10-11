@@ -5917,7 +5917,7 @@ where date_trunc('minute', ahpp.lastmodified) = '2016-02-23 08:56:00'::timestamp
 
 -- Postgres help $ psql help  \?
 
--- full join fulljoin FULL [OUTER] JOIN: returns all rows from both tables, matching up the rows wherever a match can be made and placing NULLs in the places where no matching row exists.  I.e. a "double outer" join that returns all rows from A and B, extended with nulls if they do not satisfy the join condition
+-- full join fulljoin FULL [OUTER] JOIN: returns all rows from both tables, matching up the rows wherever a match can be made and placing NULLs in the places where no matching row exists (rather than throwing the row away like LEFT JOIN).  I.e. a "double OUTER" join that returns all rows from A and B, extended with nulls if they do not satisfy the join condition
 
 -- selfjoin SELF JOIN: a recursive join that results when a set of data is joined back to itself.  Typically encountered when a parent-child relationship in a hierarchy needs to be traversed.  When using ANSI syntax to accomplish this, only the JOIN...ON syntax will work, and the keyword INNER can be used for clarity.
 
@@ -6161,9 +6161,9 @@ psql -h db-dev-01.twa.taeb.com TAEBMART -f /sasdata/Dev_to_db-06_20180316_dshbrd
 -- View field names sqlite3: .schema mytbl
 $ sqlite3 test.db "SELECT * FROM Cars;"
 
--- Cartesian join cross join:
+-- Cartesian join cross join non-ANSI:
 SELECT Name, Day FROM Customers, Reservations;
--- E.g. shirt manufacturer with many different products. They have a set of sizes (S, M, L). They create each shirt in every size. Generate stock rows for every shirt in every size:
+-- ANSI e.g. shirt manufacturer with many different products. They have a set of sizes (S, M, L). They create each shirt in every size. Generate stock rows for every shirt in every size:
 select * from shirts CROSS JOIN shirt_sizes  -- be explicit instead of just ','
 
 -- INSERT ALL - the shorthand multi-table INSERT rows into 2 or more tables at once (unconditional version - every row from the source query goes into every table):
@@ -6621,6 +6621,9 @@ if (to_char(sysdate, 'HH24MI') not between '0300' and '0400') Then
 
 -- Index NULLs:
 CREATE INDEX with_null ON table_name (nullable_column, '1');
+
+-- Reduce script failures:
+ALTER SESSION SET ddl_lock_timeout=60;  
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 

@@ -208,8 +208,7 @@ syntax enable
 " relying on .mintty or .Xdefaults so this is only for gvim.
 hi Normal guifg=White guibg=Black
 
-"TODO
-" hi Comment ctermbg=Black ctermfg=DarkGray guibg=Black guifg=DarkGray
+hi Comment ctermbg=Black ctermfg=DarkGray guibg=Black guifg=DarkGray
 " hi Comment ctermbg=green ctermfg=blue 
 
 hi Conditional ctermfg=LightGreen guifg=LightGreen
