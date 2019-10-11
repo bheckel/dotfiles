@@ -6433,6 +6433,8 @@ set autotrace traceonly explain -- then select ename from emp
 
 EXPLAIN PLAN FOR SELECT * FROM email_messages WHERE actual_updated > (SYSTIMESTAMP - INTERVAL '42' minute); select * from table(dbms_xplan.display); ROLLBACK;
 
+select * /* my qry */ from foo; select * from v$sql where sql_text = 'my qry'; select * from table(dbms_xplan.display_cursor('THE ID YOU JUST FOUND');
+
 -- Create histogram statistics manually:
 BEGIN DBMS_STATS.GATHER_TABLE_STATS(USER, 'CONTACT_EXTERNAL2', estimate_percent=>100); END; 
 SQL> exec DBMS_STATS.GATHER_TABLE_STATS('HR', 'EMPLOYEES', method_opt=>'FOR COLUMNS SIZE 254 JOB_ID');
