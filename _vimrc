@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Fri 20-Sep-2019 (Bob Heckel)
+" Modified: Thu 24-Oct-2019 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -706,9 +706,6 @@ nnoremap <Down> gj
 " nnoremap <F2> :cprevious<CR>
 
 if has('gui')
-  " Don't need this pair for mintty because CONTROL+MOUSEWHEEL works properly
-""  nnoremap <F1> :call FontSizeMinus()<cr>
-""  nnoremap <F2> :call FontSizePlus()<cr>
   " Widen gvim to max column width
   nnoremap <F4> :call SetOpt('columns', MaxLineLen(0))<CR>
   nnoremap <F4><F4> :call SetOpt('columns', 80)<CR>
@@ -3079,11 +3076,12 @@ endfunction
 " nnoremap cot :call CycleFont()<cr>
 
 if has('gui_running')
+  " Don't need this pair for mintty because CONTROL+MOUSEWHEEL works properly
   " Fails on Win10 16-Nov-18 
   " nnoremap <C-ScrollWheelUp> :call FontSizePlus()<CR>
   " nnoremap <C-ScrollWheelDown> :call FontSizeMinus()<CR>
-  nnoremap + :call FontSizePlus()<CR>
-  nnoremap - :call FontSizeMinus()<CR>
+  nnoremap <F1> :call FontSizeMinus()<cr>
+  nnoremap <F2> :call FontSizePlus()<cr>
 endif
 "}}}
 

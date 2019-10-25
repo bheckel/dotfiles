@@ -5539,7 +5539,7 @@ SELECT /*+ INDEX (employees emp_department_ix)*/ employee_id, department_id FROM
 select sid, serial#, state, status, osuser, machine, program, sql_exec_start, logon_time, action, sql_id from v$session where osuser='heck' order by status, logon_time, sid;
 -- Kill Oracle session (sid, serial#):
 SQL> exec sys.kill_session(51,6449);
-select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, sid, serial#, state, status, osuser, machine, program, sql_exec_start, logon_time, action, sql_id from v$session where osuser='heck' order by status, logon_time, sid;
+select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, sid, serial#, state, status, osuser, machine, program, s.sql_exec_start, logon_time, s.action, s.sql_id, q.sql_text from v$session s, v$sql q where s.sql_id=q.sql_id(+) and osuser='boheck' order by status, logon_time, sid;
 
 -- Oracle move rename table:
 CREATE TABLE fooTMP AS SELECT * FROM user_role; DROP TABLE foo; CREATE TABLE foo AS SELECT * FROM fooTMP;
@@ -6586,8 +6586,8 @@ create index upper_names_ix on table ( upper(myname) );  -- but only used when e
 
 ALTER package SYS.SETARS_SECURITY COMPILE PLSQL_CODE_TYPE=NATIVE;
 
--- Faster insert hint:
-insert /*+ append */ into ...
+-- Faster INSERT hint:
+insert /*+ APPEND */ into ...
 
 -- Convert hex from things like SELECT table_name, LOW_VALUE FROM user_tab_columns...:
 declare d date; begin dbms_stats.convert_raw_value(hextoraw('505707090E0801'), d); dbms_output.put_line(d); end;
@@ -6621,7 +6621,7 @@ SELECT sql_text as only_1k_chars, substr(regexp_replace(sql_fulltext, '\s+', ' '
 --Ignore issues during the 3AM hour specific hour timeframe range:
 if (to_char(sysdate, 'HH24MI') not between '0300' and '0400') Then
 
--- Index NULLs:
+-- Index NULLs indexed:
 CREATE INDEX with_null ON table_name (nullable_column, '1');
 
 -- Reduce script failures:
@@ -7254,10 +7254,10 @@ git add . && git commit -m'mod' && git pull && git push
 # Done w/ this feat so git merge myfeaturebranch INTO HERE, I.E. THIS REPO's BRANCH (master) then ditch feat:
 git checkout master && git merge myfeaturebranch                                             && git branch -d myfeaturebranch
 
-# git delete branch local then remote (without using GitHub UI delete branch button). First make sure your remote is there: git branch -a:
-git branch -d feature/RION-31587 && git push origin --delete feature/RION-31587 && git fetch -p && git branch -a
 # git delete local branch and prune remote branches (after using GitHub UI delete branch button):
 git branch -d feature/RION-31587 && git fetch -p && git branch -a
+# git delete branch local then remote (without using GitHub UI delete branch button). First make sure your remote is there: git branch -a:
+git branch -d feature/RION-31587 && git push origin --delete feature/RION-31587 && git fetch -p && git branch -a
 
 # Which branches are tracking which remote/upstream branches (prune is optional):
 git fetch -p && git remote show origin
