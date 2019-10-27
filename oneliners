@@ -5559,9 +5559,6 @@ OPEN c1; LOOP FETCH c1 INTO v_lastname, v_jobid; EXIT WHEN c1%NOTFOUND; DBMS_OUT
 -- Oracle case insensitive:
 where ename LIKE UPPER('foo%')
 
--- Canonical Oracle date range:
-WHERE prod_sel_dt BETWEEN TO_DATE('01-JAN-10','DD-MON-YY') AND TO_DATE('31-JAN-10','DD-MON-YY')
-
 -- Oracle last few days search (if activity_dt is DATE formatted):
 select count(*) from activity_log where activity_dt > (SYSDATE-3);
 
@@ -5613,6 +5610,11 @@ select count(distinct sampname) from result where sampcreatets between to_date('
 SS.EntryTs >= TO_DATE('01-JAN-05','DD-MON-YY') AND SS.EntryTs <= TO_DATE('31-DEC-05','DD-MON-YY')
 -- SQL Server date between
 WHERE batch_time >= {ts '2011-01-03 00:00:00'} and batch_time <= {ts '2011-01-04 00:00:00'}
+
+-- Canonical Oracle date range:
+WHERE prod_sel_dt BETWEEN TO_DATE('01-JAN-10','DD-MON-YY') AND TO_DATE('31-JAN-10','DD-MON-YY')
+-- All employees hired in year 2019:
+SELECT * from employees where trunc(hire_date) = '01-JAN-2019';
 
 -- Oracle date with hours minutes 2019-01-15 15:37
 SELECT to_char(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI') FROM dual
@@ -6626,6 +6628,13 @@ CREATE INDEX with_null ON table_name (nullable_column, '1');
 
 -- Reduce script failures:
 ALTER SESSION SET ddl_lock_timeout=60;  
+
+$ sqlplus / as sysdba;
+
+-- Lowest plan cost to find names like 'Kochhar' without an index-ignoring leading '%hhar':
+create index last_name_reverse_index on employees(REVERSE(last_name)); select employee_id, first_name, last_name, reverse(last_name), salary from employees where reverse(last_name) LIKE 'rahh%';
+
+-- Use bitmap index if cardinality is low, index is not modified frequently and nulls may exist
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
