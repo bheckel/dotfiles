@@ -129,6 +129,7 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 ?^Exercises? +++ , $ g/foo/d
 
 " Uppercase (a.k.a propcase rightcase titlecase smartcase) first letter of specific word:
+:%s:upcaseme:\U&:cg
 :0,$:s:foo:\u&:gc
 " Uppercase first letter of all words:
 :%s:[^ ]*:\L\u&:g
@@ -5539,7 +5540,7 @@ SELECT /*+ INDEX (employees emp_department_ix)*/ employee_id, department_id FROM
 select sid, serial#, state, status, osuser, machine, program, sql_exec_start, logon_time, action, sql_id from v$session where osuser='heck' order by status, logon_time, sid;
 -- Kill Oracle session (sid, serial#):
 SQL> exec sys.kill_session(51,6449);
-select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, sid, serial#, state, status, osuser, machine, program, s.sql_exec_start, logon_time, s.action, s.sql_id, q.sql_text from v$session s, v$sql q where s.sql_id=q.sql_id(+) and osuser='boheck' order by status, logon_time, sid;
+select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action from v$session s, v$sql q where s.sql_id=q.sql_id(+) and osuser='heck' order by s.sql_exec_start;
 
 -- Oracle move rename table:
 CREATE TABLE fooTMP AS SELECT * FROM user_role; DROP TABLE foo; CREATE TABLE foo AS SELECT * FROM fooTMP;
@@ -6039,12 +6040,13 @@ select date_trunc('MONTH', now())-'1 month'::interval;
 select distinct clientid, dashstart from dshbrd.dashboardclients where deactivated != TRUE and dashstart < date_trunc('MONTH', now());
 
  /* Group by month counts by month: */
-select count(distinct taebpatientid), month(filldate) from statin_final group by 2;
+select count(distinct taebpatientid), month(filldate) from statin_final group by 2; -- Postgres
 SELECT COUNT(1), TRUNC(created, 'month') FROM lifecyc WHERE created>'01jan16' GROUP BY TRUNC(created, 'month')
 -- Oracle count group by month last 3 months:
 SELECT to_char(TRUNC(o.updated, 'MONTH'),'YYYY-MM') AS mo, COUNT(o.updated) AS COUNT FROM opp o WHERE o.updated > ADD_MONTHS(SYSDATE,-3) GROUP BY TRUNC(o.updated, 'MONTH') ORDER BY 1 DESC
 -- Count group by month:
 SELECT COUNT(u.msg), EXTRACT(YEAR FROM u.execute_time), EXTRACT(MONTH FROM u.execute_time) FROM User_Oncall_Results u GROUP BY EXTRACT(YEAR FROM u.execute_time), EXTRACT(MONTH FROM u.execute_time)  ORDER BY 2,3
+select count(distinct ddl_event_id), trunc(event_date, 'MONTH'), (sysdate - 160) s from ddl_event  where event_date < (sysdate - 160) group by trunc(event_date, 'month') order by 2;
 
 -- Postgres bulk load a textfile to a table:
 \COPY analytics.obcdaily (client_name, , job_type_extra, att_count) FROM /Data/psql_import_temp.csv CSV HEADER
@@ -6207,6 +6209,7 @@ SELECT cast(sys_context('mycontext', 'actual_employee_id') AS NUMBER) FROM dual
 
 -- Oracle date time interval in the last 5 minutes:
 SELECT (SYSTIMESTAMP - INTERVAL '5' minute) AS five_minutes_ago, SYSTIMESTAMP FROM dual
+SELECT controlfile_time, CURRENT_TIMESTAMP - controlfile_time minutes_ago FROM v$database;
 WHERE execute_time >= (SYSTIMESTAMP - INTERVAL '5' minute)
 start_date := cast(SYSTIMESTAMP + (1/(24*60) * 5) AS TIMESTAMP);  -- 5 minutes from now in future DEPRECATED
 -- 18-MAR-19 09.40.30.000000 AM   18-MAR-19 09.40.30.000000 AM       3/18/2019 09:40:30 AM   33/18/2019 09:40:30 AM      3/20/2019 09:38:30 AM
@@ -6296,6 +6299,8 @@ ALTER PACKAGE ZTESTBOB COMPILE PACKAGE BODY; show err PACKAGE BODY ZTESTBOB;
 ALTER TABLE Customer DROP COLUMN Birth_Date;
 
 ALTER TABLE analytics.build ADD COLUMN rundatacheck BOOLEAN NOT NULL DEFAULT TRUE;
+alter table myoracletbl add bob varchar2(4000);
+alter table myoracletbl drop column bob;
 
 ALTER TABLE analytics.archivebuildconfig ADD COLUMN job_type text NOT NULL DEFAULT 'Imports';
 
@@ -6304,6 +6309,8 @@ INSERT INTO zorion35282 VALUES (1, 2,3,4,5,6,7); COMMIT;
 ALTER TABLE zorion35282 RENAME COLUMN a3 TO a4;
 ALTER TABLE zorion35282 ADD sql_text_all CLOB
 ALTER TABLE zorion35282 DROP COLUMN sql_text_all 
+EXECUTE IMMEDIATE 'alter table ASP_DET drop (FUTURE_TIER, FUTURE_COVERAGE, FUTURE_TSR_OWNER)';
+-- Change data type if column is all null:
 ALTER TABLE email_messages MODIFY msgbody VARCHAR2(63)
 
 -- Compile selectively:
@@ -6346,8 +6353,10 @@ BEGIN sys.dbms_scheduler.create_job( job_name => 'NIGHTLY_RISK_IP_UPDATE_JOB', j
 BEGIN dbms_scheduler.drop_schedule('DAILY_SCHEDULE'); dbms_scheduler.drop_job('DAILY_JOB'); END;
 -- Details of what's scheduled (in job_action):
 select a.job_name, a.JOB_TYPE, a.JOB_ACTION, a.start_date, a.REPEAT_INTERVAL, a.end_date, a.JOB_CLASS, a.ENABLED, a.AUTO_DROP, a.comments from all_scheduler_jobs a ORDER BY 1
--- Oracle scheduled job outcome log:
-SELECT * FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE JOB_NAME LIKE 'PTG%'
+-- Oracle scheduled job outcome log success or fail:
+SELECT * FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE JOB_NAME LIKE 'MAINT%' order by log_id desc;
+-- What are all the scheduled jobs that ran in the last 2 days:
+SELECT distinct job_name FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE actual_start_date>sysdate-2;
 -- Oracle scheduled job next run and what it executes:
 SELECT * from user_scheduler_jobs WHERE job_name LIKE '%MAINT%' or upper(job_action) like '%MAINT%'
 
@@ -6437,10 +6446,10 @@ EXPLAIN PLAN FOR SELECT * FROM email_messages WHERE actual_updated > (SYSTIMESTA
 
 select * /* my qry */ from foo; select * from v$sql where sql_text = 'my qry'; select * from table(dbms_xplan.display_cursor('THE ID YOU JUST FOUND');
 
--- Create histogram statistics manually:
+-- Create update histogram stats statistics manually:
 BEGIN DBMS_STATS.GATHER_TABLE_STATS(USER, 'CONTACT_EXTERNAL2', estimate_percent=>100); END; 
 SQL> exec DBMS_STATS.GATHER_TABLE_STATS('HR', 'EMPLOYEES', method_opt=>'FOR COLUMNS SIZE 254 JOB_ID');
-select stale_stats from user_tab_statistics@sed where  table_name = 'RION39366_C';
+select stale_stats from user_tab_statistics where  table_name = 'RION39366';
 
 -- Split string into pieces chunks 5 chars wide based on length:
 select regexp_substr(s, '.{5}', 1, lvl) chunk from (select s, level lvl from (select '00000111112222233333' s from dual) connect by level <= length(s) / 5)
@@ -6626,7 +6635,7 @@ if (to_char(sysdate, 'HH24MI') not between '0300' and '0400') Then
 -- Index NULLs indexed:
 CREATE INDEX with_null ON table_name (nullable_column, '1');
 
--- Reduce script failures:
+-- Reduce script failures 60 seconds:
 ALTER SESSION SET ddl_lock_timeout=60;  
 
 $ sqlplus / as sysdba;

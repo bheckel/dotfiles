@@ -319,8 +319,8 @@ set helpheight=999
 " Allows you to switch from an unsaved buffer without saving it first. 
 set hidden
 
-" no == new window on top
-set splitbelow
+" Land in top window split
+set nosplitbelow
 
 
 "                                7 multiple tab pages {{{2
@@ -679,7 +679,7 @@ cab SyS source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/sas/sas.vim
 cab SyS source $HOME/code/sas/sas.vim
 cab SyV source $HOME/.vimrc
 
-iab DbM dbms_output.put_line();<Esc><Left>i
+iab DbO dbms_output.put_line();<Esc><Left>i
 
 " end Abbreviations-
 
