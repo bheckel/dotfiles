@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Fri 20-Sep-2019 (Bob Heckel)
+" Modified: Thu 24-Oct-2019 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -85,7 +85,7 @@ endif
 " Make sure this comes before the syntax area of this file:
 set t_Co=256
 """set t_ut=
-set background=dark
+" set background=dark
 
 " Force vim to clear itself when exiting:
 """set t_ti=7[r[?47h
@@ -208,7 +208,8 @@ syntax enable
 " relying on .mintty or .Xdefaults so this is only for gvim.
 hi Normal guifg=White guibg=Black
 
-hi Comment ctermbg=Black ctermfg=DarkGray guifg=DarkGray guibg=Black
+hi Comment ctermbg=Black ctermfg=DarkGray guibg=Black guifg=DarkGray
+" hi Comment ctermbg=green ctermfg=blue 
 
 hi Conditional ctermfg=LightGreen guifg=LightGreen
 
@@ -250,7 +251,7 @@ hi PmenuSel ctermfg=Blue ctermbg=Yellow guifg=Blue guibg=Yellow
 hi PreProc ctermfg=LightMagenta guifg=LightMagenta guibg=Black
 
 " hls
-hi Search ctermfg=White ctermbg=DarkGray guifg=White guibg=DarkGray 
+hi Search ctermfg=Yellow ctermbg=DarkGray guifg=White guibg=DarkGray 
 
 hi SpecialKey ctermfg=Black ctermbg=DarkMagenta guifg=Black guibg=DarkMagenta
 
@@ -318,8 +319,8 @@ set helpheight=999
 " Allows you to switch from an unsaved buffer without saving it first. 
 set hidden
 
-" no == new window on top
-set splitbelow
+" Land in top window split
+set nosplitbelow
 
 
 "                                7 multiple tab pages {{{2
@@ -678,7 +679,7 @@ cab SyS source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/sas/sas.vim
 cab SyS source $HOME/code/sas/sas.vim
 cab SyV source $HOME/.vimrc
 
-iab DbM dbms_output.put_line();<Esc><Left>i
+iab DbO dbms_output.put_line();<Esc><Left>i
 
 " end Abbreviations-
 
@@ -705,9 +706,6 @@ nnoremap <Down> gj
 " nnoremap <F2> :cprevious<CR>
 
 if has('gui')
-  " Don't need this pair for mintty because CONTROL+MOUSEWHEEL works properly
-""  nnoremap <F1> :call FontSizeMinus()<cr>
-""  nnoremap <F2> :call FontSizePlus()<cr>
   " Widen gvim to max column width
   nnoremap <F4> :call SetOpt('columns', MaxLineLen(0))<CR>
   nnoremap <F4><F4> :call SetOpt('columns', 80)<CR>
@@ -1072,6 +1070,7 @@ nnoremap ;z :echon ";z 'compile' map not implemented for this filetype"<CR>
 "   Commands 	{{{1  
 "--------------------------------------------------------------------------
 
+" Render an HTML file
 command! Htm :!w3m "%"
 
 " Speed quickfixing.
@@ -1783,12 +1782,12 @@ if !exists("autocommands_loaded")
   " au BufEnter /tmp/bash-fc* set ff=unix
 
   " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source c:/cygwin64/home/bob.heckel/code/sas/saslog.vim
-  au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim
+  " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim
   " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $VIMRUNTIME\syntax\saslog.vim
 
-  if THISBOX == 'appa'
-    au BufNewFile,BufRead,BufEnter *.sas | syntax clear | source $HOME/code/sas/sas.vim
-  endif
+  " if THISBOX == 'appa'
+    " au BufNewFile,BufRead,BufEnter *.sas | syntax clear | source $HOME/code/sas/sas.vim
+  " endif
 
   " Resize buffer (most convenient with number keypad) if more than one exists
   " GUI uses + for font resizing (due to inability to use control-mousewheel)
@@ -3077,11 +3076,12 @@ endfunction
 " nnoremap cot :call CycleFont()<cr>
 
 if has('gui_running')
+  " Don't need this pair for mintty because CONTROL+MOUSEWHEEL works properly
   " Fails on Win10 16-Nov-18 
   " nnoremap <C-ScrollWheelUp> :call FontSizePlus()<CR>
   " nnoremap <C-ScrollWheelDown> :call FontSizeMinus()<CR>
-  nnoremap + :call FontSizePlus()<CR>
-  nnoremap - :call FontSizeMinus()<CR>
+  nnoremap <F1> :call FontSizeMinus()<cr>
+  nnoremap <F2> :call FontSizePlus()<cr>
 endif
 "}}}
 

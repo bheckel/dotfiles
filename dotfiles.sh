@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#  Created: 03 May 2015 (Bob Heckel) 
-# Modified: 29 Sep 2019 (Bob Heckel)
+#  Created: Sat 03 May 2015 (Bob Heckel) 
+# Modified: Sat 26-Oct-2019 (Bob Heckel)
 
 # No leading dots!
 majordots='bashrc vimrc tmux.conf inputrc minttyrc gitconfig'
@@ -29,13 +29,12 @@ fi
 cd $myhome
 
 echo
-echo -n "Setup dotfiles in $myhome? Ctr-C to cancel "
+echo -n "Setup dotfiles in $myhome?"
 read
-echo
-echo 'setting up dotfiles...'
 echo
 
 for f in $majordots; do
+  echo '........................'
   echo setting up $myhome/.$f...
   if [ -e $myhome/.$f ] || [ -L $myhome/.$f ]; then
     mv -i $myhome/.$f $myhome/.$f.ORIG
@@ -63,13 +62,6 @@ done
 if [ ! -e $HOME/tmp ]; then
   mkdir $HOME/tmp
 fi
-if [ ! -e /cygdrive/c/temp ]; then
-  echo 'consider running $ mkdir -p /cygdrive/c/temp'
-fi
-
-echo
-echo ...completed $majordots installation
-echo
 
 ls -la ~
 
@@ -78,3 +70,9 @@ echo "Consider installing:"
 echo "$ sudo apt-get install tmux vim-nox w3m bc"
 echo 'or'
 echo "$ sudo apt-get install tmux vim-gtk3 w3m bc"
+echo
+
+if [ -e /cygdrive ]; then
+  echo 'Consider running:'
+  echo '$ mkdir -p /cygdrive/c/temp'
+fi

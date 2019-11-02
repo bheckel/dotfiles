@@ -129,6 +129,7 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 ?^Exercises? +++ , $ g/foo/d
 
 " Uppercase (a.k.a propcase rightcase titlecase smartcase) first letter of specific word:
+:%s:upcaseme:\U&:cg
 :0,$:s:foo:\u&:gc
 " Uppercase first letter of all words:
 :%s:[^ ]*:\L\u&:g
@@ -661,6 +662,9 @@ let sorted_list = reverse(sort(unsorted_list))
 let sorted_list = reverse(sort(copy(unsorted_list)))
 
 /find start of line after this search pattern/+1
+
+" Change filetype from SQL to PLSQL for certain filenames directories:
+au BufRead,BufNewFile,BufEnter *RION-* set filetype=plsql
 
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5376,6 +5380,11 @@ DECLARE p1 PLS_INTEGER := 2147483647; p2 INTEGER := 1; n NUMBER; BEGIN n := p1 +
 select * from user_constraints where table_name = 'COUNTRIES';
 select constraint_name, constraint_type from user_constraints@sep WHERE constraint_name LIKE 'NN%';
 
+-- Find active sessions active for more than 10 seconds:
+select s.sid||','||s.serial# sess, s.osuser, s.USERNAME, s.last_call_et, s.status, s.sql_address, s.program from v$session s where ( s.status = 'ACTIVE' and s.last_call_et > 10 );
+-- Find inactive sessions older than 20 minutes:
+select s.sid||','||s.serial# sess, s.osuser, s.USERNAME, s.last_call_et, s.status, s.sql_address, s.program from v$session s where ( s.status != 'ACTIVE' and s.last_call_et > 1200 );
+
 -- Oracle find uncommitted transactions locks:
 SELECT s.OSUSER, s.sid ,s.serial# ,s.username ,s.machine ,s.status ,s.lockwait ,t.used_ublk ,t.used_urec ,t.start_time from v$transaction t inner join v$session s on t.addr = s.taddr;
 -- What user and sql is locking?:
@@ -5531,7 +5540,7 @@ SELECT /*+ INDEX (employees emp_department_ix)*/ employee_id, department_id FROM
 select sid, serial#, state, status, osuser, machine, program, sql_exec_start, logon_time, action, sql_id from v$session where osuser='heck' order by status, logon_time, sid;
 -- Kill Oracle session (sid, serial#):
 SQL> exec sys.kill_session(51,6449);
-select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, sid, serial#, state, status, osuser, machine, program, sql_exec_start, logon_time, action, sql_id from v$session where osuser='heck' order by status, logon_time, sid;
+select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action from v$session s, v$sql q where s.sql_id=q.sql_id(+) and osuser='heck' order by s.sql_exec_start;
 
 -- Oracle move rename table:
 CREATE TABLE fooTMP AS SELECT * FROM user_role; DROP TABLE foo; CREATE TABLE foo AS SELECT * FROM fooTMP;
@@ -5550,9 +5559,6 @@ OPEN c1; LOOP FETCH c1 INTO v_lastname, v_jobid; EXIT WHEN c1%NOTFOUND; DBMS_OUT
 
 -- Oracle case insensitive:
 where ename LIKE UPPER('foo%')
-
--- Canonical Oracle date range:
-WHERE prod_sel_dt BETWEEN TO_DATE('01-JAN-10','DD-MON-YY') AND TO_DATE('31-JAN-10','DD-MON-YY')
 
 -- Oracle last few days search (if activity_dt is DATE formatted):
 select count(*) from activity_log where activity_dt > (SYSDATE-3);
@@ -5605,6 +5611,11 @@ select count(distinct sampname) from result where sampcreatets between to_date('
 SS.EntryTs >= TO_DATE('01-JAN-05','DD-MON-YY') AND SS.EntryTs <= TO_DATE('31-DEC-05','DD-MON-YY')
 -- SQL Server date between
 WHERE batch_time >= {ts '2011-01-03 00:00:00'} and batch_time <= {ts '2011-01-04 00:00:00'}
+
+-- Canonical Oracle date range:
+WHERE prod_sel_dt BETWEEN TO_DATE('01-JAN-10','DD-MON-YY') AND TO_DATE('31-JAN-10','DD-MON-YY')
+-- All employees hired in year 2019:
+SELECT * from employees where trunc(hire_date) = '01-JAN-2019';
 
 -- Oracle date with hours minutes 2019-01-15 15:37
 SELECT to_char(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI') FROM dual
@@ -5726,30 +5737,28 @@ SELECT table_name, column_name FROM cols WHERE lower(table_name) LIKE 'accou%' A
 -- Find query search all Oracle tables & views with a certain table name poke around:
 SELECT table_name FROM user_tables WHERE lower(table_name) LIKE '%search%' order by 1;
 
--- Poke around for column name:
+-- Poke around search all tables for column name:
 select * FROM all_tab_columns WHERE lower(column_name) = 'duns_nbr_bkup'
+SELECT * from  user_tab_columns WHERE column_name LIKE '%NEW%'
 
-select * from user_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
 select * from dba_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
+-- What the object references:
+select * from user_dependencies where name = 'ACCOUNT_TEAM' and referenced_type not in ('SYNONYM') order by 4;
+-- What references the object:
+select * from user_dependencies where REFERENCED_NAME = 'ACCOUNT_TEAM' and referenced_type not in ('SYNONYM') order by 4;
 
 -- Is table indexed:
 SELECT * from user_indexes WHERE table_name LIKE 'LIST_OF%'  -- or SELECT * from all_ind_columns WHERE index_name LIKE 'LIST_OF%'
 
 -- Foreign Key is that same value stored within MULTIPLE rows of the other aka "detail" table
-CREATE TABLE foo ( ..., employee_id INTEGER NOT NULL REFERENCES employee(employee_id), ... );
-ALTER TABLE CONTACT_OPP_BASE ADD CONSTRAINT OPP_CONTACT_OPP_FK FOREIGN KEY (OPP_ID) OPP_ID REFERENCES OPP_BASE (OPP_ID) ON DELETE CASCADE ENABLE;
+create table emp(empid number(20) PRIMARY KEY, ename varchar2(20), sal number(10,2), dept_id number(10) REFERENCES dept(dept_id) ON DELETE CASCADE);
+ALTER TABLE CONTACT_OPP ADD CONSTRAINT OPP_CONTACT_OPP_FK FOREIGN KEY (OPP_ID) OPP_ID REFERENCES OPP (OPP_ID) ON DELETE CASCADE ENABLE;
 
--- Oracle primary key (P) foreign key (R):
+-- Oracle Primary key (P) foReign key (R):
 SELECT * FROM all_constraints WHERE owner=USER; -- same as select * from user_constraints
 -- Does any other table reference this table LIST_OF_VALUES i.e. do any foreign keys exist:
 ALTER TABLE SAP_TERRITORY ADD CONSTRAINT SAP_TERRITORY_TERRITORY_ID_FK FOREIGN KEY ("TERRITORY_LOV_ID") REFERENCES LIST_OF_VALUES" ("LIST_OF_VALUES_ID") ON DELETE CASCADE ENABLE;
 select * FROM all_constraints WHERE constraint_type = 'R' and r_constraint_name IN (select constraint_name from all_constraints where table_name like 'LIST_OF_VALUES%') order by table_name;
-
--- Oracle describe table sqlplus:
-desc mytable
--- Oracle search for fieldname column name:
-SELECT * from  user_tab_columns WHERE column_name LIKE '%NEW%'
-SELECT * from  user_tab_columns WHERE table_name LIKE '%NEW%'
 
 -- View all details of Oracle table in a schema best poke around table:
 select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES', 'SETARS') from dual;
@@ -5762,10 +5771,6 @@ SELECT * FROM scott.emp ORDER BY ename FETCH FIRST 5 ROWS WITH TIES  -- Oracle 1
 
 -- Oracle select first top 20% percent of rows of a table in order:
 select empno, ename, sal, deptno from emp order by sal desc fetch first 20 percent rows only;
-
--- Oracle select year portion year part only between years periods:
-extract(year from h.updated) in(2017,2018)
-if (extract(year from sysdate) not between (compYear - 1) and (compYear + 1)) then...
 
 -- Sleep pause execution for 60 seconds:
 CREATE OR REPLACE PROCEDURE SLEEP(P_MILLI_SECONDS IN NUMBER) AS LANGUAGE JAVA NAME 'java.lang.Thread.sleep(long)';
@@ -5895,6 +5900,10 @@ date_part('year',age(patientdob))>=41 and date_part('year',age(patientdob))<=75
 date_part('year'::text, age(pd.dateofbirth::timestamp with time zone)) AS age
 ... patientdob < date('now') - interval '18 year'
 
+-- Oracle select year portion year part only between years periods date part:
+extract(year from h.updated) in(2017,2018)
+if (extract(year from sysdate) not between (compYear - 1) and (compYear + 1)) then...
+
 -- Postgres min max calculate age:
 select min(date_part('year',age(dateofbirth))), max(date_part('year',age(dateofbirth))) ...
 
@@ -5911,7 +5920,7 @@ where date_trunc('minute', ahpp.lastmodified) = '2016-02-23 08:56:00'::timestamp
 
 -- Postgres help $ psql help  \?
 
--- full join fulljoin FULL [OUTER] JOIN: returns all rows from both tables, matching up the rows wherever a match can be made and placing NULLs in the places where no matching row exists.  I.e. a "double outer" join that returns all rows from A and B, extended with nulls if they do not satisfy the join condition
+-- full join fulljoin FULL [OUTER] JOIN: returns all rows from both tables, matching up the rows wherever a match can be made and placing NULLs in the places where no matching row exists (rather than throwing the row away like LEFT JOIN).  I.e. a "double OUTER" join that returns all rows from A and B, extended with nulls if they do not satisfy the join condition
 
 -- selfjoin SELF JOIN: a recursive join that results when a set of data is joined back to itself.  Typically encountered when a parent-child relationship in a hierarchy needs to be traversed.  When using ANSI syntax to accomplish this, only the JOIN...ON syntax will work, and the keyword INNER can be used for clarity.
 
@@ -6031,12 +6040,13 @@ select date_trunc('MONTH', now())-'1 month'::interval;
 select distinct clientid, dashstart from dshbrd.dashboardclients where deactivated != TRUE and dashstart < date_trunc('MONTH', now());
 
  /* Group by month counts by month: */
-select count(distinct taebpatientid), month(filldate) from statin_final group by 2;
+select count(distinct taebpatientid), month(filldate) from statin_final group by 2; -- Postgres
 SELECT COUNT(1), TRUNC(created, 'month') FROM lifecyc WHERE created>'01jan16' GROUP BY TRUNC(created, 'month')
 -- Oracle count group by month last 3 months:
 SELECT to_char(TRUNC(o.updated, 'MONTH'),'YYYY-MM') AS mo, COUNT(o.updated) AS COUNT FROM opp o WHERE o.updated > ADD_MONTHS(SYSDATE,-3) GROUP BY TRUNC(o.updated, 'MONTH') ORDER BY 1 DESC
 -- Count group by month:
 SELECT COUNT(u.msg), EXTRACT(YEAR FROM u.execute_time), EXTRACT(MONTH FROM u.execute_time) FROM User_Oncall_Results u GROUP BY EXTRACT(YEAR FROM u.execute_time), EXTRACT(MONTH FROM u.execute_time)  ORDER BY 2,3
+select count(distinct ddl_event_id), trunc(event_date, 'MONTH'), (sysdate - 160) s from ddl_event  where event_date < (sysdate - 160) group by trunc(event_date, 'month') order by 2;
 
 -- Postgres bulk load a textfile to a table:
 \COPY analytics.obcdaily (client_name, , job_type_extra, att_count) FROM /Data/psql_import_temp.csv CSV HEADER
@@ -6155,9 +6165,9 @@ psql -h db-dev-01.twa.taeb.com TAEBMART -f /sasdata/Dev_to_db-06_20180316_dshbrd
 -- View field names sqlite3: .schema mytbl
 $ sqlite3 test.db "SELECT * FROM Cars;"
 
--- Cartesian join cross join:
+-- Cartesian join cross join non-ANSI:
 SELECT Name, Day FROM Customers, Reservations;
--- E.g. shirt manufacturer with many different products. They have a set of sizes (S, M, L). They create each shirt in every size. Generate stock rows for every shirt in every size:
+-- ANSI e.g. shirt manufacturer with many different products. They have a set of sizes (S, M, L). They create each shirt in every size. Generate stock rows for every shirt in every size:
 select * from shirts CROSS JOIN shirt_sizes  -- be explicit instead of just ','
 
 -- INSERT ALL - the shorthand multi-table INSERT rows into 2 or more tables at once (unconditional version - every row from the source query goes into every table):
@@ -6199,6 +6209,7 @@ SELECT cast(sys_context('mycontext', 'actual_employee_id') AS NUMBER) FROM dual
 
 -- Oracle date time interval in the last 5 minutes:
 SELECT (SYSTIMESTAMP - INTERVAL '5' minute) AS five_minutes_ago, SYSTIMESTAMP FROM dual
+SELECT controlfile_time, CURRENT_TIMESTAMP - controlfile_time minutes_ago FROM v$database;
 WHERE execute_time >= (SYSTIMESTAMP - INTERVAL '5' minute)
 start_date := cast(SYSTIMESTAMP + (1/(24*60) * 5) AS TIMESTAMP);  -- 5 minutes from now in future DEPRECATED
 -- 18-MAR-19 09.40.30.000000 AM   18-MAR-19 09.40.30.000000 AM       3/18/2019 09:40:30 AM   33/18/2019 09:40:30 AM      3/20/2019 09:38:30 AM
@@ -6288,6 +6299,8 @@ ALTER PACKAGE ZTESTBOB COMPILE PACKAGE BODY; show err PACKAGE BODY ZTESTBOB;
 ALTER TABLE Customer DROP COLUMN Birth_Date;
 
 ALTER TABLE analytics.build ADD COLUMN rundatacheck BOOLEAN NOT NULL DEFAULT TRUE;
+alter table myoracletbl add bob varchar2(4000);
+alter table myoracletbl drop column bob;
 
 ALTER TABLE analytics.archivebuildconfig ADD COLUMN job_type text NOT NULL DEFAULT 'Imports';
 
@@ -6296,6 +6309,8 @@ INSERT INTO zorion35282 VALUES (1, 2,3,4,5,6,7); COMMIT;
 ALTER TABLE zorion35282 RENAME COLUMN a3 TO a4;
 ALTER TABLE zorion35282 ADD sql_text_all CLOB
 ALTER TABLE zorion35282 DROP COLUMN sql_text_all 
+EXECUTE IMMEDIATE 'alter table ASP_DET drop (FUTURE_TIER, FUTURE_COVERAGE, FUTURE_TSR_OWNER)';
+-- Change data type if column is all null:
 ALTER TABLE email_messages MODIFY msgbody VARCHAR2(63)
 
 -- Compile selectively:
@@ -6338,8 +6353,10 @@ BEGIN sys.dbms_scheduler.create_job( job_name => 'NIGHTLY_RISK_IP_UPDATE_JOB', j
 BEGIN dbms_scheduler.drop_schedule('DAILY_SCHEDULE'); dbms_scheduler.drop_job('DAILY_JOB'); END;
 -- Details of what's scheduled (in job_action):
 select a.job_name, a.JOB_TYPE, a.JOB_ACTION, a.start_date, a.REPEAT_INTERVAL, a.end_date, a.JOB_CLASS, a.ENABLED, a.AUTO_DROP, a.comments from all_scheduler_jobs a ORDER BY 1
--- Oracle scheduled job outcome log:
-SELECT * FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE JOB_NAME LIKE 'PTG%'
+-- Oracle scheduled job outcome log success or fail:
+SELECT * FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE JOB_NAME LIKE 'MAINT%' order by log_id desc;
+-- What are all the scheduled jobs that ran in the last 2 days:
+SELECT distinct job_name FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE actual_start_date>sysdate-2;
 -- Oracle scheduled job next run and what it executes:
 SELECT * from user_scheduler_jobs WHERE job_name LIKE '%MAINT%' or upper(job_action) like '%MAINT%'
 
@@ -6427,10 +6444,12 @@ set autotrace traceonly explain -- then select ename from emp
 
 EXPLAIN PLAN FOR SELECT * FROM email_messages WHERE actual_updated > (SYSTIMESTAMP - INTERVAL '42' minute); select * from table(dbms_xplan.display); ROLLBACK;
 
--- Create histogram statistics manually:
+select * /* my qry */ from foo; select * from v$sql where sql_text = 'my qry'; select * from table(dbms_xplan.display_cursor('THE ID YOU JUST FOUND');
+
+-- Create update histogram stats statistics manually:
 BEGIN DBMS_STATS.GATHER_TABLE_STATS(USER, 'CONTACT_EXTERNAL2', estimate_percent=>100); END; 
 SQL> exec DBMS_STATS.GATHER_TABLE_STATS('HR', 'EMPLOYEES', method_opt=>'FOR COLUMNS SIZE 254 JOB_ID');
-select stale_stats from user_tab_statistics@sed where  table_name = 'RION39366_C';
+select stale_stats from user_tab_statistics where  table_name = 'RION39366';
 
 -- Split string into pieces chunks 5 chars wide based on length:
 select regexp_substr(s, '.{5}', 1, lvl) chunk from (select s, level lvl from (select '00000111112222233333' s from dual) connect by level <= length(s) / 5)
@@ -6578,8 +6597,8 @@ create index upper_names_ix on table ( upper(myname) );  -- but only used when e
 
 ALTER package SYS.SETARS_SECURITY COMPILE PLSQL_CODE_TYPE=NATIVE;
 
--- Faster insert hint:
-insert /*+ append */ into ...
+-- Faster INSERT hint:
+insert /*+ APPEND */ into ...
 
 -- Convert hex from things like SELECT table_name, LOW_VALUE FROM user_tab_columns...:
 declare d date; begin dbms_stats.convert_raw_value(hextoraw('505707090E0801'), d); dbms_output.put_line(d); end;
@@ -6610,8 +6629,21 @@ SELECT owner, object_name, object_type, status, last_ddl_time FROM dba_objects d
 -- Display a reasonable amount of text from a CLOB:
 SELECT sql_text as only_1k_chars, substr(regexp_replace(sql_fulltext, '\s+', ' '), 1, 3999) FROM v$sql 
 
---Ignore issues during the 3AM hour specific hour range:
+--Ignore issues during the 3AM hour specific hour timeframe range:
 if (to_char(sysdate, 'HH24MI') not between '0300' and '0400') Then
+
+-- Index NULLs indexed:
+CREATE INDEX with_null ON table_name (nullable_column, '1');
+
+-- Reduce script failures 60 seconds:
+ALTER SESSION SET ddl_lock_timeout=60;  
+
+$ sqlplus / as sysdba;
+
+-- Lowest plan cost to find names like 'Kochhar' without an index-ignoring leading '%hhar':
+create index last_name_reverse_index on employees(REVERSE(last_name)); select employee_id, first_name, last_name, reverse(last_name), salary from employees where reverse(last_name) LIKE 'rahh%';
+
+-- Use bitmap index if cardinality is low, index is not modified frequently and nulls may exist
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7240,10 +7272,10 @@ git add . && git commit -m'mod' && git pull && git push
 # Done w/ this feat so git merge myfeaturebranch INTO HERE, I.E. THIS REPO's BRANCH (master) then ditch feat:
 git checkout master && git merge myfeaturebranch                                             && git branch -d myfeaturebranch
 
-# git delete branch local then remote (without using GitHub UI delete branch button). First make sure your remote is there: git branch -a:
-git branch -d feature/RION-31587 && git push origin --delete feature/RION-31587 && git fetch -p && git branch -a
 # git delete local branch and prune remote branches (after using GitHub UI delete branch button):
 git branch -d feature/RION-31587 && git fetch -p && git branch -a
+# git delete branch local then remote (without using GitHub UI delete branch button). First make sure your remote is there: git branch -a:
+git branch -d feature/RION-31587 && git push origin --delete feature/RION-31587 && git fetch -p && git branch -a
 
 # Which branches are tracking which remote/upstream branches (prune is optional):
 git fetch -p && git remote show origin
