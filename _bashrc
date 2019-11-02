@@ -4,7 +4,7 @@
 # Summary: bash config for at least Unix/Linux, Cygwin 1.3/1.5/1.7 and z/OS
 #
 #  Created: Tue 19-May-1998 (Bob Heckel)
-# Modified: Sat 31-Aug-2019 (Bob Heckel)
+# Modified: Sat 02-Nov-2019 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -824,8 +824,8 @@ case "$OSTYPE" in
       ###fi
   ;;
 esac # }}}1
-# Security or project additions:  #{{{1
+# Security or project related additions:  #{{{1
 if [ -e $HOME/.bashrc.project ]; then
-  echo "sourcing $HOME/.bashrc.project..."
+  echo ".bashrc: sourcing $HOME/.bashrc.project..."
   source $HOME/.bashrc.project
 fi
