@@ -412,9 +412,9 @@ function gdt() {
   oldhash=$(git log --pretty=format:"%h %ar | %s %d [%an]" --graph --date=short ${1} | sed "s/^\* //g" | head -n2 | head -n1 | awk '{print $1}')
   newhash=$(git log --pretty=format:"%h %ar | %s %d [%an]" --graph --date=short ${1} | sed "s/^\* //g" | head -n2 | head -n2 | awk '{print $1}' | tail -n1)
 
-  gitcmd="${oldhash}:./${1} ${newhash}:./${1}"
+  hashes="${oldhash}:./${1} ${newhash}:./${1}"
 
-  git difftool $gitcmd
+  git difftool $hashes
 }
 # Generic Functions end
 

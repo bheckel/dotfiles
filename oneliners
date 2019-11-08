@@ -6041,11 +6041,14 @@ select distinct clientid, dashstart from dshbrd.dashboardclients where deactivat
 
  /* Group by month counts by month: */
 select count(distinct taebpatientid), month(filldate) from statin_final group by 2; -- Postgres
-SELECT COUNT(1), TRUNC(created, 'month') FROM lifecyc WHERE created>'01jan16' GROUP BY TRUNC(created, 'month')
--- Oracle count group by month last 3 months:
-SELECT to_char(TRUNC(o.updated, 'MONTH'),'YYYY-MM') AS mo, COUNT(o.updated) AS COUNT FROM opp o WHERE o.updated > ADD_MONTHS(SYSDATE,-3) GROUP BY TRUNC(o.updated, 'MONTH') ORDER BY 1 DESC
 -- Count group by month:
 SELECT COUNT(u.msg), EXTRACT(YEAR FROM u.execute_time), EXTRACT(MONTH FROM u.execute_time) FROM User_Oncall_Results u GROUP BY EXTRACT(YEAR FROM u.execute_time), EXTRACT(MONTH FROM u.execute_time)  ORDER BY 2,3
+-- Oracle count group by month last 3 months:
+SELECT to_char(TRUNC(o.updated, 'MONTH'),'YYYY-MM') AS mo, COUNT(o.updated) AS COUNT FROM opp o WHERE o.updated > ADD_MONTHS(SYSDATE,-3) GROUP BY TRUNC(o.updated, 'MONTH') ORDER BY 1 DESC
+
+-- Count event IDs by month:
+select count(distinct ddl_event_id), trunc(event_date, 'MONTH') from ddl_event group by trunc(event_date, 'month') order by 2;
+-- Count old event IDs by month:
 select count(distinct ddl_event_id), trunc(event_date, 'MONTH'), (sysdate - 160) s from ddl_event  where event_date < (sysdate - 160) group by trunc(event_date, 'month') order by 2;
 
 -- Postgres bulk load a textfile to a table:
@@ -6360,8 +6363,8 @@ SELECT distinct job_name FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE actual_start_d
 -- Oracle scheduled job next run and what it executes:
 SELECT * from user_scheduler_jobs WHERE job_name LIKE '%MAINT%' or upper(job_action) like '%MAINT%'
 
-AUTHID DEFINER is the default PLSQL permission, aka define's rights, check SQL
-at compile-time. AUTHID CURRENT_USER, aka invoker's rights, check SQL at run-time
+AUTHID DEFINER is the default PLSQL permission, aka define's rights, check SQL at compile-time. AUTHID CURRENT_USER, aka invoker's rights, check SQL at run-time
+CREATE OR REPLACE PACKAGE rion37368 AUTHID DEFINER IS ... -- only on the spec, not body
 
 -- Generate unique random GUID:
 select to_number(sys_guid(), 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') from dual
@@ -6479,9 +6482,6 @@ dbms_output.put_line(ASCII(SUBSTR(DBMS_UTILITY.FORMAT_ERROR_STACK, -1))); -- 10
 -- Embedded quote q:
 dbms_output.put_line(q'[quote has been ok'd]');
 
--- All SQL run in the last 2 months:
-select v.SQL_TEXT, v.PARSING_SCHEMA_NAME, v.FIRST_LOAD_TIME, v.DISK_READS, v.ROWS_PROCESSED, v.ELAPSED_TIME, v.service from v$sql v where to_date(v.FIRST_LOAD_TIME,'YYYY-MM-DD hh24:mi:ss')>ADD_MONTHS(trunc(sysdate,'MM'),-2)
-
 -- Multiple substitutions:
 ffColumnPrefix := replace(replace(replace(inFlexTablePrefix, 'ACCOUNT', 'ACCT'), 'ACTIVITY', 'ACT'), 'OPPORTUNITY', 'OPP');
 
@@ -6563,6 +6563,10 @@ SELECT rtrim(xmlagg(XMLELEMENT(e,text,',').EXTRACT('//text()')).GetClobVal(),','
 WITH v AS( SELECT 'vvvvvvvvvvvv vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv vvvvvvvvvvvvvvvvvvvvv vvvvvvvvvvvvvvvery_long_text' bigstr FROM dual) SELECT rtrim(xmlagg(XMLELEMENT(e, bigstr, ',').EXTRACT('//text()') ).GetClobVal(), ',') FROM v
 
 select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_text like '%CUSTOMER%'
+select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_id='63ygwpcj2s227';
+
+-- All SQL run in the last 2 months:
+select v.SQL_TEXT, v.PARSING_SCHEMA_NAME, v.FIRST_LOAD_TIME, v.DISK_READS, v.ROWS_PROCESSED, v.ELAPSED_TIME, v.service from v$sql v where to_date(v.FIRST_LOAD_TIME,'YYYY-MM-DD hh24:mi:ss')>ADD_MONTHS(trunc(sysdate,'MM'),-2)
 
 select replace('abcdef', 'abc', 'ABC') from dual -- ABCdef
 select translate('abc def', 'abcd', '1234') from dual -- 123 4ef
