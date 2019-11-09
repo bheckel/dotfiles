@@ -6649,6 +6649,18 @@ create index last_name_reverse_index on employees(REVERSE(last_name)); select em
 
 -- Use bitmap index if cardinality is low, index is not modified frequently and nulls may exist
 
+CREATE INDEX emp_id_idx ON employees_copy(employee_id) COMPUTE STATISTICS;
+-- Shouldn't need this then:
+EXEC dbms_stats.gather_table_stats (ownname=>'HR',tabname => 'EMPLOYEES_COPY',CASCADE => TRUE);
+   
+ALTER TABLE employees_copy ADD CONSTRAINT unique_emps UNIQUE (employee_id);
+      
+ALTER INDEX emp_id_idx REBUILD;
+        
+ALTER TABLE employees_copy DROP CONSTRAINT unique_emps;
+         
+ALTER TABLE employees_copy ADD CONSTRAINT unique_emps UNIQUE (employee_id) USING INDEX emp_id_idx;
+            
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
