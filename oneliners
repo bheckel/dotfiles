@@ -5501,7 +5501,7 @@ case when (sal > (comm * .9) and sal < (comm * 1.1)) then 1 else 0 end value_is_
 -- Custom sort order:
 order by decode(TOP_LEVEL_ITEM_TEXT, 'accounts', 1, 'contacts', 2, 'opportunities', 3, 999)
 
--- Avoid ugly double space 'John  Doe' while allowing 'John Q. Doe':
+-- Avoid ugly double space 'John  Doe' while allowing for a blank middle initial 'John Q. Doe':
 SELECT x.*, trim(x.first_name || ' ' || x.middle_name || DECODE(x.middle_name, NULL, '', ' ') || x.last_name) as contact_name
 
 -- SQL Server
