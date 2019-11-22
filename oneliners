@@ -5390,6 +5390,7 @@ SELECT s.OSUSER, s.sid ,s.serial# ,s.username ,s.machine ,s.status ,s.lockwait ,
 -- What user and sql is locking?:
 SELECT O.OBJECT_NAME, S.SID, S.SERIAL#, P.SPID, S.PROGRAM, SQ.SQL_FULLTEXT, S.LOGON_TIME FROM V$LOCKED_OBJECT L, DBA_OBJECTS O, V$SESSION S, V$PROCESS P, V$SQL SQ WHERE L.OBJECT_ID = O.OBJECT_ID AND L.SESSION_ID = S.SID AND S.PADDR = P.ADDR AND S.SQL_ADDRESS = SQ.ADDRESS;
 
+-- Insert newline for blank row spacing:
 rc PLS_INTEGER; rc := SQL%ROWCOUNT; dbms_output.new_line(); dbms_output.put_line('rows affected: ' || rc);
 
 -- Oracle collections:
@@ -5540,6 +5541,7 @@ SELECT /*+ INDEX (employees emp_department_ix)*/ employee_id, department_id FROM
 select sid, serial#, state, status, osuser, machine, program, sql_exec_start, logon_time, action, sql_id from v$session where osuser='heck' order by status, logon_time, sid;
 -- Kill Oracle session (sid, serial#):
 SQL> exec sys.kill_session(51,6449);
+SQL> column sql_text format a80
 select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action from v$session s, v$sql q where s.sql_id=q.sql_id(+) and osuser='heck' order by s.sql_exec_start;
 
 -- Oracle move rename table:
@@ -5548,6 +5550,9 @@ CREATE TABLE fooTMP AS SELECT * FROM user_role; DROP TABLE foo; CREATE TABLE foo
 -- Oracle days from today, two days ago:
 select to_char(sysdate-2, 'DD-MON-YY') from dual
 select sysdate-2 from dual
+
+-- Oracle last month months ago date calc:
+select ADD_MONTHS(sysdate,-1) from dual;
 
 -- Oracle schema info
 select object_type, count(*) from dba_objects where owner='PKS_USER' group by object_type;
@@ -5579,9 +5584,6 @@ Oracle YYYYMMDDHH24MISS date vaguely like epoch: 20070304184943
 
 -- Oracle SQL*Plus (like SELECT TOP 10 *... in SQL Server)
 select * from activity_log where rownum<10;
-
--- Oracle last month months ago date calc:
-select ADD_MONTHS(sysdate,-1) from dual;
 
 dbms_output.put_line('rpt at: ' || TO_CHAR(sysdate, 'dd-mon-yy hh:mipm'));
 
@@ -5777,6 +5779,7 @@ CREATE OR REPLACE PROCEDURE SLEEP(P_MILLI_SECONDS IN NUMBER) AS LANGUAGE JAVA NA
 BEGIN sleep(60 * 1000); END;
 
 -- Oracle date time yesterday one day ago:
+select (SYSDATE - INTERVAL '1' hour) from dual  -- one hour ago
 select (SYSDATE - INTERVAL '1' day) from dual  -- 17-JUL-19 12:11:48
 select (SYSTIMESTAMP - INTERVAL '1' day) from dual  -- 17-JUL-19 12.12.11.043644000 PM -04:00
 
@@ -6347,7 +6350,7 @@ create table dummy_table as SELECT to_number(COLUMN_VALUE) account_id FROM xmlta
 
 -- View Oracle grants privileges:
 SELECT * FROM DBA_TAB_PRIVS d WHERE d.table_name LIKE 'RPT_TAX%'
--- Build Oracle GRANT statements:
+-- Build Oracle GRANT statements - can only do one owner at a time manually:
 select  'GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE ON ' || tname || ' to pks_user' from mytab
 
 SELECT * FROM user_role_privs WHERE granted_role = 'SELECT_CATALOG_ROLE';  -- view dictionary tables
@@ -6652,15 +6655,18 @@ create index last_name_reverse_index on employees(REVERSE(last_name)); select em
 CREATE INDEX emp_id_idx ON employees_copy(employee_id) COMPUTE STATISTICS;
 -- Shouldn't need this then:
 EXEC dbms_stats.gather_table_stats (ownname=>'HR',tabname => 'EMPLOYEES_COPY',CASCADE => TRUE);
-   
+
 ALTER TABLE employees_copy ADD CONSTRAINT unique_emps UNIQUE (employee_id);
-      
+
 ALTER INDEX emp_id_idx REBUILD;
-        
+
 ALTER TABLE employees_copy DROP CONSTRAINT unique_emps;
-         
+
 ALTER TABLE employees_copy ADD CONSTRAINT unique_emps UNIQUE (employee_id) USING INDEX emp_id_idx;
-            
+
+-- Regex tester:
+SELECT regexp_substr(regexp_replace('from plan_goal_HIST ptgh', '/\*.*\*/', ''), '_HIST\W?') FROM dual;
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -7180,7 +7186,7 @@ git config user.email
 git stash list
 # git show the changes recorded in the stash entry as a diff between the stashed contents and the commit back when the stash entry was first created:
 git stash show
-git stash save --include-untracked -m 'mynamedstash'
+git stash --include-untracked -m 'mynamedstash'
 # Remove a single stashed state from the stash list and apply it on top of the current working tree state. When no <stash> is given, stash@{0} is assumed, otherwise <stash> must be a reference of the form stash@{<revision>}. Applying the state can fail with conflicts; in this case, it is not removed from the stash list. You need to resolve the conflicts by hand and call git stash drop manually afterwards:
 git stash pop
 # or if >1 exist
@@ -7241,9 +7247,9 @@ git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:sho
 
 # git diff with last commit:
 git show
-# git view previous old version of file from different branch (in pager):
+# git view previous old version of file the past (in pager):
 git show eacbd91:./ods_0002e.sas
-# git view previous old version of file from different branch (in editor):
+# git view previous old version of file from the past (in editor):
 git show master:cfg/DataPost_Configuration.html |vi -
 
 $ git config --global merge.tool vimdiff
