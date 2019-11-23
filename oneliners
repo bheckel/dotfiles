@@ -6667,6 +6667,12 @@ ALTER TABLE employees_copy ADD CONSTRAINT unique_emps UNIQUE (employee_id) USING
 -- Regex tester:
 SELECT regexp_substr(regexp_replace('from plan_goal_HIST ptgh', '/\*.*\*/', ''), '_HIST\W?') FROM dual;
 
+-- Size of an index:
+SELECT BYTES/(1024*1024) mb FROM user_segments WHERE  segment_name = 'SALES_IDX';
+
+-- Clear out old cursors as SYSTEM user:
+alter system flush shared_pool; 
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
