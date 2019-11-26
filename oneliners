@@ -6395,7 +6395,8 @@ SELECT * FROM :myvariable.table1;
 
 select top 10 * from tbl  -- SQL Server & Access
 
--- Oracle user defined exception:
+-- Oracle user defined exception. Oracle ERROR_CODE is an integer in the range -20000..-20999 and message is a character string of at most 2048 bytes:
+invalid_emp_dates EXCEPTION; PRAGMA EXCEPTION_INIT(invalid_emp_dates, -20042);
 failure_in_forall EXCEPTION; PRAGMA EXCEPTION_INIT (failure_in_forall, -24381);  -- ORA-24381: error(s) in array DML
 
 -- Oracle create sample data and round to 15 minute increments intervals:
@@ -6670,8 +6671,10 @@ SELECT regexp_substr(regexp_replace('from plan_goal_HIST ptgh', '/\*.*\*/', ''),
 -- Size of an index:
 SELECT BYTES/(1024*1024) mb FROM user_segments WHERE  segment_name = 'SALES_IDX';
 
--- Clear out old cursors as SYSTEM user:
+-- Clear out old queries (as SYSTEM user):
 alter system flush shared_pool; 
+
+CREATE UNIQUE INDEX ASP_DFLT_TSR_OWN_TEAM_TSAT_IX ON ASP_DFLT_TSR_OWN_TEAM(FUTURE_TSR_OWNER_ID,ACCOUNT_TEAM_ID);
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
