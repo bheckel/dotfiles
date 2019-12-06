@@ -5652,6 +5652,9 @@ set termout off
 $ sqlplus -S me/pw@esd @query.sql
 $ vi ~/code/misccode/query.sql && (cd ~/code/misccode/ && sqlplus -S me/pw@esd @query.sql && vi $c/temp/query.out)
 
+-- Re-execute the plsql block:
+SQL> /
+
 -- Oracle prompt (1st time only) for saved environment substitution variable prompt:
 BEGIN DBMS_OUTPUT.PUT_LINE (‘Today is ‘||’&&sv_day‘); DBMS_OUTPUT.PUT_LINE (‘Today is still ‘||’&sv_day’); END;
 
@@ -6675,6 +6678,18 @@ SELECT BYTES/(1024*1024) mb FROM user_segments WHERE  segment_name = 'SALES_IDX'
 alter system flush shared_pool; 
 
 CREATE UNIQUE INDEX ASP_DFLT_TSR_OWN_TEAM_TSAT_IX ON ASP_DFLT_TSR_OWN_TEAM(FUTURE_TSR_OWNER_ID,ACCOUNT_TEAM_ID);
+
+-- Declare a bind variable:
+VARIABLE M_DIVISOR NUMBER;
+-- Assign value to bind variable:
+EXEC :M_DIVISOR := 0;
+DECLARE /*Declare the local variables and initialize with the bind variables*/ L_DIVISOR NUMBER := :M_DIVISOR;
+
+-- HTML
+NVL(lov.value_description, '&lt;;BLANK&gt;;') AS value_description,
+
+-- Created in the last 4 hours:
+SELECT * FROM account_team where created>(SYSDATE - INTERVAL '4' hour);
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
