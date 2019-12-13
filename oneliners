@@ -5537,12 +5537,12 @@ SELECT \*+ DRIVING_SITE(SITE) *\ COUNT(*) FROM DB_OWNER.SITE_DATA@DNB_XXXX SITE 
 -- Oracle use index scan - not full table scan hint:
 SELECT /*+ INDEX (employees emp_department_ix)*/ employee_id, department_id FROM employees WHERE department_id > 50;
 
--- Find Oracle session to kill (session id, serial number):
-select sid, serial#, state, status, osuser, machine, program, sql_exec_start, logon_time, action, sql_id from v$session where osuser='heck' order by status, logon_time, sid;
+-- Oracle kill session:
+SQL> column sql_text format a80
+SQL> column sql_exec_start format a22
+select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action from v$session s, v$sql q where s.sql_id=q.sql_id(+) and osuser='heck' order by s.sql_exec_start;
 -- Kill Oracle session (sid, serial#):
 SQL> exec sys.kill_session(51,6449);
-SQL> column sql_text format a80
-select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action from v$session s, v$sql q where s.sql_id=q.sql_id(+) and osuser='heck' order by s.sql_exec_start;
 
 -- Oracle move rename table:
 CREATE TABLE fooTMP AS SELECT * FROM user_role; DROP TABLE foo; CREATE TABLE foo AS SELECT * FROM fooTMP;
@@ -6629,6 +6629,9 @@ select count(*) from tbl_deleted_from as of TIMESTAMP (systimestamp - interval '
 -- From your dbms_output  to_char(systimestamp, 'YYYY-MM-DD HH24:MI:SS.FF')  then use it:
 select count(*) from mytbl as of TIMESTAMP to_timestamp('2019-08-26 10:10:38.97', 'YYYY-MM-DD HH:MI:SS.FF');
 
+-- 12-11_13:08:19.331048 for unique identification:
+SELECT  to_char(systimestamp, 'MM-DD_HH24:MI:SS.FF') FROM dual;
+
 -- Restore undelete a dropped table:
 drop table t; SELECT * FROM user_recyclebin where lower(original_name) = 't'; FLASHBACK TABLE t TO BEFORE DROP [RENAME TO rescuedog];  -- most recent drop is restored
 
@@ -6690,6 +6693,11 @@ NVL(lov.value_description, '&lt;;BLANK&gt;;') AS value_description,
 
 -- Created in the last 4 hours:
 SELECT * FROM account_team where created>(SYSDATE - INTERVAL '4' hour);
+
+-- Exponential notation:
+THEN assign_table(i).new_account_team_assignment_id:=1.257E+993;
+
+EXECUTE IMMEDIATE q'[select 'ASP_TASK_JOB_' || TO_CHAR(sysdate, 'DD_MM__HH24_MI_SS') from dual]' INTO v_job_name;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
