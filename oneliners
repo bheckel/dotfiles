@@ -7343,7 +7343,7 @@ git blame SUP_HAS_ACTIVE_SITES.fnc
 # git remove delete untracked files:
 git clean --dry-run
 
-# git update refresh a feature branch to catch up to after release night (may want to stash any feature changes first):
+# git update refresh a feature branch to catch-up to after release night (may want to stash any feature changes first):
 git checkout develop && git fetch -p origin && git merge origin/develop && git checkout myfeaturebranch && git merge develop && git push
 
 # Set remote tracking branch. Assumes push.default=upstream.  Later, since you’re on a tracking branch and you git pull, Git automatically knows which server to fetch from and which branch to merge in:
