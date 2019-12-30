@@ -7304,7 +7304,7 @@ git difftool 1908af7:./PTG.pck PTG.pck
 git add -f ignoreme.txt
 
 # git new bare box want clone an existing github repo to a new foreign server (AKA origin, a bookmark) which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
-ssh-keygen; # then  cat ~/.ssh/id_rsa.pub  # copy it to github UI
+ssh-keygen; # then  cat ~/.ssh/id_rsa.pub  # copy it to https://github.com/settings/keys
 # PULL FROM origin to master & PUSH TO origin FROM master:
 git clone git@github.com:bheckel/dotfiles.git && git config --global user.name "Bob Heckel" && git config --global user.email rsh@rshdev.com # ...edit/add/commit... then  git pull origin master && git push origin master
 # may be required for older git versions:
