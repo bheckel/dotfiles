@@ -7525,6 +7525,9 @@ curl -d '{"key1":"value1", "key2":"value2"}' -H "Content-Type: application/json"
 # Calculate mirror size 4884 1.0123+10 is 10GB in 4884 files
 curl -s ftp://mirror.cs.vt.edu/pub/cygwin/cygwin/x86/setup.ini | awk '/^install: / { T = T + $3 ; N++ }; END { print N, T }'
 
+# Avoid cloning a repo if you only need read only:
+w3m https://github.com/bheckel/code/blob/master/rme/
+
 Google search string: RGB color picker
 
 # Markdown URL:
