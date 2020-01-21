@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Thu 24-Oct-2019 (Bob Heckel)
+" Modified: Mon 13-Jan-2020 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -53,15 +53,18 @@ let WORKBOXARRAY = [ 'L-ANA-BHEC', 'TWAVWS-05-BHEC' ]
 if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
   if has('gui') && has('win32')
     " Windows gVim
-    let VTMP = 't:/Personnel/bob/tmp'
+    " let VTMP = 't:/Personnel/bob/tmp'
+    let VTMP = ''
     let VTMPU = 'u:/temp'
   elseif has('win32unix')
     " Cygwin terminal
-    let VTMP = '/cygdrive/t/Personnel/bob/tmp'
+    " let VTMP = '/cygdrive/t/Personnel/bob/tmp'
+    let VTMP = ''
     let VTMPU = '/cygdrive/u/temp'
   else
     " Linux terminal
-    let VTMP = '~/bob/tmp'
+    " let VTMP = '~/bob/tmp'
+    let VTMP = ''
     let VTMPU = '~/tmp'
   endif
 else
@@ -209,7 +212,8 @@ syntax enable
 hi Normal guifg=White guibg=Black
 
 hi Comment ctermbg=Black ctermfg=DarkGray guibg=Black guifg=DarkGray
-" hi Comment ctermbg=green ctermfg=blue 
+
+hi Folded ctermfg=DarkGray ctermbg=Black guifg=DarkGray guibg=Black cterm=bold gui=bold
 
 hi Conditional ctermfg=LightGreen guifg=LightGreen
 
@@ -223,8 +227,6 @@ hi Directory ctermfg=Magenta guifg=Magenta guibg=Black cterm=bold gui=bold
 " Highlight tabs other than at start of line for indenting
 """match ErrorMsg /[^\t]\zs\t\+/
 hi ErrorMsg ctermfg=Black ctermbg=124 guifg=Black guibg=Red
-
-hi Folded ctermfg=DarkGray ctermbg=Black guifg=DarkGray guibg=Black cterm=bold gui=bold
 
 hi Function ctermfg=Yellow guifg=LightYellow guibg=Black
 
@@ -1800,6 +1802,10 @@ if !exists("autocommands_loaded")
     endif
   endif
 
+  au BufRead * if @% =~ 'oneliners$' 
+    hi Oneliners ctermbg=Black ctermfg=DarkGray guifg=DarkGray guibg=Black 
+    match Oneliners @^".*$\|^--.*$\|^\/\/.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@
+
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
   "
 	" TODO move to ~/.vimrc.project or something
@@ -1851,11 +1857,6 @@ if !exists("autocommands_loaded")
     au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!~/code/sas/sasrun2 "%:p"<CR>
   endif
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
-
-  au BufRead * if @% =~ 'oneliners$' 
-    hi Oneliners ctermbg=Black ctermfg=DarkGray guifg=DarkGray guibg=Black 
-    " Match all # " -- // :: /*  style comments.  Has to be at end of autocommands
-    match Oneliners @^".*$\|^--.*$\|^\/\/.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@
 
 endif  " ! autocommands_loaded
 

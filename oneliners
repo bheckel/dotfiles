@@ -3748,6 +3748,7 @@ find . -type d  | while read dn; do echo "found dir $dn"; done
 while read f; do echo "---$f---"; crontab -l -u $f; done </mnt/nfs/home/bheckel/users.txt >/mnt/nfs/home/bheckel/crontabs20150619.txt
 
 # ROT13 encryption
+ echo foo | tr 'a-zA-Z' 'n-za-mN-ZA-M'  # sbb
 cat "$@" | tr 'a-zA-Z' 'n-za-mN-ZA-M'   # "a" goes to "n", "b" to "o", etc.
 
 # Find all files opened by a process (Solaris at least):
@@ -5329,7 +5330,13 @@ xxSCRIPTINGxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxDATABASExx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
--- Outer joins preserve the rows that don't match and pads remaining columns with NULLs. OUTER keyword is optional. These words replace the comma between tablenames in old style Oracle (+) outer join operator joins (operator goes on the rightside table):
+-- Connect to oracle db ser as SEKMC with pw xxx:
+SQL> Connect SEKMC/xxx@ser;
+
+$ sqlplus / as sysdba;
+
+-- Outer joins preserve the rows that don't match and pad remaining columns with NULLs. OUTER keyword is optional.
+-- (+) replaces the comma between tablenames in old style Oracle (+) outer join operator joins (operator goes on the rightside table):
 select * from leftside LEFT OUTER JOIN rightside ...
 
 -- Only on one table not in the other table:
@@ -5480,6 +5487,11 @@ select prod_nm, DECODE(prod_grp, 'MDPI','m', 'Solid Dose','sd', 'unk') from samp
 DECODE(warehouse_id, 1,'Southlake', 2,'San Francisco', 3,'New Jersey', 'Non-domestic') 
 CASE WHEN warehouse_id=1 THEN 'Southlake' WHEN warehouse_id=2 THEN 'San Francisco' WHEN warehouse_id=3 THEN 'New Jersey' ELSE 'Non-domestic' END
 
+select distinct COUNT(DISTINCT decode(th.parent_territory_lov_id, NULL, ataa.assign_territory_lov_id, NULL)) OVER( PARTITION BY ataa.account_id ) AS total_nonjmp_territories,...
+
+--Better than  decode(p.ip_role_lov_id, null, 34657, p.ip_role_lov_id)
+NVL(p.ip_role_lov_id, 34657)
+
 -- SQL sum count a group flag.  Good for later excluding a group of records if any record contains 'CANCEL':
 sum(case when status = 'CANCEL' then 1 else 0 end) as cancelflag
 
@@ -5539,10 +5551,15 @@ SELECT /*+ INDEX (employees emp_department_ix)*/ employee_id, department_id FROM
 
 -- Oracle kill session:
 SQL> column sql_text format a80
-SQL> column sql_exec_start format a22
+SQL> col sql_exec_start form a22
 select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action from v$session s, v$sql q where s.sql_id=q.sql_id(+) and osuser='heck' order by s.sql_exec_start;
 -- Kill Oracle session (sid, serial#):
 SQL> exec sys.kill_session(51,6449);
+
+select sid , serial# , q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action , osuser
+from v$session s, v$sql q 
+where s.sql_id=q.sql_id(+) --and osuser='bheck' 
+order by s.sql_exec_start;
 
 -- Oracle move rename table:
 CREATE TABLE fooTMP AS SELECT * FROM user_role; DROP TABLE foo; CREATE TABLE foo AS SELECT * FROM fooTMP;
@@ -5591,8 +5608,8 @@ dbms_output.put_line('rpt at: ' || TO_CHAR(sysdate, 'dd-mon-yy hh:mipm'));
 if (TO_CHAR(sysdate, 'DY') in ('SAT', 'SUN') or (TO_CHAR(sysdate, 'HH24') not between '08' and '18')
 
 -- Format Oracle format if column too wide that truncation occurs in sqlplus window:
-sql> column MFG_SPEC_NUM format 999  -- sqlplus number width w/o zeros
-sql> col MFG_SPEC_TXT_A format a15  -- sqlplus column width 15 characters
+SQL> col MFG_SPEC_TXT_A form a15  -- sqlplus column width 15 characters
+SQL> column MFG_SPEC_NUM format 999  -- sqlplus number width w/o zeros
 
 -- Oracle substring replace:
 UPDATE pec SET pks_txt=REPLACE(pks_txt,'GEN','GEN_') ...
@@ -5607,20 +5624,20 @@ select TO_DATE('6-JAN-06'), TO_DATE('06JAN06'), TO_DATE('6JAN2006');  -- all sam
 select TO_DATE('15-may-2006 16:00:01','dd-mon-yyyy hh24:mi:ss') from dual; -- 15-May-06 04:00:01 PM
 select * from activity_log where trunc(activity_dt)=TO_DATE('16-JAN-06','DD-MON-YY');
 
--- Oracle date between
-select count(distinct sampname) from result where sampcreatets between to_date('01-JAN-12','DD-MON-YY') and to_date('31-DEC-12','DD-MON-YY')
-(TEST_END_DATE BETWEEN TO_DATE('2012-09-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE('2014-06-13 23:59:59', 'YYYY-MM-DD HH24:MI:SS'))
-SS.EntryTs >= TO_DATE('01-JAN-05','DD-MON-YY') AND SS.EntryTs <= TO_DATE('31-DEC-05','DD-MON-YY')
--- SQL Server date between
+-- SQL Server hardcoded date between:
 WHERE batch_time >= {ts '2011-01-03 00:00:00'} and batch_time <= {ts '2011-01-04 00:00:00'}
 
--- Canonical Oracle date range:
+-- Canonical Oracle hardcoded date range:
 WHERE prod_sel_dt BETWEEN TO_DATE('01-JAN-10','DD-MON-YY') AND TO_DATE('31-JAN-10','DD-MON-YY')
--- All employees hired in year 2019:
-SELECT * from employees where trunc(hire_date) = '01-JAN-2019';
+-- Canonical Oracle hardcoded datetime range:
+... (TEST_END_DATE BETWEEN TO_DATE('2012-09-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE('2014-06-13 23:59:59', 'YYYY-MM-DD HH24:MI:SS'))
+SS.EntryTs >= TO_DATE('01-JAN-05','DD-MON-YY') AND SS.EntryTs <= TO_DATE('31-DEC-05','DD-MON-YY')
+-- All employees hardcoded date hired in year 2019:
+SELECT * FROM employees WHERE trunc(hire_date) = '01-JAN-2019';
 
--- Oracle date with hours minutes 2019-01-15 15:37
-SELECT to_char(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI') FROM dual
+-- Oracle date with hours minutes seconds:
+SELECT to_char(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI:SS') FROM dual; --2020-01-16 18:26:57
+SELECT SYSDATE FROM dual; --16-JAN-20 18:26:57
 
 -- SQL check for duplicates, returns nothing if all samp_id are unique:
 select count(*) from samp group by samp_id having count(*)>1;
@@ -5671,7 +5688,7 @@ dbms_output.enable(NULL);
 dbms_output.disable;
 
 -- Oracle print with carriage return linefeed:
-set serveroutput on;  -- or set serveroutput on size unl; BEGIN DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('Hello World' || chr(13) || chr(10)); END; -- then type /
+set serveroutput on size unl; BEGIN DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('Hello World' || chr(13) || chr(10)); END; -- then type /
 crlf CONSTANT VARCHAR2(2) := CHR(13) || CHR(10);
 
 -- userid/password@hostname
@@ -5749,8 +5766,8 @@ SELECT * from  user_tab_columns WHERE column_name LIKE '%NEW%'
 select * from dba_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
 -- What the object references:
 select * from user_dependencies where name = 'ACCOUNT_TEAM' and referenced_type not in ('SYNONYM') order by 4;
--- What references the object:
-select * from user_dependencies where REFERENCED_NAME = 'ACCOUNT_TEAM' and referenced_type not in ('SYNONYM') order by 4;
+-- What references the object depends upon the object:
+select * from user_dependencies where REFERENCED_NAME = 'ACCOUNT_TEAM' and referenced_type not in ('SYNONYM') order by 1;
 
 -- Is table indexed:
 SELECT * from user_indexes WHERE table_name LIKE 'LIST_OF%'  -- or SELECT * from all_ind_columns WHERE index_name LIKE 'LIST_OF%'
@@ -5761,21 +5778,14 @@ ALTER TABLE CONTACT_OPP ADD CONSTRAINT OPP_CONTACT_OPP_FK FOREIGN KEY (OPP_ID) O
 
 -- Oracle Primary key (P) foReign key (R):
 SELECT * FROM all_constraints WHERE owner=USER; -- same as select * from user_constraints
--- Does any other table reference this table LIST_OF_VALUES i.e. do any foreign keys exist:
 ALTER TABLE SAP_TERRITORY ADD CONSTRAINT SAP_TERRITORY_TERRITORY_ID_FK FOREIGN KEY ("TERRITORY_LOV_ID") REFERENCES LIST_OF_VALUES" ("LIST_OF_VALUES_ID") ON DELETE CASCADE ENABLE;
+-- Does any other table reference this table LIST_OF_VALUES i.e. do any foreign keys exist:
 select * FROM all_constraints WHERE constraint_type = 'R' and r_constraint_name IN (select constraint_name from all_constraints where table_name like 'LIST_OF_VALUES%') order by table_name;
 
 -- View all details of Oracle table in a schema best poke around table:
 select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES', 'SETARS') from dual;
 -- View some details of Oracle table (like DESC in sqlplus):
 select column_name, nullable, concat(concat(concat(data_type,'('),data_length),')') from user_tab_columns where table_name = 'EMAIL_MESSAGES';
-
--- Oracle select top 5 rows of a table in order - this fails: SELECT * FROM scott.emp WHERE ROWNUM <= 5 ORDER BY ename 
-SELECT * FROM (SELECT * FROM scott.emp ORDER BY ename) WHERE ROWNUM <= 5;
-SELECT * FROM scott.emp ORDER BY ename FETCH FIRST 5 ROWS WITH TIES  -- Oracle 12c+
-
--- Oracle select first top 20% percent of rows of a table in order:
-select empno, ename, sal, deptno from emp order by sal desc fetch first 20 percent rows only;
 
 -- Sleep pause execution for 60 seconds:
 CREATE OR REPLACE PROCEDURE SLEEP(P_MILLI_SECONDS IN NUMBER) AS LANGUAGE JAVA NAME 'java.lang.Thread.sleep(long)';
@@ -5881,7 +5891,7 @@ select * from stores where clients_fkid=999 and storeid::int4=3
 select version();
 
 -- SQL GROUP BY count more than one
-select patientid, count(*) from analytics.health group by patientid having count(*)>1
+select patientid, count(*) from health group by patientid having count(*)>1
 -- Select only those with 2 or more maskedkey for one patient:
 select id, count(distinct maskedkey) from xrfilldata where id in ('999','888') group by id having count(distinct maskedkey)>1;
 
@@ -5931,10 +5941,10 @@ where date_trunc('minute', ahpp.lastmodified) = '2016-02-23 08:56:00'::timestamp
 -- selfjoin SELF JOIN: a recursive join that results when a set of data is joined back to itself.  Typically encountered when a parent-child relationship in a hierarchy needs to be traversed.  When using ANSI syntax to accomplish this, only the JOIN...ON syntax will work, and the keyword INNER can be used for clarity.
 
 -- Find next Postgres sequence number:
-select nextval('analytics.tmm_enrollmentperf_tmm_enrollmentperfid_seq');
+select nextval('tmm_enrollmentperf_tmm_enrollmentperfid_seq');
 
 -- Postgres remove seconds from timestamp:
-psql -h db-06.twa.taeb.com TAEBMART -c "select to_char(lastmodified, 'yyyy-mm-dd HH24:MI') from analytics.reportinglog where reportname='TMMRep_Reporting_Automation' order by lastmodified desc limit 1"
+psql -h db-06.twa.taeb.com TAEBMART -c "select to_char(lastmodified, 'yyyy-mm-dd HH24:MI') from reportinglog where reportname='TMMRep_Reporting_Automation' order by lastmodified desc limit 1"
 
 -- Postgres between two dates date range:
 where created>='2016-05-11' and created<'2016-05-12'
@@ -6065,20 +6075,28 @@ select count(distinct ddl_event_id), trunc(event_date, 'MONTH'), (sysdate - 160)
 -- Build concatenate a random comma separated CSV list of ids:
 SELECT listagg(account_search_id,',') WITHIN GROUP (ORDER BY account_search_id) FROM account_search SAMPLE(0.1) WHERE ROWNUM<99
 
--- Determine the min and prove it with a list of all radiuses for that class, using listagg as an Analytic function:
+-- Oracle Top-N select top 5 rows of a table in order:
+SELECT * FROM (SELECT * FROM scott.emp ORDER BY ename) WHERE ROWNUM <= 5;  -- top 5 employees by alphabetical name
+SELECT * FROM emp ORDER BY ename FETCH FIRST 5 ROWS ONLY;  -- Oracle 12c+
+SELECT * FROM emp ORDER BY ename FETCH FIRST 5 ROWS WITH TIES;
+-- Oracle Top-N select first top 20% percent of rows of a table in order:
+SELECT * FROM emp ORDER BY ename FETCH FIRST 50 PERCENT ROWS ONLY -- 7 of the 14 rows
+SELECT * FROM emp ORDER BY ename OFFSET 2 ROWS FETCH NEXT 3 ROWS ONLY  -- of the top-5 rows, skip the top 2 just list #3, #4, #5
+
+-- Determine the min and prove it with a list of all radiuses for that class, using listagg as an Analytic Function:
 select class, planet, min(radius), listagg(min(radius),',') within group ( order by planet ) over ( partition by class ) class_radii from named_moons group by class, planet order by 1,2
 
--- rank as an aggregate function:
+-- RANK as an aggregate function:
 select rank(1600) WITHIN GROUP (order by sal desc) from emp;  -- 7 i.e. 7th place, vs. analytic OVER(ORDER BY...) gives whole table with ranks
 select dense_rank(1600) WITHIN GROUP (order by sal desc) from emp;  -- 6 i.e. 6th place
 
--- Analytic SQL function partition-order-windowing:
+-- Analytic Function SQL partition-order-windowing:
 ,count(1) OVER (order by d) cnt_cumul_grp  -- 1,2,4,4,5,6
 ,row_number() OVER (order by d) row_seq_in_dt_order  -- 1,2,3,4,5,6
 ,rank() OVER (order by d) orderbydt -- 1,2,3,3,5,6 have dups "Olympic" rank has holes
 ,dense_rank() OVER (order by d) orderbydt_dense -- 1,2,3,3,4,5,6 still have dups but fill the holes, unlike Olympic
 ,row_number() OVER (partition by d order by d) rownumbyday  -- 1,1,1,2,1,1
--- Can be Top N by day if used as a subquery
+-- Can be Top-N by day if used as a subquery
 ,rank() OVER (partition by d order by amt) rank_by_day -- 1,1,1,1,1,1 would be 1,1,1,1,3,1,1 --if union all select date '2000-01-03', 99 from dual existed and dense_rank would make the 3 a 2
 ,first_value(amt) OVER (partition by d order by d) firstdot  -- 10,11,30,30,10,14
 -- Good for cols where only the first appearance holds empno and rest are blank and need to be padded out (like a report for human consumption)
@@ -6113,10 +6131,10 @@ select dense_rank(1600) WITHIN GROUP (order by sal desc) from emp;  -- 6 i.e. 6t
 ,avg(amt) OVER () grand_avg  -- 17.5,17.5,17.5,17.5,17.5,17.5
 ,count(1) OVER () grand_sum -- 7,7,7,7,7,7
 
--- Analytic function quartile split employees randomly into 4 buckets:
+-- Analytic Function quartile split employees randomly into 4 buckets:
 select empno, ename, job, hiredate, sal, deptno, ntile(4) over ( order by DBMS_RANDOM.VALUE ) as grp from scott.emp order by grp;
 
--- Analytic function to get the employee(s) with the 3rd highest salary:
+-- Analytic Function to get the employee(s) with the 3rd highest salary:
 select * from ( select empno, ename, job, hiredate, sal, comm, dense_rank() OVER (order by sal desc) r from  emp ) where r = 3;
 
 -- Find employees with salary greater than the average revenue generated in their department.  Correlated subquery:
@@ -6136,7 +6154,7 @@ select pharmacypatientid, encode(digest(pharmacypatientid||'theirsalt','sha1'), 
 select clientid, avg(enrolledratio)::decimal(5,2)
 
 -- Postgres datetime criteria:
-select * from analytics.tmm_enrollmentperf where created > '2017-01-30 09:00:00'::timestamp;
+select * from tmm_enrollmentperf where created > '2017-01-30 09:00:00'::timestamp;
 
 -- Do we have 12 months for each client?:
 select clientid, year, count(*) from (select distinct clientid, year, month from dshbrd.pdctracksummary where year=2016) as t group by clientid, year order by clientid, year;
@@ -6190,11 +6208,13 @@ SELECT owner, object_name, object_type, status, last_ddl_time FROM dba_objects W
 SELECT SYSTIMESTAMP INTO starting_time FROM DUAL;
 
 -- Oracle regex:
-select object_name, object_type from user_objects where object_type in ('PACKAGE') AND regexp_like(object_name, '.*BOBONCALL.*')
+select object_name, object_type from user_objects where object_type in ('PACKAGE') AND REGEXP_LIKE(object_name, '.*BOBONCALL.*')
 SELECT job_name, start_date, regexp_replace(start_date, '[AP]M -\d\d:\d\d.*$', 'EST5EDT') from user_scheduler_jobs
 SELECT REGEXP_COUNT ('Oracle PL/SQL By Example Updated for Oracle 11g', 'ora', 1, 'i') FROM dual;
 -- Oracle regex - returns 250/50 MCG:
 select regexp_substr(upper('Disk Inh Pwdr 250/50 mcg 60D'),'\d+/[^/]* *MCG') as stren from dual
+-- Too complicated for REGEXP_LIKE:
+select employee_id, jobtitle from employee e where extract(year from termination_date) = 2019 and instr(upper(jobtitle),'ACCOUNT') > 0 and instr(upper(jobtitle),'ACCOUNTANT') <= 0 and instr(upper(jobtitle),'ACCOUNTING') <= 0 and instr(upper(jobtitle),'TECHNICAL ACCOUNT') <= 0 and instr(upper(jobtitle),'SUPPORT ACCOUNT') <= 0
 
 -- Split on semicolon FREQ=MINUTELY;INTERVAL=10;
 ,regexp_substr(repeat_interval, '[^;]+;', 1, 1) time  -- FREQ=MINUTELY;
@@ -6202,6 +6222,9 @@ select regexp_substr(upper('Disk Inh Pwdr 250/50 mcg 60D'),'\d+/[^/]* *MCG') as 
 
 -- Concatenate full name without extra spaces when no middle name provided:
 RETURN (TRIM(REGEXP_REPLACE( (first_name_in || ' ' || middle_name_in || ' ' || last_name_in), ' +', ' ')) );
+
+-- Comma separated delimited parse split a record holding a CSV string to rows, one to many:
+SELECT table_name, column_name, generation_type, REGEXP_SUBSTR(identity_options,'[^,]+', 1, LEVEL) identity_options FROM user_tab_identity_cols WHERE table_name = 'T_ID_COL' CONNECT BY REGEXP_SUBSTR(identity_options,'[^,]+',1,level) IS NOT NULL;
 
 -- Comma separated delimited parse split CSV input string to numbers column:
 SELECT to_number(TRIM(regexp_substr(accounts, '[^,]+', 1, LEVEL))) AS account_id FROM (SELECT '123,456' AS accounts FROM dual) CONNECT BY regexp_substr(accounts, '[^,]+', 1, LEVEL) IS NOT NULL;
@@ -6311,7 +6334,7 @@ ALTER TABLE analytics.build ADD COLUMN rundatacheck BOOLEAN NOT NULL DEFAULT TRU
 alter table myoracletbl add bob varchar2(4000);
 alter table myoracletbl drop column bob;
 
-ALTER TABLE analytics.archivebuildconfig ADD COLUMN job_type text NOT NULL DEFAULT 'Imports';
+ALTER TABLE archivebuildconfig ADD COLUMN job_type text NOT NULL DEFAULT 'Imports';
 
 CREATE TABLE zorion35282 (a NUMBER, b NUMBER, c NUMBER, d NUMBER, e NUMBER, f NUMBER, g NUMBER)
 INSERT INTO zorion35282 VALUES (1, 2,3,4,5,6,7); COMMIT;
@@ -6332,9 +6355,9 @@ create table emp as select * from scott.emp; insert into emp values (999, 'joe',
 -- Create an empty zero record table based on another table:
 CREATE TABLE orion_37551 AS SELECT * FROM valid_orders WHERE 1=0;
 
-CREATE SEQUENCE UID_ORION_37551 MINVALUE 1 MAXVALUE 999999999999999999999999999 INCREMENT BY 10  START WITH 1 CACHE 20 NOORDER NOCYCLE 
+CREATE SEQUENCE UID_RION_37551 MINVALUE 1 MAXVALUE 999999999999999999999999999 INCREMENT BY 10  START WITH 1 CACHE 20 NOORDER NOCYCLE 
 -- Increment sequence using it as a primary key:
-INSERT INTO ORION_37551 (email_messages_id, subject) VALUES (uid_orion_37551.NEXTVAL, 'test sequence'); COMMIT;
+INSERT INTO RION_37551 (email_messages_id, subject) VALUES (uid_rion_37551.NEXTVAL, 'test sequence'); COMMIT;
 
 CREATE OR REPLACE TRIGGER on_schema_mod_trigger AFTER ALTER OR CREATE ON scott.SCHEMA WHEN (ORA_DICT_OBJ_TYPE = 'TABLE') BEGIN dbms_output.put_line('ok'); END;
 
@@ -6551,8 +6574,8 @@ l_my_oracle_const CONSTANT NUMBER := 42;
 -- Commit interval periodic commit every 100 records (poor man's BULK COLLECT FORALL):
 FOR rec IN c LOOP UPDATE ref_base reb SET reb.employee_id = 999, reb.updatedby = 0 WHERE reb.reference_id = rec.reference_id; dbms_output.put_line(rec.reference_id); cnt := cnt + 1;  IF (MOD(cnt, 100) = 0) THEN COMMIT; END IF; END LOOP; -- So last group will commit: COMMIT;
 
--- Tablespace calculation:
-select segment_name table_name, sum(bytes)/(1024*1024) table_size_meg from user_extents where segment_type='TABLE' and tablespace_name = 'ES_NOLOG_01' group by segment_name
+-- Table size calculation in MB & GB:
+select segment_name table_name, sum(bytes)/(1024*1024) table_size_meg, sum(bytes)/(1024*1024*1024) table_size_gig from user_extents where segment_type='TABLE' /*and tablespace_name= 'ES_NOLOG_01'*/ group by segment_name;
 
 -- Force compile ORA- errors for any PLW- warnings:
 ALTER SESSION SET plsql_warnings = 'ERROR:6002' -- upgrade the 'unreachable code' warning
@@ -6652,8 +6675,6 @@ CREATE INDEX with_null ON table_name (nullable_column, '1');
 -- Reduce script failures 60 seconds:
 ALTER SESSION SET ddl_lock_timeout=60;  
 
-$ sqlplus / as sysdba;
-
 -- Lowest plan cost to find names like 'Kochhar' without an index-ignoring leading '%hhar':
 create index last_name_reverse_index on employees(REVERSE(last_name)); select employee_id, first_name, last_name, reverse(last_name), salary from employees where reverse(last_name) LIKE 'rahh%';
 
@@ -6682,11 +6703,13 @@ alter system flush shared_pool;
 
 CREATE UNIQUE INDEX ASP_DFLT_TSR_OWN_TEAM_TSAT_IX ON ASP_DFLT_TSR_OWN_TEAM(FUTURE_TSR_OWNER_ID,ACCOUNT_TEAM_ID);
 
--- Declare a bind variable:
-VARIABLE M_DIVISOR NUMBER;
--- Assign value to bind variable:
-EXEC :M_DIVISOR := 0;
-DECLARE /*Declare the local variables and initialize with the bind variables*/ L_DIVISOR NUMBER := :M_DIVISOR;
+-- Declare a session bind variable:
+SQL> VARIABLE M_DIVISOR NUMBER;
+-- Assign a value to session bind variable:
+SQL> EXEC :M_DIVISOR := 0;
+--Declare the local variable and initialize it with the session bind variable:
+SQL> DECLARE L_DIVISOR NUMBER := :M_DIVISOR;
+SQL> exec callmyproc(:M_DIVISOR);
 
 -- HTML
 NVL(lov.value_description, '&lt;;BLANK&gt;;') AS value_description,
@@ -6698,6 +6721,10 @@ SELECT * FROM account_team where created>(SYSDATE - INTERVAL '4' hour);
 THEN assign_table(i).new_account_team_assignment_id:=1.257E+993;
 
 EXECUTE IMMEDIATE q'[select 'ASP_TASK_JOB_' || TO_CHAR(sysdate, 'DD_MM__HH24_MI_SS') from dual]' INTO v_job_name;
+
+-- sqldeveloper preferences location Windows:
+C:\Documents and Settings\<user-name>\Application Data\SQL Developer\systemn.n.n.n.n
+C:\Documents and Settings\<user-name>\Application Data\SQL Developer\UserSnippets.xml
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7459,7 +7486,7 @@ start %windir%\system32\scrnsave.scr -s
 msinfo32
 
 -- Find duplicates Postgres
-select * from analytics.healthplanpatients hp where row(hpprogramid, externalpatientid, cardholderid, pharmacyid) in (select hpprogramid, externalpatientid, cardholderid, pharmacyid from analytics.healthplanpatients_test);
+select * from healthplanpatients hp where row(hpprogramid, externalpatientid, cardholderid, pharmacyid) in (select hpprogramid, externalpatientid, cardholderid, pharmacyid from .healthplanpatients_test);
 
 -- Comma separated column
 select string_agg(distinct taebpatientid::varchar,',') from cce.ccepatientstaging where clientid=22;
