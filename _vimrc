@@ -1317,10 +1317,11 @@ fu! WriteToFile(vtpth, fnm, append, ...) range  " {{{2
 
   if (a:append == 1)
     " ;a map
-    exec(lfirst . ',' . llast . " write! >> " . a:vtpth . "/" . a:fnm)
+    exec(lfirst . ',' . llast . " write! >> " . a:vtpth . '/' . a:fnm)
   else
     " ;w map
-    exec(lfirst . ',' . llast . " write! " . a:vtpth . "/" . a:fnm)
+    " TODO why does ,silent not work?
+    execute(lfirst . ',' . llast . " write! " . a:vtpth . '/' . a:fnm)
   endif
 
   " Variable args processing for message to be cut 'n' pasted
@@ -1786,6 +1787,9 @@ if !exists("autocommands_loaded")
   " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source c:/cygwin64/home/bob.heckel/code/sas/saslog.vim
   " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim
   " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $VIMRUNTIME\syntax\saslog.vim
+
+  " Avoid ;w failure if this file is open by accident anywhere by ,e (it should never be edited)
+  au BufReadPre,FileReadPre .vimxfer set noswapfile
 
   " if THISBOX == 'appa'
     " au BufNewFile,BufRead,BufEnter *.sas | syntax clear | source $HOME/code/sas/sas.vim

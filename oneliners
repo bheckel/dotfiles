@@ -5330,8 +5330,10 @@ xxSCRIPTINGxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxDATABASExx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
--- Connect to oracle db ser as SEKMC with pw xxx:
-SQL> Connect SEKMC/xxx@ser;
+-- Connect to oracle db SER as user SEKMC with pw xxx:
+SQL> connect SEKMC/xxx@ser;
+
+SQL> connect scott/tiger;
 
 $ sqlplus / as sysdba;
 
@@ -5355,7 +5357,7 @@ INSERT INTO bobhlm SELECT * FROM links_material WHERE rownum<11; commit;
 -- Copy first few rows of Oracle table into a new table:
 CREATE bob AS select patientid FROM public.hppatientstarpdc;
 
--- Capture Oracle userid (note no semicolon to terminate the SQL):
+-- Capture Oracle userid (note NO SEMICOLON to terminate the SQL):
 EXECUTE IMMEDIATE q'[ SELECT sys_context('setars_context', 'employee_id') from dual ]' INTO whoami;
 
 -- Oracle which database are we on?:
