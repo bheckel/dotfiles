@@ -4,7 +4,7 @@
 # Summary: bash config for at least Unix/Linux, Cygwin 1.3/1.5/1.7 and z/OS
 #
 #  Created: Tue 19-May-1998 (Bob Heckel)
-# Modified: Sat 02-Nov-2019 (Bob Heckel)
+# Modified: Sun 26-Jan-2020 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -428,19 +428,13 @@ case "$OSTYPE" in
     #-------------------
     # Export Cygwin  #{{{2
     #-------------------
-    # For drives not mounted by Cygwin.  Allows easier completion e.g. $ cd $c/temp/foo<TAB>
+    # For drives not mounted by Cygwin
     export a=/cygdrive/a
     export c=/cygdrive/c
     export d=/cygdrive/d
     export e=/cygdrive/e
     export f=/cygdrive/f
-    export g=/cygdrive/g
-    export h=/cygdrive/h
-    export m=/cygdrive/m
     export u=/cygdrive/u
-    export x=/cygdrive/x
-    export y=/cygdrive/y
-    export z=/cygdrive/z
     export CYGWIN=nodosfilewarning  # MS-DOS style path detected: u:/tmp/bdfCURR.rtpsh005
     # export CVSROOT=$HOME/repository
 		export EDITOR=vim
@@ -454,12 +448,8 @@ case "$OSTYPE" in
     export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${LCHOSTNAME}${fg_darkgray}$(parse_git_branch) \w/ \d \t ${normal} \n\$ '
     export PS2=' '  # allow multiple line copy to clipboard 
     # export SENSIBLE_BROWSER='/cygdrive/c/Program\ Files/mozilla\ firefox/firefox.exe'
-    export TEMP=/cygdrive/c/temp
+    # export TEMP=/cygdrive/c/temp
     export VIMSTATUSL="${USERNAME}@`echo ${HOSTNAME} | tr [A-Z] [a-z]`"
-
-    # if [ $HOSTNAME = 'SAS-01' ] || [ $HOSTNAME = 'SAS-02' ]; then
-    #   export SASV9_OPTIONS='-validvarname=any'
-    # fi
     #-------------------
     # Functions Cygwin  #{{{2
     #-------------------
@@ -645,7 +635,7 @@ case "$OSTYPE" in
 
       alias pse="ps -ef | grep ^$USER | grep -vP 'ps -ef|grep' | grep -v chrome"
       alias systeminfo='df -h && echo && free -m && echo && grep --color="never" name /proc/cpuinfo | uniq && echo && lspci | grep --color="never" VGA && echo && xrandr | grep --color="never" connected && echo && uname -rms'
-      alias usb='sudo fdisk -l; mount|grep "^/dev/sd"; sudo mkdir /media/usb; echo; echo "sudo mount -t vfat /dev/sdb /media/usb -o uid=1000,gid=1000,utf8,dmask=027,fmask=137"; echo; echo "usually /dev/sdb, to disconnect: sudo umount /media/usb"'
+      alias usb='sudo fdisk -l; mount|grep "^/dev/sd"; sudo mkdir /media/usb; echo; echo "try this: sudo mount -t vfat /dev/sdb /media/usb -o uid=1000,gid=1000,utf8,dmask=027,fmask=137"; echo; echo "usually /dev/sdb or sdc, disconnect: sudo umount /media/usb"'
 
       if [ $HOSTNAME = 'yoniso' ]; then
         alias cdrom='sudo mount -t iso9660 /dev/cdrom /media/cdrom; mount|grep "^/dev/cd"; echo "sudo umount /media/cdrom"'
@@ -840,6 +830,11 @@ case "$OSTYPE" in
   ;;
 esac # }}}1
 # Security or project related additions:  #{{{1
+
+# if [ $HOSTNAME = 'SAS-01' ] || [ $HOSTNAME = 'SAS-02' ]; then
+#   export SASV9_OPTIONS='-validvarname=any'
+# fi
+
 if [ -e $HOME/.bashrc.project ]; then
   echo ".bashrc: sourcing $HOME/.bashrc.project..."
   source $HOME/.bashrc.project
