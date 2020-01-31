@@ -5396,8 +5396,8 @@ select s.sid||','||s.serial# sess, s.osuser, s.USERNAME, s.last_call_et, s.statu
 
 -- Oracle find uncommitted transactions locks:
 SELECT s.OSUSER, s.sid ,s.serial# ,s.username ,s.machine ,s.status ,s.lockwait ,t.used_ublk ,t.used_urec ,t.start_time from v$transaction t inner join v$session s on t.addr = s.taddr;
--- What user and sql is locking?:
-SELECT O.OBJECT_NAME, S.SID, S.SERIAL#, P.SPID, S.PROGRAM, SQ.SQL_FULLTEXT, S.LOGON_TIME FROM V$LOCKED_OBJECT L, DBA_OBJECTS O, V$SESSION S, V$PROCESS P, V$SQL SQ WHERE L.OBJECT_ID = O.OBJECT_ID AND L.SESSION_ID = S.SID AND S.PADDR = P.ADDR AND S.SQL_ADDRESS = SQ.ADDRESS;
+-- What user and what is their sql that is locking?:
+SELECT s.osuser, O.OBJECT_NAME, S.SID, S.SERIAL#, P.SPID, S.PROGRAM, SQ.SQL_FULLTEXT, S.LOGON_TIME FROM V$LOCKED_OBJECT L, DBA_OBJECTS O, V$SESSION S, V$PROCESS P, V$SQL SQ WHERE L.OBJECT_ID = O.OBJECT_ID AND L.SESSION_ID = S.SID AND S.PADDR = P.ADDR AND S.SQL_ADDRESS = SQ.ADDRESS order by 1;
 
 -- Insert newline for blank row spacing:
 rc PLS_INTEGER; rc := SQL%ROWCOUNT; dbms_output.new_line(); dbms_output.put_line('rows affected: ' || rc);
@@ -5546,10 +5546,12 @@ foo CONSTANT  varchar2(4000) := q'[bar 'ok' then 4000 is max varchar2]';
 DROP PACKAGE test_bob;
 
 -- Oracle cross database hint:
-SELECT \*+ DRIVING_SITE(SITE) *\ COUNT(*) FROM DB_OWNER.SITE_DATA@DNB_XXXX SITE WHERE SITE.DUNS_NBR = :1
+SELECT /*+ DRIVING_SITE(SITE) */ COUNT(*) FROM DB_OWNER.SITE_DATA@DNB_XXXX SITE WHERE SITE.DUNS_NBR = :1
 
 -- Oracle use index scan - not full table scan hint:
 SELECT /*+ INDEX (employees emp_department_ix)*/ employee_id, department_id FROM employees WHERE department_id > 50;
+
+select /*+PARALLEL(4)*/ empno from emp;
 
 -- Oracle kill session:
 SQL> column sql_text format a80
@@ -5596,10 +5598,14 @@ WHERE order_dt > TRUNC(SYSDATE, 'MONTH')
 
 select rpad('5star', 10, '*'), lpad('6dot', 10, '.'), lpad('xxx', 2) || 'doublex' from dual
 
+-- Create a poor man's graph:
+SELECT empno, job, LPAD('*', sal/100, '.') graph FROM emp
+
 -- Update query: 
 update retain.fnsh_prod set prod_sel = 'N', prod_sel_dt = NULL;
 
-Oracle YYYYMMDDHH24MISS date vaguely like epoch: 20070304184943
+-- Date format: 20070304184943
+select to_char(sysdate, 'YYYYMMDDHH24MISS') from dual;
 
 -- Oracle SQL*Plus (like SELECT TOP 10 *... in SQL Server)
 select * from activity_log where rownum<10;
@@ -5677,7 +5683,7 @@ SQL> /
 -- Oracle prompt (1st time only) for saved environment substitution variable prompt:
 BEGIN DBMS_OUTPUT.PUT_LINE (‘Today is ‘||’&&sv_day‘); DBMS_OUTPUT.PUT_LINE (‘Today is still ‘||’&sv_day’); END;
 
--- Avoid sqlplus prompts for ampersands:
+-- Avoid sqlplus prompts for ampersand substitutions:
 SQL> set define off;
 SQL> @C:\Users\bheck\OneDri~1\workspace\data\Source\SQL\3.50OrionScripts\ORION-33855_ddl_change.sql
 -- sqlplus BOOLEAN parameters are translated from/to integers 0/1/null <--> false/true/null:
@@ -5705,8 +5711,8 @@ select dbms_metadata.get_dependent_ddl('TABLE', 'ACTIVITY_SEARCH') from dual;
 -- Implicit cursor simple:
 DECLARE r dual%ROWTYPE; BEGIN FOR r IN ( SELECT * FROM SYS.dual ) LOOP dbms_output.put_line(r.dummy); END LOOP; END;
 
--- Return a cursor:
-CREATE OR REPLACE FUNCTION f RETURN SYS_REFCURSOR AS c SYS_REFCURSOR; BEGIN OPEN c FOR select * from dual; RETURN c; END; /
+-- Return a cursor variable:
+CREATE OR REPLACE FUNCTION f RETURN SYS_REFCURSOR AS cv SYS_REFCURSOR; BEGIN OPEN cv FOR select * from dual; RETURN cv; END; /
 
 -- Strong cursor because Weak types do not have a RETURN clause.  SYS_REFCURSOR is always weak, almost always used with dynamic queries.
 DECLARE TYPE book_data_t IS REF CURSOR RETURN book%ROWTYPE;  cv book_data_t;  BEGIN ...
@@ -6243,6 +6249,7 @@ SELECT cast(sys_context('mycontext', 'actual_employee_id') AS NUMBER) FROM dual
 
 -- Oracle date time interval in the last 5 minutes:
 SELECT (SYSTIMESTAMP - INTERVAL '5' minute) AS five_minutes_ago, SYSTIMESTAMP FROM dual
+SELECT * FROM account_team where created>(SYSDATE - INTERVAL '5' minute);
 SELECT controlfile_time, CURRENT_TIMESTAMP - controlfile_time minutes_ago FROM v$database;
 WHERE execute_time >= (SYSTIMESTAMP - INTERVAL '5' minute)
 start_date := cast(SYSTIMESTAMP + (1/(24*60) * 5) AS TIMESTAMP);  -- 5 minutes from now in future DEPRECATED
@@ -6583,8 +6590,8 @@ select segment_name table_name, sum(bytes)/(1024*1024) table_size_meg, sum(bytes
 ALTER SESSION SET plsql_warnings = 'ERROR:6002' -- upgrade the 'unreachable code' warning
 ALTER SESSION SET plsql_warnings = 'ERROR:ALL'
 
--- Populate sample dummy Oracle table with 100k random strings of length 30:
-insert into mytbl select level, dbms_random.string('a',30) from dual connect by level <= 100000
+-- Populate sample dummy Oracle table with 100k random strings of varchar(30):
+insert /*+APPEND*/ into mytbl select level, dbms_random.string('a',30) from dual connect by level <= 100000
 
 -- Asume that in 1999 the database displays 01-JAN-11. If Oracle date format uses DD-MON-RR, then 11 specifies 2011, if the format uses YY, then 11 specifies 1911
 
@@ -6680,7 +6687,7 @@ ALTER SESSION SET ddl_lock_timeout=60;
 -- Lowest plan cost to find names like 'Kochhar' without an index-ignoring leading '%hhar':
 create index last_name_reverse_index on employees(REVERSE(last_name)); select employee_id, first_name, last_name, reverse(last_name), salary from employees where reverse(last_name) LIKE 'rahh%';
 
--- Use bitmap index if cardinality is low, index is not modified frequently and nulls may exist
+-- Use BITMAP index if cardinality is low (e.g gender) vs. high (last_name), index is not modified frequently and nulls may exist
 
 CREATE INDEX emp_id_idx ON employees_copy(employee_id) COMPUTE STATISTICS;
 -- Shouldn't need this then:
@@ -6727,6 +6734,9 @@ EXECUTE IMMEDIATE q'[select 'ASP_TASK_JOB_' || TO_CHAR(sysdate, 'DD_MM__HH24_MI_
 -- sqldeveloper preferences location Windows:
 C:\Documents and Settings\<user-name>\Application Data\SQL Developer\systemn.n.n.n.n
 C:\Documents and Settings\<user-name>\Application Data\SQL Developer\UserSnippets.xml
+
+-- View cached cursor (library cache) from a previous query, if found avoids hard parse and uses existing execution plan:
+SELECT * FROM v$open_cursor v where upper(v.sql_text) like '%MYTBL%' and user_name = 'SCOTT'
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7553,6 +7563,12 @@ curl -d '{"key1":"value1", "key2":"value2"}' -H "Content-Type: application/json"
 
 # Calculate mirror size 4884 1.0123+10 is 10GB in 4884 files
 curl -s ftp://mirror.cs.vt.edu/pub/cygwin/cygwin/x86/setup.ini | awk '/^install: / { T = T + $3 ; N++ }; END { print N, T }'
+
+curl -X GET 'http://rion.sas.com/rest/contacts?firstName=J&lastName=Heckel&accountId=9999999' \
+     -H 'Accept: application/hal+json;v=EDGE' \
+     -H 'X-Rion-Principal-User:arynt\sppt' \
+     -H 'Authorization: OWS myauthkey' \
+     -H 'Host: rionapi.sas.com'
 
 # Avoid cloning a repo if you only need read only:
 w3m https://github.com/bheckel/code/blob/master/rme/

@@ -1696,6 +1696,9 @@ if !exists("autocommands_loaded")
   au BufRead,BufEnter *.sql,afiedt.buf iab SC select count(*) from
   au BufRead,BufEnter *.sql,afiedt.buf iab WH where
 
+  " Fix /usr/share/vim/vim81/syntax/sqloracle.vim in Jan. 2020
+  au BufRead,BufEnter *.sql syn keyword sqlFunction	forall save exceptions
+
   " See  set cinwords  above.
 """  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.pl,*.pm,*.sas set smartindent
   " Fix not-so-smartindent comment outdenting:  TODO ignored, can't use
