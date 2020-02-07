@@ -6139,6 +6139,9 @@ select dense_rank(1600) WITHIN GROUP (order by sal desc) from emp;  -- 6 i.e. 6t
 ,avg(amt) OVER () grand_avg  -- 17.5,17.5,17.5,17.5,17.5,17.5
 ,count(1) OVER () grand_sum -- 7,7,7,7,7,7
 
+-- Want only the first value in case of duplicates:
+SELECT DISTINCT FIRST_VALUE(account_name_id) over(partition by account_id order by updated desc) ...
+
 -- Analytic Function quartile split employees randomly into 4 buckets:
 select empno, ename, job, hiredate, sal, deptno, ntile(4) over ( order by DBMS_RANDOM.VALUE ) as grp from scott.emp order by grp;
 
@@ -6348,10 +6351,10 @@ ALTER TABLE archivebuildconfig ADD COLUMN job_type text NOT NULL DEFAULT 'Import
 CREATE TABLE zorion35282 (a NUMBER, b NUMBER, c NUMBER, d NUMBER, e NUMBER, f NUMBER, g NUMBER)
 INSERT INTO zorion35282 VALUES (1, 2,3,4,5,6,7); COMMIT;
 ALTER TABLE zorion35282 RENAME COLUMN a3 TO a4;
-ALTER TABLE zorion35282 ADD sql_text_all CLOB
+ALTER TABLE zorion35282 ADD sql_text_all CLOB;  -- no COLUMN keyword for Oracle!
 ALTER TABLE zorion35282 DROP COLUMN sql_text_all 
 EXECUTE IMMEDIATE 'alter table ASP_DET drop (FUTURE_TIER, FUTURE_COVERAGE, FUTURE_TSR_OWNER)';
--- Change data type if column is all null:
+-- Change data type (if column is all NULLs):
 ALTER TABLE email_messages MODIFY msgbody VARCHAR2(63)
 
 -- Compile selectively:
@@ -6382,6 +6385,8 @@ create table dummy_table(id primary key, tag) as select rownum id, to_char(rownu
 create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dual connect by level <= 365*5;
 -- Sample CTAS table using a csv list:
 create table dummy_table as SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE('123,456', ',', '","') || '"'));
+-- Populate an existing sample dummy Oracle table with 100K random strings of VARCHAR(30):
+insert /*+APPEND*/ into mytbl select level, dbms_random.string('a',30) from dual connect by level <= 100000
 
 -- View Oracle grants privileges:
 SELECT * FROM DBA_TAB_PRIVS d WHERE d.table_name LIKE 'RPT_TAX%'
@@ -6590,9 +6595,6 @@ select segment_name table_name, sum(bytes)/(1024*1024) table_size_meg, sum(bytes
 ALTER SESSION SET plsql_warnings = 'ERROR:6002' -- upgrade the 'unreachable code' warning
 ALTER SESSION SET plsql_warnings = 'ERROR:ALL'
 
--- Populate sample dummy Oracle table with 100k random strings of varchar(30):
-insert /*+APPEND*/ into mytbl select level, dbms_random.string('a',30) from dual connect by level <= 100000
-
 -- Asume that in 1999 the database displays 01-JAN-11. If Oracle date format uses DD-MON-RR, then 11 specifies 2011, if the format uses YY, then 11 specifies 1911
 
 SELECT to_char(12345.67, '$99,999.99') FROM dual  -- $12,345.67
@@ -6625,7 +6627,7 @@ select count(mycol) from t -- does not count NULLs
 select sum(mycol)/sum(*) from t -- counts NULLs so average will be lower
 select avg(mycol) from t -- does not count NULLs
 
-order by mycol ASC NULLS LAST  -- default e.g. 1,2,3,NULL
+ORDER BY mycol ASC NULLS LAST  -- the default e.g. 1,2,3,NULL
 
 -- Make normally obscured BC dates visible:
 SELECT created, updated, to_char(updated,'SYYYY') yr, to_char(updated,'YYYY-MM-DD HH24:MI') FROM CONTAC_HIST where updated < to_date('01JAN1970'); --show BC dates
@@ -6635,8 +6637,8 @@ CREATE INDEX TMP_IX ON CONTACT_EXTERNAl2 (created);
 CREATE INDEX TMP_IX ON CONTACT_EXTERNAl2 (created DESC);  -- avoid a sort if most queries have "ORDER BY created DESC"
 DROP INDEX TMP_IX;
 
--- Function index:
-create index upper_names_ix on table ( upper(myname) );  -- but only used when exactly matches: e.g. WHERE upper(myname) = 'foo'
+-- Function based index:
+create index UPPER_NAMES_FBI_IX on mytbl ( upper(myname) );  -- but only used when exactly matches: e.g. WHERE upper(myname) = 'FOO'
 
 ALTER package SYS.SETARS_SECURITY COMPILE PLSQL_CODE_TYPE=NATIVE;
 
@@ -6737,6 +6739,12 @@ C:\Documents and Settings\<user-name>\Application Data\SQL Developer\UserSnippet
 
 -- View cached cursor (library cache) from a previous query, if found avoids hard parse and uses existing execution plan:
 SELECT * FROM v$open_cursor v where upper(v.sql_text) like '%MYTBL%' and user_name = 'SCOTT'
+
+-- Add sequential row numbers to a table without creating a SEQUENCE:
+create or replace view rion_42216 as SELECT o.*, row_number() over (order by contact_id) as rnum FROM rion_42216_base o; 
+
+-- Break table into chunks for processing smaller units (ROWNUM won't work):
+create or replace view rion_42216 as SELECT o.contact_id, o.dategone FROM (SELECT o.*, row_number() over (order by contact_id) as rnum FROM rion_42216_base o ) o where rnum between 20001 and 40000;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 

@@ -381,7 +381,7 @@ set selection=inclusive
 
 "                               13 editing text {{{2
 
-set dictionary=/usr/share/dict/words
+" set dictionary=/usr/share/dict/words
 
 " Toggle to stop undo on massive actions (prevent memory overload)
 " set undolevels=-1
@@ -654,10 +654,9 @@ iab HtT <table><CR>  <tr><td> </td></tr><CR><Left><Left></table>
 iab PeD require Data::Dumper; print STDERR "DEBUG: ", Data::Dumper::Dumper( %h ),"\n";
 " Use PeD for hash dumping, this for everything else on symbol table
 iab PeF open F, '>junkdumpmain'; for $s(sort keys %main::) { local *sym=$main::{$s}; print F "\\$$s is $$s\\n" if defined $sym; print F "\\@$s is @$s\\n" if defined @sym;}
-"""iab PeO open FH, 'foo' or die "Error: $0: $!";<CR><CR>while ( <FH> ){<CR>}<Up>
 iab PeO open my $read, '<', $file or die "Error: $0: $!";<CR><CR>while ( <$read> ){<CR>}<Up>
 iab PeR #!/usr/bin/perl<CR><CR>use warnings;<CR>use strict;<CR>use v5.10;<CR>
-iab PeW while ( (my $k, my $v) = each %h ) { print "$k=$v\\n"; }
+" iab PeW while ( (my $k, my $v) = each %h ) { print "$k=$v\\n"; }
 
 " SAS
 " SAS/(C)onnect
@@ -679,9 +678,8 @@ cab SyJ source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/java
 cab SyQ source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/sql.vim 
 cab SyS source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/sas/sas.vim
 cab SyS source $HOME/code/sas/sas.vim
-cab SyV source $HOME/.vimrc
 
-iab DbO dbms_output.put_line();<Esc><Left>i
+iab DbO DBMS_OUTPUT.put_line();<Esc><Left>i
 
 " end Abbreviations-
 
@@ -1612,8 +1610,8 @@ if !exists("autocommands_loaded")
   " Handle my ~/bin/sasrun script files
   au BufRead tmpsas.*.log,tmpsas.*.lst map q :qa!<CR>
   au BufRead tmpsas.*.log,tmpsas.*.lst echo '.vimrc: q to quit all'
-  au BufRead /cygdrive/c/temp/query.out map q :qa!<CR>
-  au BufRead /cygdrive/c/temp/query.out echo '.vimrc: q to quit all'
+  " au BufRead /cygdrive/c/temp/query.out map q :qa!<CR>
+  " au BufRead /cygdrive/c/temp/query.out echo '.vimrc: q to quit all'
 
   " au BufNewFile,BufRead,BufEnter *.sas map ;; :call setline('.', Commentout(getline('.'), 'sas'))<CR>
   " au BufNewFile,BufRead,BufEnter *.sas map ;c 0Di  *  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
@@ -1696,8 +1694,9 @@ if !exists("autocommands_loaded")
   au BufRead,BufEnter *.sql,afiedt.buf iab SC select count(*) from
   au BufRead,BufEnter *.sql,afiedt.buf iab WH where
 
-  " Fix /usr/share/vim/vim81/syntax/sqloracle.vim in Jan. 2020
-  au BufRead,BufEnter *.sql syn keyword sqlFunction	forall save exceptions
+  " Add to /usr/share/vim/vim81/syntax/sqloracle.vim for when PLSQL code sneaks into a .sql
+  au BufRead,BufEnter *.sql syn keyword sqlFunction	FORALL SAVE EXCEPTIONS
+  au BufRead,BufEnter *.sql syn keyword sqlKeyword SIBLINGS
 
   " See  set cinwords  above.
 """  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.pl,*.pm,*.sas set smartindent
@@ -1729,8 +1728,10 @@ if !exists("autocommands_loaded")
   au BufReadPre *.doc set hlsearch!
   au BufReadPre *.doc nnoremap q :q!<CR>
   au BufReadPost *.doc echon '.vimrc: q mapped to :q!'
-  " TODO check for existence of antiword, otherwise use cygstart
-  au BufReadPost *.doc %!antiword "%"
+  " If installed
+  if exists(":antiword")
+    au BufReadPost *.doc %!antiword "%"
+  endif
 
   augroup Binary
     au!
@@ -1760,10 +1761,11 @@ if !exists("autocommands_loaded")
 
   au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
 
+  au BufEnter .vimrc echo ".vimrc: $MYVIMRC:" $MYVIMRC
+  au BufEnter .vimrc set textwidth=100
+
   au BufEnter oneliners,.vimrc,_vimrc,.bashrc,_bashrc set foldmethod=marker
 	au BufRead,BufNewFile oneliners set filetype=txt
-
-  au BufEnter .vimrc echo ".vimrc: $MYVIMRC:" $MYVIMRC
 
   " We'll never need to edit a tarball or QuickFix list
   au FileType TAR,QF map q :q<CR>
