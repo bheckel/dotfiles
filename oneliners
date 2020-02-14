@@ -5360,10 +5360,15 @@ CREATE bob AS select patientid FROM public.hppatientstarpdc;
 -- Capture Oracle userid (note NO SEMICOLON to terminate the SQL):
 EXECUTE IMMEDIATE q'[ SELECT sys_context('setars_context', 'employee_id') from dual ]' INTO whoami;
 
+-- Oracle version:
+SELECT * FROM v$version; -- Oracle Database 11g Enterprise Edition Release 11.2.0.4.0 - 64bit Production
+
+--Oracle database hostname instance version, rack, status information:
+select * from v$instance;
+
 -- Oracle which database are we on?:
 SELECT name FROM V$DATABASE;
 IF (SYS_CONTEXT('USERENV', 'DB_NAME') in ('SER', 'SETS')) THEN RETURN; END IF;
-
 SELECT SYS_CONTEXT('USERENV', 'SERVER_HOST') FROM DUAL;
 select  SYS_CONTEXT('USERENV', 'DB_NAME') from dual;
 l_db_name VARCHAR2(20) := SYS_CONTEXT('USERENV', 'DB_NAME');  if (l_db_name IN ('SEPS')) THEN...
@@ -5444,7 +5449,7 @@ where Profit < 15 or Profit IS NULL
 where NVL(Profit, 0) < 15
 coalesce(patriots_didnt_cheat, honest_salesman, lowprice_at_disney, emacs_is_great, 0) coalesce_approach_1st_nonnull_is_returned
 
--- Most recent date Oracle:
+-- Most recent date highest higher date Oracle:
 select greatest(nvl(an.updated, ac.updated), nvl(an_parent.updated, ac.updated), nvl(an_sup.updated, ac.updated)
 
 -- When any part of an expression evaluates to NULL, the entire expression will evaluate to NULL unless wrapped in a function like NVL:
@@ -5735,9 +5740,6 @@ SELECT 'DROP PROCEDURE "'||owner||'"."'||object_name||'";' FROM all_procedures W
 SELECT * FROM user_procedures a WHERE a.procedure_name like 'REMOVE_L%';  -- like all_procedures but for schema only
 SELECT *  FROM all_objects WHERE  owner='SETARS' AND object_type NOT LIKE 'JAVA%'  -- jobs, indexes, triggers, tables, procedures, types...
 select * FROM all_objects WHERE OWNER = 'BOBHECKEL' and object_type = 'FUNCTION'
-
---Get Oracle database instance version, rack, status etc information:
-select * from v$instance;
 
 -- Find Oracle data dictionary USER_TABLES etc from which to further query poke around:
 select * from DICTIONARY WHERE table_name LIKE 'USER%' ORDER BY 1
@@ -6042,9 +6044,6 @@ DROP TABLE bobhlm;
 INSERT INTO links_material (matl_desc) VALUES ('Waiting for update from SAP'); commit;
 INSERT INTO links_material (matl_desc, matl_mfg_dt, matl_exp_dt, matl_nbr, batch_nbr, matl_typ) VALUES ('Waiting for update from SAP', '01-JAN-1960', '01-JAN-1960', '0737003', '6ZP8404', 'MANL'); commit;
 
--- Oracle version:
-SELECT * FROM v$version
-
 -- Also allows determination of which oracle version(s) are installed:
 /oracle/app/oracle/product/9208HP64DB1_PAR/bin/tnslsnr LISTENER
 /oracle/app/oracle/product/8.0.6/bin/tnslsnr LISTENER -inherit
@@ -6262,12 +6261,15 @@ SELECT cast(SYSTIMESTAMP + (.000694 * 2) AS TIMESTAMP) AS cast_ddmmmyy, CAST(sys
 SELECT systimestamp + (3/24) FROM dual;
 -- 3 minutes from now DEPRECATED:
 SELECT systimestamp + (3/(24 * 60)) FROM dual;
+-- 12 hours from now:
+select sysdate+1/2 from dual;
+select sysdate + interval '12' hour from dual;
 -- 23 months ago DEPRECATED:
 SELECT add_months(systimestamp,-23) FROM dual;
 SELECT last_day(TIMESTAMP '2017-01-21 21:32:48') "last day of month", next_day(SYSDATE', 'FRIDAY') "next day after friday" FROM dual;
--- 17 years and 3 months from now DYNOMITE!:
-SELECT systimestamp + TO_YMINTERVAL('17-3') "distant future" FROM dual;
--- 12 days 8 hours and 4 minutes from now DYNOMITE!:
+-- 5 years and 3 months from now in future:
+SELECT systimestamp + TO_YMINTERVAL('5-3') "fiveyrs threemos fromnow" FROM dual;
+-- 12 days 8 hours and 4 minutes from now in future:
 SELECT systimestamp + TO_DSINTERVAL('12 8:04:00') "near future" FROM dual;
 
 -- Oracle default full date time with timezone, both same 27-AUG-19 04.17.21.981474000 PM -04:00:
@@ -6403,13 +6405,13 @@ select a.job_name, a.JOB_TYPE, a.JOB_ACTION, a.start_date, a.REPEAT_INTERVAL, a.
 SELECT * FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE JOB_NAME LIKE 'MAINT%' order by log_id desc;
 -- What are all the scheduled jobs that ran in the last 2 days:
 SELECT distinct job_name FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE actual_start_date>sysdate-2;
--- Oracle scheduled job next run and what it executes:
+-- Oracle scheduled job next run and what it executes (JOB_ACTION):
 SELECT * from user_scheduler_jobs WHERE job_name LIKE '%MAINT%' or upper(job_action) like '%MAINT%'
 
 AUTHID DEFINER is the default PLSQL permission, aka define's rights, check SQL at compile-time. AUTHID CURRENT_USER, aka invoker's rights, check SQL at run-time
 CREATE OR REPLACE PACKAGE rion37368 AUTHID DEFINER IS ... -- only on the spec, not body
 
--- Generate unique random GUID:
+-- Generate unique random GUID string:
 select to_number(sys_guid(), 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX') from dual
 
 -- Build temporary index if not already existing:
@@ -6576,6 +6578,7 @@ BEGIN $IF dbms_db_version.ver_le_11_2 $THEN dbms_output.put_line('ok') /*RESULT_
 IF upper(trim(t_cols_tab(i).virtual_column)) = 'YES' THEN CONTINUE; END IF;
 
 CREATE MATERIALIZED VIEW TAXONOMY ON PREBUILT TABLE REFRESH COMPLETE ON DEMAND AS SELECT ...
+create table t as select * from dba_objects; create materialized view mv compress basic logging build immediate refresh complete on commit disable query rewrite as select owner from t group by owner;
 
 -- Keep only most recent of the dups duplicates by date using analytic:
 select * from ( select d, amt, row_number() OVER (partition by amt order by d DESC) r from v ) where r=1
@@ -6745,6 +6748,9 @@ create or replace view rion_42216 as SELECT o.*, row_number() over (order by con
 
 -- Break table into chunks for processing smaller units (ROWNUM won't work):
 create or replace view rion_42216 as SELECT o.contact_id, o.dategone FROM (SELECT o.*, row_number() over (order by contact_id) as rnum FROM rion_42216_base o ) o where rnum between 20001 and 40000;
+
+-- Loop poll monitory a query:
+$ while true; do sqlplus -S estars/mypw@mydb @t.sql; sleep 20; done
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
