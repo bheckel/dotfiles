@@ -147,6 +147,9 @@ set showbreak=^
 
 set sidescroll=5
 
+" Minimal number of screen lines to keep above top and below bottom the cursor
+set scrolloff=3
+
 set scrollopt=hor,ver
 
 if version > 702

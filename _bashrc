@@ -112,8 +112,7 @@ alias g=$HOME/dotfiles/gone.sh
 # Can't use sed to eliminate leading spaces or it breaks coloring
 # alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
 alias gb='git branch'
-alias gcom='echo "ok to git commit?" && read && git add . && git commit -m "mod"'
-alias gitup='echo "ok to gitup?" && read && git status && git add . && git commit -m "mod" && git pull origin master && git push origin master'
+# alias gitup='echo "ok to gitup?" && read && git status && git add . && git commit -m "mod" && git pull origin master && git push origin master'
 alias gitall="$HOME/code/misccode/gitall"
 alias gpul='git pull'
 alias gpull='git pull'
@@ -141,8 +140,8 @@ alias lla='ls -agh --color --group-directories-first'
 alias lsd='find . -type d'
 # alias one="vi $HOME/code/misccode/oneliners"
 alias one="vi $HOME/dotfiles/oneliners"
-alias pull='git pull origin master'
-alias push='git push origin master'
+# alias pull='git pull origin master'
+# alias push='git push origin master'
 alias pse="ps -ef|grep ^$USER|grep -vP 'ps -ef|grep'"
 ###alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
 alias qr="$HOME/code/misccode/quickref_find.sh"
@@ -407,7 +406,7 @@ function rme() {
 }
 
 
-# Diff last 2 commits
+# git diff last 2 commits for a file
 function gdt() {
   oldhash=$(git log --pretty=format:"%h %ar | %s %d [%an]" --graph --date=short ${1} | sed "s/^\* //g" | head -n2 | head -n1 | awk '{print $1}')
   newhash=$(git log --pretty=format:"%h %ar | %s %d [%an]" --graph --date=short ${1} | sed "s/^\* //g" | head -n2 | head -n2 | awk '{print $1}' | tail -n1)

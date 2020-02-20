@@ -6,7 +6,7 @@
 #           are often written for searching, not proper English.
 #
 #  Created: Tue 02-Jun-1998 (Bob Heckel)
-# Modified: Sat 31-Aug-2019 (Bob Heckel)
+# Modified: Tue 18-Feb-2020 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -5422,9 +5422,9 @@ define_editor="C:\Program Files (x86)\Vim\vim74\gvim.exe -u C:\Users\obheck\_gvi
 select * from t WHERE t.min_end_time> '16jan19'
 
 -- Oracle ANSI date constants literals (client controls display format):
-select DATE '1978-12-25' from dual  -- midnight
+select TRUNC(date'2020-02-20', 'Q') dt, TRUNC(TO_DATE('2020-02-20','YYYY-MM-DD'), 'Q') dt_same from dual;
 select to_date('1978-12-25 09:00 AM', 'YYYY-MM-DD HH:MI AM')  -- 9am
--- ANSI date literal must be YYYY-MM-DD             _________________:
+-- ANSI date literal must be YYYY-MM-DD             _________________ not Oracle '21JAN17':
 SELECT TO_DATE('21 JANUARY 2017','DD MONTH YYYY') - DATE '2017-01-01' "date diff" FROM DUAL;
 SELECT LAST_DAY(DATE '2019-01-01') last_day_of_month FROM dual
 lastDayOfQuarter := LAST_DAY(TO_DATE(to_char((payoutQuarter * 3), '00') || '/01/' || targetYear, 'mm/dd/YYYY'));
@@ -5441,13 +5441,17 @@ INSERT INTO test_table (timestamp_tz_col) VALUES (to_timestamp_tz('2017-01-21 21
 select nullif('a','a') from dual  -- NULL
 select nullif('a','b') from dual  -- a
 
--- Won't include nulls as Profit because the result of comparing NULL to anything is unknown, not < 0:
+-- Better than  DECODE(p.ip_role_lov_id, null, 34657, p.ip_role_lov_id) :
+NVL(p.ip_role_lov_id, 34657);
+
+-- This won't include NULLs as Profit because the result of comparing NULL to anything is unknown, not < 0 i.e. nulls propagate:
 where Profit < 15 
---  Will include null/missing values as Profit:
+--  This will include null/missing values as Profit:
 where Profit < 15 or Profit IS NULL
 -- Better Oracle way to include nulls (you no longer need a separate "or column is null" test):
 where NVL(Profit, 0) < 15
-coalesce(patriots_didnt_cheat, honest_salesman, lowprice_at_disney, emacs_is_great, 0) coalesce_approach_1st_nonnull_is_returned
+
+coalesce(patriots_didnt_cheat, honest_salesman, lowprice_at_disney, emacs_is_great, 0) as coalesce_approach_1st_nonnull_is_returned;
 
 -- Most recent date highest higher date Oracle:
 select greatest(nvl(an.updated, ac.updated), nvl(an_parent.updated, ac.updated), nvl(an_sup.updated, ac.updated)
@@ -5476,28 +5480,33 @@ UPDATE contact_note SET original_contact_id = contact_id WHERE NVL(original_cont
 -- Don't ignore NULLs in counts:
 SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,0)), POOR_CLOSEOUT_OPT_OUT FROM OPPORTUNITY_OPT_OUT GROUP BY POOR_CLOSEOUT_OPT_OUT
 
-select DECODE(checkmefield, ifcheckmeisthis, thenuseme, elseuseme)
+-- HTML
+NVL(lov.value_description, '&lt;;BLANK&gt;;') AS value_description,
+
+select DECODE(checkme, ifcheckmeisthis, thenuseme, elseuseme)
 
 -- Update table to new value if newloc not null otherwise leave it alone:
 update departments set location = decode(newloc, NULL, location, newloc);
--- Update the CODE column for 10 rows, setting it to itself for 8 rows and to the value NULL for 2 rows:
+-- Update the CODE column for 10 rows, setting it to itself for 8 rows and to the value NULL for 2 rows. BETWEEN is inclusive like >= ... <= operators:
 UPDATE dest SET code = DECODE(id, 9, NULL, 10, NULL, code) WHERE id BETWEEN 1 AND 10;
 
 -- Set zero to null:
-to_char(CASE WHEN a.result_number=0 THEN null ELSE a.result_number END) as result_number
+TO_CHAR(CASE WHEN a.result_number=0 THEN null ELSE a.result_number END) AS result_number
 
--- IF THEN ELSE a database:
-CASE WHEN TO_CHAR(b.sample_status_date,'DY')='SAT' THEN 1 ELSE 0 END
-SELECT symbol, DECODE(earnings, 0, NULL, price / earnings)
-select dt, ticker, decode(transact, 'Buy', +1, -1)*qty qty 
+-- If day is Saturday set flag:
+CASE WHEN TO_CHAR(b.sample_status_date,'DY')='SAT' THEN 1 ELSE 0 END;
+
+-- Do division on a potential zero:
+SELECT symbol, DECODE(earnings, 0, NULL, price / earnings);
+
+select dt, ticker, decode(transact, 'Buy', +1, -1)*qty qty;
+
 select prod_nm, DECODE(prod_grp, 'MDPI','m', 'Solid Dose','sd', 'unk') from samp;
-DECODE(warehouse_id, 1,'Southlake', 2,'San Francisco', 3,'New Jersey', 'Non-domestic') 
-CASE WHEN warehouse_id=1 THEN 'Southlake' WHEN warehouse_id=2 THEN 'San Francisco' WHEN warehouse_id=3 THEN 'New Jersey' ELSE 'Non-domestic' END
 
-select distinct COUNT(DISTINCT decode(th.parent_territory_lov_id, NULL, ataa.assign_territory_lov_id, NULL)) OVER( PARTITION BY ataa.account_id ) AS total_nonjmp_territories,...
+CASE WHEN warehouse_id=1 THEN 'Southlake' WHEN warehouse_id=2 THEN 'San Francisco' WHEN warehouse_id=3 THEN 'New Jersey' ELSE 'Non-domestic' END;
+DECODE(warehouse_id, 1,'Southlake', 2,'San Francisco', 3,'New Jersey', 'Non-domestic') ;
 
---Better than  decode(p.ip_role_lov_id, null, 34657, p.ip_role_lov_id)
-NVL(p.ip_role_lov_id, 34657)
+select distinct count(distinct decode(th.parent_territory_lov_id, NULL, ataa.assign_territory_lov_id, NULL)) OVER (PARTITION BY ataa.account_id) as total_nonjmp_territories,...
 
 -- SQL sum count a group flag.  Good for later excluding a group of records if any record contains 'CANCEL':
 sum(case when status = 'CANCEL' then 1 else 0 end) as cancelflag
@@ -5570,9 +5579,6 @@ from v$session s, v$sql q
 where s.sql_id=q.sql_id(+) --and osuser='bheck' 
 order by s.sql_exec_start;
 
--- Oracle move rename table:
-CREATE TABLE fooTMP AS SELECT * FROM user_role; DROP TABLE foo; CREATE TABLE foo AS SELECT * FROM fooTMP;
-
 -- Oracle days from today, two days ago:
 select to_char(sysdate-2, 'DD-MON-YY') from dual
 select sysdate-2 from dual
@@ -5640,7 +5646,7 @@ select * from activity_log where trunc(activity_dt)=TO_DATE('16-JAN-06','DD-MON-
 -- SQL Server hardcoded date between:
 WHERE batch_time >= {ts '2011-01-03 00:00:00'} and batch_time <= {ts '2011-01-04 00:00:00'}
 
--- Canonical Oracle hardcoded date range:
+-- Oracle hardcoded date range:
 WHERE prod_sel_dt BETWEEN TO_DATE('01-JAN-10','DD-MON-YY') AND TO_DATE('31-JAN-10','DD-MON-YY')
 -- Canonical Oracle hardcoded datetime range:
 ... (TEST_END_DATE BETWEEN TO_DATE('2012-09-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE('2014-06-13 23:59:59', 'YYYY-MM-DD HH24:MI:SS'))
@@ -5652,28 +5658,26 @@ SELECT * FROM employees WHERE trunc(hire_date) = '01-JAN-2019';
 SELECT to_char(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI:SS') FROM dual; --2020-01-16 18:26:57
 SELECT SYSDATE FROM dual; --16-JAN-20 18:26:57
 
+-- Use this for BETWEEN (inclusive queries so subtract 1 second to pull the range back to the last day of quarter) which then can use regular indexes on the date column:     
+select TRUNC(date'2020-02-20', 'Q') quarter_start, TRUNC(ADD_MONTHS(date'2020-02-20', +3), 'Q') - (1/(24*60*60)) quarter_end from dual;
+
+-- TRUNC(sale_date) = TRUNC(sysdate) is used sometimes because Oracle's DATE has a time component. Explicit date range is better, it will use index since no functions are involved:
+sale_date >= TRUNC(sysdate) AND sale_date < TRUNC(sysdate + INTERVAL '1' DAY)
+-- or
+sale_date >= TO_DATE('1970-01-01', 'YYYY-MM-DD') AND sale_date <  TO_DATE('1970-01-01', 'YYYY-MM-DD') + INTERVAL '1' DAY
+
 -- SQL check for duplicates, returns nothing if all samp_id are unique:
 select count(*) from samp group by samp_id having count(*)>1;
 
--- Oracle spool (Windows).  Save Oracle sqlplus output to file foo.LST:
-sql> spool %TEMP%/foo
--- ...run qry
-sql> spool off
--- Canonical sqlplus
-SQL> define_editor='c:/program files/vim/vim70/gvim -c "set filetype=sql"'
-SQL> set linesize 1000;  -- avoid truncation of results
-SQL> ed foo  -- sqlplus adds an .sql extension so probably don't need the -c vim stuff
-SQL> @foo
-
--- Canonical sqlplus save spool output to file
+-- sqlplus save spool output to file
 set termout off; set linesize 2000; set pagesize 9999; spool u:/serevent.out; ...SQL...; spool off; quit;
+
+-- Pass a parameter to sqlplus
+... AND spid='&1'; ...
 
 -- Oracle SQLPlus
 SQL> ed  -- edits afiedt.buf (assuming a query has already been run)
 SQL> r  -- run query
-
--- Pass a parameter to sqlplus
-... AND spid='&1'; ...
 
 -- Oracle sqlplus do not display query results (usually when sending output to .out file)
 set termout off
@@ -5686,15 +5690,13 @@ $ vi ~/code/misccode/query.sql && (cd ~/code/misccode/ && sqlplus -S me/pw@esd @
 SQL> /
 
 -- Oracle prompt (1st time only) for saved environment substitution variable prompt:
-BEGIN DBMS_OUTPUT.PUT_LINE (‘Today is ‘||’&&sv_day‘); DBMS_OUTPUT.PUT_LINE (‘Today is still ‘||’&sv_day’); END;
+BEGIN DBMS_OUTPUT.PUT_LINE ('Today is '||'&&sv_day'); DBMS_OUTPUT.PUT_LINE ('Today is still '||'&sv_day'); END;
 
 -- Avoid sqlplus prompts for ampersand substitutions:
 SQL> set define off;
-SQL> @C:\Users\bheck\OneDri~1\workspace\data\Source\SQL\3.50OrionScripts\ORION-33855_ddl_change.sql
+SQL> @C:\Users\bheck\OneDri~1\workspace\data\Source\SQL\3.50rionScripts\RION-33855_ddl_change.sql
 -- sqlplus BOOLEAN parameters are translated from/to integers 0/1/null <--> false/true/null:
 in_debug boolean := sys.diutil.int_to_bool(:in_debug);
---SQLPlus formatting:
-COLUMN meth_spec_nm FORMAT a80; COLUMN meth_spec_num FORMAT 99;
 
 -- Increase sqlplus buffer to maximum unlimited logging:
 dbms_output.enable(NULL);
@@ -5868,12 +5870,11 @@ to_char(rate*qty,'999,999.99pr') amt
 -- Postgres dates:
 created > date('now') - 365
 created > date('now') - interval '1 year'
--- Postgres today date:
 select date('now') - interval '1 month' as x
 -- Postgres data from last 2 days:
 select clientid, taskdate, hpprogramid, count(*) from naalytics.ehalthplanpatients_test where taskdate > date('now')-interval '2 day' group by clientid, taskdate, hpprogramid order by taskdate desc
 
--- Cancel Postgres jobs status of jobs I am running:
+-- Postgres jobs status of jobs I am running:
 select * from pg_stat_activity where usename='bheckel'
 
 -- Change field's datatype:
@@ -5885,9 +5886,9 @@ isql -v jaspre bheckel mypw
 -- Postgres commandline:
 psql -h ajsperdb1.edp.atbe.com TEBMART
 psql -U atbleau -h db-02.twa.taeb.com teb
-psql -h db-06.twa.taeb.com TAEBMART -c "select * from analytics.reportinglog where reportname='TMMRep_Reporting_Automation' order by lastmodified desc LIMIT 1"
+psql -h db-06.twa.taeb.com TAEBMART -c "select * from analytis.reportlog where rpt='TMMRep' order by lastmodified desc LIMIT 1"
 
--- Empty 2 tables (implicit COMMIT because it's DDL, DDL statements issue a commit BEFORE and AFTER they run). Faster than DELETE. (1) it does an implicit commit (exceptions: PostgreSQL and SQL Server); (2) it does not execute any triggers:
+-- Empty 2 tables (implicit COMMIT because TRUNCATE is DDL, DDL statements issue a commit BEFORE and AFTER they run). Faster than DELETE. (1) it does an implicit commit (exceptions: PostgreSQL and SQL Server); (2) it does not execute any triggers:
 TRUNCATE bigtable, fattable;  -- no WHERE clause allowed
 
 -- Postgres remove leading zeros to find 01, 1, 03, 3:
@@ -6616,7 +6617,7 @@ select replace('abcdef', 'abc', 'ABC') from dual -- ABCdef
 select translate('abc def', 'abcd', '1234') from dual -- 123 4ef
 select translate('abcdef', 'abcde', '1234') from dual -- 1234f
 
--- Big sample table:
+-- Create a big sample table for testing:
 CREATE TABLE million_rows AS SELECT ROWNUM AS id, RPAD('x',100) AS data FROM dual CONNECT BY ROWNUM < 1000000;  ALTER TABLE million_rows ADD CONSTRAINT million_rows_pk PRIMARY KEY (id);  BEGIN DBMS_STATS.GATHER_TABLE_STATS(USER, 'MILLION_ROWS', estimate_percent=>100); END;
 
 -- Size of code bytes:
@@ -6724,9 +6725,6 @@ SQL> EXEC :M_DIVISOR := 0;
 --Declare the local variable and initialize it with the session bind variable:
 SQL> DECLARE L_DIVISOR NUMBER := :M_DIVISOR;
 SQL> exec callmyproc(:M_DIVISOR);
-
--- HTML
-NVL(lov.value_description, '&lt;;BLANK&gt;;') AS value_description,
 
 -- Created in the last 4 hours:
 SELECT * FROM account_team where created>(SYSDATE - INTERVAL '4' hour);
@@ -7370,14 +7368,16 @@ git clone https://github.com/grayghostvisuals/Practice-Git.git
 # But may need this first or instead of remote add if your clone was git clone git://github.com/bheckel/misc.git
 git remote set-url origin git@github.com:bheckel/dotfiles.git
 
-# git manual pull request completion without using Github UI merge & delete branch buttons:
+# Ready to merge this feature so git merge myfeaturebranch INTO HERE (master) then delete the feature branch:
+git checkout master && git merge myfeaturebranch && git branch -d myfeaturebranch
+
+# Merge a feature branch:
+git checkout develop && git pull && git merge feature/RION-31587 && git push
+# Manual pull request completion ready to merge without using Github UI merge & delete branch buttons:
 git checkout develop && git pull && git merge --no-ff feature/RION-31587 && git push && git branch -d feature/RION-31587 && git fetch -p && git push origin --delete feature/RION-31587
 
 # git mantra:
-git add . && git commit -m'mod' && git pull && git push
-
-# Done w/ this feat so git merge myfeaturebranch INTO HERE, I.E. THIS REPO's BRANCH (master) then ditch feat:
-git checkout master && git merge myfeaturebranch                                             && git branch -d myfeaturebranch
+git add . && git commit -m'mod' && git push
 
 # git delete local branch and prune remote branches (after using GitHub UI delete branch button):
 git branch -d feature/RION-31587 && git fetch -p && git branch -a
