@@ -114,6 +114,7 @@ alias g=$HOME/dotfiles/gone.sh
 alias gb='git branch'
 # alias gitup='echo "ok to gitup?" && read && git status && git add . && git commit -m "mod" && git pull origin master && git push origin master'
 alias gitall="$HOME/code/misccode/gitall"
+alias gitup='git add . && git commit -m"mod" && git push'
 alias gpul='git pull'
 alias gpull='git pull'
 alias gpush='git push'
@@ -165,13 +166,12 @@ alias wget='wget -c'  # continue failures
 #-----------------------------------
 
 # 'Windows-ish Start' a file or file manager in GUI
-#TODO background the process
 case "$OSTYPE" in
-             cygwin) st() { explorer "${1:-.}"; } ;;
-          linux-gnu) st() { thunar   "${1:-.}"; } ;;
-            darwin*) st() { open     "${1:-.}"; } ;;
-  linux-androideabi) st() { vi       "${1:-.}"; } ;;
-          *) echo '.bashrc: Unknown file manager' >&2 ;;
+         cygwin) st() { explorer    "${1:-.}"; } ;;
+      linux-gnu) st() { pcfileman   "${1:-.}"; } ;;
+        darwin*) st() { open        "${1:-.}"; } ;;
+  linux-android) st() { termux-open "${1:-.}"; } ;;
+              *) echo '.bashrc: Unknown file manager' >&2 ;;
 esac
 
 # cd lazy

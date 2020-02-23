@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Mon 13-Jan-2020 (Bob Heckel)
+" Modified: Sun 23-Feb-2020 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -3102,8 +3102,7 @@ endif
 "--------------------------------------------------------------------------
 
 " Machine/Security Settings: {{{1
-if filereadable(glob("~/.vimrc.project")) 
-  " echon 'sourcing ~/.vimrc.project'
-  " !echo -n 'sourcing ~/.vimrc.project'
-  source ~/.vimrc.project
+if filereadable(glob("$HOME/.vimrc.project")) 
+  echon 'sourcing $HOME/.vimrc.project'
+  source $HOME/.vimrc.project
 endif  "}}}
