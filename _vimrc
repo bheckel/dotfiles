@@ -296,9 +296,10 @@ hi WarningMsg ctermfg=Magenta ctermbg=Yellow guifg=Magenta guibg=Yellow
 """hi ColorizeFirst10 ctermbg=red guibg=red
 """match ColorizeFirst10 /^........../
 
-" Microsoft comma fancy apostrophes of death cause vim 'CONVERSION ERROR' among other trauma
-hi EvilChars ctermbg=red guibg=yellow cterm=undercurl gui=undercurl
-match EvilChars /\%u2018\|\%u2019/
+"TODO why ignored but double quotes 201c & 201d are highlighted w/o this?
+" Microsoft fancy single quote apostrophes and dashes of death cause vim 'CONVERSION ERROR' among other trauma
+" hi EvilChars ctermfg=White ctermbg=Red
+" match EvilChars /\%u2018\|\%u2019\|\%u2013/
 
 hi GitCollision ctermbg=red guibg=yellow
 match GitCollision /^\(<\|=\|>\)\{7\}\([^=].\+\)\?$/
@@ -1627,6 +1628,7 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufRead,BufEnter *.log nnoremap <silent> <F8> :g!/^ERROR:\\\|^WARNING:\\\|lines were truncated\\\|^NOTE: Invalid data for\\\|^NOTE: Variable/d<CR>
   " au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR:/<CR>
   au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\\|^WARNING:/<CR>
+  " Bounce
   au BufNewFile,BufRead,BufEnter *.plsql,*.pck,*.prc,*.fnc let b:match_words = '\<begin\>:\<end\>,\<loop\>:\<end loop\>'
 
   " TOGGLE. Delete the yearly warning lines
@@ -1699,7 +1701,7 @@ if !exists("autocommands_loaded")
 
   " Add to /usr/share/vim/vim81/syntax/sqloracle.vim for when PLSQL code sneaks into a .sql
   au BufRead,BufEnter *.sql syn keyword sqlFunction	FORALL SAVE EXCEPTIONS
-  au BufRead,BufEnter *.sql syn keyword sqlKeyword SIBLINGS
+  au BufRead,BufEnter *.sql syn keyword sqlKeyword SIBLINGS MERGE
 
   " See  set cinwords  above.
 """  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.pl,*.pm,*.sas set smartindent
@@ -3103,6 +3105,6 @@ endif
 
 " Machine/Security Settings: {{{1
 if filereadable(glob("$HOME/.vimrc.project")) 
-  echon 'sourcing $HOME/.vimrc.project'
+  " echon 'sourcing $HOME/.vimrc.project'
   source $HOME/.vimrc.project
 endif  "}}}
