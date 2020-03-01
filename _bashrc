@@ -624,6 +624,8 @@ case "$OSTYPE" in
       ###alias sqlplus=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/sqlplus
       # Print Windows Working Directory.  Command is $ pwd|sed 's/\//\\/g'" before backslashitis.
       alias pwwd="pwd|sed 's/\\//\\\\/g'"
+      # Weather
+      alias w='curl v2.wttr.in/RDU'
 
       #----------------
       # Functions Linux  #{{{2 
@@ -694,6 +696,20 @@ case "$OSTYPE" in
         #umask 022  # 022 is 755, 037 is 740
       fi
 
+      #----------------
+      # Termux #{{{2
+      if [ $HOSTNAME = 'localhost' ]; then
+        alias w='curl -s wttr.in | head -n7'
+
+        function ts() {
+          termux-share -a send $1
+        }
+
+        # Too lazy to clone...
+        function gh() {
+          w3m https://github.com/bheckel/code/blob/master/$1/
+        }
+      fi
       #----------------
       # ChromeOS #{{{2
       #----------------
