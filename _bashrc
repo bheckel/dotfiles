@@ -699,6 +699,7 @@ case "$OSTYPE" in
       #----------------
       # Termux #{{{2
       if [ $HOSTNAME = 'localhost' ]; then
+        alias nb=newsboat
         alias w='curl -s wttr.in | head -n7'
 
         function ts() {
