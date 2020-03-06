@@ -952,11 +952,11 @@ if has('unix')
   nnoremap ;0 <ESC>:!/usr/bin/firefox 'https://google.com/search?q=<C-R>=Websearch()<CR>'<CR><CR>
 endif
 
-" Quick save as (usually) ~/tmp/1 for diffs, etc.
-nnoremap ;1 :%call WriteToFile(VTMP, 1, 0)<CR>
-nnoremap ;2 :%call WriteToFile(VTMP, 2, 0)<CR>
-nnoremap ;3 :%call WriteToFile(VTMP, 3, 0)<CR>
-nnoremap ;4 :%call WriteToFile(VTMP, 4, 0)<CR>
+" Quick save as (usually) to ~/tmp/1 for diffs or my d12 functions
+nnoremap ;1 mx \| :%call WriteToFile(VTMP, 1, 0)<CR> \| 'x
+nnoremap ;2 mx \| :%call WriteToFile(VTMP, 2, 0)<CR> \| 'x
+nnoremap ;3 mx \| :%call WriteToFile(VTMP, 3, 0)<CR> \| 'x
+nnoremap ;4 mx \| :%call WriteToFile(VTMP, 4, 0)<CR> \| 'x
 
 " Checkpoint backup current file:
 " map ;5 :silent write! /c/temp/%:t<CR>

@@ -5521,11 +5521,14 @@ sum(case when date(pickeduptimestamp) between '01MAR2015' and '31MAR2015' then 1
 -- PLSQL return a BOOLEAN:
 RETURN(CASE WHEN(l_column_count > 0) THEN TRUE ELSE FALSE END);
 
--- PLSQL check a column as BOOLEAN:
-... v_gonereason := (c.gonereason = 0); IF v_gonereason THEN ...
-
 -- CASE WHEN between:
 case when (sal > (comm * .9) and sal < (comm * 1.1)) then 1 else 0 end value_is_in_range
+
+-- case when assignment:
+l_source_db_name := CASE WHEN (l_db_name = 'ERS') THEN 'EPS' ELSE 'ESSP' END;
+
+-- PLSQL check a column as BOOLEAN:
+... v_gonereason := (c.gonereason = 0); IF v_gonereason THEN ...
 
 -- Custom sort order:
 order by decode(TOP_LEVEL_ITEM_TEXT, 'accounts', 1, 'contacts', 2, 'opportunities', 3, 999)
@@ -5864,7 +5867,7 @@ SET_TRIGGER_CONTEXT('ACCOUNT_ATTRIBUTE', 'true'); ...  SET_TRIGGER_CONTEXT('ACCO
 (TO_CHAR(b.sample_status_date,'J')-TO_CHAR(b.sample_received_date,'J'))+1 - ((((TRUNC(b.sample_status_date,'D'))-(TRUNC(b.sample_received_date,'D')))/7)*2) -
   (CASE WHEN TO_CHAR(b.sample_received_date,'DY')='SUN' THEN 1 ELSE 0 END) - (CASE WHEN TO_CHAR(b.sample_status_date,'DY')='SAT' THEN 1 ELSE 0 END) as BusinessDays
 
--- Oracle angle bracket formatting e.g. <7,592.59>:
+-- Oracle numeric angle bracket formatting for numbers using commas and decimal point e.g. <7,592.59>:
 to_char(rate*qty,'999,999.99pr') amt
 
 -- Postgres dates:
@@ -6341,7 +6344,7 @@ ALTER TABLE user_role1 RENAME TO user_role2;
 ALTER TABLE zorion34774 RENAME COLUMN orion_contact_id TO contact_id;
 
 ALTER PACKAGE ZTESTBOB COMPILE PACKAGE; show errors PACKAGE ZTESTBOB;
-ALTER PACKAGE ZTESTBOB COMPILE PACKAGE BODY; show err PACKAGE BODY ZTESTBOB;
+ALTER PACKAGE ZTESTBOB COMPILE BODY; show err BODY ZTESTBOB;
 
 ALTER TABLE Customer DROP COLUMN Birth_Date;
 
@@ -6383,6 +6386,7 @@ SELECT GREATEST(SYSDATE, to_date('01JAN2029'), to_date('01jan2030')) FROM dual
 CREATE TABLE dummy_table AS SELECT owner, object_name, object_id FROM all_objects;
 -- Sample CTAS database table with 1 column and 10 rows:
 CREATE TABLE dummy_table AS SELECT level mylevel FROM dual CONNECT BY LEVEL <=10;
+create table dummy_table as select rownum pid, 'product '||rownum descr from dual connect by level <= 100000;
 create table dummy_table(id primary key, tag) as select rownum id, to_char(rownum) tag from dual connect by level <=10;
 -- Sample CTAS database table load 5 years of data 2018-01-02 to 2022-12-31:
 create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dual connect by level <= 365*5;
@@ -6393,6 +6397,9 @@ insert /*+APPEND*/ into mytbl select level, dbms_random.string('a',30) from dual
 
 -- View Oracle grants privileges:
 SELECT * FROM DBA_TAB_PRIVS d WHERE d.table_name LIKE 'RPT_TAX%'
+SELECT * FROM  DBA_SYS_PRIVS WHERE grantee='SETARS' and privilege like '%OBJ%';
+SELECT * FROM  DBA_role_PRIVS WHERE grantee='SETARS';
+
 -- Build Oracle GRANT statements - can only do one owner at a time manually:
 select  'GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE ON ' || tname || ' to pks_user' from mytab
 
@@ -6749,6 +6756,9 @@ create or replace view rion_42216 as SELECT o.contact_id, o.dategone FROM (SELEC
 
 -- Loop poll monitory a query:
 $ while true; do sqlplus -S estars/mypw@mydb @t.sql; sleep 20; done
+
+-- Remove spaces from Oracle source code:
+SELECT REGEXP_REPLACE(text, '\s+', ' ') FROM user_source;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
