@@ -1,0 +1,13 @@
+# Modified: 07-Mar-2020 (Bob Heckel)
+#articlelist-format  "%4i %f %D   %?T?|%-17T|  ?%t"
+articlelist-format  "%3i %?T?|%-17T|  ?%t"
+bind-key j down
+bind-key k up
+bind-key z random-unread
+browser w3m
+color info green color238
+color listfocus yellow color238
+color listfocus_unread yellow color238
+feedlist-format "%5i %n %11u %t"
+goto-next-feed yes
+show-read-articles no

@@ -1,9 +1,0 @@
-# Modified: 05-Mar-2020 (Bob Heckel)
-bind-key j down
-bind-key k up
-browser w3m
-feedlist-format     "%5i %n %11u %t"
-#articlelist-format  "%4i %f %D   %?T?|%-17T|  ?%t"
-articlelist-format  "%3i %?T?|%-17T|  ?%t"
-show-read-articles no
-goto-next-feed yes
