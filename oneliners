@@ -1542,7 +1542,7 @@ options ls=180;proc contents data=SASHELP._all_ /*NODS*/;run;
 
  /* What SAS products are licensed / installed?: */
 proc setinit noalias; run; 
- /* Apply setinit.  May be simpler just to right-click a setinit.sss file */
+ /* Apply setinit.  May be simpler just to right-click a setinit.sss file. FAILS 10-Mar-20, must use Program Files : SAS : "Renew SAS Software 9.4" */
 C:\Program Files\SAS Institute\SAS\V8>sas.exe -setinit -sysin c:\setinit.sas -config "c:\Program Files\SAS Institute\SAS\V8\sasv8.cfg"
 
  /* Canonical read in readin infile input text CSV file using combined input statement: */
@@ -2046,6 +2046,7 @@ libname mydblib oracle user=u password=p path='airdata' schema=airport preserve_
 SAS82WIN=C:/PROGRA~1/SASINS~1/SAS/V8/sas.exe
 SAS91WIN=C:/PROGRA~1/SAS/SAS9~1.1/sas.exe
 SAS93WIN=C:/PROGRA~1/SASHome/SASFoundation/9.3/sas.exe
+C:\Program Files\SASHome\SASFoundation\9.4\sas.exe
 
 %let uniqueidentifierPID=&SYSPROCESSID;
 
@@ -6722,6 +6723,7 @@ SELECT BYTES/(1024*1024) mb FROM user_segments WHERE  segment_name = 'SALES_IDX'
 
 -- Clear out old queries (as SYSTEM user):
 alter system flush shared_pool; 
+select pool,name,bytes from v$sgastat where name='free memory' and pool='shared pool';
 
 CREATE UNIQUE INDEX ASP_DFLT_TSR_OWN_TEAM_TSAT_IX ON ASP_DFLT_TSR_OWN_TEAM(FUTURE_TSR_OWNER_ID,ACCOUNT_TEAM_ID);
 
@@ -6759,6 +6761,9 @@ $ while true; do sqlplus -S estars/mypw@mydb @t.sql; sleep 20; done
 
 -- Remove spaces from Oracle source code:
 SELECT REGEXP_REPLACE(text, '\s+', ' ') FROM user_source;
+
+-- Have SID want to know what SQL is running:
+select q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action from v$session s, v$sql q where s.sql_id=q.sql_id(+) and SID= order by s.sql_exec_start; 
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 

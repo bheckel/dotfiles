@@ -16,6 +16,8 @@
 "    Ordered by ':option option-window' convention
 "--------------------------------------------------------------------------
 "                                1 initialization {{{2
+" C:\Users\boheck\vim\vim81\gvim.exe -c "set noswapfile" -u c:\cygwin64\home\boheck\dotfiles\_vimrc
+
 " Unleash the beast VIVIVI:
 set nocompatible
 
@@ -3104,7 +3106,10 @@ endif
 "--------------------------------------------------------------------------
 
 " Machine/Security Settings: {{{1
-if filereadable(glob("$HOME/.vimrc.project")) 
+if filereadable(glob("$HOME/.vimrc.project"))
   " echon 'sourcing $HOME/.vimrc.project'
   source $HOME/.vimrc.project
+elseif filereadable("c:/cygwin64/home/boheck/.vimrc.project") 
+  " echon 'sourcing c:/cygwin64/home/boheck/.vimrc.project'
+  source c:/cygwin64/home/boheck/.vimrc.project
 endif  "}}}
