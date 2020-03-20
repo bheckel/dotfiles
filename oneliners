@@ -5391,7 +5391,7 @@ SELECT INSTR(NULL, 'ORA') FROM dual  -- NULL
 -- Overflows using PLS_INTEGER ok with INTEGER:
 DECLARE p1 PLS_INTEGER := 2147483647; p2 INTEGER := 1; n NUMBER; BEGIN n := p1 + p2; END; /
 
--- Oracle view constraints if your DROP TABLE doesn't work:
+-- Oracle view constraints if your DROP TABLE fails:
 select * from user_constraints where table_name = 'COUNTRIES';
 select constraint_name, constraint_type from user_constraints@sep WHERE constraint_name LIKE 'NN%';
 
@@ -5793,7 +5793,8 @@ create table emp(empid number(20) PRIMARY KEY, ename varchar2(20), sal number(10
 ALTER TABLE CONTACT_OPP ADD CONSTRAINT OPP_CONTACT_OPP_FK FOREIGN KEY (OPP_ID) OPP_ID REFERENCES OPP (OPP_ID) ON DELETE CASCADE ENABLE;
 
 -- Oracle Primary key (P) foReign key (R):
-SELECT * FROM all_constraints WHERE owner=USER; -- same as select * from user_constraints
+SELECT column_name FROM user_cons_columns ucc, user_constraints uc WHERE uc.table_name = 'ACCOUNT_BAS' AND uc.CONSTRAINT_TYPE = 'P' AND ucc.CONSTRAINT_NAME = uc.CONSTRAINT_NAME;
+
 ALTER TABLE SAP_TERRITORY ADD CONSTRAINT SAP_TERRITORY_TERRITORY_ID_FK FOREIGN KEY ("TERRITORY_LOV_ID") REFERENCES LIST_OF_VALUES" ("LIST_OF_VALUES_ID") ON DELETE CASCADE ENABLE;
 -- Does any other table reference this table LIST_OF_VALUES i.e. do any foreign keys exist:
 select * FROM all_constraints WHERE constraint_type = 'R' and r_constraint_name IN (select constraint_name from all_constraints where table_name like 'LIST_OF_VALUES%') order by table_name;
@@ -5803,7 +5804,7 @@ select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES', 'SETARS') from dual;
 -- View some details of Oracle table (like DESC in sqlplus):
 select column_name, nullable, concat(concat(concat(data_type,'('),data_length),')') from user_tab_columns where table_name = 'EMAIL_MESSAGES';
 
--- Sleep pause execution for 60 seconds:
+-- Sleep pause execution for 60 seconds using a java include:
 CREATE OR REPLACE PROCEDURE SLEEP(P_MILLI_SECONDS IN NUMBER) AS LANGUAGE JAVA NAME 'java.lang.Thread.sleep(long)';
 BEGIN sleep(60 * 1000); END;
 
@@ -5954,7 +5955,7 @@ where date_trunc('minute', ahpp.lastmodified) = '2016-02-23 08:56:00'::timestamp
 
 -- Postgres help $ psql help  \?
 
--- full join fulljoin FULL [OUTER] JOIN: returns all rows from both tables, matching up the rows wherever a match can be made and placing NULLs in the places where no matching row exists (rather than throwing the row away like LEFT JOIN).  I.e. a "double OUTER" join that returns all rows from A and B, extended with nulls if they do not satisfy the join condition
+-- full join fulljoin FULL [OUTER] JOIN: returns all rows from both tables, matching up the rows wherever a match can be made and placing NULLs in the places where no matching row exists (rather than throwing the row away like LEFT JOIN). A "double OUTER" join, LEFT & RIGHT that returns all rows from A and B, extended with nulls if they do not satisfy the join condition
 
 -- selfjoin SELF JOIN: a recursive join that results when a set of data is joined back to itself.  Typically encountered when a parent-child relationship in a hierarchy needs to be traversed.  When using ANSI syntax to accomplish this, only the JOIN...ON syntax will work, and the keyword INNER can be used for clarity.
 
@@ -6411,14 +6412,19 @@ SELECT * FROM user_role_privs WHERE granted_role = 'SELECT_CATALOG_ROLE';  -- vi
 
 BEGIN sys.dbms_scheduler.create_job( job_name => 'NIGHTLY_RISK_IP_UPDATE_JOB', job_type => 'PLSQL_BLOCK', job_action => 'BEGIN RISK_PKG.periodicRiskUpdate; END;', start_date => '19-DEC-18 12.30.00PM EST5EDT', repeat_interval => 'FREQ=Daily', end_date => to_date(null), job_class => 'DEFAULT_JOB_CLASS', enabled => true, auto_drop => false,  -- run more than once comments => 'Nightly update job'); END;
 BEGIN dbms_scheduler.drop_schedule('DAILY_SCHEDULE'); dbms_scheduler.drop_job('DAILY_JOB'); END;
--- Details of what's scheduled (in job_action):
-select a.job_name, a.JOB_TYPE, a.JOB_ACTION, a.start_date, a.REPEAT_INTERVAL, a.end_date, a.JOB_CLASS, a.ENABLED, a.AUTO_DROP, a.comments from all_scheduler_jobs a ORDER BY 1
--- Oracle scheduled job outcome log success or fail:
-SELECT * FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE JOB_NAME LIKE 'MAINT%' order by log_id desc;
--- What are all the scheduled jobs that ran in the last 2 days:
-SELECT distinct job_name FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE actual_start_date>sysdate-2;
+
 -- Oracle scheduled job next run and what it executes (JOB_ACTION):
 SELECT * from user_scheduler_jobs WHERE job_name LIKE '%MAINT%' or upper(job_action) like '%MAINT%'
+select a.job_name, a.JOB_TYPE, a.JOB_ACTION, a.start_date, a.REPEAT_INTERVAL, a.end_date, a.JOB_CLASS, a.ENABLED, a.AUTO_DROP, a.comments from all_scheduler_jobs a ORDER BY 1
+
+-- What are all the scheduled jobs that ran in the last 2 days:
+SELECT distinct job_name FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE actual_start_date>sysdate-2;
+-- Oracle scheduled job outcome log success or fail (STATUS) and the error text (ADDITIONAL_INFO):
+SELECT * FROM user_SCHEDULER_JOB_RUN_DETAILS WHERE JOB_NAME LIKE 'MAINT%' order by log_id desc;
+
+-- Disable scheduled job:
+exec SYS.DBMS_SCHEDULER.disable('SETARS.PERIODIC_LIFECYCLE_UPDATE');
+SELECT state from user_scheduler_jobs WHERE job_name = 'PERIODIC_LIFECYCLE_UPDATE';
 
 AUTHID DEFINER is the default PLSQL permission, aka define's rights, check SQL at compile-time. AUTHID CURRENT_USER, aka invoker's rights, check SQL at run-time
 CREATE OR REPLACE PACKAGE rion37368 AUTHID DEFINER IS ... -- only on the spec, not body
@@ -6569,8 +6575,6 @@ delete from pks_extraction_control where rowid='AAB5QNACDAAARalAAo';
 -- Semi join compared to left join. More efficient using semi but you lose ability to select g.*:
 SELECT s.id FROM students s WHERE EXISTS (SELECT 1 FROM grades g WHERE g.student_id = s.id)
 SELECT s.id FROM students s LEFT JOIN grades g ON g.student_id = s.id WHERE g.student_id IS NOT NULL
-
-BEGIN SYS.DBMS_SCHEDULER.disable('SETARS.PERIODIC_LIFECYCLE_UPDATE'); END;
 
 -- Want max highest most recent date using analytic:
 SELECT * FROM ( SELECT d.JOB_NAME , d.LOG_DATE, d.STATUS, d.ADDITIONAL_INFO, j.SCHEDULE_NAME ,  row_number() OVER (PARTITION BY trunc(log_date) ORDER BY log_date DESC) rownbr FROM USER_SCHEDULER_JOB_RUN_DETAILS d LEFT JOIN USER_SCHEDULER_JOBS j ON j.JOB_NAME=d.JOB_NAME WHERE d.STATUS != 'SUCCEEDED' AND d.LOG_DATE > (SYSDATE-1)) WHERE rownbr = 1
