@@ -6088,9 +6088,6 @@ select count(distinct ddl_event_id), trunc(event_date, 'MONTH'), (sysdate - 160)
 
 -- Only those columns explicitly listed in the GROUP BY clause may appear un-aggregated (i.e. not as a parameter of an aggregate function) in the SELECT or HAVING clauses.  That usually means the SELECT is equal or shorter to the GROUP BY.
 
--- Build concatenate a random comma separated CSV list of ids:
-SELECT listagg(account_search_id,',') WITHIN GROUP (ORDER BY account_search_id) FROM account_search SAMPLE(0.1) WHERE ROWNUM<99
-
 -- Oracle Top-N select top 5 rows of a table in order:
 SELECT * FROM (SELECT * FROM scott.emp ORDER BY ename) WHERE ROWNUM <= 5;  -- top 5 employees by alphabetical name
 SELECT * FROM emp ORDER BY ename FETCH FIRST 5 ROWS ONLY;  -- Oracle 12c+
@@ -6099,8 +6096,17 @@ SELECT * FROM emp ORDER BY ename FETCH FIRST 5 ROWS WITH TIES;
 SELECT * FROM emp ORDER BY ename FETCH FIRST 50 PERCENT ROWS ONLY -- 7 of the 14 rows
 SELECT * FROM emp ORDER BY ename OFFSET 2 ROWS FETCH NEXT 3 ROWS ONLY  -- of the top-5 rows, skip the top 2 just list #3, #4, #5
 
+-- Build concatenate a random comma separated CSV list of ids:
+SELECT listagg(account_search_id,',') WITHIN GROUP (ORDER BY account_search_id) FROM account_search SAMPLE(0.1) WHERE ROWNUM<99
+
 -- Determine the min and prove it with a list of all radiuses for that class, using listagg as an Analytic Function:
 select class, planet, min(radius), listagg(min(radius),',') within group ( order by planet ) over ( partition by class ) class_radii from named_moons group by class, planet order by 1,2
+
+-- Display list all columns in a table CSV list output:
+SELECT listagg(column_name, ',') within group (order by column_name) csv_list_of_the_columns FROM all_tab_columns WHERE lower(table_name) = 'email_messages' GROUP BY table_name;
+
+-- Handle comma separated list string overflow error gracefully with ellipses:
+SELECT LISTAGG(ename, ',' ON OVERFLOW TRUNCATE '...' WITHOUT COUNT) WITHIN GROUP (ORDER BY ename) AS employees FROM emp CROSS JOIN (SELECT level FROM dual CONNECT BY level <= 1000) WHERE  deptno = 30;
 
 -- RANK as an aggregate function:
 select rank(1600) WITHIN GROUP (order by sal desc) from emp;  -- 7 i.e. 7th place, vs. analytic OVER(ORDER BY...) gives whole table with ranks
@@ -6391,6 +6397,8 @@ SELECT GREATEST(SYSDATE, to_date('01JAN2029'), to_date('01jan2030')) FROM dual
 CREATE TABLE dummy_table AS SELECT owner, object_name, object_id FROM all_objects;
 -- Sample CTAS database table with 1 column and 10 rows:
 CREATE TABLE dummy_table AS SELECT level mylevel FROM dual CONNECT BY LEVEL <=10;
+-- Sample CTAS database table with 1 column and 6000 rows (6 deptno = '30' x 1000):
+CREATE TABLE dummy_table AS SELECT deptno FROM emp CROSS JOIN (SELECT level FROM dual CONNECT BY level <= 1000) WHERE  deptno = 30
 create table dummy_table as select rownum pid, 'product '||rownum descr from dual connect by level <= 100000;
 create table dummy_table(id primary key, tag) as select rownum id, to_char(rownum) tag from dual connect by level <=10;
 -- Sample CTAS database table load 5 years of data 2018-01-02 to 2022-12-31:
@@ -6399,6 +6407,9 @@ create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dua
 create table dummy_table as SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE('123,456', ',', '","') || '"'));
 -- Populate an existing sample dummy Oracle table with 100K random strings of VARCHAR(30):
 insert /*+APPEND*/ into mytbl select level, dbms_random.string('a',30) from dual connect by level <= 100000
+
+-- Oracle create sample data and round to 15 minute increments intervals:
+WITH v AS (select trunc(sysdate)+548/1440+rownum/1440 d1 from dual connect by level <= 10 ) SELECT TRUNC(d1, 'hh24') + ROUND(to_char(d1,'MI') / 15) * 15 / 1440 round_to_15min_intervals FROM v
 
 -- View Oracle grants privileges:
 SELECT * FROM DBA_TAB_PRIVS d WHERE d.table_name LIKE 'RPT_TAX%'
@@ -6425,6 +6436,8 @@ SELECT * FROM user_SCHEDULER_JOB_RUN_DETAILS WHERE JOB_NAME LIKE 'MAINT%' order 
 -- Disable scheduled job:
 exec SYS.DBMS_SCHEDULER.disable('SETARS.PERIODIC_LIFECYCLE_UPDATE');
 SELECT state from user_scheduler_jobs WHERE job_name = 'PERIODIC_LIFECYCLE_UPDATE';
+-- What scheduled jobs are running:
+SELECT job_name from user_scheduler_jobs WHERE state='RUNNING';
 
 AUTHID DEFINER is the default PLSQL permission, aka define's rights, check SQL at compile-time. AUTHID CURRENT_USER, aka invoker's rights, check SQL at run-time
 CREATE OR REPLACE PACKAGE rion37368 AUTHID DEFINER IS ... -- only on the spec, not body
@@ -6459,9 +6472,6 @@ select top 10 * from tbl  -- SQL Server & Access
 invalid_emp_dates EXCEPTION; PRAGMA EXCEPTION_INIT(invalid_emp_dates, -20042);
 failure_in_forall EXCEPTION; PRAGMA EXCEPTION_INIT (failure_in_forall, -24381);  -- ORA-24381: error(s) in array DML
 
--- Oracle create sample data and round to 15 minute increments intervals:
-WITH v AS (select trunc(sysdate)+548/1440+rownum/1440 d1 from dual connect by level <= 10 ) SELECT TRUNC(d1, 'hh24') + ROUND(to_char(d1,'MI') / 15) * 15 / 1440 round_to_15min_intervals FROM v
-
 -- List describe browse Postgres tables in psql:
 \d
 
@@ -6488,10 +6498,10 @@ SELECT DATEDIFF (YEAR, '1/1/2002', '1/1/2005')
 -- Faster alternative to max() on unindexed table:
 select filldate from rxfilldata_201709 where clientid=19 order by 1 desc limit 1 ;
 
--- KEEP analytic to get person with highest salary (and highest empno if ties) by dept (without using correlated self join subquery). "Carry" additional column values through the standard GROUP BY aggregation syntax:
-select deptno, max(sal), max(empno) KEEP ( dense_rank FIRST order by sal ) empno from scott.emp group by deptno;
--- Get person with highest salary (and highest empno if ties) by dept using correlated self join subquery:
-select deptno, empno top_emp, sal from scott.emp e where not exists ( select 1 from scott.emp where deptno = e.deptno and (sal > e.sal) or (sal = e.sal and empno < e.empno))
+-- Analytic to get person with highest salary by dept, ties broken by length of service:
+select distinct deptno, first_value(ename) over ( partition by deptno order by sal desc, hiredate ) as top_oldest_emp, first_value(sal) over ( partition by deptno ) as sal from scott.emp order by 1;
+-- Get person with highest salary by dept, ties broken by length of service, using correlated self join subquery:
+select deptno, empno top_oldest_emp, sal from scott.emp e where not exists ( select 1 from scott.emp where deptno = e.deptno and (sal > e.sal) or (sal = e.sal and hiredate < e.hiredate)) order by 1;
 
 SELECT TO_CHAR(SYSDATE, 'Q') numeric_quarter_qtr FROM dual
 SELECT TO_CHAR(TO_DATE(mydt, 'dd.mm.yyyy'), 'Q') numeric_quarter_qtr FROM mytbl
@@ -6543,8 +6553,8 @@ select * from toys where  toy_name like '%\_%' escape '\';
 
 -- Prove linefeed was appended:
 dbms_output.put_line(ASCII(SUBSTR(DBMS_UTILITY.FORMAT_ERROR_STACK, -1))); -- 10 
--- Embedded quote q:
-dbms_output.put_line(q'[quote has been ok'd]');
+-- Embedded single quote Oracle q statement:
+dbms_output.put_line(q'[single quote has been ok'd here]');
 
 -- Multiple substitutions:
 ffColumnPrefix := replace(replace(replace(inFlexTablePrefix, 'ACCOUNT', 'ACCT'), 'ACTIVITY', 'ACT'), 'OPPORTUNITY', 'OPP');
@@ -6599,9 +6609,6 @@ create table t as select * from dba_objects; create materialized view mv compres
 -- Keep only most recent of the dups duplicates by date using analytic:
 select * from ( select d, amt, row_number() OVER (partition by amt order by d DESC) r from v ) where r=1
 
--- Display list all columns in a table CSV list output:
-SELECT listagg(column_name, ',') within group (order by column_name) csv_list_of_the_columns FROM all_tab_columns WHERE lower(table_name) = 'email_messages' GROUP BY table_name;
-
 l_my_oracle_const CONSTANT NUMBER := 42;
 
 -- Commit interval periodic commit every 100 records (poor man's BULK COLLECT FORALL):
@@ -6646,7 +6653,8 @@ select count(mycol) from t -- does not count NULLs
 select sum(mycol)/sum(*) from t -- counts NULLs so average will be lower
 select avg(mycol) from t -- does not count NULLs
 
-ORDER BY mycol ASC NULLS LAST  -- the default e.g. 1,2,3,NULL
+ORDER BY mycol ASC NULLS LAST  -- the Oracle default e.g. 1,2,3,NULL
+ORDER BY mycol DESC NULLS FIRST  -- the Oracle descending default
 
 -- Make normally obscured BC dates visible:
 SELECT created, updated, to_char(updated,'SYYYY') yr, to_char(updated,'YYYY-MM-DD HH24:MI') FROM CONTAC_HIST where updated < to_date('01JAN1970'); --show BC dates
@@ -6699,7 +6707,7 @@ SELECT sql_text as only_1k_chars, substr(regexp_replace(sql_fulltext, '\s+', ' '
 --Ignore issues during the 3AM hour specific hour timeframe range:
 if (to_char(sysdate, 'HH24MI') not between '0300' and '0400') Then
 
--- Index NULLs indexed:
+-- Oracle index NULLs indexed. NULL can be indexed by adding another not nullable column to the index:
 CREATE INDEX with_null ON table_name (nullable_column, '1');
 
 -- Reduce script failures 60 seconds:
@@ -7393,17 +7401,17 @@ git remote set-url origin git@github.com:bheckel/dotfiles.git
 # Ready to merge this feature so git merge myfeaturebranch INTO HERE (master) then delete the feature branch:
 git checkout master && git merge myfeaturebranch && git branch -d myfeaturebranch
 
-# Merge a feature branch:
+# Merge a branch:
 git checkout develop && git pull && git merge feature/RION-31587 && git push
-# Manual pull request completion ready to merge without using Github UI merge & delete branch buttons:
+# Merge a feature branch - manual pull request completion ready to merge using Github UI merge & delete branch buttons:
 git checkout develop && git pull && git merge --no-ff feature/RION-31587 && git push && git branch -d feature/RION-31587 && git fetch -p && git push origin --delete feature/RION-31587
 
 # git mantra:
 git add . && git commit -m'mod' && git push
 
-# git delete local branch and prune remote branches (after using GitHub UI delete branch button):
+# git delete cleanup post-PR local branch and prune remote branches (after using GitHub UI delete branch button):
 git branch -d feature/RION-31587 && git fetch -p && git branch -a
-# git delete branch local then remote (without using GitHub UI delete branch button). First make sure your remote is there: git branch -a:
+# git delete cleanup branch local then remote (without using GitHub UI delete branch button). First make sure your remote is there: git branch -a:
 git branch -d feature/RION-31587 && git push origin --delete feature/RION-31587 && git fetch -p && git branch -a
 
 # Which branches are tracking which remote/upstream branches (prune is optional):
