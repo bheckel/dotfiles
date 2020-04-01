@@ -5419,9 +5419,8 @@ WHERE UPPER(mat_desc) LIKE '%\_TH%' ESCAPE '\'
 
 define_editor="C:\Program Files (x86)\Vim\vim74\gvim.exe -u C:\Users\obheck\_gvimrc"
 
--- Oracle DATE literal:
+-- Oracle DATE literal
 select * from t WHERE t.min_end_time> '16jan19'
-
 -- Oracle ANSI date constants literals (client controls display format):
 select TRUNC(date'2020-02-20', 'Q') dt, TRUNC(TO_DATE('2020-02-20','YYYY-MM-DD'), 'Q') dt_same from dual;
 select to_date('1978-12-25 09:00 AM', 'YYYY-MM-DD HH:MI AM')  -- 9am
@@ -6073,6 +6072,8 @@ select distinct clientid, dashstart from dshbrd.dashboardclients where deactivat
 
  /* Group by month counts by month: */
 select count(distinct taebpatientid), month(filldate) from statin_final group by 2; -- Postgres
+-- Count group by day:
+SELECT count(1), trunc(actual_updated) FROM employee WHERE actual_updated >(systimestamp - INTERVAL '30' day) group by trunc(actual_updated) order by 2;
 -- Count group by month:
 SELECT COUNT(u.msg), EXTRACT(YEAR FROM u.execute_time), EXTRACT(MONTH FROM u.execute_time) FROM User_Oncall_Results u GROUP BY EXTRACT(YEAR FROM u.execute_time), EXTRACT(MONTH FROM u.execute_time)  ORDER BY 2,3
 -- Oracle count group by month last 3 months:
@@ -6148,6 +6149,7 @@ select dense_rank(1600) WITHIN GROUP (order by sal desc) from emp;  -- 6 i.e. 6t
 ,listagg(d,', ') within group(order by d) OVER (partition by amt) csv
 ,100*cume_dist() OVER ( order by d) as cumedist  -- 16.666, 33,333, 66,66, 66,66, 83,333, 100
 ,100*percent_rank() OVER (order by d) as pctrank  -- 0, 20, 40, 40, 80, 100
+-- Put row into one of 4 buckets quartiles:
 ,ntile(4) OVER (order by amt) as quartile  -- 1(10), 1(10), 2(11), 2(14), 3(30), 4(30)
 ,sum(amt) OVER () grand_sum  -- 105,105,105,105,105,105
 ,avg(amt) OVER () grand_avg  -- 17.5,17.5,17.5,17.5,17.5,17.5
@@ -6396,7 +6398,7 @@ SELECT GREATEST(SYSDATE, to_date('01JAN2029'), to_date('01jan2030')) FROM dual
 -- Sample CTAS database table with tens of thousands of rows:
 CREATE TABLE dummy_table AS SELECT owner, object_name, object_id FROM all_objects;
 -- Sample CTAS database table with 1 column and 10 rows:
-CREATE TABLE dummy_table AS SELECT level mylevel FROM dual CONNECT BY LEVEL <=10;
+CREATE TABLE dummy_table AS SELECT level FROM dual CONNECT BY LEVEL <=10;
 -- Sample CTAS database table with 1 column and 6000 rows (6 deptno = '30' x 1000):
 CREATE TABLE dummy_table AS SELECT deptno FROM emp CROSS JOIN (SELECT level FROM dual CONNECT BY level <= 1000) WHERE  deptno = 30
 create table dummy_table as select rownum pid, 'product '||rownum descr from dual connect by level <= 100000;
@@ -6405,6 +6407,7 @@ create table dummy_table(id primary key, tag) as select rownum id, to_char(rownu
 create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dual connect by level <= 365*5;
 -- Sample CTAS table using a csv list:
 create table dummy_table as SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE('123,456', ',', '","') || '"'));
+
 -- Populate an existing sample dummy Oracle table with 100K random strings of VARCHAR(30):
 insert /*+APPEND*/ into mytbl select level, dbms_random.string('a',30) from dual connect by level <= 100000
 
@@ -6600,6 +6603,9 @@ PROCEDURE send_cdhub(in_job_action VARCHAR2, in_job_prefix VARCHAR2 DEFAULT 'DEL
 -- PLSQL preprocessor version check:
 BEGIN $IF dbms_db_version.ver_le_11_2 $THEN dbms_output.put_line('ok') /*RESULT_CACHE*/ $END; END;
 
+-- Determine Oracle version v9+:
+SQL> SET SERVEROUT ON; SQL> EXEC DBMS_OUTPUT.PUT_LINE(DBMS_DB_VERSION.VERSION);
+
 -- Skip virtual columns:
 IF upper(trim(t_cols_tab(i).virtual_column)) = 'YES' THEN CONTINUE; END IF;
 
@@ -6779,6 +6785,10 @@ SELECT REGEXP_REPLACE(text, '\s+', ' ') FROM user_source;
 
 -- Have SID want to know what SQL is running:
 select q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action from v$session s, v$sql q where s.sql_id=q.sql_id(+) and SID= order by s.sql_exec_start; 
+-- Don't have SID want to know what SQL a scheduled job is running:
+select distinct 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action,osuser from v$session s, v$sql q where s.sql_id=q.sql_id(+) and s.action='MY_PERIODIC_LIFECYCLE_JOB' and sql_exec_start is not null order by s.sql_exec_start; 
+
+alter session set nls_date_format = 'YYYY-MM-DD';
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7403,7 +7413,7 @@ git checkout master && git merge myfeaturebranch && git branch -d myfeaturebranc
 
 # Merge a branch:
 git checkout develop && git pull && git merge feature/RION-31587 && git push
-# Merge a feature branch - manual pull request completion ready to merge using Github UI merge & delete branch buttons:
+# Merge a feature branch - manual pull request completion ready to merge without using Github UI merge & delete branch buttons:
 git checkout develop && git pull && git merge --no-ff feature/RION-31587 && git push && git branch -d feature/RION-31587 && git fetch -p && git push origin --delete feature/RION-31587
 
 # git mantra:

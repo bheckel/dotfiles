@@ -22,3 +22,4 @@ Term=xterm-256color
 Transparency=low
 White=217,217,217
 Locale=en_US
+Scrollbar=none
