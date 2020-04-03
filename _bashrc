@@ -126,6 +126,8 @@ alias gsl='git stash list'
 ###alias gskfrom="echo 'retrieving from github...';echo; cd ~/dotfiles && git pull origin master; echo; cd ~/transfer && git pull origin master; echo 'extracting...'; ls -l ~/transfer/c; tar tvfz ~/transfer/c; sleep 7; cd ~ && tar xfz ~/transfer/c" 
 # alias gskfrom="echo 'retrieving from github...';echo; cd ~/transfer && git pull origin master; echo 'extracting...'; ls -l ~/transfer/c; tar tvfz ~/transfer/c; sleep 7; cd ~ && tar xfz ~/transfer/c" 
 alias h='history|tail -n20'
+alias ha='history -a'  # append this
+alias hr='history -n'  # read in from others
 # Poor-man's file sync.  See gskto gskfrom.  Using suffix-less tarball to discourage email filtering.
 # Assumes we have sent the weekend work attachment ~/Downloads/c.NEW from home to github.  Monday morning run usually.
 # alias homefrom="cd ~/transfer && git pull origin master; cd ~; echo 'extracting...'; ls -l ~/transfer/c.NEW && sleep 5; tar xvfz ~/transfer/c.NEW; rmv ~/transfer/c.NEW; cd -"
