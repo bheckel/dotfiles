@@ -1262,13 +1262,17 @@ endfu  " }}}
 fu! Commadelim()   " {{{2
   " Assumes data has one element per row to be single-quoted and terminated with ','
   " for each row.
-  " Assumes we'll highlight rows to be modified then  :'<,'>call Commadelim()
    
   " Automatically loops lines
   let e = a:lastline
   let l = getline('.')
   let m = substitute(l, "^", "'", "g")
   let curr = line('.')
+
+  "TODO need an isnum fn
+  " if l isnum 
+		 " echohl WarningMsg | echo l | echohl None
+    " let n = substitute(m, "$", ",", "g")
 
   if curr == e
     " Don't add comma on the last line
@@ -1278,7 +1282,10 @@ fu! Commadelim()   " {{{2
   endif
 
   call setline('.', n)
-endfu  " }}}
+endfu
+" TODO for now we'll highlight rows to be modified then  :'<,'>call Commadelim()
+" command! -nargs=0 Commadelim call Commadelim()
+" }}}
 
 
 fu! HighlightCurrentLine()  " {{{2

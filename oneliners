@@ -5395,6 +5395,7 @@ DECLARE p1 PLS_INTEGER := 2147483647; p2 INTEGER := 1; n NUMBER; BEGIN n := p1 +
 select * from user_constraints where table_name = 'COUNTRIES';
 select constraint_name, constraint_type from user_constraints@sep WHERE constraint_name LIKE 'NN%';
 
+select count(1) from V$session@sep where status='ACTIVE';
 -- Find active sessions active for more than 10 seconds:
 select s.sid||','||s.serial# sess, s.osuser, s.USERNAME, s.last_call_et, s.status, s.sql_address, s.program from v$session s where ( s.status = 'ACTIVE' and s.last_call_et > 10 );
 -- Find inactive sessions older than 20 minutes:
@@ -5758,25 +5759,19 @@ SELECT COUNT(1) FROM all_tables a WHERE a.TABLE_NAME = 'TAXONOMYx'
 SELECT owner, table_name FROM all_tables where owner = 'SCOTT';
 SELECT owner, table_name FROM user_tables where owner = 'SCOTT';
 SELECT owner, table_name FROM all_tables@xyz.us.oracle.com
--- Oracle list browse all views:
+-- Oracle list browse all views find view:
 select * from all_views where view_name like '%SPEC%'
--- Oracle list browse table details:
-SELECT data_type, data_length, nullable, column_id, num_distinct, num_nulls, density from  user_tab_columns WHERE table_name LIKE 'USER_ON%'
 -- Oracle list browse all table details:
 SELECT table_name, column_name, data_type, data_length, nullable, num_distinct, low_value, high_value, density FROM all_tab_columns WHERE table_name in(SELECT table_name FROM all_tables where owner ='SCOTT') and owner ='SCOTT' ORDER BY table_name, column_name
-SELECT table_name, column_name FROM all_tab_cols@xyz.us.oracle.com WHERE lower(column_name) LIKE '%prop%';
--- Oracle list database tables you own:
-SELECT table_name FROM user_tables;
 
--- Find query search all Oracle tables & views with a certain field name column name poke around:
+-- Find query search all Oracle tables & views for a certain field name column name poke around:
 SELECT table_name, column_name FROM cols WHERE lower(table_name) LIKE 'accou%' AND lower(column_name) LIKE '%id%';
 
 -- Find query search all Oracle tables & views with a certain table name poke around:
 SELECT table_name FROM user_tables WHERE lower(table_name) LIKE '%search%' order by 1;
 
--- Poke around search all tables for column name:
-select * FROM all_tab_columns WHERE lower(column_name) = 'duns_nbr_bkup'
-SELECT * from  user_tab_columns WHERE column_name LIKE '%NEW%'
+-- Poke around search all tables for a column name:
+SELECT * from  user_tab_columns WHERE column_name LIKE '%NEW%';
 
 select * from dba_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
 -- What the object references:
@@ -6103,7 +6098,7 @@ SELECT listagg(account_search_id,',') WITHIN GROUP (ORDER BY account_search_id) 
 -- Determine the min and prove it with a list of all radiuses for that class, using listagg as an Analytic Function:
 select class, planet, min(radius), listagg(min(radius),',') within group ( order by planet ) over ( partition by class ) class_radii from named_moons group by class, planet order by 1,2
 
--- Display list all columns in a table CSV list output:
+-- Display list all columns in a table CSV list output (cannot use DISTINCT):
 SELECT listagg(column_name, ',') within group (order by column_name) csv_list_of_the_columns FROM all_tab_columns WHERE lower(table_name) = 'email_messages' GROUP BY table_name;
 
 -- Handle comma separated list string overflow error gracefully with elipses ellipses after 327671 bytes:
@@ -6426,6 +6421,7 @@ SELECT * FROM user_role_privs WHERE granted_role = 'SELECT_CATALOG_ROLE';  -- vi
 
 BEGIN sys.dbms_scheduler.create_job( job_name => 'NIGHTLY_RISK_IP_UPDATE_JOB', job_type => 'PLSQL_BLOCK', job_action => 'BEGIN RISK_PKG.periodicRiskUpdate; END;', start_date => '19-DEC-18 12.30.00PM EST5EDT', repeat_interval => 'FREQ=Daily', end_date => to_date(null), job_class => 'DEFAULT_JOB_CLASS', enabled => true, auto_drop => false,  -- run more than once comments => 'Nightly update job'); END;
 BEGIN dbms_scheduler.drop_schedule('DAILY_SCHEDULE'); dbms_scheduler.drop_job('DAILY_JOB'); END;
+BEGIN dbms_scheduler.drop_job('SETARS.DAILY_DATA_MAINTENANCE_JOB'); END;
 
 -- Oracle scheduled jobs
 SELECT * from USER_SCHEDULER_JOBS order by last_start_date desc
@@ -6438,10 +6434,13 @@ select a.job_name, a.JOB_TYPE, a.JOB_ACTION, a.start_date, a.REPEAT_INTERVAL, a.
 SELECT distinct job_name FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE actual_start_date>sysdate-2 order by 1;
 -- Oracle scheduled job outcome log success or fail (STATUS) and the error text (ADDITIONAL_INFO):
 SELECT * FROM user_SCHEDULER_JOB_RUN_DETAILS WHERE JOB_NAME LIKE 'MAINT%' order by log_id desc;
+-- Oracle scheduled job canonical:
+SELECT j.job_name, j.job_type, j.job_action, j.schedule_name, j.schedule_type, j.start_date, j.enabled, j.state, j.run_count, j.failure_count, j.last_start_date, j.next_run_date, d.status, d.actual_start_date, d.run_duration FROM user_scheduler_jobs j, SYS.user_scheduler_job_run_details d WHERE j.job_name = d.job_name and j.job_name = 'NIGHTLY_RISK_JOB' order by d.log_id DESC; 
 
+-- SCHEDULED or DISABLED;
+SELECT state from user_scheduler_jobs WHERE job_name = 'PERIODIC_LIFECYCLE_UPDATE';
 -- Disable scheduled job:
 exec SYS.DBMS_SCHEDULER.disable('SETARS.PERIODIC_LIFECYCLE_UPDATE');
-SELECT state from user_scheduler_jobs WHERE job_name = 'PERIODIC_LIFECYCLE_UPDATE';
 -- What scheduled jobs are running:
 SELECT job_name from user_scheduler_jobs WHERE state='RUNNING';
 
@@ -6544,6 +6543,8 @@ with data as (select '00000111112222233333' s from dual) select substr(s, (level
 with data as (select '00000111112222233333' s, 5 len from dual) select substr(s, (level-1)*len+1, len) chnk from data connect by level <= length(s)/len
 -- Split string into pieces chunks into 2 chunks of 18:
 with data as (select '00000111112222233333' s from dual) select substr(s, (level-1)*18+1, 18) chnk from data connect by level <= 2   
+-- Split comma-separated list of number to rows:
+select split_out_nums from customer_favorites OUTER APPLY json_table( '[' || cf.favorite_list || ']', '$[*]' columns ( split_out_nums number path '$'));
 
 -- First and last day of last year date:
 SELECT ADD_MONTHS(TRUNC(SYSDATE,'YEAR'), -12) jan_prev_yr, ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), -1) +30 dec_prev_yr FROM dual
@@ -7381,7 +7382,7 @@ git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:sho
 git show
 # git view previous old version of file the past (in pager):
 git show eacbd91:./ods_0002e.sas
-# git view previous old version of file from the past (in editor):
+# git view previous old version of file from the past history (in editor):
 git show master:cfg/DataPost_Configuration.html |vi -
 
 $ git config --global merge.tool vimdiff
