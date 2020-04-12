@@ -5454,7 +5454,7 @@ where NVL(Profit, 0) < 15
 
 coalesce(patriots_didnt_cheat, honest_salesman, lowprice_at_disney, emacs_is_great, 0) as coalesce_approach_1st_nonnull_is_returned;
 
--- Most recent date highest higher date Oracle:
+-- Choose the most recent of 3 dates highest higher date Oracle:
 select greatest(nvl(an.updated, ac.updated), nvl(an_parent.updated, ac.updated), nvl(an_sup.updated, ac.updated)
 
 -- When any part of an expression evaluates to NULL, the entire expression will evaluate to NULL unless wrapped in a function like NVL:
@@ -6156,7 +6156,7 @@ SELECT DISTINCT FIRST_VALUE(account_name_id) over(partition by account_id order 
 -- Analytic Function quartile split employees randomly into 4 buckets:
 select empno, ename, job, hiredate, sal, deptno, ntile(4) over ( order by DBMS_RANDOM.VALUE ) as grp from scott.emp order by grp;
 
--- Analytic Function to get the employee(s) with the 3rd highest salary:
+-- Analytic Function to get the employee(s) with the 3rd Nth highest salary:
 select * from ( select empno, ename, job, hiredate, sal, comm, dense_rank() OVER (order by sal desc) r from  emp ) where r = 3;
 
 -- Find employees with salary greater than the average revenue generated in their department.  Correlated subquery:
