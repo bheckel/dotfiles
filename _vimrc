@@ -112,13 +112,14 @@ endif
 set startofline
 
 " Search pwd and subdirs when using gf, :find, etc.
-"""set path=.,**/*
-if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
-  set path=/sasdata/Macros,**
-else
+" if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
+  " set path=/sasdata/Macros,**
+" else
+  """set path=.,**/*
   set path=**
-endif
+" endif
 
+" TODO 20-Apr-20 'search hit BOTTOM, continuing at TOP' message flashes
 set wrapscan
 
 set incsearch
