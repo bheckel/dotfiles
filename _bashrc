@@ -4,7 +4,7 @@
 # Summary: bash config for at least Unix/Linux, Cygwin 1.3/1.5/1.7 and z/OS
 #
 #  Created: Tue 19-May-1998 (Bob Heckel)
-# Modified: Sun 26-Jan-2020 (Bob Heckel)
+# Modified: Sun 26-Apr-2020 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -708,11 +708,18 @@ case "$OSTYPE" in
           termux-share -a send $1
         }
 
-        # Too lazy to clone...
+        # Too lazy to clone my repo...
         function gh() {
-          w3m https://github.com/bheckel/code/blob/master/$1/
+          if [ -z ${1} ]; then
+            # Browse
+            w3m -num +160 https://github.com/bheckel/code
+          else
+            # Direct to a readme file like termux.txt
+            w3m -num +100  https://github.com/bheckel/code/blob/master/rme/$1/
+          fi
         }
       fi
+
       #----------------
       # ChromeOS #{{{2
       #----------------
