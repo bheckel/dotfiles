@@ -5327,6 +5327,9 @@ ruby -e "puts $:"
 # Test AJAX etc that won't work using file:// etc.
 $ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
 
+# Chain filters:
+perl -pe 's/ {2,}/ /g' sp_audit.out | perl -pe 's/,//g' | perl -pe 's/(Failure: Account \d+) /,$1,/' | perl -pe 's/(Success: Account \d+) /,$1,/' | perl -pe 's/<br> ?/,/g' | perl -pe 's/: Account/,/' >| sp_audit.csv
+
 xxSCRIPTINGxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxDATABASExx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -5378,6 +5381,11 @@ l_db_name VARCHAR2(20) := SYS_CONTEXT('USERENV', 'DB_NAME');  if (l_db_name IN (
 select sys_context('userenv', 'current_schema') from dual;
 select SYS_CONTEXT('userenv','host') from dual;
 declare x varchar2(99); begin x := 'my schema ' || USER; dbms_output.put_line(x); end;
+
+-- Use my id or superowner's if i do not exist:
+..., actual_updatedby = nvl(sys_context('mystars_context', 'employee_id'), 0)
+
+select sys_context('USERENV','SID') as my_session_id_sid from dual;
 
 -- Oracle substring:
 SELECT SUBSTR('CORPORATE FLOOR', 2, 4) FROM dual  -- ORPO
@@ -5466,9 +5474,6 @@ NVL2(x, return_value1_bc_x_isNOTnull, return_value2_bc_x_ISnull);
 -- Oracle - prevent nulls from propagating:
 SELECT ename, comm, sal, 12*sal+NVL(comm,0) ...
 IF NVL(l_salary,0) <= 40000 ...
-
--- Use my id or superowner's if i do not exist:
-..., actual_updatedby = nvl(sys_context('mystars_context', 'employee_id'), 0)
 
 -- Compare NULL:
 where  ... and nvl(width,0) = nvl(length,0)  -- finds only if both are NULL
@@ -5571,17 +5576,17 @@ SELECT /*+ INDEX (employees emp_department_ix)*/ employee_id, department_id FROM
 
 select /*+PARALLEL(4)*/ empno from emp;
 
--- Oracle kill session:
+-- Kill Oracle kill session:
 SQL> column sql_text format a80
 SQL> col sql_exec_start form a22
 select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action from v$session s, v$sql q where s.sql_id=q.sql_id(+) and osuser='heck' order by s.sql_exec_start;
--- Kill Oracle session (sid, serial#):
+-- Kill Oracle kill session (sid, serial#):
 SQL> exec sys.kill_session(51,6449);
 
-select sid , serial# , q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action , osuser
-from v$session s, v$sql q 
-where s.sql_id=q.sql_id(+) --and osuser='bheck' 
-order by s.sql_exec_start;
+GRANT EXECUTE ON SYS.DBMS_LOCK TO unit_test_repos;
+alter system kill session '671,62164';
+
+select sid , serial# , q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action , osuser from v$session s, v$sql q where s.sql_id=q.sql_id(+) and osuser='bheck' order by s.sql_exec_start;
 
 -- Oracle days from today, two days ago:
 select to_char(sysdate-2, 'DD-MON-YY') from dual
@@ -5589,9 +5594,6 @@ select sysdate-2 from dual
 
 -- Oracle last month months ago date calc:
 select ADD_MONTHS(sysdate,-1) from dual;
-
--- Oracle schema info
-select object_type, count(*) from dba_objects where owner='PKS_USER' group by object_type;
 
 -- Only those columns explicitly listed in the GROUP BY clause may appear un-aggregated (i.e. not as a parameter of an agg. function) in the SELECT or HAVING clauses. Put negatively, It is prohibited to use an un-aggregated column in the SELECT or HAVING clauses, unless it is explicitly listed in the GROUP BY clause.
 
@@ -5770,7 +5772,7 @@ SELECT table_name, column_name FROM cols WHERE lower(table_name) LIKE 'accou%' A
 -- Find query search all Oracle tables & views with a certain table name poke around:
 SELECT table_name FROM user_tables WHERE lower(table_name) LIKE '%search%' order by 1;
 
--- Poke around search all tables for a column name:
+-- Poke around search all tables for a specific column name poke:
 SELECT * from  user_tab_columns WHERE column_name LIKE '%NEW%';
 
 select * from dba_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
@@ -5801,6 +5803,8 @@ select column_name, nullable, concat(concat(concat(data_type,'('),data_length),'
 -- Sleep pause execution for 60 seconds using a java include:
 CREATE OR REPLACE PROCEDURE SLEEP(P_MILLI_SECONDS IN NUMBER) AS LANGUAGE JAVA NAME 'java.lang.Thread.sleep(long)';
 BEGIN sleep(60 * 1000); END;
+-- Oracle sleep if no Java:
+for i in 1 ..15 loop DBMS_OUTPUT.put_line('x'); sys.dbms_lock.sleep(3); end loop; end;
 
 -- Oracle date time yesterday one day ago:
 select (SYSDATE - INTERVAL '1' hour) from dual  -- one hour ago
@@ -6084,13 +6088,17 @@ select count(distinct ddl_event_id), trunc(event_date, 'MONTH'), (sysdate - 160)
 
 -- Only those columns explicitly listed in the GROUP BY clause may appear un-aggregated (i.e. not as a parameter of an aggregate function) in the SELECT or HAVING clauses.  That usually means the SELECT is equal or shorter to the GROUP BY.
 
--- Oracle Top-N select top 5 rows of a table in order:
+-- Oracle Nth Top-N select top 5 rows of a table in order:
 SELECT * FROM (SELECT * FROM scott.emp ORDER BY ename) WHERE ROWNUM <= 5;  -- top 5 employees by alphabetical name
 SELECT * FROM emp ORDER BY ename FETCH FIRST 5 ROWS ONLY;  -- Oracle 12c+
-SELECT * FROM emp ORDER BY ename FETCH FIRST 5 ROWS WITH TIES;
--- Oracle Top-N select first top 20% percent of rows of a table in order:
+SELECT * FROM emp ORDER BY ename FETCH FIRST 5 ROWS WITH TIES;  -- can end up with more than 5 recs (in indeterminate order)
+-- Oracle Nth Top-N select first top 20% percent of rows of a table in order:
 SELECT * FROM emp ORDER BY ename FETCH FIRST 50 PERCENT ROWS ONLY -- 7 of the 14 rows
 SELECT * FROM emp ORDER BY ename OFFSET 2 ROWS FETCH NEXT 3 ROWS ONLY  -- of the top-5 rows, skip the top 2 just list #3, #4, #5
+
+-- Analytic Function to get the employee(s) with the 3rd Top-N Nth highest salary, non-Olympic:
+select * from ( select empno, ename, job, hiredate, sal, comm, dense_rank() OVER (order by sal desc) r from  emp ) where r = 3;
+...fetch first 3 rows with ties; -- Olympic, like rank()
 
 -- Build concatenate a random comma separated CSV list of ids:
 SELECT listagg(account_search_id,',') WITHIN GROUP (ORDER BY account_search_id) FROM account_search SAMPLE(0.1) WHERE ROWNUM<99
@@ -6155,9 +6163,6 @@ SELECT DISTINCT FIRST_VALUE(account_name_id) over(partition by account_id order 
 
 -- Analytic Function quartile split employees randomly into 4 buckets:
 select empno, ename, job, hiredate, sal, deptno, ntile(4) over ( order by DBMS_RANDOM.VALUE ) as grp from scott.emp order by grp;
-
--- Analytic Function to get the employee(s) with the 3rd Nth highest salary:
-select * from ( select empno, ename, job, hiredate, sal, comm, dense_rank() OVER (order by sal desc) r from  emp ) where r = 3;
 
 -- Find employees with salary greater than the average revenue generated in their department.  Correlated subquery:
 SELECT * FROM employees e WHERE salary > (SELECT AVG(revenue_generated) FROM employees e2 WHERE d.department = d2.department);
@@ -6284,11 +6289,11 @@ SELECT systimestamp + TO_YMINTERVAL('5-3') "fiveyrs threemos fromnow" FROM dual;
 -- 12 days 8 hours and 4 minutes from now in future:
 SELECT systimestamp + TO_DSINTERVAL('12 8:04:00') "near future" FROM dual;
 
+-- Specific between minute time range:
+h.retired_time between to_date('13-mar-2020 20:00', 'dd-mon-yyyy hh24:mi') and to_date('13-mar-2020 21:10', 'dd-mon-yyyy hh24:mi')
+
 -- Oracle default full date time with timezone, both same 27-AUG-19 04.17.21.981474000 PM -04:00:
 select to_char(SYSTIMESTAMP, 'DD-MON-YYYY HH.MI.SS.FF9 AM TZR'), SYSTIMESTAMP from dual;
-
-select SYSTIMESTAMP - INTERVAL '1' day full_timestamp from dual -- 17-JUL-19 11.59.01.335483000 AM -04:00
-
 select SYSTIMESTAMP - INTERVAL '1' day from dual                       -- 17-JUL-19 11.59.01.335483000 AM -04:00
 select cast(SYSTIMESTAMP - INTERVAL '1' day as timestamp) from dual    -- 17-JUL-19 11.59.01.335483000 AM
 select cast(SYSTIMESTAMP - INTERVAL '1' day as timestamp(1)) from dual -- 17-JUL-19 11.58.14.800000000 AM
@@ -6314,7 +6319,7 @@ SELECT DBMS_RANDOM.VALUE(1, 6) FROM dual  -- 3.32932424
 SELECT ROUND(DBMS_RANDOM.VALUE(1, 6)) FROM dual  -- 3
 SELECT ADD_MONTHS(SYSDATE, -1 * DBMS_RANDOM.VALUE(1, 6)) FROM dual  -- 8/29/2018 11:20:27 AM  or 9/29...etc
 
-cast(trunc(aa.duns_nbr) AS VARCHAR2(90)) duns_nbr
+CAST(trunc(aa.duns_nbr) AS VARCHAR2(90)) duns_nbr
 
 -- Benchmarking:
 SELECT st.VALUE FROM v$mystat st, v$statname sn WHERE st.statistic# = sn.statistic# AND sn.name = 'Oracle session pga memory';
@@ -6322,7 +6327,7 @@ DECLARE t1 INTEGER; t2 INTEGER; BEGIN t1 := dbms_utility.get_time(); ...; t2 := 
 
 -- Throws NO_DATA_FOUND:
 declare eid number; begin SELECT e.empno INTO eid FROM emp e WHERE e.empno=99999; dbms_output.put_line(eid); end;
--- Don't error on no_data_found if count is 0:
+-- Don't error on NO_DATA_FOUND if count is 0:
 SELECT COUNT(*) FROM account_base WHERE 1 = 1 AND account_id = 42;
 
 -- Is parent or any children in the hierarchy an existing cust?:
@@ -6771,9 +6776,9 @@ THEN assign_table(i).new_account_team_assignment_id:=1.257E+993;
 
 EXECUTE IMMEDIATE q'[select 'ASP_TASK_JOB_' || TO_CHAR(sysdate, 'DD_MM__HH24_MI_SS') from dual]' INTO v_job_name;
 
--- sqldeveloper preferences location Windows:
+-- SQL Developer sqldeveloper preferences location Windows:
 C:\Documents and Settings\<user-name>\Application Data\SQL Developer\systemn.n.n.n.n
-C:\Documents and Settings\<user-name>\Application Data\SQL Developer\UserSnippets.xml
+cp -i 'C:\Documents and Settings\bheck\Application Data\SQL Developer\UserSnippets.xml' ~/onedrive/misc/
 
 -- View cached cursor (library cache) from a previous query, if found avoids hard parse and uses existing execution plan:
 SELECT * FROM v$open_cursor v where upper(v.sql_text) like '%MYTBL%' and user_name = 'SCOTT'
@@ -6799,6 +6804,12 @@ alter session set nls_date_format = 'YYYY-MM-DD';
 
 GRANT CREATE PUBLIC SYNONYM TO unit_test_repos
 CREATE PUBLIC SYNONYM favorite_list_to_coll_type FOR  bob_pkg.favorite_list_to_coll_type
+
+-- Which packages did i create - uses comments:
+select * from SYS.USER_SOURCE t WHERE t.TYPE='PACKAGE BODY' and t.name like 'RION%' AND (upper(t.TEXT) LIKE '%BHECK%');
+
+-- Drag along a VARCHAR2 into a group by using max():
+select ms.product_id, max(p.name) as product_name, sum(ms.qty) as total_qty from products p join monthly_sales ms  on ms.product_id = p.id group by ms.product_id;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
