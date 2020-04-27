@@ -5411,7 +5411,7 @@ select s.sid||','||s.serial# sess, s.osuser, s.USERNAME, s.last_call_et, s.statu
 
 -- Oracle find uncommitted transactions locks:
 SELECT s.OSUSER, s.sid ,s.serial# ,s.username ,s.machine ,s.status ,s.lockwait ,t.used_ublk ,t.used_urec ,t.start_time from v$transaction t inner join v$session s on t.addr = s.taddr;
--- What user and what is their sql that is locking?:
+-- What user and what is their sql that is locking? tables actively locked:
 SELECT s.osuser, O.OBJECT_NAME, S.SID, S.SERIAL#, P.SPID, S.PROGRAM, SQ.SQL_FULLTEXT, S.LOGON_TIME FROM V$LOCKED_OBJECT L, DBA_OBJECTS O, V$SESSION S, V$PROCESS P, V$SQL SQ WHERE L.OBJECT_ID = O.OBJECT_ID AND L.SESSION_ID = S.SID AND S.PADDR = P.ADDR AND S.SQL_ADDRESS = SQ.ADDRESS order by 1;
 
 -- Insert newline for blank row spacing:
@@ -5734,7 +5734,7 @@ DECLARE cv SYS_REFCURSOR; en VARCHAR2(80); jo VARCHAR2(80); BEGIN OPEN cv FOR 's
 
 DECLARE TYPE mynt_t IS TABLE OF my_tbl%ROWTYPE; mynt mynt_t; CURSOR c IS SELECT * FROM my_tbl; BEGIN OPEN c; LOOP FETCH c BULK COLLECT INTO mynt LIMIT 100; EXIT WHEN mynt.COUNT = 0; FOR i in 1..mynt.COUNT LOOP dbms_output.put_line('Dept('||i||'):' || mynt(i).dept); END LOOP; END LOOP; CLOSE c; END;
 
--- Dynamic cursor:
+-- Dynamic cursor OPEN-FOR:
 DECLARE rn NUMBER := 1; myres varchar(1); cv SYS_REFCURSOR; BEGIN OPEN cv FOR 'select * from SYS.dual where rownum = :1' USING rn; FETCH cv INTO myres; dbms_output.put_line(myres); CLOSE cv; END;
 
 -- Oracle nonaggregated expression (ROWNUM) in an aggregated query - SQL hack:
@@ -5749,14 +5749,16 @@ SELECT * FROM user_procedures a WHERE a.procedure_name like 'REMOVE_L%';  -- lik
 SELECT *  FROM all_objects WHERE  owner='SETARS' AND object_type NOT LIKE 'JAVA%'  -- jobs, indexes, triggers, tables, procedures, types...
 select * FROM all_objects WHERE OWNER = 'BOBHECKEL' and object_type = 'FUNCTION'
 
--- Find Oracle data dictionary USER_TABLES etc from which to further query poke around:
-select * from DICTIONARY WHERE table_name LIKE 'USER%' ORDER BY 1
-select table_name, comments from dict where table_name like 'DBA%SCHEDULER%' order by table_name;
+-- Using data DICTIONARY aka DICT find Oracle USER_TABLES etc from which to further query poke around:
+select * from DICTIONARY WHERE table_name LIKE 'USER_%' ORDER BY 1;
+select table_name, comments from DICT where table_name like 'DBA%SCHEDULER%' order by table_name;
+
+SELECT * FROM user_role_privs WHERE granted_role = 'SELECT_CATALOG_ROLE';
 
 -- Oracle list browse all schemas poke around:
 SELECT username FROM all_users ORDER BY username;
 -- Does table exist:
-SELECT COUNT(1) FROM all_tables a WHERE a.TABLE_NAME = 'TAXONOMYx'
+SELECT COUNT(1) FROM all_tables a WHERE a.TABLE_NAME = 'TAXONOMY'
 -- Oracle list browse all database tables poke around all available schema:
 SELECT owner, table_name FROM all_tables where owner = 'SCOTT';
 SELECT owner, table_name FROM user_tables where owner = 'SCOTT';
@@ -5803,8 +5805,8 @@ select column_name, nullable, concat(concat(concat(data_type,'('),data_length),'
 -- Sleep pause execution for 60 seconds using a java include:
 CREATE OR REPLACE PROCEDURE SLEEP(P_MILLI_SECONDS IN NUMBER) AS LANGUAGE JAVA NAME 'java.lang.Thread.sleep(long)';
 BEGIN sleep(60 * 1000); END;
--- Oracle sleep if no Java:
-for i in 1 ..15 loop DBMS_OUTPUT.put_line('x'); sys.dbms_lock.sleep(3); end loop; end;
+-- Oracle sleep 9 seconds if no Java:
+begin for i in 1 .. 3 loop DBMS_OUTPUT.put_line('x'); sys.dbms_lock.sleep(3); end loop; end;
 
 -- Oracle date time yesterday one day ago:
 select (SYSDATE - INTERVAL '1' hour) from dual  -- one hour ago
@@ -6059,7 +6061,8 @@ c:\oracle\ora920\network\admin\tnsnames.ora
 
 -- Oracle are you listening listener?
 $ ps -ef |grep lsn  # /oracle/app/oracle/product/8.0.6/bin/tnslsnr LISTENER -inherit
-$ tnsping usdev100
+-- Confirm LDAP adapter etc:
+$ tnsping usdev10
 
 -- Oracle are you pingable?
 $ while true; do tnsping sprd25|grep OK|awk '{print $2}'|sed 's/^.//'; sleep 120; done;
@@ -6099,6 +6102,9 @@ SELECT * FROM emp ORDER BY ename OFFSET 2 ROWS FETCH NEXT 3 ROWS ONLY  -- of the
 -- Analytic Function to get the employee(s) with the 3rd Top-N Nth highest salary, non-Olympic:
 select * from ( select empno, ename, job, hiredate, sal, comm, dense_rank() OVER (order by sal desc) r from  emp ) where r = 3;
 ...fetch first 3 rows with ties; -- Olympic, like rank()
+
+-- Top-N query, but it can only do the top-rows (RANK aka Olympic rule), internally implementing it like an inline view with row_number or rank analytic functions. But if you want top-values rule, you must do it yourself with dense_rank.
+FETCH FIRST 3 ROWS WITH TIES
 
 -- Build concatenate a random comma separated CSV list of ids:
 SELECT listagg(account_search_id,',') WITHIN GROUP (ORDER BY account_search_id) FROM account_search SAMPLE(0.1) WHERE ROWNUM<99
@@ -6414,15 +6420,13 @@ insert /*+APPEND*/ into mytbl select level, dbms_random.string('a',30) from dual
 -- Oracle create sample data and round to 15 minute increments intervals:
 WITH v AS (select trunc(sysdate)+548/1440+rownum/1440 d1 from dual connect by level <= 10 ) SELECT TRUNC(d1, 'hh24') + ROUND(to_char(d1,'MI') / 15) * 15 / 1440 round_to_15min_intervals FROM v
 
--- View Oracle grants privileges:
+-- View determine Oracle grants privileges:
 SELECT * FROM DBA_TAB_PRIVS d WHERE d.table_name LIKE 'RPT_TAX%'
 SELECT * FROM  DBA_SYS_PRIVS WHERE grantee='SETARS' and privilege like '%OBJ%';
 SELECT * FROM  DBA_role_PRIVS WHERE grantee='SETARS';
 
 -- Build Oracle GRANT statements - can only do one owner at a time manually:
 select  'GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE ON ' || tname || ' to pks_user' from mytab
-
-SELECT * FROM user_role_privs WHERE granted_role = 'SELECT_CATALOG_ROLE';  -- view dictionary tables
 
 BEGIN sys.dbms_scheduler.create_job( job_name => 'NIGHTLY_RISK_IP_UPDATE_JOB', job_type => 'PLSQL_BLOCK', job_action => 'BEGIN RISK_PKG.periodicRiskUpdate; END;', start_date => '19-DEC-18 12.30.00PM EST5EDT', repeat_interval => 'FREQ=Daily', end_date => to_date(null), job_class => 'DEFAULT_JOB_CLASS', enabled => true, auto_drop => false,  -- run more than once comments => 'Nightly update job'); END;
 BEGIN dbms_scheduler.drop_schedule('DAILY_SCHEDULE'); dbms_scheduler.drop_job('DAILY_JOB'); END;
@@ -6810,6 +6814,12 @@ select * from SYS.USER_SOURCE t WHERE t.TYPE='PACKAGE BODY' and t.name like 'RIO
 
 -- Drag along a VARCHAR2 into a group by using max():
 select ms.product_id, max(p.name) as product_name, sum(ms.qty) as total_qty from products p join monthly_sales ms  on ms.product_id = p.id group by ms.product_id;
+
+declare job_num number; begin DBMS_JOB.submit(job_num, 'BEGIN SHADOW_INDEX(''CONTACT_SEARCH_BING_IX'', 1, 0, 1); END;', SYSDATE, NULL); COMMIT; DBMS_OUTPUT.put_line(job_num); end; 
+
+-- Bare test dummy package:
+CREATE OR REPLACE PACKAGE zbob AS PROCEDURE test(in_x number); END; / CREATE OR REPLACE PACKAGE BODY zbob AS PROCEDURE test(in_x number) IS l_now DATE := sysdate; BEGIN dbms_output.put_line(in_x || ' ok at ' || l_now); END; END; / exec zbob.test(9);
+SELECT * FROM user_jobs WHERE job=8663;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
