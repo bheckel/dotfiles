@@ -5346,7 +5346,7 @@ $ sqlplus / as sysdba;
 -- (+) replaces the comma between tablenames in old style Oracle (+) outer join operator joins (operator goes on the rightside table):
 select * from leftside LEFT OUTER JOIN rightside ...
 
--- Only on one table not in the other table:
+-- Only on one table (A) not in the other table (B), pad B with nulls:
 select a.numb, b.numb from tmp1 a LEFT JOIN tmp2 b on a.numb=b.numb where b.numb IS NULL
 
 -- Only on one table not in the other table:
@@ -6359,10 +6359,6 @@ EXECUTE IMMEDIATE 'ALTER TABLE EMAIL_MESSAGES ADD CONSTRAINT EMAIL_MESSAGES_PK P
 
 CREATE TABLE plch_employees ( employee_id   INTEGER PRIMARY KEY, last_name  VARCHAR2 (100), salary  NUMBER (3))
 
-ALTER TABLE user_role1 RENAME TO user_role2;
-
-ALTER TABLE zorion34774 RENAME COLUMN orion_contact_id TO contact_id;
-
 ALTER PACKAGE ZTESTBOB COMPILE PACKAGE; show errors PACKAGE ZTESTBOB;
 ALTER PACKAGE ZTESTBOB COMPILE BODY; show err BODY ZTESTBOB;
 
@@ -6377,6 +6373,7 @@ ALTER TABLE archivebuildconfig ADD COLUMN job_type text NOT NULL DEFAULT 'Import
 CREATE TABLE zorion35282 (a NUMBER, b NUMBER, c NUMBER, d NUMBER, e NUMBER, f NUMBER, g NUMBER)
 INSERT INTO zorion35282 VALUES (1, 2,3,4,5,6,7); COMMIT;
 ALTER TABLE zorion35282 RENAME COLUMN a3 TO a4;
+ALTER TABLE user_role1 RENAME TO user_role2;
 ALTER TABLE zorion35282 ADD sql_text_all CLOB;  -- no COLUMN keyword for Oracle!
 ALTER TABLE zorion35282 DROP COLUMN sql_text_all 
 EXECUTE IMMEDIATE 'alter table ASP_DET drop (FUTURE_TIER, FUTURE_COVERAGE, FUTURE_TSR_OWNER)';
@@ -6412,7 +6409,7 @@ create table dummy_table as select rownum pid, 'product '||rownum descr from dua
 create table dummy_table(id primary key, tag) as select rownum id, to_char(rownum) tag from dual connect by level <=10;
 -- Sample CTAS database table load 5 years of data 2018-01-02 to 2022-12-31:
 create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dual connect by level <= 365*5;
--- Sample CTAS table using a csv list:
+-- Sample CTAS table using a csv list that would overflow an IN() list max of 1000 items (18c+):
 create table dummy_table as SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE('123,456', ',', '","') || '"'));
 
 -- Populate an existing sample dummy Oracle table with 100K random strings of VARCHAR(30):
@@ -6433,29 +6430,32 @@ BEGIN sys.dbms_scheduler.create_job( job_name => 'NIGHTLY_RISK_IP_UPDATE_JOB', j
 BEGIN dbms_scheduler.drop_schedule('DAILY_SCHEDULE'); dbms_scheduler.drop_job('DAILY_JOB'); END;
 BEGIN dbms_scheduler.drop_job('SETARS.DAILY_DATA_MAINTENANCE_JOB'); END;
 
--- Oracle scheduled jobs
+SELECT SYSDATE + interval '1' minute from dual; --01-MAY-20 13:36:33
+-- Good for dbms_scheduler start_date start_date => '01-MAY-20 01.51.00PM EST5EDT',:
+SELECT CAST(SYSDATE + interval '1' minute AS TIMESTAMP) from dual; --01-MAY-20 01.37.07.000000000 PM
+
+-- Oracle dbms_scheduler scheduled jobs:
 SELECT * from USER_SCHEDULER_JOBS order by last_start_date desc
 select * from user_scheduler_job_log order by log_date desc
 SELECT * FROM user_SCHEDULER_JOB_RUN_DETAILS order by actual_start_date desc
--- Oracle scheduled job next run and what it executes (JOB_ACTION):
+-- Oracle dbms_scheduler scheduled job next run and what it executes (JOB_ACTION):
 SELECT * from user_scheduler_jobs WHERE job_name LIKE '%MAINT%' or upper(job_action) like '%MAINT%'
-select a.job_name, a.JOB_TYPE, a.JOB_ACTION, a.start_date, a.REPEAT_INTERVAL, a.end_date, a.JOB_CLASS, a.ENABLED, a.AUTO_DROP, a.comments from all_scheduler_jobs a ORDER BY 1
--- What are all the scheduled jobs that ran in the last 2 days:
-SELECT distinct job_name FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE actual_start_date>sysdate-2 order by 1;
--- Oracle scheduled job outcome log success or fail (STATUS) and the error text (ADDITIONAL_INFO):
-SELECT * FROM user_SCHEDULER_JOB_RUN_DETAILS WHERE JOB_NAME LIKE 'MAINT%' order by log_id desc;
--- Oracle scheduled job canonical:
-SELECT j.job_name, j.job_type, j.job_action, j.schedule_name, j.schedule_type, j.start_date, j.enabled, j.state, j.run_count, j.failure_count, j.last_start_date, j.next_run_date, d.status, d.actual_start_date, d.run_duration FROM user_scheduler_jobs j, SYS.user_scheduler_job_run_details d WHERE j.job_name = d.job_name and j.job_name = 'NIGHTLY_RISK_JOB' order by d.log_id DESC; 
 
--- SCHEDULED or DISABLED;
-SELECT state from user_scheduler_jobs WHERE job_name = 'PERIODIC_LIFECYCLE_UPDATE';
--- Disable scheduled job:
-exec SYS.DBMS_SCHEDULER.disable('SETARS.PERIODIC_LIFECYCLE_UPDATE');
--- What scheduled jobs are running:
-SELECT job_name from user_scheduler_jobs WHERE state='RUNNING';
-
--- What scheduled jobs exist with this string:
+-- What dbms_scheduler scheduled jobs exist with this string:
 select a.job_name, a.JOB_TYPE, a.JOB_ACTION, a.start_date, a.REPEAT_INTERVAL, a.end_date, a.JOB_CLASS, a.ENABLED, a.AUTO_DROP, a.comments from user_scheduler_jobs a where lower(job_action) like '%period%';
+-- Oracle dbms_scheduler scheduled job canonical:
+SELECT sysdate, j.job_name, j.job_type, j.job_action, j.schedule_name, j.schedule_type, j.start_date, j.enabled, j.state, j.run_count, j.failure_count, j.last_start_date, j.next_run_date, d.status, d.actual_start_date, d.run_duration FROM user_scheduler_jobs j, SYS.user_scheduler_job_run_details d WHERE j.job_name = d.job_name and j.job_name = 'NIGHTLY_RISK_JOB' order by d.log_id DESC; 
+
+-- What are all the dbms_scheduler scheduled jobs that ran in the last 2 days:
+SELECT distinct job_name FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE actual_start_date>sysdate-2 order by 1;
+-- Oracle dbms_scheduler scheduled job outcome log success or fail (STATUS) and the error text (ADDITIONAL_INFO):
+SELECT * FROM user_SCHEDULER_JOB_RUN_DETAILS WHERE JOB_NAME LIKE 'MAINT%' order by log_id desc;
+-- dbms_scheduler SCHEDULED or DISABLED;
+SELECT state from user_scheduler_jobs WHERE job_name = 'PERIODIC_LIFECYCLE_UPDATE';
+-- Disable dbms_scheduler scheduled job:
+exec SYS.DBMS_SCHEDULER.disable('SETARS.PERIODIC_LIFECYCLE_UPDATE');
+-- What dbms_scheduler scheduled jobs are running:
+SELECT job_name from user_scheduler_jobs WHERE state='RUNNING';
 
 AUTHID DEFINER is the default PLSQL permission, aka define's rights, check SQL at compile-time. AUTHID CURRENT_USER, aka invoker's rights, check SQL at run-time
 CREATE OR REPLACE PACKAGE rion37368 AUTHID DEFINER IS ... -- only on the spec, not body
@@ -7483,7 +7483,7 @@ git fetch origin && git checkout -b feature/RION-999 origin/feature/RION-999 && 
 # git squash together all commits after d3fbfd5 (the one I didn't touch). Leave the first entry (oldest commit) alone as 'pick', set others to 's[quash]', next screen lets you edit the message, doing nothing uses all old messages, wipe and type for a new one:
 git rebase --interactive d3fbfd5
 
-<!-- Predefined character entities -->
+<!-- Predefined HTML character entities -->
 &lt; &gt; &quot; &amp; &apos;  &#169; or &#xA9 is copyright symbol ©
 
 <ExtractString><![CDATA[ protected stuff goes here...  ]]></ExtractString>

@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Sun 23-Feb-2020 (Bob Heckel)
+" Modified: Mon 27-Apr-2020 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -88,8 +88,8 @@ if has('ebcdic')
 endif
 
 " Make sure this comes before the syntax area of this file:
-set t_Co=256
-"""set t_ut=
+" set t_Co=256
+" set t_ut=
 " set background=dark
 
 " Force vim to clear itself when exiting:
@@ -918,9 +918,6 @@ endif
 " (L)owercase a word and stay on the same character
 nnoremap ,l mzviwu\|:echon '.vimrc: word lowercased'<CR>`z
 
-" Comment out and yank/paste current line.  Default (may be overridden below, see au commands).  TODO use FileType instead of *.foo in au commands below
-" nnoremap ,m yy0I***<ESC>p
-
 nnoremap ,n :bnext<CR>
 
 " ,p is an autocmd
@@ -930,8 +927,9 @@ nnoremap ,qq :q!<CR>
 " Quick search template:
 nnoremap ,s :%s::g<Left><Left>
 
-" (T)oggle this prior to pasting
-nnoremap ,t :set invpaste<CR>\|:set paste?<CR>
+" (T)oggle this prior to pasting and stay on the same character
+" nnoremap ,t :set invpaste<CR>\|:set paste?<CR>
+nnoremap ,t mz \| :set invpaste<CR>\|:set paste?<CR>`z
 
 " Uppercase a word and stay on the same character
 nnoremap ,u mzviwU \| :echon '.vimrc: word uppercased'<CR>`z
@@ -976,7 +974,7 @@ nnoremap ;c 0Di#  Created: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>
 " Change (d)irectory to where the open file resides:
 nnoremap ;d :call CDtoThisFilesLoc()<CR>
 
-nnoremap ;e :split $MYVIMRC<CR>
+" nnoremap ;e :split $MYVIMRC<CR>
 
 " (F)latten paragraph to single line - prepare text for paste into an input box, etc.
 nnoremap ;f vipgq
