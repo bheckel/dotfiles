@@ -5450,6 +5450,7 @@ INSERT INTO test_table (timestamp_tz_col) VALUES (to_timestamp_tz('2017-01-21 21
 -- If same then NULL otherwise first parameter:
 select nullif('a','a') from dual  -- NULL
 select nullif('a','b') from dual  -- a
+case qty when 0 then 0.0001 else qty end / nullif(mycol, 0)  -- avoid any division by zero errors
 
 -- Better than  DECODE(p.ip_role_lov_id, null, 34657, p.ip_role_lov_id) :
 NVL(p.ip_role_lov_id, 34657);
@@ -5592,9 +5593,6 @@ select sid , serial# , q.sql_text, s.sql_exec_start, state, status, s.sql_id, ma
 -- Oracle days from today, two days ago:
 select to_char(sysdate-2, 'DD-MON-YY') from dual
 select sysdate-2 from dual
-
--- Oracle last month months ago date calc:
-select ADD_MONTHS(sysdate,-1) from dual;
 
 -- Only those columns explicitly listed in the GROUP BY clause may appear un-aggregated (i.e. not as a parameter of an agg. function) in the SELECT or HAVING clauses. Put negatively, It is prohibited to use an un-aggregated column in the SELECT or HAVING clauses, unless it is explicitly listed in the GROUP BY clause.
 
@@ -5895,7 +5893,7 @@ isql -v jaspre bheckel mypw
 -- Postgres commandline:
 psql -h ajsperdb1.edp.atbe.com TEBMART
 psql -U atbleau -h db-02.twa.taeb.com teb
-psql -h db-06.twa.taeb.com TAEBMART -c "select * from analytis.reportlog where rpt='TMMRep' order by lastmodified desc LIMIT 1"
+psql -h db-06.taeb.com TAEBMART -c "select * from analytis.reportlog where rpt='TMMRep' order by lastmodified desc LIMIT 1"
 
 -- Empty 2 tables (implicit COMMIT because TRUNCATE is DDL, DDL statements issue a commit BEFORE and AFTER they run). Faster than DELETE. (1) it does an implicit commit (exceptions: PostgreSQL and SQL Server); (2) it does not execute any triggers:
 TRUNCATE bigtable, fattable;  -- no WHERE clause allowed
@@ -6288,8 +6286,11 @@ SELECT systimestamp + (3/(24 * 60)) FROM dual;
 -- 12 hours from now:
 select sysdate+1/2 from dual;
 select sysdate + interval '12' hour from dual;
--- 23 months ago DEPRECATED:
+-- 23 months ago:
 SELECT add_months(systimestamp,-23) FROM dual;
+SELECT sysdate - interval '23' month from dual;
+select add_months(date '2016-01-01', level - 1) from dual connect by level <= 48;  -- generate build time series the last 48 months dates rows
+
 SELECT last_day(TIMESTAMP '2017-01-21 21:32:48') "last day of month", next_day(SYSDATE', 'FRIDAY') "next day after friday" FROM dual;
 -- 5 years and 3 months from now in future:
 SELECT systimestamp + TO_YMINTERVAL('5-3') "fiveyrs threemos fromnow" FROM dual;
@@ -6805,7 +6806,11 @@ select q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, 
 -- Don't have SID want to know what SQL a scheduled job is running:
 select distinct 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action,osuser from v$session s, v$sql q where s.sql_id=q.sql_id(+) and s.action='MY_PERIODIC_LIFECYCLE_JOB' and sql_exec_start is not null order by s.sql_exec_start; 
 
-alter session set nls_date_format = 'YYYY-MM-DD';
+alter session set NLS_DATE_FORMAT = 'YYYY-MM-DD';
+
+alter session set NLS_DATE_FORMAT = 'SYYYY-MM-DD'; -- -4712-01-01
+select date '-4712-01-01' lowest_ora_date_possible, date '9999-12-31' highest_future_ora_date_possible from dual;
+nvl(next(start_date), DATE '-4712-01-01') <= max(nvl(end_date, DATE '9999-12-31'))  -- Oracle date constants
 
 GRANT CREATE PUBLIC SYNONYM TO unit_test_repos
 CREATE PUBLIC SYNONYM favorite_list_to_coll_type FOR  bob_pkg.favorite_list_to_coll_type
@@ -6821,6 +6826,12 @@ declare job_num number; begin DBMS_JOB.submit(job_num, 'BEGIN SHADOW_INDEX(''CON
 -- Bare test dummy package:
 CREATE OR REPLACE PACKAGE zbob AS PROCEDURE test(in_x number); END; / CREATE OR REPLACE PACKAGE BODY zbob AS PROCEDURE test(in_x number) IS l_now DATE := sysdate; BEGIN dbms_output.put_line(in_x || ' ok at ' || l_now); END; END; / exec zbob.test(9);
 SELECT * FROM user_jobs WHERE job=8663;
+
+-- Monitor open cursor count:
+SELECT max(a.value) as highest_open_cur, p.value as max_open_cur FROM v$sesstat a, v$statname b, v$parameter p WHERE  a.statistic# = b.statistic#  and b.name = 'opened cursors current' and p.name= 'open_cursors' group by p.value;
+
+-- Open cursors:
+SELECT a.value, s.username, s.sid, s.serial#, s.osuser, s.machine, s.program, s.status, s.state, s.sql_id, s.logon_time FROM v$sesstat a, v$statname b, v$session s WHERE a.statistic# = b.statistic#  AND s.sid=a.sid AND b.name = 'opened cursors current' AND username ='ESTARS' order by 1 desc;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7130,7 +7141,7 @@ Windows Task Manager alternative key combination: Ctrl+Shift+Esc
 
 Open Windows Event Viewer from command line:  eventvwr
 
-<!-- Redirect moved forward new address, 0 indicates immediately -->
+<!-- HTML redirect moved forward new address, 0 indicates immediately -->
 <meta http-equiv="refresh" content="10; url=https://connect.sgk.com/Pages/Default.aspx">
 
 Windows Task Manager: Ctrl+Shift+Esc 
