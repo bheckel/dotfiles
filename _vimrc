@@ -87,8 +87,10 @@ if has('ebcdic')
   set t_le=
 endif
 
-" Make sure this comes before the syntax area of this file:
-" set t_Co=256
+if has('unix')
+  " Make sure this comes before the syntax area of this file:
+  set t_Co=256
+endif
 " set t_ut=
 " set background=dark
 
