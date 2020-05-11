@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Mon 27-Apr-2020 (Bob Heckel)
+" Modified: Fri 08-May-2020 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -150,8 +150,8 @@ set showbreak=^
 
 set sidescroll=5
 
-" Minimal number of screen lines to keep above top and below bottom the cursor
-set scrolloff=3
+" Minimum number screen lines of context to keep above top and below bottom the cursor
+" set scrolloff=3
 
 set scrollopt=hor,ver
 

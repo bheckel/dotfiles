@@ -6781,7 +6781,7 @@ THEN assign_table(i).new_account_team_assignment_id:=1.257E+993;
 
 EXECUTE IMMEDIATE q'[select 'ASP_TASK_JOB_' || TO_CHAR(sysdate, 'DD_MM__HH24_MI_SS') from dual]' INTO v_job_name;
 
--- SQL Developer sqldeveloper preferences location Windows:
+-- SQL Developer sqldeveloper preferences location Windows backup:
 C:\Documents and Settings\<user-name>\Application Data\SQL Developer\systemn.n.n.n.n
 cp -i 'C:\Documents and Settings\bheck\Application Data\SQL Developer\UserSnippets.xml' ~/onedrive/misc/
 
