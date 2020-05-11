@@ -16,13 +16,10 @@
 "    Ordered by ':option option-window' convention
 "--------------------------------------------------------------------------
 "                                1 initialization {{{2
-" C:\Users\boheck\vim\vim81\gvim.exe -c "set noswapfile" -u c:\cygwin64\home\boheck\dotfiles\_vimrc
+" C:\Users\ \vim\vim81\gvim.exe -c "set noswapfile" -u c:\cygwin64\home\ \dotfiles\_vimrc
 
 " Unleash the beast VIVIVI:
 set nocompatible
-
-" Show '$' on C and s actions, i.e. emulate vi:
-set cpoptions=s$
 
 " DEBUG toggle:
 """scriptnames
@@ -87,8 +84,10 @@ if has('ebcdic')
   set t_le=
 endif
 
-" Make sure this comes before the syntax area of this file:
-" set t_Co=256
+if has('unix')
+  " Make sure this comes before the syntax area of this file:
+  set t_Co=256
+endif
 " set t_ut=
 " set background=dark
 
@@ -387,6 +386,9 @@ set selection=inclusive
 
 
 "                               13 editing text {{{2
+
+" Show '$' on C and s actions, i.e. emulate vi
+set cpoptions=s$
 
 " set dictionary=/usr/share/dict/words
 

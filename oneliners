@@ -309,6 +309,7 @@ vi -c ':y | put' foo.txt
 " Open file to last line of file, set textwidth:
 vim -c 'set tw=68 et' +  foo.txt
 gvim -c 'set lines=20 columns=150'
+" Easy quit:
 vi -c 'map q :q!<CR>' foo.txt
 vi -c 'map q :q!<CR>' -c 'map z noop' foo.txt
 
