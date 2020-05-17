@@ -5559,8 +5559,8 @@ SELECT DATE '2019-03-05' - (365 * 2) FROM dual  -- 3/5/2017
 -- Oracle function declaration default parameter:
 FUNCTION hasLinkages(in_accountId NUMBER, in_contextBeingUsed NUMBER DEFAULT 2) RETURN NUMBER;
 
--- Oracle user sessions Who is logged:
-select * from v$session where username is not null order by logon_time, sid
+-- Oracle user sessions who is logged and potentially kill them:
+select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, USERNAME, COMMAND, STATUS, SCHEMANAME, OSUSER, MACHINE, PROGRAM, TYPE, SQL_ID, SQL_EXEC_START, MODULE, ACTION, LOGON_TIME, CLIENT_IDENTIFIER, STATE from v$session where username is not null order by status, logon_time;
 
 -- Oracle package count:
 SELECT OBJECT_NAME, count(*) FROM dba_procedures WHERE OWNER = 'SETARS' AND OBJECT_TYPE IN('PROCEDURE' , 'PACKAGE','FUNCTION') AND procedure_name IS NOT NULL GROUP BY object_name;
@@ -5776,11 +5776,10 @@ SELECT table_name FROM user_tables WHERE lower(table_name) LIKE '%search%' order
 -- Poke around search all tables for a specific column name poke:
 SELECT * from  user_tab_columns WHERE column_name LIKE '%NEW%';
 
-select * from dba_dependencies where name = 'Z_ON_CALL' and type = 'PACKAGE';
--- What the object references:
-select * from user_dependencies where name = 'ACCOUNT_TEAM' and referenced_type not in ('SYNONYM') order by 4;
--- What references the object depends upon the object:
-select * from user_dependencies where REFERENCED_NAME = 'ACCOUNT_TEAM' and referenced_type not in ('SYNONYM') order by 1;
+-- What the object references, tables etc:
+select * from user_dependencies where name = 'RPT_OPP_MULTI_YDEAL' and referenced_type not in ('SYNONYM') order by 4;
+-- What references the object, views etc:
+select * from user_dependencies where REFERENCED_NAME = 'OPP_BASE' and referenced_type not in ('SYNONYM') order by 1;
 
 -- Is table indexed:
 SELECT * from user_indexes WHERE table_name LIKE 'LIST_OF%'  -- or SELECT * from all_ind_columns WHERE index_name LIKE 'LIST_OF%'
@@ -6832,6 +6831,8 @@ SELECT max(a.value) as highest_open_cur, p.value as max_open_cur FROM v$sesstat 
 
 -- Open cursors:
 SELECT a.value, s.username, s.sid, s.serial#, s.osuser, s.machine, s.program, s.status, s.state, s.sql_id, s.logon_time FROM v$sesstat a, v$statname b, v$session s WHERE a.statistic# = b.statistic#  AND s.sid=a.sid AND b.name = 'opened cursors current' AND username ='ESTARS' order by 1 desc;
+
+select dbms_lob.substr(t.SQL_TEXT, 4000, 1) ...
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 

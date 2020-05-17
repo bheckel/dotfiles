@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Fri 08-May-2020 (Bob Heckel)
+" Modified: Mon 11-May-2020 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -16,7 +16,7 @@
 "    Ordered by ':option option-window' convention
 "--------------------------------------------------------------------------
 "                                1 initialization {{{2
-" C:\Users\ \vim\vim81\gvim.exe -c "set noswapfile" -u c:\cygwin64\home\ \dotfiles\_vimrc
+" C:\Users\x\vim\vim81\gvim.exe -c "set noswapfile" -u c:\cygwin64\home\x\dotfiles\_vimrc
 
 " Unleash the beast VIVIVI:
 set nocompatible
@@ -46,7 +46,7 @@ let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
 """let g:netrw_list_cmd = '/cygdrive/c/windows/System32/WindowsPowerShell/v1.0/powershell -Command dir'
 
 let THISBOX = hostname()
-let WORKBOXARRAY = [ 'L-ANA-BHEC', 'TWAVWS-05-BHEC' ]
+let WORKBOXARRAY = [ 'HOSTNM1', 'HOSTNM2' ]
 
 " Setup tempspace that vim and gVim can share, make sure both Linux & Windows hostnames are added to WORKBOXARRAY
 if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
@@ -84,7 +84,7 @@ if has('ebcdic')
   set t_le=
 endif
 
-if has('unix')
+if has('unix') && !has('win32unix')
   " Make sure this comes before the syntax area of this file:
   set t_Co=256
 endif
@@ -237,8 +237,6 @@ hi Function ctermfg=Yellow guifg=LightYellow guibg=Black
 
 hi Identifier ctermfg=LightCyan guifg=LightCyan
 
-" hi IncSearch ctermfg=White ctermbg=LightBlue guifg=White guibg=LightBlue
-
 hi CursorLineNr ctermfg=White ctermbg=DarkGray guifg=White guibg=DarkGray cterm=bold gui=bold
 
 hi MatchParen ctermfg=White ctermbg=Blue guifg=Cyan guibg=Magenta
@@ -256,6 +254,8 @@ hi PmenuSbar ctermfg=Black ctermbg=Gray guifg=White guibg=Black
 hi PmenuSel ctermfg=Blue ctermbg=Yellow guifg=Blue guibg=Yellow 
 
 hi PreProc ctermfg=LightMagenta guifg=LightMagenta guibg=Black
+
+" hi IncSearch ctermfg=White ctermbg=LightBlue guifg=White guibg=LightBlue
 
 " hls
 hi Search ctermfg=Yellow ctermbg=DarkGray guifg=White guibg=DarkGray 
@@ -1606,7 +1606,6 @@ endfunction
 "   Autocommands  {{{1  
 "  Begin aucommands 	
 "
-"  Chain commands with '\\\|'
 "  No spaces between comma-delimited file lists!
 "--------------------------------------------------------------------------
 
@@ -1666,8 +1665,9 @@ if !exists("autocommands_loaded")
   " TODO
   " au BufNewFile,BufEnter *.py set tabstop=4
 
-  " au FileType sh set fileformat=unix
+  au FileType sh set fileformat=unix
   au BufWritePost *.sh silent !chmod a+x <afile>
+  "
   au FileType basic map ,m yy0I'''<ESC>p
   au FileType basic map ;s :s:^:''':<CR>
   au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;c 0Di//  Created: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
@@ -1709,7 +1709,7 @@ if !exists("autocommands_loaded")
   au BufRead,BufEnter *.sql,afiedt.buf iab SC select count(*) from
   au BufRead,BufEnter *.sql,afiedt.buf iab WH where
 
-  " Add to /usr/share/vim/vim81/syntax/sqloracle.vim for when PLSQL code sneaks into a .sql
+  " Enhance /usr/share/vim/vim81/syntax/sqloracle.vim when PLSQL code sneaks into a .sql
   au BufRead,BufEnter *.sql syn keyword sqlFunction	FORALL SAVE EXCEPTIONS
   au BufRead,BufEnter *.sql syn keyword sqlKeyword SIBLINGS MERGE
 
@@ -1826,9 +1826,9 @@ if !exists("autocommands_loaded")
     endif
   endif
 
-  au BufRead * if @% =~ 'oneliners$' 
-    hi Oneliners ctermbg=Black ctermfg=DarkGray guifg=DarkGray guibg=Black 
-    match Oneliners @^".*$\|^--.*$\|^\/\/.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@
+  " au BufRead * if @% =~ 'oneliners$' 
+  " hi Oneliners ctermbg=Black ctermfg=DarkGray guifg=DarkGray guibg=Black 
+  " match Oneliners @^".*$\|^--.*$\|^\/\/.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@
 
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
   "
@@ -3063,7 +3063,6 @@ endif
 autocmd FileType sh,perl,crontab,conf setlocal commentstring=#\ %s
 autocmd FileType vim setlocal commentstring=\"\ %s
 
-" TODO deprecate my code in favor of this
 "}}}
 
 " 2018-11-16 inlined FontSize {{{
