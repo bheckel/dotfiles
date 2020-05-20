@@ -667,6 +667,8 @@ let sorted_list = reverse(sort(copy(unsorted_list)))
 " Change filetype from SQL to PLSQL for certain filenames directories:
 au BufRead,BufNewFile,BufEnter *RION-* set filetype=plsql
 
+au BufRead * if @% =~ 'oneliners$' 
+
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSASxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -6457,6 +6459,9 @@ exec SYS.DBMS_SCHEDULER.disable('SETARS.PERIODIC_LIFECYCLE_UPDATE');
 -- What dbms_scheduler scheduled jobs are running:
 SELECT job_name from user_scheduler_jobs WHERE state='RUNNING';
 
+-- Which jobs ran around 1am?:
+SELECT * FROM user_SCHEDULER_JOB_RUN_DETAILS WHERE to_char(REQ_START_DATE, 'HH24MI')  between '0100' and '0200' ;
+
 AUTHID DEFINER is the default PLSQL permission, aka define's rights, check SQL at compile-time. AUTHID CURRENT_USER, aka invoker's rights, check SQL at run-time
 CREATE OR REPLACE PACKAGE rion37368 AUTHID DEFINER IS ... -- only on the spec, not body
 
@@ -6539,7 +6544,13 @@ set autotrace traceonly explain -- then select ename from emp
 
 EXPLAIN PLAN FOR SELECT * FROM email_messages WHERE actual_updated > (SYSTIMESTAMP - INTERVAL '42' minute); select * from table(dbms_xplan.display); ROLLBACK;
 
-select * /* my qry */ from foo; select * from v$sql where sql_text = 'my qry'; select * from table(dbms_xplan.display_cursor('THE ID YOU JUST FOUND');
+select * /* my qry id */ from foo; select * from v$sql where sql_text = 'my qry id'; select * from table(dbms_xplan.display_cursor('THE ID YOU JUST FOUND');
+
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR('79f98dm2w914f', null/*, 'ADVANCED'*/));
+
+select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_text like '%CUSTOMER%'
+-- Have sql_id want query:
+select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_id='63ygwpcj2s227';
 
 -- Create update histogram stats statistics manually:
 BEGIN DBMS_STATS.GATHER_TABLE_STATS(USER, 'CONTACT_EXTERNAL2', estimate_percent=>100); END; 
@@ -6651,9 +6662,6 @@ SELECT to_char(12345.67, '$99,999.99') FROM dual  -- $12,345.67
 -- When 4000 char limit overflows, use a CLOB:
 SELECT rtrim(xmlagg(XMLELEMENT(e,text,',').EXTRACT('//text()')).GetClobVal(),',') very_long_text FROM (SELECT to_char(to_date(level,'j'), 'jsp') text FROM dual CONNECT BY LEVEL < 250)
 WITH v AS( SELECT 'vvvvvvvvvvvv vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv vvvvvvvvvvvvvvvvvvvvv vvvvvvvvvvvvvvvery_long_text' bigstr FROM dual) SELECT rtrim(xmlagg(XMLELEMENT(e, bigstr, ',').EXTRACT('//text()') ).GetClobVal(), ',') FROM v
-
-select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_text like '%CUSTOMER%'
-select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_id='63ygwpcj2s227';
 
 -- All SQL run in the last 2 months:
 select v.SQL_TEXT, v.PARSING_SCHEMA_NAME, v.FIRST_LOAD_TIME, v.DISK_READS, v.ROWS_PROCESSED, v.ELAPSED_TIME, v.service from v$sql v where to_date(v.FIRST_LOAD_TIME,'YYYY-MM-DD hh24:mi:ss')>ADD_MONTHS(trunc(sysdate,'MM'),-2)
@@ -6833,6 +6841,8 @@ SELECT max(a.value) as highest_open_cur, p.value as max_open_cur FROM v$sesstat 
 SELECT a.value, s.username, s.sid, s.serial#, s.osuser, s.machine, s.program, s.status, s.state, s.sql_id, s.logon_time FROM v$sesstat a, v$statname b, v$session s WHERE a.statistic# = b.statistic#  AND s.sid=a.sid AND b.name = 'opened cursors current' AND username ='ESTARS' order by 1 desc;
 
 select dbms_lob.substr(t.SQL_TEXT, 4000, 1) ...
+
+SELECT p.value as max_open_cur FROM v$parameter p WHERE p.name= 'open_cursors' group by p.value; 
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 

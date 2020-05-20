@@ -1826,9 +1826,8 @@ if !exists("autocommands_loaded")
     endif
   endif
 
-  " au BufRead * if @% =~ 'oneliners$' 
-  " hi Oneliners ctermbg=Black ctermfg=DarkGray guifg=DarkGray guibg=Black 
-  " match Oneliners @^".*$\|^--.*$\|^\/\/.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@
+  " This file has many language comments, highlight them all
+  au BufRead  *oneliners match Comment @^".*$\|^--.*$\|^\/\/.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@
 
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
   "
