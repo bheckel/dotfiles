@@ -4162,6 +4162,9 @@ find . -not -name '*co'|xargs touch -d 'Mar 24 2011 13:26'
 touch '\\rtpsawnv031\pucc\ALTREX_Caplets\INPUT_DATA_FILES\tmp\DPRunFlg.txt'
 touch  //rtpsawnv031/pucc/ALTREX_Caplets/INPUT_DATA_FILES/tmp/DPRunFlg.txt
 
+# Generate a semi-unique bash datestamp:
+local unique=`date +%d%b_%H%M`
+
 # Sort on column 11:
 find -ls | sort -k 11
 

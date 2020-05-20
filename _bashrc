@@ -365,12 +365,11 @@ md() {
 }
 
 
-# tmux new session
+# Create new tmux session
 tmn() {
-  # local unique=`date +%d%b_%H%M`
-
   if [ -z ${1} ]; then
-    tmux -u -2 new -s s1\; split-window -h
+    #tmux -u -2 new -s s1\; split-window -h
+    tmux new
   else
     tmux -u -2 new -s "s${1}"\; split-window -h
   fi
