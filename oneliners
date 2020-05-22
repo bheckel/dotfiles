@@ -136,7 +136,7 @@ xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 " or propcase all capitalized words as well:
 :%s:\([A-Za-z]\)\([A-Za-z-]*\):\u\1\L\2:g
 
-" Search across linebreaks
+" Search across linebreaks:
 /the\nword
 
 " Search and replace across lines (e.g. replace Acme Distributors with Barrett...):
@@ -201,7 +201,7 @@ Then in insertmode (e.g copyright symbol):
 C<BS>o   <---Produces ©
 s<BS>s   <---Produces German ß 
 
-" Show where all tabs, EOLs, control, hidden chars, etc are on a whole a file:
+" Show where all tabs EOLs control hidden chars are on a whole a file:
 :se list
 
 " Scroll scrollbind windows together vertical default:
@@ -6424,9 +6424,9 @@ insert /*+APPEND*/ into mytbl select level, dbms_random.string('a',30) from dual
 WITH v AS (select trunc(sysdate)+548/1440+rownum/1440 d1 from dual connect by level <= 10 ) SELECT TRUNC(d1, 'hh24') + ROUND(to_char(d1,'MI') / 15) * 15 / 1440 round_to_15min_intervals FROM v
 
 -- View determine Oracle grants privileges:
-SELECT * FROM DBA_TAB_PRIVS d WHERE d.table_name LIKE 'RPT_TAX%'
 SELECT * FROM  DBA_SYS_PRIVS WHERE grantee='SETARS' and privilege like '%OBJ%';
 SELECT * FROM  DBA_role_PRIVS WHERE grantee='SETARS';
+SELECT * FROM DBA_TAB_PRIVS d WHERE d.table_name = 'RPT_PTG_OPPORTUNITIES' and d.grantee='ES_PSUX';
 
 -- Build Oracle GRANT statements - can only do one owner at a time manually:
 select  'GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE ON ' || tname || ' to pks_user' from mytab
@@ -6815,6 +6815,11 @@ SELECT REGEXP_REPLACE(text, '\s+', ' ') FROM user_source;
 select q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action from v$session s, v$sql q where s.sql_id=q.sql_id(+) and SID= order by s.sql_exec_start; 
 -- Don't have SID want to know what SQL a scheduled job is running:
 select distinct 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action,osuser from v$session s, v$sql q where s.sql_id=q.sql_id(+) and s.action='MY_PERIODIC_LIFECYCLE_JOB' and sql_exec_start is not null order by s.sql_exec_start; 
+
+-- Want open cursor SQL sql_text:
+SELECT a.value, s.username, s.sid, s.serial#, s.osuser, s.machine, s.program, s.status, s.state, s.sql_id, s.logon_time FROM v$sesstat a, v$statname b, v$session s WHERE a.statistic# = b.statistic#  AND s.sid=a.sid AND b.name = 'opened cursors current' AND username ='SETARS' order by 1 desc;--1327
+SELECT * FROM v$open_cursor WHERE sid=1327;--00000000EE25A3F0
+SELECT sql_fulltext FROM v$sql WHERE address='00000000EE25A3F0';
 
 alter session set NLS_DATE_FORMAT = 'YYYY-MM-DD';
 
