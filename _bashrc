@@ -4,7 +4,7 @@
 # Summary: bash config for at least Unix/Linux, Cygwin 1.3/1.5/1.7 and z/OS
 #
 #  Created: Tue 19-May-1998 (Bob Heckel)
-# Modified: Sun 26-Apr-2020 (Bob Heckel)
+# Modified: Sat 23-May-2020 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -112,24 +112,17 @@ alias g=$HOME/dotfiles/gone.sh
 # Can't use sed to eliminate leading spaces or it breaks coloring
 # alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
 alias gb='git branch'
-# alias gitup='echo "ok to gitup?" && read && git status && git add . && git commit -m "mod" && git pull origin master && git push origin master'
 alias gitall="$HOME/code/misccode/gitall"
 alias gitup='git add . && git commit -m"mod gitup" && git push'
 alias gpul='git pull'
 alias gpull='git pull'
 alias gstash='git stash save --include-untracked'
-# alias gdot="cd ~/dotfiles && git add . && git commit -m'gdot' && git pull origin master && git push origin master && cd -"
-# alias grunt='pig -x local'
+alias grunt='pig -x local'
 alias gs='git status'
 alias gsl='git stash list'
-###alias gskfrom="echo 'retrieving from github...';echo; cd ~/dotfiles && git pull origin master; echo; cd ~/transfer && git pull origin master; echo 'extracting...'; ls -l ~/transfer/c; tar tvfz ~/transfer/c; sleep 7; cd ~ && tar xfz ~/transfer/c" 
-# alias gskfrom="echo 'retrieving from github...';echo; cd ~/transfer && git pull origin master; echo 'extracting...'; ls -l ~/transfer/c; tar tvfz ~/transfer/c; sleep 7; cd ~ && tar xfz ~/transfer/c" 
 alias h='history|tail -n20'
 alias ha='history -a'  # append this
 alias hr='history -n'  # read in from others
-# Poor-man's file sync.  See gskto gskfrom.  Using suffix-less tarball to discourage email filtering.
-# Assumes we have sent the weekend work attachment ~/Downloads/c.NEW from home to github.  Monday morning run usually.
-# alias homefrom="cd ~/transfer && git pull origin master; cd ~; echo 'extracting...'; ls -l ~/transfer/c.NEW && sleep 5; tar xvfz ~/transfer/c.NEW; rmv ~/transfer/c.NEW; cd -"
 alias j="jobs -s"  # only show STOPPED (e.g. skip RUNNING blink.exe &) jobs
 alias l='ls'
 # Overridden later if non-GNU ls is present.  Do not move.
@@ -140,10 +133,7 @@ alias lla='ls -agh --color --group-directories-first'
 # If ls -lS isn't available:
 ###alias lls='ls -l | sort +4r | grep -v "total"'  # sort descending on size
 alias lsd='find . -type d'
-# alias one="vi $HOME/code/misccode/oneliners"
 alias one="vi $HOME/dotfiles/oneliners"
-# alias pull='git pull origin master'
-# alias push='git push origin master'
 alias pse="ps -ef|grep ^$USER|grep -vP 'ps -ef|grep'"
 ###alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
 alias qr="$HOME/code/misccode/quickref_find.sh"
@@ -155,7 +145,8 @@ alias sr="$HOME/code/sas/sasrun"
 alias srcb="source $HOME/dotfiles/_bashrc"
 alias tmls='tmux list-sessions'
 alias tmux='tmux -u'  # UTF8
-###alias tree="\ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
+# If tree isn't installed:
+alias tre="\ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
 alias uvi="$HOME/code/perl/uvi"  # don't change timestamp
 alias ve="vim $HOME/.vimrc"
 alias vin="vi -c 'syntax off'"
@@ -340,7 +331,7 @@ parse_git_branch() {
 function urlencode() { echo -n $@ | perl -pe's/([^-_.~A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg'; }
 function goo() { w3m http://www.google.com/search?q="`urlencode $@`" ;}
 function google() { w3m http://www.google.com/search?q="`urlencode $@`" ;}
-#$ vi ~/bin/termux-url-opener
+#$ Firewall jumper vi ~/bin/termux-url-opener
 #termux-open http://www.google.com/search?q="cache:$@" ;
 function gooc() { w3m-open http://www.google.com/search?q="cache:`urlencode $@`" ;}
 
