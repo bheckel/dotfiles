@@ -1974,9 +1974,6 @@ data; x=put(19530, DATE.); put x=; run;
  /* Macro multiple condition macro if then %if statement */
 %if &foo eq bar OR &foo eq %str(baz oom) %then ...
 
-# Google custom search SAS
-http://tx0.org/uf
-
  /* Build a lookup CNTLIN format: */
 data control(keep= fmtname start label hlo); set t(rename=(code=start animal=label)) end=e; retain fmtname 'ANIFMT'; output control; if e then do; hlo='o'; label='Unk'; output control; end; run;
  /* Convert control dataset into format then do animal code lookup: */
