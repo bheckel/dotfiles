@@ -94,13 +94,6 @@ endif
 " Force vim to clear itself when exiting:
 """set t_ti=7[r[?47h
 """set t_te=[?47l8
-" Improve cursor in insert mode for mintty:
-if has('win32unix')
-  let &t_ti.="\e[1 q"
-  let &t_SI.="\e[5 q"
-  let &t_EI.="\e[1 q"
-  let &t_te.="\e[0 q"
-endif
 
 " $ mkdir -p ~/.vim/autoload ~/.vim/bundle && curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
 """execute pathogen#infect()
@@ -150,7 +143,7 @@ set showbreak=^
 set sidescroll=5
 
 " Minimum number screen lines of context to keep above top and below bottom the cursor
-" set scrolloff=3
+set scrolloff=1
 
 set scrollopt=hor,ver
 
@@ -688,7 +681,7 @@ cab SyQ source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/sql.
 cab SyS source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/sas/sas.vim
 cab SyS source $HOME/code/sas/sas.vim
 
-iab DbO DBMS_OUTPUT.put_line();<Esc><Left>i
+iab DbO DBMS_OUTPUT.put_line('ok: ' );<Esc><Left>i
 
 " end Abbreviations-
 
@@ -1316,7 +1309,6 @@ fu! ReadFromFile(vtpth, fnm)  " {{{2
   " Used by mappings that transfer/read/write a block of text between vim sessions/terminals
   let fqfn = a:vtpth . '/' . a:fnm
   " TODO want something like 0read instead of read to insert on current line but that only works for empty files
-  " TODO use :silent! somehow
   exec("read " . fqfn)
 endfu
 " }}}
@@ -1332,7 +1324,6 @@ fu! WriteToFile(vtpth, fnm, append, ...) range  " {{{2
     exec(lfirst . ',' . llast . " write! >> " . a:vtpth . '/' . a:fnm)
   else
     " ;w map
-    " TODO why does ,silent not work?
     execute(lfirst . ',' . llast . " write! " . a:vtpth . '/' . a:fnm)
   endif
 
@@ -1809,7 +1800,7 @@ if !exists("autocommands_loaded")
   " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $VIMRUNTIME\syntax\saslog.vim
 
   " Avoid ;w failure if this file is open by accident anywhere by ,e (it should never be edited)
-  au BufReadPre,FileReadPre .vimxfer set noswapfile
+  au BufReadPre,FileReadPre *.vimxfer set noswapfile
 
   " if THISBOX == 'appa'
     " au BufNewFile,BufRead,BufEnter *.sas | syntax clear | source $HOME/code/sas/sas.vim
