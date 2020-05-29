@@ -6598,7 +6598,7 @@ select min(sal), max(sal), rpad('*', count(1), '*') AS Bar, count(1) from ( sele
 select object_name, object_type from user_objects where object_type in ('VIEW','TABLE','PACKAGE','PROCEDURE','FUNCTION') and lower(object_name) like '%acc%' order by 2,1
 
 -- Oracle which objects are invalid objects:
-select * from user_objects o where object_type != 'JAVA CLASS' and status = 'INVALID' ORDER BY last_ddl_time;
+select * from user_objects o where object_type != 'JAVA CLASS' and status = 'INVALID' and to_date(timestamp,'YYYY-MM-DD HH24:MI:SS') > sysdate - interval '5' minute  order by 8 desc;
 
 -- After dropping table TEMPTBL, verify no invalids check object validity:
 select object_name, object_type, status from all_objects where object_name like 'TEMP%';
@@ -6843,6 +6843,9 @@ SELECT a.value, s.username, s.sid, s.serial#, s.osuser, s.machine, s.program, s.
 select dbms_lob.substr(t.SQL_TEXT, 4000, 1) ...
 
 SELECT p.value as max_open_cur FROM v$parameter p WHERE p.name= 'open_cursors' group by p.value; 
+
+-- When was table created:
+SELECT created FROM dba_objects WHERE object_name in('MYTBL') AND owner = 'SETARS' AND object_type = 'TABLE';
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
