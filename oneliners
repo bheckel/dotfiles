@@ -4157,8 +4157,8 @@ touch  //rtpsawnv031/pucc/ALTREX_Caplets/INPUT_DATA_FILES/tmp/DPRunFlg.txt
 # Generate a semi-unique bash datestamp:
 local unique=`date +%d%b_%H%M`
 
-# Sort on column 11:
-find -ls | sort -k 11
+# Sort on column 3:
+find -ls | sort -k 3
 
 # Which processes are running on port 80:
 lsof -i :80
@@ -4209,7 +4209,8 @@ $ XWin.exe -query trpsh005  # don't use startxwin unless want commandline only
 # Build cp commands to replicate files to another tree:
 find data/sgk/zebulon -name 'ols*.sas7bdat'|sed 's/\(.*\)/cp -i \1 \/cygdrive\/x\/datapostdemo\/\1/'
 
-echo $$  # the process id of the current process
+# Find the bash process id of the current process:
+echo $$
 
 # Date calculate date that was 3 years ago from today:
 ~/code/perl/datecalc -1080
