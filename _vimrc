@@ -681,7 +681,7 @@ cab SyQ source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/sql.
 cab SyS source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/sas/sas.vim
 cab SyS source $HOME/code/sas/sas.vim
 
-iab DbO DBMS_OUTPUT.put_line('ok: ' );<Esc><Left>i
+iab DbO DBMS_OUTPUT.put_line('start: ' \|\| SYSDATE);<Esc><Left>i
 
 " end Abbreviations-
 
