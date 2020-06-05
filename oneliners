@@ -5437,7 +5437,7 @@ SELECT LAST_DAY(DATE '2019-01-01') last_day_of_month FROM dual
 lastDayOfQuarter := LAST_DAY(TO_DATE(to_char((payoutQuarter * 3), '00') || '/01/' || targetYear, 'mm/dd/YYYY'));
 
 -- Oracle ANSI datetime timestamp constants literals (client controls display format). Both are 29-OCT-12 12.01.01.123000000 PM:
-select TIMESTAMP '2012-10-29 12:01:01.123', to_timestamp('2012-10-29 12:01:01.123', 'YYYY-MM-DD HH:MI:SS.FF AM') from dual
+select TIMESTAMP '2012-10-29 14:01:01', TIMESTAMP '2012-10-29 12:01:01.123', to_timestamp('2012-10-29 12:01:01.123', 'YYYY-MM-DD HH:MI:SS.FF AM') from dual;
 -- Oracle ANSI TIMESTAMP literal:
 select * from t WHERE t.min_end_time> TIMESTAMP '2019-01-16 08:26:50'
 INSERT INTO test_table (timestamp_col) VALUES (TIMESTAMP '2017-01-21 12:34:56.78');
@@ -5740,7 +5740,7 @@ DECLARE TYPE x_t IS TABLE OF NUMBER; x x_t := x_t(9, NULL, 42); BEGIN FOR i IN x
 -- Oracle DDL for DROP all procedures matching pattern:
 SELECT 'DROP PROCEDURE "'||owner||'"."'||object_name||'";' FROM all_procedures WHERE procedure_name IS NULL AND UPPER(object_name) LIKE 'Z_SET_%';
 SELECT * FROM user_procedures a WHERE a.procedure_name like 'REMOVE_L%';  -- like all_procedures but for schema only
-SELECT *  FROM all_objects WHERE  owner='SETARS' AND object_type NOT LIKE 'JAVA%'  -- jobs, indexes, triggers, tables, procedures, types...
+SELECT * FROM all_objects WHERE  owner='SETARS' AND object_type NOT LIKE 'JAVA%'  -- jobs, indexes, triggers, tables, procedures, types...
 select * FROM all_objects WHERE OWNER = 'BOBHECKEL' and object_type = 'FUNCTION'
 
 -- Using data DICTIONARY aka DICT find Oracle USER_TABLES etc from which to further query poke around:
@@ -5849,8 +5849,8 @@ WHEN OTHERS THEN dbms_output.put_line(SQLCODE || ': ' || SQLERRM || ': ' || DBMS
 -- Print Oracle error code description:
 BEGIN dbms_output.put_line(SQLERRM(0)); END; -- ORA-0000: normal, successful completion
 
--- An autonomous routine never reads or writes database state (i.e., it neither queries nor updates any table). Wrap EXECUTE IMMEDIATE DDL statements (which auto commit) in one of these to avoid accidental session commits:
-... DECLARE PRAGMA AUTONOMOUS_TRANSACTION; ... BEGIN INSERT INTO log (...)
+-- Usually only good for error logging. Or wrap EXECUTE IMMEDIATE DDL statements (which auto commit) in one of these to avoid accidental session commits:
+DECLARE PRAGMA AUTONOMOUS_TRANSACTION; BEGIN INSERT INTO log ...; commit; END;
 
 -- Want triggers on a table:
 SELECT trigger_name, trigger_type, triggering_event, table_name, status FROM USER_TRIGGERS WHERE table_name LIKE 'CONTACT_NOT%' ORDER BY 3, 2, 1
@@ -6230,6 +6230,8 @@ INSERT ALL INTO people values (full_name) WHEN hire_date is not null THEN into s
 
 -- Check for recent last recompilation or invalid status:
 SELECT owner, object_name, object_type, status, last_ddl_time FROM dba_objects WHERE object_name = 'USER_ON' AND object_type LIKE 'PACKAGE%'
+-- Check last time table was touched:
+SELECT owner, object_name, object_type, status, last_ddl_time, CREATED, TIMESTAMP FROM dba_objects WHERE object_name = 'MYTBL';
 
 SELECT SYSTIMESTAMP INTO starting_time FROM DUAL;
 
@@ -6497,7 +6499,8 @@ COUNT(1)                -- returns the number of rows in a table
 COUNT(ColName)          -- returns the number of rows that have a non null value for ColName
 COUNT(DISTINCT ColName) -- returns the number of unique values for column ColName (can't use * )
 -- Oracle faster but less accurate count function:
-SELECT NUM_ROWS FROM ALL_TABLES WHERE TABLE_NAME = 'CONTACTSTAGINGHIST';
+SELECT NUM_ROWS FROM ALL_TABLES WHERE TABLE_NAME = 'MYTBL';
+SELECT prod_id, APPROX_COUNT_DISTINCT(cust_id) ...
 
 -- Oracle how many rows of data in table:
 select max(rownum) from pks_extraction_control
@@ -6617,8 +6620,9 @@ SELECT * FROM ( SELECT d.JOB_NAME , d.LOG_DATE, d.STATUS, d.ADDITIONAL_INFO, j.S
 -- DATE data type in Oracle always includes the time of day. So to guarantee you have all the rows that fall on a given day, you can normalize the date to midnight. Collapse to single day for counting e.g. 01/Aug/07 01:30:08, 01/Aug/07 01:33:08 ...:
 select distinct trunc(prod_sel_dt) psd, count(*) from RETAIN.FNSH_PROD group by trunc(prod_sel_dt) 
 
--- Use the RETURNING clause to retrieve details from the employee's modified row, within the same context switch used to execute the UPDATE statement
+-- Use the RETURNING clause to retrieve details from an update, within the same context switch used to execute the UPDATE statement:
 UPDATE employees SET salary = salary * 1.1 WHERE employee_id = 100 RETURNING last_name, salary INTO emp_rec;
+UPDATE employees SET salary = salary * 1.1 WHERE employee_id in(100,200) RETURNING id BULK COLLECT INTO l_mycollection;
 
 PROCEDURE send_cdhub(in_job_action VARCHAR2, in_job_prefix VARCHAR2 DEFAULT 'DELETE_ACCT_', in_start_date DATE DEFAULT SYSDATE + INTERVAL '1' MINUTE) IS ...
 
@@ -6846,6 +6850,17 @@ SELECT p.value as max_open_cur FROM v$parameter p WHERE p.name= 'open_cursors' g
 
 -- When was table created:
 SELECT created FROM dba_objects WHERE object_name in('MYTBL') AND owner = 'SETARS' AND object_type = 'TABLE';
+
+-- ACID database transactions - atomic, consistent, isolated, durable
+
+-- Do I have a transaction in progress?:
+SELECT XID AS "txn id", XIDUSN AS "undo seg", XIDSLOT AS "slot", XIDSQN AS "seq", STATUS AS "txn status" FROM V$TRANSACTION;
+
+-- Pre-defined collection types to reduce code volume:
+l_ids  DBMS_SQL.number_table; l_names  DBMS_SQL.varchar2a;
+
+-- Limit constraint insertable value to 0-99:
+CREATE TABLE mysmallnums(n NUMBER(2));
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7579,6 +7594,8 @@ netsh interface tcp show global
 netsh interface tcp set global autotuning=disabled
 :: restore
 netsh interface tcp set global autotuninglevel=normal
+:: 05-Jun-20
+netsh winsock reset
 
 :: Force delete remove rm Windows hidden file that Cygwin can't rm:
 u:\misc> del /A:H Thumbs.db

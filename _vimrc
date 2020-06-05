@@ -372,11 +372,11 @@ set showmode
 
 "                               12 selecting text {{{2
 
-" Emulate xterm mouse.  Same as :behave xterm
-set selectmode=
 set keymodel=
 set selection=inclusive
-
+" Emulate xterm mouse.  Same as :behave xterm
+set selectmode=
+" set textwidth=130
 
 "                               13 editing text {{{2
 
@@ -1554,7 +1554,7 @@ endfu
 
 fu! WrapToggle()  " {{{2
   if &textwidth == 0
-    setlocal textwidth=80
+    setlocal textwidth=130
     setlocal linebreak
     setlocal wrap
     map j gj
@@ -1628,7 +1628,7 @@ if !exists("autocommands_loaded")
   au BufNewFile,BufRead,BufEnter *.log nnoremap <silent> <F8> :g!/^ERROR:\\\|^WARNING:\\\|lines were truncated\\\|^NOTE: Invalid data for\\\|^NOTE: Variable/d<CR>
   " au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR:/<CR>
   au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\\|^WARNING:/<CR>
-  " Bounce
+  " Bounce using %
   au BufNewFile,BufRead,BufEnter *.plsql,*.pck,*.prc,*.fnc let b:match_words = '\<begin\>:\<end\>,\<loop\>:\<end loop\>'
 
   " TOGGLE. Delete the yearly warning lines
@@ -1700,7 +1700,7 @@ if !exists("autocommands_loaded")
   au BufRead,BufEnter *.sql,afiedt.buf iab SC select count(*) from
   au BufRead,BufEnter *.sql,afiedt.buf iab WH where
 
-  " Enhance /usr/share/vim/vim81/syntax/sqloracle.vim when PLSQL code sneaks into a .sql
+  " Enhance /usr/share/vim/vim82/syntax/sqloracle.vim when PLSQL code sneaks into a .sql
   au BufRead,BufEnter *.sql syn keyword sqlFunction	FORALL SAVE EXCEPTIONS
   au BufRead,BufEnter *.sql syn keyword sqlKeyword SIBLINGS MERGE
 
@@ -1768,7 +1768,7 @@ if !exists("autocommands_loaded")
   au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
 
   au BufEnter .vimrc echo ".vimrc: $MYVIMRC:" $MYVIMRC
-  au BufEnter .vimrc set textwidth=100
+  " au BufEnter .vimrc set textwidth=100
 
   au BufEnter oneliners,.vimrc,_vimrc,.bashrc,_bashrc set foldmethod=marker
 	au BufRead,BufNewFile oneliners set filetype=txt

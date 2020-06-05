@@ -187,16 +187,6 @@ ses() {
 }
 
 
-sesrm() {
-  # E.g. sesrm /mnt/nfs/home/bheckel/bob/RFD/AN-5087_weisoptout
-  mv -i $1/{Session.vim,Session.vimx} && mv -i $1/ ~/bob/_old/ 
-}
-
-sesh() {
-  ses|head
-}
-
-
 # Recycler to ReMoVe files we're not yet man enough to delete
 # TODO allow run from other than pwd
 # TODO don't write a partial MARKER on failure
@@ -409,6 +399,7 @@ function gdt() {
 
   git difftool $hashes
 }
+
 # Generic Functions end
 
 
