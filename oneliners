@@ -3910,7 +3910,7 @@ $ md5sum * | diff - tampering.md5                 # better check
 # Canonical sh bash if then else
 if [ expression ];then commands elif [ expression2 ];then commands else commands fi
 
-# Wrong number arguments parameters passed to shell script:
+# Wrong number arguments no parameters passed to shell script:
 [ $# -lt 2 ] && echo "Usage: $0 arg1 arg2" && exit 1
 [ $# -eq 1 ] || echo "Usage: $0 arg1" && exit 1
 if [ $# = 0 ]; then ... fi
@@ -5571,7 +5571,7 @@ DROP PACKAGE test_bob;
 -- Oracle cross database hint:
 SELECT /*+ DRIVING_SITE(SITE) */ COUNT(*) FROM DB_OWNER.SITE_DATA@DNB_XXXX SITE WHERE SITE.DUNS_NBR = :1
 
--- Oracle use index scan - not full table scan hint:
+-- Oracle force index scan - not full table scan hint:
 SELECT /*+ INDEX (employees emp_department_ix)*/ employee_id, department_id FROM employees WHERE department_id > 50;
 
 select /*+PARALLEL(4)*/ empno from emp;
@@ -5778,7 +5778,9 @@ select * from user_dependencies where name = 'RPT_OPP_MULTI_YDEAL' and reference
 select * from user_dependencies where REFERENCED_NAME = 'OPP_BASE' and referenced_type not in ('SYNONYM') order by 1;
 
 -- Is table indexed?:
-SELECT * from user_indexes WHERE table_name LIKE 'LIST_OF%'  -- or SELECT * from all_ind_columns WHERE index_name LIKE 'LIST_OF%'
+SELECT * from user_indexes WHERE table_name LIKE 'LIST_OF%';
+-- Which table and columns are being indexed for this index:
+SELECT * from all_ind_columns WHERE index_name = 'MYIX';
 
 -- Foreign Key is that same value stored within MULTIPLE rows of the other aka "detail" table. It should be indexed unless its matching PK is never updated or deleted:
 create table emp(empid number(20) PRIMARY KEY, ename varchar2(20), sal number(10,2), dept_id number(10) REFERENCES dept(dept_id) ON DELETE CASCADE);

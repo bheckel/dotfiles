@@ -452,7 +452,6 @@ case "$OSTYPE" in
     alias d23="(cd /cygdrive/c/temp; vi -c 'map q :qa<CR>' -Rd 2 3)"
     alias d123="(cd /cygdrive/c/temp; vi -c 'map q :qa<CR>' -Rd 1 2 3)"
     alias datecalc=$HOME/code/perl/datecalc
-    alias daystil=$HOME/code/misccode/daystil64.exe
     alias cygwin=$HOME/code/misccode/cygwin.bat  # norc bat version must be doubleclicked
     ###alias budrsync='rsync -avz /home/bheckel/code/ root@buddha:/home/bheckel/code && rsync -avzL /home/bheckel/tobuddha/ root@buddha:/home/bheckel/tobuddha'
     # Cygwin fix.  Use the real fg for e.g. fg %2
