@@ -6,7 +6,7 @@
 #           are often written for searching, not proper English.
 #
 #  Created: Tue 02-Jun-1998 (Bob Heckel)
-# Modified: Tue 18-Feb-2020 (Bob Heckel)
+# Modified: Sun 21-Jun-2020 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -670,8 +670,9 @@ xxSASxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
 proc contents data=sashelp._all_; run;
 
-Missing value '.' always sort lower than char or num and ._ sorts lowest of all.  A blank space ' ' is MISSING to SAS but not to SQL where it is a character.
-SAS Special Missing Value (.A thru .Z)
+ /* Missing value '.' always sort lower than char or num and ._ sorts lowest of all.  A blank space ' ' is MISSING to SAS but not to SQL where it is a character. */
+
+ /* SAS special Missing Value (.A thru .Z) */
 ...else if comment = 'refused to answer' then age = .A;...
 ...if .z < labvalue < 3 then...
 ...if .z < round(labvalue,0.0001) < 3.15 then...
@@ -700,7 +701,7 @@ put;
 put '0D'x;  /* s/b the same */
 put '0D0A'x;  /* carriage return line feed */
 
-Runaway GUI SAS killer:
+ /* Runaway GUI SAS killer: */
 /* '; * "; */; %mend; quit; run;
 ;*';*";*/;quit;run; /*Quote and Comment Killer*/
 
@@ -758,10 +759,9 @@ randomnum = round(ranuni(-1));
  /* Shuffle a ds: */
 data t; set t; shuffle=ranuni(0); run;  proc sort; by shuffle; run;
 
-Interactive SAS on OS/390 (from TSO command line):
+ /* Interactive SAS on OS/390 (from TSO command line): */
 ==> sas options('dms yearcutoff=1905')
-
-Using 1920 default: 00...19 becomes 2000...2019
+ /* Using 1920 default: 00...19 becomes 2000...2019 */
 
 //* Use your own SAS System Options in JCL:
 //STEP1     EXEC SAS,CONFIG='BQH0.PGM.DEV(MYCONFIG)',TIME=100, 
@@ -5813,11 +5813,11 @@ select (SYSTIMESTAMP - INTERVAL '1' day) from dual  -- 17-JUL-19 12.12.11.043644
 SELECT (systimestamp - INTERVAL '0.001' SECOND), SYSTIMESTAMP, (SYSDATE - INTERVAL '1' MONTH) FROM dual
 
 -- Oracle date calculation 15 minutes ago (SYSDATE won't work here):
-SELECT CURRENT_TIMESTAMP - NUMTODSINTERVAL(15, 'MINUTE') localtime, systimestamp - NUMTODSINTERVAL(15, 'MINUTE') utcsometimes FROM dual
+SELECT CURRENT_TIMESTAMP - NUMTODSINTERVAL(15, 'MINUTE') localtime, systimestamp - NUMTODSINTERVAL(15, 'MINUTE') utcsometimes FROM dual;
 
--- Max number of seconds that won't give ORA-01873:
-select numtodsinterval(power(2,31) - 1, 'SECOND') as interval from dual;
-select date '1970-01-01' + numtodsinterval(power(2,31) - 1, 'SECOND') as max_interval_from_epoch from dual; -- 19-JAN-38 03:14:07
+-- Max number of seconds that won't throw ORA-01873:
+select NUMTODSINTERVAL(power(2,31) - 1, 'SECOND') as interval from dual;
+select date '1970-01-01' + NUMTODSINTERVAL(power(2,31) - 1, 'SECOND') as max_interval_from_epoch from dual; -- 19-JAN-38 03:14:07
 
 -- SHOW ERR[ORS] in sqlplus uses this table (but only shows the latest error):
 SELECT * FROM USER_ERRORS WHERE name IN ('PLCH_PKG', 'PLCH_GET_NUMBERS')
@@ -5837,7 +5837,7 @@ SELECT LOV.LIST_OF_VALUES_ID, LOV.VALUE FROM LIST_OF_VALUES LOV WHERE LOV.RETIRE
 select sys_connect_by_path (job, '/') job_path, sys_connect_by_path (ename, '/') ename_path from scott.emp start with mgr is null connect by prior empno=mgr
 
 -- Correlated update query:
-UPDATE contact_note SET original_contact_ID=contact_id WHERE contact_id IN (SELECT contact_id FROM zzorion32806) AND original_contact_ID IS NULL
+UPDATE contact_note SET original_contact_ID = contact_id WHERE contact_id IN (SELECT contact_id FROM rion32806) AND original_contact_ID IS NULL;
 
 rc pls_integer := 0; rc := SQL%ROWCOUNT; dbms_output.put_line('rows affected: ' || rc); 
 
