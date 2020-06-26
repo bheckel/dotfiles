@@ -6549,7 +6549,7 @@ select * /* my qry id */ from foo; select * from v$sql where sql_text = 'my qry 
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR('79f98dm2w914f', null/*, 'ADVANCED'*/));
 
 select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_text like '%CUSTOMER%'
--- Have sql_id want query:
+-- Have sql_id want running query text:
 select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_id='63ygwpcj2s227';
 
 -- Create update histogram stats statistics manually:
@@ -6864,6 +6864,8 @@ l_ids  DBMS_SQL.number_table; l_names  DBMS_SQL.varchar2a;
 
 -- Limit constraint insertable value to 0-99:
 CREATE TABLE mysmallnums(n NUMBER(2));
+
+-- BEST: block <- extent <- segment <- tablespace. Each tablespace consists of one or more data files, which conform to the OS. The data is stored in the data files located in each tablespace. A segment can span one or more data files, but it cannot span multiple tablespaces. Oracle automatically allocates the first data files of any database for the SYSTEM tablespace during database creation. The SYSTEM tablespace contains the data dictionary, a set of tables that contains database metadata. Typically, a database also has an undo tablespace and a TEMP tablespace.
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7335,8 +7337,9 @@ Excel uses exponentiation e.g. 1E+13 for large numbers - avoid by Format Cells :
 :: Find DNS info for a site (or IP)
 nslookup zdatapost.sgk.com
 
-:: What version of the hell that is java are you running:
+:: Find which version of the hell that is Java that are you running:
 c:\> C:\ProgramData\Oracle\Java\javapath\java -fullversion
+C:\Users\bheck\Oracle\sqldeveloper\jdk\jre\bin -version
 
 -- Oracle concatenation
 select column_name, data_type || '(' || data_length || ')' as fancy_type
