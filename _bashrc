@@ -719,11 +719,11 @@ case "$OSTYPE" in
         function gh() {
           #if [ -z ${1} ]; then
           if [ $# -eq 0 ]; then
-            # Browse
+            # Browse down to the repo "folders"
             w3m -num +160 https://github.com/bheckel/code
           elif [ $# -eq 2 ]; then
             # Direct to a file $ gh rme termux.txt
-            w3m -num +100  https://github.com/bheckel/code/raw/master/${1}/${2}/
+            w3m -num https://github.com/bheckel/code/raw/master/${1}/${2}/
           else
             echo 'usage: gh [section] [filename]'
           fi
