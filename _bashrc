@@ -100,7 +100,7 @@ alias by=exit  # keepin' up the FTP tradition
 alias cd..='cd ..; ls'
 alias cdd="cd $HOME/dotfiles"
 alias cdh="cd $HOME/code/html"
-alias cdm="cd $HOME/code/misccode"
+alias cdm="cd $HOME/code/misc"
 alias cdp="cd $HOME/code/perl"
 alias cds="cd $HOME/code/sas"
 alias cls=clear
@@ -112,7 +112,7 @@ alias g=$HOME/dotfiles/gone.sh
 # Can't use sed to eliminate leading spaces or it breaks coloring
 # alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
 alias gb='git branch'
-alias gitall="$HOME/code/misccode/gitall"
+alias gitall="$HOME/code/misc/gitall"
 alias gitup='git add . && git commit -m"mod gitup" && git push'
 alias gpul='git pull'
 alias gpull='git pull'
@@ -136,7 +136,7 @@ alias lsd='find . -type d'
 alias one="vi $HOME/dotfiles/oneliners"
 alias pse="ps -ef|grep ^$USER|grep -vP 'ps -ef|grep'"
 ###alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
-alias qr="$HOME/code/misccode/quickref_find.sh"
+alias qr="$HOME/code/misc/quickref_find.sh"
 alias robots="export ROBOTOPTS=moveheaps,showscores,screwdriver,fastrobots; robots"
 alias sasrun=$HOME/code/sas/sasrun
 alias sdf='ssh -l bheckel sdf.org; date'
@@ -369,8 +369,8 @@ tm() {
 
 
 bak() {
-  if [ -e $HOME/code/misccode/bak ];then
-    $HOME/code/misccode/bak ${1}
+  if [ -e $HOME/code/misc/bak ];then
+    $HOME/code/misc/bak ${1}
   else
     cp -v ${1} ${1}.bak
   fi
@@ -444,7 +444,7 @@ case "$OSTYPE" in
     # Alias Cygwin  #{{{2
     #-------------------
     alias by=exit  # like FTP and SAS
-    alias catput=$HOME/code/misccode/catput.sh
+    alias catput=$HOME/code/misc/catput.sh
     # This assumes $TEMP is defined to C:\temp above for Cygwin vim/gvim issues (can't reside in Generic section, normal unix uses ~/tmp)
     # alias d12="(cd $TEMP; vi -c 'map q :qa<CR>' -Rd 1 2)"
     alias d12="(cd /cygdrive/c/temp; vi -c 'map q :qa<CR>' -Rd 1 2)"
@@ -452,7 +452,7 @@ case "$OSTYPE" in
     alias d23="(cd /cygdrive/c/temp; vi -c 'map q :qa<CR>' -Rd 2 3)"
     alias d123="(cd /cygdrive/c/temp; vi -c 'map q :qa<CR>' -Rd 1 2 3)"
     alias datecalc=$HOME/code/perl/datecalc
-    alias cygwin=$HOME/code/misccode/cygwin.bat  # norc bat version must be doubleclicked
+    alias cygwin=$HOME/code/misc/cygwin.bat  # norc bat version must be doubleclicked
     ###alias budrsync='rsync -avz /home/bheckel/code/ root@buddha:/home/bheckel/code && rsync -avzL /home/bheckel/tobuddha/ root@buddha:/home/bheckel/tobuddha'
     # Cygwin fix.  Use the real fg for e.g. fg %2
     alias f='fg; echo'
@@ -683,7 +683,7 @@ case "$OSTYPE" in
           fi
         fi
 
-        alias vi='~/bin/vim -u ~/code/misccode/_vimrc'
+        alias vi='~/bin/vim -u ~/code/misc/_vimrc'
 ###        export VIMRUNTIME=/home/chronos/user/.vim
       fi
 
@@ -699,7 +699,7 @@ case "$OSTYPE" in
         ###export PATH=$PATH:/home/ubuntu/android_sdk_linux_m3-rc22a/tools
         # Don't want autostart so that at least this box won't start modifying immediately in case of trouble.
         alias dropbox='~/.dropbox-dist/dropboxd &'
-        alias vi='vim -u ~/code/misccode/_vimrc'
+        alias vi='vim -u ~/code/misc/_vimrc'
       fi
 
       # Termux  # {{{2
