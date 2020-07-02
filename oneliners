@@ -5347,7 +5347,7 @@ select * from leftside LEFT OUTER JOIN rightside ...
 -- Only on one table (A) not in the other table (B), pad B with nulls:
 select a.numb, b.numb from tmp1 a LEFT JOIN tmp2 b on a.numb=b.numb where b.numb IS NULL
 
--- Only on one table not in the other table:
+-- Rows only on one table not in the other table:
 (select * from z_REF_CORPORATE_INITIATIVE minus select * from REF_CORPORATE_INITIATIVE) -- all rows that are in T1 but not in T2
 union all
 (select * from REF_CORPORATE_INITIATIVE minus select * from z_REF_CORPORATE_INITIATIVE)  -- all rows that are in T2 but not in T1
@@ -5376,7 +5376,7 @@ select sys_context('userenv', 'current_schema') from dual;
 select SYS_CONTEXT('userenv','host') from dual;
 declare x varchar2(99); begin x := 'my schema ' || USER; dbms_output.put_line(x); end;
 
--- Use my id or superowner's if i do not exist:
+-- Use my id if i exist but if i do not exist, use superowner's:
 ..., actual_updatedby = nvl(sys_context('mystars_context', 'employee_id'), 0)
 
 select sys_context('USERENV','SID') as my_session_id_sid from dual;
@@ -5954,7 +5954,7 @@ where date_trunc('minute', ahpp.lastmodified) = '2016-02-23 08:56:00'::timestamp
 
 -- full join fulljoin FULL [OUTER] JOIN: returns all rows from both tables, matching up the rows wherever a match can be made and placing NULLs in the places where no matching row exists (rather than throwing the row away like LEFT JOIN). A "double OUTER" join, LEFT & RIGHT that returns all rows from A and B, extended with nulls if they do not satisfy the join condition
 
--- selfjoin SELF JOIN: a recursive join that results when a set of data is joined back to itself.  Typically encountered when a parent-child relationship in a hierarchy needs to be traversed.  When using ANSI syntax to accomplish this, only the JOIN...ON syntax will work, and the keyword INNER can be used for clarity.
+-- selfjoin SELF JOIN: a recursive join that results when a set of data is joined back to itself. Typically encountered when a parent-child relationship in a hierarchy needs to be traversed.  When using ANSI syntax to accomplish this, only the JOIN...ON syntax will work, and the keyword INNER can be used for clarity.
 
 -- Find next Postgres sequence number:
 select nextval('enrollmentperf_tmm_enrollmentperfid_seq');
@@ -6790,10 +6790,6 @@ SELECT * FROM account_team where created>(SYSDATE - INTERVAL '4' hour);
 THEN assign_table(i).new_account_team_assignment_id:=1.257E+993;
 
 EXECUTE IMMEDIATE q'[select 'ASP_TASK_JOB_' || TO_CHAR(sysdate, 'DD_MM__HH24_MI_SS') from dual]' INTO v_job_name;
-
--- SQL Developer sqldeveloper preferences location Windows backup:
-C:\Documents and Settings\<user-name>\Application Data\SQL Developer\systemn.n.n.n.n
-cp -i 'C:\Documents and Settings\bheck\Application Data\SQL Developer\UserSnippets.xml' ~/onedrive/misc/
 
 -- View cached cursor (library cache) from a previous query, if found avoids hard parse and uses existing execution plan:
 SELECT * FROM v$open_cursor v where upper(v.sql_text) like '%MYTBL%' and user_name = 'SCOTT'

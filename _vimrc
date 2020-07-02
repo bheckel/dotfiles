@@ -201,7 +201,7 @@ set hlsearch
 "
 " To determine cterm color number:
 " for i in {0..255} ; do printf "\x1b[38;5;${i}mcolour${i}\n"; done
-" ~/code/misccode/vim_colors.txt
+" ~/code/misc/vim_colors.txt
 "--------------------------------------------------------------------------
 syntax enable
 
@@ -1676,10 +1676,10 @@ if !exists("autocommands_loaded")
   " Automatically flow text
   au BufReadPre,FileReadPre *.email set formatoptions=a
 
-  " au BufNewFile,BufRead,BufEnter *vimperatorrc* source ~/code/misccode/vimperator.vim
+  " au BufNewFile,BufRead,BufEnter *vimperatorrc* source ~/code/misc/vimperator.vim
 
 	" Conveniences for my custom searching code e.g. bgrep, rme or prj
-  au BufNewFile,BufEnter */tmp/*.grep source ~/code/misccode/bgrep.vim
+  au BufNewFile,BufEnter */tmp/*.grep source ~/code/misc/bgrep.vim
   au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme map <CR> <C-W>f :set winheight=9999<CR>/<C-R>/<CR>
   au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme map q :q<CR>
   au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme set hls

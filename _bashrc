@@ -95,17 +95,17 @@ export fg_yellowbold="[1;33m"
 alias ..='cd ..'
 alias bc="bc -lq"  # allow floating point calcs, mess up other stuff
 alias be="vi $HOME/.bashrc"
-alias bgrep="$HOME/code/perl/bgrep"
+alias bgrep="$HOME/code/scripting/bgrep"
 alias by=exit  # keepin' up the FTP tradition
 alias cd..='cd ..; ls'
 alias cdd="cd $HOME/dotfiles"
 alias cdh="cd $HOME/code/html"
 alias cdm="cd $HOME/code/misc"
-alias cdp="cd $HOME/code/perl"
+alias cdp="cd $HOME/code/scripting"
 alias cds="cd $HOME/code/sas"
 alias cls=clear
 alias cro='crontab -e'
-alias datecalc="$HOME/code/perl/datecalc"
+alias datecalc="$HOME/code/scripting/datecalc"
 alias ddg='w3m http://duckduckgo.com/lite'
 alias f='fg'  # jobs -s  to list what's suspended
 alias g=$HOME/dotfiles/gone.sh
@@ -147,7 +147,7 @@ alias tmls='tmux list-sessions'
 alias tmux='tmux -u'  # UTF8
 # If tree isn't installed:
 alias tre="\ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
-alias uvi="$HOME/code/perl/uvi"  # don't change timestamp
+alias uvi="$HOME/code/scripting/uvi"  # don't change timestamp
 alias ve="vim $HOME/.vimrc"
 alias vin="vi -c 'syntax off'"
 alias wget='wget -c'  # continue failures
@@ -451,7 +451,6 @@ case "$OSTYPE" in
     alias d13="(cd /cygdrive/c/temp; vi -c 'map q :qa<CR>' -Rd 1 3)"
     alias d23="(cd /cygdrive/c/temp; vi -c 'map q :qa<CR>' -Rd 2 3)"
     alias d123="(cd /cygdrive/c/temp; vi -c 'map q :qa<CR>' -Rd 1 2 3)"
-    alias datecalc=$HOME/code/perl/datecalc
     alias cygwin=$HOME/code/misc/cygwin.bat  # norc bat version must be doubleclicked
     ###alias budrsync='rsync -avz /home/bheckel/code/ root@buddha:/home/bheckel/code && rsync -avzL /home/bheckel/tobuddha/ root@buddha:/home/bheckel/tobuddha'
     # Cygwin fix.  Use the real fg for e.g. fg %2
