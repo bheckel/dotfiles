@@ -1985,7 +1985,7 @@ proc format library=work FMTLIB; run;
 options NOlabel;  /* Avoid proc sql printing pretty labels names instead of varnames */
 
  /* Convert SAS epoch date to human: */
-~/code/perl/datecalc 1/1/1960 19272
+~/code/scripting/datecalc 1/1/1960 19272
  /* Convert SAS epoch date to human - Excel (must convert num result to Date): */
 =DATEVALUE("1/1/1960")+19272
 
@@ -4213,9 +4213,9 @@ find data/sgk/zebulon -name 'ols*.sas7bdat'|sed 's/\(.*\)/cp -i \1 \/cygdrive\/x
 echo $$
 
 # Date calculate date that was 3 years ago from today:
-~/code/perl/datecalc -1080
+~/code/scripting/datecalc -1080
 # Date calculate 42 days from Xmas eve:
-~/code/perl/datecalc 12/24/05 42
+~/code/scripting/datecalc 12/24/05 42
 
 # Add a line to first line in each file:
 for f in ja_e_*.htm; do cp $f tmpf; echo '<link href="../ja.css" rel="stylesheet" type="text/css" />' >| $f; cat tmpf >> $f; done;
@@ -5043,7 +5043,7 @@ perl '-V:install.*'
 # Using rcs (automatically inserts revision sequence on co)
 our $VERSION = sprintf("%d.%02d", q$Revision$ =~ /(\d+)\.(\d+)/o);
 
-# Quick irenamer install: mkdir -p $HOME/perllib/File && cp -i $HOME/code/perl/Irenamer.pm $HOME/perllib/File/
+# Quick irenamer install: mkdir -p $HOME/perllib/File && cp -i $HOME/code/scripting/Irenamer.pm $HOME/perllib/File/
 perl -MFile::Irenamer -e 'InteractiveRename(verbose,recurse)'
 
 # Reverse sort a hash:
@@ -5355,15 +5355,10 @@ union all
 -- Records common to both tables:
 select deptno from scott.emp INTERSECT select deptno from scott.dept  -- 10, 20, 30
 
--- Copy first few rows of Oracle table into an existing table:
-INSERT INTO bobhlm SELECT * FROM links_material WHERE rownum<11; commit;
--- Copy first few rows of Oracle table into a new table:
-CREATE bob AS select patientid FROM public.hppatientstarpdc;
-
 -- Capture Oracle userid (note NO SEMICOLON to terminate the SQL):
 EXECUTE IMMEDIATE q'[ SELECT sys_context('setars_context', 'employee_id') from dual ]' INTO whoami;
 
--- Oracle version:
+-- Full dotted Oracle version:
 SELECT * FROM v$version; -- Oracle Database 11g Enterprise Edition Release 11.2.0.4.0 - 64bit Production
 
 --Oracle database hostname instance version, rack, status information:
@@ -5444,6 +5439,17 @@ select * from t WHERE t.min_end_time> TIMESTAMP '2019-01-16 08:26:50'
 INSERT INTO test_table (timestamp_col) VALUES (TIMESTAMP '2017-01-21 12:34:56.78');
 -- Oracle ANSI TIMESTAMP literal with timezone:
 INSERT INTO test_table (timestamp_tz_col) VALUES (to_timestamp_tz('2017-01-21 21:05:53.46 +02:00', 'YYYY-MM-DD HH24:MI:SS.FF TZH:TZM');
+
+-- Copy first few rows of Oracle table into an existing table:
+INSERT INTO mynewtbl SELECT * FROM myoldtbl WHERE rownum<11; commit;
+-- Copy first few rows of Oracle table into a new table:
+CREATE bob AS select patientid FROM public.patientstarpdc;
+-- Copy first few rows of Oracle table into an existing table using a query correlated:
+INSERT INTO asp_processing (ACCOUNT_ID, OLD_ACCOUNT_TEAM_ASSIGNMENT_ID, ASP_PROCESSING_REQUEST_ID) 
+                     SELECT ACCOUNT_ID, OLD_ACCOUNT_TEAM_ASSIGNMENT_ID, ASP_PROCESSING_REQUEST_ID FROM tmp_audit_sp WHERE rownum<10000;
+
+-- Correlated update query:
+UPDATE contact_note SET original_contact_ID = contact_id WHERE contact_id IN (SELECT contact_id FROM rion32806) AND original_contact_ID IS NULL;
 
 -- If same then NULL otherwise first parameter:
 select nullif('a','a') from dual  -- NULL
@@ -5546,7 +5552,7 @@ SELECT x.*, trim(x.first_name || ' ' || x.middle_name || DECODE(x.middle_name, N
 WHERE datepart(year,insert_date)='2005' AND datepart(month,insert_date)='7' AND datepart(day,insert_date)='31'
 
 -- PLSQL null comparison (DECODE is better):
-IF (updated1 = updated0) AND (updatedby1 = updatedby0) AND ( (search_match_code1 = search_match_code0) OR ((search_match_code1 IS NULL) AND (search_match_code0 IS NULL)) ) THEN
+IF (updated1 = updated0) AND (updatedby1 = updatedby0) AND ( (srch_match_code1 = srch_match_code0) OR ((srch_match_code1 IS NULL) AND (srch_match_code0 IS NULL)) ) THEN
 
 INSERT INTO...; SAVEPOINT bobora; INSERT INTO...; ROLLBACK TO bobora;
 
@@ -5597,9 +5603,6 @@ OPEN c1; LOOP FETCH c1 INTO v_lastname, v_jobid; EXIT WHEN c1%NOTFOUND; DBMS_OUT
 
 -- Oracle case insensitive:
 where ename LIKE UPPER('foo%')
-
--- Oracle last few days search (if activity_dt is DATE formatted):
-select count(*) from activity_log where activity_dt > (SYSDATE-3);
 
 -- Oracle 11/2/2018 9:08:23 AM becomes 11/2/2018 00:00:00:
 select trunc(SYSDATE) from dual
@@ -5769,7 +5772,7 @@ SELECT table_name, column_name FROM cols WHERE lower(table_name) LIKE 'accou%' A
 -- Find query search all Oracle tables & views with a certain table name poke around:
 SELECT table_name FROM user_tables WHERE lower(table_name) LIKE '%search%' order by 1;
 
--- Poke around search all tables for a specific column name poke:
+-- Poke around search all tables for a specific column name:
 SELECT * from  user_tab_columns WHERE column_name LIKE '%NEW%';
 
 -- What the object references, tables etc:
@@ -5835,9 +5838,6 @@ select * from information_schema.tables where table_type='BASE TABLE' and table_
 -- Oracle parent hierarchy:
 SELECT LOV.LIST_OF_VALUES_ID, LOV.VALUE FROM LIST_OF_VALUES LOV WHERE LOV.RETIRED = 0 START WITH LOV.LIST_OF_VALUES_ID IN (1,2,3) CONNECT BY PRIOR LOV.LIST_OF_VALUES_ID = LOV.PARENT_ID
 select sys_connect_by_path (job, '/') job_path, sys_connect_by_path (ename, '/') ename_path from scott.emp start with mgr is null connect by prior empno=mgr
-
--- Correlated update query:
-UPDATE contact_note SET original_contact_ID = contact_id WHERE contact_id IN (SELECT contact_id FROM rion32806) AND original_contact_ID IS NULL;
 
 rc pls_integer := 0; rc := SQL%ROWCOUNT; dbms_output.put_line('rows affected: ' || rc); 
 
@@ -5931,9 +5931,10 @@ date_part('year',age(patientdob))>=41 and date_part('year',age(patientdob))<=75
 date_part('year'::text, age(pd.dateofbirth::timestamp with time zone)) AS age
 ... patientdob < date('now') - interval '18 year'
 
--- Oracle select year portion year part only between years periods date part:
-extract(year from h.updated) in(2017,2018)
+-- Oracle select year portion year part only this year between years periods date part:
+extract(YEAR from h.updated) in(2017,2018)
 if (extract(year from sysdate) not between (compYear - 1) and (compYear + 1)) then...
+select distinct account_id from tmp_audit_sp where extract(YEAR from created) = extract(YEAR from sysdate)
 
 -- Postgres min max calculate age:
 select min(date_part('year',age(dateofbirth))), max(date_part('year',age(dateofbirth))) ...
@@ -5956,7 +5957,7 @@ where date_trunc('minute', ahpp.lastmodified) = '2016-02-23 08:56:00'::timestamp
 -- selfjoin SELF JOIN: a recursive join that results when a set of data is joined back to itself.  Typically encountered when a parent-child relationship in a hierarchy needs to be traversed.  When using ANSI syntax to accomplish this, only the JOIN...ON syntax will work, and the keyword INNER can be used for clarity.
 
 -- Find next Postgres sequence number:
-select nextval('tmm_enrollmentperf_tmm_enrollmentperfid_seq');
+select nextval('enrollmentperf_tmm_enrollmentperfid_seq');
 
 -- Postgres remove seconds from timestamp:
 psql -h db-06.twa.taeb.com TAEBMART -c "select to_char(lastmodified, 'yyyy-mm-dd HH24:MI') from reportinglog where reportname='TMMRep_Reporting_Automation' order by lastmodified desc limit 1"
@@ -6540,9 +6541,9 @@ create table t1 as select date '2010-01-01'+rownum x, rownum y  from dual connec
 -- Modified analytic outer join to get every hr, every room and who reserved it:
 select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2
 
-set autotrace traceonly explain -- then select ename from emp
+set autotrace traceonly explain -- then SELECT ename FROM emp;
 
-EXPLAIN PLAN FOR SELECT * FROM email_messages WHERE actual_updated > (SYSTIMESTAMP - INTERVAL '42' minute); select * from table(dbms_xplan.display); ROLLBACK;
+EXPLAIN PLAN FOR SELECT * FROM tbl WHERE actual_updated > (SYSTIMESTAMP - INTERVAL '42' minute); select * from table(dbms_xplan.display); ROLLBACK;
 
 select * /* my qry id */ from foo; select * from v$sql where sql_text = 'my qry id'; select * from table(dbms_xplan.display_cursor('THE ID YOU JUST FOUND');
 
@@ -6860,12 +6861,18 @@ SELECT created FROM dba_objects WHERE object_name in('MYTBL') AND owner = 'SETAR
 SELECT XID AS "txn id", XIDUSN AS "undo seg", XIDSLOT AS "slot", XIDSQN AS "seq", STATUS AS "txn status" FROM V$TRANSACTION;
 
 -- Pre-defined collection types to reduce code volume:
-l_ids  DBMS_SQL.number_table; l_names  DBMS_SQL.varchar2a;
+l_nums  DBMS_SQL.number_table; l_names  DBMS_SQL.varchar2a;
 
 -- Limit constraint insertable value to 0-99:
 CREATE TABLE mysmallnums(n NUMBER(2));
 
 -- BEST: block <- extent <- segment <- tablespace. Each tablespace consists of one or more data files, which conform to the OS. The data is stored in the data files located in each tablespace. A segment can span one or more data files, but it cannot span multiple tablespaces. Oracle automatically allocates the first data files of any database for the SYSTEM tablespace during database creation. The SYSTEM tablespace contains the data dictionary, a set of tables that contains database metadata. Typically, a database also has an undo tablespace and a TEMP tablespace.
+
+-- Default SQL Developer date format:
+SELECT TO_CHAR(STARTUP_TIME,'MON-DD-RR HH24:MI:SS')...
+
+-- Uptime
+SELECT TO_CHAR(STARTUP_TIME,'MON-DD-RR HH24:MI:SS') AS "Instance Start Time", (startup_time-SYSDATE)*-1 as uptime FROM V$INSTANCE;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
