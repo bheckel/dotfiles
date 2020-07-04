@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Mon 11-May-2020 (Bob Heckel)
+" Modified: Sat 04-Jul-2020 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -101,7 +101,7 @@ endif
 
 "                                2 moving around, searching and pattern {{{2
 " H, M, L, gg, etc commands move cursor to first blank in line.
-set startofline
+set nostartofline
 
 " Search pwd and subdirs when using gf, :find, etc.
 " if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
@@ -261,17 +261,17 @@ hi String ctermfg=White guifg=White guibg=Black cterm=bold gui=bold
 
 " May be overridden by aucommands.  Mirror any change here to there.
 " Alert if we're using older versions of Vim
-if version < 600
-  hi StatusLine ctermfg=Green ctermbg=White guifg=Green guibg=Blue
-  hi StatusLineNC ctermfg=Green ctermbg=Black guifg=Green guibg=Black gui=inverse,bold
-else
+" if version < 600
+  " hi StatusLine ctermfg=Green ctermbg=White guifg=Green guibg=Blue
+  " hi StatusLineNC ctermfg=Green ctermbg=Black guifg=Green guibg=Black gui=inverse,bold
+" else
   " For statusline setting below
   hi User1 ctermfg=red guifg=red cterm=inverse,bold 
   " Active status line
   hi StatusLine ctermfg=23 ctermbg=White guifg=#005f5f guibg=White
   " Inactive status line
   hi StatusLineNC ctermfg=23 ctermbg=Gray guifg=#005f5f guibg=Gray
-endif
+" endif
 
 hi TabLine ctermfg=Gray ctermbg=DarkGray
 hi TabLineSel ctermfg=White ctermbg=DarkGray
@@ -308,7 +308,6 @@ set laststatus=2
 " hi User1 term=inverse,bold cterm=inverse,bold ctermfg=red guifg=red
 " ...and $VIMSTATUSL being set in .bashrc 
 " E.g. ~/.vimrc [+,VIM,unix,b1] rsh868@ZEBWL12H99999   485/4494L,1C(10%)
-" set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)
 set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)%{AmIPasting()}
 
 " Use <C-W>= to force equal as needed:
@@ -1841,9 +1840,8 @@ if !exists("autocommands_loaded")
 """    au BufRead,BufWinLeave /cygdrive/c/*    hi StatusLineNC ctermfg=Blue ctermbg=Gray gui=inverse,bold
 
     " au BufReadPre,FileReadPre [ETHR]:/* set noswapfile
-    " TODO what event is a diff window open
-    au BufReadPre,FileReadPre Source/* set noswapfile
 """    au BufReadPre,FileReadPre /cygdrive/[mswxyz]/* set noswapfile
+    au BufReadPre,FileReadPre Source/* set noswapfile
 
     " Do not use The Force on Test & Production
     """au BufEnter [YZ]:/DataPost* set readonly
