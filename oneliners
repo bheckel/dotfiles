@@ -5780,9 +5780,13 @@ select * from user_dependencies where name = 'RPT_OPP_MULTI_YDEAL' and reference
 -- What references the object, views etc:
 select * from user_dependencies where REFERENCED_NAME = 'OPP_BASE' and referenced_type not in ('SYNONYM') order by 1;
 
--- Is table indexed?:
-SELECT * from user_indexes WHERE table_name LIKE 'LIST_OF%';
--- Which table and columns are being indexed for this index:
+-- Want all of a table's indexes and tablespace:
+select index_name, tablespace_name from user_indexes where TABLE_NAME = 'SP_PROCESSING';
+
+-- Want table name that uses this index:
+select table_name from user_indexes where index_name='CONTACT_FIRSTNAME_IX';
+
+-- Want table and columns being indexed for this index:
 SELECT * from all_ind_columns WHERE index_name = 'MYIX';
 
 -- Foreign Key is that same value stored within MULTIPLE rows of the other aka "detail" table. It should be indexed unless its matching PK is never updated or deleted:
@@ -6758,6 +6762,7 @@ EXEC dbms_stats.gather_table_stats (ownname=>'HR',tabname => 'EMPLOYEES_COPY',CA
 ALTER TABLE employees_copy ADD CONSTRAINT unique_emps UNIQUE (employee_id);
 
 ALTER INDEX emp_id_idx REBUILD;
+ALTER INDEX CONTACT_FIRSTNAME_LIST_IX rebuild online tablespace SE_01;
 
 ALTER TABLE employees_copy DROP CONSTRAINT unique_emps;
 
@@ -6869,6 +6874,9 @@ SELECT TO_CHAR(STARTUP_TIME,'MON-DD-RR HH24:MI:SS')...
 
 -- Uptime
 SELECT TO_CHAR(STARTUP_TIME,'MON-DD-RR HH24:MI:SS') AS "Instance Start Time", (startup_time-SYSDATE)*-1 as uptime FROM V$INSTANCE;
+
+-- Which Oracle client am i running?:
+SELECT DISTINCT s.client_version FROM v$session_connect_info s WHERE s.sid = SYS_CONTEXT('USERENV', 'SID');
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
