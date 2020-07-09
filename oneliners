@@ -5444,7 +5444,7 @@ INSERT INTO test_table (timestamp_tz_col) VALUES (to_timestamp_tz('2017-01-21 21
 INSERT INTO mynewtbl SELECT * FROM myoldtbl WHERE rownum<11; commit;
 -- Copy first few rows of Oracle table into a new table:
 CREATE bob AS select patientid FROM public.patientstarpdc;
--- Copy first few rows of Oracle table into an existing table using a query correlated:
+-- Copy first few rows of Oracle table into an existing table using a query correlated (see also CTAS for XML list):
 INSERT INTO asp_processing (ACCOUNT_ID, OLD_ACCOUNT_TEAM_ASSIGNMENT_ID, ASP_PROCESSING_REQUEST_ID) 
                      SELECT ACCOUNT_ID, OLD_ACCOUNT_TEAM_ASSIGNMENT_ID, ASP_PROCESSING_REQUEST_ID FROM tmp_audit_sp WHERE rownum<10000;
 
@@ -5537,7 +5537,7 @@ RETURN(CASE WHEN(l_column_count > 0) THEN TRUE ELSE FALSE END);
 case when (sal > (comm * .9) and sal < (comm * 1.1)) then 1 else 0 end value_is_in_range
 
 -- case when assignment:
-l_source_db_name := CASE WHEN (l_db_name = 'ERS') THEN 'EPS' ELSE 'ESSP' END;
+l_db_name := CASE WHEN (l_db_name = 'ERS') THEN 'EPS' ELSE 'ESSP' END;
 
 -- PLSQL check a column as BOOLEAN:
 ... v_gonereason := (c.gonereason = 0); IF v_gonereason THEN ...
@@ -5698,7 +5698,7 @@ BEGIN DBMS_OUTPUT.PUT_LINE ('Today is '||'&&sv_day'); DBMS_OUTPUT.PUT_LINE ('Tod
 
 -- Avoid sqlplus prompts for ampersand substitutions:
 SQL> set define off;
-SQL> @C:\Users\bheck\OneDri~1\workspace\data\Source\SQL\3.50rionScripts\RION-33855_ddl_change.sql
+SQL> @C:\Users\bheck\OneDri~1\workspace\data\ource\SQL\3.50rionScripts\RION-33855_ddl_change.sql
 -- sqlplus BOOLEAN parameters are translated from/to integers 0/1/null <--> false/true/null:
 in_debug boolean := sys.diutil.int_to_bool(:in_debug);
 
@@ -5780,7 +5780,7 @@ select * from user_dependencies where name = 'RPT_OPP_MULTI_YDEAL' and reference
 -- What references the object, views etc:
 select * from user_dependencies where REFERENCED_NAME = 'OPP_BASE' and referenced_type not in ('SYNONYM') order by 1;
 
--- Want all of a table's indexes and tablespace:
+-- Want list all of a table's indexes and tablespace:
 select index_name, tablespace_name from user_indexes where TABLE_NAME = 'SP_PROCESSING';
 
 -- Want table name that uses this index:
@@ -5788,6 +5788,9 @@ select table_name from user_indexes where index_name='CONTACT_FIRSTNAME_IX';
 
 -- Want table and columns being indexed for this index:
 SELECT * from all_ind_columns WHERE index_name = 'MYIX';
+
+-- Is this column being indexed:
+SELECT * from all_ind_columns WHERE column_name = 'MYCOL';
 
 -- Foreign Key is that same value stored within MULTIPLE rows of the other aka "detail" table. It should be indexed unless its matching PK is never updated or deleted:
 create table emp(empid number(20) PRIMARY KEY, ename varchar2(20), sal number(10,2), dept_id number(10) REFERENCES dept(dept_id) ON DELETE CASCADE);
@@ -6605,7 +6608,7 @@ select min(sal), max(sal), rpad('*', count(1), '*') AS Bar, count(1) from ( sele
 -- Poke around:
 -- Oracle DBA_OBJECTS : All objects in the database  ALL_OBJECTS : All objects accessible to the user  USER_OBJECTS : All objects owned by the user
 
--- Oracle which objects are available? An ls for db (all_objects is similar):
+-- Oracle which objects are available exists? An ls for db:
 select object_name, object_type from user_objects where object_type in ('VIEW','TABLE','PACKAGE','PROCEDURE','FUNCTION') and lower(object_name) like '%acc%' order by 2,1
 
 -- Oracle which objects are invalid objects:
@@ -7450,6 +7453,8 @@ git reset --soft c4c9473
 git reset c4c9473
 # git disaster discard throw away trash abandon all commits (or staged files) after the previous commit and reset files to that older/good commit (ignoring any untrackeds!). Make the working directory look like the index - not WD safe!:
 git reset --hard HEAD^  # or git reset --hard HEAD~1 for DOS  or git reset --hard c4c9473 if it's not the previous you want to go back to but rather a specific commit
+# Undo bad accidental stash pop SP_PROCESSING.pck and MYUNTRACKED.txt
+git reset HEAD . && git restore SP_PKG.pck && rm MYUNTRACKED.txt
 
 # git edit modify rewrite previous existing git commit message:
 git commit --amend -m 'change your previous, last, wrong, commit message to this'
