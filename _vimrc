@@ -922,9 +922,11 @@ nnoremap ,qq :q!<CR>
 " Quick search template:
 nnoremap ,s :%s::g<Left><Left>
 
-nnoremap ,t :set invpaste<CR>\|:set paste?<CR>
+" Paste from system clipboard without stairstepping
 " (T)oggle this prior to pasting and stay on the same character  TODO fails at last line of file
 " nnoremap ,t mz \| :set invpaste<CR>\|:set paste?<CR>`z
+" nnoremap ,t :set invpaste<CR>\|:set paste?<CR>
+nnoremap ,t :set paste<CR>\|"*p\|:set nopaste<CR>
 
 " Uppercase a word and stay on the same character
 nnoremap ,u mzviwU \| :echon '.vimrc: word uppercased'<CR>`z

@@ -6334,6 +6334,8 @@ SELECT DBMS_RANDOM.VALUE(1, 6) FROM dual  -- 3.32932424
 SELECT ROUND(DBMS_RANDOM.VALUE(1, 6)) FROM dual  -- 3
 SELECT ADD_MONTHS(SYSDATE, -1 * DBMS_RANDOM.VALUE(1, 6)) FROM dual  -- 8/29/2018 11:20:27 AM  or 9/29...etc
 
+to_number(trunc(dbms_random.value(1000,9999))|| to_char(systimestamp,'FFSS')|| seq.nextval))
+
 CAST(trunc(aa.duns_nbr) AS VARCHAR2(90)) duns_nbr
 
 -- Benchmarking:
@@ -6715,6 +6717,7 @@ insert /*+ APPEND */ into ...
 -- Convert hex from things like SELECT table_name, LOW_VALUE FROM user_tab_columns...:
 declare d date; begin dbms_stats.convert_raw_value(hextoraw('505707090E0801'), d); dbms_output.put_line(d); end;
 
+SELECT username, account_status, created, lock_date, expiry_date FROM dba_users WHERE account_status != 'OPEN';
 ALTER USER scott ACCOUNT UNLOCK IDENTIFIED BY tiger;
 
 CREATE USER scott IDENTIFIED BY tiger;
@@ -6880,6 +6883,11 @@ SELECT TO_CHAR(STARTUP_TIME,'MON-DD-RR HH24:MI:SS') AS "Instance Start Time", (s
 
 -- Which Oracle client am i running?:
 SELECT DISTINCT s.client_version FROM v$session_connect_info s WHERE s.sid = SYS_CONTEXT('USERENV', 'SID');
+
+ALTER TABLE departments DISABLE CONSTRAINT dept_mgr_fk;
+ALTER TABLE departments ENABLE CONSTRAINT dept_mgr_fk;
+
+SELECT job_name, job_action, CASE WHEN (state = 'SCHEDULED' AND last_run_duration IS NOT NULL) THEN 'CLEAR' ELSE 'ALERT' END AS status, last_run_duration, cast(sysdate - last_start_date as INTERVAL DAY(9) TO SECOND(6)) AS time_since_last_run, last_start_date, next_run_date FROM USER_SCHEDULER_JOBS WHERE enabled = 'TRUE';
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7464,7 +7472,7 @@ git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:sho
 
 # git diff with last commit:
 git show
-# git view previous old version of file the past (in pager):
+# git view show previous old version of file the past (in pager):
 git show eacbd91:./ods_0002e.sas
 # git view previous old version of file from the past history (in editor):
 git show master:cfg/DataPost_Configuration.html |vi -
