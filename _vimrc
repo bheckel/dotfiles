@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Sat 04-Jul-2020 (Bob Heckel)
+" Modified: Mon 20-Jul-2020 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -148,6 +148,10 @@ set scrolloff=1
 set scrollopt=hor,ver
 
 if version > 702
+  if ! has("gui_running")
+    set cursorcolumn
+  endif
+
   set relativenumber
   " :se rnu gutter at 7pt font should rarely go > 100
   set numberwidth=3
@@ -230,16 +234,19 @@ hi Function ctermfg=Yellow guifg=LightYellow guibg=Black
 
 hi Identifier ctermfg=LightCyan guifg=LightCyan
 
-hi CursorLineNr ctermfg=White ctermbg=DarkGray guifg=White guibg=DarkGray cterm=bold gui=bold
-
 hi MatchParen ctermfg=White ctermbg=Blue guifg=Cyan guibg=Magenta
 
 hi ModeMsg ctermfg=Black ctermbg=Yellow guifg=Black guibg=Yellow
 hi MoreMsg ctermfg=Blue ctermbg=Black guifg=Blue
 
 hi Number ctermfg=Magenta guifg=Magenta
+
+hi CursorLineNr ctermfg=White ctermbg=DarkGray guifg=White guibg=DarkGray cterm=bold gui=bold
+
 " For :se rnu relative number gutter
-hi LineNr ctermfg=Black ctermbg=238 guifg=Black guibg=#444444
+hi LineNr ctermfg=246 ctermbg=237 guifg=DarkGray guibg=#444444
+
+hi CursorColumn ctermfg=247 ctermbg=234
 
 " Tab completion dropdown
 hi Pmenu ctermfg=Black ctermbg=Gray guifg=White guibg=Gray 
