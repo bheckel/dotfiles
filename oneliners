@@ -873,9 +873,9 @@ run cancel;
 if _N_ eq 1 then put 'data step has BEGUN EXECUTING once';
  /* Do to last obs: */
 set l.sumventolin01a (obs=10) end=e; if e then put 'footer';
- /* Caution: _N_ is only counting begun iterations of the implied loop of the dataset, NOT the observations.  */
+ /* Caution: _N_ is only counting begun iterations of the implied loop of the dataset, NOT the observations */
 
-Subsetting IFs can appear only in DATA steps but WHERE statements can appear in DATA or PROC steps.
+ /* Subsetting IFs can appear only in DATA steps but WHERE statements can appear in DATA or PROC steps */
 
  /* Run SAS from commandline without my ~/bin/sasrun */
 $ sas -sysin t.sas; cat t.log
@@ -910,7 +910,7 @@ set sascode=%dpv2root%\code
 
 # Cygwin quick dataset check:
 echo 'options ls=180;proc contents data=?;run;' >| t$$.sas; C:/PROGRA~1/SASHome/SASFoundation/9.3/sas.exe -sysin t$$.sas && cat t$$.lst && rm t$$.???
-echo "options ps=max;libname l '//Rtpdsntp032/DataPostArchive/Ventolin_HFA/OUTPUT_COMPILED_DATA' compress=yes; proc freq data=l.ven60_analytical_individuals;table mfg_batch test;run;" >| u:/tmp/t.sas && c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin 'u:\tmp\t.sas' -log 'u:\tmp\t.log' -print 'u:\tmp\t.lst'; cat 'u:\tmp\t.lst'
+echo "options ps=max;libname l '//Rtpdsn032/DataPostArchive/Ventolin_HFA/OUTPUT_COMPILED_DATA' compress=yes; proc freq data=l.ven60_analytical_individuals;table mfg_batch test;run;" >| u:/tmp/t.sas && c:/PROGRA~1/SASINS~1/SAS/V8/sas.exe -sysin 'u:\tmp\t.sas' -log 'u:\tmp\t.log' -print 'u:\tmp\t.lst'; cat 'u:\tmp\t.lst'
 
  /* Describe option settings in effect: (also sr ~/code/sas/options.cmdl.sas linesize) */
 proc options option=&SYSPARM define value; run;
@@ -1339,9 +1339,6 @@ ods excel options(sheet_name="GE Shingrix Campaign Volume" absolute_column_width
  /* Threaded database connections: */
 from op.rxfilldata_&partition. (dbslice=("FILLNUM=0" "(FILLNUM>=1 OR FILLNUM IS NULL)")) 
 
- /* Access a Metadata assigned library: */
-libname l meta library='FuncData';
-
  /* Reset open close ODS listing to Log: */
 ods listing close;
 ods listing;
@@ -1432,9 +1429,8 @@ proc sql NOEQUAL ...
   */
 
  /* PUT STATEMENT writes to a buffer (default: LOG) vs. INPUT statement reads from a buffer (default: CARDS) */
-  * FORMAT specify how data is to be written vs. INFORMAT specify how data is to be read
-  * formattedpartdescription=put(SAS_data, $myformat.)  vs.  sasdate=input(raw_char_data, $sasinformat.)
-  */
+
+ /* FORMAT specify how data is to be written vs. INFORMAT specify how data is to be read: formattedpartdescription=put(SAS_data, $myformat.)  vs.  sasdate=input(raw_char_data, $sasinformat.) */
 
  /* concatenate (stack) two datasets */
 ... set x1 x2; ...
@@ -2568,7 +2564,7 @@ proc datasets library=l ; modify pqa_statins_in_diabetes/correctencoding='utf8';
 data _null_; rc=system('psql -h db-06.twa.taeb.com TAEBMART -c "\COPY dshbrd.hppatientstarpdc(taebpatientid, measurementid) FROM ''/tmp/dashboard_copy.csv'' WITH (FORMAT CSV, DELIMITER '','');"'); if rc ne 0 then put 'ERROR: INSERT failure' rc=; run;
 
 -- Postgres copy table:
-rc=system('psql -h db-06.twa.taeb.com TAEBMART -c "\COPY dshbrd.hppatientstarpdc(taebpatientid, measurementid, healthplanid, measurementstartdt, measurementenddt, pdcscore, targeted, clientid, pmapstoreid) FROM ''/tmp/dashboard_copy.csv'' WITH (FORMAT CSV, DELIMITER '','');"');
+rc=system('psql -h db-06.com TAEBMART -c "\COPY dshbrd.hppatientstarpdc(taebpatientid, measurementid, healthplanid, measurementstartdt, measurementenddt, pdcscore, targeted, clientid, pmapstoreid) FROM ''/tmp/dashboard_copy.csv'' WITH (FORMAT CSV, DELIMITER '','');"');
 
  /* Pseudo IN() list operator for macro in list */
 options minoperator; %macro m/mindelimiter=','; %let rm_enrolled=Y; libname data '/Drugs/TMMEligibility/Delhaize/Imports/20180403/Data'; %if %sysfunc(exist(data.enrolled)) and (&rm_enrolled in Y, 1) %then %do; %put !!!ok; %end; %mend;%m;
@@ -2578,7 +2574,7 @@ options minoperator; %macro m/mindelimiter=','; %let clid=9; %let v2clids=1,2,3;
 %let m = %sysfunc(month("&sysdate"d),z2.);
 
  /* Direct connection without dsn tagging: */
-connect to postgres as myconn (user=&user password=&password database=taeb server='db-9.twa.taeb.com' readbuff=7000);
+connect to postgres as myconn (user=&user password=&password database=taeb server='db-9.aeb.com' readbuff=7000);
 
 proc sql; connect to odbc as myconn (user=&user password=&pw dsn=jasp readbuff=7000); EXECUTE ( update analytics.mtmtargeted set lasttargetdate=%bquote(')&date_max.%bquote(') where taebpatientid in (&taebpatientids)) by myconn; disconnect from myconn; quit;
 
@@ -5371,10 +5367,12 @@ SELECT SYS_CONTEXT('USERENV', 'SERVER_HOST') FROM DUAL;
 select  SYS_CONTEXT('USERENV', 'DB_NAME') from dual;
 l_db_name VARCHAR2(20) := SYS_CONTEXT('USERENV', 'DB_NAME');  if (l_db_name IN ('SEPS')) THEN...
 
--- What is my current schema name:
+-- What is my current schema name whoami schema user:
 select sys_context('userenv', 'current_schema') from dual;
+declare x varchar2(99); begin x := 'my schema is ' || USER; dbms_output.put_line(x); end;
+
+-- What is my current database machine host name running on whereami:
 select SYS_CONTEXT('userenv','host') from dual;
-declare x varchar2(99); begin x := 'my schema ' || USER; dbms_output.put_line(x); end;
 
 -- Use my id if i exist but if i do not exist, use superowner's:
 ..., actual_updatedby = nvl(sys_context('mystars_context', 'employee_id'), 0)
@@ -5582,19 +5580,16 @@ SELECT /*+ INDEX (employees emp_department_ix)*/ employee_id, department_id FROM
 
 select /*+PARALLEL(4)*/ empno from emp;
 
--- Kill Oracle kill session:
-SQL> column sql_text format a80
-SQL> col sql_exec_start form a22
-select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action from v$session s, v$sql q where s.sql_id=q.sql_id(+) and osuser='heck' order by s.sql_exec_start;
+-- Kill Oracle kill session sqlplus format:
+SQL> set linesize 200
+SQL> col sql_text format a160
+SQL> col x form a30
+select distinct  'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text from v$session s, v$sql q where s.sql_id=q.sql_id(+) and osuser='bheck' and sql_text is not null;
 -- Kill Oracle kill session (sid, serial#):
 SQL> exec sys.kill_session(51,6449);
 
 GRANT EXECUTE ON SYS.DBMS_LOCK TO unit_test_repos;
 alter system kill session '671,62164';
-
--- Oracle days from today, two days ago:
-select to_char(sysdate-2, 'DD-MON-YY') from dual
-select sysdate-2 from dual
 
 -- Only those columns explicitly listed in the GROUP BY clause may appear un-aggregated (i.e. not as a parameter of an agg. function) in the SELECT or HAVING clauses. Put negatively, It is prohibited to use an un-aggregated column in the SELECT or HAVING clauses, unless it is explicitly listed in the GROUP BY clause.
 
@@ -5608,6 +5603,26 @@ where ename LIKE UPPER('foo%')
 select trunc(SYSDATE) from dual
 select trunc(SYSDATE, 'day') from dual
 
+select SYSDATE, TO_CHAR(SYSDATE, 'DD-MON-YYYY HH24:MI:SS') sysdate_with_time from dual;
+
+-- Oracle days from today, two days ago:
+select to_char(sysdate-2, 'DD-MON-YY') from dual
+select sysdate-2 from dual
+
+-- Date format: 20070304184943
+select to_char(sysdate, 'YYYYMMDDHH24MISS') from dual;
+
+-- Oracle date formatting https://docs.oracle.com/en/database/oracle/oracle-database/12.2/sqlrf/Format-Models.html#GUID-DFB23985-2943-4C6A-96DF-DF0F664CED96
+select to_char(sysdate, 'Dy DD-Mon-YYYY HH:MI:SS AM') as "Current Time" from dual;  -- Wed 19-Aug-2009 02:51:33 PM  TODO is the 'AM' correct??
+select to_char(sysdate, 'Dy DD-Mon-YYYY HH24:MI:SS') as "Current Time" from dual;  -- Wed 19-Aug-2009 14:53:41
+select TO_DATE('6-JAN-06'), TO_DATE('06JAN06'), TO_DATE('6JAN2006');  -- all same
+select TO_DATE('15-may-2006 16:00:01','dd-mon-yyyy hh24:mi:ss') from dual; -- 15-May-06 04:00:01 PM
+select * from activity_log where trunc(activity_dt)=TO_DATE('16-JAN-06','DD-MON-YY');
+
+-- Oracle date with hours minutes seconds:
+SELECT to_char(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI:SS') FROM dual; --2020-01-16 18:26:57
+SELECT SYSDATE FROM dual; --16-JAN-20 18:26:57
+
 -- Oracle date criteria only this month's orders:
 WHERE order_dt > TRUNC(SYSDATE, 'MONTH')
 
@@ -5619,9 +5634,6 @@ SELECT empno, job, LPAD('*', sal/100, '.') graph FROM emp
 -- Update query: 
 update retain.fnsh_prod set prod_sel = 'N', prod_sel_dt = NULL;
 
--- Date format: 20070304184943
-select to_char(sysdate, 'YYYYMMDDHH24MISS') from dual;
-
 -- Oracle SQL*Plus (like SELECT TOP 10 *... in SQL Server)
 select * from activity_log where rownum<10;
 
@@ -5631,8 +5643,8 @@ dbms_output.put_line('rpt at: ' || TO_CHAR(sysdate, 'dd-mon-yy hh:mipm'));
 if (TO_CHAR(sysdate, 'DY') in ('SAT', 'SUN') or (TO_CHAR(sysdate, 'HH24') not between '08' and '18')
 
 -- Format Oracle format if column too wide that truncation occurs in sqlplus window:
-SQL> col MFG_SPEC_TXT_A form a15  -- sqlplus column width 15 characters
-SQL> column MFG_SPEC_NUM format 999  -- sqlplus number width w/o zeros
+SQL> col MFG_SPEC_TXT_A form a15  -- sqlplus column format width 15 characters
+SQL> column MFG_SPEC_NUM format 999  -- sqlplus number format width w/o zeros
 
 -- Oracle substring replace:
 UPDATE pec SET pks_txt=REPLACE(pks_txt,'GEN','GEN_') ...
@@ -5640,27 +5652,23 @@ UPDATE pec SET pks_txt=REPLACE(pks_txt,'GEN','GEN_') ...
 -- Strip table name suffix:
 replace(ui.table_name,'_BASE','')
 
--- Oracle date formatting https://docs.oracle.com/en/database/oracle/oracle-database/12.2/sqlrf/Format-Models.html#GUID-DFB23985-2943-4C6A-96DF-DF0F664CED96
-select to_char(sysdate, 'Dy DD-Mon-YYYY HH:MI:SS AM') as "Current Time" from dual;  -- Wed 19-Aug-2009 02:51:33 PM  TODO is the 'AM' correct??
-select to_char(sysdate, 'Dy DD-Mon-YYYY HH24:MI:SS') as "Current Time" from dual;  -- Wed 19-Aug-2009 14:53:41
-select TO_DATE('6-JAN-06'), TO_DATE('06JAN06'), TO_DATE('6JAN2006');  -- all same
-select TO_DATE('15-may-2006 16:00:01','dd-mon-yyyy hh24:mi:ss') from dual; -- 15-May-06 04:00:01 PM
-select * from activity_log where trunc(activity_dt)=TO_DATE('16-JAN-06','DD-MON-YY');
-
 -- SQL Server hardcoded date between:
 WHERE batch_time >= {ts '2011-01-03 00:00:00'} and batch_time <= {ts '2011-01-04 00:00:00'}
 
--- Oracle hardcoded date range:
+-- Oracle hardcoded specific date time range:
+h.retired_time between to_date('13-mar-2020 20:00', 'dd-mon-yyyy hh24:mi') and to_date('13-mar-2020 21:10', 'dd-mon-yyyy hh24:mi')
 WHERE prod_sel_dt BETWEEN TO_DATE('01-JAN-10','DD-MON-YY') AND TO_DATE('31-JAN-10','DD-MON-YY')
--- Canonical Oracle hardcoded datetime range:
-... (TEST_END_DATE BETWEEN TO_DATE('2012-09-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE('2014-06-13 23:59:59', 'YYYY-MM-DD HH24:MI:SS'))
+TEST_END_DATE BETWEEN TO_DATE('2012-09-01 00:00:00', 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE('2014-06-13 23:59:59', 'YYYY-MM-DD HH24:MI:SS')
 SS.EntryTs >= TO_DATE('01-JAN-05','DD-MON-YY') AND SS.EntryTs <= TO_DATE('31-DEC-05','DD-MON-YY')
+
+-- Only returns 1 record because Oracle assumes that the time is midnight (00:00) and returns only those records that contain the specified date value and midnight as the time component:
+SELECT * FROM hr.bob WHERE hire_date = TO_DATE('21-JUN-2007', 'DD-MON-YYYY'); -- 1rec
+-- So you might try this to get the other record at 9:40:
+SELECT * FROM hr.bob WHERE trunc(hire_date) = TO_DATE('21-JUN-2007', 'DD-MON-YYYY') ; -- 2rec but not performant, indexes are not used with functions
+SELECT * FROM hr.bob WHERE hire_date >= TO_DATE('21-JUN-2007', 'DD-MON-YYYY') and hire_date < TO_DATE('22-JUN-2007', 'DD-MON-YYYY'); -- 2rec best
+
 -- All employees hardcoded date hired in year 2019:
 SELECT * FROM employees WHERE trunc(hire_date) = '01-JAN-2019';
-
--- Oracle date with hours minutes seconds:
-SELECT to_char(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI:SS') FROM dual; --2020-01-16 18:26:57
-SELECT SYSDATE FROM dual; --16-JAN-20 18:26:57
 
 -- Use this for BETWEEN (inclusive queries so subtract 1 second to pull the range back to the last day of quarter) which then can use regular indexes on the date column:     
 select TRUNC(date'2020-02-20', 'Q') quarter_start, TRUNC(ADD_MONTHS(date'2020-02-20', +3), 'Q') - (1/(24*60*60)) quarter_end from dual;
@@ -5793,19 +5801,21 @@ SELECT * from all_ind_columns WHERE index_name = 'MYIX';
 SELECT * from all_ind_columns WHERE column_name = 'MYCOL';
 
 -- Foreign Key is that same value stored within MULTIPLE rows of the other aka "detail" table. It should be indexed unless its matching PK is never updated or deleted:
-create table emp(empid number(20) PRIMARY KEY, ename varchar2(20), sal number(10,2), dept_id number(10) REFERENCES dept(dept_id) ON DELETE CASCADE);
-ALTER TABLE CONTACT_OPP ADD CONSTRAINT OPP_CONTACT_OPP_FK FOREIGN KEY (OPP_ID) OPP_ID REFERENCES OPP (OPP_ID) ON DELETE CASCADE ENABLE;
+create table emp(empid NUMBER(20) PRIMARY KEY, ename VARCHAR2(20), sal number(10,2), dept_id NUMBER(10) REFERENCES dept(dept_id) ON DELETE CASCADE);
+ALTER TABLE contact_opp   ADD CONSTRAINT opp_contact_opp_fk FOREIGN KEY (opp_id) REFERENCES opp (opp_id) ON DELETE CASCADE ENABLE;
 
 -- Oracle Primary key (P) foReign key (R):
 SELECT column_name FROM user_cons_columns ucc, user_constraints uc WHERE uc.table_name = 'ACCOUNT_BAS' AND uc.CONSTRAINT_TYPE = 'P' AND ucc.CONSTRAINT_NAME = uc.CONSTRAINT_NAME;
 
-ALTER TABLE SAP_TERRITORY ADD CONSTRAINT SAP_TERRITORY_TERRITORY_ID_FK FOREIGN KEY ("TERRITORY_LOV_ID") REFERENCES LIST_OF_VALUES" ("LIST_OF_VALUES_ID") ON DELETE CASCADE ENABLE;
+-- What foreign keys are on this table:
+select * from all_constraints where table_name ='SP_PROCESSING' and CONSTRAINT_TYPE='R';
+
 -- Does any other table reference this table LIST_OF_VALUES i.e. do any foreign keys exist:
 select * FROM all_constraints WHERE constraint_type = 'R' and r_constraint_name IN (select constraint_name from all_constraints where table_name like 'LIST_OF_VALUES%') order by table_name;
 
 -- View all details of Oracle table in a schema best poke around table:
 select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES', 'SETARS') from dual;
--- View some details of Oracle table (like DESC in sqlplus):
+-- View some details of Oracle table (like sqlplus DESC):
 select column_name, nullable, concat(concat(concat(data_type,'('),data_length),')') from user_tab_columns where table_name = 'EMAIL_MESSAGES';
 
 -- Sleep pause execution for 60 seconds using a java include:
@@ -6031,7 +6041,7 @@ osql -n -E -w 200 -d bpms_ak -S 'W23PSQL02\PRODUCTION' -Q "select count(*) from 
 -- sqlserver 2005 command line, counterpart to oracle's sqlplus
 $ sqlcmd -S zebsamoc00 -d uprd120 -i input.sql -o output.txt
 
-SQL Server 2005 (like Oracle's sqlplus, replaces osql & isql).  Must use cmd, not cygwin
+SQL Server 2005 (like sqlplus, replaces osql & isql):
 U:\>sqlcmd -S zebsamoc00 -d sprd120
 1> select top 5 * from fwn.variablestp    2> go   ...n rows affected...   1> quit
 
@@ -6303,9 +6313,6 @@ SELECT last_day(TIMESTAMP '2017-01-21 21:32:48') "last day of month", next_day(S
 SELECT systimestamp + TO_YMINTERVAL('5-3') "fiveyrs threemos fromnow" FROM dual;
 -- 12 days 8 hours and 4 minutes from now in future:
 SELECT systimestamp + TO_DSINTERVAL('12 8:04:00') "near future" FROM dual;
-
--- Specific between minute time range:
-h.retired_time between to_date('13-mar-2020 20:00', 'dd-mon-yyyy hh24:mi') and to_date('13-mar-2020 21:10', 'dd-mon-yyyy hh24:mi')
 
 -- Oracle default full date time with timezone, both same 27-AUG-19 04.17.21.981474000 PM -04:00:
 select to_char(SYSTIMESTAMP, 'DD-MON-YYYY HH.MI.SS.FF9 AM TZR'), SYSTIMESTAMP from dual;
@@ -6723,9 +6730,6 @@ ALTER USER scott ACCOUNT UNLOCK IDENTIFIED BY tiger;
 CREATE USER scott IDENTIFIED BY tiger;
 GRANT ALL PRIVILEGES TO scott;
 
--- whoami sqlplus:
-show user
-
 select systimestamp, to_char(systimestamp, 'YYYY-MM-DD HH24:MI:SS.FF TZH:TZM') from dual;
 
 -- Database before recent DML changes:
@@ -6811,8 +6815,14 @@ create or replace view rion_42216 as SELECT o.*, row_number() over (order by con
 -- Break table into chunks for processing smaller units (ROWNUM won't work):
 create or replace view rion_42216 as SELECT o.contact_id, o.dategone FROM (SELECT o.*, row_number() over (order by contact_id) as rnum FROM rion_42216_base o ) o where rnum between 20001 and 40000;
 
+-- whoami sqlplus:
+show user
+
 -- Loop poll monitory a query:
 $ while true; do sqlplus -S estars/mypw@mydb @t.sql; sleep 20; done
+
+alias lims='sqlplus sasrepor/sasrepor@sprd25'
+alias db6='psql -h db-06.taeb.com TAEBMART'
 
 -- Remove spaces from Oracle source code:
 SELECT REGEXP_REPLACE(text, '\s+', ' ') FROM user_source;
@@ -6888,6 +6898,15 @@ ALTER TABLE departments DISABLE CONSTRAINT dept_mgr_fk;
 ALTER TABLE departments ENABLE CONSTRAINT dept_mgr_fk;
 
 SELECT job_name, job_action, CASE WHEN (state = 'SCHEDULED' AND last_run_duration IS NOT NULL) THEN 'CLEAR' ELSE 'ALERT' END AS status, last_run_duration, cast(sysdate - last_start_date as INTERVAL DAY(9) TO SECOND(6)) AS time_since_last_run, last_start_date, next_run_date FROM USER_SCHEDULER_JOBS WHERE enabled = 'TRUE';
+
+-- What is my current date format DD-MON-RR HH24:MI:SS:
+SELECT value FROM v$nls_parameters WHERE parameter ='NLS_DATE_FORMAT';
+SELECT sys_context('USERENV', 'NLS_DATE_FORMAT') from dual;
+
+DROP INDEX sp_processing_id_pk;  --fail
+ALTER TABLE SP_PROCESSING DROP CONSTRAINT sp_processing_id_pk;  -- success
+
+-- Oracle max length index name 30 char
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7375,9 +7394,6 @@ xmllint --noout Bookstore-DTD.xml
 xmllint -schema Bookstore.xsd --noout Bookstore-XSD.xml
 au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
 
-alias lims='sqlplus sasrepor/sasrepor@sprd25'
-alias db6='psql -h db-06.wa.taeb.com TAEBMART'
-
 Ubuntu purple color hex: #290020  RGB: 41 00 32
 Ubuntu brown color hex: #965224  or RGB: 150 82 36
 
@@ -7461,7 +7477,7 @@ git reset --soft c4c9473
 git reset c4c9473
 # git disaster discard throw away trash abandon all commits (or staged files) after the previous commit and reset files to that older/good commit (ignoring any untrackeds!). Make the working directory look like the index - not WD safe!:
 git reset --hard HEAD^  # or git reset --hard HEAD~1 for DOS  or git reset --hard c4c9473 if it's not the previous you want to go back to but rather a specific commit
-# Undo bad accidental stash pop SP_PROCESSING.pck and MYUNTRACKED.txt
+# git undo discard bad accidental stash pop SP_PROCESSING.pck and MYUNTRACKED.txt 2020
 git reset HEAD . && git restore SP_PKG.pck && rm MYUNTRACKED.txt
 
 # git edit modify rewrite previous existing git commit message:
