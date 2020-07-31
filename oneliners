@@ -5604,10 +5604,12 @@ select trunc(SYSDATE) from dual
 select trunc(SYSDATE, 'day') from dual
 
 select SYSDATE, TO_CHAR(SYSDATE, 'DD-MON-YYYY HH24:MI:SS') sysdate_with_time from dual;
+select to_char(sysdate, 'DDMONYYYY HH:MI:SS PM') into start_time from dual;
 
--- Oracle days from today, two days ago:
-select to_char(sysdate-2, 'DD-MON-YY') from dual
-select sysdate-2 from dual
+-- Oracle days from today, two days ago no time component:
+select to_char(sysdate-2, 'DD-MON-YY') from dual;
+-- Oracle days from today, two days ago with time component:
+select sysdate-2 from dual;
 
 -- Date format: 20070304184943
 select to_char(sysdate, 'YYYYMMDDHH24MISS') from dual;
@@ -5873,7 +5875,7 @@ BEGIN dbms_output.put_line(SQLERRM(0)); END; -- ORA-0000: normal, successful com
 DECLARE PRAGMA AUTONOMOUS_TRANSACTION; BEGIN INSERT INTO log ...; commit; END;
 
 -- Want triggers on a table:
-SELECT trigger_name, trigger_type, triggering_event, table_name, status FROM USER_TRIGGERS WHERE table_name LIKE 'CONTACT_NOT%' ORDER BY 3, 2, 1
+SELECT trigger_name, trigger_type, triggering_event, table_name, status, trigger_body FROM USER_TRIGGERS WHERE table_name ='ACCOUNT' ORDER BY 3, 2, 1;
 
 -- Toggle trigger off/on:
 SET_TRIGGER_CONTEXT('ACCOUNT_ATTRIBUTE', 'true'); ...  SET_TRIGGER_CONTEXT('ACCOUNT_ATTRIBUTE', 'false');
@@ -6275,12 +6277,16 @@ RETURN (TRIM(REGEXP_REPLACE( (first_name_in || ' ' || middle_name_in || ' ' || l
 -- Comma separated delimited parse split a record holding a CSV string to rows, one to many:
 SELECT table_name, column_name, generation_type, REGEXP_SUBSTR(identity_options,'[^,]+', 1, LEVEL) identity_options FROM user_tab_identity_cols WHERE table_name = 'T_ID_COL' CONNECT BY REGEXP_SUBSTR(identity_options,'[^,]+',1,level) IS NOT NULL;
 
--- Comma separated delimited parse split CSV input string to numbers column:
+-- Comma separated delimited parse split hardcoded CSV input string to numbers column:
 SELECT to_number(TRIM(regexp_substr(accounts, '[^,]+', 1, LEVEL))) AS account_id FROM (SELECT '123,456' AS accounts FROM dual) CONNECT BY regexp_substr(accounts, '[^,]+', 1, LEVEL) IS NOT NULL;
+-- Comma separated delimited parse split hardcoded CSV input string to numbers column, list can be >1K 1000 chars without overflow (18c+):
+SELECT account_id FROM (SELECT TO_NUMBER(COLUMN_VALUE) AS account_id FROM XMLTABLE(TRIM('123,456')));
+
+-- Delimited list of hardcoded numbers:
 ...AND territory_lov_id IN(SELECT to_number(column_value) FROM xmltable(('"' || REPLACE(terrlist, ',', '","') || '"')))  -- terrlist is a varchar2 holding '123,456'
 ...AND ( territory_lov_id IN(SELECT to_number(column_value) FROM xmltable(('"' || REPLACE(terrlist, ',', '","') || '"'))) OR terrlist IS NULL )  -- accomodate cases where no comma delimited input parameter passed to procedure:
--- Better delimited list of numbers:
-CURSOR c1 IS SELECT account_id FROM account_base WHERE account_id IN (SELECT in_id FROM (SELECT TO_NUMBER(COLUMN_VALUE) in_id FROM XMLTABLE(TRIM(in_ids))));
+-- Delimited list of hardcoded numbers:
+CURSOR c1 IS SELECT account_id FROM account_base WHERE account_id IN ( SELECT in_id FROM (SELECT TO_NUMBER(COLUMN_VALUE) in_id FROM XMLTABLE(TRIM(in_ids))) );
 
 -- Compare Oracle table to csv list of numbers:
 SELECT aid, ab.account_id FROM (SELECT to_number(column_value) aid FROM xmltable(('"' || REPLACE('123,456', ',', '","') || '"'))) csv LEFT JOIN account_base ab ON csv.aid=ab.account_id
@@ -6418,15 +6424,16 @@ SELECT GREATEST(SYSDATE, to_date('01JAN2029'), to_date('01jan2030')) FROM dual
 
 -- Sample CTAS database table with tens of thousands of rows:
 CREATE TABLE dummy_table AS SELECT owner, object_name, object_id FROM all_objects;
--- Sample CTAS database table with 1 column and 10 rows:
-CREATE TABLE dummy_table AS SELECT level FROM dual CONNECT BY LEVEL <=10;
--- Sample CTAS database table with 1 column and 6000 rows (6 deptno = '30' x 1000):
+-- Sample CTAS database table with 1 column holding 1,2,3... in 10 rows:
+CREATE TABLE dummy_table AS SELECT level FROM dual CONNECT BY level <=10;
+-- Sample CTAS database table with 1 column and 6000 rows (6 deptno = '30' rows x 1000) in the cartesian:
 CREATE TABLE dummy_table AS SELECT deptno FROM emp CROSS JOIN (SELECT level FROM dual CONNECT BY level <= 1000) WHERE  deptno = 30
-create table dummy_table as select rownum pid, 'product '||rownum descr from dual connect by level <= 100000;
-create table dummy_table(id primary key, tag) as select rownum id, to_char(rownum) tag from dual connect by level <=10;
--- Sample CTAS database table load 5 years of data 2018-01-02 to 2022-12-31:
+create table dummy_table as select rownum pid, 'product '||rownum descr from dual CONNECT BY level <= 100000;
+-- Sample CTAS database table with primary key:
+create table dummy_table(id PRIMARY KEY, tag) as select rownum id, to_char(rownum) tag from dual CONNECT BY level <=10;
+-- Sample CTAS database table load 5 years of data from 2018-01-02 to 2022-12-31:
 create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dual connect by level <= 365*5;
--- Sample CTAS table using a csv list that would overflow an IN() list max of 1000 items (18c+):
+-- Sample CTAS table using a csv list that would overflow an IN() list max of 1K 1000 items (18c+):
 create table dummy_table as SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE('123,456', ',', '","') || '"'));
 
 -- Populate an existing sample dummy Oracle table with 100K random strings of VARCHAR(30):
@@ -6441,8 +6448,8 @@ SELECT * FROM  DBA_role_PRIVS WHERE grantee='SETARS';
 -- View determine Oracle grants privileges for a specific user schema:
 SELECT * FROM DBA_TAB_PRIVS d WHERE d.table_name = 'RPT_PTG_OPPORTUNITIES' and d.grantee='ES_PSUX';
 
--- Build Oracle GRANT statements - can only do one owner at a time manually:
-select  'GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE ON ' || tname || ' to pks_user' from mytab
+-- Build Oracle GRANT statements dynamically:
+select 'GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE ON ' || tname || ' to pks_user' from mytab;
 
 BEGIN sys.dbms_scheduler.create_job( job_name => 'NIGHTLY_RISK_IP_UPDATE_JOB', job_type => 'PLSQL_BLOCK', job_action => 'BEGIN RISK_PKG.periodicRiskUpdate; END;', start_date => '19-DEC-18 12.30.00PM EST5EDT', repeat_interval => 'FREQ=Daily', end_date => to_date(null), job_class => 'DEFAULT_JOB_CLASS', enabled => true, auto_drop => false,  -- run more than once comments => 'Nightly update job'); END;
 BEGIN dbms_scheduler.drop_schedule('DAILY_SCHEDULE'); dbms_scheduler.drop_job('DAILY_JOB'); END;
@@ -6677,9 +6684,8 @@ ALTER SESSION SET plsql_warnings = 'ERROR:ALL'
 
 SELECT to_char(12345.67, '$99,999.99') FROM dual  -- $12,345.67
 
--- When 4000 char limit overflows, use a CLOB:
-SELECT rtrim(xmlagg(XMLELEMENT(e,text,',').EXTRACT('//text()')).GetClobVal(),',') very_long_text FROM (SELECT to_char(to_date(level,'j'), 'jsp') text FROM dual CONNECT BY LEVEL < 250)
-WITH v AS( SELECT 'vvvvvvvvvvvv vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv vvvvvvvvvvvvvvvvvvvvv vvvvvvvvvvvvvvvery_long_text' bigstr FROM dual) SELECT rtrim(xmlagg(XMLELEMENT(e, bigstr, ',').EXTRACT('//text()') ).GetClobVal(), ',') FROM v
+-- When 4000 char limit overflows, use a CLOB e.g. one,two,three,four:
+SELECT rtrim(xmlagg(XMLELEMENT(e,text,',').EXTRACT('//text()')).GetClobVal(),',') very_long_text FROM (SELECT to_char(to_date(level,'j'), 'jsp') text FROM dual CONNECT BY LEVEL < 5)
 
 -- All SQL run in the last 2 months:
 select v.SQL_TEXT, v.PARSING_SCHEMA_NAME, v.FIRST_LOAD_TIME, v.DISK_READS, v.ROWS_PROCESSED, v.ELAPSED_TIME, v.service from v$sql v where to_date(v.FIRST_LOAD_TIME,'YYYY-MM-DD hh24:mi:ss')>ADD_MONTHS(trunc(sysdate,'MM'),-2)
@@ -6740,8 +6746,8 @@ select count(*) from mytbl as of TIMESTAMP to_timestamp('2019-08-26 10:10:38.97'
 -- 12-11_13:08:19.331048 for unique identification:
 SELECT  to_char(systimestamp, 'MM-DD_HH24:MI:SS.FF') FROM dual;
 
--- Restore undelete a dropped table:
-drop table t; SELECT * FROM user_recyclebin where lower(original_name) = 't'; FLASHBACK TABLE t TO BEFORE DROP [RENAME TO rescuedog];  -- most recent drop is restored
+-- Oracle restore undelete a dropped table or index from recyclebin:
+drop table t; SELECT * FROM user_recyclebin where lower(original_name) = 't'; FLASHBACK TABLE t TO BEFORE DROP;-- [RENAME TO rescuedog];  -- most recent drop is restored
 
 SELECT * FROM v$parameter where description='PL/SQL compiler warnings settings';
 
@@ -6764,6 +6770,8 @@ ALTER SESSION SET ddl_lock_timeout=60;
 create index last_name_reverse_index on employees(REVERSE(last_name)); select employee_id, first_name, last_name, reverse(last_name), salary from employees where reverse(last_name) LIKE 'rahh%';
 
 -- Use BITMAP index if cardinality is low (e.g gender) vs. high (last_name), index is not modified frequently and nulls may exist
+
+-- A selectivity of 0.0 means no rows, whereas a value of 1.0 means all rows. A predicate becomes more selective as the value approaches 0.0 and less selective (or more unselective) as the value approaches 1.0.
 
 CREATE INDEX emp_id_idx ON employees_copy(employee_id) COMPUTE STATISTICS;
 -- Shouldn't need this then:
@@ -6907,6 +6915,9 @@ DROP INDEX sp_processing_id_pk;  --fail
 ALTER TABLE SP_PROCESSING DROP CONSTRAINT sp_processing_id_pk;  -- success
 
 -- Oracle max length index name 30 char
+
+-- Calculate difference in minutes between 2 DATE columns in a table:
+SELECT object_name, extract(second from cast(CREATED as timestamp) - last_ddl_time) + extract(minute from cast(CREATED as timestamp) - last_ddl_time) * 60 + extract(hour from cast(CREATED as timestamp) -  last_ddl_time) * 60 * 60 + extract(day from cast(CREATED as timestamp) - last_ddl_time) * 60 * 60 * 24 AS diff_in_minutes FROM dba_objects;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7413,16 +7424,16 @@ c:\> wmic cpu get loadpercentage
 
 cygcheck -cv w3m  # is package OK?
 
+# git mantra:
+git add . && git commit -m'mod' && git push
+
 #                      git add           git commit              git push
 # UNTRACKED/UNSTAGED -----------> STAGED ----------> LOCAL REPO -------------> REMOTE REPO
-
-# git remove whitespace trash from github diff webpage: https://github.com/ion/data/compare/feature/RION-39172?w=1
 
 git config user.name  # whoami
 cat ~/.gitconfig # whoami
 git config user.email
 
-git stash list
 # git show the changes recorded in the stash entry as a diff between the stashed contents and the commit back when the stash entry was first created:
 git stash show
 git stash --include-untracked -m 'mynamedstash'
@@ -7453,9 +7464,6 @@ git branch mynewbranch master  # copy branch from a specific branch, in this cas
 git status; git log; git branch -a; git remote -v; git remote show origin;
 # ls for git list which files are tracked under git source control not just staged:
 git ls-files 
-
-# github commit mantra (github is origin, PUSH TO origin FROM master), update index and HEAD:
-git add . && git commit -m 'mod' && git push origin master
 
 # git revert abandon discard throw away trash abandon changes NOT STAGED for commit:
 git checkout -- DataPost_Configuration.map  # can also try  git checkout .  for >1 file 'not staged for commit'
@@ -7512,6 +7520,11 @@ git difftool 1908af7:./PTG.pck PTG.pck
 # git force staging if it's excluded by .gitignore:
 git add -f ignoreme.txt
 
+# github remove whitespace trash from github diff webpage: https://github.com/ion/data/compare/feature/RION-39172?w=1
+
+# github commit mantra (github is origin we PUSH TO origin FROM master), update index and HEAD:
+git add . && git commit -m 'mod' && git push origin master
+
 # git new bare box want clone an existing github repo to a new foreign server (AKA origin, a bookmark) which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
 ssh-keygen; # then  cat ~/.ssh/id_rsa.pub  # copy it to https://github.com/settings/keys
 # PULL FROM origin to master & PUSH TO origin FROM master:
@@ -7526,21 +7539,23 @@ git clone https://github.com/grayghostvisuals/Practice-Git.git
 # But may need this first or instead of remote add if your clone was git clone git://github.com/bheckel/misc.git
 git remote set-url origin git@github.com:bheckel/dotfiles.git
 
-# Ready to merge this feature so git merge myfeaturebranch INTO HERE (master) then delete the feature branch:
-git checkout master && git merge myfeaturebranch && git branch -d myfeaturebranch
-
 # Merge a branch:
 git checkout develop && git pull && git merge feature/RION-31587 && git push
 # Merge a feature branch - manual pull request completion ready to merge without using Github UI merge & delete branch buttons:
 git checkout develop && git pull && git merge --no-ff feature/RION-31587 && git push && git branch -d feature/RION-31587 && git fetch -p && git push origin --delete feature/RION-31587
+# Merge a feature branch - manual pull request completion ready to merge without using Github UI merge & delete branch buttons - collision version:
+git checkout develop && git pull && git merge --no-ff feature/RION-31587 && rmv myfile.orig && git commit -m'resolved collision' && git push && git branch -d feature/RION-31587 && git fetch -p && git push origin --delete feature/RION-31587
 
-# git mantra:
-git add . && git commit -m'mod' && git push
+# Ready to merge this feature so git merge myfeaturebranch INTO HERE (master) then delete the feature branch:
+git checkout master && git merge myfeaturebranch && git branch -d myfeaturebranch
 
 # git delete cleanup post-PR local branch and prune remote branches (after using GitHub UI delete branch button):
 git branch -d feature/RION-31587 && git fetch -p && git branch -a
 # git delete cleanup branch local then remote (without using GitHub UI delete branch button). First make sure your remote is there: git branch -a:
 git branch -d feature/RION-31587 && git push origin --delete feature/RION-31587 && git fetch -p && git branch -a
+
+# github undo commit of a file >50M:
+git filter-branch --tree-filter 'rm -rf 02-White-Noise-60min.mp3' HEAD && git push && git pull
 
 # Which branches are tracking which remote/upstream branches (prune is optional):
 git fetch -p && git remote show origin
@@ -7559,9 +7574,6 @@ git checkout develop && git fetch -p origin && git merge origin/develop && git c
 
 # Set remote tracking branch. Assumes push.default=upstream.  Later, since you’re on a tracking branch and you git pull, Git automatically knows which server to fetch from and which branch to merge in:
 git checkout -b feature/RION-9999 && git push --set-upstream origin feature/RION-9999  # "Branch 'feature/RION-9999' set up to track remote branch 'feature/RION-9999' from 'origin'."
-
-# github undo commit of a file >50M:
-git filter-branch --tree-filter 'rm -rf 02-White-Noise-60min.mp3' HEAD && git push && git pull
 
 # git branch has conflicts that must be resolved:
 git fetch origin && git checkout -b feature/RION-999 origin/feature/RION-999 && git merge develop

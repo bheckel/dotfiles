@@ -922,18 +922,17 @@ nnoremap ,l mzviwu\|:echon '.vimrc: word lowercased'<CR>`z
 
 nnoremap ,n :bnext<CR>
 
-" ,p is an autocmd
+" Paste from system clipboard
+nnoremap ,p "*p
 
 nnoremap ,qq :q!<CR>
 
 " Quick search template:
 nnoremap ,s :%s::g<Left><Left>
 
-" Paste from system clipboard without stairstepping
-" (T)oggle this prior to pasting and stay on the same character  TODO fails at last line of file
-" nnoremap ,t mz \| :set invpaste<CR>\|:set paste?<CR>`z
-" nnoremap ,t :set invpaste<CR>\|:set paste?<CR>
-nnoremap ,t :set paste<CR>\|"*p\|:set nopaste<CR>
+" Prepare to paste from system clipboard without stairstepping
+nnoremap ,t :set invpaste<CR>\|:set paste?<CR>
+" nnoremap ,t :set paste<CR>\|"*p\|:set nopaste<CR>
 
 " Uppercase a word and stay on the same character
 nnoremap ,u mzviwU \| :echon '.vimrc: word uppercased'<CR>`z
@@ -1647,7 +1646,7 @@ if !exists("autocommands_loaded")
   """au BufRead *.log :g/information.  The SAS System will no longer function on or after that/d
   """au BufRead *.log :g/representative to have it renewed/d
 
-  au BufNewFile,BufRead,BufEnter *.pl nmap ,p :!perl -c %<CR>
+  " au BufNewFile,BufRead,BufEnter *.pl nmap ,p :!perl -c %<CR>
   au BufNewFile,BufRead,BufEnter *.pl nmap ;z :!echo && echo && perl %<CR>
   " Alternate help files via 'K'.  Default s/b set above as keywordprg=man
   au BufNewFile,BufRead,BufEnter *.p[lm] set keywordprg=perldoc\ -f
@@ -1826,8 +1825,8 @@ if !exists("autocommands_loaded")
     endif
   endif
 
-  " This file has many language comments, highlight them all
-  au BufRead  *oneliners match Comment @^".*$\|^--.*$\|^\/\/.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@
+  " This file has several language's comments, highlight them all
+  au BufRead  *oneliners syn match Comment @^".*$\|^--.*$\|^\/\/.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@ contains=Search
 
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
   "
