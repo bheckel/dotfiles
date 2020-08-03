@@ -6572,6 +6572,8 @@ select * /* my qry id */ from foo; select * from v$sql where sql_text = 'my qry 
 
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR('79f98dm2w914f', null/*, 'ADVANCED'*/));
 
+select /*+ gather_plan_statistics */ * from   bricks b join   colours c on b.colour = c.colour; select * from table(dbms_xplan.display_cursor(null, format => 'ROWSTATS LAST'));
+
 select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_text like '%CUSTOMER%'
 -- Have sql_id want running query text:
 select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_id='63ygwpcj2s227';
@@ -7431,8 +7433,7 @@ git add . && git commit -m'mod' && git push
 # UNTRACKED/UNSTAGED -----------> STAGED ----------> LOCAL REPO -------------> REMOTE REPO
 
 git config user.name  # whoami
-cat ~/.gitconfig # whoami
-git config user.email
+git config -l  # list all config settings
 
 # git show the changes recorded in the stash entry as a diff between the stashed contents and the commit back when the stash entry was first created:
 git stash show
