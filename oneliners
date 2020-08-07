@@ -5815,10 +5815,13 @@ select * from all_constraints where table_name ='SP_PROCESSING' and CONSTRAINT_T
 -- Does any other table reference this table LIST_OF_VALUES i.e. do any foreign keys exist:
 select * FROM all_constraints WHERE constraint_type = 'R' and r_constraint_name IN (select constraint_name from all_constraints where table_name like 'LIST_OF_VALUES%') order by table_name;
 
--- View all details of Oracle table in a schema best poke around table:
+-- View all details of Oracle table in a schema poke around table:
 select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES', 'SETARS') from dual;
 -- View some details of Oracle table (like sqlplus DESC):
 select column_name, nullable, concat(concat(concat(data_type,'('),data_length),')') from user_tab_columns where table_name = 'EMAIL_MESSAGES';
+
+-- View indexes, last analyzed etc alternative to DBMS_METADATA:
+clear screen; info contact_dhub; ddl contact_dhub;
 
 -- Sleep pause execution for 60 seconds using a java include:
 CREATE OR REPLACE PROCEDURE SLEEP(P_MILLI_SECONDS IN NUMBER) AS LANGUAGE JAVA NAME 'java.lang.Thread.sleep(long)';
@@ -6092,15 +6095,13 @@ select distinct clientid, dashstart from dshbrd.dashboardclients where deactivat
 select count(distinct taebpatientid), month(filldate) from statin_final group by 2; -- Postgres
 -- Count group by day:
 SELECT count(1), trunc(actual_updated) FROM employee WHERE actual_updated >(systimestamp - INTERVAL '30' day) group by trunc(actual_updated) order by 2;
--- Count group by month:
+-- Count column group by month:
 SELECT COUNT(u.msg), EXTRACT(YEAR FROM u.execute_time), EXTRACT(MONTH FROM u.execute_time) FROM User_Oncall_Results u GROUP BY EXTRACT(YEAR FROM u.execute_time), EXTRACT(MONTH FROM u.execute_time)  ORDER BY 2,3
 -- Oracle count group by month last 3 months:
-SELECT to_char(TRUNC(o.updated, 'MONTH'),'YYYY-MM') AS mo, COUNT(o.updated) AS COUNT FROM opp o WHERE o.updated > ADD_MONTHS(SYSDATE,-3) GROUP BY TRUNC(o.updated, 'MONTH') ORDER BY 1 DESC
-
--- Count event IDs by month:
-select count(distinct ddl_event_id), trunc(event_date, 'MONTH') from ddl_event group by trunc(event_date, 'month') order by 2;
--- Count old event IDs by month:
-select count(distinct ddl_event_id), trunc(event_date, 'MONTH'), (sysdate - 160) s from ddl_event  where event_date < (sysdate - 160) group by trunc(event_date, 'month') order by 2;
+SELECT to_char(TRUNC(o.updated, 'MONTH'),'YYYY-MM') AS mo_fmtd_without_time, COUNT(o.updated) AS COUNT FROM opp o WHERE o.updated > ADD_MONTHS(SYSDATE,-3) GROUP BY TRUNC(o.updated, 'MONTH') ORDER BY 1 DESC
+-- Count column IDs by month:
+select count(distinct contact_id), trunc(actual_updated, 'MONTH') from c_base group by trunc(actual_updated, 'MONTH') order by 2;
+select count(distinct contact_id), trunc(actual_updated, 'MONTH'), (sysdate - 65) visualize_date_back_65_days from contact_base where actual_updated > sysdate-65 group by trunc(actual_updated, 'MONTH') order by 2;
 
 -- Postgres bulk load a textfile to a table:
 \COPY analytics.obcdaily (client_name, , job_type_extra, att_count) FROM /Data/psql_import_temp.csv CSV HEADER
@@ -6570,18 +6571,29 @@ EXPLAIN PLAN FOR SELECT * FROM tbl WHERE actual_updated > (SYSTIMESTAMP - INTERV
 
 select * /* my qry id */ from foo; select * from v$sql where sql_text = 'my qry id'; select * from table(dbms_xplan.display_cursor('THE ID YOU JUST FOUND');
 
-SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR('79f98dm2w914f', null/*, 'ADVANCED'*/));
+SELECT * FROM TABLE(DBMS_XPLAN.display_cursor('79f98dm2w914f', null/*, 'ADVANCED'*/));
 
-select /*+ gather_plan_statistics */ * from   bricks b join   colours c on b.colour = c.colour; select * from table(dbms_xplan.display_cursor(null, format => 'ROWSTATS LAST'));
+select /*+ gather_plan_statistics */ * from bricks b join colours c on b.colour=c.colour; select * from table(DBMS_XPLAN.display_cursor(null, format => 'ROWSTATS LAST'));
 
 select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_text like '%CUSTOMER%'
 -- Have sql_id want running query text:
 select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_id='63ygwpcj2s227';
 
+-- Check for histograms:
+select utcs.column_name, utcs.histogram, utcs.num_buckets from user_tables ut join user_tab_col_statistics utcs on ut.table_name = utcs.table_name where ut.table_name = 'BRICKS';
+-- Update stats but disable histograms:
+exec DBMS_STATS.gather_table_stats(null, 'bricks', method_opt => 'for all columns size 1');
+-- If you want to ensure histograms remain disabled:
+begin DBMS_STATS.set_table_prefs(null, 'bricks', 'method_opt', 'for all columns size 1'); DBMS_STATS.gather_table_stats(null, 'bricks' ); end;
+
 -- Create update histogram stats statistics manually:
-BEGIN DBMS_STATS.GATHER_TABLE_STATS(USER, 'CONTACT_EXTERNAL2', estimate_percent=>100); END; 
-SQL> exec DBMS_STATS.GATHER_TABLE_STATS('HR', 'EMPLOYEES', method_opt=>'FOR COLUMNS SIZE 254 JOB_ID');
+BEGIN DBMS_STATS.gather_table_stats(USER, 'CONTACT_EXTERNAL2', estimate_percent=>100); END; 
+SQL> exec DBMS_STATS.gather_table_stats('HR', 'EMPLOYEES', method_opt=>'FOR COLUMNS SIZE 254 JOB_ID');
+
+-- Are table statistics stale?:
 select stale_stats from user_tab_statistics where  table_name = 'RION39366';
+
+exec DBMS_STATS.gather_schema_stats(null);
 
 -- Split string into pieces chunks 5 chars wide based on length:
 select regexp_substr(s, '.{5}', 1, lvl) chunk from (select s, level lvl from (select '00000111112222233333' s from dual) connect by level <= length(s) / 5)
@@ -6773,7 +6785,8 @@ create index last_name_reverse_index on employees(REVERSE(last_name)); select em
 
 -- Use BITMAP index if cardinality is low (e.g gender) vs. high (last_name), index is not modified frequently and nulls may exist
 
--- A selectivity of 0.0 means no rows, whereas a value of 1.0 means all rows. A predicate becomes more selective as the value approaches 0.0 and less selective (or more unselective) as the value approaches 1.0.
+-- Selectivity (proportion) = 1 / # of distinct rows. A selectivity of 0.0 means no rows, whereas a value of 1.0 means all rows. A predicate becomes more selective as the value approaches 0.0 and less selective (or more unselective) as the value approaches 1.0.
+-- Cardinality (row estimate aka E-Rows) = Selectivity x total rows. For good performance CARDINALITY x LAST_STARTS should be ~ LAST_OUTPUT_ROWS.
 
 CREATE INDEX emp_id_idx ON employees_copy(employee_id) COMPUTE STATISTICS;
 -- Shouldn't need this then:
@@ -6920,6 +6933,9 @@ ALTER TABLE SP_PROCESSING DROP CONSTRAINT sp_processing_id_pk;  -- success
 
 -- Calculate difference in minutes between 2 DATE columns in a table:
 SELECT object_name, extract(second from cast(CREATED as timestamp) - last_ddl_time) + extract(minute from cast(CREATED as timestamp) - last_ddl_time) * 60 + extract(hour from cast(CREATED as timestamp) -  last_ddl_time) * 60 * 60 + extract(day from cast(CREATED as timestamp) - last_ddl_time) * 60 * 60 * 24 AS diff_in_minutes FROM dba_objects;
+
+-- Between two timestamp ranges:
+SELECT * FROM t WHERE execute_time >=  TIMESTAMP '2020-08-06 13:01:01' and execute_time <= TIMESTAMP '2020-08-06 14:01:01' ORDER BY execute_time desc;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7461,8 +7477,11 @@ git checkout -b mynewbranch  # faster
 git branch -m mynewbranchname
 git branch mynewbranch master  # copy branch from a specific branch, in this case master, to new branch
 
-# git poke around:
-git status; git log; git branch -a; git remote -v; git remote show origin;
+# Show all remotes:
+git remote show origin;
+
+# git poke around
+git status; git log; git branch -a; git remote -v;
 # ls for git list which files are tracked under git source control not just staged:
 git ls-files 
 
@@ -7653,7 +7672,8 @@ netsh interface tcp show global
 netsh interface tcp set global autotuning=disabled
 :: restore
 netsh interface tcp set global autotuninglevel=normal
-:: 05-Jun-20
+
+:: 05-Jun-20 reset VPN etc (as Administrator):
 netsh winsock reset
 
 :: Force delete remove rm Windows hidden file that Cygwin can't rm:
