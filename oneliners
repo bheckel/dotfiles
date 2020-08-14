@@ -6110,16 +6110,14 @@ select count(distinct contact_id), trunc(actual_updated, 'MONTH'), (sysdate - 65
 
 -- Oracle Nth Top-N select top 5 rows of a table in order:
 SELECT * FROM (SELECT * FROM scott.emp ORDER BY ename) WHERE ROWNUM <= 5;  -- top 5 employees by alphabetical name
-SELECT * FROM emp ORDER BY ename FETCH FIRST 5 ROWS ONLY;  -- Oracle 12c+
+SELECT * FROM emp ORDER BY ename FETCH FIRST 5 ROWS ONLY;  -- Oracle 12c+ but  WHERE rownum<6  is more efficient because it does't read the whole table
 SELECT * FROM emp ORDER BY ename FETCH FIRST 5 ROWS WITH TIES;  -- can end up with more than 5 recs (in indeterminate order)
 -- Oracle Nth Top-N select first top 20% percent of rows of a table in order:
 SELECT * FROM emp ORDER BY ename FETCH FIRST 50 PERCENT ROWS ONLY -- 7 of the 14 rows
 SELECT * FROM emp ORDER BY ename OFFSET 2 ROWS FETCH NEXT 3 ROWS ONLY  -- of the top-5 rows, skip the top 2 just list #3, #4, #5
-
 -- Analytic Function to get the employee(s) with the 3rd Top-N Nth highest salary, non-Olympic:
 select * from ( select empno, ename, job, hiredate, sal, comm, dense_rank() OVER (order by sal desc) r from  emp ) where r = 3;
 ...fetch first 3 rows with ties; -- Olympic, like rank()
-
 -- Top-N query, but it can only do the top-rows (RANK aka Olympic rule), internally implementing it like an inline view with row_number or rank analytic functions. But if you want top-values rule, you must do it yourself with dense_rank.
 FETCH FIRST 3 ROWS WITH TIES
 
@@ -7777,5 +7775,7 @@ Google search string: RGB color picker
 [Minion](http://octodex.github.com/images/minion.png)
 
 O(log n) the same amount of work to access any value, like a B-tree index
+
+# Prevent Win10 blurry apps: Right click on gVim icon -> Properties -> Compatibility -> Change high DPI settings -> check box "Override high DPI scaling behavior" in the bottom of the dialog window and set "Scaling performed by:" to "System (Enhanced)"
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
