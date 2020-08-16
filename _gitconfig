@@ -19,3 +19,5 @@
 [user]
 	email = rsh@rshdev.com
 	name = Bob Heckel
+[pull]
+	ff = only
