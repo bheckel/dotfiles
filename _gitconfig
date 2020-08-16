@@ -20,4 +20,6 @@
 	email = rsh@rshdev.com
 	name = Bob Heckel
 [pull]
+  # fatal: Not possible to fast-forward, aborting.
+  # When this happens, inspect why the branches diverged. Sometimes, you may discover that you made a mistake, like trying to pull master into a local branch. In cases where you really did intend to create a merge commit, you can now follow with git merge. By doing this, you perform the "downloading" and the "committing" in two different steps, which helps mentally separate these two operations.
 	ff = only

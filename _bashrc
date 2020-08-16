@@ -113,7 +113,7 @@ alias g=$HOME/dotfiles/gone.sh
 # alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
 alias gb='git branch'
 alias gitall="$HOME/code/misc/gitall"
-alias gitup='git add . && git commit -m"mod gitup" && git push'
+# alias gitup='git add . && git commit -m"mod gitup" && git push'
 alias gpul='git pull'
 alias gpull='git pull'
 alias gstash='git stash save --include-untracked'
@@ -398,6 +398,11 @@ function gdt() {
   hashes="${oldhash}:./${1} ${newhash}:./${1}"
 
   git difftool $hashes
+}
+
+function gitup() {
+  MSG=${1:-mod}
+  git add . && git commit -m"mod ${MSG}" && git push
 }
 
 # Generic Functions end
