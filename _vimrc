@@ -148,9 +148,9 @@ set scrolloff=1
 set scrollopt=hor,ver
 
 if version > 702
-  if ! has("gui_running")
+  " if ! has("gui_running")
     set cursorcolumn
-  endif
+  " endif
 
   set relativenumber
   " :se rnu gutter at 7pt font should rarely go > 100
@@ -246,7 +246,8 @@ hi CursorLineNr ctermfg=White ctermbg=DarkGray guifg=White guibg=DarkGray cterm=
 " For :se rnu relative number gutter
 hi LineNr ctermfg=246 ctermbg=237 guifg=DarkGray guibg=#444444
 
-hi CursorColumn ctermfg=247 ctermbg=234
+" Vertical bar
+hi CursorColumn ctermfg=247 ctermbg=234 guibg=#444444
 
 " Tab completion dropdown
 hi Pmenu ctermfg=Black ctermbg=Gray guifg=White guibg=Gray 
