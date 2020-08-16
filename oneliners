@@ -7722,7 +7722,7 @@ library(stringr); x <- c("apple","banana","pear"); sum(!str_detect(x, "^b"));
 <!-- White on gray HTML page -->
 <body bgcolor="#cccccc" text="#000000">
 
-// JavaScript
+// JavaScript convert decimal to hex or binary
 let num = 255; alert( num.toString(16) );  // ff
 let num = 255; alert( num.toString(2) );   // 11111111
 
@@ -7757,5 +7757,8 @@ Google search string: RGB color picker
 [Minion](http://octodex.github.com/images/minion.png)
 
 O(log n) the same amount of work to access any value, like a B-tree index
+
+Remove all event listeners: $("*").off();
+Remove all right-click listeners: $("*").off("contextmenu");
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
