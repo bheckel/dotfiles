@@ -402,7 +402,7 @@ function gdt() {
 
 function gitup() {
   MSG=${1:-mod}
-  git add . && git commit -m"${MSG}" && git push
+  #git add . && git commit -m"${MSG}" && git push
   echo git add . && git commit -m"${MSG}" && git push
 }
 
