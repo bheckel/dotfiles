@@ -45,7 +45,7 @@ for f in $majordots; do
   ln -s $myhome/dotfiles/_$f $myhome/.$f
 done
 
-# 24-Aug-19 works on oracle VM so commenting out
+# 24-Aug-19 works on Oracle VM so commenting out
 # These won't source as a symlink:
 # for f in inputrc; do
 #   echo setting up $myhome/.$f...
