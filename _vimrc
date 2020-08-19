@@ -443,10 +443,12 @@ set autoindent
 
 "                               15 folding {{{2
 
-set foldmethod=manual
-" Fold on paragraphs
-set foldexpr=getline(v:lnum)=~'^\\s*$'&&getline(v:lnum+1)=~'\\S'?'<1':1
-set foldopen-=search
+if has('folding')
+  set foldmethod=manual
+  " Fold on paragraphs
+  set foldexpr=getline(v:lnum)=~'^\\s*$'&&getline(v:lnum+1)=~'\\S'?'<1':1
+  set foldopen-=search
+endif
 
 
 "                               16 diff mode {{{2
