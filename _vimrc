@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Mon 20-Jul-2020 (Bob Heckel)
+" Modified: Sat 22-Aug-2020 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -443,10 +443,12 @@ set autoindent
 
 "                               15 folding {{{2
 
-set foldmethod=manual
-" Fold on paragraphs
-set foldexpr=getline(v:lnum)=~'^\\s*$'&&getline(v:lnum+1)=~'\\S'?'<1':1
-set foldopen-=search
+if has('folding')
+  set foldmethod=manual
+  " Fold on paragraphs
+  set foldexpr=getline(v:lnum)=~'^\\s*$'&&getline(v:lnum+1)=~'\\S'?'<1':1
+  set foldopen-=search
+endif
 
 
 "                               16 diff mode {{{2
@@ -1117,7 +1119,9 @@ endif
 "--------------------------------------------------------------------------
 
 fu! SASrunSelection()  " {{{2
-  '<,'>write! ~/tmp/SASrunSelection.sas | !~/code/sas/sasrun ~/tmp/SASrunSelection.sas
+  if filereadable("~/code/sas/sasrun")
+    '<,'>write! ~/tmp/SASrunSelection.sas | !~/code/sas/sasrun ~/tmp/SASrunSelection.sas
+  endif
 endfu
 " :call SASrunSelection() 
 " This won't work:

@@ -664,6 +664,8 @@ au BufRead,BufNewFile,BufEnter *RION-* set filetype=plsql
 
 au BufRead * if @% =~ 'oneliners$' 
 
+if filereadable("~/tmp/SpecificFileExists") ...
+
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSASxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
