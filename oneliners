@@ -5696,7 +5696,7 @@ SQL> r  -- run query
 -- Oracle sqlplus do not display query results (usually when sending output to .out file)
 set termout off
 
--- Oracle run script plsql developer SQL> @C:\cygwin64\home\obheck\code\misccode\query.sql:
+-- Oracle run script:\cygwin64\home\obheck\code\misccode\query.sql:
 $ sqlplus -S me/pw@esd @query.sql
 $ vi ~/code/misccode/query.sql && (cd ~/code/misccode/ && sqlplus -S me/pw@esd @query.sql && vi $c/temp/query.out)
 
@@ -6230,7 +6230,7 @@ $ psql -h db-dev-01.twa.taeb.com TAEBMART -c "\copy public.bob from 't.txt' (del
 -- Postgres execute sql from file command line:
 psql -h db-dev-01.twa.taeb.com TAEBMART -f /sasdata/Dev_to_db-06_20180316_dshbrd_hppatientstarpdc.sql
 
--- PL/SQL Developer user prompt msgbox:
+-- User prompt msgbox:
 ... AND UPPER(a.sample_id) like &< name = "Sample Id or mask.  Wildcard is %" hint = "Entry not required" type = "string" uppercase = "yes" default = "%" ifempty = "%" > ...
 
 -- Exit sqlite3: .q
@@ -6909,6 +6909,15 @@ CREATE TABLE mysmallnums(n NUMBER(2));
 -- Default SQL Developer date format:
 SELECT TO_CHAR(STARTUP_TIME,'MON-DD-RR HH24:MI:SS')...
 
+SELECT /*csv*/ * FROM scott.emp;
+SELECT /*json-formatted*/ * FROM scott.emp;
+SELECT /*html*/ * FROM scott.emp;
+SELECT /*delimited*/ * FROM scott.emp;
+SELECT /*insert*/ * FROM scott.emp;
+SELECT /*loader*/ * FROM scott.emp;
+SELECT /*fixed*/ * FROM scott.emp;
+SELECT /*text*/ * FROM scott.emp;
+
 -- Uptime
 SELECT TO_CHAR(STARTUP_TIME,'MON-DD-RR HH24:MI:SS') AS "Instance Start Time", (startup_time-SYSDATE)*-1 as uptime FROM V$INSTANCE;
 
@@ -6934,6 +6943,11 @@ SELECT object_name, extract(second from cast(CREATED as timestamp) - last_ddl_ti
 
 -- Between two timestamp ranges:
 SELECT * FROM t WHERE execute_time >=  TIMESTAMP '2020-08-06 13:01:01' and execute_time <= TIMESTAMP '2020-08-06 14:01:01' ORDER BY execute_time desc;
+
+select /*+ MATERIALIZE PARALLEL(4) */ distinct ax.opportunity_id
+
+SELECT * FROM all_synonyms WHERE table_owner='SETARS' AND table_name like 'RPT_LIF%' ORDER BY table_name;
+DROP PUBLIC SYNONYM RPT_LIFECYC;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7543,7 +7557,7 @@ git add -f ignoreme.txt
 # github commit mantra (github is origin we PUSH TO origin FROM master), update index and HEAD:
 git add . && git commit -m 'mod' && git push origin master
 
-# git new bare box want clone an existing github repo to a new foreign server (AKA origin, a bookmark) which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
+# git new install bare box setup want clone an existing github repo to a new foreign server (AKA origin, a bookmark) which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
 ssh-keygen; # then  cat ~/.ssh/id_rsa.pub  # copy it to https://github.com/settings/keys
 # PULL FROM origin to master & PUSH TO origin FROM master:
 git clone git@github.com:bheckel/dotfiles.git && git config --global user.name "Bob Heckel" && git config --global user.email rsh@rshdev.com # ...edit/add/commit... then  git pull origin master && git push origin master
