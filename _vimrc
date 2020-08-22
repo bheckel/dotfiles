@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Mon 20-Jul-2020 (Bob Heckel)
+" Modified: Sat 22-Aug-2020 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -1119,7 +1119,9 @@ endif
 "--------------------------------------------------------------------------
 
 fu! SASrunSelection()  " {{{2
-  '<,'>write! ~/tmp/SASrunSelection.sas | !~/code/sas/sasrun ~/tmp/SASrunSelection.sas
+  if filereadable("~/code/sas/sasrun")
+    '<,'>write! ~/tmp/SASrunSelection.sas | !~/code/sas/sasrun ~/tmp/SASrunSelection.sas
+  endif
 endfu
 " :call SASrunSelection() 
 " This won't work:
