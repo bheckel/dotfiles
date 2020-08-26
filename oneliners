@@ -5905,6 +5905,9 @@ select * from pg_stat_activity where usename='bheckel'
 -- Postgres find duplicates:
 select * from healthplanpatients hp where row(hpprogramid, externalpatientid, cardholderid, pharmacyid) in (select hpprogramid, externalpatientid, cardholderid, pharmacyid from .healthplanpatients_test);
 
+-- Rows which have duplicate values for a set of columns (c1, c2, ...) using analytic function:
+with dups as ( select t.*, count(*) over ( partition by c1, c2, ...) ct from ... t) select * from dups where ct > 1
+
 -- Change field's datatype:
 select stre_id as stid, cast(value as TIMESTAMP) as Waitime ...
 
