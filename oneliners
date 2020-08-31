@@ -4416,6 +4416,9 @@ cat ~/clids.txt | xargs ~bheckel/bin/isdata.sh; ssh bheckel@sas-01.mrk.taeb.com 
 # What is my DNS?:
 nmcli dev show | grep DNS
 
+# What is my IP (if no ifconfig):
+curl http://ifconfig.me/ip
+
 # Which distro am I using:
 cat /etc/*-release | grep VERSION | perl -pe 's/VERSION="//g'
 
