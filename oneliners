@@ -6769,6 +6769,8 @@ SELECT  to_char(systimestamp, 'MM-DD_HH24:MI:SS.FF') FROM dual;
 -- Oracle restore undelete a dropped table or index from recyclebin:
 drop table t; SELECT * FROM user_recyclebin where lower(original_name) = 't'; FLASHBACK TABLE t TO BEFORE DROP;-- [RENAME TO rescuedog];  -- most recent drop is restored
 
+SELECT sum(((space*8)/1024)/1024) space_gb FROM dba_recyclebin WHERE  owner = 'SETARS';
+
 SELECT * FROM v$parameter where description='PL/SQL compiler warnings settings';
 
 -- When was object last compiled:
@@ -6956,6 +6958,9 @@ select /*+ MATERIALIZE PARALLEL(4) */ distinct ax.opportunity_id
 
 SELECT * FROM all_synonyms WHERE table_owner='SETARS' AND table_name like 'RPT_LIF%' ORDER BY table_name;
 DROP PUBLIC SYNONYM RPT_LIFECYC;
+
+-- Single quotes uses triples inside dbms_output:
+DBMS_OUTPUT.put_line('BEGIN PS_SYNCH.SET_ACTIVE(1, '''|| p_ixtype ||'''); END;'); -- BEGIN PS_SYNCH.SET_ACTIVE(1, 'CONTACT_SEARCH_BING_IX'); END;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
