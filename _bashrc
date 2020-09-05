@@ -4,7 +4,7 @@
 # Summary: bash config for at least Unix/Linux, Cygwin 1.3/1.5/1.7 and z/OS
 #
 #  Created: Tue 19-May-1998 (Bob Heckel)
-# Modified: Fri 24-Jul-2020 (Bob Heckel)
+# Modified: Sat 05-Sep-2020 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -711,19 +711,23 @@ case "$OSTYPE" in
       # Termux  # {{{2
       if [ $HOSTNAME = 'localhost' -a $HOSTTYPE = 'aarch64' ]; then
         export TERM=screen-256color
+
         alias nb='newsboat -q -r'
         alias pa='termux-media-player pause'
         alias pl='termux-media-player play'
+        # Screenscrape
+        alias sgol='echo && w3m -dump https://finance.yahoo.com/quote/SGOL%3Fp=SGOL/ |grep --after-context=4 watchlist | tail -n3'
+        alias tupd='apt update && apt upgrade'
         # Weather
         alias w='curl -s wttr.in | head -n7'
 
-        function ts() {
-          termux-share -a send $1
+        function catput() {
+          cat ${1} | termux-clipboard-set
         }
 
-        # Too lazy to clone my github repo...
+        # Instead of cloning my github repo...not sure if thousands of files is 
+        # a problem on Android
         function gh() {
-          #if [ -z ${1} ]; then
           if [ $# -eq 0 ]; then
             # Jump down to the repo "folders"
             w3m -num +165 https://github.com/bheckel/code
@@ -733,6 +737,15 @@ case "$OSTYPE" in
           else
             echo 'usage: gh [section] [filename]'
           fi
+        }
+
+        function tbak() {
+          cd /data/data/com.termux/files && \
+          tar cfz /sdcard/termux.bak.tgz home usr
+        }
+
+        function ts() {
+          termux-share -a send ${1}
         }
       fi
 
