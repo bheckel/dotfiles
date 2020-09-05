@@ -132,11 +132,10 @@ alias ls='ls --color --group-directories-first'
 alias ll='ls -gh --color --group-directories-first'
 alias lla='ls -agh --color --group-directories-first'
 # If ls -lS isn't available:
-###alias lls='ls -l | sort +4r | grep -v "total"'  # sort descending on size
 alias lsd='find . -type d'
 alias one="vi $HOME/dotfiles/oneliners"
-alias pse="ps -ef|grep ^$USER|grep -vP 'ps -ef|grep'"
-###alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
+#alias pse="ps -ef|grep ^$USER|grep -vP 'ps -ef|grep'"
+#alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
 alias qr="$HOME/code/misc/quickref_find.sh"
 alias robots="export ROBOTOPTS=moveheaps,showscores,screwdriver,fastrobots; robots"
 alias sasrun=$HOME/code/sas/sasrun
@@ -599,7 +598,7 @@ case "$OSTYPE" in
       # Print Windows Working Directory.  Command is $ pwd|sed 's/\//\\/g'" before backslashitis.
       alias pwwd="pwd|sed 's/\\//\\\\/g'"
       # Weather
-      alias w='curl v2.wttr.in/RDU'
+      alias w='curl --no-progress-meter "https://api.openweathermap.org/data/2.5/onecall?lat=35.92115428&lon=-78.5754912&exclude=minutely,hourly,daily&appid=5a1dc20a0a7be096ce3da4c0dabc4cdd&units=imperial" | jq'
 
       #----------------
       # Functions Linux  #{{{2 
@@ -712,14 +711,13 @@ case "$OSTYPE" in
       if [ $HOSTNAME = 'localhost' -a $HOSTTYPE = 'aarch64' ]; then
         export TERM=screen-256color
 
+        alias gu='cd ~/dotfiles && gitup && git status'
         alias nb='newsboat -q -r'
         alias pa='termux-media-player pause'
         alias pl='termux-media-player play'
         # Screenscrape
         alias sgol='echo && w3m -dump https://finance.yahoo.com/quote/SGOL%3Fp=SGOL/ |grep --after-context=4 watchlist | tail -n3'
-        alias tupd='apt update && apt upgrade'
-        # Weather
-        alias w='curl -s wttr.in | head -n7'
+        alias tupd='pkg update && pkg upgrade'
 
         function catput() {
           cat ${1} | termux-clipboard-set
