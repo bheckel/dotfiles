@@ -747,8 +747,8 @@ case "$OSTYPE" in
         function w() {
           while read id; do echo $id; done <~/bin/wapi_key 
 
-          curl --no-progress-meter "https://api.openweathermap.org/data/2.5/onecall?lat=35.92115428&lon=-78.5754912&exclude=minutely,hourly,daily&appid=${id}&units=imperial" \
-            | jq '[.| {ct: .current.temp, fl: .current.feels_like, hu: .current.humidity, uv: .current.uvi, ws: .current.wind_speed, wr: .current.weather[0].description, sr: .current.sunrise, ss: .current.sunset}]'
+          curl --no-progress-meter "https://api.openweathermap.org/data/2.5/onecall?lat=35.92115428&lon=-78.5754912&include=hourly&appid=5a1dc20a0a7be096ce3da4c0dabc4cdd&units=imperial" \
+            | jq '[.| {ct: .current.temp, fl: .current.feels_like, hu: .current.humidity, uv: .current.uvi, ws: .current.wind_speed, wr: .current.weather[0].description, sr: .current.sunrise | strflocaltime("%H:%M:%S %Z"), ss: .current.sunset | strflocaltime("%H:%M:%S %Z"), pop1: .hourly[0].pop, pop2: .hourly[1].pop}]'
         }
       fi  # we're probably running termux
 
