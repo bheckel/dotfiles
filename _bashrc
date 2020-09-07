@@ -597,8 +597,6 @@ case "$OSTYPE" in
       ###alias sqlplus=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/sqlplus
       # Print Windows Working Directory.  Command is $ pwd|sed 's/\//\\/g'" before backslashitis.
       alias pwwd="pwd|sed 's/\\//\\\\/g'"
-      # Weather
-      alias w='curl --no-progress-meter "https://api.openweathermap.org/data/2.5/onecall?lat=35.92115428&lon=-78.5754912&exclude=minutely,hourly,daily&appid=5a1dc20a0a7be096ce3da4c0dabc4cdd&units=imperial" | jq'
 
       #----------------
       # Functions Linux  #{{{2 
@@ -745,7 +743,14 @@ case "$OSTYPE" in
         function ts() {
           termux-share -a send ${1}
         }
-      fi
+
+        function w() {
+          while read id; do echo $id; done <~/bin/wapi_key 
+
+          curl --no-progress-meter "https://api.openweathermap.org/data/2.5/onecall?lat=35.92115428&lon=-78.5754912&exclude=minutely,hourly,daily&appid=${id}&units=imperial" \
+            | jq '[.| {ct: .current.temp, fl: .current.feels_like, hu: .current.humidity, uv: .current.uvi, ws: .current.wind_speed, wr: .current.weather[0].description, sr: .current.sunrise, ss: .current.sunset}]'
+        }
+      fi  # we're probably running termux
 
       shopt -s cdspell checkhash checkwinsize cmdhist dotglob histappend 
 
