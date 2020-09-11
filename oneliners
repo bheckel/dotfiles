@@ -6118,15 +6118,16 @@ select count(distinct contact_id), trunc(actual_updated, 'MONTH'), (sysdate - 65
 -- Only those columns explicitly listed in the GROUP BY clause may appear un-aggregated (i.e. not as a parameter of an aggregate function) in the SELECT or HAVING clauses.  That usually means the SELECT is equal or shorter to the GROUP BY.
 
 -- Oracle Nth Top-N select top 5 rows of a table in order:
+SELECT * FROM scott.emp WHERE ROWNUM <= 5 ORDER BY ename;  -- probably not what you want!
 SELECT * FROM (SELECT * FROM scott.emp ORDER BY ename) WHERE ROWNUM <= 5;  -- top 5 employees by alphabetical name
 SELECT * FROM emp ORDER BY ename FETCH FIRST 5 ROWS ONLY;  -- Oracle 12c+ but  WHERE rownum<6  is more efficient because it does't read the whole table
 SELECT * FROM emp ORDER BY ename FETCH FIRST 5 ROWS WITH TIES;  -- can end up with more than 5 recs (in indeterminate order)
 -- Oracle Nth Top-N select first top 20% percent of rows of a table in order:
 SELECT * FROM emp ORDER BY ename FETCH FIRST 50 PERCENT ROWS ONLY -- 7 of the 14 rows
 SELECT * FROM emp ORDER BY ename OFFSET 2 ROWS FETCH NEXT 3 ROWS ONLY  -- of the top-5 rows, skip the top 2 just list #3, #4, #5
--- Analytic Function to get the employee(s) with the 3rd Top-N Nth highest salary, non-Olympic:
-select * from ( select empno, ename, job, hiredate, sal, comm, dense_rank() OVER (order by sal desc) r from  emp ) where r = 3;
-...fetch first 3 rows with ties; -- Olympic, like rank()
+-- Analytic Function to get the employee(s) with the 5 Top-N Nth highest salary, non-Olympic:
+select * from ( select empno, ename, job, hiredate, sal, comm, dense_rank() OVER (order by sal desc) r from  emp ) where r < 6;
+
 -- Top-N query, but it can only do the top-rows (RANK aka Olympic rule), internally implementing it like an inline view with row_number or rank analytic functions. But if you want top-values rule, you must do it yourself with dense_rank.
 FETCH FIRST 3 ROWS WITH TIES
 
@@ -6140,7 +6141,7 @@ select class, planet, min(radius), listagg(min(radius),',') within group ( order
 SELECT listagg(column_name, ',') within group (order by column_name) csv_list_of_the_columns FROM all_tab_columns WHERE lower(table_name) = 'email_messages' GROUP BY table_name;
 
 -- Handle comma separated list string overflow error gracefully with elipses ellipses after 327671 bytes:
-SELECT LISTAGG(ename, ',' ON OVERFLOW TRUNCATE '...' WITHOUT COUNT) WITHIN GROUP (ORDER BY ename) AS csv_list_truncated_dots FROM emp CROSS JOIN (SELECT level FROM dual CONNECT BY level <= 1000) WHERE  deptno = 30;
+SELECT LISTAGG(ename, ',' ON OVERFLOW TRUNCATE '...' WITHOUT COUNT) WITHIN GROUP (ORDER BY ename) AS csv_list_truncated_dots FROM emp CROSS JOIN (SELECT level FROM dual CONNECT BY level <= 1000) WHERE deptno = 30;
 
 -- RANK as an aggregate function:
 select rank(1600) WITHIN GROUP (order by sal desc) from emp;  -- 7 i.e. 7th place, vs. analytic OVER(ORDER BY...) gives whole table with ranks
@@ -6962,6 +6963,11 @@ DROP PUBLIC SYNONYM RPT_LIFECYC;
 
 -- Single quotes uses triples inside dbms_output:
 DBMS_OUTPUT.put_line('BEGIN PS_SYNCH.SET_ACTIVE(1, '''|| p_ixtype ||'''); END;'); -- BEGIN PS_SYNCH.SET_ACTIVE(1, 'CONTACT_SEARCH_BING_IX'); END;
+
+rename RPT_CYCLE_MILESTONE_OVERVIEW to RPT_CYCLE_MS_OVERVIEW;
+GRANT SELECT ON RPT_CYCLE_MS_OVERVIEW TO scott, hr;
+drop PUBLIC SYNONYM RPT_CYCLE_MILESTONE_OVERVIEW;
+CREATE OR REPLACE PUBLIC SYNONYM RPT_CYCLE_MS_OVERVIEW FOR ESTARS.RPT_CYCLE_MS_OVERVIEW;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
