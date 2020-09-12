@@ -709,7 +709,6 @@ case "$OSTYPE" in
       if [ $HOSTNAME = 'localhost' -a $HOSTTYPE = 'aarch64' ]; then
         export TERM=screen-256color
 
-        alias gu='cd ~/dotfiles && gitup && git status'
         alias nb='newsboat -q -r'
         alias pa='termux-media-player pause'
         alias pl='termux-media-player play'
