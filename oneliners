@@ -6969,6 +6969,9 @@ GRANT SELECT ON RPT_CYCLE_MS_OVERVIEW TO scott, hr;
 drop PUBLIC SYNONYM RPT_CYCLE_MILESTONE_OVERVIEW;
 CREATE OR REPLACE PUBLIC SYNONYM RPT_CYCLE_MS_OVERVIEW FOR ESTARS.RPT_CYCLE_MS_OVERVIEW;
 
+-- Use pseudocolumn for hierarchical query that tells you if the node is at the lowest level without children (is a leaf):
+select lpad('* ', (LEVEL-1)*2, '* ') || ename as programmer, CONNECT_BY_ISLEAF as isleaf from emp START WITH mgr is null CONNECT BY mgr = prior empno order SIBLINGS by ename;
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1

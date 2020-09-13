@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Sat 22-Aug-2020 (Bob Heckel)
+" Modified: Sun 13-Sep-2020 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -1242,14 +1242,15 @@ endfunction  " }}}
 
 
 fu! BkupFile(vtpth)  " {{{2
-  " Quickly timestamp a backup copy.  Inserts stamp before the rightmost
+  " Make a backup copy.  Inserts stamp before the rightmost
   " extension.  Usually mapped to ;5
-  " TODO elim e.g. x:/ etc if remote file
   " No path and no extension info.  See :h cmdline-special
   let s:head = expand("%:t:r")
   """echo 'head ' . s:head
+  
   let s:tail = expand("%:e")
   """echo 'tail ' . s:tail
+
   " Make it unique to the second
   let s:stamp = strftime("__%d%b%y_%H.%M.%S__")
 
@@ -1261,8 +1262,8 @@ fu! BkupFile(vtpth)  " {{{2
     let s:all = s:head .'.'  . s:stamp 
   endif
 
-  " exec("write! " . a:vtpth . "/" . s:all)
   exec("silent write! " . a:vtpth . "/" . s:all)
+  echo a:vtpth . "/" . s:all
 endfu  " }}}
 
 

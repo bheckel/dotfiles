@@ -4,7 +4,7 @@
 # Summary: bash config for at least Unix/Linux, Cygwin 1.3/1.5/1.7 and z/OS
 #
 #  Created: Tue 19-May-1998 (Bob Heckel)
-# Modified: Sat 05-Sep-2020 (Bob Heckel)
+# Modified: Sun 13-Sep-2020 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -131,17 +131,19 @@ alias la='ls -FA --color=auto'
 alias ls='ls --color --group-directories-first'
 alias ll='ls -gh --color --group-directories-first'
 alias lla='ls -agh --color --group-directories-first'
-# If ls -lS isn't available:
+# Thanks Berkely...
 alias lsd='find . -type d'
+alias m=less
 alias one="vi $HOME/dotfiles/oneliners"
 #alias pse="ps -ef|grep ^$USER|grep -vP 'ps -ef|grep'"
 #alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
 alias qr="$HOME/code/misc/quickref_find.sh"
+# Good luck Yoshi...
 alias robots="export ROBOTOPTS=moveheaps,showscores,screwdriver,fastrobots; robots"
 alias sasrun=$HOME/code/sas/sasrun
 alias sdf='ssh -l bheckel sdf.org; date'
 alias sl='ls --color=none'  # dyslexic daim branage
-alias sr="$HOME/code/sas/sasrun"
+alias sr="$HOME/code/sas/sasrun2"
 alias srcb="source $HOME/dotfiles/_bashrc"
 alias tmls='tmux list-sessions'
 alias tmux='tmux -u'  # UTF8
@@ -507,7 +509,6 @@ case "$OSTYPE" in
      alias ls='ls -F'
      alias ll='ls -Fl'
      alias lla='ls -FlA'
-     alias m=less
      export PATH=$HOME/bin:$PATH
 
      # Box specific differences:
@@ -737,6 +738,7 @@ case "$OSTYPE" in
         function tbak() {
           cd /data/data/com.termux/files && \
           tar cfz /sdcard/termux.bak.tgz home usr
+          # TODO move tarball to Gdrive
         }
 
         function ts() {
