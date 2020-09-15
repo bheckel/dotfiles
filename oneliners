@@ -5459,8 +5459,8 @@ select nullif('a','a') from dual  -- NULL
 select nullif('a','b') from dual  -- a
 case qty when 0 then 0.0001 else qty end / nullif(mycol, 0)  -- avoid any division by zero errors
 
--- Better than  DECODE(p.ip_role_lov_id, null, 34657, p.ip_role_lov_id) :
-NVL(p.ip_role_lov_id, 34657);
+-- Fill down sparse values with the previous value if current is zero:
+nvl(last_value(nullif(col2, 0)) IGNORE NULLS OVER (ORDER BY col1), 0) col2,
 
 -- This won't include NULLs as Profit because the result of comparing NULL to anything is unknown, not < 0 i.e. nulls propagate:
 where Profit < 15 
@@ -5484,9 +5484,19 @@ NVL2(x, return_value1_bc_x_isNOTnull, return_value2_bc_x_ISnull);
 SELECT ename, comm, sal, 12*sal+NVL(comm,0) ...
 IF NVL(l_salary,0) <= 40000 ...
 
+select DECODE(checkme, ifcheckmeisthis, thenuseme, elseuseme) ...
+DECODE(a, b, c, d)
+CASE a WHEN b THEN c ELSE d END
+
+-- Better than  DECODE(p.ip_role_lov_id, null, 34657, p.ip_role_lov_id) :
+NVL(p.ip_role_lov_id, 34657);
+
+-- Set zero to null:
+TO_CHAR(CASE WHEN a.result_number=0 THEN null ELSE a.result_number END) AS result_number
+
 -- Compare NULL:
 where  ... and nvl(width,0) = nvl(length,0)  -- finds only if both are NULL
-where decode(col1, col2, 1, 0) = 1  -- finds sameness of col1 & col2 - even if both NULL
+where DECODE(col1, col2, 1, 0) = 1  -- finds sameness of col1 & col2 - even if both NULL
 
 -- Update only if value is NULL:
 UPDATE contact_note SET original_contact_id = contact_id WHERE contact_id IN (SELECT contact_id FROM zzorion32806) AND original_contact_ID IS NULL
@@ -5495,18 +5505,13 @@ UPDATE contact_note SET original_contact_id = contact_id WHERE NVL(original_cont
 -- Don't ignore NULLs in counts:
 SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,0)), POOR_CLOSEOUT_OPT_OUT FROM OPPORTUNITY_OPT_OUT GROUP BY POOR_CLOSEOUT_OPT_OUT
 
--- HTML
+-- HTML use <BLANK> use when description is NULL;
 NVL(lov.value_description, '&lt;;BLANK&gt;;') AS value_description,
-
-select DECODE(checkme, ifcheckmeisthis, thenuseme, elseuseme)
 
 -- Update table to new value if newloc not null otherwise leave it alone:
 update departments set location = decode(newloc, NULL, location, newloc);
 -- Update the CODE column for 10 rows, setting it to itself for 8 rows and to the value NULL for 2 rows. BETWEEN is inclusive like >= ... <= operators:
 UPDATE dest SET code = DECODE(id, 9, NULL, 10, NULL, code) WHERE id BETWEEN 1 AND 10;
-
--- Set zero to null:
-TO_CHAR(CASE WHEN a.result_number=0 THEN null ELSE a.result_number END) AS result_number
 
 -- If day is Saturday set flag:
 CASE WHEN TO_CHAR(b.sample_status_date,'DY')='SAT' THEN 1 ELSE 0 END;
