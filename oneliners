@@ -5508,7 +5508,7 @@ UPDATE dest SET code = DECODE(id, 9, NULL, 10, NULL, code) WHERE id BETWEEN 1 AN
 -- Set zero to null:
 TO_CHAR(CASE WHEN a.result_number=0 THEN null ELSE a.result_number END) AS result_number
 
--- If day is Saturday set flag:
+-- If day is Saturday set flag for that day of week:
 CASE WHEN TO_CHAR(b.sample_status_date,'DY')='SAT' THEN 1 ELSE 0 END;
 
 -- Do division on a potential zero:
@@ -5630,6 +5630,14 @@ select * from activity_log where trunc(activity_dt)=TO_DATE('16-JAN-06','DD-MON-
 SELECT to_char(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI:SS') FROM dual; --2020-01-16 18:26:57
 SELECT SYSDATE FROM dual; --16-JAN-20 18:26:57
 
+dbms_output.put_line('rpt at: ' || TO_CHAR(sysdate, 'dd-mon-yy hh:mipm'));
+
+-- Oracle Business hours only:
+if (TO_CHAR(sysdate, 'DY') in ('SAT', 'SUN') or (TO_CHAR(sysdate, 'HH24') not between '08' and '18')
+
+-- Unhide a date in future e.g. 02-DEC-99 is really 02-DEC-2099:
+SELECT updated, trunc(updated), to_char(updated, 'DD-MON-YYYY') FROM contac;
+
 -- Oracle date criteria only this month's orders:
 WHERE order_dt > TRUNC(SYSDATE, 'MONTH')
 
@@ -5643,11 +5651,6 @@ update retain.fnsh_prod set prod_sel = 'N', prod_sel_dt = NULL;
 
 -- Oracle SQL*Plus (like SELECT TOP 10 *... in SQL Server)
 select * from activity_log where rownum<10;
-
-dbms_output.put_line('rpt at: ' || TO_CHAR(sysdate, 'dd-mon-yy hh:mipm'));
-
--- Oracle Business hours only:
-if (TO_CHAR(sysdate, 'DY') in ('SAT', 'SUN') or (TO_CHAR(sysdate, 'HH24') not between '08' and '18')
 
 -- Format Oracle format if column too wide that truncation occurs in sqlplus window:
 SQL> col MFG_SPEC_TXT_A form a15  -- sqlplus column format width 15 characters
@@ -6706,9 +6709,6 @@ ALTER SESSION SET plsql_warnings = 'ERROR:ALL'
 
 SELECT to_char(12345.67, '$99,999.99') FROM dual  -- $12,345.67
 
--- When 4000 char limit overflows, use a CLOB e.g. one,two,three,four:
-SELECT rtrim(xmlagg(XMLELEMENT(e,text,',').EXTRACT('//text()')).GetClobVal(),',') very_long_text FROM (SELECT to_char(to_date(level,'j'), 'jsp') text FROM dual CONNECT BY LEVEL < 5)
-
 -- All SQL run in the last 2 months:
 select v.SQL_TEXT, v.PARSING_SCHEMA_NAME, v.FIRST_LOAD_TIME, v.DISK_READS, v.ROWS_PROCESSED, v.ELAPSED_TIME, v.service from v$sql v where to_date(v.FIRST_LOAD_TIME,'YYYY-MM-DD hh24:mi:ss')>ADD_MONTHS(trunc(sysdate,'MM'),-2)
 
@@ -6778,8 +6778,15 @@ SELECT * FROM v$parameter where description='PL/SQL compiler warnings settings';
 -- When was object last compiled:
 SELECT owner, object_name, object_type, status, last_ddl_time FROM dba_objects d WHERE d.object_name like 'RS_ASP%';
 
+-- When 4000 char limit overflows, use a CLOB e.g. one,two,three,four:
+SELECT rtrim(xmlagg(XMLELEMENT(e,text,',').EXTRACT('//text()')).GetClobVal(),',') very_long_text FROM (SELECT to_char(to_date(level,'j'), 'jsp') text FROM dual CONNECT BY LEVEL < 5)
+
 -- Display a reasonable amount of text from a CLOB:
 SELECT sql_text as only_1k_chars, substr(regexp_replace(sql_fulltext, '\s+', ' '), 1, 3999) FROM v$sql 
+-- View a CLOB BLOB:
+select dbms_lob.substr(t.SQL_TEXT, 4000, 1) ...
+-- Use a CLOB as a criteria:
+SELECT count(1) FROM notes WHERE DBMS_LOB.substr(note, 4000, 1) = 'These are US contacts';
 
 --Ignore issues during the 3AM hour specific hour timeframe range:
 if (to_char(sysdate, 'HH24MI') not between '0300' and '0400') Then
@@ -6896,9 +6903,6 @@ SELECT max(a.value) as highest_open_cur, p.value as max_open_cur FROM v$sesstat 
 
 -- Open cursors:
 SELECT a.value, s.username, s.sid, s.serial#, s.osuser, s.machine, s.program, s.status, s.state, s.sql_id, s.logon_time FROM v$sesstat a, v$statname b, v$session s WHERE a.statistic# = b.statistic#  AND s.sid=a.sid AND b.name = 'opened cursors current' AND username ='ESTARS' order by 1 desc;
-
--- View a clob blob:
-select dbms_lob.substr(t.SQL_TEXT, 4000, 1) ...
 
 SELECT p.value as max_open_cur FROM v$parameter p WHERE p.name= 'open_cursors' group by p.value; 
 
