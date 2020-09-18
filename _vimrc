@@ -1263,7 +1263,7 @@ fu! BkupFile(vtpth)  " {{{2
   endif
 
   exec("silent write! " . a:vtpth . "/" . s:all)
-  echo a:vtpth . "/" . s:all
+  " echo a:vtpth . "/" . s:all
 endfu  " }}}
 
 
@@ -1337,7 +1337,11 @@ fu! WriteToFile(vtpth, fnm, append, ...) range  " {{{2
     " ;a map
     exec(lfirst . ',' . llast . " write! >> " . a:vtpth . '/' . a:fnm)
   else
-    " ;w map
+    " My ;w map
+    "
+    " TODO avoid this:  E768: Swap file exists: /home/boheck/tmp/.vimxfer.swp (:silent! overrides)
+    " without getting this:  E481: No range allowed: 3,7 silent write! /cygdrive/c/temp/.vimxfer
+    "execute(lfirst . ',' . llast . " silent write! " . a:vtpth . '/' . a:fnm)
     execute(lfirst . ',' . llast . " write! " . a:vtpth . '/' . a:fnm)
   endif
 

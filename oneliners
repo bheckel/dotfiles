@@ -6151,6 +6151,9 @@ SELECT listagg(column_name, ',') within group (order by column_name) csv_list_of
 -- Handle comma separated list string overflow error gracefully with elipses ellipses after 327671 bytes:
 SELECT LISTAGG(ename, ',' ON OVERFLOW TRUNCATE '...' WITHOUT COUNT) WITHIN GROUP (ORDER BY ename) AS csv_list_truncated_dots FROM emp CROSS JOIN (SELECT level FROM dual CONNECT BY level <= 1000) WHERE deptno = 30;
 
+LISTAGG(ao.associated_opp_id, '/' ON OVERFLOW TRUNCATE '...' WITHOUT COUNT) WITHIN GROUP (ORDER BY ao.associated_opp_id) OVER (partition by op.opportunity_id) as linked_consulting_oppts,
+COUNT(ao.opportunity_id) over(partition by op.opportunity_id) as num_linked_consulting_oppts
+
 -- RANK as an aggregate function:
 select rank(1600) WITHIN GROUP (order by sal desc) from emp;  -- 7 i.e. 7th place, vs. analytic OVER(ORDER BY...) gives whole table with ranks
 select dense_rank(1600) WITHIN GROUP (order by sal desc) from emp;  -- 6 i.e. 6th place
@@ -6980,6 +6983,16 @@ CREATE OR REPLACE PUBLIC SYNONYM RPT_CYCLE_MS_OVERVIEW FOR ESTARS.RPT_CYCLE_MS_O
 
 -- Use pseudocolumn for hierarchical query that tells you if the node is at the lowest level without children (is a leaf):
 select lpad('* ', (LEVEL-1)*2, '* ') || ename as programmer, CONNECT_BY_ISLEAF as isleaf from emp START WITH mgr is null CONNECT BY mgr = prior empno order SIBLINGS by ename;
+
+-- Want only last year and this year:
+AND EXTRACT(YEAR FROM o.close_date) in( EXTRACT(YEAR FROM SYSDATE), EXTRACT(YEAR FROM SYSDATE) + 1 )
+
+-- Comparison using column lists and expression lists:
+where NOT (gender = 'F' and stage = 'A') and NOT (gender = 'M' and stage = 'B')  -- can get unwieldy
+where (gender, stage) != ( ('F', 'A') ) and (gender, stage) != ( ('M', 'B') )  -- innermost parentheses as kind of "record" and outermost parentheses as kind of "array"
+where (gender, stage) NOT IN ( ('F', 'A'), ('M', 'B') )
+where (gender, stage) != ALL ( ('F', 'A'), ('M', 'B') )
+where NOT (gender, stage) = ANY ( ('F', 'A'), ('M', 'B') )
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
