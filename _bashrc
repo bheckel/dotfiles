@@ -711,11 +711,12 @@ case "$OSTYPE" in
       if [ $HOSTNAME = 'localhost' -a $HOSTTYPE = 'aarch64' ]; then
         export TERM=screen-256color
 
+        alias cdd="cd $HOME/downloads"
         alias nb='newsboat -q -r'
         alias pa='termux-media-player pause'
         alias pl='termux-media-player play'
         # Screenscrape
-        alias sgol='echo && w3m -dump https://finance.yahoo.com/quote/SGOL%3Fp=SGOL/ |grep --after-context=4 watchlist | tail -n3'
+        alias sgol='echo && w3m -dump https://finance.yahoo.com/quote/SGOL%3Fp=SGOL/ | grep --after-context=4 watchlist | tail -n3 | termux-toast'
         alias tupd='pkg update && pkg upgrade'
 
         function catput() {
