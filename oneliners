@@ -4458,6 +4458,9 @@ cygpath -w $PWD  # or cygpath -w `pwd`
 # Chain two search criteria i.e. first find x then find y in the x files - a double bgrep:
 vim `find . -type f -print0 | xargs -0 grep -i 'ACCOUNT_TEAM' | awk -F: '{print $1}' | sort | uniq | xargs grep -i 'approved' | awk -F: '{print $1}' | sort | uniq`
 
+# if then default parameter:
+gco() { \ if [ -z "$1" ];then \ git checkout develop; \ else \ git checkout feature/ORION-${1}; \ fi \ }
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -5821,6 +5824,8 @@ ALTER TABLE contact_opp   ADD CONSTRAINT opp_contact_opp_fk FOREIGN KEY (opp_id)
 
 -- Oracle Primary key (P) foReign key (R):
 SELECT column_name FROM user_cons_columns ucc, user_constraints uc WHERE uc.table_name = 'ACCOUNT_BAS' AND uc.CONSTRAINT_TYPE = 'P' AND ucc.CONSTRAINT_NAME = uc.CONSTRAINT_NAME;
+-- Have constraint name want column affected by it
+SELECT column_name FROM user_cons_columns ucc, user_constraints uc WHERE uc.CONSTRAINT_NAME = 'ACCT_TM_ACC_TM_ASSIGN_FK' AND ucc.CONSTRAINT_NAME = uc.CONSTRAINT_NAME;
 
 -- What foreign keys are on this table:
 select * from all_constraints where table_name ='SP_PROCESSING' and CONSTRAINT_TYPE='R';

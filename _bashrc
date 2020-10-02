@@ -98,6 +98,7 @@ alias be="vi $HOME/.bashrc"
 alias bgrep="$HOME/code/scripting/bgrep"
 alias by=exit  # keepin' up the FTP tradition
 alias cd..='cd ..; ls'
+alias cdc="cd $HOME/code"
 alias cdd="cd $HOME/code/database"
 alias cdot="cd $HOME/dotfiles"
 alias cdh="cd $HOME/code/html"
