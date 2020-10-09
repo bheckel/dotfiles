@@ -5451,8 +5451,7 @@ INSERT INTO mynewtbl SELECT * FROM myoldtbl WHERE rownum<11; commit;
 -- Copy first few rows of Oracle table into a new table:
 CREATE bob AS select patientid FROM public.patientstarpdc;
 -- Copy first few rows of Oracle table into an existing table using a query correlated (see also CTAS for XML list):
-INSERT INTO asp_processing (ACCOUNT_ID, OLD_ACCOUNT_TEAM_ASSIGNMENT_ID, ASP_PROCESSING_REQUEST_ID) 
-                     SELECT ACCOUNT_ID, OLD_ACCOUNT_TEAM_ASSIGNMENT_ID, ASP_PROCESSING_REQUEST_ID FROM tmp_audit_sp WHERE rownum<10000;
+INSERT INTO asp_processing (ACCOUNT_ID, OLD_ID, ASP_PROCESSING_REQUEST_ID) SELECT ACCOUNT_ID, OLD_ID, ASP_PROCESSING_REQUEST_ID FROM tmp_audit_sp WHERE rownum<9;
 
 -- Correlated update query:
 UPDATE contact_note SET original_contact_ID = contact_id WHERE contact_id IN (SELECT contact_id FROM rion32806) AND original_contact_ID IS NULL;
@@ -6470,7 +6469,7 @@ WITH v AS (select trunc(sysdate)+548/1440+rownum/1440 d1 from dual connect by le
 -- View determine Oracle grants privileges:
 SELECT * FROM  DBA_SYS_PRIVS WHERE grantee='SETARS' and privilege like '%OBJ%';
 SELECT * FROM  DBA_role_PRIVS WHERE grantee='SETARS';
--- View determine Oracle grants privileges for a specific user schema:
+-- View determine Oracle grants privileges for a specific user schema (d.table_name can be a view):
 SELECT * FROM DBA_TAB_PRIVS d WHERE d.table_name = 'RPT_PTG_OPPORTUNITIES' and d.grantee='ES_PSUX';
 
 -- Build Oracle GRANT statements dynamically:
@@ -6992,6 +6991,9 @@ where (gender, stage) != ( ('F', 'A') ) and (gender, stage) != ( ('M', 'B') )  -
 where (gender, stage) NOT IN ( ('F', 'A'), ('M', 'B') )
 where (gender, stage) != ALL ( ('F', 'A'), ('M', 'B') )
 where NOT (gender, stage) = ANY ( ('F', 'A'), ('M', 'B') )
+
+-- SQL USING join syntax if join names are same no prefixes needed:
+select employee_id, first_name, last_name, territory_lov_id, TERRITORY_DESC from employee_base e left join rpt_v t using(territory_lov_id) where employee_id in(9);
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
