@@ -5368,19 +5368,20 @@ SELECT * FROM v$version; -- Oracle Database 11g Enterprise Edition Release 11.2.
 --Oracle database hostname instance version, rack, status information:
 select * from v$instance;
 
--- Oracle which database are we on?:
-SELECT name FROM V$DATABASE;
-IF (SYS_CONTEXT('USERENV', 'DB_NAME') in ('SER', 'SETS')) THEN RETURN; END IF;
+-- Oracle which database HOST am i are we on e.g durax2342:
 SELECT SYS_CONTEXT('USERENV', 'SERVER_HOST') FROM DUAL;
-select  SYS_CONTEXT('USERENV', 'DB_NAME') from dual;
+IF (SYS_CONTEXT('USERENV', 'DB_NAME') in ('SER', 'SETS')) THEN RETURN; END IF;
+
+-- Oracle which database am i are we on e.g. SEP:
+select SYS_CONTEXT('USERENV', 'DB_NAME') from dual;  --same as SELECT name FROM V$DATABASE;
 l_db_name VARCHAR2(20) := SYS_CONTEXT('USERENV', 'DB_NAME');  if (l_db_name IN ('SEPS')) THEN...
 
--- What is my current schema name whoami schema user:
-select sys_context('userenv', 'current_schema') from dual;
+-- Oracle which schema am i are we on current schema name whoami user e.g. SETARS:
+select sys_context('USERENV', 'CURRENT_SCHEMA') from dual;
 declare x varchar2(99); begin x := 'my schema is ' || USER; dbms_output.put_line(x); end;
 
--- What is my current database machine host name running on whereami:
-select SYS_CONTEXT('userenv','host') from dual;
+-- Oracle which client PC am i are we on client hostname running client whereami e.g. lg01992:
+select SYS_CONTEXT('USERENV','HOST') from dual;
 
 -- Use my id if i exist but if i do not exist, use superowner's:
 ..., actual_updatedby = nvl(sys_context('mystars_context', 'employee_id'), 0)
@@ -5726,19 +5727,6 @@ SQL> set define off;
 SQL> @C:\Users\bheck\OneDri~1\workspace\data\ource\SQL\3.50rionScripts\RION-33855_ddl_change.sql
 -- sqlplus BOOLEAN parameters are translated from/to integers 0/1/null <--> false/true/null:
 in_debug boolean := sys.diutil.int_to_bool(:in_debug);
-
--- Increase sqlplus buffer to maximum unlimited logging:
-dbms_output.enable(NULL);
-dbms_output.disable;
-
--- Oracle print with carriage return linefeed:
-set serveroutput on size unl; BEGIN DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('Hello World' || chr(13) || chr(10)); END; -- then type /
-crlf CONSTANT VARCHAR2(2) := CHR(13) || CHR(10);
-
--- userid/password@hostname
-$ sqlplus pks/ev123dba@sdev388
-$ sqlplus pks/ev123dba@sdev388 @c:/cygwin//home/rheckel/code/misccode/_sqlplusrc.sql
-$ sqlplus pks/ev123dba@sdev388 @t.sql --need an exit; in t.sql to run standalone
 
 -- Oracle deep copy clone table:
 select dbms_metadata.get_ddl('TABLE', 'ACTIVITY_SEARCH') from dual;
@@ -6144,16 +6132,16 @@ select * from ( select empno, ename, job, hiredate, sal, comm, dense_rank() OVER
 FETCH FIRST 3 ROWS WITH TIES
 
 -- Build concatenate a random comma separated CSV list of ids:
-SELECT listagg(account_search_id,',') WITHIN GROUP (ORDER BY account_search_id) FROM account_search SAMPLE(0.1) WHERE ROWNUM<99
+SELECT listagg(account_search_id,', ') WITHIN GROUP (ORDER BY account_search_id) FROM account_search SAMPLE(0.1) WHERE ROWNUM<99;
 
 -- Determine the min and prove it with a list of all radiuses for that class, using listagg as an Analytic Function:
 select class, planet, min(radius), listagg(min(radius),',') within group ( order by planet ) over ( partition by class ) class_radii from named_moons group by class, planet order by 1,2
 
 -- Display list all columns in a table CSV list output (cannot use DISTINCT):
-SELECT listagg(column_name, ',') within group (order by column_name) csv_list_of_the_columns FROM all_tab_columns WHERE lower(table_name) = 'email_messages' GROUP BY table_name;
+SELECT listagg(column_name, ', ') within group (order by column_name) csv_list_of_the_columns FROM all_tab_columns WHERE lower(table_name) = 'email_messages' GROUP BY table_name;
 
 -- Handle comma separated list string overflow error gracefully with elipses ellipses after 327671 bytes:
-SELECT LISTAGG(ename, ',' ON OVERFLOW TRUNCATE '...' WITHOUT COUNT) WITHIN GROUP (ORDER BY ename) AS csv_list_truncated_dots FROM emp CROSS JOIN (SELECT level FROM dual CONNECT BY level <= 1000) WHERE deptno = 30;
+SELECT LISTAGG(ename, ', ' ON OVERFLOW TRUNCATE '...' WITHOUT COUNT) WITHIN GROUP (ORDER BY ename) AS csv_list_truncated_dots FROM emp CROSS JOIN (SELECT level FROM dual CONNECT BY level <= 1000) WHERE deptno = 30;
 
 LISTAGG(ao.associated_opp_id, '/' ON OVERFLOW TRUNCATE '...' WITHOUT COUNT) WITHIN GROUP (ORDER BY ao.associated_opp_id) OVER (partition by op.opportunity_id) as linked_consulting_oppts,
 COUNT(ao.opportunity_id) over(partition by op.opportunity_id) as num_linked_consulting_oppts
@@ -6457,7 +6445,7 @@ create table dummy_table as select rownum pid, 'product '||rownum descr from dua
 create table dummy_table(id PRIMARY KEY, tag) as select rownum id, to_char(rownum) tag from dual CONNECT BY level <=10;
 -- Sample CTAS database table load 5 years of data from 2018-01-02 to 2022-12-31:
 create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dual connect by level <= 365*5;
--- Sample CTAS table using a csv list that would overflow an IN() list max of 1K 1000 items (18c+):
+-- Sample CTAS table using a csv list that would normally overflow an IN() list max of 1K 1000 items (18c+):
 create table dummy_table as SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE('123,456', ',', '","') || '"'));
 
 -- Populate an existing sample dummy Oracle table with 100K random strings of VARCHAR(30):
@@ -6867,8 +6855,22 @@ create or replace view rion_42216 as SELECT o.*, row_number() over (order by con
 -- Break table into chunks for processing smaller units (ROWNUM won't work):
 create or replace view rion_42216 as SELECT o.contact_id, o.dategone FROM (SELECT o.*, row_number() over (order by contact_id) as rnum FROM rion_42216_base o ) o where rnum between 20001 and 40000;
 
+-- Oracle print with carriage return linefeed:
+set serveroutput on size unl; BEGIN DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('Hello World' || chr(13) || chr(10)); END; -- then type /
+crlf CONSTANT VARCHAR2(2) := CHR(13) || CHR(10);
+
+-- Increase sqlplus buffer to maximum unlimited logging:
+dbms_output.enable(NULL);
+dbms_output.disable;
+
+-- sqlplus execute script:
+$ sqlplus userid/password@hostname @c:/cygwin//home/rheckel/code/misccode/_sqlplusrc.sql -- need an exit; to run standalone
+
 -- whoami sqlplus:
 show user
+
+-- sqlplus show elapsed query time:
+set time on; set timing on;
 
 -- Loop poll monitory a query:
 $ while true; do sqlplus -S estars/mypw@mydb @t.sql; sleep 20; done
@@ -7219,7 +7221,7 @@ doskey vi=vim $1
 
 // inline CSS inline
 <div style="color:orange; font-size:150%; font-weight:bold; padding:10px 1px 1px 50px; border:0px dashed">Loading Data Explorer...</div>
-                    top  right bot left
+//                  top  right bot left
 <div style="padding:40px 500px 1px 80px;"><image src='../PublishingImages/datapost128.png'/></div>
 <div style="color:blue; font-family:monospace; font-style:italic; border:2px solid black; background-color:red; border-style:solid; padding:0px 1px 0px 1px;">foo</div>
 <style="cursor:pointer; color:blue; font-family:monospace; font-style:italic; border:2px solid black; background-color:red; border-style:solid; padding:0px 1px 0px 1px;position:absolute">
