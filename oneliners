@@ -3444,9 +3444,6 @@ for f in *.sas; do echo $f; cat $f | awk '{ if (x<length()) x=length() } END{ pr
 cd $z/datapost && find . -name '*.csv' -a -not -name 'TR*' |xargs tar cfz ~/tmp/datapost.tgz
 cd $x/datapostdemo && tar xvfz ~/tmp/datapost.tgz
 
-# Get the value of the last parameter passed into a korn shell script:
-eval last=\${$#}
-
 # Find the Windows PIDS, not just the Cygwin ones (good for using  $ winkill 123 ):
 ps -W|grep -i rtv
 
@@ -3487,7 +3484,6 @@ sas &;  wait %1; echo "SAS process terminated"
 
 # Throwaway skip delete remove first 3 lines of a file:
 tail -n +4 foo.txt
-# or 
 cat foo.txt | awk "{if(NR>3)print}"
 
 # Test procmail regex:
@@ -3911,6 +3907,18 @@ if [ $# = 0 ]; then ... fi
 # Less than 1 argument default parameter passed to shell script:
 [ $# -lt 1 ] && echo "Usage: $0 arg1 arg2" && exit 1
 
+# Default an empty missing bash shelldefault environment variable:
+test "x$no_of_days" = "x" && no_of_days=10
+# Default an empty missing bash shelldefault incoming parameter environment variable:
+daysback=${1}
+test "x${1}" = "x" && daysback=1
+
+# Check for any default pararmeters arguments passed no parameter:
+[ -z "$1" ] && echo "No argument supplied" && exit 1
+
+# Don't complain if file does not exist:
+[ -e $1.txt ] && rm -i $1.txt
+
 # Length of string is 1 character:
 if [ ${#month} -eq 1 ];then echo 'ok'; fi
 
@@ -4267,18 +4275,6 @@ git show-ref --heads |awk 'print{$2}'
 
 # Open most recent file:
 vim $( ls /tmp/*.__* | sort -r | head -n 1 )
-
-# Default an empty missing bash shelldefault environment variable:
-test "x$no_of_days" = "x" && no_of_days=10
-# Default an empty missing bash shelldefault incoming parameter environment variable:
-daysback=${1}
-test "x${1}" = "x" && daysback=1
-
-# Check for any default pararmeters arguments passed no parameter:
-[ -z "$1" ] && echo "No argument supplied" && exit 1
-
-# Don't complain if file does not exist:
-[ -e $1.txt ] && rm -i $1.txt
 
 # Check for stale (week old+) image files:
 find /cygdrive/z/DataPost/data/SGK/Zebulon/ -name '*.png' -mtime +7 |xargs ls -gGh
@@ -5344,12 +5340,11 @@ SQL> connect scott/tiger;
 
 $ sqlplus / as sysdba;
 
--- Outer joins preserve the rows that don't match and pad remaining columns with NULLs. OUTER keyword is optional.
--- (+) replaces the comma between tablenames in old style Oracle (+) outer join operator joins (operator goes on the rightside table):
-select * from leftside LEFT OUTER JOIN rightside ...
-
+-- LEFT|RIGHT [OUTER] joins preserve the rows that don't match and pad remaining columns with NULLs. OUTER keyword is optional.
+-- (+) replaces the comma between tablenames in old non-ANSI style Oracle (+) outer join operator joins (for LEFT JOIN operator goes on the rightside table):
 -- Only on one table (A) not in the other table (B), pad B with nulls:
 select a.numb, b.numb from tmp1 a LEFT JOIN tmp2 b on a.numb=b.numb where b.numb IS NULL
+select a.numb, b.numb from tmp1 a, tmp2 b where a.numb=b.numb(+) and b.numb IS NULL
 
 -- Rows only on one table not in the other table:
 (select * from z_REF_CORPORATE_INITIATIVE minus select * from REF_CORPORATE_INITIATIVE) -- all rows that are in T1 but not in T2
@@ -5400,9 +5395,10 @@ SELECT INSTR(NULL, 'ORA') FROM dual  -- NULL
 -- Overflows using PLS_INTEGER ok with INTEGER:
 DECLARE p1 PLS_INTEGER := 2147483647; p2 INTEGER := 1; n NUMBER; BEGIN n := p1 + p2; END; /
 
--- Oracle view constraints if your DROP TABLE fails:
+-- Oracle view check constraints why if DROP TABLE etc fails:
 select * from user_constraints where table_name = 'COUNTRIES';
-select constraint_name, constraint_type from user_constraints@sep WHERE constraint_name LIKE 'NN%';
+select * from user_constraints WHERE constraint_name = 'NN_ACCOUNT_NAME_CB';
+select constraint_name, constraint_type from user_constraints WHERE constraint_name LIKE 'NN%';
 
 select count(1) from V$session@sep where status='ACTIVE';
 -- Find active sessions active for more than 10 seconds:
@@ -5480,7 +5476,7 @@ select greatest(nvl(an.updated, ac.updated), nvl(an_parent.updated, ac.updated),
 -- When any part of an expression evaluates to NULL, the entire expression will evaluate to NULL unless wrapped in a function like NVL:
 select NVL(NULL, 'it is NULL') from dual;  -- returns 'it is NULL'
 select NVL(TO_CHAR(3), 'NULL') from dual;  -- returns 3
-DBMS_OUTPUT.PUT(NVL(TO_CHAR(name.age.years), 'NULL') || ' yrs ');
+DBMS_OUTPUT.PUT(NVL(TO_CHAR(name.age.years), 'NULL') || ' yrs ');  -- just put() with no newline
 NVL2(x, return_value1_bc_x_isNOTnull, return_value2_bc_x_ISnull);
 
 -- Oracle - prevent nulls from propagating:
@@ -5833,7 +5829,7 @@ CREATE OR REPLACE PROCEDURE SLEEP(P_MILLI_SECONDS IN NUMBER) AS LANGUAGE JAVA NA
 BEGIN sleep(60 * 1000); END;
 -- Oracle sleep 9 seconds if no Java:
 begin for i in 1 .. 3 loop DBMS_OUTPUT.put_line('x'); sys.dbms_lock.sleep(3); end loop; end;
-dbms_session.sleep(60);  -- 1 minute
+SYS.DBMS_SESSION.sleep(60);  -- 18c+ 1 minute
 
 -- Oracle date time yesterday one day ago:
 select (SYSDATE - INTERVAL '1' hour) from dual  -- one hour ago
@@ -6075,8 +6071,6 @@ SELECT * INTO xBpmsOutliersNC60 FROM BpmsOutliersNC60
 -- Delete table (even if records exist in it):
 DROP TABLE bobhlm;
 
--- WARNING: LEFT INNER JOIN is a syntax error
-
 -- Oracle's MINUS is EXCEPT in ANSI SQL:
 INSERT INTO links_material (matl_desc) VALUES ('Waiting for update from SAP'); commit;
 INSERT INTO links_material (matl_desc, matl_mfg_dt, matl_exp_dt, matl_nbr, batch_nbr, matl_typ) VALUES ('Waiting for update from SAP', '01-JAN-1960', '01-JAN-1960', '0737003', '6ZP8404', 'MANL'); commit;
@@ -6095,10 +6089,19 @@ $ tnsping usdev10
 -- Oracle are you pingable?
 $ while true; do tnsping sprd25|grep OK|awk '{print $2}'|sed 's/^.//'; sleep 120; done;
 
+-- Oracle first day of current month:
+select trunc(sysdate,'MM') from dual;
+
+-- First and last day of last year date:
+SELECT ADD_MONTHS(TRUNC(SYSDATE,'YEAR'), -12) jan_prev_yr, ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), -1) +30 dec_prev_yr FROM dual
+
 -- Postgres first day of last month:
 select date_trunc('MONTH', now())-'1 month'::interval;
 -- Postgres earlier than first of this month:
 select distinct clientid, dashstart from dshbrd.dashboardclients where deactivated != TRUE and dashstart < date_trunc('MONTH', now());
+
+-- Postgres first day of year beginning of year
+SELECT date_trunc('year', now())::date;
 
  /* Group by month counts by month: */
 select count(distinct taebpatientid), month(filldate) from statin_final group by 2; -- Postgres
@@ -6227,9 +6230,6 @@ with v as ( select date '2000-01-01' d, 10 amt from dual union all select date '
 -- Postgres age today and at end of year e.g. 51 years 8 mons 4 days | 52:
 select age('1965-10-30'::date), date_part('year', age('2017-12-31', '1965-10-30'))
 
--- Postgres first day of year beginning of year
-SELECT date_trunc('year', now())::date;
-
 -- Run Postgres script:
 bheckel@db-dev-01.twa.taeb.com:TAEBMART \i /sasdata/Personnel/bob/DashboardETLenroll/Dev_to_db-06_20171111_final.sql
 
@@ -6302,6 +6302,8 @@ CURSOR c1 IS SELECT account_id FROM account_base WHERE account_id IN ( SELECT in
 
 -- Compare Oracle table to csv list of numbers:
 SELECT aid, ab.account_id FROM (SELECT to_number(column_value) aid FROM xmltable(('"' || REPLACE('123,456', ',', '","') || '"'))) csv LEFT JOIN account_base ab ON csv.aid=ab.account_id
+
+CURSOR contacts IS SELECT trim(COLUMN_VALUE) contact_id FROM XMLTABLE(upper(TRIM('"' || replace(in_contact_id_list, ',', '","') || '"'))); FOR rec IN contacts LOOP...
 
 select * from dba_context;
 SELECT cast(sys_context('mycontext', 'actual_employee_id') AS NUMBER) FROM dual
@@ -6616,9 +6618,6 @@ with data as (select '00000111112222233333' s from dual) select substr(s, (level
 -- Split comma-separated list of number to rows:
 select split_out_nums from customer_favorites OUTER APPLY json_table( '[' || cf.favorite_list || ']', '$[*]' columns ( split_out_nums number path '$'));
 
--- First and last day of last year date:
-SELECT ADD_MONTHS(TRUNC(SYSDATE,'YEAR'), -12) jan_prev_yr, ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), -1) +30 dec_prev_yr FROM dual
-
 -- Enquote a date with single quotes:
 quoteddatestring := chr(39) || to_char(SYSDATE - 1, 'DDMONYY') || chr(39);
 
@@ -6705,7 +6704,7 @@ select segment_name table_name, sum(bytes)/(1024*1024) table_size_meg, sum(bytes
 ALTER SESSION SET plsql_warnings = 'ERROR:6002' -- upgrade the 'unreachable code' warning
 ALTER SESSION SET plsql_warnings = 'ERROR:ALL'
 
--- Asume that in 1999 the database displays 01-JAN-11. If Oracle date format uses DD-MON-RR, then 11 specifies 2011, if the format uses YY, then 11 specifies 1911
+-- Assume that in 1999 the database displays 01-JAN-11. If Oracle date format uses DD-MON-RR, then 11 specifies 2011, but if YY, then 11 specifies 1911
 
 SELECT to_char(12345.67, '$99,999.99') FROM dual  -- $12,345.67
 
@@ -6732,10 +6731,6 @@ select avg(mycol) from t -- does not count NULLs
 
 ORDER BY mycol ASC NULLS LAST  -- the Oracle default e.g. 1,2,3,NULL
 ORDER BY mycol DESC NULLS FIRST  -- the Oracle descending default
-
--- Make normally obscured BC dates visible:
-SELECT created, updated, to_char(updated,'SYYYY') yr, to_char(updated,'YYYY-MM-DD HH24:MI') FROM CONTAC_HIST where updated < to_date('01JAN1970'); --show BC dates
-SELECT to_char(created,'SYYYY') FROM EVENTS where created < to_date('01JAN1970');
 
 CREATE INDEX TMP_IX ON CONTACT_EXTERNAl2 (created);
 CREATE INDEX TMP_IX ON CONTACT_EXTERNAl2 (created DESC);  -- avoid a sort if most queries have "ORDER BY created DESC"
@@ -6876,9 +6871,9 @@ set time on; set timing on;
 $ while true; do sqlplus -S estars/mypw@mydb @t.sql; sleep 20; done
 
 alias lims='sqlplus sasrepor/sasrepor@sprd25'
-alias db6='psql -h db-06.taeb.com TAEBMART'
+alias db6='psql -h db-06.aeb.com AEBMART'
 
--- Remove spaces from Oracle source code:
+-- Remove multiple spaces with one space Oracle:
 SELECT REGEXP_REPLACE(text, '\s+', ' ') FROM user_source;
 
 -- Have SID want to know what SQL is running:
@@ -6886,11 +6881,18 @@ select q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, 
 -- Don't have SID want to know what SQL a scheduled job is running:
 select distinct 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action,osuser from v$session s, v$sql q where s.sql_id=q.sql_id(+) and s.action='MY_PERIODIC_LIFECYCLE_JOB' and sql_exec_start is not null order by s.sql_exec_start; 
 
-alter session set NLS_DATE_FORMAT = 'YYYY-MM-DD';
-
-alter session set NLS_DATE_FORMAT = 'SYYYY-MM-DD'; -- -4712-01-01
+-- Unhide Oracle BC session date problems:
+ALTER SESSION set NLS_DATE_FORMAT = 'SYYYY-MM-DD'; -- -4712-01-01
 select date '-4712-01-01' lowest_ora_date_possible, date '9999-12-31' highest_future_ora_date_possible from dual;
 nvl(next(start_date), DATE '-4712-01-01') <= max(nvl(end_date, DATE '9999-12-31'))  -- Oracle date constants
+
+-- What is my current date format:
+SELECT value FROM v$nls_parameters WHERE parameter ='NLS_DATE_FORMAT';
+SELECT sys_context('USERENV', 'NLS_DATE_FORMAT') from dual; -- DD-MON-RR HH24:MI:SS
+
+-- View normally obscured bad BC dates make visible:
+SELECT created, updated, to_char(updated,'SYYYY') yr, to_char(updated,'YYYY-MM-DD HH24:MI') FROM CONTAC_HIST where updated < to_date('01JAN1970'); --show BC dates
+SELECT TO_CHAR(created,'SYYYY') FROM EVENTS where created < to_date('01JAN1970');
 
 GRANT CREATE PUBLIC SYNONYM TO unit_test_repos
 CREATE PUBLIC SYNONYM favorite_list_to_coll_type FOR  bob_pkg.favorite_list_to_coll_type
@@ -6952,10 +6954,6 @@ ALTER TABLE departments DISABLE CONSTRAINT dept_mgr_fk;
 ALTER TABLE departments ENABLE CONSTRAINT dept_mgr_fk;
 
 SELECT job_name, job_action, CASE WHEN (state = 'SCHEDULED' AND last_run_duration IS NOT NULL) THEN 'CLEAR' ELSE 'ALERT' END AS status, last_run_duration, cast(sysdate - last_start_date as INTERVAL DAY(9) TO SECOND(6)) AS time_since_last_run, last_start_date, next_run_date FROM USER_SCHEDULER_JOBS WHERE enabled = 'TRUE';
-
--- What is my current date format DD-MON-RR HH24:MI:SS:
-SELECT value FROM v$nls_parameters WHERE parameter ='NLS_DATE_FORMAT';
-SELECT sys_context('USERENV', 'NLS_DATE_FORMAT') from dual;
 
 DROP INDEX sp_processing_id_pk;  --fail
 ALTER TABLE SP_PROCESSING DROP CONSTRAINT sp_processing_id_pk;  -- success
@@ -7537,9 +7535,8 @@ git checkout -b mynewbranch  # faster
 git branch -m mynewbranchname
 git branch mynewbranch master  # copy branch from a specific branch, in this case master, to new branch
 
-# Show all remotes:
-git remote show origin;
-
+# git poke around list show all git remotes. Which branches are tracking which remote/upstream branches (prune is optional):
+git fetch -p && git remote show origin
 # git poke around
 git status; git log; git branch -a; git remote -v;
 # ls for git list which files are tracked under git source control not just staged:
@@ -7581,7 +7578,7 @@ git show eacbd91:./ods_0002e.sas
 # git view previous old version of file from the past history (in editor):
 git show master:cfg/DataPost_Configuration.html |vi -
 
-$ git config --global merge.tool vimdiff
+git config --global merge.tool vimdiff
 # git diff view your changes before committing. "Changes not staged for commit" (your pre-committed change), same as  $ git difftool HEAD:
 git difftool
 # git diff see what changes you will be pushing, d277a94 is the previous commit, not your recently committed one(s):
@@ -7597,7 +7594,7 @@ git difftool master SET_MATCH_CODE.prc
 # git diff compare old version of file from different commit - current (hash-less) filename must come 2nd!!:
 git difftool 1908af7:./PTG.pck PTG.pck
 
-# git force staging if it's excluded by .gitignore:
+# git force file to staging even if it's excluded by .gitignore:
 git add -f ignoreme.txt
 
 # github remove whitespace trash from github diff webpage: https://github.com/ion/data/compare/feature/RION-39172?w=1
@@ -7636,9 +7633,6 @@ git branch -d feature/RION-31587 && git push origin --delete feature/RION-31587 
 
 # github undo commit of a file >50M:
 git filter-branch --tree-filter 'rm -rf 02-White-Noise-60min.mp3' HEAD && git push && git pull
-
-# Which branches are tracking which remote/upstream branches (prune is optional):
-git fetch -p && git remote show origin
 
 # git view history of a file (--follow even if filename has changed, --all branches, -p all patches):
 gitk --follow --all -p SUP_HAS_ACTIVE_SITES.fnc
