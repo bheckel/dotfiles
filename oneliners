@@ -4784,8 +4784,6 @@ perldoc -q sort
 # Syntax check a directory:
 for f in *.pl; do perl -c $f; done
 
-cat /etc/*-release | grep VERSION | perl -pe 's/VERSION="//g'
-
 # Automatic command line Perl module installation:
 perl -MCPAN -e shell  # interactive mode
 perl -MCPAN -e 'install DBI'
