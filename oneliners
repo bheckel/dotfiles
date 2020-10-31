@@ -2041,9 +2041,6 @@ C:\Program Files\SASHome\SASFoundation\9.4\sas.exe
 
 %let uniqueidentifierPID=&SYSPROCESSID;
 
- /* Macro resolution */
-grep '^MPRINT' $z/datapost/code/datapost_trend.log >| t.grep
-
 proc sql; update sched set cost = CASE when dest eq 'YYZ' then cost-1 when dest eq 'FRA' then cost+1 else cost END; ; quit;
 
  /* proc report traffic lighting assuming proc format; value $bkres 'PASS'='Lime' 'FAIL'='Red'; run; */
@@ -4016,6 +4013,8 @@ $ systeminfo /U 'wmservice\uxx1903' /P pw /S rtpsawn32 | grep Time
 
 # Prepend 'vi' to beginning of line:
 $ locate --ignore-case --database=/var/lib/locatedb.code foo|sed 's/^/vi /'
+# Prepend and postpend prj:
+cd ~/onedrive && find . -type d -name "*${1}*" | sed 's#^\./# cd "c:/Users/bheck/OneDrive - SAS/#' | sed 's/$/" \&\& st /'
 
 if [ -d '\\rtpdscel01dm06\rsh8680$' ];then echo 'directory exists'; fi
 
@@ -5390,7 +5389,7 @@ SELECT INSTR('CORPORATE FLOOR', 'OR', 4, 2) FROM dual  -- 14  start looking from
 SELECT INSTR('CORPORATE FLOOR', 'XX') FROM dual  -- 0
 SELECT INSTR(NULL, 'ORA') FROM dual  -- NULL
 
--- Overflows using PLS_INTEGER ok with INTEGER:
+-- Overflows using PLS_INTEGER but ok with INTEGER:
 DECLARE p1 PLS_INTEGER := 2147483647; p2 INTEGER := 1; n NUMBER; BEGIN n := p1 + p2; END; /
 
 -- Oracle view check constraints why if DROP TABLE etc fails:
@@ -5398,11 +5397,14 @@ select * from user_constraints where table_name = 'COUNTRIES';
 select * from user_constraints WHERE constraint_name = 'NN_ACCOUNT_NAME_CB';
 select constraint_name, constraint_type from user_constraints WHERE constraint_name LIKE 'NN%';
 
-select count(1) from V$session@sep where status='ACTIVE';
+-- Find my active sessions:
+select s.PROGRAM, s.SQL_ID, s.SQL_EXEC_START, s.LOGON_TIME, q.sql_text from V$session s, v$sql q where s.sql_id=q.sql_id(+) and /*status='ACTIVE' and*/ osuser='bheck';
 -- Find active sessions active for more than 10 seconds:
 select s.sid||','||s.serial# sess, s.osuser, s.USERNAME, s.last_call_et, s.status, s.sql_address, s.program from v$session s where ( s.status = 'ACTIVE' and s.last_call_et > 10 );
 -- Find inactive sessions older than 20 minutes:
 select s.sid||','||s.serial# sess, s.osuser, s.USERNAME, s.last_call_et, s.status, s.sql_address, s.program from v$session s where ( s.status != 'ACTIVE' and s.last_call_et > 1200 );
+-- Find all recent sql executed:
+select s.SID, s.SERIAL#, USERNAME, s.STATUS, SCHEMANAME, OSUSER, s.MACHINE, PORT, PROGRAM, TYPE, s.SQL_ID, LOGON_TIME, CLIENT_IDENTIFIER, STATE, SQL_TEXT, SQL_FULLTEXT, RESULT_CACHE from v$session s, v$sql q where s.sql_id=q.sql_id(+) and SQL_EXEC_START > sysdate - interval '1' hour order by LAST_ACTIVE_TIME desc;
 
 -- Oracle find uncommitted transactions locks:
 SELECT s.OSUSER, s.sid ,s.serial# ,s.username ,s.machine ,s.status ,s.lockwait ,t.used_ublk ,t.used_urec ,t.start_time from v$transaction t inner join v$session s on t.addr = s.taddr;
@@ -5413,10 +5415,13 @@ SELECT s.osuser, O.OBJECT_NAME, S.SID, S.SERIAL#, P.SPID, S.PROGRAM, SQ.SQL_FULL
 rc PLS_INTEGER; rc := SQL%ROWCOUNT; dbms_output.new_line(); dbms_output.put_line('rows affected: ' || rc);
 
 -- Oracle collections:
-[CREATE OR REPLACE] TYPE numberTable IS TABLE OF NUMBER; TYPE dateTable IS TABLE OF DATE; TYPE varcharTable IS TABLE OF VARCHAR2(4000); TYPE CursorTable IS TABLE OF c1%ROWTYPE; TYPE varray_type IS VARRAY(4) OF VARCHAR2(4000); TYPE associativearrayTable IS TABLE OF INTEGER INDEX BY VARCHAR2(10); TYPE aa_t IS TABLE OF scott.emp.deptno%TYPE INDEX BY BINARY_INTEGER; TYPE aa_t IS TABLE OF scott.emp%ROWTYPE INDEX BY BINARY_INTEGER; TYPE aa_numbers_t IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
+CREATE OR REPLACE TYPE numberTable IS TABLE OF NUMBER; TYPE dateTable IS TABLE OF DATE; TYPE varcharTable IS TABLE OF VARCHAR2(4000); TYPE CursorTable IS TABLE OF c1%ROWTYPE; TYPE varray_type IS VARRAY(4) OF VARCHAR2(4000); TYPE associativearrayTable IS TABLE OF INTEGER INDEX BY VARCHAR2(10); TYPE aa_t IS TABLE OF scott.emp.deptno%TYPE INDEX BY BINARY_INTEGER; TYPE aa_t IS TABLE OF scott.emp%ROWTYPE INDEX BY BINARY_INTEGER; TYPE aa_numbers_t IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
 
 TYPE numberTable IS TABLE OF NUMBER; numtbl numberTable;
 IF numtbl IS NULL OR numtbl.COUNT = 0 THEN DBMS_OUTPUT.PUT_LINE('collection is empty'); END IF;
+
+-- Oracle collection declare and initialize a table:
+TYPE names_t IS TABLE OF VARCHAR2(100); my_family names_t := ('Vera','Chris','Eli');
 
 --Oracle select a literal underscore by overriding SQL/LIKEs idea of the _ character:
 WHERE UPPER(mat_desc) LIKE '%\_TH%' ESCAPE '\'
@@ -5569,6 +5574,7 @@ SELECT DATE '2019-03-05' - (365 * 2) FROM dual  -- 3/5/2017
 FUNCTION hasLinkages(in_accountId NUMBER, in_contextBeingUsed NUMBER DEFAULT 2) RETURN NUMBER;
 
 -- Oracle user sessions who is logged and potentially kill them:
+select s.sid||','||s.serial# sess, s.osuser, s.username, s.last_call_et, s.status, s.sql_address, s.program from v$session s where ( s.status = 'ACTIVE' );
 select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, USERNAME, COMMAND, STATUS, SCHEMANAME, OSUSER, MACHINE, PROGRAM, TYPE, SQL_ID, SQL_EXEC_START, MODULE, ACTION, LOGON_TIME, CLIENT_IDENTIFIER, STATE from v$session where username is not null order by status, logon_time;
 
 -- Oracle package count:
@@ -5584,6 +5590,8 @@ SELECT /*+ DRIVING_SITE(SITE) */ COUNT(*) FROM DB_OWNER.SITE_DATA@DNB_XXXX SITE 
 
 -- Oracle force index scan - not full table scan hint:
 SELECT /*+ INDEX (employees emp_department_ix)*/ employee_id, department_id FROM employees WHERE department_id > 50;
+-- Oracle force full table scan hint:
+SELECT /*+ FULL(ddl_event)*/ * FROM ddl_event;
 
 select /*+PARALLEL(4)*/ empno from emp;
 
@@ -5881,7 +5889,7 @@ DECLARE PRAGMA AUTONOMOUS_TRANSACTION; BEGIN INSERT INTO log ...; commit; END;
 SELECT trigger_name, trigger_type, triggering_event, table_name, status, trigger_body FROM USER_TRIGGERS WHERE table_name ='ACCOUNT' ORDER BY 3, 2, 1;
 
 -- Toggle trigger off/on:
-SET_TRIGGER_CONTEXT('ACCOUNT_ATTRIBUTE', 'true'); ...  SET_TRIGGER_CONTEXT('ACCOUNT_ATTRIBUTE', 'false');
+ALTER TRIGGER "SETARS"."DDL_LOGGING_TRIG" ENABLE;
 
 -- Oracle calculate business non-weekdays days:
 (TO_CHAR(b.sample_status_date,'J')-TO_CHAR(b.sample_received_date,'J'))+1 - ((((TRUNC(b.sample_status_date,'D'))-(TRUNC(b.sample_received_date,'D')))/7)*2) -
@@ -6380,11 +6388,11 @@ FUNCTION get_dept_info(dept_id NUMBER) RETURN dept_info_record DETERMINISTIC;
 -- If a session makes a change to a table on which a cache is reliant, but that session does not commit those changes, then the cache is disabled for the CURRENT SESSION ONLY. The cache is still valid for and used by all other sessions.
 FUNCTION get_dept_info(dept_id NUMBER) RETURN dept_info_record RESULT_CACHE; -- Function Result Cache
 
--- Expire Oracle user password:
+-- Expire password Oracle user password:
 ALTER USER LIMSARCH PASSWORD EXPIRE;
 -- Change Oracle user password:
-ALTER USER limsarc IDENTIFIED BY new2dayJuly;
-ALTER USER limsarc IDENTIFIED BY "new2dayJuly" REPLACE "oldpw";
+ALTER USER limsarc IDENTIFIED BY "newpw" REPLACE "oldpw";
+
 -- Change password Postgres password:
 ALTER USER heckel WITH PASSWORD 'myPass';
 
@@ -6804,7 +6812,8 @@ EXEC dbms_stats.gather_table_stats (ownname=>'HR',tabname => 'EMPLOYEES_COPY',CA
 
 ALTER TABLE employees_copy ADD CONSTRAINT unique_emps UNIQUE (employee_id);
 
-ALTER INDEX emp_id_idx REBUILD;
+select substr(object_name,1,30), object_type from user_objects where object_id = 67638; --CONTACT_FIRSTNAME_LIST_IX
+ALTER INDEX CONTACT_FIRSTNAME_LIST_IX REBUILD;
 ALTER INDEX CONTACT_FIRSTNAME_LIST_IX rebuild online tablespace SE_01;
 
 ALTER TABLE employees_copy DROP CONSTRAINT unique_emps;
@@ -7833,6 +7842,6 @@ O(log n) the same amount of work to access any value, like a B-tree index
 Remove all event listeners: $("*").off();
 Remove all right-click listeners: $("*").off("contextmenu");
 
-# Prevent Win10 blurry apps: Right click on gVim icon -> Properties -> Compatibility -> Change high DPI settings -> check box "Override high DPI scaling behavior" in the bottom of the dialog window and set "Scaling performed by:" to "System (Enhanced)"
+# Prevent Win10 blurry video resolution apps: Right click on gVim icon -> Properties -> Compatibility -> Change high DPI settings -> check box "Override high DPI scaling behavior" in the bottom of the dialog window and set "Scaling performed by:" to "System (Enhanced)"
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
