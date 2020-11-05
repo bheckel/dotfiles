@@ -114,7 +114,7 @@ alias g=$HOME/dotfiles/gone.sh
 # Can't use sed to eliminate leading spaces or it breaks coloring
 # alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
 alias gb='git branch'
-alias gitall="$HOME/code/misc/gitall"
+alias gital="$HOME/code/misc/gitall"
 # alias gitup='git add . && git commit -m"mod gitup" && git push'
 alias gpul='git pull'
 alias gpull='git pull'

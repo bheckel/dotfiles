@@ -4014,7 +4014,7 @@ $ systeminfo /U 'wmservice\uxx1903' /P pw /S rtpsawn32 | grep Time
 # Prepend 'vi' to beginning of line:
 $ locate --ignore-case --database=/var/lib/locatedb.code foo|sed 's/^/vi /'
 # Prepend and postpend prj:
-cd ~/onedrive && find . -type d -name "*${1}*" | sed 's#^\./# cd "c:/Users/bheck/OneDrive - SAS/#' | sed 's/$/" \&\& st /'
+cd ~/onedrive && find . -type d -iname "*${1}*" | sed 's#^\./# cd "c:/Users/bheck/OneDrive - SAS/#' | sed 's/$/" \&\& st /'
 
 if [ -d '\\rtpdscel01dm06\rsh8680$' ];then echo 'directory exists'; fi
 
@@ -6579,20 +6579,20 @@ group by prod_category, to_char(trunc(time_id,'Q'),'MON')
 SELECT to_char(TRUNC(DATE '2019-11-20','Q'), 'MON') FROM dual -- OCT
 
 -- Quarter in which date falls.  qtr is all '01-JAN-10', qtrnum is all '1':
-create table t1 as select date '2010-01-01'+rownum x, rownum y  from dual connect by level <= 35; select x, TRUNC(x,'Q') qtr, to_char(TRUNC(x,'Q'), 'Q') qtrnum from t1
+create table t1 as select date '2010-01-01'+rownum x, rownum y  from dual connect by level <= 35; select x, TRUNC(x,'Q') qtr, to_char(TRUNC(x,'Q'), 'Q') qtrnum from t1;
 
 -- Modified analytic outer join to get every hr, every room and who reserved it:
-select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2
+select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2;
 
 set autotrace traceonly explain -- then SELECT ename FROM emp;
 
-EXPLAIN PLAN FOR SELECT * FROM tbl WHERE actual_updated > (SYSTIMESTAMP - INTERVAL '42' minute); select * from table(dbms_xplan.display); ROLLBACK;
-
+-- Use previous sql:
+EXPLAIN PLAN FOR SELECT * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display(null, null, 'typical')); ROLLBACK;
+-- Find a previous sql in cache:
 select * /* my qry id */ from foo; select * from v$sql where sql_text = 'my qry id'; select * from table(dbms_xplan.display_cursor('THE ID YOU JUST FOUND');
-
-SELECT * FROM TABLE(DBMS_XPLAN.display_cursor('79f98dm2w914f', null/*, 'ADVANCED'*/));
-
+-- Autotrace:
 select /*+ gather_plan_statistics */ * from bricks b join colours c on b.colour=c.colour; select * from table(DBMS_XPLAN.display_cursor(null, format => 'ROWSTATS LAST'));
+SELECT /*+gather_plan_statistics*/ * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display_cursor(sql_id=>null, format=>'ALLSTATS LAST +cost +bytes +outline +PEEKED_BINDS'));
 
 select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_text like '%CUSTOMER%'
 -- Have sql_id want running query text:
@@ -6871,7 +6871,7 @@ $ sqlplus userid/password@hostname @c:/cygwin//home/rheckel/code/misccode/_sqlpl
 -- whoami sqlplus:
 show user
 
--- sqlplus show elapsed query time:
+-- sqlplus benchmark show elapsed query time:
 set time on; set timing on;
 
 -- Loop poll monitory a query:
