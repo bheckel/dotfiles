@@ -399,7 +399,7 @@ function gitup() {
 
 
 function fin() {
-  find . -iname "*${1}*"
+  find . -maxdepth 1 -iname "*${1}*"
 }
 
 # Generic Functions end
