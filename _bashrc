@@ -160,7 +160,7 @@ alias wget='wget -c'  # continue failures
 # Generic Functions  #{{{2
 #-----------------------------------
 
-# 'Windows-ish Start' a file or file manager in GUI
+# A Windows-ish Start to open a file or file manager
 case "$OSTYPE" in
          cygwin) st() { explorer    "${1:-.}"; } ;;
       linux-gnu) st() { pcfileman   "${1:-.}"; } ;;
@@ -190,8 +190,7 @@ ses() {
 }
 
 
-# Recycler to ReMoVe files we're not yet man enough to delete
-# TODO allow run from other than pwd
+# Overly complex Recycler to ReMoVe files we're not yet man enough to delete
 # TODO don't write a partial MARKER on failure
 rmv() {
   local VERBOSE
@@ -253,33 +252,6 @@ rmv() {
 }
 
 
-# Adapted from http://hermitte.free.fr/cygwin/#Win32
-# Shortcuts + better presentation of the directories pushed.
-# Display the directories pushed
-d() {
-  \dirs | awk  '{gsub(/ ~/, "!~"); gsub(/ \//, "!/") ; n=split($0,arr,"!") ; 
-  for (i=1;i<=n;++i) print (i-1)" -> "arr[i] }'
-}
-# Note: We cannot directly write «dirs() { \dirs | ... }» as it would
-# end in an infinite loop. Hence the declaration of «d(){}» and dirs as
-# an alias for d.
-alias dirs=d
-
-# Push a directory
-p() {
-  # The quotes in «"$*» permit to write «p $vim»
-  \pushd "$*" > /dev/null
-	# List the directories pushed
-	d
-}
-# Move to a pushed directory
-alias p1="p +1"
-alias p2="p +2"
-alias p3="p +3"
-alias p4="p +4"
-alias p5="p +5"
-
-
 # For PROMPT_COMMAND.  22-Mar-11 deprecated, use \j where possible
 stoppedjobs() { 
   jobs -s | wc -l | sed -e "s/ //g" 
@@ -296,11 +268,12 @@ sbx() {
 }
 
 
+# Last twenty (or so)
 lt() {
   if test "x$1" = "x"; then
-    \ls -lt | head -n50
+    \ls -lt | head -n30
   else
-    \ls -lt "$1" | head -n50
+    \ls -lt "$1" | head -n30
   fi
 }
 
@@ -309,6 +282,8 @@ parse_git_dirty() {
   GS_PS1=$(git status 2> /dev/null | tail -n1)
   [[ ${GS_PS1:0:17} != 'nothing to commit' ]] && echo '*'
 }
+
+
 parse_git_branch() {
   # Assumes  export GIT_DISCOVERY_ACROSS_FILESYSTEM=1  to avoid slowness on network drives
   local _tmp=$( git status 2>/dev/null | head -n1 )
@@ -324,8 +299,7 @@ parse_git_branch() {
 function urlencode() { echo -n $@ | perl -pe's/([^-_.~A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg'; }
 function goo() { w3m http://www.google.com/search?q="`urlencode $@`" ;}
 function google() { w3m http://www.google.com/search?q="`urlencode $@`" ;}
-#$ Firewall jumper vi ~/bin/termux-url-opener
-#termux-open http://www.google.com/search?q="cache:$@" ;
+# Paywall jumper vi ~/bin/termux-url-opener  termux-open http://www.google.com/search?q="cache:$@" ;
 function gooc() { w3m-open http://www.google.com/search?q="cache:`urlencode $@`" ;}
 
 
@@ -421,6 +395,11 @@ function gitup() {
   MSG=${1:-mod}
   #echo "git add . && git commit -m ${MSG} && git push"
   git add . && git commit -m"${MSG}" && git push
+}
+
+
+function fin() {
+  find . -iname "*${1}*"
 }
 
 # Generic Functions end

@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Sun 13-Sep-2020 (Bob Heckel)
+" Modified: Tue 10-Nov-2020 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -2968,6 +2968,7 @@ endfun  " /*}}}*/
 " Maintainer:   Tim Pope <http://tpo.pe/>
 " Version:      1.3
 " GetLatestVimScripts: 3695 1 :AutoInstall: commentary.vim
+" Modified: 10-Nov-2020 (Bob Heckel)
 
 if exists("g:loaded_commentary") || &cp || v:version < 700
   finish
@@ -2976,7 +2977,7 @@ let g:loaded_commentary = 1
 
 function! s:surroundings() abort
   return split(get(b:, 'commentary_format', substitute(substitute(
-        \ &commentstring, '\S\zs%s',' %s','') ,'%s\ze\S', '%s ', '')), '%s', 1)
+        \ &commentstring, '\S\zs%s','%s','') ,'%s\ze\S', '%s', '')), '%s', 1)
 endfunction
 
 function! s:strip_white_space(l,r,line) abort
@@ -3066,9 +3067,12 @@ if !hasmapto('<Plug>Commentary') || maparg('gc','n') ==# ''
   nmap gcu <Plug>Commentary<Plug>Commentary
 endif
 
-" Add as needed
-autocmd FileType sh,perl,crontab,conf setlocal commentstring=#\ %s
-autocmd FileType vim setlocal commentstring=\"\ %s
+" Add FileTypes as needed:
+" # Space
+" autocmd FileType sh,perl,crontab,conf setlocal commentstring=#\ %s
+" #No space
+autocmd FileType crontab,conf,perl,setlocal,sh,text setlocal commentstring=#%%s
+autocmd FileType vim setlocal commentstring=\"%%s
 
 "}}}
 

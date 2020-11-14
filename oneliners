@@ -2995,6 +2995,9 @@ find $u/foodir -perm 000 |xargs chmod 755
 # Copy all the files in a directory tree into the same, one, single, large directory, preserving their properties:
 find . -type f -exec cp -p {} newdir/ \;
 
+# Create an uncompressed tar file of each child directory of the current working directory:
+find . -maxdepth 1 -mindepth 1 -type d -exec tar cvf {}.tar {} \;
+
 # Collect all user's .bash_history files into one file:
 find / -type f -name .bash_history | xargs cat > /tmp/history.txt
 
@@ -5653,8 +5656,9 @@ WHERE order_dt > TRUNC(SYSDATE, 'MONTH')
 
 select rpad('5star', 10, '*'), lpad('6dot', 10, '.'), lpad('xxx', 2) || 'doublex' from dual
 
--- Create a poor man's graph:
+-- Create a poor man's horizontal bar graph:
 SELECT empno, job, LPAD('*', sal/100, '.') graph FROM emp
+... RPAD('#', units_sold, '#') AS graph ...
 
 -- Update query: 
 update retain.fnsh_prod set prod_sel = 'N', prod_sel_dt = NULL;
