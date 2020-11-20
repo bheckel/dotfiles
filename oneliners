@@ -6,7 +6,7 @@
 #           are often written for searching, not proper English.
 #
 #  Created: Tue 02-Jun-1998 (Bob Heckel)
-# Modified: Mon 28-Sep-2020 (Bob Heckel)
+# Modified: Sat 14-Nov-2020 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -2976,7 +2976,7 @@ find . -inum 123 -ok rm {} \;
 find . -inum 123 | xargs rm -i;
 find . -inum 123 -exec rm -i {} \; 
 
-# Find files except for file named foo.log:
+# Find files except for file named e.g. foo.bar AND NOT foo.log:
 find -name 'foo????' -a ! -name '*.log'
 
 # To find permissions setuid and setgid file.  Spaces around parens are mandatory, the -a isn't.
@@ -2985,8 +2985,6 @@ find / -perm -0600 -print 2>/dev/null   # finds -rw-r--r--
 find / -perm 0600  -print 2>/dev/null   # not   -rw-r--r-- only finds -rw-------
 # Find -rwxrwxr-- that aren't symlinks (usually 777)
 find . -perm -0775 -a ! -type l
-# Find group write files -rwxrwx---
-find . -perm -0070 -a ! -type l
 
 # Change permissions of specific filetypes:
 find -name '*.pl' -exec chmod 755 {} \;
