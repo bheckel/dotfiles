@@ -6374,6 +6374,7 @@ SELECT ADD_MONTHS(SYSDATE, -1 * DBMS_RANDOM.VALUE(1, 6)) FROM dual  -- 8/29/2018
 to_number(trunc(dbms_random.value(1000,9999))|| to_char(systimestamp,'FFSS')|| seq.nextval))
 
 CAST(trunc(aa.duns_nbr) AS VARCHAR2(90)) duns_nbr
+cast(l.value_description as varchar2(96)) as value_description,
 
 -- Benchmarking:
 SELECT st.VALUE FROM v$mystat st, v$statname sn WHERE st.statistic# = sn.statistic# AND sn.name = 'Oracle session pga memory';
@@ -6995,6 +6996,9 @@ select lpad('* ', (LEVEL-1)*2, '* ') || ename as programmer, CONNECT_BY_ISLEAF a
 
 -- Want only last year and this year:
 AND EXTRACT(YEAR FROM o.close_date) in( EXTRACT(YEAR FROM SYSDATE), EXTRACT(YEAR FROM SYSDATE) + 1 )
+
+-- Last 1 year of data:
+extract(YEAR from updated) >= extract(YEAR from SYSDATE) - 1
 
 -- Comparison using column lists and expression lists:
 where NOT (gender = 'F' and stage = 'A') and NOT (gender = 'M' and stage = 'B')  -- can get unwieldy
