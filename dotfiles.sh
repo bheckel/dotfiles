@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  Created: Sat 03 May 2015 (Bob Heckel) 
-# Modified: Sat 26-Oct-2019 (Bob Heckel)
+# Modified: Sun 29-Nov-2020 (Bob Heckel)
 
 # No leading dots!
 majordots='bashrc vimrc tmux.conf inputrc minttyrc gitconfig'
@@ -29,7 +29,7 @@ fi
 cd $myhome
 
 echo
-echo -n "Setup dotfiles in $myhome?"
+echo -n "Setup dotfiles in $myhome? "
 read
 echo
 
@@ -63,7 +63,7 @@ if [ ! -e $HOME/tmp ]; then
   mkdir $HOME/tmp
 fi
 
-ls -la ~
+#%ls -la ~
 
 echo
 echo "Consider installing:"
