@@ -1396,15 +1396,15 @@ libname l './saswork'; options USER=l;  /* saswork must already exist! */
  /* Use datasets in pwd (w/o libname prefix "L") pretending that's WORK: */
 options USER=L;
 
-/* Single quote in SAS macro requires quoting with percent sign % */
+/* Single quote in SAS macro requires quoting with percent sign %: */
 %put this is %str(John%'s office) here;
 
- /* Read only do not modify dataset */
+ /* Read only do not modify dataset: */
 options NOreplace;
- /* Read only do not modify anything in library */
+ /* Read only do not modify anything in library: */
 libname myROlib 'c:/temp/' access=readonly;
 
- /* Redirect from LOG device to PRINT device to draw line in the .lst (tilde repeats 78 times) */
+ /* Redirect from LOG device to PRINT device to draw line in the .lst (tilde repeats 78 times): */
 data _null_; file PRINT; put 78 * '~'; run;
 
 %local i j item;  /* no commas */
@@ -7007,6 +7007,9 @@ where NOT (gender, stage) = ANY ( ('F', 'A'), ('M', 'B') )
 
 -- SQL USING join syntax if join names are same no prefixes needed:
 select employee_id, first_name, last_name, territory_lov_id, TERRITORY_DESC from employee_base e left join rpt_v t using(territory_lov_id) where employee_id in(9);
+
+-- Print every 1000 loop:
+IF (MOD(i, 1000) = 0) THEN DBMS_OUTPUT.put_line(i || ' id: ' || l_recs(i).id); END IF;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
