@@ -1712,11 +1712,10 @@ if !exists("autocommands_loaded")
   au BufRead,BufEnter afiedt.buf set filetype=sql
   " TODO 06-Feb-19 getting tab indentation some reason - block for now:
   " au BufRead,BufEnter *.sql,afiedt.buf set noexpandtab
-  au BufRead,BufEnter *.sql,afiedt.buf iab LI limit 10
   au BufRead,BufEnter *.sql,afiedt.buf iab OB order by 1
-  au BufRead,BufEnter *.sql,afiedt.buf iab SF select * from
+  au BufRead,BufEnter *.sql,afiedt.buf iab SS select * from
   au BufRead,BufEnter *.sql,afiedt.buf iab SC select count(*) from
-  au BufRead,BufEnter *.sql,afiedt.buf iab WH where
+  au BufRead,BufEnter *.sql,afiedt.buf iab WW where
 
   " Enhance /usr/share/vim/vim82/syntax/sqloracle.vim when PLSQL code sneaks into a .sql
   au BufRead,BufEnter *.sql syn keyword sqlFunction	FORALL SAVE EXCEPTIONS

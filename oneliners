@@ -1894,7 +1894,7 @@ data _NULL_; set _LAST_; file LOG; put '!!!DataLink'; put (_ALL_)(=); put; run;
  /* Take 2nd thru last parameters passed in as a single string (to be iterated later) */
 %let sp=%str( ); %let pos=%index(%bquote(&SYSPARM), &sp); %let pxall=%substr(%bquote(&SYSPARM),&pos);
 
- /* Enquote for oracle statement syntax */
+ /* Enquote for Oracle syntax: */
 %let today=%str(%'%sysfunc( today(),mmddyy10. )%');
 
  /* Convert from human to SAS datetime (epoch number returned): */
@@ -5573,6 +5573,7 @@ SELECT DATE '2019-03-05' - (365 * 2) FROM dual  -- 3/5/2017
 
 -- Oracle function declaration default parameter:
 FUNCTION hasLinkages(in_accountId NUMBER, in_contextBeingUsed NUMBER DEFAULT 2) RETURN NUMBER;
+FUNCTION hasLinkages(in_accountId NUMBER, in_contextBeingUsed NUMBER := 2) RETURN NUMBER;
 
 -- Oracle user sessions who is logged and potentially kill them:
 select s.sid||','||s.serial# sess, s.osuser, s.username, s.last_call_et, s.status, s.sql_address, s.program from v$session s where ( s.status = 'ACTIVE' );
@@ -5770,7 +5771,7 @@ select table_name, comments from DICT where table_name like 'DBA%SCHEDULER%' ord
 
 SELECT * FROM user_role_privs WHERE granted_role = 'SELECT_CATALOG_ROLE';
 
--- Oracle list browse all schemas poke around:
+-- Oracle list browse show all schemas poke around:
 SELECT username FROM all_users ORDER BY username;
 -- Does table exist:
 SELECT COUNT(1) FROM all_tables a WHERE a.TABLE_NAME = 'TAXONOMY'
@@ -6278,12 +6279,16 @@ SELECT owner, object_name, object_type, status, last_ddl_time, CREATED, TIMESTAM
 
 SELECT SYSTIMESTAMP INTO starting_time FROM DUAL;
 
--- Oracle regex:
-select object_name, object_type from user_objects where object_type in ('PACKAGE') AND REGEXP_LIKE(object_name, '.*BOBONCALL.*')
+-- Oracle regex case-insensitive compare with LIKE:
+SELECT * FROM user_source WHERE lower(text) like '%cdhub_jms%' and type != 'PACKAGE' order by type, name, line;
+SELECT * FROM user_source WHERE regexp_like(text, 'cdhub_jms\.[ac]', 'i') and type != 'PACKAGE' order by type, name, line;
+
 SELECT job_name, start_date, regexp_replace(start_date, '[AP]M -\d\d:\d\d.*$', 'EST5EDT') from user_scheduler_jobs
+-- Oracle regex count the finds of the 'ora' strings returns 2:
 SELECT REGEXP_COUNT ('Oracle PL/SQL By Example Updated for Oracle 11g', 'ora', 1, 'i') FROM dual;
 -- Oracle regex - returns 250/50 MCG:
 select regexp_substr(upper('Disk Inh Pwdr 250/50 mcg 60D'),'\d+/[^/]* *MCG') as stren from dual
+
 -- Too complicated for REGEXP_LIKE:
 select employee_id, jobtitle from employee e where extract(year from termination_date) = 2019 and instr(upper(jobtitle),'ACCOUNT') > 0 and instr(upper(jobtitle),'ACCOUNTANT') <= 0 and instr(upper(jobtitle),'ACCOUNTING') <= 0 and instr(upper(jobtitle),'TECHNICAL ACCOUNT') <= 0 and instr(upper(jobtitle),'SUPPORT ACCOUNT') <= 0
 
@@ -6629,6 +6634,7 @@ select split_out_nums from customer_favorites OUTER APPLY json_table( '[' || cf.
 
 -- Enquote a date with single quotes:
 quoteddatestring := chr(39) || to_char(SYSDATE - 1, 'DDMONYY') || chr(39);
+SELECT 'select count(*), ' || chr(39) || t.from_table || chr(39) || ' x from ' || t.from_table || ' where ' || t.from_column || ' =  14377280;' FROM ACCT_NAME_ID_FK_MV t;
 
 -- Oracle number data type precision & scale:
 NUMBER(3, 2)  -- min -9.99  max 9.99
@@ -7670,6 +7676,9 @@ git fetch origin && git checkout -b feature/RION-999 origin/feature/RION-999 && 
 
 # git squash together all commits after d3fbfd5 (the one I didn't touch). Leave the first entry (oldest commit) alone as 'pick', set others to 's[quash]', next screen lets you edit the message, doing nothing uses all old messages, wipe and type for a new one:
 git rebase --interactive d3fbfd5
+
+# git show only the files edited affected by commits on this branch:
+git log --name-only --date=short
 
 <!-- Predefined HTML character entities -->
 &lt; &gt; &quot; &amp; &apos;  &#169; or &#xA9 is copyright symbol ©
