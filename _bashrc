@@ -4,7 +4,7 @@
 # Summary: bash config for at least Unix, Linux, Cygwin and z/OS
 #
 #  Created: Tue 19-May-1998 (Bob Heckel)
-# Modified: Thu 22-Oct-2020 (Bob Heckel)
+# Modified: Sat 05-Dec-2020 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -742,7 +742,10 @@ case "$OSTYPE" in
 
         function w() {
           id=$(cat ~/bin/wapi_key)
-          curl --no-progress-meter "https://api.openweathermap.org/data/2.5/onecall?lat=35.92115428&lon=-78.5754912&include=hourly&appid=${id}&units=imperial" | jq '[.| {ct: .current.temp, fl: .current.feels_like, hu: .current.humidity, uv: .current.uvi, ws: .current.wind_speed, wr: .current.weather[0].description, sr: .current.sunrise | strflocaltime("%%%H:%%%M:%%%S %%%Z"), ss: .current.sunset | strflocaltime("%%%H:%%%M:%%%S %%%Z"), pop1: .hourly[0].pop, pop2: .hourly[1].pop}]'
+          #curl --no-progress-meter "https://api.openweathermap.org/data/2.5/onecall?lat=35.92115428&lon=-78.5754912&include=hourly&appid=${id}&units=imperial" | jq '[.| {ct: .current.temp, fl: .current.feels_like, hu: .current.humidity, uv: .current.uvi, ws: .current.wind_speed, wr: .current.weather[0].description, sr: .current.sunrise | strflocaltime("%%%H:%%%M:%%%S %%%Z"), ss: .current.sunset | strflocaltime("%%%H:%%%M:%%%S %%%Z"), pop1: .hourly[0].pop, pop2: .hourly[1].pop}]'
+          curl --no-progress-meter "https://api.openweathermap.org/data/2.5/onecall?lat=35.92115428&lon=-78.5754912&include=hourly&appid=${id}&units=imperial" | jq '[.| {ct: .current.temp, fl: .current.feels_like, hu: .current.humidity, uv: .current.uvi, ws: .current.wind_speed, wr: .current.weather[0].description, sr: .current.sunrise | strflocaltime("%%%H:%%%M:%%%S %%%Z"), ss: .current.sunset | strflocaltime("%%%H:%%%M:%%%S %%%Z"), pop1: .hourly[0].pop, pop2: .hourly[1].pop}]' >| ~/tmp/w
+          sed 's/"ct"/Current/; s/"fl"/Feels Like/; s/"hu"/Humidity/; s/"uv"/UV/; s/"ws"/Wind/; s/"wr"/Weather/; s/"sr"/Sunrise/; s/"ss"/Sunset/; s/"pop1"/Precip Probability 1 hr/; s/"pop2"/Precip 2 hr/' \
+            ~/tmp/w
         }
       fi  # we're probably running termux
 
