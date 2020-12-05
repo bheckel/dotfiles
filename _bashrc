@@ -167,7 +167,8 @@ case "$OSTYPE" in
       linux-gnu) st() { pcfileman   "${1:-.}"; } ;;
         darwin*) st() { open        "${1:-.}"; } ;;
   linux-android) st() { termux-open "${1:-.}"; } ;;
-              *) echo '.bashrc: Unknown file manager' >&2 ;;
+         netbsd) st() { echo 'no can do, man'; } ;;  # avoid "Unknown" message on sdf login
+#             *) echo '.bashrc: Unknown file manager' >&2 ;;
 esac
 
 # cd lazy
