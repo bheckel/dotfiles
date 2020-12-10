@@ -5393,11 +5393,6 @@ SELECT INSTR(NULL, 'ORA') FROM dual  -- NULL
 -- Overflows using PLS_INTEGER but ok with INTEGER:
 DECLARE p1 PLS_INTEGER := 2147483647; p2 INTEGER := 1; n NUMBER; BEGIN n := p1 + p2; END; /
 
--- Oracle view check constraints why if DROP TABLE etc fails:
-select * from user_constraints where table_name = 'COUNTRIES';
-select * from user_constraints WHERE constraint_name = 'NN_ACCOUNT_NAME_CB';
-select constraint_name, constraint_type from user_constraints WHERE constraint_name LIKE 'NN%';
-
 -- Find my active sessions:
 select s.PROGRAM, s.SQL_ID, s.SQL_EXEC_START, s.LOGON_TIME, q.sql_text from V$session s, v$sql q where s.sql_id=q.sql_id(+) and /*status='ACTIVE' and*/ osuser='bheck';
 -- Find active sessions active for more than 10 seconds:
@@ -5821,6 +5816,11 @@ SELECT column_name FROM user_cons_columns ucc, user_constraints uc WHERE uc.CONS
 
 -- What foreign keys are on this table:
 select * from all_constraints where table_name ='SP_PROCESSING' and CONSTRAINT_TYPE='R';
+
+-- Oracle view check constraints why if DROP TABLE etc fails:
+select * from user_constraints where table_name = 'COUNTRIES';
+select * from user_constraints WHERE constraint_name = 'NN_ACCOUNT_NAME_CB';
+select constraint_name, constraint_type from user_constraints WHERE constraint_name LIKE 'NN%';
 
 -- Does any other table reference this table LIST_OF_VALUES i.e. do any foreign keys exist:
 select * FROM all_constraints WHERE constraint_type = 'R' and r_constraint_name IN (select constraint_name from all_constraints where table_name like 'LIST_OF_VALUES%') order by table_name;
@@ -6404,9 +6404,7 @@ ALTER USER limsarc IDENTIFIED BY "newpw" REPLACE "oldpw";
 -- Change password Postgres password:
 ALTER USER heckel WITH PASSWORD 'myPass';
 
-alter table movies add primary key ( name )
-
-EXECUTE IMMEDIATE 'ALTER TABLE EMAIL_MESSAGES ADD CONSTRAINT EMAIL_MESSAGES_PK PRIMARY KEY (EMAIL_MESSAGES_ID)';
+EXECUTE IMMEDIATE 'ALTER TABLE EMAIL_MESSAGES ADD CONSTRAINT EMAIL_MESSAGES_PK PRIMARY KEY (EMAIL_MESSAGES_ID)'; -- Oracle
 
 CREATE TABLE plch_employees ( employee_id   INTEGER PRIMARY KEY, last_name  VARCHAR2 (100), salary  NUMBER (3))
 
@@ -6663,7 +6661,7 @@ select min(sal), max(sal), rpad('*', count(1), '*') AS Bar, count(1) from ( sele
 -- Poke around:
 -- Oracle DBA_OBJECTS : All objects in the database  ALL_OBJECTS : All objects accessible to the user  USER_OBJECTS : All objects owned by the user
 
--- Oracle which objects are available exists? An ls for db:
+-- Oracle search which objects are available exists? An ls for db:
 select object_name, object_type from user_objects where object_type in ('VIEW','TABLE','PACKAGE','PROCEDURE','FUNCTION') and lower(object_name) like '%acc%' order by 2,1
 
 -- Oracle which objects are invalid objects:
@@ -6730,10 +6728,10 @@ select replace('abcdef', 'abc', 'ABC') from dual -- ABCdef
 select translate('abc def', 'abcd', '1234') from dual -- 123 4ef
 select translate('abcdef', 'abcde', '1234') from dual -- 1234f
 
--- Create a big sample table for testing:
+-- Create a big disposable dummy sample table for testing:
 CREATE TABLE million_rows AS SELECT ROWNUM AS id, RPAD('x',100) AS data FROM dual CONNECT BY ROWNUM < 1000000;  ALTER TABLE million_rows ADD CONSTRAINT million_rows_pk PRIMARY KEY (id);  BEGIN DBMS_STATS.GATHER_TABLE_STATS(USER, 'MILLION_ROWS', estimate_percent=>100); END;
 
--- Size of code bytes:
+-- Size of source code in bytes:
 select SOURCE_SIZE from user_object_size where name in('ACCOUNTSPKG');
 
 -- Implicit single row cursor:
@@ -7012,7 +7010,7 @@ where (gender, stage) != ALL ( ('F', 'A'), ('M', 'B') )
 where NOT (gender, stage) = ANY ( ('F', 'A'), ('M', 'B') )
 
 -- SQL USING join syntax if join names are same no prefixes needed:
-select employee_id, first_name, last_name, territory_lov_id, TERRITORY_DESC from employee_base e left join rpt_v t using(territory_lov_id) where employee_id in(9);
+select employee_id, territory_desc from employee e left join rpt_v t USING(territory_lov_id) where employee_id in(9);
 
 -- Print every 1000 loop:
 IF (MOD(i, 1000) = 0) THEN DBMS_OUTPUT.put_line(i || ' id: ' || l_recs(i).id); END IF;
@@ -7265,14 +7263,22 @@ file:///c:/cygwin/home/rheckel/tmp
 ' Autorun an Excel VBA macro:
 Private Sub Workbook_Open() ...
 
-:: Windows XP Desktop path:
-C:\Documents and Settings\rsh8680\Desktop
+:: Windows Desktop path:
+C:\Documents and Settings\bheck\Desktop
+C:\Users\bheck\Desktop
 
-# uptime for Windows 7:
+C:\Documents and Settings\bheck\Application Data\SQL Developer
+C:\Users\bheck\AppData\Roaming\SQL Developer
+
+# uptime for Windows:
 $ systeminfo|grep 'Up T'
-
-# uptime for Windows 10:
 eventvwr.msc : Windows logs : System : Actions → Create Custom View : By sources : Kernel-Boot
+
+# Diskspace for Windows:
+$ systeminfo | grep 'Total Physical Memory:'
+
+# Hostname for Windows:
+$ systeminfo | grep 'Host Name:'
 
 :: Remote restart reboot a Windows workstation:
 c:\> shutdown -r -m \\zebwd08D26987
