@@ -5732,7 +5732,7 @@ in_debug boolean := sys.diutil.int_to_bool(:in_debug);
 select dbms_metadata.get_ddl('TABLE', 'ACTIVITY_SEARCH') from dual;
 select dbms_metadata.get_dependent_ddl('TABLE', 'ACTIVITY_SEARCH') from dual;
 
--- Implicit cursor simple:
+-- Implicit cursor simple using a rowtype record anchor:
 DECLARE r dual%ROWTYPE; BEGIN FOR r IN ( SELECT * FROM SYS.dual ) LOOP dbms_output.put_line(r.dummy); END LOOP; END;
 
 -- Return a cursor variable:
@@ -6590,6 +6590,7 @@ create table t1 as select date '2010-01-01'+rownum x, rownum y  from dual connec
 -- Modified analytic outer join to get every hr, every room and who reserved it:
 select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2;
 
+-- Suppress SQL output while calculating execution plan cost:
 set autotrace traceonly explain -- then SELECT ename FROM emp;
 
 -- Use previous sql:
@@ -6881,13 +6882,13 @@ show user
 -- sqlplus benchmark show elapsed query time:
 set time on; set timing on;
 
--- Loop poll monitory a query:
+-- Loop poll monitor every 20 seconds a SQL query using a script:
 $ while true; do sqlplus -S estars/mypw@mydb @t.sql; sleep 20; done
 
 alias lims='sqlplus sasrepor/sasrepor@sprd25'
 alias db6='psql -h db-06.aeb.com AEBMART'
 
--- Remove multiple spaces with one space Oracle:
+-- Remove multiple spaces with one space Oracle (like COMPRESS that doesn't exist):
 SELECT REGEXP_REPLACE(text, '\s+', ' ') FROM user_source;
 
 -- Have SID want to know what SQL is running:
@@ -7014,6 +7015,9 @@ select employee_id, territory_desc from employee e left join rpt_v t USING(terri
 
 -- Print every 1000 loop:
 IF (MOD(i, 1000) = 0) THEN DBMS_OUTPUT.put_line(i || ' id: ' || l_recs(i).id); END IF;
+
+-- List information about each table in a database (SQL Server):
+select * from information_schema.tables where  table_type='BASE TABLE' 
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7536,6 +7540,7 @@ git add . && git commit -m'mod' && git push
 
 git config user.name  # whoami
 git config -l  # list all config settings
+git config --global merge.tool vimdiff
 
 # git show the changes recorded in the stash entry as a diff between the stashed contents and the commit back when the stash entry was first created:
 git stash show
@@ -7606,7 +7611,6 @@ git show eacbd91:./ods_0002e.sas
 # git view previous old version of file from the past history (in editor):
 git show master:cfg/DataPost_Configuration.html |vi -
 
-git config --global merge.tool vimdiff
 # git diff view your changes before committing. "Changes not staged for commit" (your pre-committed change), same as  $ git difftool HEAD:
 git difftool
 # git diff see what changes you will be pushing, d277a94 is the previous commit, not your recently committed one(s):
@@ -7685,6 +7689,9 @@ git rebase --interactive d3fbfd5
 
 # git show only the files edited affected by commits on this branch:
 git log --name-only --date=short
+
+# git show last touches and authors for all remote branches:
+for branch in `git branch -r | grep -v HEAD`;do echo -e `git show --format="%ci %cr\t%an\t" $branch | head -n 1` \\t$branch; done | sort -r
 
 <!-- Predefined HTML character entities -->
 &lt; &gt; &quot; &amp; &apos;  &#169; or &#xA9 is copyright symbol ©
