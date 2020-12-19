@@ -7,23 +7,24 @@
 # Applications you want to run with fluxbox.
 # MAKE SURE THAT APPS THAT KEEP RUNNING HAVE AN '&' AT THE END!
 #
-# Modified: Sat 19 May 2018 07:12:08 (Bob Heckel)
+# Modified: Sat 19-Dec-2020 (Bob Heckel)
  
 xmodmap "$HOME/.Xmodmap"  # keymap for lefty
 # idesk &
 conky -x 5 -y 0 &
 nm-applet &
-# dropbox start &
+dropbox start &
 redshift-gtk &
 #wmweather -s KRDU &
-# xset dpms 1000 1200 1400  # monitor DPMS timeouts in seconds
+#xset dpms 1000 1200 1400  # monitor DPMS timeouts in seconds
 #xset s off  # disable screensaver
 #anoise &
-# /usr/sbin/alsactl --file ~/.config/asound.state restore
-# /usr/bin/google-chrome-stable &
+#/usr/sbin/alsactl --file ~/.config/asound.state restore
+#/usr/bin/google-chrome-stable &
 $HOME/bin/random_wallpaper.pl
-# ssh-add &
-# imwheel --kill
+#ssh-add &
+#imwheel --kill
+#xscreensaver &
 
 # Because fluxbox is the last app you have to run it with 'exec'
 # exec fluxbox -log "/home/bheckel/.fluxbox/log"

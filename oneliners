@@ -4457,6 +4457,9 @@ vim `find . -type f -print0 | xargs -0 grep -i 'ACCOUNT_TEAM' | awk -F: '{print 
 # if then default parameter:
 gco() { \ if [ -z "$1" ];then \ git checkout develop; \ else \ git checkout feature/ORION-${1}; \ fi \ }
 
+# Which of my ports are listening:
+lsof -i -P -n|grep LISTEN
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
