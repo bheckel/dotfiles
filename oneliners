@@ -1258,6 +1258,7 @@ fourth_smallest_num=ordinal(4, of q1-q4);
 fourth_smallest_num1=smallest(4, 1, 2, 3, -4, 5, ., 7);  /* 3 */
 fourth_smallest_num2=ordinal(4, 1, 2, 3, -4, 5, ., 7);  /* 2 */
 
+-- Generate random GUID (Unix only?):
 guid=uuidgen();
 
  /* WHERE wildcard numeric sequence: */

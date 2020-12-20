@@ -4,7 +4,7 @@
 # Summary: bash config for at least Unix, Linux, Cygwin and z/OS
 #
 #  Created: Tue 19-May-1998 (Bob Heckel)
-# Modified: Sat 05-Dec-2020 (Bob Heckel)
+# Modified: Sun 20-Dec-2020 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -97,6 +97,7 @@ alias bc="bc -lq"  # allow floating point calcs, mess up other stuff
 alias be="vi $HOME/.bashrc"
 alias bgrep="$HOME/code/scripting/bgrep"
 alias by=exit  # keepin' up the FTP tradition
+alias catput=$HOME/code/misc/catput.sh
 alias cd..='cd ..; ls'
 alias cdc="cd $HOME/code"
 alias cdd="cd $HOME/code/database"
@@ -363,9 +364,9 @@ function loc() {
 }
 
 
-# Find my README file by title
+# Find/search my README files by title
 function rme() {
-  find $HOME/code/rme | grep -i "${1}" | grep -v '\.git' >|/tmp/.rme.grep && vim -R /tmp/.rme.grep
+  find $HOME/code/rme | grep -i "${1}" | grep -v '\.git' >|$HOME/tmp/.rme.grep && vim $HOME/tmp/.rme.grep
 }
 
 
@@ -421,7 +422,6 @@ case "$OSTYPE" in
     export c=/cygdrive/c
     export d=/cygdrive/d
     export e=/cygdrive/e
-    export f=/cygdrive/f
     export u=/cygdrive/u
     export CYGWIN=nodosfilewarning  # MS-DOS style path detected: u:/tmp/bdfCURR.rtpsh005
     # export CVSROOT=$HOME/repository
@@ -448,7 +448,6 @@ case "$OSTYPE" in
     # Alias Cygwin  #{{{2
     #-------------------
     # alias by=exit  # like FTP and SAS
-    alias catput=$HOME/code/misc/catput.sh
     alias d1='vim /cygdrive/c/temp/1'
     alias d2='vim /cygdrive/c/temp/2'
     alias d12="(cd /cygdrive/c/temp; vi -Rc 'map q :qa<CR>' -Rd 1 2)"
@@ -617,6 +616,10 @@ case "$OSTYPE" in
       if [ $HOSTNAME = 'appa' ]; then
         alias brinno='sudo mount -t vfat /dev/sdb1 /media/brinno/ -o uid=1000,gid=100,utf8,dmask=027,fmask=137'
         alias ubrinno='sudo umount /media/brinno'
+
+        alias sandisk='sudo mount -t vfat /dev/sdc /media/sandisk/ -o uid=1000,gid=100,utf8,dmask=027,fmask=137'
+        alias usandisk='sudo umount /media/sandisk'
+
         alias vim='/usr/local/bin/vim'
       fi
 

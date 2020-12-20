@@ -12,8 +12,9 @@
 xmodmap "$HOME/.Xmodmap"  # keymap for lefty
 # idesk &
 conky -x 5 -y 0 &
+# Gnome NetworkManager
 nm-applet &
-dropbox start &
+#%dropbox start &
 redshift-gtk &
 #wmweather -s KRDU &
 #xset dpms 1000 1200 1400  # monitor DPMS timeouts in seconds
