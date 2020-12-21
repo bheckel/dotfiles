@@ -3780,6 +3780,8 @@ Ctr-a d  # detach (from within screen session)
 # Set a shell variable's default even if it is not set, or is missing:
 f=foo.txt; if test "x$f" = "x" && f=bar; then ... fi
 
+test $HOSTNAME = 10g279 && echo ok
+
 # Push, flush, sync bash history from one xterm to another
 history -a  # append this terminal history
 history -n  # read in the other xterms appended history into this terminal
