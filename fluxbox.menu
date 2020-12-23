@@ -22,6 +22,7 @@
   [exec] (Midori)             {/usr/bin/midori} </usr/share/icons/hicolor/22x22/apps/midori.png>
   # [exec] (Thunar)             {/usr/bin/thunar} </usr/share/icons/hicolor/64x64/apps/Thunar.png>
   [exec] (PCManFM)            {/usr/bin/pcmanfm} </usr/share/icons/hicolor/64x64/apps/Thunar.png>
+  [exec] (SQLDeveloper)     {/opt/sqldeveloper/sqldeveloper.sh} </opt/sqldeveloper/icon.png>
   [exec] (ThinkOrSwim)        {/home/bheckel/thinkorswim/thinkorswim} </home/bheckel/misc/computer/tos.jpeg>
   [exec] (VirtualBox)         {/usr/bin/virtualbox} </usr/share/icons/hicolor/32x32/apps/virtualbox.png>
   [exec] (Volume)             {/usr/bin/pavucontrol} </usr/share/icons/hicolor/32x32/apps/multimedia-volume-control.png>
