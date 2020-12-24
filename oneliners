@@ -5484,6 +5484,10 @@ select NVL(TO_CHAR(3), 'NULL') from dual;  -- returns 3
 DBMS_OUTPUT.PUT(NVL(TO_CHAR(name.age.years), 'NULL') || ' yrs ');  -- just put() with no newline
 NVL2(x, return_value1_bc_x_isNOTnull, return_value2_bc_x_ISnull);
 
+-- NVL vs NVL2:
+SELECT opportunity_id, actual_sale_amount, nvl(ACTUAL_SALE_AMOUNT, 999) x FROM opportunity_base WHERE  opportunity_id in(999);  -- puts 999 in place of null
+SELECT opportunity_id, actual_sale_amount, nvl2(ACTUAL_SALE_AMOUNT, 'AMOUNT IS NOT NULL', 'NULL') x FROM opportunity_base WHERE  opportunity_id in(999);  -- better
+
 -- Oracle - prevent nulls from propagating:
 SELECT ename, comm, sal, 12*sal+NVL(comm,0) ...
 IF NVL(l_salary,0) <= 40000 ...
@@ -5835,8 +5839,28 @@ select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES', 'SETARS') from dual;
 -- View some details of Oracle table (like sqlplus DESC):
 select column_name, nullable, concat(concat(concat(data_type,'('),data_length),')') from user_tab_columns where table_name = 'EMAIL_MESSAGES';
 
+-- Poke around:
+-- Oracle DBA_OBJECTS : All objects in the database  ALL_OBJECTS : All objects accessible to the user  USER_OBJECTS : All objects owned by the user
+
+-- TNS, Oracle version etc:
+show connection
+
 -- View indexes, last analyzed etc alternative to DBMS_METADATA:
 clear screen; info contact_dhub; ddl contact_dhub;
+
+-- Also allows determination of which oracle version(s) are installed:
+/oracle/app/oracle/product/9208HP64DB1_PAR/bin/tnslsnr LISTENER
+/oracle/app/oracle/product/8.0.6/bin/tnslsnr LISTENER -inherit
+
+c:\oracle\ora920\network\admin\tnsnames.ora
+
+-- Oracle are you listening listener?
+$ ps -ef |grep lsn  # /oracle/app/oracle/product/8.0.6/bin/tnslsnr LISTENER -inherit
+-- Confirm LDAP adapter etc:
+$ tnsping usdev10
+
+-- Oracle are you pingable?
+$ while true; do tnsping sprd25|grep OK|awk '{print $2}'|sed 's/^.//'; sleep 120; done;
 
 -- Sleep pause execution for 60 seconds using a java include:
 CREATE OR REPLACE PROCEDURE SLEEP(P_MILLI_SECONDS IN NUMBER) AS LANGUAGE JAVA NAME 'java.lang.Thread.sleep(long)';
@@ -5886,6 +5910,8 @@ SELECT account_id FROM t SAMPLE(0.1);
 
 -- Error exception handler (if you don't give SQLERRM a valid Oracle error code it uses SQLCODE as the error code):
 WHEN OTHERS THEN dbms_output.put_line(SQLCODE || ': ' || SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
+
+BEGIN DBMS_OUTPUT.put_line(TO_DATE('2010 10 10 44:55:66', 'YYYSS')); EXCEPTION WHEN OTHERS THEN IF SQLCODE = -01830 THEN DBMS_OUTPUT.put_line('we hit a date error, throw it'); END IF; RAISE; END;
 
 -- Print Oracle error code description:
 BEGIN dbms_output.put_line(SQLERRM(0)); END; -- ORA-0000: normal, successful completion
@@ -6088,20 +6114,6 @@ DROP TABLE bobhlm;
 -- Oracle's MINUS is EXCEPT in ANSI SQL:
 INSERT INTO links_material (matl_desc) VALUES ('Waiting for update from SAP'); commit;
 INSERT INTO links_material (matl_desc, matl_mfg_dt, matl_exp_dt, matl_nbr, batch_nbr, matl_typ) VALUES ('Waiting for update from SAP', '01-JAN-1960', '01-JAN-1960', '0737003', '6ZP8404', 'MANL'); commit;
-
--- Also allows determination of which oracle version(s) are installed:
-/oracle/app/oracle/product/9208HP64DB1_PAR/bin/tnslsnr LISTENER
-/oracle/app/oracle/product/8.0.6/bin/tnslsnr LISTENER -inherit
-
-c:\oracle\ora920\network\admin\tnsnames.ora
-
--- Oracle are you listening listener?
-$ ps -ef |grep lsn  # /oracle/app/oracle/product/8.0.6/bin/tnslsnr LISTENER -inherit
--- Confirm LDAP adapter etc:
-$ tnsping usdev10
-
--- Oracle are you pingable?
-$ while true; do tnsping sprd25|grep OK|awk '{print $2}'|sed 's/^.//'; sleep 120; done;
 
 -- Oracle first day of current month:
 select trunc(sysdate,'MM') from dual;
@@ -6434,6 +6446,14 @@ EXECUTE IMMEDIATE 'alter table ASP_DET drop (FUTURE_TIER, FUTURE_COVERAGE, FUTUR
 -- Change data type (if column is all NULLs):
 ALTER TABLE email_messages MODIFY msgbody VARCHAR2(63)
 
+-- Oracle which objects are invalid objects:
+select * from user_objects o where object_type != 'JAVA CLASS' and status = 'INVALID' and to_date(timestamp,'YYYY-MM-DD HH24:MI:SS') > sysdate - interval '5' minute  order by 8 desc;
+
+-- After dropping table TEMPTBL, verify no invalids check object validity:
+select object_name, object_type, status from all_objects where object_name like 'TEMP%';
+-- If INVALID, why (some, like VIEWS, will only get an entry after we make an attempt to access them):
+select name, type, line, position, text from all_errors where name like 'TEMP%';
+
 -- Compile selectively:
 SQL> ALTER PROCEDURE z_set_activ_match_code COMPILE;  -- if compilation errors: SHOW ERROR
 -- Compile entire schema's invalid objects:
@@ -6466,6 +6486,9 @@ create table dummy_table(id PRIMARY KEY, tag) as select rownum id, to_char(rownu
 create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dual connect by level <= 365*5;
 -- Sample CTAS table using a csv list that would normally overflow an IN() list max of 1K 1000 items (18c+):
 create table dummy_table as SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE('123,456', ',', '","') || '"'));
+
+-- Print SQL for a deep copy CTAS sqlcl:
+ctas orders bobclonedtbl;
 
 -- Populate an existing sample dummy Oracle table with 100K random strings of VARCHAR(30):
 insert /*+APPEND*/ into mytbl select level, dbms_random.string('a',30) from dual connect by level <= 100000
@@ -6609,9 +6632,11 @@ select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_text li
 -- Have sql_id want running query text:
 select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_id='63ygwpcj2s227';
 
+begin dbms_stats.gather_table_stats('SETARS','SAP_DETAILS');  end;
+
 -- Check for histograms:
 select utcs.column_name, utcs.histogram, utcs.num_buckets from user_tables ut join user_tab_col_statistics utcs on ut.table_name = utcs.table_name where ut.table_name = 'BRICKS';
--- Update stats but disable histograms:
+-- Update analyze stats but disable histograms:
 exec DBMS_STATS.gather_table_stats(null, 'bricks', method_opt => 'for all columns size 1');
 -- If you want to ensure histograms remain disabled:
 begin DBMS_STATS.set_table_prefs(null, 'bricks', 'method_opt', 'for all columns size 1'); DBMS_STATS.gather_table_stats(null, 'bricks' ); end;
@@ -6663,19 +6688,8 @@ SELECT custom_property_id FROM custom_property c WHERE c.property_name in('TOP 1
 -- Oracle histogram:
 select min(sal), max(sal), rpad('*', count(1), '*') AS Bar, count(1) from ( select sal, ntile(4) over ( order by sal ) as grp from scott.emp ) group by grp order by 1
 
--- Poke around:
--- Oracle DBA_OBJECTS : All objects in the database  ALL_OBJECTS : All objects accessible to the user  USER_OBJECTS : All objects owned by the user
-
 -- Oracle search which objects are available exists? An ls for db:
 select object_name, object_type from user_objects where object_type in ('VIEW','TABLE','PACKAGE','PROCEDURE','FUNCTION') and lower(object_name) like '%acc%' order by 2,1
-
--- Oracle which objects are invalid objects:
-select * from user_objects o where object_type != 'JAVA CLASS' and status = 'INVALID' and to_date(timestamp,'YYYY-MM-DD HH24:MI:SS') > sysdate - interval '5' minute  order by 8 desc;
-
--- After dropping table TEMPTBL, verify no invalids check object validity:
-select object_name, object_type, status from all_objects where object_name like 'TEMP%';
--- If INVALID, why (some, like VIEWS, will only get an entry after we make an attempt to access them):
-select name, type, line, position, text from all_errors where name like 'TEMP%';
 
 delete from pks_extraction_control where rowid='AAB5QNACDAAARalAAo';
 
@@ -6844,7 +6858,7 @@ select pool,name,bytes from v$sgastat where name='free memory' and pool='shared 
 
 CREATE UNIQUE INDEX ASP_DFLT_TSR_OWN_TEAM_TSAT_IX ON ASP_DFLT_TSR_OWN_TEAM(FUTURE_TSR_OWNER_ID,ACCOUNT_TEAM_ID);
 
--- Declare a session bind variable:
+-- Declare a sqlplus session bind variable:
 SQL> VARIABLE M_DIVISOR NUMBER;
 -- Assign a value to session bind variable:
 SQL> EXEC :M_DIVISOR := 0;
