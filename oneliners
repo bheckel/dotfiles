@@ -4339,7 +4339,7 @@ tmux kill-session -t sas0-ses3
 if (( `df -h /saswork|grep saswork | awk '{print $4}'|sed s/%//g` > 90 )); then echo warning | mail -s 'workspace almost full' bob.heckel@taeb.com; fi
 
 $ nice -n19 gpg --encrypt --recipient 'Obc (Out Dial App) <obc\@taeb.com>' t.gpg
-$ gpg --output /Drugs/Imm/20160817/Output/GE_Imm_20160817.csv.gpg --encrypt --recipient pgp@smp.com /Drugs/Imm/20160817/Output/GE_Imm_20160817.csv
+$ gpg --output /Drugs/Imm/20160817/Output/GE_Imm_20160817.csv.gpg --encrypt --recipient pgp@abc.com /Drugs/Imm/20160817/Output/GE_Imm_20160817.csv
 
 # Check a file extension:
 if [[ $f = *.jpg ]]; then echo 'is a jpg' fi
@@ -4462,6 +4462,9 @@ gco() { \ if [ -z "$1" ];then \ git checkout develop; \ else \ git checkout feat
 
 # Which of my ports are listening:
 lsof -i -P -n|grep LISTEN
+
+# Find monitor resolution aspect ratio:
+xrandr
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
