@@ -41,8 +41,9 @@
     [exec] (Dropbox Stop)     {/usr/bin/dropbox stop}
     [exec] (LibreOffice Calc) {/usr/lib/libreoffice/program/soffice.bin --calc} <>
     [exec] (Printer)          {system-config-printer} <>
-    [exec] (ripperX)          {/usr/bin/ripperx} <>
     [exec] (Okular PDF)       {/usr/bin/okular} <>
+    [exec] (TaskManager)      {lxtask} <>
+    [exec] (ripperX)          {/usr/bin/ripperx} <>
     [separator] ()            {} 
     [submenu] (yoniso)
       [exec] (Firefox)        {/opt/firefox/firefox} </home/bheckel/misc/computer/firefox.png>

@@ -595,6 +595,7 @@ case "$OSTYPE" in
       ###alias sqlplus=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/sqlplus
       # Print Windows Working Directory.  Command is $ pwd|sed 's/\//\\/g'" before backslashitis.
       alias pwwd="pwd|sed 's/\\//\\\\/g'"
+      alias unhiber='sudo tlsdate -V -H encrypted.google.com'
 
       #----------------
       # Functions Linux  #{{{2 

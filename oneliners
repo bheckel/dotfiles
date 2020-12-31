@@ -4122,7 +4122,7 @@ sudo dpkg-reconfigure tzdata
 # Which large packages are taking up space?:
 dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
 
-# Query apt-get
+# Query apt-get query:
 sudo apt-cache search vim
 sudo apt-cache show vim
 sudo apt-cache policy vim
