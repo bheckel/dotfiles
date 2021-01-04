@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Tue 10-Nov-2020 (Bob Heckel)
+" Modified: Sat 02-Jan-2021 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -35,12 +35,22 @@ if has ('win32unix')
 endif
 " Tree view
 let g:netrw_liststyle= 3
+
 " Refresh dir listings only if dir not seen before
 let g:netrw_fastbrowse=2
-" <CR> opens in new tab
+
+" 2: <CR> opens vert split
+" 3: <CR> opens in new tab (use v to browse vertical split window)
 let g:netrw_browse_split=3
+" File browser on left, file on right
+let g:netrw_altv=1
+" Width of file window opened with 'o' or 'v'
+let g:netrw_winsize=80
+let g:netrw_preview=1
+
 " Ignore case
 let g:netrw_sort_options="i"
+
 let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
 """let g:netrw_list_cmd = '\ls -l'
 """let g:netrw_list_cmd = '/cygdrive/c/windows/System32/WindowsPowerShell/v1.0/powershell -Command dir'
@@ -794,6 +804,8 @@ nnoremap <C-G> 2<C-G>
 nnoremap <C-T> :tabnew<CR>
 " ...except
 au FileType help,HELP :nnoremap <C-T> <C-T>
+" Cycle through tabs with, what else... TAB!
+nnoremap <Tab> :tabnext<CR>
 
 noremap <Space> <C-F>
 
@@ -1790,8 +1802,8 @@ if !exists("autocommands_loaded")
   au BufEnter oneliners,.vimrc,_vimrc,.bashrc,_bashrc set foldmethod=marker
 	au BufRead,BufNewFile oneliners set filetype=txt
 
-  " We'll never need to edit a tarball or QuickFix list
-  au FileType TAR,QF map q :q<CR>
+  " We'll never need to edit a tarball or QuickFix list. TODO why NETRW ignored
+  au FileType TAR,QF,NETRW map q :q<CR>
 
   " Always edit git commit messages at position 1L,1C
   au FileType GITCOMMIT :1
