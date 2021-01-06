@@ -5916,7 +5916,7 @@ WHEN OTHERS THEN dbms_output.put_line(SQLCODE || ': ' || SQLERRM || ': ' || DBMS
 
 BEGIN DBMS_OUTPUT.put_line(TO_DATE('2010 10 10 44:55:66', 'YYYSS')); EXCEPTION WHEN OTHERS THEN IF SQLCODE = -01830 THEN DBMS_OUTPUT.put_line('we hit a date error, throw it'); END IF; RAISE; END;
 
--- Print Oracle error code description:
+-- Print Oracle EXCEPTION error code description for a given code:
 BEGIN dbms_output.put_line(SQLERRM(0)); END; -- ORA-0000: normal, successful completion
 
 -- Usually only good for error logging. Or wrap EXECUTE IMMEDIATE DDL statements (which auto commit) in one of these to avoid accidental session commits:
@@ -5932,8 +5932,9 @@ ALTER TRIGGER "SETARS"."DDL_LOGGING_TRIG" ENABLE;
 (TO_CHAR(b.sample_status_date,'J')-TO_CHAR(b.sample_received_date,'J'))+1 - ((((TRUNC(b.sample_status_date,'D'))-(TRUNC(b.sample_received_date,'D')))/7)*2) -
   (CASE WHEN TO_CHAR(b.sample_received_date,'DY')='SUN' THEN 1 ELSE 0 END) - (CASE WHEN TO_CHAR(b.sample_status_date,'DY')='SAT' THEN 1 ELSE 0 END) as BusinessDays
 
--- Oracle numeric angle bracket formatting for numbers using commas and decimal point e.g. <7,592.59>:
+-- Oracle number format angle bracket for negative numbers, commas and decimal point e.g. <7,592.59>:
 to_char(rate*qty,'999,999.99pr') amt
+select to_char(-12345,'999,999.99pr') from dual; -- <1,234.00>
 
 -- Postgres dates:
 created > date('now') - 365

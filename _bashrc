@@ -110,7 +110,7 @@ alias cls=clear
 alias cro='crontab -e'
 alias datecalc="$HOME/code/scripting/datecalc"
 alias ddg='w3m http://duckduckgo.com/lite'
-alias f='fg'  # jobs -s  to list what's suspended
+#%alias f='fg'  # jobs -s  to list what's suspended
 alias g=$HOME/dotfiles/gone.sh
 # Can't use sed to eliminate leading spaces or it breaks coloring
 # alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
@@ -448,7 +448,7 @@ case "$OSTYPE" in
     # Alias Cygwin  #{{{2
     #-------------------
     # alias by=exit  # like FTP and SAS
-    alias d1='vim /cygdrive/c/temp/1'
+    alias d1='vim /cygdrive/c/temp/1 /cygdrive/c/temp/2'
     alias d2='vim /cygdrive/c/temp/2'
     alias d12="(cd /cygdrive/c/temp; vi -Rc 'map q :qa<CR>' -Rd 1 2)"
     alias d13="(cd /cygdrive/c/temp; vi -Rc 'map q :qa<CR>' -Rd 1 3)"
