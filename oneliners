@@ -507,9 +507,6 @@ vi -R foo.txt
 " Verify runtime startup etc:
 vi -V2                   
 
-" Restore project folds, windows, etc. :mksession!:
-vi -S [Session.vim]      
-
 " On (K)eyword for help or man etc.:
 K                        
 
@@ -637,9 +634,12 @@ if $MYENVVAR =~ 'my vim regex$' ... endif
 " Delete duplicate lines
 :%s/^\(.*\)\(\n\1\)\+$/\1/
 
-" Save Session:
-:mksession! .debug
-vim -S /mnt/nfs/home/bheckel/bob/ImmTasks/.debug
+:mksession!
+vi -S Session.vim      
+" Custom Save Session:
+:mksession! ~/ses/48130
+" Restore project folds, windows, etc. :mksession!:
+vi -S ~/ses/48130
 
 " Open file from command line at specific search place location:
 vim -c '/tmm_targeted_list_refresh' ~/template_print.sas
@@ -5364,11 +5364,22 @@ select deptno from scott.emp INTERSECT select deptno from scott.dept  -- 10, 20,
 -- Capture Oracle userid (note NO SEMICOLON to terminate the SQL):
 EXECUTE IMMEDIATE q'[ SELECT sys_context('setars_context', 'employee_id') from dual ]' INTO whoami;
 
+-- Determine Oracle version digits v9+.  E.g. 18:
+SQL> SET SERVEROUT ON; SQL> EXEC DBMS_OUTPUT.PUT_LINE(DBMS_DB_VERSION.VERSION);
 -- Full dotted Oracle version:
 SELECT * FROM v$version; -- Oracle Database 11g Enterprise Edition Release 11.2.0.4.0 - 64bit Production
 
 --Oracle database hostname instance version, rack, status information:
 select * from v$instance;
+
+-- TNS, Oracle version etc:
+show connection
+
+-- Also allows determination of which oracle version(s) are installed:
+/oracle/app/oracle/product/9208HP64DB1_PAR/bin/tnslsnr LISTENER
+/oracle/app/oracle/product/8.0.6/bin/tnslsnr LISTENER -inherit
+
+c:\oracle\ora920\network\admin\tnsnames.ora
 
 -- Oracle which database HOST am i are we on e.g durax2342:
 SELECT SYS_CONTEXT('USERENV', 'SERVER_HOST') FROM DUAL;
@@ -5845,17 +5856,8 @@ select column_name, nullable, concat(concat(concat(data_type,'('),data_length),'
 -- Poke around:
 -- Oracle DBA_OBJECTS : All objects in the database  ALL_OBJECTS : All objects accessible to the user  USER_OBJECTS : All objects owned by the user
 
--- TNS, Oracle version etc:
-show connection
-
--- View indexes, last analyzed etc alternative to DBMS_METADATA:
+-- View indexes, last analyzed etc alternative to DBMS_METADATA sqlcl:
 clear screen; info contact_dhub; ddl contact_dhub;
-
--- Also allows determination of which oracle version(s) are installed:
-/oracle/app/oracle/product/9208HP64DB1_PAR/bin/tnslsnr LISTENER
-/oracle/app/oracle/product/8.0.6/bin/tnslsnr LISTENER -inherit
-
-c:\oracle\ora920\network\admin\tnsnames.ora
 
 -- Oracle are you listening listener?
 $ ps -ef |grep lsn  # /oracle/app/oracle/product/8.0.6/bin/tnslsnr LISTENER -inherit
@@ -6621,8 +6623,9 @@ create table t1 as select date '2010-01-01'+rownum x, rownum y  from dual connec
 -- Modified analytic outer join to get every hr, every room and who reserved it:
 select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2;
 
--- Suppress SQL output while calculating execution plan cost:
-set autotrace traceonly explain -- then SELECT ename FROM emp;
+-- Suppress sqlplus SQL output while calculating execution plan cost (assumes set SERVEROUTPUT on size unl)
+set autotrace traceonly explain
+SELECT ename FROM emp;
 
 -- Use previous sql:
 EXPLAIN PLAN FOR SELECT * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display(null, null, 'typical')); ROLLBACK;
@@ -6668,7 +6671,7 @@ select split_out_nums from customer_favorites OUTER APPLY json_table( '[' || cf.
 quoteddatestring := chr(39) || to_char(SYSDATE - 1, 'DDMONYY') || chr(39);
 SELECT 'select count(*), ' || chr(39) || t.from_table || chr(39) || ' x from ' || t.from_table || ' where ' || t.from_column || ' =  14377280;' FROM ACCT_NAME_ID_FK_MV t;
 
--- Oracle number data type precision & scale:
+-- Oracle number data type floating point precision & scale:
 NUMBER(3, 2)  -- min -9.99  max 9.99
 NUMBER(12, 2)  -- store up to one cent below $10B, $9,999,999,999.99
 
@@ -6715,9 +6718,6 @@ PROCEDURE send_cdhub(in_job_action VARCHAR2, in_job_prefix VARCHAR2 DEFAULT 'DEL
 
 -- PLSQL preprocessor version check:
 BEGIN $IF dbms_db_version.ver_le_11_2 $THEN dbms_output.put_line('ok') /*RESULT_CACHE*/ $END; END;
-
--- Determine Oracle version v9+:
-SQL> SET SERVEROUT ON; SQL> EXEC DBMS_OUTPUT.PUT_LINE(DBMS_DB_VERSION.VERSION);
 
 -- Skip virtual columns:
 IF upper(trim(t_cols_tab(i).virtual_column)) = 'YES' THEN CONTINUE; END IF;
@@ -7519,7 +7519,7 @@ Excel uses exponentiation e.g. 1E+13 for large numbers - avoid by Format Cells :
 :: Find DNS info for a site (or IP)
 nslookup zdatapost.sgk.com
 
-:: Find which version of the hell that is Java that are you running:
+:: Find which version of the hell that is Java that are you running (suffering from):
 c:\> C:\ProgramData\Oracle\Java\javapath\java -fullversion
 C:\Users\bheck\Oracle\sqldeveloper\jdk\jre\bin -version
 
