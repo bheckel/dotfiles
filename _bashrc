@@ -707,8 +707,8 @@ case "$OSTYPE" in
         export TERM=screen-256color
 
         alias cdd="cd $HOME/downloads"
-        alias gital='cd ~/dotfiles && git add . && git commit -m"mod gitall termux" && git push'
-        alias gitall='cd ~/dotfiles && git add . && git commit -m"mod gitall termux" && git push'
+        alias gital='cd ~/dotfiles && git add . && git commit -m"mod gitall termux" && git push && git pull'
+        alias gitall='cd ~/dotfiles && git add . && git commit -m"mod gitall termux" && git push && git pull'
         alias nb='newsboat -q -r'
         alias pa='termux-media-player pause'
         alias pl='termux-media-player play'
