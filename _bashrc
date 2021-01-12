@@ -687,6 +687,10 @@ case "$OSTYPE" in
 ###        export VIMRUNTIME=/home/chronos/user/.vim
       fi
 
+      if [ $HOSTNAME = 'penguin' ]; then
+        alias tos="$HOME/thinkorswim/thinkorswim&"
+      fi
+
       # Use: bigshell FONTSIZE (where fontsize defaults to 16)
       function bigshell() {
         fontsize=${1:-16}
