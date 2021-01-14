@@ -6995,6 +6995,9 @@ SELECT job_name, job_action, CASE WHEN (state = 'SCHEDULED' AND last_run_duratio
 DROP INDEX sp_processing_id_pk;  --fail
 ALTER TABLE SP_PROCESSING DROP CONSTRAINT sp_processing_id_pk;  -- success
 
+-- Show the column affected by ORA-02291 constraint:
+SELECT column_name FROM user_cons_columns ucc, user_constraints uc WHERE uc.CONSTRAINT_NAME = 'ACCT_TM_ACC_TM_ASSIGN_FK' AND ucc.CONSTRAINT_NAME = uc.CONSTRAINT_NAME;
+
 -- Oracle max length index name 30 char
 
 -- Calculate difference in minutes between 2 DATE columns in a table:
