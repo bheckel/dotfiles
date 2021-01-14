@@ -4,7 +4,7 @@
 # Summary: bash config for at least Unix, Linux, Cygwin and z/OS
 #
 #  Created: Tue 19-May-1998 (Bob Heckel)
-# Modified: Sun 20-Dec-2020 (Bob Heckel)
+# Modified: Sun 10-Jan-2021 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -110,7 +110,7 @@ alias cls=clear
 alias cro='crontab -e'
 alias datecalc="$HOME/code/scripting/datecalc"
 alias ddg='w3m http://duckduckgo.com/lite'
-#%alias f='fg'  # jobs -s  to list what's suspended
+alias f='fg'  # jobs -s  to list what's suspended
 alias g=$HOME/dotfiles/gone.sh
 # Can't use sed to eliminate leading spaces or it breaks coloring
 # alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
@@ -687,6 +687,10 @@ case "$OSTYPE" in
 ###        export VIMRUNTIME=/home/chronos/user/.vim
       fi
 
+      if [ $HOSTNAME = 'penguin' ]; then
+        alias tos="$HOME/thinkorswim/thinkorswim&"
+      fi
+
       # Use: bigshell FONTSIZE (where fontsize defaults to 16)
       function bigshell() {
         fontsize=${1:-16}
@@ -707,8 +711,9 @@ case "$OSTYPE" in
         export TERM=screen-256color
 
         alias cdd="cd $HOME/downloads"
-        alias gital='cd ~/dotfiles && git add . && git commit -m"mod gitall termux" && git push'
-        alias gitall='cd ~/dotfiles && git add . && git commit -m"mod gitall termux" && git push'
+        # When $HOME/code/misc/gitall isn't available
+        alias gital='cd ~/dotfiles && git add . && git commit -m"mod gitall termux" && git push && git pull'
+        alias gitall='cd ~/dotfiles && git add . && git commit -m"mod gitall termux" && git push && git pull'
         alias nb='newsboat -q -r'
         alias pa='termux-media-player pause'
         alias pl='termux-media-player play'
