@@ -589,7 +589,7 @@ case "$OSTYPE" in
       alias d13="(cd ~/tmp; vi -Rd 1 3)"
       alias d123="(cd ~/tmp; vi -Rd 1 2 3)"
       alias d34="(cd ~/tmp; vi -Rd 3 4)"
-      alias hiber='pkexec xfce4-pm-helper --hibernate && sleep 5 && sudo tlsdate -V -H encrypted.google.com'
+      alias hiber='pkexec xfce4-pm-helper --hibernate && sleep 3 && sudo tlsdate -V -H encrypted.google.com'
       alias ll='ls -lh --color --group-directories-first'
       ###alias moz='export DISPLAY=158.111.250.170:0.0; mozilla&'
       ###alias sqlplus=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/sqlplus
