@@ -458,7 +458,8 @@ case "$OSTYPE" in
     ###alias budrsync='rsync -avz /home/bheckel/code/ root@buddha:/home/bheckel/code && rsync -avzL /home/bheckel/tobuddha/ root@buddha:/home/bheckel/tobuddha'
     # Cygwin fix.  Use the real fg for e.g. fg %2
     alias f='fg; echo'
-    alias gv=gvim
+    #TODO make more generic
+    alias gv='(cd ~/dotfiles && $(cygpath -H)/$USER/vim/vim81/gvim.exe -u _vimrc)'
     # Allow output to be triple clicked as a noop
     ###alias h='history|tail -20|perl -pe "s/(\d+)(.*)/: \1; \2/"'
     alias l='ls -GFw80 --color=none'   # for speed in Cygwin
