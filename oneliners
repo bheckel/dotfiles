@@ -3269,6 +3269,8 @@ prtconf -v | grep Memory
 isainfo -v
 # Determine processor you have on Solaris:
 psrinfo -v
+# Determine processor you have on Linux:
+lscpu
 
 # Poll memory:
 while true; do date >> ~/free.txt ; free -g -o >> ~/free.txt; sleep 5; done
