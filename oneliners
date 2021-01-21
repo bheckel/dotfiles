@@ -7041,6 +7041,9 @@ IF (MOD(i, 1000) = 0) THEN DBMS_OUTPUT.put_line(i || ' id: ' || l_recs(i).id); E
 -- List information about each table in a database (SQL Server):
 select * from information_schema.tables where  table_type='BASE TABLE' 
 
+-- Does procedure exist?:
+SELECT count(1) FROM user_procedures WHERE procedure_name = 'AUTO_CREATE';
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
