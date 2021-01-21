@@ -607,13 +607,13 @@ echon '.vimrc: unknown language: (' mylang ') so using default Commentout style'
 if hostname() == 'yoniso' ... else ... endif
 
 " Share ;w across network
-scp bheckel@sas-01.twa.taeb.com://mnt/nfs/home/bheckel/tmp/.vimxfer ~/tmp 
+scp b@sas-01.twa.taeb.com://mnt/nfs/home/bheckel/tmp/.vimxfer ~/tmp 
 
 " Copy this file to another host from vim (no warning on overwrite!):
-:w scp://bheckel@sas-01.mrk.taeb.com/bin/%
+:w scp://b@sas-01.mrk.taeb.com/bin/%
 
 # Share my vimxfer file across machines:
-alias xfer='scp ~/tmp/.vimxfer bheckel@talon3:tmp/.vimxfer'
+alias xfer='scp ~/tmp/.vimxfer b@talon3:tmp/.vimxfer'
 
 # Set a shell variable:
 WHEREISVIMRUNTIME=`vim -e -T dumb --cmd 'exe "set t_cm=\<C-M>"|echo $VIMRUNTIME|quit' | tr -d '\015'`
@@ -624,7 +624,7 @@ $ vim -e -T dumb --cmd 'exe "set t_cm=\<C-M>"|echo $VIMRUNTIME|quit'
 :s/\(.\{12\}\).*/\1/
 
 " vim scp diff scp across networks using vim:
-vi -d /Drugs/update_shortname_ds.sas scp://bheckel@sas-01.mrk.taeb.com//Drugs/update_shortname_ds.sas
+vi -d /Drugs/update_shortname_ds.sas scp://b@sas-01.mrk.taeb.com//Drugs/update_shortname_ds.sas
 
 " Find two strings in any order:
 /.*reboot\&.*box
@@ -652,7 +652,7 @@ vi -S ~/ses/48130
 vim -c '/tmm_targeted_list_refresh' ~/template_print.sas
 
 -- Edit Postgres stored procedure in vim:
-bheckel@db-dev-01.twa.taeb.com:TAEBMART \ef analytics.tmm_client_build_config
+b@db-dev-01.twa.taeb.com:TAEBMART \ef analytics.tmm_client_build_config
 
 nnoremap ,hdr :-1read ~/code/sas/Headertmplt.sas<CR>
 
@@ -2693,7 +2693,7 @@ $ export DISPLAY=158.111.250.163:0.0 && mozilla&
 # crontab -e fields: min hr day mon wkday(0=Sun,6=Sat)
 
 # Run cron job on last day of every month
-00 07 28-31 * * [[ $(date -d +1day +\%d) -eq 01 ]] && echo 'james script will be ok at 500 today' | mailx bheckel@gmail.com
+00 07 28-31 * * [[ $(date -d +1day +\%d) -eq 01 ]] && echo 'james script will be ok at 500 today' | mailx heckel@gmail.com
 # Run cron job every 30 minutes:
 5,35 * * * * /usr/bin/dfmon
 # Run cron job every Saturday & Sunday at 3:59am 4:59am 5:59pm
@@ -4140,8 +4140,8 @@ sudo apt-cache policy vim
 sudo apt-get update && sudo apt-get upgrade
 
 # Process substitution ssh diff across network DEPRECATED USE VIM:
-vi -d <(ssh bheckel@sas-01.twa.taeb.com "cat /Drugs/Personnel/bob/t.sas") <(cat /Drugs/bheckel/t.sas)
-vi -d <(ssh bheckel@atlon3 "cat /Drugs/EGP/Humana_weekly_task_Freds.sas") <(cat Freds_priority_enrollment.orig.sas)
+vi -d <(ssh b@sas-01.twa.taeb.com "cat /Drugs/Personnel/bob/t.sas") <(cat /Drugs/bheckel/t.sas)
+vi -d <(ssh b@atlon3 "cat /Drugs/EGP/Humana_weekly_task_Freds.sas") <(cat Freds_priority_enrollment.orig.sas)
 
 # Diff two files across the network on two boxes using ssh:
 ssh user@remote "cat /path/to/remote/file.txt" | diff - /path/to/local/file.txt
@@ -4315,9 +4315,9 @@ sudo yum install postgresql  # psql
 sudo shutdown -r now
 
 # Sync a remote directory to the local system.  -a syncs recursively, preserves symlinks, special and device files, modification times, group, owner, and permissions, -P gives progress bar for the transfers and allows resume interrupted transfers
-rsync --dry-run -avP bheckel@talon3://mnt/nfs/home/bheckel/tmp/1440187439_21Aug15/dir1/ dir1  # pull - trailing slash important
-rsync -avP dir1/ bheckel@talon3://mnt/nfs/home/bheckel/tmp/1440187439_21Aug15/dir1/  # push
-rsync -avP --delete dir1/ bheckel@talon3://mnt/nfs/home/bheckel/tmp/1440187439_21Aug15/dir1/  # true sync - also rm remote files like local ones already deleted manually
+rsync --dry-run -avP b@talon3://mnt/nfs/home/bheckel/tmp/1440187439_21Aug15/dir1/ dir1  # pull - trailing slash important
+rsync -avP dir1/ b@talon3://mnt/nfs/home/bheckel/tmp/1440187439_21Aug15/dir1/  # push
+rsync -avP --delete dir1/ b@talon3://mnt/nfs/home/bheckel/tmp/1440187439_21Aug15/dir1/  # true sync - also rm remote files like local ones already deleted manually
 
 # Megfile about 100MB
 dd if=/dev/zero of=biggarbage bs=10000 count=10000
@@ -4409,7 +4409,7 @@ for i in `find /Drugs/Personnel -maxdepth 1 -type d`; do du -sh $i; done | sort 
 # Poor man's expect:
 printf 'y\nbob.heckel\nMyPw\npush\n' | /opt/cisco/anyconnect/bin/vpn -s connect portal.taeb.com
 
-cat ~/clids.txt | xargs ~bheckel/bin/isdata.sh; ssh bheckel@sas-01.mrk.taeb.com 'cat ~/clids.txt | xargs ~bheckel/bin/isdata.sh'
+cat ~/clids.txt | xargs ~bheckel/bin/isdata.sh; ssh b@sas-01.mrk.taeb.com 'cat ~/clids.txt | xargs ~bheckel/bin/isdata.sh'
 
 # Make tmux windows panes tile evenly:
 :select-layout even-horizontal
@@ -4434,7 +4434,7 @@ for i in {0..255} ; do printf "\x1b[38;5;${i}mcolour${i}\n"; done
 
 whatismyip=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
 
-50 15 * * * ssh bheckel@sas-01.mrk.taeb.com ~/bin/saslog_grep.pl -x /sasdata/Cron/Daily/TMMTargetedList/tmm_run_check.log
+50 15 * * * ssh b@sas-01.mrk.taeb.com ~/bin/saslog_grep.pl -x /sasdata/Cron/Daily/TMMTargetedList/tmm_run_check.log
 
 sudo timedatectl set-timezone America/New_York
 
@@ -6269,7 +6269,7 @@ with v as ( select date '2000-01-01' d, 10 amt from dual union all select date '
 select age('1965-10-30'::date), date_part('year', age('2017-12-31', '1965-10-30'))
 
 -- Run Postgres script:
-bheckel@db-dev-01.twa.taeb.com:TAEBMART \i /sasdata/Personnel/bob/DashboardETLenroll/Dev_to_db-06_20171111_final.sql
+bb@db-dev-01.twa.taeb.com:TAEBMART \i /sasdata/Personnel/bob/DashboardETLenroll/Dev_to_db-06_20171111_final.sql
 
 -- Postgres copy table:
 CREATE TABLE mycopy (LIKE mytable INCLUDING ALL); INSERT INTO mycopy SELECT * FROM mytable;
