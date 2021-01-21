@@ -405,6 +405,11 @@ function fin() {
   find . -maxdepth 1 -iname "*${1}*"
 }
 
+function stk() {
+  # Screenscrape
+  w3m -dump https://finance.yahoo.com/quote/${1}%3Fp=${1}/ | grep --after-context=3 watchlist | tail -n2
+}
+
 # Generic Functions end
 
 
