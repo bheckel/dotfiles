@@ -5607,6 +5607,11 @@ select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, USERNAME, CO
 -- Oracle package count:
 SELECT OBJECT_NAME, count(*) FROM dba_procedures WHERE OWNER = 'SETARS' AND OBJECT_TYPE IN('PROCEDURE' , 'PACKAGE','FUNCTION') AND procedure_name IS NOT NULL GROUP BY object_name;
 
+-- Does schema-level procedure exist?:
+SELECT count(1) FROM user_procedures WHERE object_name = 'AUTO_CREATE';
+-- Does a procedure inside a package exist?:
+SELECT * FROM user_procedures WHERE OBJECT_TYPE IN('PROCEDURE', 'PACKAGE') AND object_name='REFERENCES' AND procedure_name='AUTO_CREATE';
+
 -- Oracle single q quote quoting masking:
 foo CONSTANT  varchar2(4000) := q'[bar 'ok' then 4000 is max varchar2]';
 
@@ -6745,6 +6750,7 @@ select segment_name table_name, sum(bytes)/(1024*1024) table_size_meg, sum(bytes
 -- Force compile ORA- errors for any PLW- warnings:
 ALTER SESSION SET plsql_warnings = 'ERROR:6002' -- upgrade the 'unreachable code' warning
 ALTER SESSION SET plsql_warnings = 'ERROR:ALL'
+ALTER SESSION SET plsql_warnings = 'ENABLE:ALL';
 
 -- Assume that in 1999 the database displays 01-JAN-11. If Oracle date format uses DD-MON-RR, then 11 specifies 2011, but if YY, then 11 specifies 1911
 
@@ -7049,9 +7055,6 @@ IF (MOD(i, 1000) = 0) THEN DBMS_OUTPUT.put_line(i || ' id: ' || l_recs(i).id); E
 
 -- List information about each table in a database (SQL Server):
 select * from information_schema.tables where  table_type='BASE TABLE' 
-
--- Does procedure exist?:
-SELECT count(1) FROM user_procedures WHERE procedure_name = 'AUTO_CREATE';
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
