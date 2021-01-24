@@ -62,7 +62,7 @@ max_text_width 150
 # Has to be > 1000 as of 15-Jun-14
 text_buffer_size 2048
 
-# Draw shades?
+# Adds a narrow shadow on text and lines to make them easier to read on relatively low contrast backgrounds
 draw_shades yes
 
 # Draw outlines?
@@ -71,13 +71,10 @@ draw_outline no
 # Draw borders around text
 draw_borders no
 
-# Stippled borders?
 stippled_borders 8
 
-# border margins
 ###border_margin 4
 
-# border width
 border_width 1
 
 # Default colors and also border colors
