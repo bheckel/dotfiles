@@ -12,7 +12,6 @@
 #           Depends on .bashrc's $fg_... 
 #
 #           TODO fix inability to pass -c -0
-#           TODO add CANONICAL switch
 #
 #  Created: Wed 20 Nov 2002 12:54:09 (Bob Heckel)
 # Modified: Mon 14 Jan 2019 09:08:58 (Bob Heckel)
@@ -21,7 +20,6 @@
 F="$HOME/dotfiles/oneliners"
 
 IGCASE=--ignore-case
-###CANONICAL=0
 
 Usage() {
   echo "Usage: `basename $0` [-c] PERLREGEX [ (d)atabase | (s)as | s(c)ripting | (u)nix | (v)im | (m)isc ]
