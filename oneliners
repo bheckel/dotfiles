@@ -4136,8 +4136,10 @@ sudo apt-cache search vim
 sudo apt-cache show vim
 sudo apt-cache policy vim
 
-# Debian, Ubuntu regular update mantra (not dist upgrade):
+# Debian, Ubuntu regular update mantra (not dist upgrade!):
 sudo apt-get update && sudo apt-get upgrade
+sudo apt-get -y update && sudo apt-get -y upgrade
+sudo apt autoremove
 
 # Process substitution ssh diff across network DEPRECATED USE VIM:
 vi -d <(ssh b@sas-01.twa.taeb.com "cat /Drugs/Personnel/bob/t.sas") <(cat /Drugs/bheckel/t.sas)

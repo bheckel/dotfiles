@@ -97,7 +97,6 @@ alias bc="bc -lq"  # allow floating point calcs, mess up other stuff
 alias be="vi $HOME/.bashrc"
 alias bgrep="$HOME/code/scripting/bgrep"
 alias by=exit  # keepin' up the FTP tradition
-alias catput=$HOME/code/misc/catput.sh
 alias cd..='cd ..; ls'
 alias cdc="cd $HOME/code"
 alias cdd="cd $HOME/code/database"
@@ -452,7 +451,7 @@ case "$OSTYPE" in
     #-------------------
     # Alias Cygwin  #{{{2
     #-------------------
-    # alias by=exit  # like FTP and SAS
+    alias catput=$HOME/code/misc/catput.sh
     alias d1='vim /cygdrive/c/temp/1 /cygdrive/c/temp/2'
     alias d2='vim /cygdrive/c/temp/2'
     alias d12="(cd /cygdrive/c/temp; vi -Rc 'map q :qa<CR>' -Rd 1 2)"
@@ -461,13 +460,13 @@ case "$OSTYPE" in
     alias d123="(cd /cygdrive/c/temp; vi -Rc 'map q :qa<CR>' -Rd 1 2 3)"
     # alias cygwin=$HOME/code/misc/cygwin.bat  # norc bat version must be doubleclicked
     ###alias budrsync='rsync -avz /home/bheckel/code/ root@buddha:/home/bheckel/code && rsync -avzL /home/bheckel/tobuddha/ root@buddha:/home/bheckel/tobuddha'
-    # Cygwin fix.  Use the real fg for e.g. fg %2
+    # Cygwin bugfix.  Use the real fg for e.g. fg %2
     alias f='fg; echo'
-    #TODO make more generic
+    #TODO make generic
     alias gv='(cd ~/dotfiles && $(cygpath -H)/$USER/vim/vim81/gvim.exe -u _vimrc)'
     # Allow output to be triple clicked as a noop
     ###alias h='history|tail -20|perl -pe "s/(\d+)(.*)/: \1; \2/"'
-    alias l='ls -GFw80 --color=none'   # for speed in Cygwin
+    alias l='ls -GFw80 --color=none'   # for speed on Cygwin
     # Eliminate . .., owner and group info on Cygwin
     alias ll='ls -FloGgh --color=auto'
     alias lla='ls -FlAoh --color=auto'
@@ -694,7 +693,11 @@ case "$OSTYPE" in
       fi
 
       if [ $HOSTNAME = 'penguin' ]; then
-        alias tos="$HOME/thinkorswim/thinkorswim&"
+        function catput() {
+          #%printf "\033]52;c;$(printf $buf "" | base64)\a"
+          # tmux version
+          printf "\033]52;c;$(cat ${1} | base64)\a" > /dev/pts/0 
+        }
       fi
 
       # Use: bigshell FONTSIZE (where fontsize defaults to 16)
