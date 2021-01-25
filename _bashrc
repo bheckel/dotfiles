@@ -409,6 +409,25 @@ function stk() {
   w3m -dump https://finance.yahoo.com/quote/${1}%3Fp=${1}/ | grep --after-context=3 watchlist | tail -n2
 }
 
+function exd() {
+  ticker=$(echo $1 | tr [a-z] [A-Z])
+  # Screenscrape
+  w3m -dump https://finance.yahoo.com/quote/${ticker} | grep Ex-Dividend
+}
+
+# s=cf; stk $s; exd $s; opt $s 210219 045
+function opt() {
+  ticker=$(echo $1 | tr [a-z] [A-Z])
+
+  #w3m -dump https://finance.yahoo.com/quote/${ticker}/options?strike=${2}&straddle=false | grep CF2#"^${ticker}"
+  echo -n 'short call '
+  #%w3m https://finance.yahoo.com/quote/CF210219C00044000 |grep Bid
+  w3m https://finance.yahoo.com/quote/${ticker}${2}C00${3}000 |grep Bid
+
+  echo -n 'long put '
+  w3m https://finance.yahoo.com/quote/${ticker}${2}P00${3}000 |grep Ask
+}
+
 # Generic Functions end
 
 
