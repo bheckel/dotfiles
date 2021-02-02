@@ -4474,6 +4474,10 @@ lsof -i -P -n|grep LISTEN
 # Find monitor resolution aspect ratio:
 xrandr
 
+# system messages since last boot:
+journalctl -b -1
+journalctl --since "2015-02-02 20:30:00"
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
