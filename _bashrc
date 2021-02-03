@@ -713,6 +713,7 @@ case "$OSTYPE" in
 
       if [ $HOSTNAME = 'penguin' ]; then
         function catput() {
+          echo 'printf...'
           #%printf "\033]52;c;$(printf $buf "" | base64)\a"
           # tmux version
           printf "\033]52;c;$(cat ${1} | base64)\a" > /dev/pts/0 
@@ -750,6 +751,7 @@ case "$OSTYPE" in
         alias tupd='pkg update && pkg upgrade'
 
         function catput() {
+          echo 'termux-clipboard-set...'
           cat ${1} | termux-clipboard-set
         }
 
