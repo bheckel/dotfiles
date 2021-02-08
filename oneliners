@@ -2594,6 +2594,8 @@ options DATASTMTCHK=COREKEYWORDS;
 
 libname atlas cas caslib="MKC - Atlas (DNFS)" datalimit=ALL; proc print data=atlas.diball(obs=10);run;
 
+%put &SYSTCPIPHOSTNAME; /* hostname */
+
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxUNIXxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -5800,8 +5802,6 @@ select * FROM all_objects WHERE OWNER = 'BOBHECKEL' and object_type = 'FUNCTION'
 select * from DICTIONARY WHERE table_name LIKE 'USER_%' ORDER BY 1;
 select table_name, comments from DICT where table_name like 'DBA%SCHEDULER%' order by table_name;
 
-SELECT * FROM user_role_privs WHERE granted_role = 'SELECT_CATALOG_ROLE';
-
 -- Oracle list browse show all schemas poke around:
 SELECT username FROM all_users ORDER BY username;
 -- Does table exist:
@@ -5810,10 +5810,15 @@ SELECT COUNT(1) FROM all_tables a WHERE a.TABLE_NAME = 'TAXONOMY'
 SELECT owner, table_name FROM all_tables where owner = 'SCOTT';
 SELECT owner, table_name FROM user_tables where owner = 'SCOTT';
 SELECT owner, table_name FROM all_tables@xyz.us.oracle.com
--- Oracle list browse all views find view:
+
+-- Oracle list browse all views find view is it a view:
 select * from all_views where view_name like '%SPEC%'
+select * from user_views where view_name ='MKC_REVENUE';
+
 -- Oracle list browse all table details:
 SELECT table_name, column_name, data_type, data_length, nullable, num_distinct, low_value, high_value, density FROM all_tab_columns WHERE table_name in(SELECT table_name FROM all_tables where owner ='SCOTT') and owner ='SCOTT' ORDER BY table_name, column_name
+-- Where 'DDL WW_MGMT_DASH_DATA_IDEAS' is not available:
+SELECT table_name, column_name, data_type, data_length, nullable, num_distinct, low_value, high_value, density FROM all_tab_columns@dew WHERE table_name='WW_MGMT_DASH_DATA_IDEAS';
 
 -- Find query search all Oracle tables & views for a certain field name column name poke around:
 SELECT table_name, column_name FROM cols WHERE lower(table_name) LIKE 'accou%' AND lower(column_name) LIKE '%id%';
@@ -5830,16 +5835,15 @@ select * from user_dependencies where name = 'RPT_OPP_MULTI_YDEAL' and reference
 select * from user_dependencies where REFERENCED_NAME = 'OPP_BASE' and referenced_type not in ('SYNONYM') order by 1;
 
 -- Want list all of a table's indexes and tablespace:
-select index_name, tablespace_name from user_indexes where TABLE_NAME = 'SP_PROCESSING';
+select index_name, tablespace_name from user_indexes where TABLE_NAME = 'SP_PROCESSING' and index_name not like 'SYS_%';
 
 -- Want table name that uses this index:
 select table_name from user_indexes where index_name='CONTACT_FIRSTNAME_IX';
 
 -- Want table and columns being indexed for this index:
-SELECT * from all_ind_columns WHERE index_name = 'MYIX';
-
--- Is this column being indexed:
-SELECT * from all_ind_columns WHERE column_name = 'MYCOL';
+SELECT * from user_ind_columns WHERE index_name = 'KIR_HC_AC_CIX';
+-- Is this column being indexed anywhere:
+SELECT * from user_ind_columns WHERE column_name = 'MYCOL';
 
 -- Foreign Key is that same value stored within MULTIPLE rows of the other aka "detail" table. It should be indexed unless its matching PK is never updated or deleted:
 create table emp(empid NUMBER(20) PRIMARY KEY, ename VARCHAR2(20), sal number(10,2), dept_id NUMBER(10) REFERENCES dept(dept_id) ON DELETE CASCADE);
@@ -5891,6 +5895,7 @@ SYS.DBMS_SESSION.sleep(60);  -- 18c+ 1 minute
 select (SYSDATE - INTERVAL '1' hour) from dual  -- one hour ago
 select (SYSDATE - INTERVAL '1' day) from dual  -- 17-JUL-19 12:11:48
 select (SYSTIMESTAMP - INTERVAL '1' day) from dual  -- 17-JUL-19 12.12.11.043644000 PM -04:00
+select sysdate, (sysdate - .5) twelve_hours_ago_ora, (SYSDATE - INTERVAL '12' hour) twelve_hours_ago from dual;
 
 -- 18-JUL-19 12.13.00.755657000 PM -04:00 / 18-JUL-19 12.13.00.756657000 PM -04:00 / 18-JUN-19 12:13:00
 SELECT (systimestamp - INTERVAL '0.001' SECOND), SYSTIMESTAMP, (SYSDATE - INTERVAL '1' MONTH) FROM dual
@@ -6518,8 +6523,9 @@ WITH v AS (select trunc(sysdate)+548/1440+rownum/1440 d1 from dual connect by le
 -- View determine Oracle grants privileges:
 SELECT * FROM  DBA_SYS_PRIVS WHERE grantee='SETARS' and privilege like '%OBJ%';
 SELECT * FROM  DBA_role_PRIVS WHERE grantee='SETARS';
+SELECT * FROM user_role_privs WHERE granted_role = 'SELECT_CATALOG_ROLE';
 -- View determine Oracle grants privileges for a specific user schema (d.table_name can be a view):
-SELECT * FROM DBA_TAB_PRIVS d WHERE d.table_name = 'RPT_PTG_OPPORTUNITIES' and d.grantee='ES_PSUX';
+SELECT * FROM DBA_TAB_PRIVS d WHERE d.table_name = 'RPT_PTG_OPPORTUNITIES' and d.grantee='SE_PSUX';
 
 -- Build Oracle GRANT statements dynamically:
 select 'GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE ON ' || tname || ' to pks_user' from mytab;
@@ -7057,6 +7063,9 @@ IF (MOD(i, 1000) = 0) THEN DBMS_OUTPUT.put_line(i || ' id: ' || l_recs(i).id); E
 
 -- List information about each table in a database (SQL Server):
 select * from information_schema.tables where  table_type='BASE TABLE' 
+
+-- Double quote a string:
+select '''' || x || '''' indexkeys from ( SELECT listagg(column_name, ''',''') within group (order by column_position) x FROM user_ind_columns WHERE index_name = 'KIR_HC_DV_CIX' );
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
