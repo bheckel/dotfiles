@@ -1836,7 +1836,8 @@ if !exists("autocommands_loaded")
   " endif
 
   " Resize buffer (most convenient with number keypad) if more than one exists
-  " GUI uses + for font resizing (due to inability to use control-mousewheel)
+  " GUI uses + for font resizing (due to inability to use control-mousewheel
+  " in 2018)
   if ! has('gui')
     if exists('+getbufinfo')
       au BufEnter * if len(getbufinfo({'buflisted':1})) > 1 | exe "nnoremap + <C-W>+" | endif
@@ -3079,11 +3080,12 @@ if !hasmapto('<Plug>Commentary') || maparg('gc','n') ==# ''
 endif
 
 " Add FileTypes as needed:
-" # Space
-" autocmd FileType sh,perl,crontab,conf setlocal commentstring=#\ %s
-" #No space
-autocmd FileType crontab,conf,perl,setlocal,sh,text setlocal commentstring=#%%s
-autocmd FileType vim setlocal commentstring=\"%%s
+" Space after '#'
+autocmd FileType sh,perl,crontab,conf setlocal commentstring=#\ %s
+" No space after '#'
+" TODO
+"autocmd FileType crontab,conf,perl,setlocal,sh,text setlocal commentstring=#%%s
+autocmd FileType vim setlocal commentstring=\"%s
 
 "}}}
 
@@ -3122,10 +3124,13 @@ endfunction
 " nnoremap cot :call CycleFont()<cr>
 
 if has('gui_running')
+  " Resize gvim font
+
   " Don't need this pair for mintty because CONTROL+MOUSEWHEEL works properly
   " Fails on Win10 16-Nov-18 
   " nnoremap <C-ScrollWheelUp> :call FontSizePlus()<CR>
   " nnoremap <C-ScrollWheelDown> :call FontSizeMinus()<CR>
+  " ugly hack
   nnoremap <F1> :call FontSizeMinus()<cr>
   nnoremap <F2> :call FontSizePlus()<cr>
 endif
