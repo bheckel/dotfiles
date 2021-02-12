@@ -972,10 +972,16 @@ if has('unix')
 endif
 
 " Quick save as (usually) to ~/tmp/1 for diffs or my d12 functions
-nnoremap ;1 mx \| :%call WriteToFile(VTMP, 1, 0)<CR> \| 'x
-nnoremap ;2 mx \| :%call WriteToFile(VTMP, 2, 0)<CR> \| 'x
-nnoremap ;3 mx \| :%call WriteToFile(VTMP, 3, 0)<CR> \| 'x
-nnoremap ;4 mx \| :%call WriteToFile(VTMP, 4, 0)<CR> \| 'x
+"nnoremap ;1 mx \| :%call WriteToFile(VTMP, 1, 0)<CR> \| 'x
+"TODO not just cygwin
+"nnoremap ;1 :w ~/tmp/1<CR>
+nnoremap ;1 :silent! w! $c/temp/1<CR>
+"nnoremap ;2 mx \| :%call WriteToFile(VTMP, 2, 0)<CR> \| 'x
+nnoremap ;2 :silent w! $c/temp/2<CR>
+"nnoremap ;3 mx \| :%call WriteToFile(VTMP, 3, 0)<CR> \| 'x
+nnoremap ;3 :silent w! $c/temp/3<CR>
+"nnoremap ;4 mx \| :%call WriteToFile(VTMP, 4, 0)<CR> \| 'x
+nnoremap ;4 :silent w! $c/temp/4<CR>
 
 " Checkpoint backup current file:
 " map ;5 :silent write! /c/temp/%:t<CR>
@@ -1829,6 +1835,7 @@ if !exists("autocommands_loaded")
   " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $VIMRUNTIME\syntax\saslog.vim
 
   " Avoid ;w failure if this file is open by accident anywhere by ,e (it should never be edited)
+  "au BufReadPre,FileReadPre *.vimxfer,*/tmp/1,*/tmp/2 set noswapfile
   au BufReadPre,FileReadPre *.vimxfer set noswapfile
 
   " if THISBOX == 'appa'

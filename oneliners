@@ -5524,6 +5524,8 @@ select DECODE(checkme, ifcheckmeisthis, thenuseme, elseuseme) ...
 DECODE(a, b, c, d)
 CASE a WHEN b THEN c ELSE d END
 
+select decode(nvl(geo1, 0),0,'IS NULL','NOT NULL')...
+
 -- Better than  DECODE(p.ip_role_lov_id, null, 34657, p.ip_role_lov_id) :
 NVL(p.ip_role_lov_id, 34657);
 
@@ -6801,9 +6803,6 @@ create index UPPER_NAMES_FBI_IX on mytbl ( upper(myname) );  -- but only used wh
 
 ALTER package SYS.SETARS_SECURITY COMPILE PLSQL_CODE_TYPE=NATIVE;
 
--- Faster INSERT hint:
-insert /*+ APPEND */ into ...
-
 -- Convert hex from things like SELECT table_name, LOW_VALUE FROM user_tab_columns...:
 declare d date; begin dbms_stats.convert_raw_value(hextoraw('505707090E0801'), d); dbms_output.put_line(d); end;
 
@@ -7070,6 +7069,9 @@ select * from information_schema.tables where  table_type='BASE TABLE'
 
 -- Double quote a string:
 select '''' || x || '''' indexkeys from ( SELECT listagg(column_name, ''',''') within group (order by column_position) x FROM user_ind_columns WHERE index_name = 'KIR_HC_DV_CIX' );
+
+-- Index key list for an index:
+SELECT listagg(column_name, ',') within group (order by column_position) x from user_ind_columns WHERE index_name = 'KRB_HC_VP_CIX';
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
