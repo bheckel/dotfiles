@@ -713,7 +713,9 @@ case "$OSTYPE" in
 ###        export VIMRUNTIME=/home/chronos/user/.vim
       fi
 
-      if [ $HOSTNAME = 'penguin' ]; then
+      if [ $HOSTNAME = 'penguin' ] && [ -n "$TMUX" ]; then
+        unalias catput
+
         function catput() {
           echo 'printf...'
           #%printf "\033]52;c;$(printf $buf "" | base64)\a"
