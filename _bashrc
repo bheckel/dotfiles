@@ -606,8 +606,10 @@ case "$OSTYPE" in
       # Alias Linux  #{{{2 
       #----------------
 
+      # Overridden by hostname
+      alias catput=$HOME/code/misc/catput.sh
       # Quick diff
-      alias d1="vim $HOME/tmp/1"
+      alias d1="vim $HOME/tmp/1 $HOME/tmp/2"
       alias d2="vim $HOME/tmp/2"
       alias d12="(cd ~/tmp; vi -Rd 1 2)"
       alias d13="(cd ~/tmp; vi -Rd 1 3)"
