@@ -4,7 +4,7 @@
 # Summary: bash config for at least Unix, Linux, Cygwin and z/OS
 #
 #  Created: Tue 19-May-1998 (Bob Heckel)
-# Modified: Sun 10-Jan-2021 (Bob Heckel)
+# Modified: Sat 13-Feb-2021 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -401,31 +401,38 @@ function gitup() {
 
 
 function fin() {
+  #TODO param for depth
   find . -maxdepth 1 -iname "*${1}*"
 }
 
-function stk() {
-  # Screenscrape
-  w3m -dump https://finance.yahoo.com/quote/${1}%3Fp=${1}/ | grep --after-context=3 watchlist | tail -n2
-}
+# function stk() {
+#   # Screenscrape
+#   w3m -dump https://finance.yahoo.com/quote/${1}%3Fp=${1}/ | grep --after-context=3 watchlist | tail -n2
+# }
 
-function exd() {
-  ticker=$(echo $1 | tr [a-z] [A-Z])
-  # Screenscrape
-  w3m -dump https://finance.yahoo.com/quote/${ticker} | grep Ex-Dividend
-}
+# function exd() {
+#   ticker=$(echo $1 | tr [a-z] [A-Z])
+#   # Screenscrape
+#   w3m -dump https://finance.yahoo.com/quote/${ticker} | grep Ex-Dividend
+# }
 
 # s=cf; stk $s; exd $s; opt $s 210219 045
-function opt() {
-  ticker=$(echo $1 | tr [a-z] [A-Z])
+# function opt() {
+#   ticker=$(echo $1 | tr [a-z] [A-Z])
 
-  #w3m -dump https://finance.yahoo.com/quote/${ticker}/options?strike=${2}&straddle=false | grep CF2#"^${ticker}"
-  echo -n 'short call '
-  #%w3m https://finance.yahoo.com/quote/CF210219C00044000 |grep Bid
-  w3m https://finance.yahoo.com/quote/${ticker}${2}C00${3}000 |grep Bid
+#   #w3m -dump https://finance.yahoo.com/quote/${ticker}/options?strike=${2}&straddle=false | grep CF2#"^${ticker}"
+#   echo -n 'short call '
+#   #%w3m https://finance.yahoo.com/quote/CF210219C00044000 |grep Bid
+#   w3m https://finance.yahoo.com/quote/${ticker}${2}C00${3}000 |grep Bid
 
-  echo -n 'long put '
-  w3m https://finance.yahoo.com/quote/${ticker}${2}P00${3}000 |grep Ask
+#   echo -n 'long put '
+#   w3m https://finance.yahoo.com/quote/${ticker}${2}P00${3}000 |grep Ask
+# }
+function divcol() {
+  id=$(cat ~/bin/td_apikey)
+  curl -X GET --header "Authorization: " "https://api.tdameritrade.com/v1/marketdata/${1}/quotes?apikey=${id}" | jq '.[] | {bidPrice: .bidPrice, mark: .mark, askPrice: .askPrice, divAmount: .divAmount, volatility: .volatility, divAmount: .divAmount, divYield: .divYield, divDate: .divDate}'
+  # sed 's/"ct"/Current/; s/"fl"/Feels Like/; s/"hu"/Humidity/; s/"uv"/UV/; s/"ws"/Wind/; s/"wr"/Weather/; s/"sr"/Sunrise/; s/"ss"/Sunset/; s/"pop1"/Precip Probability 1 hr/; s/"pop2"/Precip 2 hr/' \
+    # ~/tmp/w
 }
 
 # Generic Functions end
@@ -465,12 +472,24 @@ case "$OSTYPE" in
     # Functions Cygwin  #{{{2
     #-------------------
 
+      if [ ${OSTYPE:0:6} = 'cygwin' ]; then
+        function catput() {
+          echo 'putclip...'
+          if [ -e /usr/bin/putclip ]; then
+            echo 'putclip...'
+            cat "$1" | putclip
+          else
+            echo putclip not installed
+          fi
+        }
+      fi
+
     # end Functions Cygwin
 
     #-------------------
     # Alias Cygwin  #{{{2
     #-------------------
-    alias catput=$HOME/code/misc/catput.sh
+    # alias catput=$HOME/code/misc/catput.sh
     alias d1='vim /cygdrive/c/temp/1 /cygdrive/c/temp/2'
     alias d2='vim /cygdrive/c/temp/2'
     alias d12="(cd /cygdrive/c/temp; vi -Rc 'map q :qa<CR>' -Rd 1 2)"
@@ -607,7 +626,7 @@ case "$OSTYPE" in
       #----------------
 
       # Overridden by hostname
-      alias catput=$HOME/code/misc/catput.sh
+      # alias catput=$HOME/code/misc/catput.sh
       # Quick diff
       alias d1="vim $HOME/tmp/1 $HOME/tmp/2"
       alias d2="vim $HOME/tmp/2"
@@ -625,6 +644,18 @@ case "$OSTYPE" in
       #----------------
       # Functions Linux  #{{{2 
       #----------------
+
+      # if [ $(uname) = 'Linux' ]; then
+        function catput() {
+          echo 'xclip...'
+          if [ -e /usr/bin/xclip ]; then
+            echo 'xclip...'
+            cat "$1" | xclip
+          else
+            echo xclip not installed
+          fi
+        }
+      # fi
 
       #----------------
       # Ubuntu #{{{2
@@ -713,14 +744,21 @@ case "$OSTYPE" in
 ###        export VIMRUNTIME=/home/chronos/user/.vim
       fi
 
-      if [ $HOSTNAME = 'penguin' ] && [ -n "$TMUX" ]; then
-        unalias catput
-
+      # if [ $HOSTNAME = 'penguin' ] && [ -n "$TMUX" ]; then
+      if [ $HOSTNAME = 'penguin' ];then
         function catput() {
-          echo 'printf...'
-          #%printf "\033]52;c;$(printf $buf "" | base64)\a"
-          # tmux version
-          printf "\033]52;c;$(cat ${1} | base64)\a" > /dev/pts/0 
+          buf=$(head -n500 ${1})
+          # Mask for printf
+          buf2=$(echo $buf | sed 's/%/%%/')
+
+          #TODO how to tell if TMUX is running IN THIS TERMINAL
+          if [ -n ${TMUX} ];then
+            echo 'tmux printf...'
+            printf "\033]52;c;$(printf $buf2 "" | base64)\a" >/dev/pts/0
+          else
+            echo 'printf...'
+            printf "\033]52;c;$(printf $buf2 "" | base64)\a"
+          fi
         }
       fi
 

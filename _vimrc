@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Sat 02-Jan-2021 (Bob Heckel)
+" Modified: Sat 13-Feb-2021 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -359,8 +359,12 @@ set titlelen=90
 set mousehide
 " For spellchecking:
 set mousemodel=popup
-" 'unnamed' makes it so that you can't cw and then paste from the * register
-set clipboard=
+
+"if has('unnamedplus') && has('gui')
+  "set clipboard=unnamedplus
+"else
+  set clipboard=
+"endif
 
 "                               10 printing {{{2
 
@@ -768,8 +772,12 @@ if v:version > 801 || has("patch148")
   if $PATH =~ 'termux'
     vnoremap <silent> yx :'<,'>!termux-clipboard-set<CR>u
   elseif has('unix')
-    " Use the normal world's clipboard (for pasting into a VM etc)
-    vnoremap <silent> yx  "+y
+    if hostname() == 'penguin'
+      "TODO why reads entire line when only partial line is gv selected
+      vnoremap <silent> yx :'<,'>!chromeos-clipboard-set<CR>u
+    else
+      vnoremap <silent> yx  "+y
+    endif
   else
     vnoremap <silent> yx  "*y
   endif
@@ -966,22 +974,24 @@ nnoremap ,w :call WrapToggle()<CR>
 " 07-Mar-17 just use Commentary
 noremap ;; :Commentary<CR>
 
-if has('unix')
+"if has('unix')
 """  nnoremap ;0 <ESC>:!/usr/bin/google-chrome 'https://google.com/search?q=<C-R>=Websearch()<CR>'<CR><CR>
-  nnoremap ;0 <ESC>:!/usr/bin/firefox 'https://google.com/search?q=<C-R>=Websearch()<CR>'<CR><CR>
-endif
+"  nnoremap ;0 <ESC>:!/usr/bin/firefox 'https://google.com/search?q=<C-R>=Websearch()<CR>'<CR><CR>
+"endif
 
-" Quick save as (usually) to ~/tmp/1 for diffs or my d12 functions
+" Quick save for adhoc diffs or my d12 functions
 "nnoremap ;1 mx \| :%call WriteToFile(VTMP, 1, 0)<CR> \| 'x
-"TODO not just cygwin
-"nnoremap ;1 :w ~/tmp/1<CR>
-nnoremap ;1 :silent! w! $c/temp/1<CR>
-"nnoremap ;2 mx \| :%call WriteToFile(VTMP, 2, 0)<CR> \| 'x
-nnoremap ;2 :silent w! $c/temp/2<CR>
-"nnoremap ;3 mx \| :%call WriteToFile(VTMP, 3, 0)<CR> \| 'x
-nnoremap ;3 :silent w! $c/temp/3<CR>
-"nnoremap ;4 mx \| :%call WriteToFile(VTMP, 4, 0)<CR> \| 'x
-nnoremap ;4 :silent w! $c/temp/4<CR>
+if has('win32')
+  nnoremap ;1 :silent! w! $c/temp/1<CR>
+  nnoremap ;2 :silent! w! $c/temp/2<CR>
+  nnoremap ;3 :silent! w! $c/temp/3<CR>
+  nnoremap ;4 :silent! w! $c/temp/4<CR>
+else
+  nnoremap ;1 :silent! w! ~/tmp/1<CR>
+  nnoremap ;2 :silent! w! ~/tmp/2<CR>
+  nnoremap ;3 :silent! w! ~/tmp/3<CR>
+  nnoremap ;4 :silent! w! ~/tmp/4<CR>
+endif
 
 " Checkpoint backup current file:
 " map ;5 :silent write! /c/temp/%:t<CR>
