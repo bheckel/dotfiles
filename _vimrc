@@ -979,13 +979,18 @@ noremap ;; :Commentary<CR>
 "  nnoremap ;0 <ESC>:!/usr/bin/firefox 'https://google.com/search?q=<C-R>=Websearch()<CR>'<CR><CR>
 "endif
 
-" Quick save for adhoc diffs or my d12 functions
+" Quick save for adhoc diffs or my bash d12 function
 "nnoremap ;1 mx \| :%call WriteToFile(VTMP, 1, 0)<CR> \| 'x
 if has('win32')
-  nnoremap ;1 :silent! w! $c/temp/1<CR>
-  nnoremap ;2 :silent! w! $c/temp/2<CR>
-  nnoremap ;3 :silent! w! $c/temp/3<CR>
-  nnoremap ;4 :silent! w! $c/temp/4<CR>
+  nnoremap ;1 :silent! w! c:/temp/1<CR>
+  nnoremap ;2 :silent! w! c:/temp/2<CR>
+  nnoremap ;3 :silent! w! c:/temp/3<CR>
+  nnoremap ;4 :silent! w! c:/temp/4<CR>
+elseif has('win32unix')
+  nnoremap ;1 :silent! w! /cygdrive/c/temp/1<CR>
+  nnoremap ;2 :silent! w! /cygdrive/c/temp/2<CR>
+  nnoremap ;3 :silent! w! /cygdrive/c/temp/3<CR>
+  nnoremap ;4 :silent! w! /cygdrive/c/temp/4<CR>
 else
   nnoremap ;1 :silent! w! ~/tmp/1<CR>
   nnoremap ;2 :silent! w! ~/tmp/2<CR>
