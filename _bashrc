@@ -430,7 +430,7 @@ function fin() {
 # }
 function divcol() {
   id=$(cat ~/bin/td_apikey)
-  curl -X GET --header "Authorization: " "https://api.tdameritrade.com/v1/marketdata/${1}/quotes?apikey=${id}" | jq '.[] | {bidPrice: .bidPrice, mark: .mark, askPrice: .askPrice, divAmount: .divAmount, volatility: .volatility, divAmount: .divAmount, divYield: .divYield, divDate: .divDate}'
+  curl -X GET --header "Authorization: " "https://api.tdameritrade.com/v1/marketdata/${1}/quotes?apikey=${id}" | jq '.[] | {bidPrice: .bidPrice, mark: .mark, askPrice: .askPrice, divAmount: .divAmount, divAmount: .divAmount, divYield: .divYield, divDate: .divDate}'
   # sed 's/"ct"/Current/; s/"fl"/Feels Like/; s/"hu"/Humidity/; s/"uv"/UV/; s/"ws"/Wind/; s/"wr"/Weather/; s/"sr"/Sunrise/; s/"ss"/Sunset/; s/"pop1"/Precip Probability 1 hr/; s/"pop2"/Precip 2 hr/' \
     # ~/tmp/w
 }
