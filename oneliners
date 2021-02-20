@@ -5845,7 +5845,7 @@ select * from user_dependencies where REFERENCED_NAME = 'OPP_BASE' and reference
 -- Want list all of a table's indexes and tablespace:
 select index_name, tablespace_name from user_indexes where TABLE_NAME = 'SP_PROCESSING' and index_name not like 'SYS_%';
 
--- Want table name that uses this index:
+-- Want table name that uses this index where is this index used:
 select table_name from user_indexes where index_name='CONTACT_FIRSTNAME_IX';
 
 -- Want table and columns being indexed for this index:
@@ -6453,6 +6453,8 @@ ALTER USER limsarc IDENTIFIED BY "newpw" REPLACE "oldpw";
 -- Change password Postgres password:
 ALTER USER heckel WITH PASSWORD 'myPass';
 
+ALTER TABLE mytable RENAME TO othertable;
+
 EXECUTE IMMEDIATE 'ALTER TABLE EMAIL_MESSAGES ADD CONSTRAINT EMAIL_MESSAGES_PK PRIMARY KEY (EMAIL_MESSAGES_ID)'; -- Oracle
 
 CREATE TABLE plch_employees ( employee_id   INTEGER PRIMARY KEY, last_name  VARCHAR2 (100), salary  NUMBER (3))
@@ -6661,6 +6663,9 @@ select * /* my qry id */ from foo; select * from v$sql where sql_text = 'my qry 
 -- Autotrace:
 select /*+ gather_plan_statistics */ * from bricks b join colours c on b.colour=c.colour; select * from table(DBMS_XPLAN.display_cursor(null, format => 'ROWSTATS LAST'));
 SELECT /*+gather_plan_statistics*/ * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display_cursor(sql_id=>null, format=>'ALLSTATS LAST +cost +bytes +outline +PEEKED_BINDS'));
+
+-- Good for debugging speed problems - prints an EXPLAIN PLAN and execution statistics after each SQL statement:
+set autotrace ON
 
 select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_text like '%CUSTOMER%'
 -- Have sql_id want running query text:
@@ -7077,6 +7082,9 @@ SELECT listagg(column_name, ',') within group (order by column_position) x from 
 
 -- Find sequence:
 select * from user_sequences where sequence_name like 'UID_%Z%';
+
+-- Last time index was built rebuilt:
+select OBJECT_NAME, timestamp, LAST_DDL_TIME from dba_objects where OBJECT_NAME='KRB_CNTRY_CD_IX';
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 

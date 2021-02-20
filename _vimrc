@@ -705,7 +705,7 @@ cab SyQ source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/sql.
 cab SyS source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/sas/sas.vim
 cab SyS source $HOME/code/sas/sas.vim
 
-iab DbO DBMS_OUTPUT.put_line('start: ' \|\| SYSDATE);<Esc><Left>i
+iab DbO DBMS_OUTPUT.put_line('sysdate: ' \|\| SYSDATE);<Esc><Left>i
 
 " end Abbreviations-
 
@@ -999,7 +999,7 @@ else
 endif
 
 " Checkpoint backup current file:
-" map ;5 :silent write! /c/temp/%:t<CR>
+" map ;5 :silent! write! /c/temp/%:t<CR>
 nnoremap ;5 :call BkupFile(VTMP)<CR>
 
 " Maximize window without RSI.  Alternative to z99.  Same as map ,b without
