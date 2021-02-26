@@ -5950,7 +5950,7 @@ BEGIN dbms_output.put_line(SQLERRM(0)); END; -- ORA-0000: normal, successful com
 -- Usually only good for error logging. Or wrap EXECUTE IMMEDIATE DDL statements (which auto commit) in one of these to avoid accidental session commits:
 DECLARE PRAGMA AUTONOMOUS_TRANSACTION; BEGIN INSERT INTO log ...; commit; END;
 
--- Want triggers on a table:
+-- Want triggers on a table does trigger exist:
 SELECT trigger_name, trigger_type, triggering_event, table_name, status, trigger_body FROM USER_TRIGGERS WHERE table_name ='ACCOUNT' ORDER BY 3, 2, 1;
 
 -- Toggle trigger off/on:

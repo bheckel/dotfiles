@@ -340,6 +340,8 @@ set hidden
 " Land in top window split
 set nosplitbelow
 
+" New window opens on the right
+set splitright
 
 "                                7 multiple tab pages {{{2
 
