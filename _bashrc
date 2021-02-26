@@ -743,7 +743,10 @@ case "$OSTYPE" in
       # if [ $HOSTNAME = 'penguin' ] && [ -n "$TMUX" ]; then
       if [ $HOSTNAME = 'penguin' ];then
 
-        # read_input buf <t.txt
+        # Assumes https://chrome.google.com/webstore/detail/crouton-clipboard/jipofmbanedhjnpooojdeeddanhfljif/related
+        (nohup node ~/.crouton-clipboard/server.js > /dev/null 2>&1 &)                                                                          
+
+        # $ read_input buf <t.txt
         read_input() {
           : "${1:?Must provide a variable to read into}"
 

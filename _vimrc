@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Sat 13-Feb-2021 (Bob Heckel)
+" Modified: Fri 26-Feb-2021 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -750,7 +750,7 @@ if has('win32')
   " nnoremap <F2> :simalt ~n<CR>
   " Maximize gvim
   nnoremap <F11> :simalt ~x<CR>
-  " Restore gvim
+  " Restore gvim maximize
   nnoremap <F11><F11> :simalt ~r<CR>
 
   " Avoid mswin.vim forcing Ctrl-v act as paste, etc.
@@ -775,12 +775,14 @@ if v:version > 801 || has("patch148")
     vnoremap <silent> yx :'<,'>!termux-clipboard-set<CR>u
   elseif has('unix')
     if hostname() == 'penguin'
-      "TODO why reads entire line when only partial line is gv selected
-      vnoremap <silent> yx :'<,'>!chromeos-clipboard-set<CR>u
+      " Assumes nodejs config in .bashrc
+      "TODO why reads entire line when only partial line is highlighted
+      vnoremap <silent> yx :'<,'>w! ~/.crouton-clipboard/data.txt<CR>
     else
       vnoremap <silent> yx  "+y
     endif
   else
+    " TODO is this gvim and cygwin?
     vnoremap <silent> yx  "*y
   endif
 endif
@@ -948,7 +950,11 @@ nnoremap ,l mzviwu\|:echon '.vimrc: word lowercased'<CR>`z
 nnoremap ,n :bnext<CR>
 
 " Paste from system clipboard
-nnoremap ,p "*p
+if hostname() == 'penguin'
+  nnoremap ,p :r ~/.crouton-clipboard/data.txt<CR>
+else
+  nnoremap ,p "*p
+endif
 
 nnoremap ,qq :q!<CR>
 
