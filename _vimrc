@@ -1049,8 +1049,8 @@ nnoremap ;m 0Di# Modified: <C-R>=strftime("%d-%b-%Y")<CR> (Bob Heckel)<ESC>0
 
 " Simplify navigating the output of :makeprg (use :cN to reverse) when using Vim as an IDE.
 " nnoremap ;n :cn<CR>
-nnoremap ;n :set norelativenumber<CR>
-nnoremap ;nn :set relativenumber<CR>
+"nnoremap ;n :set norelativenumber<CR>
+"nnoremap ;nn :set relativenumber<CR>
 
 if has('win32')
   nnoremap ;o :silent !explorer /e, . <CR>
@@ -3114,7 +3114,8 @@ endif
 autocmd FileType sh,perl,crontab,conf setlocal commentstring=#\ %s
 " No space after '#'
 " TODO
-"autocmd FileType crontab,conf,perl,setlocal,sh,text setlocal commentstring=#%%s
+"autocmd FileType vim,crontab,conf,perl,setlocal,sh,text setlocal commentstring=#%%s
+autocmd FileType crontab,conf,perl,setlocal,sh,text setlocal commentstring=#%%s
 autocmd FileType vim setlocal commentstring=\"%s
 
 "}}}

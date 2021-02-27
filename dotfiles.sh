@@ -67,9 +67,9 @@ fi
 
 echo
 echo "Consider installing:"
-echo "$ sudo apt-get install tmux vim-nox w3m bc"
+echo "$ sudo apt-get install tmux vim-nox w3m bc git ssh"
 echo 'or'
-echo "$ sudo apt-get install tmux vim-gtk3 w3m bc"
+echo "$ sudo apt-get install tmux vim-gtk3 w3m bc git ssh"
 echo
 
 if [ -e /cygdrive ]; then
