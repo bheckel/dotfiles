@@ -950,6 +950,8 @@ nnoremap ,n :bnext<CR>
 " Paste from system clipboard
 if hostname() == 'penguin'
   nnoremap ,p :r ~/.crouton-clipboard/data.txt<CR>
+elseif hostname() == 'localhost'
+  nnoremap ,p :r !termux-clipboard-get
 else
   nnoremap ,p "*p
 endif
