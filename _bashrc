@@ -942,7 +942,7 @@ esac # }}}1
 #   export SASV9_OPTIONS='-validvarname=any'
 # fi
 
-if [ -e $HOME/.bashrc.project ]; then
-  echo ".bashrc: sourcing $HOME/.bashrc.project..."
-  source $HOME/.bashrc.project
+if [ -e $HOME/.bashrc.local ]; then
+  echo ".bashrc: sourcing $HOME/.bashrc.local..."
+  source $HOME/.bashrc.local
 fi

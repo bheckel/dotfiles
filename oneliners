@@ -5862,6 +5862,9 @@ SELECT column_name FROM user_cons_columns ucc, user_constraints uc WHERE uc.tabl
 -- Have constraint name want column affected by it
 SELECT column_name FROM user_cons_columns ucc, user_constraints uc WHERE uc.CONSTRAINT_NAME = 'ACCT_TM_ACC_TM_ASSIGN_FK' AND ucc.CONSTRAINT_NAME = uc.CONSTRAINT_NAME;
 
+-- Want all constraints including primary on this table:
+SELECT * FROM user_cons_columns ucc, user_constraints uc WHERE uc.table_name = 'KMC_REVENUE_FULL' /*AND uc.CONSTRAINT_TYPE = 'P'*/ AND ucc.CONSTRAINT_NAME = uc.CONSTRAINT_NAME;
+
 -- What foreign keys are on this table:
 select * from all_constraints where table_name ='SP_PROCESSING' and CONSTRAINT_TYPE='R';
 
@@ -6462,23 +6465,20 @@ CREATE TABLE plch_employees ( employee_id   INTEGER PRIMARY KEY, last_name  VARC
 ALTER PACKAGE ZTESTBOB COMPILE PACKAGE; show errors PACKAGE ZTESTBOB;
 ALTER PACKAGE ZTESTBOB COMPILE BODY; show err BODY ZTESTBOB;
 
-ALTER TABLE Customer DROP COLUMN Birth_Date;
-
 ALTER TABLE analytics.build ADD COLUMN rundatacheck BOOLEAN NOT NULL DEFAULT TRUE;
-alter table myoracletbl add bob varchar2(4000);
-alter table myoracletbl drop column bob;
 
 ALTER TABLE archivebuildconfig ADD COLUMN job_type text NOT NULL DEFAULT 'Imports';
+
+ALTER TABLE Customer DROP COLUMN Birth_Date;
 
 CREATE TABLE zorion35282 (a NUMBER, b NUMBER, c NUMBER, d NUMBER, e NUMBER, f NUMBER, g NUMBER)
 INSERT INTO zorion35282 VALUES (1, 2,3,4,5,6,7); COMMIT;
 ALTER TABLE zorion35282 RENAME COLUMN a3 TO a4;
 ALTER TABLE user_role1 RENAME TO user_role2;
 ALTER TABLE zorion35282 ADD sql_text_all CLOB;  -- no COLUMN keyword for Oracle!
-ALTER TABLE zorion35282 DROP COLUMN sql_text_all 
 EXECUTE IMMEDIATE 'alter table ASP_DET drop (FUTURE_TIER, FUTURE_COVERAGE, FUTURE_TSR_OWNER)';
 -- Change data type (if column is all NULLs):
-ALTER TABLE email_messages MODIFY msgbody VARCHAR2(63)
+ALTER TABLE email_messages MODIFY msgbody VARCHAR2(63);
 
 -- Oracle which objects are invalid objects:
 select * from user_objects o where object_type != 'JAVA CLASS' and status = 'INVALID' and to_date(timestamp,'YYYY-MM-DD HH24:MI:SS') > sysdate - interval '5' minute  order by 8 desc;
@@ -7940,6 +7940,6 @@ O(log n) the same amount of work to access any value, like a B-tree index
 Remove all event listeners: $("*").off();
 Remove all right-click listeners: $("*").off("contextmenu");
 
-# Prevent Win10 blurry video resolution apps: Right click on gVim icon -> Properties -> Compatibility -> Change high DPI settings -> check box "Override high DPI scaling behavior" in the bottom of the dialog window and set "Scaling performed by:" to "System (Enhanced)"
+# Prevent Win10 blurry video resolution or too large font apps: Right click on gVim icon -> Properties -> Compatibility -> Change high DPI settings -> check box "Override high DPI scaling behavior" in the bottom of the dialog window and set "Scaling performed by:" to "System (Enhanced)"
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
