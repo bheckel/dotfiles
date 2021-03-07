@@ -4,7 +4,7 @@
 # Summary: bash config for at least Unix, Linux, Cygwin and z/OS
 #
 #  Created: Tue 19-May-1998 (Bob Heckel)
-# Modified: Sat 20-Feb-2021 (Bob Heckel)
+# Modified: Fri 05 Mar 2021 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -765,11 +765,10 @@ case "$OSTYPE" in
         #TODO fails on large files
         function catput() {
           # buf=$(head -n5000 ${1})
+          #buf2="${buf}"
           buf=$(cat ${1})
           # Mask for printf
-          # buf2=$(echo $buf | sed 's/%/%%/')
-          #TODO use bash regex to fix the '%'
-          buf2="${buf}"
+          buf2=$(echo ${buf} | sed 's/%/%%/')
 
           #TODO how to tell if TMUX is running IN THIS TERMINAL not just anywhere
           if [ -n ${TMUX} ];then

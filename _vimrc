@@ -1046,8 +1046,9 @@ nnoremap ;l :ls<CR>:e#
 nnoremap ;ll <C-W>l
 
 " Same as  'ab YdM' but replaces existing Modified line first.
-" nnoremap ;m 0Di# Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
-nnoremap ;m 0Di# Modified: <C-R>=strftime("%d-%b-%Y")<CR> (Bob Heckel)<ESC>0
+"nnoremap ;m 0Di# Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
+nnoremap ;m 0Di# Modified: <C-R>=strftime("%a %d %b %Y")<CR> (Bob Heckel)<ESC>0
+"nnoremap ;m 0Di# Modified: <C-R>=strftime("%d-%b-%Y")<CR> (Bob Heckel)<ESC>0
 
 " Simplify navigating the output of :makeprg (use :cN to reverse) when using Vim as an IDE.
 " nnoremap ;n :cn<CR>
