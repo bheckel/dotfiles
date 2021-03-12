@@ -3118,7 +3118,7 @@ autocmd FileType sh,perl,crontab,conf setlocal commentstring=#\ %s
 " No space after '#'
 " TODO
 "autocmd FileType vim,crontab,conf,perl,setlocal,sh,text setlocal commentstring=#%%s
-autocmd FileType crontab,conf,perl,setlocal,sh,text setlocal commentstring=#%%s
+"autocmd FileType crontab,conf,perl,setlocal,sh,text setlocal commentstring=#%%%s
 autocmd FileType vim setlocal commentstring=\"%s
 
 "}}}
