@@ -394,7 +394,7 @@ function gdt() {
 
 
 function gitup() {
-  MSG=${1:-mod}
+  MSG=${1:-mod gitup}
   #echo "git add . && git commit -m ${MSG} && git push"
   git add . && git commit -m"${MSG}" && git push
 }
