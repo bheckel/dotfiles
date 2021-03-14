@@ -775,9 +775,11 @@ if v:version > 801 || has("patch148")
     vnoremap <silent> yx :'<,'>!termux-clipboard-set<CR>u
   elseif has('unix')
     if hostname() == 'penguin'
-      " Assumes nodejs config in .bashrc
+      " Crostini clipboard support is a mess in 2021
       "TODO why reads entire line when only partial line is highlighted
       vnoremap <silent> yx :'<,'>w! ~/.crouton-clipboard/data.txt<CR>
+      "TODO avoid an external $ catput ~/.crouton-clipboard/data.txt
+      "vnoremap <silent> yx :'<,'>w! ~/.crouton-clipboard/data.txt; catput ~/.crouton-clipboard/data.txt<CR>
     else
       vnoremap <silent> yx  "+y
     endif

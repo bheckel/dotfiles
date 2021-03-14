@@ -762,40 +762,33 @@ case "$OSTYPE" in
            printf -v "$1" '%s' "${_contents[@]}" "$_line"
         }
 
-        #TODO fails on large files
         function catput() {
-          # buf=$(head -n5000 ${1})
-          #buf2="${buf}"
           buf=$(cat ${1})
           # Mask for printf
           buf2=$(echo ${buf} | sed 's/%/%%/')
+          #TODO also add \r if it's a unix formatted file otherwise it's a single line when clipped
+          # buf3=$(echo ${buf2} | sed 's/\012/\015\012/')
 
           #TODO how to tell if TMUX is running IN THIS TERMINAL not just anywhere
-          if [ -n ${TMUX} ];then
+          #TODO does it matter if we're in tmux? or is there a /dev/pts/1... ?
+          # if [ -n ${TMUX} ];then
             echo 'tmux printf...'
-            printf "\033]52;c;$(printf "${buf2}" | base64)\a" >/dev/pts/0
-          else
-            echo 'printf...'
-            printf "\033]52;c;$(printf "${buf2}" | base64)\a"
-          fi
+            printf "\033]52;c;$(printf "${buf2}" | base64 -w0)\a" >/dev/pts/0
+          # else
+            # echo 'printf...'
+            # printf "\033]52;c;$(printf "${buf2}" | base64 -w0)\a"
+          # fi
         }
 
       fi  # penguin
 
-      # Use: bigshell FONTSIZE (where fontsize defaults to 16)
-      function bigshell() {
-        fontsize=${1:-16}
-        urxvt -fn "xft:DejaVu Sans Mono:pixelsize=$fontsize" -bc -fb "xft:DejaVu Sans Mono:pixelsize=$fontsize" -tn xterm -bg black -fg grey +sb -color0 "#000000" -color1 "#9e1828" -color2 "#4f874f" -color3 "#968a38" -color4 "#5d5da0" -color5 "#963c59" -color6 "#418179" -color7 "gray" -color8 "gray40" -color9 "#cf6171" -color10 "#c5f779" -color11 "#fff796" -color12 "#4186be" -color13 "#cf9ebe" -color14 "#71bebe" -color15 "white" -e /usr/bin/crosh
-      }
-
-
       # CR48  # {{{2
-      if [ $HOSTNAME = 'ubuntu' ]; then
-        ###export PATH=$PATH:/home/ubuntu/android_sdk_linux_m3-rc22a/tools
+      # if [ $HOSTNAME = 'ubuntu' ]; then
+        # export PATH=$PATH:/home/ubuntu/android_sdk_linux_m3-rc22a/tools
         # Don't want autostart so that at least this box won't start modifying immediately in case of trouble.
-        alias dropbox='~/.dropbox-dist/dropboxd &'
-        alias vi='vim -u ~/code/misc/_vimrc'
-      fi
+        # alias dropbox='~/.dropbox-dist/dropboxd &'
+        # alias vi='vim -u ~/code/misc/_vimrc'
+      # fi
 
       # Termux  # {{{2
       if [ $HOSTNAME = 'localhost' -a $HOSTTYPE = 'aarch64' ]; then
