@@ -782,12 +782,14 @@ if v:version > 801 || has("patch148")
         "TODO avoid an external $ catput ~/.crouton-clipboard/data.txt
         "vnoremap <silent> yx :'<,'>w! ~/.crouton-clipboard/data.txt; catput ~/.crouton-clipboard/data.txt<CR>
       else
+        " Crostini Gvim
         vnoremap <silent> yx  "+y
       endif
     endif
-  else
-    " TODO is this gvim and cygwin?
+    " Cygwin
     vnoremap <silent> yx  "*y
+  else
+    " Windows Gvim which doesn't need any of this nonsense
   endif
 endif
 
@@ -1760,10 +1762,9 @@ if !exists("autocommands_loaded")
   au BufRead,BufEnter afiedt.buf set filetype=sql
   " TODO 06-Feb-19 getting tab indentation some reason - block for now:
   " au BufRead,BufEnter *.sql,afiedt.buf set noexpandtab
-  au BufRead,BufEnter *.sql,afiedt.buf iab OB order by 1
-  au BufRead,BufEnter *.sql,afiedt.buf iab SS select * from
-  au BufRead,BufEnter *.sql,afiedt.buf iab SC select count(*) from
-  au BufRead,BufEnter *.sql,afiedt.buf iab WW where
+  au BufRead,BufEnter *.sql,afiedt.buf iab OrD order by 1 DESC
+  au BufRead,BufEnter *.sql,afiedt.buf iab SeL select * from
+  au BufRead,BufEnter *.sql,afiedt.buf iab SeC select count(*) from
 
   " Enhance /usr/share/vim/vim82/syntax/sqloracle.vim when PLSQL code sneaks into a .sql
   au BufRead,BufEnter *.sql syn keyword sqlFunction	FORALL SAVE EXCEPTIONS

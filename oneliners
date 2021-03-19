@@ -5636,6 +5636,7 @@ SELECT /*+ INDEX (employees emp_department_ix)*/ employee_id, department_id FROM
 SELECT /*+ FULL(ddl_event)*/ * FROM ddl_event;
 
 select /*+PARALLEL(4)*/ empno from emp;
+select /*+ NO_PARALLEL */ empno from emp;
 
 -- Kill Oracle kill session sqlplus format:
 SQL> set linesize 200
@@ -5835,7 +5836,7 @@ SELECT table_name, column_name FROM cols WHERE lower(table_name) LIKE 'accou%' A
 SELECT table_name FROM user_tables WHERE lower(table_name) LIKE '%search%' order by 1;
 
 -- Poke around search all tables want for a specific column name:
-SELECT * from  user_tab_columns WHERE column_name LIKE '%NEW%';
+SELECT * from  user_tab_columns WHERE table_name = 'FOO' AND column_name LIKE '%NEW%';
 
 -- What the object references, tables etc:
 select * from user_dependencies where name = 'RPT_OPP_MULTI_YDEAL' and referenced_type not in ('SYNONYM') order by 4;
@@ -7085,6 +7086,9 @@ select * from user_sequences where sequence_name like 'UID_%Z%';
 
 -- Last time index was built rebuilt:
 select OBJECT_NAME, timestamp, LAST_DDL_TIME from dba_objects where OBJECT_NAME='KRB_CNTRY_CD_IX';
+
+-- Create function-based index FBI:
+create index note_actupd_fbix on note_base ( TRUNC(actual_updated) );
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
