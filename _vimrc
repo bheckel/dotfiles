@@ -1723,7 +1723,9 @@ if !exists("autocommands_loaded")
   " au BufNewFile,BufEnter *.py set tabstop=4
 
   au FileType sh set fileformat=unix
-  au BufWritePost *.sh silent !chmod a+x <afile>
+  if hostname() != 'penguin'
+    au BufWritePost *.sh silent !chmod a+x <afile>
+  endif
   "
   au FileType basic map ,m yy0I'''<ESC>p
   au FileType basic map ;s :s:^:''':<CR>
