@@ -5763,7 +5763,7 @@ SQL> r  -- run query
 -- Oracle sqlplus do not display query results (usually when sending output to .out file)
 set termout off
 
--- Oracle run script c:\cygwin64\home\obheck\code\misccode\query.sql:
+-- Oracle run script:
 $ sqlplus -S me/pw@esd @query  # default is SET SUFFIX .sql
 $ vi ~/code/misccode/query.sql && (cd ~/code/misccode/ && sqlplus -S me/pw@esd @query.sql && vi $c/temp/query.out)
 
