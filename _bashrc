@@ -4,7 +4,7 @@
 # Summary: bash config for at least Unix, Linux, Cygwin and z/OS
 #
 #  Created: Tue 19-May-1998 (Bob Heckel)
-# Modified: Fri 05 Mar 2021 (Bob Heckel)
+# Modified: Sun 21 Mar 2021 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -114,6 +114,7 @@ alias g=$HOME/dotfiles/gone.sh
 # Can't use sed to eliminate leading spaces or it breaks coloring
 # alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
 alias gb='git branch'
+alias gbc='gnome-terminal -- bc 1>/dev/null'
 alias gital="$HOME/code/misc/gitall"
 alias gitall="$HOME/code/misc/gitall"
 alias gpul='git pull'
@@ -122,7 +123,7 @@ alias gstash='git stash save --include-untracked'
 alias gs='git status'
 alias gsl='git stash list'
 alias gstash='git stash --include-untracked'
-alias gfatal='cd ~/dotfiles && git merge'
+alias gfatal='cd ~/dotfiles && git merge; cd ~/code && git merge'
 alias h='history|tail -n20'
 alias ha='history -a'  # append this
 alias hr='history -n'  # read in from others
@@ -740,28 +741,12 @@ case "$OSTYPE" in
         # export VIMRUNTIME=/home/chronos/user/.vim
       fi
 
-      # if [ $HOSTNAME = 'penguin' ] && [ -n "$TMUX" ]; then
       if [ $HOSTNAME = 'penguin' ];then
         alias ccb='catput ~/.crouton-clipboard/data.txt'
+        alias tasty='catput ~/tt.txt; /opt/tastyworks/bin/tastyworks >/dev/null 2>&1 &'
+        alias tos='catput ~/td.txt; ~/thinkorswim/thinkorswim >/dev/null 2>&1 &'
         # Assumes https://chrome.google.com/webstore/detail/crouton-clipboard/jipofmbanedhjnpooojdeeddanhfljif/related
         #(nohup node ~/.crouton-clipboard/server.js > /dev/null 2>&1 &)                                                                          
-
-        # $ read_input buf <t.txt
-        read_input() {
-          : "${1:?Must provide a variable to read into}"
-
-          if [[ "$1" == '_line' || "$1" == '_contents' ]]; then
-            echo "Cannot store contents to $1, use a different name." >&2
-            return 1
-          fi
-
-          local _line _contents=()
-           while IFS='' read -r _line; do
-             _contents+=("$_line"$'\n')
-           done
-           # Include $_line once more to capture any content after the last newline
-           printf -v "$1" '%s' "${_contents[@]}" "$_line"
-        }
 
         function catput() {
           buf=$(cat ${1})
@@ -773,7 +758,7 @@ case "$OSTYPE" in
           #TODO how to tell if TMUX is running IN THIS TERMINAL not just anywhere
           #TODO does it matter if we're in tmux? or is there a /dev/pts/1... ?
           # if [ -n ${TMUX} ];then
-            echo 'tmux printf...'
+            # echo 'tmux printf...'
             printf "\033]52;c;$(printf "${buf2}" | base64 -w0)\a" >/dev/pts/0
           # else
             # echo 'printf...'

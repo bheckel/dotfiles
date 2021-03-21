@@ -769,27 +769,23 @@ nnoremap <expr> gp '`[' . strpart(getregtype(), 0, 1) . '`]'
 " Open a window for the file under cursor - (g)et this file a (w)indow
 nnoremap gw <Esc>:split<CR>gf
 
-" Copy visual mode selection to system clipboard. Like gVim's default. See also :set clipboard=
-if v:version > 801 || has("patch148")
-  if $PATH =~ 'termux'
-    vnoremap <silent> yx :'<,'>!termux-clipboard-set<CR>u
-  elseif has('unix')
-    if hostname() == 'penguin'
-      if ! has('gui')
-        " Crostini clipboard support is a mess in 2021
-        "TODO why reads entire line when only partial line is highlighted
-        vnoremap <silent> yx :'<,'>w! ~/.crouton-clipboard/data.txt<CR>
-        "TODO avoid an external $ catput ~/.crouton-clipboard/data.txt
-        "vnoremap <silent> yx :'<,'>w! ~/.crouton-clipboard/data.txt; catput ~/.crouton-clipboard/data.txt<CR>
-      else
-        " Crostini Gvim
-        vnoremap <silent> yx  "+y
-      endif
-    endif
-    " Cygwin
-    vnoremap <silent> yx  "*y
+" Copy visual mode selection to system clipboard. Like Windows gVim's default. See also :set clipboard=
+vnoremap <silent> yx  "*y
+
+if $PATH =~ 'termux'
+  vnoremap <silent> yx :'<,'>!termux-clipboard-set<CR>u
+endif
+
+" Crostini clipboard support is a mess in 2021
+if hostname() == 'penguin'
+  if ! has('gui_running')
+    "TODO why reads entire line when only partial line is highlighted
+    vnoremap <silent> yx :'<,'>w! ~/.crouton-clipboard/data.txt<CR>
+    "TODO avoid an external $ catput ~/.crouton-clipboard/data.txt
+    "vnoremap <silent> yx :'<,'>w! ~/.crouton-clipboard/data.txt; catput ~/.crouton-clipboard/data.txt<CR>
   else
-    " Windows Gvim which doesn't need any of this nonsense
+    " Crostini Gvim
+    vnoremap <silent> yx  "+y
   endif
 endif
 
