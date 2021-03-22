@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Fri 26-Feb-2021 (Bob Heckel)
+" Modified: Sat 20-Mar-2021 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -469,13 +469,14 @@ endif
 
 "                               16 diff mode {{{2
 
-" 05-Oct-18 TODO doesn't ignore whitespace
-" set diffopt=filler,vertical,iwhite
-set diffopt+=iwhite
+" Messes up vimdiffs so do not use
+"set diffopt+=iwhite
+"
 set diffopt+=filler
 if v:version > 801 && has("patch148")
   set diffopt+=algorithm:patience
 endif
+
 set diffexpr="--ignore-blank-lines"
 
 
