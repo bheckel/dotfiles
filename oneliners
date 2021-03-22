@@ -5,6 +5,7 @@
 #           two decades.  Section-searchable via ~/dotfiles/gone.sh.  Comments 
 #           are often written for searching, not proper English.
 #
+#                 °
 #          ~~~~~~~~°~~~~~~~~~~~
 #                 ° °
 #              ° °°
@@ -2882,6 +2883,8 @@ for f in $( find /Drugs/TMMEligibility -print | grep 20180601 | grep DSBRDTMMPAT
 
 # Throw away 'Permission denied', etc. by dumping STDERR to blackhole device any errors to the bit bucket:
 find / -name '*.mac' 2>/dev/null
+# Redirect both STDOUT and STDERR to the bit bucket, send nothing to the console (error messages are written to STDOUT instead of STDERR)
+$ /opt/tasty/bin/mypgm >/dev/null 2>&1 &
 
 # Canonical Cygwin-safe spaces safe find - what changed during the last week?
 find . -mtime -7 -type f -print0 | xargs -0 ls -lt
@@ -3077,9 +3080,6 @@ tar tvfj jdk118_v3-glibc-2.1.3.tar.bz2
 mycommand >&0   # STDIN  same as 0>
 mycommand >&1   # STDOUT  same as 1>
 mycommand >&2   # STDERR  same as 2>
-
-# Redirect both STDOUT and STDERR, send nothing to the console (error messages are written to STDOUT instead of STDERR)
-$ ls goodfile.txt nosuchfile.txt > lsOutputWithOnlyErrorMessages.txt 2>&1
 
 # mod modulo modulus division (every n item mod will equal 0):
 bc -lwq    # if need modulus, from within bc, set scale=0
