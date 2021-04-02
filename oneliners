@@ -5453,9 +5453,6 @@ IF numtbl IS NULL OR numtbl.COUNT = 0 THEN DBMS_OUTPUT.PUT_LINE('collection is e
 -- Oracle collection declare and initialize a table:
 TYPE names_t IS TABLE OF VARCHAR2(100); my_family names_t := ('Vera','Chris','Eli');
 
---Oracle select a literal underscore by overriding SQL/LIKEs idea of the _ character:
-WHERE UPPER(mat_desc) LIKE '%\_TH%' ESCAPE '\'
-
 define_editor="C:\Program Files (x86)\Vim\vim74\gvim.exe -u C:\Users\obheck\_gvimrc"
 
 -- Oracle DATE literal
@@ -5853,6 +5850,8 @@ select table_name from user_indexes where index_name='CONTACT_FIRSTNAME_IX';
 SELECT * from user_ind_columns WHERE index_name = 'KIR_HC_AC_CIX';
 -- Is this column being indexed anywhere:
 SELECT * from user_ind_columns WHERE column_name = 'MYCOL';
+-- What is the index that relies on this column:
+SELECT * from user_ind_columns WHERE column_name = 'ACCOUNT_ID' and table_name='MKC_REVENUE_FULL';
 
 -- Foreign Key is that same value stored within MULTIPLE rows of the other aka "detail" table. It should be indexed unless its matching PK is never updated or deleted:
 create table emp(empid NUMBER(20) PRIMARY KEY, ename VARCHAR2(20), sal number(10,2), dept_id NUMBER(10) REFERENCES dept(dept_id) ON DELETE CASCADE);
@@ -6710,15 +6709,15 @@ NUMBER(12, 2)  -- store up to one cent below $10B, $9,999,999,999.99
 
 -- A record is in second and third normal forms 3NF if every field is either part of the key or provides a (single-valued) fact about exactly the whole key and nothing else
 
--- Wildcard find "Miss Smelly_bottom", the only toy_name that includes an underscore:
-select * from toys where  toy_name like '%\_%' escape '\';
+-- Oracle wildcard select find "Miss Smelly_bottom", the only toy_name that includes an underscore overriding SQL/LIKEs idea of the _ character:
+select * from toys where  toy_name like '%\_%' ESCAPE '\';
 
 -- Prove linefeed was appended:
 dbms_output.put_line(ASCII(SUBSTR(DBMS_UTILITY.FORMAT_ERROR_STACK, -1))); -- 10 
 -- Embedded single quote Oracle q statement:
 dbms_output.put_line(q'[single quote has been ok'd here]');
 
--- Multiple substitutions:
+-- Multiple substitutions in one command:
 ffColumnPrefix := replace(replace(replace(inFlexTablePrefix, 'ACCOUNT', 'ACCT'), 'ACTIVITY', 'ACT'), 'OPPORTUNITY', 'OPP');
 
 -- Oracle SELECT compare NLSCOMP collation foreign characters:

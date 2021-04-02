@@ -824,7 +824,7 @@ nnoremap <Tab> :tabnext<CR>
 
 noremap <Space> <C-F>
 
-" Speed things up a bit
+" Speed movement up a bit
 nnoremap <C-E> 2<C-E>
 nnoremap <C-Y> 2<C-Y>
 
@@ -832,11 +832,10 @@ nnoremap <C-Y> 2<C-Y>
 " same as z. so override it here since z. is better.  Also see maps ,b ;b ;h ;j ;k ;ll
 nnoremap zz <C-W>w
 
-" Bondage & discipline
+" Bondage & discipline to force using jk
 " inoremap <Esc> <NOP>
-" I'm too lazy to reach <Esc> or deal with CapsLock remapping. The menu
-" showing completion candidates will close it with <C-e> instead of exiting
-" insert mode with <Esc>
+" Avoid <Esc> or dealing with CapsLock remapping. The menu showing completion candidates 
+" will close it with <C-e> instead of exiting insert mode with <Esc>
 inoremap <expr> jk pumvisible() ? "<C-e>" : "<Esc>"
 
 " Reformat current paragraph to gq while in insert mode (avoid vap etc):
@@ -1606,7 +1605,6 @@ function! SmartComplete ()
 endfu
 " }}}
 
-
 fu! Websearch()  "{{{2
   " Adapted from http://hartley.io.  Depends on noremap to determine browser and search engine.
   call inputsave()
@@ -1615,7 +1613,6 @@ fu! Websearch()  "{{{2
   return searchterm
 endfu
 " }}}
-
 
 fu! WrapToggle()  " {{{2
   if &textwidth == 0
@@ -1634,7 +1631,6 @@ fu! WrapToggle()  " {{{2
 endfu
 " }}}
 
-
 fu! WhichEnv() abort  " {{{2
   " ...else if (WhichEnv() =~# 'LINUX')
   if has('win64') || has('win32') || has('win16')
@@ -1644,7 +1640,6 @@ fu! WhichEnv() abort  " {{{2
   endif
 endfu
 " }}}
-
 
 function! AmIPasting()  " {{{2
   if &paste
@@ -1657,7 +1652,6 @@ endfunction
 " }}}
 
 " end Functions-
-
 
 "   Autocommands  {{{1  
 "  Begin aucommands 	
