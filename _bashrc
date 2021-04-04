@@ -645,9 +645,7 @@ case "$OSTYPE" in
 
       # if [ $(uname) = 'Linux' ]; then
         function catput() {
-          echo 'xclip...'
           if [ -e /usr/bin/xclip ]; then
-            echo 'xclip...'
             cat "$1" | xclip
           else
             echo xclip not installed
