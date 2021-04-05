@@ -4,7 +4,7 @@
 # Summary: bash config for at least Unix, Linux, Cygwin and z/OS
 #
 #  Created: Tue 19-May-1998 (Bob Heckel)
-# Modified: Sun 21 Mar 2021 (Bob Heckel)
+# Modified: Mon 05 Apr 2021 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -764,13 +764,6 @@ case "$OSTYPE" in
 
       fi  # penguin
 
-      # CR48  # {{{2
-      # if [ $HOSTNAME = 'ubuntu' ]; then
-        # export PATH=$PATH:/home/ubuntu/android_sdk_linux_m3-rc22a/tools
-        # Don't want autostart so that at least this box won't start modifying immediately in case of trouble.
-        # alias dropbox='~/.dropbox-dist/dropboxd &'
-        # alias vi='vim -u ~/code/misc/_vimrc'
-      # fi
 
       # Termux  # {{{2
       if [ $HOSTNAME = 'localhost' -a $HOSTTYPE = 'aarch64' ]; then
