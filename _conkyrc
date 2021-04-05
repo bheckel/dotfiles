@@ -296,7 +296,7 @@ override_utf8_locale no
 
 TEXT
 
-${color}${image /home/bheckel/Dropbox/Public/misc/computer/fb-icon48x48-metal.png}
+${color}${image /home/bheckel/Dropbox/computer/fb-icon48x48-metal.png}
 # Spaces are significant:
 
 
