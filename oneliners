@@ -7610,6 +7610,7 @@ git add . && git commit -m'mod' && git push
 
 git config user.name  # whoami
 git config -l  # list all config settings
+git config --local -e  # edit
 git config --global merge.tool vimdiff
 
 # git show the changes recorded in the stash entry as a diff between the stashed contents and the commit back when the stash entry was first created:
