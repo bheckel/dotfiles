@@ -7089,6 +7089,9 @@ select OBJECT_NAME, timestamp, LAST_DDL_TIME from dba_objects where OBJECT_NAME=
 -- Create function-based index FBI:
 create index note_actupd_fbix on note_base ( TRUNC(actual_updated) );
 
+exec dbms_stats.lock_table_stats('table_owner','table_name');
+SELECT stattype_locked FROM dba_tab_statistics WHERE table_name = 'TABLE_NAME' and owner = 'TABLE_OWNER';
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
