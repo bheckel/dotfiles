@@ -361,6 +361,8 @@ $ vi scp://rsh8680@tpsh005//opt/QCServer/A.05.00/svr/files/Inspec_Lot-0108.log  
 " Convert file to html using a .vim file:
 :runtime! syntax/2html.vim
 
+vi -c 'syntax off'
+
 " nl(1) number line replacement
 :g/^/exec "s/^/".strpart(line(".")."    ", 0, 4)
 

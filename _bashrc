@@ -154,7 +154,6 @@ alias tmux='tmux -u'  # UTF8
 alias tre="\ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
 alias uvi="$HOME/code/scripting/uvi"  # don't change timestamp
 alias ve="vim $HOME/.vimrc"
-alias vin="vi -c 'syntax off'"
 alias wget='wget -c'  # continue failures
 
 #-----------------------------------
