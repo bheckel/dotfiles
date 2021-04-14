@@ -6923,9 +6923,9 @@ create or replace view rion_42216 as SELECT o.contact_id, o.dategone FROM (SELEC
 set serveroutput on size unl; BEGIN DBMS_OUTPUT.ENABLE; DBMS_OUTPUT.PUT_LINE('Hello World' || chr(13) || chr(10)); END; -- then type /
 crlf CONSTANT VARCHAR2(2) := CHR(13) || CHR(10);
 
--- Increase sqlplus buffer to maximum unlimited logging:
-dbms_output.enable(NULL);
+-- Toggle increase sqlplus buffer to maximum unlimited logging:
 dbms_output.disable;
+dbms_output.enable(NULL);
 
 -- sqlplus execute script:
 $ sqlplus userid/password@hostname @c:/cygwin//home/rheckel/code/misccode/_sqlplusrc.sql -- need an exit; to run standalone
