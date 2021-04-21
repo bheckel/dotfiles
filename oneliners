@@ -5848,7 +5848,7 @@ select index_name, tablespace_name from user_indexes where TABLE_NAME = 'SP_PROC
 -- Want table name that uses this index where is this index used:
 select table_name from user_indexes where index_name='CONTACT_FIRSTNAME_IX';
 
--- Want table and columns being indexed for this index:
+-- Want table and columns being indexed for this index user_index:
 SELECT * from user_ind_columns WHERE index_name = 'KIR_HC_AC_CIX';
 -- Is this column being indexed anywhere:
 SELECT * from user_ind_columns WHERE column_name = 'MYCOL';

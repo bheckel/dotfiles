@@ -469,9 +469,7 @@ endif
 
 "                               16 diff mode {{{2
 
-" Messes up vimdiffs so do not use
-"set diffopt+=iwhite
-"
+set diffopt+=iwhiteall
 set diffopt+=filler
 if v:version > 801 && has("patch148")
   set diffopt+=algorithm:patience
