@@ -176,7 +176,7 @@ if has("gui_running")
   set lines=30
 
   if has("gui_gtk3")
-    set guifont=Cousine\ 9
+    set guifont=Cousine\ 8
   elseif has("x11")
     " set guifont=*-Consolas-medium-r-normal-*-*-180-*-*-m-*-*
     set guifont=Consolas\ 8

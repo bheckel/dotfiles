@@ -738,8 +738,8 @@ case "$OSTYPE" in
       fi
 
       if [ $HOSTNAME = 'penguin' ];then
-        # alias ccb='catput ~/.crouton-clipboard/data.txt'
-        alias ccb='gvim ~/.crouton-clipboard/data.txt'
+        # Hack for lacking clipboard support
+        alias cb='gvim ~/.crouton-clipboard/data.txt'
 
         function catput() {
           buf=$(cat ${1})
