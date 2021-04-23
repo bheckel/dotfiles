@@ -7076,7 +7076,7 @@ IF (MOD(i, 1000) = 0) THEN DBMS_OUTPUT.put_line(i || ' id: ' || l_recs(i).id); E
 -- List information about each table in a database (SQL Server):
 select * from information_schema.tables where  table_type='BASE TABLE' 
 
--- Double quote a string:
+-- Double quote each string in a list:
 select '''' || x || '''' indexkeys from ( SELECT listagg(column_name, ''',''') within group (order by column_position) x FROM user_ind_columns WHERE index_name = 'KIR_HC_DV_CIX' );
 
 -- Index key list for an index:
@@ -7093,6 +7093,9 @@ create index note_actupd_fbix on note_base ( TRUNC(actual_updated) );
 
 exec dbms_stats.lock_table_stats('table_owner','table_name');
 SELECT stattype_locked FROM dba_tab_statistics WHERE table_name = 'TABLE_NAME' and owner = 'TABLE_OWNER';
+
+-- Remove trailing comma from a loop built-up list:
+v_set_cols := substr(v_set_cols, 1, length(v_set_cols) - 1);
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
