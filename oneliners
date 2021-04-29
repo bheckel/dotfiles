@@ -6688,6 +6688,7 @@ SQL> exec DBMS_STATS.gather_table_stats('HR', 'EMPLOYEES', method_opt=>'FOR COLU
 
 -- Are table statistics stale?:
 select stale_stats from user_tab_statistics where  table_name = 'RION39366';
+select table_name, last_analyzed from user_tables where table_name in ('MKC_REVENUE_FULL');
 
 exec DBMS_STATS.gather_schema_stats(null);
 
@@ -6846,6 +6847,9 @@ SELECT rtrim(xmlagg(XMLELEMENT(e,text,',').EXTRACT('//text()')).GetClobVal(),','
 
 -- Display a reasonable amount of text from a CLOB:
 SELECT sql_text as only_1k_chars, substr(regexp_replace(sql_fulltext, '\s+', ' '), 1, 3999) FROM v$sql 
+
+select regexp_replace('create_sdm_diff_xxx', 'diff.*', 'diff') from dual; -- create_sdm_diff
+
 -- View a CLOB BLOB:
 select dbms_lob.substr(t.SQL_TEXT, 4000, 1) ...
 -- Use a CLOB as a criteria:

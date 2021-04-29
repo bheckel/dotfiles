@@ -253,11 +253,11 @@ hi Number ctermfg=Magenta guifg=Magenta
 
 hi CursorLineNr ctermfg=White ctermbg=DarkGray guifg=White guibg=DarkGray cterm=bold gui=bold
 
-" For :se rnu relative number gutter
-hi LineNr ctermfg=246 ctermbg=237 guifg=DarkGray guibg=#444444
-
 " Vertical bar
 hi CursorColumn ctermfg=247 ctermbg=234 guibg=#444444
+
+" For :se rnu relative number gutter
+hi LineNr ctermfg=246 ctermbg=237 guifg=DarkGray guibg=#444444
 
 " Tab completion dropdown
 hi Pmenu ctermfg=Black ctermbg=Gray guifg=White guibg=Gray 
@@ -1018,7 +1018,7 @@ nnoremap ;b <C-W>_
 
 " Same as  'ab YdC' but replaces existing Created line first:
 " nnoremap ;c 0Di#  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>
-nnoremap ;c 0Di#  Created: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>
+nnoremap ;c 0Di#  Created: <C-R>=strftime("d-%b-%Y")<CR> (Bob Heckel)<ESC>
 
 " Change (d)irectory to where the open file resides:
 nnoremap ;d :call CDtoThisFilesLoc()<CR>
@@ -1047,8 +1047,7 @@ nnoremap ;ll <C-W>l
 
 " Same as  'ab YdM' but replaces existing Modified line first.
 "nnoremap ;m 0Di# Modified: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
-nnoremap ;m 0Di# Modified: <C-R>=strftime("%a %d %b %Y")<CR> (Bob Heckel)<ESC>0
-"nnoremap ;m 0Di# Modified: <C-R>=strftime("%d-%b-%Y")<CR> (Bob Heckel)<ESC>0
+nnoremap ;m 0Di# Modified: <C-R>=strftime("%d %b %Y")<CR> (Bob Heckel)<ESC>0
 
 " Simplify navigating the output of :makeprg (use :cN to reverse) when using Vim as an IDE.
 " nnoremap ;n :cn<CR>
