@@ -5842,13 +5842,11 @@ select * from user_dependencies where name = 'RPT_OPP_MULTI_YDEAL' and reference
 -- What references the object, views etc:
 select * from user_dependencies where REFERENCED_NAME = 'OPP_BASE' and referenced_type not in ('SYNONYM') order by 1;
 
--- Want list all of a table's indexes and tablespace:
+-- Want list all of a table's indexes and tablespace does table have index:
 select index_name, tablespace_name from user_indexes where TABLE_NAME = 'SP_PROCESSING' and index_name not like 'SYS_%';
-
 -- Want table name that uses this index where is this index used:
 select table_name from user_indexes where index_name='CONTACT_FIRSTNAME_IX';
-
--- Want table and columns being indexed for this index user_index:
+-- Want table and columns are being indexed for this index user_index:
 SELECT * from user_ind_columns WHERE index_name = 'KIR_HC_AC_CIX';
 -- Is this column being indexed anywhere:
 SELECT * from user_ind_columns WHERE column_name = 'MYCOL';
@@ -7096,6 +7094,7 @@ select OBJECT_NAME, timestamp, LAST_DDL_TIME from dba_objects where OBJECT_NAME=
 create index note_actupd_fbix on note_base ( TRUNC(actual_updated) );
 
 exec dbms_stats.lock_table_stats('table_owner','table_name');
+-- Are table stats locked:
 SELECT stattype_locked FROM dba_tab_statistics WHERE table_name = 'TABLE_NAME' and owner = 'TABLE_OWNER';
 
 -- Remove trailing comma from a loop built-up list:
