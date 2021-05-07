@@ -5430,7 +5430,7 @@ SELECT INSTR(NULL, 'ORA') FROM dual  -- NULL
 DECLARE p1 PLS_INTEGER := 2147483647; p2 INTEGER := 1; n NUMBER; BEGIN n := p1 + p2; END; /
 
 -- Find my active sessions:
-select s.PROGRAM, s.SQL_ID, s.SQL_EXEC_START, s.LOGON_TIME, q.sql_text from V$session s, v$sql q where s.sql_id=q.sql_id(+) and /*status='ACTIVE' and*/ osuser='bheck';
+select s.PROGRAM, s.SQL_ID, s.SQL_EXEC_START, s.LOGON_TIME, q.sql_text from v$session s, v$sql q where s.sql_id=q.sql_id(+) and /*status='ACTIVE' and*/ osuser='bheck';
 -- Find active sessions active for more than 10 seconds:
 select s.sid||','||s.serial# sess, s.osuser, s.USERNAME, s.last_call_et, s.status, s.sql_address, s.program from v$session s where ( s.status = 'ACTIVE' and s.last_call_et > 10 );
 -- Find inactive sessions older than 20 minutes:
@@ -5834,7 +5834,7 @@ SELECT table_name, column_name FROM cols WHERE lower(table_name) LIKE 'accou%' A
 -- Find query search all Oracle tables & views with a certain table name poke around:
 SELECT table_name FROM user_tables WHERE lower(table_name) LIKE '%search%' order by 1;
 
--- Poke around search all tables want for a specific column name:
+-- Poke around search all tables want for a specific column name does column exist:
 SELECT * from  user_tab_columns WHERE table_name = 'FOO' AND column_name LIKE '%NEW%';
 
 -- What the object references, tables etc:
@@ -5846,7 +5846,7 @@ select * from user_dependencies where REFERENCED_NAME = 'OPP_BASE' and reference
 select index_name, tablespace_name from user_indexes where TABLE_NAME = 'SP_PROCESSING' and index_name not like 'SYS_%';
 -- Want table name that uses this index where is this index used:
 select table_name from user_indexes where index_name='CONTACT_FIRSTNAME_IX';
--- Want table and columns are being indexed for this index user_index:
+-- Want table and columns are being indexed for this index user_index which columns begin used for this index:
 SELECT * from user_ind_columns WHERE index_name = 'KIR_HC_AC_CIX';
 -- Is this column being indexed anywhere:
 SELECT * from user_ind_columns WHERE column_name = 'MYCOL';
@@ -6684,7 +6684,7 @@ begin DBMS_STATS.set_table_prefs(null, 'bricks', 'method_opt', 'for all columns 
 BEGIN DBMS_STATS.gather_table_stats(USER, 'CONTACT_EXTERNAL2', estimate_percent=>100); END; 
 SQL> exec DBMS_STATS.gather_table_stats('HR', 'EMPLOYEES', method_opt=>'FOR COLUMNS SIZE 254 JOB_ID');
 
--- Are table statistics stale?:
+-- Are table statistics stale? last gather stats:
 select stale_stats from user_tab_statistics where  table_name = 'RION39366';
 select table_name, last_analyzed from user_tables where table_name in ('MKC_REVENUE_FULL');
 
@@ -6773,6 +6773,11 @@ select segment_name table_name, sum(bytes)/(1024*1024) table_size_meg, sum(bytes
 ALTER SESSION SET plsql_warnings = 'ERROR:6002' -- upgrade the 'unreachable code' warning
 ALTER SESSION SET plsql_warnings = 'ERROR:ALL'
 ALTER SESSION SET plsql_warnings = 'ENABLE:ALL';
+-- Reduce script failures 60 seconds:
+ALTER SESSION SET ddl_lock_timeout=60;  
+
+-- View current value of variable set via alter session:
+select * from v$parameter where name = 'optimizer_features_enable';
 
 -- Assume that in 1999 the database displays 01-JAN-11. If Oracle date format uses DD-MON-RR, then 11 specifies 2011, but if YY, then 11 specifies 1911
 
@@ -6858,9 +6863,6 @@ if (to_char(sysdate, 'HH24MI') not between '0300' and '0400') Then
 
 -- Oracle index NULLs indexed. NULL can be indexed by adding another not nullable column to the index:
 CREATE INDEX with_null ON table_name (nullable_column, '1');
-
--- Reduce script failures 60 seconds:
-ALTER SESSION SET ddl_lock_timeout=60;  
 
 -- Lowest plan cost to find names like 'Kochhar' without an index-ignoring leading '%hhar':
 create index last_name_reverse_index on employees(REVERSE(last_name)); select employee_id, first_name, last_name, reverse(last_name), salary from employees where reverse(last_name) LIKE 'rahh%';
@@ -7100,6 +7102,8 @@ SELECT stattype_locked FROM dba_tab_statistics WHERE table_name = 'TABLE_NAME' a
 -- Remove trailing comma from a loop built-up list:
 v_set_cols := substr(v_set_cols, 1, length(v_set_cols) - 1);
 
+create database link MKC_IMDBP connect to PAPKMC identified by "XXXXXXXXXXXXXXX" using 'IMDBP';
+       
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
