@@ -620,7 +620,6 @@ set shellslash
 " Personal
 iab BoB Bob Heckel
 iab RoB Robert S. Heckel Jr.
-iab @@ rsh@rshdev.com
 
 " Misc
 iab AlP ABCDEFGHIJKLMNOPQRSTUVWXYZ
