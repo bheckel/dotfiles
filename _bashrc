@@ -805,7 +805,7 @@ case "$OSTYPE" in
         }
 
         function ts() {
-          termux-share -a send ${1}
+          termux-share -a send "${1}"
         }
 
         function w() {
