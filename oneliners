@@ -7104,6 +7104,12 @@ v_set_cols := substr(v_set_cols, 1, length(v_set_cols) - 1);
 
 create database link MKC_IMDBP connect to PAPKMC identified by "XXXXXXXXXXXXXXX" using 'IMDBP';
        
+-- Create xml table from a CSV string comma separated string;
+CREATE TABLE mytbl AS SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE( '426792,1030348,1030369,1030370', ',', '","') || '"'));
+
+-- Is index being used?:
+select index_name, table_name, used from v$object_usage;--null alter index KRB_HC_IN_CIX monitoring usage; select index_name, table_name, used from v$object_usage;--not null
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
