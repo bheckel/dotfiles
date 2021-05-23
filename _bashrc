@@ -695,13 +695,8 @@ case "$OSTYPE" in
       fi
 
       if [ $HOSTNAME = 'sas-01.twa.foo.com' ] || [ $HOSTNAME = 'sasdev-01.twa.foo.com' ] || [ $HOSTNAME = 'sas-01.mrk.foo.com' ]; then
-        # See also ~/.bashrc.project
         unset SSH_ASKPASS
         alias cavx='vi scp://bheckel@sas-01.mrk.foo.com//Drugs/Personnel/bob/tmp/.vimxfer'
-        alias d12="(cd ~/bob/tmp; vi -Rd 1 2)"
-        alias d13="(cd ~/bob/tmp; vi -Rd 1 3)"
-        alias d123="(cd ~/bob/tmp; vi -Rd 1 2 3)"
-        alias d34="(cd ~/bob/tmp; vi -Rd 3 4)"
         alias vi=$HOME/usr/local/bin/vim
 
         # This sometimes keeps things from failing when the minimal vim is installed as vi
