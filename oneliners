@@ -4440,6 +4440,7 @@ for i in {0..255} ; do printf "\x1b[38;5;${i}mcolour${i}\n"; done
 
 whatismyip=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
 
+# ssh cron ssh:
 50 15 * * * ssh b@sas-01.mrk.taeb.com ~/bin/saslog_grep.pl -x /sasdata/Cron/Daily/TMMTargetedList/tmm_run_check.log
 
 sudo timedatectl set-timezone America/New_York
@@ -4481,6 +4482,8 @@ xrandr
 # system messages since last boot:
 journalctl -b -1
 journalctl --since "2015-02-02 20:30:00"
+
+systemctl list-unit-files --state=enabled --no-pager
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
