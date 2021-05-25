@@ -765,7 +765,7 @@ case "$OSTYPE" in
 
         alias cdd="cd $HOME/downloads"
         # When $HOME/code/misc/gitall isn't available
-        alias gital='cd ~/dotfiles && git add . && git commit -m"mod gitall termux" && git push && git pull'
+        alias gital='cd ~/dotfiles && git add . && git commit -m"mod gitall termux"; git push ; git pull'
         alias gitall='cd ~/dotfiles && git add . && git commit -m"mod gitall termux" && git push && git pull'
         alias nb='newsboat -q -r'
         alias pa='termux-media-player pause'
