@@ -7091,6 +7091,7 @@ SELECT listagg(column_name, ',') within group (order by column_position) x from 
 
 -- Find sequence:
 select * from user_sequences where sequence_name like 'UID_%Z%';
+select * from SYS.user_sequences where sequence_name like '%EVENT%';
 
 -- Last time index was built rebuilt:
 select OBJECT_NAME, timestamp, LAST_DDL_TIME from dba_objects where OBJECT_NAME='KRB_CNTRY_CD_IX';
