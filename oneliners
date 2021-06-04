@@ -5618,6 +5618,8 @@ FUNCTION hasLinkages(in_accountId NUMBER, in_contextBeingUsed NUMBER := 2) RETUR
 -- Oracle user sessions who is logged and potentially kill them:
 select s.sid||','||s.serial# sess, s.osuser, s.username, s.last_call_et, s.status, s.sql_address, s.program from v$session s where ( s.status = 'ACTIVE' );
 select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, USERNAME, COMMAND, STATUS, SCHEMANAME, OSUSER, MACHINE, PROGRAM, TYPE, SQL_ID, SQL_EXEC_START, MODULE, ACTION, LOGON_TIME, CLIENT_IDENTIFIER, STATE from v$session where username is not null order by status, logon_time;
+-- Kill running session Cloud. Column 's' also allows viewing of running SQL:
+select distinct 'ALTER SYSTEM KILL SESSION ''' || sid || ',' || serial# || ''';' x, substr(q.sql_text,1,500) s from v$session s, v$sql q where s.sql_id=q.sql_id(+) and q.sql_text not like 'select distinct ''exec sys%';
 
 -- Oracle package count:
 SELECT OBJECT_NAME, count(*) FROM dba_procedures WHERE OWNER = 'SETARS' AND OBJECT_TYPE IN('PROCEDURE' , 'PACKAGE','FUNCTION') AND procedure_name IS NOT NULL GROUP BY object_name;

@@ -1856,7 +1856,7 @@ if !exists("autocommands_loaded")
 
   " Avoid ;w failure if this file is open by accident anywhere by ,e (it should never be edited)
   "au BufReadPre,FileReadPre *.vimxfer,*/tmp/1,*/tmp/2 set noswapfile
-  au BufReadPre,FileReadPre *.vimxfer set noswapfile
+  au BufReadPre,FileReadPre *.vimxfer.swp set noswapfile
 
   " if THISBOX == 'appa'
     " au BufNewFile,BufRead,BufEnter *.sas | syntax clear | source $HOME/code/sas/sas.vim
