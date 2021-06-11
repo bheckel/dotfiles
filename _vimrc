@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Sat 20-Mar-2021 (Bob Heckel)
+" Modified: Sun 06-Jun-2021 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -1017,7 +1017,7 @@ nnoremap ;b <C-W>_
 
 " Same as  'ab YdC' but replaces existing Created line first:
 " nnoremap ;c 0Di#  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>
-nnoremap ;c 0Di#  Created: <C-R>=strftime("d-%b-%Y")<CR> (Bob Heckel)<ESC>
+nnoremap ;c 0Di#  Created: <C-R>=strftime("%d-%b-%Y")<CR> (Bob Heckel)<ESC>
 
 " Change (d)irectory to where the open file resides:
 nnoremap ;d :call CDtoThisFilesLoc()<CR>
