@@ -6722,7 +6722,7 @@ NUMBER(12, 2)  -- store up to one cent below $10B, $9,999,999,999.99
 
 -- A record is in second and third normal forms 3NF if every field is either part of the key or provides a (single-valued) fact about exactly the whole key and nothing else
 
--- Oracle wildcard select find "Miss Smelly_bottom", the only toy_name that includes an underscore overriding SQL/LIKEs idea of the _ character:
+-- Oracle wildcard select find "Miss Smelly_bottom", the only toy_name that includes a literal slash overriding SQL/LIKEs idea of the underscore character:
 select * from toys where  toy_name like '%\_%' ESCAPE '\';
 
 -- Prove linefeed was appended:
@@ -7122,6 +7122,9 @@ CREATE TABLE mytbl AS SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('
 
 -- Is index being used?:
 select index_name, table_name, used from v$object_usage;--null alter index KRB_HC_IN_CIX monitoring usage; select index_name, table_name, used from v$object_usage;--not null
+
+-- Select if any of 3 dates is less than 2018:
+where extract(year from(COALESCE("REPORT_DATE_ADJ","REPORT_DATE_SR","REPORT_DATE_F"))) <= 2018
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
