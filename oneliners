@@ -6958,7 +6958,7 @@ $ while true; do sqlplus -S estars/mypw@mydb @t.sql; sleep 20; done
 alias lims='sqlplus sasrepor/sasrepor@sprd25'
 alias db6='psql -h db-06.aeb.com AEBMART'
 
--- Remove multiple spaces with one space Oracle (like COMPRESS that doesn't exist):
+-- Remove multiple spaces with one space Oracle (like COMPBL that doesn't exist):
 SELECT REGEXP_REPLACE(text, '\s+', ' ') FROM user_source;
 
 -- Have SID want to know what SQL is running:
@@ -7125,6 +7125,9 @@ select index_name, table_name, used from v$object_usage;--null alter index KRB_H
 
 -- Select if any of 3 dates is less than 2018:
 where extract(year from(COALESCE("REPORT_DATE_ADJ","REPORT_DATE_SR","REPORT_DATE_F"))) <= 2018
+
+-- PLSQL Developer's right click table 'Add debug information':
+alter package asp_pkg compile debug reuse settings;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
