@@ -164,7 +164,7 @@ alias wget='wget -c'  # continue failures
 # A Windows-ish Start to open a file or file manager
 case "$OSTYPE" in
          cygwin) st() { explorer    "${1:-.}"; } ;;
-      linux-gnu) st() { pcmanfm &   "${1:-.}"; } ;;
+      linux-gnu) st() { pcmanfm     "${1:-.}"; } ;;
         darwin*) st() { open        "${1:-.}"; } ;;
   linux-android) st() { termux-open "${1:-.}"; } ;;
          netbsd) st() { echo 'no can do, man'; } ;;  # avoid "Unknown" message on sdf login
