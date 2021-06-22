@@ -469,9 +469,9 @@ endif
 
 "                               16 diff mode {{{2
 
-set diffopt+=iwhiteall
 set diffopt+=filler
 if v:version > 801 && has("patch148")
+  set diffopt+=iwhiteall
   set diffopt+=algorithm:patience
 endif
 

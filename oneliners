@@ -11,10 +11,10 @@
 #              ° °°
 #            {°^°}=~~€ .. .
 #
-#          ^^^^^^^^^^__^^^_^^^^
+#          ^^^^__^^^^^__^^^_^^^
 #
-#  Created: Tue 02-Jun-1998 (Bob Heckel)
-# Modified: Sat 16-Jan-2021 (Bob Heckel)
+#  Created: 02-Jun-1998 (Bob Heckel)
+# Modified: 21-Jun-2021 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -6341,7 +6341,7 @@ SELECT owner, object_name, object_type, status, last_ddl_time, CREATED, TIMESTAM
 
 SELECT SYSTIMESTAMP INTO starting_time FROM DUAL;
 
--- Oracle regex case-insensitive compare with LIKE:
+-- Oracle LIKE regex case-insensitive compare with LIKE:
 SELECT * FROM user_source WHERE lower(text) like '%cdhub_jms%' and type != 'PACKAGE' order by type, name, line;
 SELECT * FROM user_source WHERE regexp_like(text, 'cdhub_jms\.[ac]', 'i') and type != 'PACKAGE' order by type, name, line;
 
@@ -7129,6 +7129,9 @@ where extract(year from(COALESCE("REPORT_DATE_ADJ","REPORT_DATE_SR","REPORT_DATE
 -- PLSQL Developer's right click table 'Add debug information':
 alter package asp_pkg compile debug reuse settings;
 
+-- Find queries that users are doing on this view:
+select * from SQL_HISTORY_TEXT t where REGEXP_LIKE(t.sql_text, 'SALESNET', 'i');
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -7650,7 +7653,8 @@ git add . && git commit -m'mod' && git push
 
 git config user.name  # whoami
 git config -l  # list all config settings
-git config --local -e  # edit
+git config --local -e  # edit in vi
+git config --global -e  # edit in vi
 git config --global merge.tool vimdiff
 
 # git show the changes recorded in the stash entry as a diff between the stashed contents and the commit back when the stash entry was first created:
@@ -7665,12 +7669,14 @@ git stash drop 1  # if you have stash@{0} and stash@{1} only delete stash 1
 git stash clear 
 # git snapshot ...
 git stash --include-untracked -m'mynamedstash' && git stash apply
-# If the apply tries to modify a file that you’ve since modified, you’ll get a merge conflict and will have to try to resolve it. This creates a new branch for you, checks out the commit you were on when you stashed your work, reapplies your work there, and then drops the stash if it applies successfully:
+# If the apply tries to modify a file that you've since modified, you'll get a merge conflict and will have to try to resolve it. This creates a new branch for you, checks out the commit you were on when you stashed your work, reapplies your work there, and then drops the stash if it applies successfully:
 git stash branch teststashbranch
 
 git log --pretty=oneline
 git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
 git log --since="3 months ago" --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %d [%an]" --graph --date=short
+# git show only the files edited affected by commits on this branch:
+git log --name-only --date=short
 
 # git create new then checkout branch:
 git branch mynewbranch; git checkout mynewbranch
@@ -7697,7 +7703,7 @@ git reset --hard ORIG_HEAD; git gc;
 # git abandon discard throw away trash abandon a merge collision (remove conflict markers "master|MERGING" from the file but you still have merge conflicts when you do git pull next time):
 git merge --abort  # or git reset --merge
 # git error "CONFLICT (content): Merge conflict in"... collision:
-git mergetool  # C-W = in vim if windows are collapsed
+git mergetool  # <C-W => in vim if windows are collapsed
 # git use the other guy's commit on collision:
 git reset --merge 2e40a3
 # git discard throw away trash abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area and leave your INDEX alone. You could now git add and git commit again to accomplish what git commit --amend would have done:
@@ -7708,6 +7714,17 @@ git reset c4c9473
 git reset --hard HEAD^  # or git reset --hard HEAD~1 for DOS  or git reset --hard c4c9473 if it's not the previous you want to go back to but rather a specific commit
 # git undo discard bad accidental stash pop SP_PROCESSING.pck and MYUNTRACKED.txt 2020
 git reset HEAD . && git restore SP_PKG.pck && rm MYUNTRACKED.txt
+
+# Merge a feature branch:
+git checkout develop && git pull && git merge feature/RION-31587 && git push
+# Merge a feature branch - manual pull request completion ready to merge without using Github UI merge & delete branch buttons:
+git checkout develop && git pull && git merge --no-ff feature/RION-31587 && git push && git branch -d feature/RION-31587 && git fetch -p && git push origin --delete feature/RION-31587
+# Merge a feature branch - manual pull request completion ready to merge without using Github UI merge & delete branch buttons - collision version:
+git checkout develop && git pull && git merge --no-ff feature/RION-31587 && rmv myfile.orig && git commit -m'resolved collision' && git push && git branch -d feature/RION-31587 && git fetch -p && git push origin --delete feature/RION-31587
+
+# git branch has collision conflicts that must be resolved:
+git fetch origin && git checkout -b feature/RION-999 origin/feature/RION-999 && git merge develop  # then git mergetool, use github to squash, then delete local branch
+git checkout develop && git pull && git checkout feature/RION-999 && git merge develop  # then git mergetool, use github to squash, then delete local branch
 
 # git edit modify rewrite previous existing git commit message:
 git commit --amend -m 'change your previous, last, wrong, commit message to this'
@@ -7759,16 +7776,6 @@ git clone https://github.com/grayghostvisuals/Practice-Git.git
 # But may need this first or instead of remote add if your clone was git clone git://github.com/bheckel/misc.git
 git remote set-url origin git@github.com:bheckel/dotfiles.git
 
-# Merge a branch:
-git checkout develop && git pull && git merge feature/RION-31587 && git push
-# Merge a feature branch - manual pull request completion ready to merge without using Github UI merge & delete branch buttons:
-git checkout develop && git pull && git merge --no-ff feature/RION-31587 && git push && git branch -d feature/RION-31587 && git fetch -p && git push origin --delete feature/RION-31587
-# Merge a feature branch - manual pull request completion ready to merge without using Github UI merge & delete branch buttons - collision version:
-git checkout develop && git pull && git merge --no-ff feature/RION-31587 && rmv myfile.orig && git commit -m'resolved collision' && git push && git branch -d feature/RION-31587 && git fetch -p && git push origin --delete feature/RION-31587
-
-# Ready to merge this feature so git merge myfeaturebranch INTO HERE (master) then delete the feature branch:
-git checkout master && git merge myfeaturebranch && git branch -d myfeaturebranch
-
 # git delete cleanup post-PR local branch and prune remote branches (after using GitHub UI delete branch button):
 git branch -d feature/RION-31587 && git fetch -p && git branch -a
 # git delete cleanup branch local then remote (without using GitHub UI delete branch button). First make sure your remote is there: git branch -a:
@@ -7792,14 +7799,8 @@ git checkout develop && git fetch -p origin && git merge origin/develop && git c
 # Set remote tracking branch. Assumes push.default=upstream.  Later, since you’re on a tracking branch and you git pull, Git automatically knows which server to fetch from and which branch to merge in:
 git checkout -b feature/RION-9999 && git push --set-upstream origin feature/RION-9999  # "Branch 'feature/RION-9999' set up to track remote branch 'feature/RION-9999' from 'origin'."
 
-# git branch has conflicts that must be resolved:
-git fetch origin && git checkout -b feature/RION-999 origin/feature/RION-999 && git merge develop
-
 # git squash together all commits after d3fbfd5 (the one I didn't touch). Leave the first entry (oldest commit) alone as 'pick', set others to 's[quash]', next screen lets you edit the message, doing nothing uses all old messages, wipe and type for a new one:
 git rebase --interactive d3fbfd5
-
-# git show only the files edited affected by commits on this branch:
-git log --name-only --date=short
 
 # git show last touches and authors for all remote branches:
 for branch in `git branch -r | grep -v HEAD`;do echo -e `git show --format="%ci %cr\t%an\t" $branch | head -n 1` \\t$branch; done | sort -r
@@ -7985,5 +7986,7 @@ Remove all event listeners: $("*").off();
 Remove all right-click listeners: $("*").off("contextmenu");
 
 # Prevent Win10 blurry video resolution or too large font apps: Right click on gVim icon -> Properties -> Compatibility -> Change high DPI settings -> check box "Override high DPI scaling behavior" in the bottom of the dialog window and set "Scaling performed by:" to "System (Enhanced)"
+
+Copyright © 2021 Bob Heckel b dot heckel at gmail dot com
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
