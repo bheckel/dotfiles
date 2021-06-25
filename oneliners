@@ -5383,9 +5383,6 @@ union all
 -- Records common to both tables:
 select deptno from scott.emp INTERSECT select deptno from scott.dept  -- 10, 20, 30
 
--- Capture Oracle userid (note NO SEMICOLON to terminate the SQL):
-EXECUTE IMMEDIATE q'[ SELECT sys_context('setars_context', 'employee_id') from dual ]' INTO whoami;
-
 -- Determine Oracle version digits v9+.  E.g. 18:
 SQL> SET SERVEROUT ON; SQL> EXEC DBMS_OUTPUT.PUT_LINE(DBMS_DB_VERSION.VERSION);
 -- Full dotted Oracle version:
@@ -5402,26 +5399,6 @@ show connection
 /oracle/app/oracle/product/8.0.6/bin/tnslsnr LISTENER -inherit
 
 c:\oracle\ora920\network\admin\tnsnames.ora
-
--- Oracle which database HOST am i are we on e.g durax2342:
-SELECT SYS_CONTEXT('USERENV', 'SERVER_HOST') FROM DUAL;
-IF (SYS_CONTEXT('USERENV', 'DB_NAME') in ('SER', 'SETS')) THEN RETURN; END IF;
-
--- Oracle which database am i are we on e.g. SEP:
-select SYS_CONTEXT('USERENV', 'DB_NAME') from dual;  --same as SELECT name FROM V$DATABASE;
-l_db_name VARCHAR2(20) := SYS_CONTEXT('USERENV', 'DB_NAME');  if (l_db_name IN ('SEPS')) THEN...
-
--- Oracle which schema am i are we on current schema name whoami user e.g. SETARS:
-select sys_context('USERENV', 'CURRENT_SCHEMA') from dual;
-declare x varchar2(99); begin x := 'my schema is ' || USER; dbms_output.put_line(x); end;
-
--- Oracle which client PC am i are we on client hostname running client whereami e.g. lg01992:
-select SYS_CONTEXT('USERENV','HOST') from dual;
-
--- Use my id if i exist but if i do not exist, use superowner's:
-..., actual_updatedby = nvl(sys_context('mystars_context', 'employee_id'), 0)
-
-select sys_context('USERENV','SID') as my_session_id_sid from dual;
 
 -- Oracle substring:
 SELECT SUBSTR('CORPORATE FLOOR', 2, 4) FROM dual  -- ORPO
@@ -5443,6 +5420,8 @@ select s.sid||','||s.serial# sess, s.osuser, s.USERNAME, s.last_call_et, s.statu
 select s.sid||','||s.serial# sess, s.osuser, s.USERNAME, s.last_call_et, s.status, s.sql_address, s.program from v$session s where ( s.status != 'ACTIVE' and s.last_call_et > 1200 );
 -- Find all recent sql executed:
 select s.SID, s.SERIAL#, USERNAME, s.STATUS, SCHEMANAME, OSUSER, s.MACHINE, PORT, PROGRAM, TYPE, s.SQL_ID, LOGON_TIME, CLIENT_IDENTIFIER, STATE, SQL_TEXT, SQL_FULLTEXT, RESULT_CACHE from v$session s, v$sql q where s.sql_id=q.sql_id(+) and SQL_EXEC_START > sysdate - interval '1' hour order by LAST_ACTIVE_TIME desc;
+-- Find sql_id of my recent query that started with this LIKE:
+SELECT * FROM v$sql WHERE lower(sql_text) like 'with edw%';-- 5w8bqa53r774x
 
 -- Oracle find uncommitted transactions locks:
 SELECT s.OSUSER, s.sid ,s.serial# ,s.username ,s.machine ,s.status ,s.lockwait ,t.used_ublk ,t.used_urec ,t.start_time from v$transaction t inner join v$session s on t.addr = s.taddr;
@@ -6380,9 +6359,6 @@ SELECT aid, ab.account_id FROM (SELECT to_number(column_value) aid FROM xmltable
 
 CURSOR contacts IS SELECT trim(COLUMN_VALUE) contact_id FROM XMLTABLE(upper(TRIM('"' || replace(in_contact_id_list, ',', '","') || '"'))); FOR rec IN contacts LOOP...
 
-select * from dba_context;
-SELECT cast(sys_context('mycontext', 'actual_employee_id') AS NUMBER) FROM dual
-
 -- Oracle date time interval in the last 5 minutes:
 SELECT (SYSTIMESTAMP - INTERVAL '5' minute) AS five_minutes_ago, SYSTIMESTAMP FROM dual
 SELECT * FROM account_team where created>(SYSDATE - INTERVAL '5' minute);
@@ -6432,8 +6408,9 @@ WHERE batch_time > '2008-02-13'
 select * from basic_data where lnnvl(val = 'Y')
 
 -- Oracle generate random number roll dice:
-SELECT DBMS_RANDOM.VALUE(1, 6) FROM dual  -- 3.32932424
-SELECT ROUND(DBMS_RANDOM.VALUE(1, 6)) FROM dual  -- 3
+exec dbms_random.seed(0);
+SELECT DBMS_RANDOM.VALUE(1, 6) FROM dual;  -- 3.32932424
+SELECT round(DBMS_RANDOM.VALUE(1, 6), 0) FROM dual;  -- 3 (like dice)
 SELECT ADD_MONTHS(SYSDATE, -1 * DBMS_RANDOM.VALUE(1, 6)) FROM dual  -- 8/29/2018 11:20:27 AM  or 9/29...etc
 
 to_number(trunc(dbms_random.value(1000,9999))|| to_char(systimestamp,'FFSS')|| seq.nextval))
@@ -6673,8 +6650,10 @@ EXPLAIN PLAN FOR SELECT * FROM emp WHERE sal > 10; select * from table(dbms_xpla
 -- Find a previous sql in cache:
 select * /* my qry id */ from foo; select * from v$sql where sql_text = 'my qry id'; select * from table(dbms_xplan.display_cursor('THE ID YOU JUST FOUND');
 -- Autotrace:
-select /*+ gather_plan_statistics */ * from bricks b join colours c on b.colour=c.colour; select * from table(DBMS_XPLAN.display_cursor(null, format => 'ROWSTATS LAST'));
+select /*+ gather_plan_statistics */ * from bricks b join colours c on b.colour=c.colour; select * from table(DBMS_XPLAN.display_cursor(null, format => 'ROWSTATS LAST'));  -- alternatively set this to avoid the hint: ALTER SESSION SET statistics_level = all;
 SELECT /*+gather_plan_statistics*/ * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display_cursor(sql_id=>null, format=>'ALLSTATS LAST +cost +bytes +outline +PEEKED_BINDS'));
+SELECT SQL_FULLTEXT, SQL_ID, FIRST_LOAD_TIME FROM v$sql WHERE lower(sql_text) like '%fooba%' order by 3 desc;  -- find your query l234kj9afl
+select * from table(dbms_xplan.display_cursor('l234kj9afl', format => 'ALLSTATS LAST'));  -- BEST implies ROWSTATS IOSTATS MEMSTATS
 
 -- Good for debugging speed problems - prints an EXPLAIN PLAN and execution statistics after each SQL statement:
 set autotrace ON
@@ -6696,9 +6675,9 @@ begin DBMS_STATS.set_table_prefs(null, 'bricks', 'method_opt', 'for all columns 
 BEGIN DBMS_STATS.gather_table_stats(USER, 'CONTACT_EXTERNAL2', estimate_percent=>100); END; 
 SQL> exec DBMS_STATS.gather_table_stats('HR', 'EMPLOYEES', method_opt=>'FOR COLUMNS SIZE 254 JOB_ID');
 
--- Are table statistics stale? last gather stats:
-select stale_stats from user_tab_statistics where  table_name = 'RION39366';
-select table_name, last_analyzed from user_tables where table_name in ('MKC_REVENUE_FULL');
+-- Are table statistics stale? last gather stats NULL until first exec dbms_stats.gather_table_stats(null, 'bricks'); Both have LAST_ANALYZED column:
+select stale_stats from user_tab_statistics where table_name = 'BRICKS'; -- YES or NO
+select table_name, last_analyzed from user_tables where table_name = 'BRICKS';
 
 exec DBMS_STATS.gather_schema_stats(null);
 
@@ -6971,10 +6950,6 @@ ALTER SESSION set NLS_DATE_FORMAT = 'SYYYY-MM-DD'; -- -4712-01-01
 select date '-4712-01-01' lowest_ora_date_possible, date '9999-12-31' highest_future_ora_date_possible from dual;
 nvl(next(start_date), DATE '-4712-01-01') <= max(nvl(end_date, DATE '9999-12-31'))  -- Oracle date constants
 
--- What is my current date format:
-SELECT value FROM v$nls_parameters WHERE parameter ='NLS_DATE_FORMAT';
-SELECT sys_context('USERENV', 'NLS_DATE_FORMAT') from dual; -- DD-MON-RR HH24:MI:SS
-
 -- View normally obscured bad BC dates make visible:
 SELECT created, updated, to_char(updated,'SYYYY') yr, to_char(updated,'YYYY-MM-DD HH24:MI') FROM CONTAC_HIST where updated < to_date('01JAN1970'); --show BC dates
 SELECT TO_CHAR(created,'SYYYY') FROM EVENTS where created < to_date('01JAN1970');
@@ -7020,20 +6995,46 @@ CREATE TABLE mysmallnums(n NUMBER(2));
 -- Default SQL Developer date format:
 SELECT TO_CHAR(STARTUP_TIME,'MON-DD-RR HH24:MI:SS')...
 
-SELECT /*csv*/ * FROM scott.emp;
-SELECT /*json-formatted*/ * FROM scott.emp;
-SELECT /*html*/ * FROM scott.emp;
-SELECT /*delimited*/ * FROM scott.emp;
-SELECT /*insert*/ * FROM scott.emp;
-SELECT /*loader*/ * FROM scott.emp;
-SELECT /*fixed*/ * FROM scott.emp;
-SELECT /*text*/ * FROM scott.emp;
+-- SQL Developer output formats:
+SELECT /*csv*/ * FROM scott.emp; SELECT /*json-formatted*/ * FROM scott.emp; SELECT /*html*/ * FROM scott.emp; SELECT /*delimited*/ * FROM scott.emp; SELECT /*insert*/ * FROM scott.emp; SELECT /*loader*/ * FROM scott.emp; SELECT /*fixed*/ * FROM scott.emp; SELECT /*text*/ * FROM scott.emp;
 
 -- Uptime
 SELECT TO_CHAR(STARTUP_TIME,'MON-DD-RR HH24:MI:SS') AS "Instance Start Time", (startup_time-SYSDATE)*-1 as uptime FROM V$INSTANCE;
 
+-- Oracle which database HOST am i on e.g durax2342:
+SELECT SYS_CONTEXT('USERENV', 'SERVER_HOST') FROM DUAL;
+IF (SYS_CONTEXT('USERENV', 'DB_NAME') in ('SER', 'SETS')) THEN RETURN; END IF;
+
+-- Oracle which database am i on e.g. SEP:
+select SYS_CONTEXT('USERENV', 'DB_NAME') from dual;  --same as SELECT name FROM V$DATABASE;
+l_db_name VARCHAR2(20) := SYS_CONTEXT('USERENV', 'DB_NAME');  if (l_db_name IN ('SEPS')) THEN...
+
+-- Oracle which schema am i on current schema name whoami user e.g. SETARS:
+select sys_context('USERENV', 'CURRENT_SCHEMA') from dual;
+declare x varchar2(99); begin x := 'my schema is ' || USER; dbms_output.put_line(x); end;
+
+-- Oracle which client PC am i are we on client hostname running client whereami e.g. lg01992:
+select SYS_CONTEXT('USERENV','HOST') from dual;
+
+-- Use my id if i exist but if i do not exist, use superowner's:
+..., actual_updatedby = nvl(sys_context('mystars_context', 'employee_id'), 0)
+
+select sys_context('USERENV','SID') as my_session_id_sid from dual;
+
+-- Capture Oracle userid (note NO SEMICOLON to terminate the SQL):
+EXECUTE IMMEDIATE q'[ SELECT sys_context('setars_context', 'employee_id') from dual ]' INTO whoami;
+
+-- What is my current date format:
+SELECT value FROM v$nls_parameters WHERE parameter ='NLS_DATE_FORMAT';
+SELECT sys_context('USERENV', 'NLS_DATE_FORMAT') from dual; -- DD-MON-RR HH24:MI:SS
+
+select * from dba_context; SELECT cast(sys_context('mycontext', 'actual_employee_id') AS NUMBER) FROM dual;
+
 -- Which Oracle client am i running?:
 SELECT DISTINCT s.client_version FROM v$session_connect_info s WHERE s.sid = SYS_CONTEXT('USERENV', 'SID');
+
+-- Which schema/user am i whoami?
+select SYS_CONTEXT('USERENV', 'SESSION_USER') from dual;
 
 ALTER TABLE departments DISABLE CONSTRAINT dept_mgr_fk;
 ALTER TABLE departments ENABLE CONSTRAINT dept_mgr_fk;
