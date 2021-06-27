@@ -3270,7 +3270,7 @@ export CVSROOT=:ext:rheckel@parsifal:/home/rheckel/repository && cvs co eandb
 $ date --set=17:03:01
 
 # Determine how much memory (in MB) you have:
-$ free -m  # 193397 is 193G of RAM
+$ free -m  # 193397 is 193G how much amount of RAM on this system box machine
 vi /proc/meminfo
 # Determine how much swap (in MB) you have on Solaris:
 /usr/sbin/swap -s
@@ -6998,7 +6998,7 @@ SELECT TO_CHAR(STARTUP_TIME,'MON-DD-RR HH24:MI:SS')...
 -- SQL Developer output formats:
 SELECT /*csv*/ * FROM scott.emp; SELECT /*json-formatted*/ * FROM scott.emp; SELECT /*html*/ * FROM scott.emp; SELECT /*delimited*/ * FROM scott.emp; SELECT /*insert*/ * FROM scott.emp; SELECT /*loader*/ * FROM scott.emp; SELECT /*fixed*/ * FROM scott.emp; SELECT /*text*/ * FROM scott.emp;
 
--- Uptime
+-- Database uptime
 SELECT TO_CHAR(STARTUP_TIME,'MON-DD-RR HH24:MI:SS') AS "Instance Start Time", (startup_time-SYSDATE)*-1 as uptime FROM V$INSTANCE;
 
 -- Oracle which database HOST am i on e.g durax2342:
@@ -7988,6 +7988,10 @@ Remove all right-click listeners: $("*").off("contextmenu");
 
 # Prevent Win10 blurry video resolution or too large font apps: Right click on gVim icon -> Properties -> Compatibility -> Change high DPI settings -> check box "Override high DPI scaling behavior" in the bottom of the dialog window and set "Scaling performed by:" to "System (Enhanced)"
 
-Copyright © 2021 Bob Heckel b dot heckel at gmail dot com
+# Open Chromebook ChromeOS crosh Ctrl+Alt+T. Exit Ctrl+D
+crosh> help_advanced
+crosh> vmc stop termina  # allows to force close the whole Linux container
+
+This file 'oneliners' is Copyright © 2021 Bob Heckel b dot heckel at gmail dot com
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
