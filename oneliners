@@ -6497,7 +6497,7 @@ SELECT GREATEST(SYSDATE, to_date('01JAN2029'), to_date('01jan2030')) FROM dual
 -- Sample CTAS database table with tens of thousands of rows:
 CREATE TABLE dummy_table AS SELECT owner, object_name, object_id FROM all_objects;
 -- Sample CTAS database table with 1 column holding 1,2,3... in 10 rows:
-CREATE TABLE dummy_table AS SELECT level FROM dual CONNECT BY level <=10;
+CREATE TABLE dummy_table AS SELECT level l FROM dual CONNECT BY level <=10;
 -- Sample CTAS database table with 1 column and 6000 rows (6 deptno = '30' rows x 1000) in the cartesian:
 CREATE TABLE dummy_table AS SELECT deptno FROM emp CROSS JOIN (SELECT level FROM dual CONNECT BY level <= 1000) WHERE  deptno = 30
 create table dummy_table as select rownum pid, 'product '||rownum descr from dual CONNECT BY level <= 100000;
