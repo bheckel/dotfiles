@@ -765,13 +765,14 @@ case "$OSTYPE" in
         export TERM=screen-256color
 
         alias cdd="cd $HOME/downloads"
+        alias dia='w3m -dump https://finance.yahoo.com/quote/DIA%3Fp=DIA/ | grep --after-context=4 watchlist | tail -n3 | termux-toast'
         # When $HOME/code/misc/gitall isn't available
         alias gital='cd ~/dotfiles && git add . && git commit -m"mod gitall termux" && git push; git pull'
         alias nb='newsboat -q -r'
         alias pa='termux-media-player pause'
         alias pl='termux-media-player play'
-        # Screenscrape
-        alias sgol='echo && w3m -dump https://finance.yahoo.com/quote/SGOL%3Fp=SGOL/ | grep --after-context=4 watchlist | tail -n3 | termux-toast'
+        # Screenscrape TODO need function
+        alias schd='w3m -dump https://finance.yahoo.com/quote/SCHD%3Fp=SCHD/ | grep --after-context=4 watchlist | tail -n3 | termux-toast'
         alias tupd='pkg update && pkg upgrade'
 
         function catput() {
