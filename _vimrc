@@ -1383,7 +1383,7 @@ fu! WriteToFile(vtpth, fnm, append, ...) range  " {{{2
     "
     " TODO avoid this:  E768: Swap file exists: /home/boheck/tmp/.vimxfer.swp (:silent! overrides)
     " without getting this:  E481: No range allowed: 3,7 silent write! /cygdrive/c/temp/.vimxfer
-    "execute(lfirst . ',' . llast . " silent write! " . a:vtpth . '/' . a:fnm)
+    "execute(lfirst . ',' . llast . " silent! write! " . a:vtpth . '/' . a:fnm)
     execute(lfirst . ',' . llast . " write! " . a:vtpth . '/' . a:fnm)
   endif
 
@@ -1854,9 +1854,9 @@ if !exists("autocommands_loaded")
   " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim
   " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $VIMRUNTIME\syntax\saslog.vim
 
-  " Avoid ;w failure if this file is open by accident anywhere by ,e (it should never be edited)
+  " Avoid ;w failure if this file is open by accident anywhere by ,e (it should never be edited directly)
   "au BufReadPre,FileReadPre *.vimxfer,*/tmp/1,*/tmp/2 set noswapfile
-  au BufReadPre,FileReadPre *.vimxfer.swp set noswapfile
+  au BufReadPre,FileReadPre *.vimxfer set noswapfile
 
   " if THISBOX == 'appa'
     " au BufNewFile,BufRead,BufEnter *.sas | syntax clear | source $HOME/code/sas/sas.vim
