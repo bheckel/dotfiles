@@ -7133,6 +7133,9 @@ alter package asp_pkg compile debug reuse settings;
 -- Find queries that users are doing on this view:
 select * from SQL_HISTORY_TEXT t where REGEXP_LIKE(t.sql_text, 'SALESNET', 'i');
 
+-- Keep digits from a string only
+nvl(regexp_substr(msg, '\d+'),0) as recs
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
