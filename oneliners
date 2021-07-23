@@ -5409,6 +5409,10 @@ SELECT INSTR('CORPORATE FLOOR', 'OR', 4, 2) FROM dual  -- 14  start looking from
 SELECT INSTR('CORPORATE FLOOR', 'XX') FROM dual  -- 0
 SELECT INSTR(NULL, 'ORA') FROM dual  -- NULL
 
+select * from territory_ptg_targets where instr(territory_description,'Ireland') > 0;
+-- same
+select * from territory_ptg_targets where territory_description like '%Ireland%';
+
 -- Overflows using PLS_INTEGER but ok with INTEGER:
 DECLARE p1 PLS_INTEGER := 2147483647; p2 INTEGER := 1; n NUMBER; BEGIN n := p1 + p2; END; /
 
