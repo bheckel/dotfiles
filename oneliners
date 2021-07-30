@@ -5769,8 +5769,8 @@ SQL> @C:\Users\bheck\OneDri~1\workspace\data\ource\SQL\3.50rionScripts\RION-3385
 -- sqlplus BOOLEAN parameters are translated from/to integers 0/1/null <--> false/true/null:
 in_debug boolean := sys.diutil.int_to_bool(:in_debug);
 
--- Implicit cursor simple using a rowtype record anchor:
-DECLARE r dual%ROWTYPE; BEGIN FOR r IN ( SELECT * FROM SYS.dual ) LOOP dbms_output.put_line(r.dummy); END LOOP; END;
+-- Implicit cursor simple loop using a table's ROWTYPE record anchor:
+BEGIN FOR r IN ( SELECT * FROM SYS.dual ) LOOP dbms_output.put_line(r.dummy); END LOOP; END;
 
 -- Return a cursor variable:
 CREATE OR REPLACE FUNCTION f RETURN SYS_REFCURSOR AS cv SYS_REFCURSOR; BEGIN OPEN cv FOR select * from dual; RETURN cv; END; /
@@ -5833,9 +5833,11 @@ select * from user_dependencies where name = 'RPT_OPP_MULTI_YDEAL' and reference
 -- What references the object, views etc:
 select * from user_dependencies where REFERENCED_NAME = 'OPP_BASE' and referenced_type not in ('SYNONYM') order by 1;
 
--- Want list all of a table's indexes and tablespace does table have index:
+-- List all of a table's indexes and tablespace does table have index all indexes for a table:
 select index_name, tablespace_name from user_indexes where TABLE_NAME = 'SP_PROCESSING' and index_name not like 'SYS_%';
-SELECT i.table_owner, i.table_name, i.index_name, i.uniqueness, c.column_name, f.column_expression FROM      all_indexes i LEFT JOIN all_ind_columns c ON   i.index_name      = c.index_name AND  i.owner           = c.index_owner LEFT JOIN all_ind_expressions f ON   c.index_owner     = f.index_owner AND  c.index_name      = f.index_name AND  c.table_owner     = f.table_owner AND  c.table_name      = f.table_name AND  c.column_position = f.column_position WHERE i.table_name  ='MYTBL' ORDER BY i.table_owner, i.table_name, i.index_name, c.column_position;
+
+-- Indexes and column (or columns if compound index) indexed for a table:
+SELECT i.table_owner, i.table_name, i.index_name, i.uniqueness, c.column_name, f.column_expression FROM all_indexes i LEFT JOIN all_ind_columns c ON i.index_name = c.index_name AND i.owner = c.index_owner LEFT JOIN all_ind_expressions f ON c.index_owner = f.index_owner AND c.index_name = f.index_name AND c.table_owner = f.table_owner AND c.table_name = f.table_name AND c.column_position = f.column_position WHERE i.table_name ='MKC_REVENUE_FULL_BOB' ORDER BY i.table_owner, i.table_name, i.index_name, c.column_position;
 
 -- Want table name that uses this index where is this index used:
 select table_name from user_indexes where index_name='CONTACT_FIRSTNAME_IX';
@@ -6448,6 +6450,7 @@ ALTER USER limsarc IDENTIFIED BY "newpw" REPLACE "oldpw";
 ALTER USER heckel WITH PASSWORD 'myPass';
 
 ALTER TABLE mytable RENAME TO othertable;
+alter index RBB_HC_JI_CIX rename to "krbb_HC_JI_CIX";  -- case-sensitive
 
 EXECUTE IMMEDIATE 'ALTER TABLE EMAIL_MESSAGES ADD CONSTRAINT EMAIL_MESSAGES_PK PRIMARY KEY (EMAIL_MESSAGES_ID)'; -- Oracle
 
@@ -7665,9 +7668,13 @@ git config --local -e  # edit in vi
 git config --global -e  # edit in vi
 git config --global merge.tool vimdiff
 
+git stash --include-untracked -m 'mynamedstash'
+git stash list
+
 # git show the changes recorded in the stash entry as a diff between the stashed contents and the commit back when the stash entry was first created:
 git stash show
-git stash --include-untracked -m 'mynamedstash'
+git stash show -p 0  # details for specific stash index
+
 # Remove a single stashed state from the stash list and apply it on top of the current working tree state. When no <stash> is given, stash@{0} is assumed, otherwise <stash> must be a reference of the form stash@{<revision>}. Applying the state can fail with conflicts; in this case, it is not removed from the stash list. You need to resolve the conflicts by hand and call git stash drop manually afterwards:
 git stash pop
 # or if >1 exist
