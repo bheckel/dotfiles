@@ -6833,7 +6833,7 @@ select count(*) from mytbl as of TIMESTAMP to_timestamp('2019-08-26 10:10:38.97'
 -- 12-11_13:08:19.331048 for unique identification:
 SELECT  to_char(systimestamp, 'MM-DD_HH24:MI:SS.FF') FROM dual;
 
--- Oracle restore undelete a dropped table or index from recyclebin:
+-- Oracle restore table undelete a dropped table or index from recyclebin:
 drop table t; SELECT * FROM user_recyclebin where lower(original_name) = 't'; FLASHBACK TABLE t TO BEFORE DROP;-- [RENAME TO rescuedog];  -- most recent drop is restored
 
 SELECT sum(((space*8)/1024)/1024) space_gb FROM dba_recyclebin WHERE  owner = 'SETARS';
