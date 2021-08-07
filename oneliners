@@ -676,6 +676,8 @@ au BufRead * if @% =~ 'oneliners$'
 
 if filereadable("~/tmp/SpecificFileExists") ...
 
+vi -c 'map q :qa<CR>' ~/bin/allp
+
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSASxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
