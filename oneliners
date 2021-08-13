@@ -2599,6 +2599,8 @@ libname atlas cas caslib="MKC - Atlas (DNFS)" datalimit=ALL; proc print data=atl
 
 %put &SYSTCPIPHOSTNAME; /* hostname */
 
+proc sql NOPRINT; /* don't apply labels */
+
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxUNIXxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -6833,7 +6835,7 @@ select count(*) from mytbl as of TIMESTAMP to_timestamp('2019-08-26 10:10:38.97'
 -- 12-11_13:08:19.331048 for unique identification:
 SELECT  to_char(systimestamp, 'MM-DD_HH24:MI:SS.FF') FROM dual;
 
--- Oracle restore table undelete a dropped table or index from recyclebin:
+-- Oracle restore table undelete undrop dropped table or index from recyclebin:
 drop table t; SELECT * FROM user_recyclebin where lower(original_name) = 't'; FLASHBACK TABLE t TO BEFORE DROP;-- [RENAME TO rescuedog];  -- most recent drop is restored
 
 SELECT sum(((space*8)/1024)/1024) space_gb FROM dba_recyclebin WHERE  owner = 'SETARS';
@@ -7142,6 +7144,13 @@ select * from SQL_HISTORY_TEXT t where REGEXP_LIKE(t.sql_text, 'SALESNET', 'i');
 
 -- Keep digits from a string only
 nvl(regexp_substr(msg, '\d+'),0) as recs
+
+-- Determine index fragmentation - bad if ratio >.10
+analyze index sgix validate structure;
+select DECODE(LF_ROWS, 0, 0, ROUND((DEL_LF_ROWS/LF_ROWS)*100,2)) RATIO, HEIGHT, LF_BLKS, LF_ROWS FROM INDEX_STATS I;
+
+-- Determine when materialized view last updated
+select owner, name, last_refresh, error, status, refresh_mode  from  all_snapshots where owner = 'SETARS' and name like 'RPT_RION_TERR%';
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
