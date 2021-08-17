@@ -7794,13 +7794,11 @@ ssh-keygen; # then  cat ~/.ssh/id_rsa.pub  # copy it to https://github.com/setti
 git clone git@github.com:bheckel/dotfiles.git && git config --global user.name "Bob Heckel" && git config --global user.email rsh@rshdev.com # ...edit/add/commit... then  git pull origin master && git push origin master
 # may be required for older git versions:
 git remote add origin git@github.com:bheckel/dotfiles.git
+# But need this instead of remote add if your clone was git clone git://github.com/bheckel/misc.git
+git remote set-url origin git@github.com:bheckel/dotfiles.git
 # if 'you cant push':
 git config --local -e
 # or vi ~/dotfiles/.git/config then edit to: url = git@github.com:bheckel/dotfiles.git
-
-git clone https://github.com/grayghostvisuals/Practice-Git.git
-# But may need this first or instead of remote add if your clone was git clone git://github.com/bheckel/misc.git
-git remote set-url origin git@github.com:bheckel/dotfiles.git
 
 # git delete cleanup post-PR local branch and prune remote branches (after using GitHub UI delete branch button):
 git branch -d feature/RION-31587 && git fetch -p && git branch -a
