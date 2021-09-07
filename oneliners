@@ -5625,11 +5625,12 @@ DROP PACKAGE test_bob;
 SELECT /*+ DRIVING_SITE(SITE) */ COUNT(*) FROM DB_OWNER.SITE_DATA@DNB_XXXX SITE WHERE SITE.DUNS_NBR = :1
 
 -- Oracle force index scan - not full table scan hint:
+SELECT /*+ parallel(8) full(<table_1_name_or_alias>) index(<table_1_name_or_alias> <index_1_name>) index(<table_2_name_or_alias> <index_2_name>) */...
 SELECT /*+ INDEX (employees emp_department_ix)*/ employee_id, department_id FROM employees WHERE department_id > 50;
+
 -- Oracle force full table scan hint:
 SELECT /*+ FULL(ddl_event)*/ * FROM ddl_event;
 
-select /*+PARALLEL(4)*/ empno from emp;
 select /*+ NO_PARALLEL */ empno from emp;
 
 -- Kill Oracle kill session sqlplus format:
@@ -6528,11 +6529,11 @@ insert /*+APPEND*/ into mytbl select level, dbms_random.string('a',30) from dual
 -- Oracle create sample data and round to 15 minute increments intervals:
 WITH v AS (select trunc(sysdate)+548/1440+rownum/1440 d1 from dual connect by level <= 10 ) SELECT TRUNC(d1, 'hh24') + ROUND(to_char(d1,'MI') / 15) * 15 / 1440 round_to_15min_intervals FROM v
 
--- View determine Oracle grants privileges:
+-- View list determine Oracle grants privileges:
 SELECT * FROM  DBA_SYS_PRIVS WHERE grantee='SETARS' and privilege like '%OBJ%';
 SELECT * FROM  DBA_role_PRIVS WHERE grantee='SETARS';
 SELECT * FROM user_role_privs WHERE granted_role = 'SELECT_CATALOG_ROLE';
--- View determine Oracle grants privileges for a specific user schema (d.table_name can be a view):
+-- View list determine Oracle grants privileges for a specific user view (d.table_name can be a view):
 SELECT * FROM DBA_TAB_PRIVS d WHERE d.table_name = 'RPT_PTG_OPPORTUNITIES' and d.grantee='SE_PSUX';
 
 -- Build Oracle GRANT statements dynamically:
@@ -6652,22 +6653,18 @@ create table t1 as select date '2010-01-01'+rownum x, rownum y  from dual connec
 -- Modified analytic outer join to get every hr, every room and who reserved it:
 select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2;
 
--- Suppress sqlplus SQL output while calculating execution plan cost (assumes set SERVEROUTPUT on size unl)
+-- Suppress sqlplus SQL output while calculating execution plan cost:
 set autotrace traceonly explain
 SELECT ename FROM emp;
 
--- Use previous sql:
 EXPLAIN PLAN FOR SELECT * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display(null, null, 'typical')); ROLLBACK;
 -- Find a previous sql in cache:
-select * /* my qry id */ from foo; select * from v$sql where sql_text = 'my qry id'; select * from table(dbms_xplan.display_cursor('THE ID YOU JUST FOUND');
+select * /* my uniquified qry id */ from foo; select * from v$sql where sql_text = 'my qry id'; select * from table(dbms_xplan.display_cursor('THE ID YOU JUST FOUND');
 -- Autotrace:
 select /*+ gather_plan_statistics */ * from bricks b join colours c on b.colour=c.colour; select * from table(DBMS_XPLAN.display_cursor(null, format => 'ROWSTATS LAST'));  -- alternatively set this to avoid the hint: ALTER SESSION SET statistics_level = all;
 SELECT /*+gather_plan_statistics*/ * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display_cursor(sql_id=>null, format=>'ALLSTATS LAST +cost +bytes +outline +PEEKED_BINDS'));
 SELECT SQL_FULLTEXT, SQL_ID, FIRST_LOAD_TIME FROM v$sql WHERE lower(sql_text) like '%fooba%' order by 3 desc;  -- find your query l234kj9afl
 select * from table(dbms_xplan.display_cursor('l234kj9afl', format => 'ALLSTATS LAST'));  -- BEST implies ROWSTATS IOSTATS MEMSTATS
-
--- Good for debugging speed problems - prints an EXPLAIN PLAN and execution statistics after each SQL statement:
-set autotrace ON
 
 select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_text like '%CUSTOMER%'
 -- Have sql_id want running query text:
@@ -6686,11 +6683,14 @@ begin DBMS_STATS.set_table_prefs(null, 'bricks', 'method_opt', 'for all columns 
 BEGIN DBMS_STATS.gather_table_stats(USER, 'CONTACT_EXTERNAL2', estimate_percent=>100); END; 
 SQL> exec DBMS_STATS.gather_table_stats('HR', 'EMPLOYEES', method_opt=>'FOR COLUMNS SIZE 254 JOB_ID');
 
--- Are table statistics stale? last gather stats NULL until first exec dbms_stats.gather_table_stats(null, 'bricks'); Both have LAST_ANALYZED column:
+-- Are table statistics stale? last gather stats is NULL until first exec dbms_stats.gather_table_stats(null, 'bricks'); Both have LAST_ANALYZED column:
 select stale_stats from user_tab_statistics where table_name = 'BRICKS'; -- YES or NO
 select table_name, last_analyzed from user_tables where table_name = 'BRICKS';
+exec DBMS_STATS.gather_SCHEMA_stats(null);
 
-exec DBMS_STATS.gather_schema_stats(null);
+select * from user_indexes where status='UNUSABLE' where index_name='DI_SITE_DATE_DUNS_NBR';
+alter index DI_SITE_DATE_DUNS_NBR rebuild ONLINE PARALLEL;
+alter index DI_SITE_DATE_DUNS_NBR NOPARALLEL;
 
 -- Split string into pieces chunks 5 chars wide based on length:
 select regexp_substr(s, '.{5}', 1, lvl) chunk from (select s, level lvl from (select '00000111112222233333' s from dual) connect by level <= length(s) / 5)
