@@ -5878,14 +5878,18 @@ select * FROM all_constraints WHERE constraint_type = 'R' and r_constraint_name 
 
 -- View all details of Oracle table in a schema poke around table:
 select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES', 'SETARS') from dual;
+
+-- Get DDL to recreate an index (and SET to avoid truncation of set serveroutput on):
+set long 90000; select dbms_metadata.get_ddl('INDEX','KRB_9BYTE_CD_IX','SETARS') x from dual;
+
+-- View indexes, last analyzed etc alternative to DBMS_METADATA sqlcl:
+clear screen; info contact_dhub; ddl contact_dhub;
+
 -- View some details of Oracle table (like sqlplus DESC):
 select column_name, nullable, concat(concat(concat(data_type,'('),data_length),')') from user_tab_columns where table_name = 'EMAIL_MESSAGES';
 
 -- Poke around:
 -- Oracle DBA_OBJECTS : All objects in the database  ALL_OBJECTS : All objects accessible to the user  USER_OBJECTS : All objects owned by the user
-
--- View indexes, last analyzed etc alternative to DBMS_METADATA sqlcl:
-clear screen; info contact_dhub; ddl contact_dhub;
 
 -- Oracle are you listening listener?
 $ ps -ef |grep lsn  # /oracle/app/oracle/product/8.0.6/bin/tnslsnr LISTENER -inherit
@@ -6341,7 +6345,7 @@ SELECT REGEXP_COUNT ('Oracle PL/SQL By Example Updated for Oracle 11g', 'ora', 1
 -- Oracle regex - returns 250/50 MCG:
 select regexp_substr(upper('Disk Inh Pwdr 250/50 mcg 60D'),'\d+/[^/]* *MCG') as stren from dual
 
--- Too complicated for REGEXP_LIKE:
+-- If too complicated for REGEXP_LIKE:
 select employee_id, jobtitle from employee e where extract(year from termination_date) = 2019 and instr(upper(jobtitle),'ACCOUNT') > 0 and instr(upper(jobtitle),'ACCOUNTANT') <= 0 and instr(upper(jobtitle),'ACCOUNTING') <= 0 and instr(upper(jobtitle),'TECHNICAL ACCOUNT') <= 0 and instr(upper(jobtitle),'SUPPORT ACCOUNT') <= 0
 
 -- Split on semicolon FREQ=MINUTELY;INTERVAL=10;
@@ -6688,6 +6692,7 @@ select stale_stats from user_tab_statistics where table_name = 'BRICKS'; -- YES 
 select table_name, last_analyzed from user_tables where table_name = 'BRICKS';
 exec DBMS_STATS.gather_SCHEMA_stats(null);
 
+-- Fix unused indexes:
 select * from user_indexes where status='UNUSABLE' where index_name='DI_SITE_DATE_DUNS_NBR';
 alter index DI_SITE_DATE_DUNS_NBR rebuild ONLINE PARALLEL;
 alter index DI_SITE_DATE_DUNS_NBR NOPARALLEL;
@@ -7153,6 +7158,13 @@ select DECODE(LF_ROWS, 0, 0, ROUND((DEL_LF_ROWS/LF_ROWS)*100,2)) RATIO, HEIGHT, 
 
 -- Determine when materialized view last updated
 select owner, name, last_refresh, error, status, refresh_mode  from  all_snapshots where owner = 'SETARS' and name like 'RPT_RION_TERR%';
+
+-- Chain of looping synonym error debug:
+select * from all_objects where object_name = upper('&object_name'); -- it could be that a SYNONYM exists but no Table
+select * from all_synonyms where synonym_name = upper('&synonym_name'); -- otherwise it's the SYNONYM
+
+-- Remove control character whitespace character from string:
+select '692329979 ', regexp_replace('692329979 ', '\W$') from dual;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
