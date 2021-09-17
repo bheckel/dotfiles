@@ -5431,10 +5431,18 @@ select s.SID, s.SERIAL#, USERNAME, s.STATUS, SCHEMANAME, OSUSER, s.MACHINE, PORT
 -- Find sql_id of my recent query that started with this LIKE:
 SELECT * FROM v$sql WHERE lower(sql_text) like 'with edw%';-- 5w8bqa53r774x
 
+lock table table1 in exclusive mode; -- then rollback;
+
 -- Oracle find uncommitted transactions locks:
 SELECT s.OSUSER, s.sid ,s.serial# ,s.username ,s.machine ,s.status ,s.lockwait ,t.used_ublk ,t.used_urec ,t.start_time from v$transaction t inner join v$session s on t.addr = s.taddr;
 -- What user and what is their sql that is locking? tables actively locked:
 SELECT s.osuser, O.OBJECT_NAME, S.SID, S.SERIAL#, P.SPID, S.PROGRAM, SQ.SQL_FULLTEXT, S.LOGON_TIME FROM V$LOCKED_OBJECT L, DBA_OBJECTS O, V$SESSION S, V$PROCESS P, V$SQL SQ WHERE L.OBJECT_ID = O.OBJECT_ID AND L.SESSION_ID = S.SID AND S.PADDR = P.ADDR AND S.SQL_ADDRESS = SQ.ADDRESS order by 1;
+
+-- Oracle user sessions who is logged and potentially kill them:
+select s.sid||','||s.serial# sess, s.osuser, s.username, s.last_call_et, s.status, s.sql_address, s.program from v$session s where ( s.status = 'ACTIVE' );
+select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, USERNAME, COMMAND, STATUS, SCHEMANAME, OSUSER, MACHINE, PROGRAM, TYPE, SQL_ID, SQL_EXEC_START, MODULE, ACTION, LOGON_TIME, CLIENT_IDENTIFIER, STATE from v$session where username is not null order by status, logon_time;
+-- Kill running session Cloud. Column 's' also allows viewing of running SQL:
+select distinct 'ALTER SYSTEM KILL SESSION ''' || sid || ',' || serial# || ''';' x, substr(q.sql_text,1,500) s from v$session s, v$sql q where s.sql_id=q.sql_id(+) and q.sql_text not like 'select distinct ''exec sys%';
 
 -- Insert newline for blank row spacing:
 rc PLS_INTEGER; rc := SQL%ROWCOUNT; dbms_output.new_line(); dbms_output.put_line('rows affected: ' || rc);
@@ -5601,12 +5609,6 @@ SELECT DATE '2019-03-05' - (365 * 2) FROM dual  -- 3/5/2017
 -- Oracle function declaration default parameter:
 FUNCTION hasLinkages(in_accountId NUMBER, in_contextBeingUsed NUMBER DEFAULT 2) RETURN NUMBER;
 FUNCTION hasLinkages(in_accountId NUMBER, in_contextBeingUsed NUMBER := 2) RETURN NUMBER;
-
--- Oracle user sessions who is logged and potentially kill them:
-select s.sid||','||s.serial# sess, s.osuser, s.username, s.last_call_et, s.status, s.sql_address, s.program from v$session s where ( s.status = 'ACTIVE' );
-select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, USERNAME, COMMAND, STATUS, SCHEMANAME, OSUSER, MACHINE, PROGRAM, TYPE, SQL_ID, SQL_EXEC_START, MODULE, ACTION, LOGON_TIME, CLIENT_IDENTIFIER, STATE from v$session where username is not null order by status, logon_time;
--- Kill running session Cloud. Column 's' also allows viewing of running SQL:
-select distinct 'ALTER SYSTEM KILL SESSION ''' || sid || ',' || serial# || ''';' x, substr(q.sql_text,1,500) s from v$session s, v$sql q where s.sql_id=q.sql_id(+) and q.sql_text not like 'select distinct ''exec sys%';
 
 -- Oracle package count:
 SELECT OBJECT_NAME, count(*) FROM dba_procedures WHERE OWNER = 'SETARS' AND OBJECT_TYPE IN('PROCEDURE' , 'PACKAGE','FUNCTION') AND procedure_name IS NOT NULL GROUP BY object_name;
@@ -7127,10 +7129,13 @@ create index note_actupd_fbix on note_base ( TRUNC(actual_updated) );
 
 exec dbms_stats.lock_table_stats('table_owner','table_name');
 -- Are table stats locked:
-SELECT stattype_locked FROM dba_tab_statistics WHERE table_name = 'TABLE_NAME' and owner = 'TABLE_OWNER';
+SELECT stattype_locked FROM dba_tab_statistics WHERE table_name = 'TABLE_NAME' and owner = 'TABLE_OWNER'; -- 'ALL' is yes
 
 -- Remove trailing comma from a loop built-up list:
 v_set_cols := substr(v_set_cols, 1, length(v_set_cols) - 1);
+
+-- All database links:
+SELECT DB_LINK, USERNAME, HOST FROM ALL_DB_LINKS 
 
 create database link MKC_IMDBP connect to PAPKMC identified by "XXXXXXXXXXXXXXX" using 'IMDBP';
        
