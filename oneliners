@@ -5478,6 +5478,9 @@ INSERT INTO test_table (timestamp_tz_col) VALUES (to_timestamp_tz('2017-01-21 21
 
 -- Copy first few rows of Oracle table into an existing table:
 INSERT INTO mynewtbl SELECT * FROM myoldtbl WHERE rownum<11; commit;
+-- Copy all rows of Oracle table into an existing empty table (CTAS for insert):
+insert into mkc_source (CHOICE, DESCR1, DESCR2) SELECT CHOICE, DESCR1, DESCR2 FROM mkc_source@sep;
+
 -- Copy first few rows of Oracle table into a new table:
 CREATE bob AS select patientid FROM public.patientstarpdc;
 -- Copy first few rows of Oracle table into an existing table using a query correlated (see also CTAS for XML list):
@@ -5884,7 +5887,7 @@ select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES', 'SETARS') from dual;
 -- Get DDL to recreate an index (and SET to avoid truncation of set serveroutput on):
 set long 90000; select dbms_metadata.get_ddl('INDEX','KRB_9BYTE_CD_IX','SETARS') x from dual;
 
--- View indexes, last analyzed etc alternative to DBMS_METADATA sqlcl:
+-- SQL Developer view indexes, last analyzed etc alternative to DBMS_METADATA sqlcl:
 clear screen; info contact_dhub; ddl contact_dhub;
 
 -- View some details of Oracle table (like sqlplus DESC):
@@ -6564,8 +6567,12 @@ SELECT * from user_scheduler_jobs WHERE job_name LIKE '%MAINT%' or upper(job_act
 
 -- What dbms_scheduler scheduled jobs exist with this string:
 select a.job_name, a.JOB_TYPE, a.JOB_ACTION, a.start_date, a.REPEAT_INTERVAL, a.end_date, a.JOB_CLASS, a.ENABLED, a.AUTO_DROP, a.comments from user_scheduler_jobs a where lower(job_action) like '%period%';
+
 -- Oracle dbms_scheduler scheduled job canonical:
-SELECT sysdate, j.job_name, j.job_type, j.job_action, j.schedule_name, j.schedule_type, j.start_date, j.enabled, j.state, j.run_count, j.failure_count, j.last_start_date, j.next_run_date, d.status, d.actual_start_date, d.run_duration FROM user_scheduler_jobs j, SYS.user_scheduler_job_run_details d WHERE j.job_name = d.job_name and j.job_name = 'NIGHTLY_RISK_JOB' order by d.log_id DESC; 
+--scheduled/running status
+SELECT state, job_name, job_type, job_action, start_date, repeat_interval, end_date, job_class, enabled, auto_drop, comments FROM user_scheduler_jobs WHERE job_name = 'JOB_RION48384';
+--job finished status
+SELECT job_name, status, error#, errors, actual_start_date, run_duration, output, errors FROM user_scheduler_job_run_details WHERE job_name = 'JOB_RION48384' ORDER BY actual_start_date DESC;
 
 -- What are all the dbms_scheduler scheduled jobs that ran in the last 2 days:
 SELECT distinct job_name FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE actual_start_date>sysdate-2 order by 1;
@@ -6963,6 +6970,7 @@ select q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, 
 -- Don't have SID want to know what SQL a scheduled job is running:
 select distinct 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action,osuser from v$session s, v$sql q where s.sql_id=q.sql_id(+) and s.action='MY_PERIODIC_LIFECYCLE_JOB' and sql_exec_start is not null order by s.sql_exec_start; 
 
+ALTER SESSION set NLS_DATE_FORMAT = 'DD-MON-RR HH24:MI:SS'; -- 04-SEP-21 14:11:22
 -- Unhide Oracle BC session date problems:
 ALTER SESSION set NLS_DATE_FORMAT = 'SYYYY-MM-DD'; -- -4712-01-01
 select date '-4712-01-01' lowest_ora_date_possible, date '9999-12-31' highest_future_ora_date_possible from dual;
