@@ -14,7 +14,7 @@
 #          ^^^^__^^^^^__^^^_^^^
 #
 #  Created: 02-Jun-1998 (Bob Heckel)
-# Modified: 21-Jun-2021 (Bob Heckel)
+# Modified: 25-Sep-2021 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -2810,21 +2810,32 @@ chmod -R 755 .
 #             -------remote----------   --local--
 rsh zrtph128 'cat /home/rheckel/junk' | vi -
 
-# Sort by largest files (descending), assumes filesize is in 5th column:
-ls -l | sort -r -n -k 5
-du -sh ~/bob/* | sort -h
 # Size of directory:
 $ du -sh ~/tmp
-# Top 20 largest files AND directories (Cygwin):
-sudo du -sk /saswork/* | sort -rn | head -n20  # must use the '*' or get dir tot only
-# Diskhogs
-sudo du -sk /saswork/* | sort -rn | head -n20 | awk '{print $2}' | xargs sudo ls -dl
-# Total size of each item (file or directory) in CWD and sort numerically diskhogs:
-for i in *; do du -sk $i; done | sort -n
+
+# Top 20 largest diskhog files AND directories:
+sudo du -sh /saswork/* | sort -rn | head -n20 | awk '{print $2}' | xargs sudo ls -dl  # must use the '*' or get dir tot only
+for i in *; do du -sh $i; done | sort -rh | head -n20  # best
+
+for i in `find /Drugs/Personnel -maxdepth 1 -type d`; do du -sh $i; done | sort -hr
+
 # Total size of each item (directory) in CWD and sort numerically diskhogs:
 for i in `find . -type d`; do du -sh $i; done | sort -n
-# Diskhogs canonical:
-for i in `find /Drugs/Personnel -maxdepth 1 -type d`; do du -sh $i; done | sort -hr
+# Troubleshoot a disk full error (find the largest big offending file):
+find / -type f -size +1000000c -exec ls -l {} \; 2>/dev/null | grep -v "/proc"
+find /workspace -type f -size +50G -exec ls -lh {} \;
+
+# Troubleshoot find largest file:
+find ~/tmp -size +1M | xargs ls -lh | awk '{print$5,$3,$4,$6,$7,$8,$9}' | sort -rh
+cd ~/tmp; du -sh * | sort -h
+# Largest temp files:
+for i in `find ~/tmp`; do du -sh $i; done | sort -hr |head -n75
+
+# Find files in the /tmp directory that are larger than 10 megabytes (10 million bytes) that have not been modified in the last 48 hours:
+find /tmp -size +10000000c -and -mtime +2
+
+# Use the rotate utility if a logfile gets to be 2MB or larger:
+find . -name access.log -size +1900000c -exec rotate {} \;
 
 # HP-UX System Admin Tool -- sam
 # Solaris Administration Tool -- admintool or sam
@@ -2950,19 +2961,6 @@ find . -newer /tmp/t1 ! -newer /tmp/t2
 $ find . -type f -mtime -40 -name '*sas' | xargs touch
 # Recursive touch(1) for dirs that might have spaces in names
 $ find from -print0 |xargs -0 touch
-
-# Troubleshoot a disk full error (find the largest big offending file):
-find / -type f -size +1000000c -exec ls -l {} \; 2>/dev/null | grep -v "/proc"
-find /workspace -type f -size +50G -exec ls -lh {} \;
-# Troubleshoot find largest file:
-find ~/tmp -size +1M | xargs ls -lh | awk '{print$5,$3,$4,$6,$7,$8,$9}' | sort -rh
-cd ~/tmp; du -sh * | sort -h
-
-# Find files in the /tmp directory that are larger than 10 megabytes (10 million bytes) that have not been modified in the last 48 hours:
-find /tmp -size +10000000c -and -mtime +2
-
-# Use the rotate utility if a logfile gets to be 2MB or larger:
-find . -name access.log -size +1900000c -exec rotate {} \;
 
 # Tarball files in CWD created in the last 24 hours:
 find -mtime -1 -type f | xargs tar cvfz junk.tgz
@@ -4432,9 +4430,6 @@ curl http://ifconfig.me/ip
 
 # Which distro am I using:
 cat /etc/*-release | grep VERSION | perl -pe 's/VERSION="//g'
-
-# Largest temp files:
-for i in `find ~/tmp`; do du -sh $i; done | sort -hr |head -n75
 
 # Take first field in pipe delimited file in all 2017 folders
 for f in $(find /Drugs/TMMEligibility/GiantEagle/Imports/2017* -name 'GiantEagle_TMM_candidates_fdw.csv' ); do cut -d'|' -f1 $f >>~/junk20180417; done;
