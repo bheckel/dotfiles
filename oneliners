@@ -5804,7 +5804,11 @@ select * FROM all_objects WHERE OWNER = 'BOBHECKEL' and object_type = 'FUNCTION'
 
 -- Using data DICTIONARY aka DICT find Oracle USER_TABLES etc from which to further query poke around:
 select * from DICTIONARY WHERE table_name LIKE 'USER_%' ORDER BY 1;
+-- Table's comment:
 select table_name, comments from DICT where table_name like 'DBA%SCHEDULER%' order by table_name;
+SELECT * FROM user_tab_comments  where table_name ='MKC_REVENUE_FULL';
+-- Column's comments:
+SELECT * FROM user_col_comments where table_name ='MKC_REVENUE_FULL';
 
 -- Oracle list browse show all schemas poke around:
 SELECT username FROM all_users ORDER BY username;
