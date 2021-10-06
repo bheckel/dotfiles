@@ -5425,6 +5425,7 @@ select s.sid||','||s.serial# sess, s.osuser, s.USERNAME, s.last_call_et, s.statu
 select s.SID, s.SERIAL#, USERNAME, s.STATUS, SCHEMANAME, OSUSER, s.MACHINE, PORT, PROGRAM, TYPE, s.SQL_ID, LOGON_TIME, CLIENT_IDENTIFIER, STATE, SQL_TEXT, SQL_FULLTEXT, RESULT_CACHE from v$session s, v$sql q where s.sql_id=q.sql_id(+) and SQL_EXEC_START > sysdate - interval '1' hour order by LAST_ACTIVE_TIME desc;
 -- Find sql_id of my recent query that started with this LIKE:
 SELECT * FROM v$sql WHERE lower(sql_text) like 'with edw%';-- 5w8bqa53r774x
+select dbms_sql_translator.sql_id('SELECT * FROM salesgroup') from dual;
 
 lock table table1 in exclusive mode; -- then rollback;
 

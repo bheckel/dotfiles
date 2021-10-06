@@ -3,8 +3,8 @@
 #    Name: $HOME/.bashrc
 # Summary: bash config for at least Unix, Linux, Cygwin and z/OS
 #
-#  Created: Tue 19-May-1998 (Bob Heckel)
-# Modified: Mon 05 Apr 2021 (Bob Heckel)
+#  Created: 19-May-1998 (Bob Heckel)
+# Modified: 06-Oct-2021 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -119,10 +119,9 @@ alias gital="$HOME/code/misc/gitall"
 alias gitall="$HOME/code/misc/gitall"
 alias gpul='git pull'
 alias gpull='git pull'
-alias gstash='git stash save --include-untracked'
+#alias gstash='git stash save --include-untracked'
 alias gs='git status'
 alias gsl='git stash list'
-alias gstash='git stash --include-untracked'
 alias gfatal='echo "cd ~/dotfiles && git merge && git push; git remote show origin; cd ~/code && git merge && git push; git remote show origin"'
 alias h='history|tail -n20'
 alias ha='history -a'  # append this
@@ -433,6 +432,13 @@ function divcol() {
   curl -X GET --header "Authorization: " "https://api.tdameritrade.com/v1/marketdata/${1}/quotes?apikey=${id}" | jq '.[] | {bidPrice: .bidPrice, mark: .mark, askPrice: .askPrice, divAmount: .divAmount, divAmount: .divAmount, divYield: .divYield, divDate: .divDate}'
   # sed 's/"ct"/Current/; s/"fl"/Feels Like/; s/"hu"/Humidity/; s/"uv"/UV/; s/"ws"/Wind/; s/"wr"/Weather/; s/"sr"/Sunrise/; s/"ss"/Sunset/; s/"pop1"/Precip Probability 1 hr/; s/"pop2"/Precip 2 hr/' \
     # ~/tmp/w
+}
+
+
+function gstash() {
+  msg=${1:-saved `date`}
+
+  git stash save --include-untracked --message "$msg"
 }
 
 # Generic Functions end
