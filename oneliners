@@ -7740,6 +7740,8 @@ git branch mynewbranch master  # copy branch from a specific branch, in this cas
 git fetch -p && git remote show origin
 # git poke around
 git status; git log; git branch -a; git remote -v;
+# List hash and last description of local and remotes branches:
+git branch -v -a
 # ls for git list which files are tracked under git source control not just staged:
 git ls-files 
 
