@@ -740,7 +740,7 @@ case "$OSTYPE" in
 
       if [ $HOSTNAME = 'penguin' ];then
         # Hack for lacking clipboard support
-        alias cb='gvim ~/.crouton-clipboard/data.txt'
+        alias cb='echo do v yx on this to clipboard it on chromebook; gvim ~/.crouton-clipboard/data.txt'
 
         function catput() {
           buf=$(cat ${1})
