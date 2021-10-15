@@ -6768,6 +6768,8 @@ PROCEDURE send_cdhub(in_job_action VARCHAR2, in_job_prefix VARCHAR2 DEFAULT 'DEL
 -- PLSQL preprocessor version check:
 BEGIN $IF dbms_db_version.ver_le_11_2 $THEN dbms_output.put_line('ok') /*RESULT_CACHE*/ $END; END;
 
+select utc1.column_name, utc1.data_default vc_contents from user_tab_cols utc1 where utc1.TABLE_NAME = 'MKC_REVENUE_FULL_HIST' and utc1.VIRTUAL_COLUMN = 'YES';
+
 -- Skip virtual columns:
 IF upper(trim(t_cols_tab(i).virtual_column)) = 'YES' THEN CONTINUE; END IF;
 
@@ -7178,6 +7180,12 @@ select * from all_synonyms where synonym_name = upper('&synonym_name'); -- other
 
 -- Remove control character whitespace character from string:
 select '692329979 ', regexp_replace('692329979 ', '\W$') from dual;
+
+-- Find max length of data in a column:
+select max(length('ITEM_PREFIX')) from MKC_REVENUE_ADJ;
+
+-- Character set nvarchar2 etc:
+select column_name, CHARACTER_SET_NAME, CHAR_COL_DECL_LENGTH, CHAR_LENGTH, CHAR_USED FROM all_tab_columns WHERE lower(table_name) = 'foo' and char_length >0;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 

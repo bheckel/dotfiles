@@ -279,8 +279,16 @@ lt() {
 }
 
 
+#TODO
+curr_git_branch() {
+echo 'ok'
+  GB_VIMSTATUSL=$(git branch 2>/dev/null | head -n1)
+echo $GB_VIMSTATUSL
+echo 'xx'
+}
+
 parse_git_dirty() {
-  GS_PS1=$(git status 2> /dev/null | tail -n1)
+  GS_PS1=$(git status 2>/dev/null | tail -n1)
   [[ ${GS_PS1:0:17} != 'nothing to commit' ]] && echo '*'
 }
 
@@ -293,6 +301,8 @@ parse_git_branch() {
   #TODO
   # [[ $_tmp = 'On branch develop' ]] && git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e "s/* \(.*\)/[\1${fg_redbold}$(parse_git_dirty)${fg_darkgray}]/"
   # [[ $_tmp != 'On branch develop' ]] && git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e "s/* \(.*\)/[\1$(parse_git_dirty)]/"
+
+  # curr_git_branch
 }
 
 

@@ -326,6 +326,8 @@ set laststatus=2
 " hi User1 term=inverse,bold cterm=inverse,bold ctermfg=red guifg=red
 " ...and $VIMSTATUSL being set in .bashrc 
 " E.g. ~/.vimrc [+,VIM,unix,b1] rsh868@ZEBWL12H99999   485/4494L,1C(10%)
+" TODO
+"set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)%{$GB_VIMSTATUSL}%{AmIPasting()}
 set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)%{AmIPasting()}
 
 " Use <C-W>= to force equal as needed:
@@ -333,8 +335,8 @@ set noequalalways
 
 set helpheight=999
 
-" To prevent losing undo on buffer switch (but does create trouble with marks).
-" Allows you to switch from an unsaved buffer without saving it first. 
+" To prevent losing undo on buffer switch (but does create trouble with marks). Allows switching from an 
+" unsaved buffer without saving it first.
 set hidden
 
 " Land in top window split
