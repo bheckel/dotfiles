@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Sun 06-Jun-2021 (Bob Heckel)
+" Modified: Sat 16-Oct-2021 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -779,12 +779,11 @@ endif
 " Crostini clipboard support is a mess in 2021
 if hostname() == 'penguin'
   if ! has('gui_running')
-    "TODO why reads entire line when only partial line is highlighted
     vnoremap <silent> yx :'<,'>w! ~/.crouton-clipboard/data.txt<CR>
     "TODO avoid an external $ catput ~/.crouton-clipboard/data.txt
     "vnoremap <silent> yx :'<,'>w! ~/.crouton-clipboard/data.txt; catput ~/.crouton-clipboard/data.txt<CR>
   else
-    " Crostini Gvim
+    " Crostini Gvim clipboard works normally
     vnoremap <silent> yx  "+y
   endif
 endif
