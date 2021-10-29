@@ -5880,7 +5880,7 @@ select constraint_name, constraint_type from user_constraints WHERE constraint_n
 -- Does any other table reference this table LIST_OF_VALUES i.e. do any foreign keys exist:
 select * FROM all_constraints WHERE constraint_type = 'R' and r_constraint_name IN (select constraint_name from all_constraints where table_name like 'LIST_OF_VALUES%') order by table_name;
 
--- View all details of Oracle table in a schema poke around table:
+-- View all details of Oracle table in a schema poke around table (subset of ddl mytbl):
 select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES', 'SETARS') from dual;
 
 -- Get DDL to recreate an index (and SET to avoid truncation of set serveroutput on):
@@ -7158,7 +7158,7 @@ select index_name, table_name, used from v$object_usage;--null alter index KRB_H
 -- Select if any of 3 dates is less than 2018:
 where extract(year from(COALESCE("REPORT_DATE_ADJ","REPORT_DATE_SR","REPORT_DATE_F"))) <= 2018
 
--- PLSQL Developer's right click table 'Add debug information':
+-- PLSQL Developer's right click table 'Add debug information' to step through code:
 alter package asp_pkg compile debug reuse settings;
 
 -- Find queries that users are doing on this view:
