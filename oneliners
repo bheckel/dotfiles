@@ -6527,6 +6527,7 @@ create table dummy_table(id PRIMARY KEY, tag) as select rownum id, to_char(rownu
 create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dual connect by level <= 365*5;
 -- Sample CTAS table using a csv list that would normally overflow an IN() list max of 1K 1000 items (18c+):
 create table dummy_table as SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE('123,456', ',', '","') || '"'));
+CREATE TABLE JS_INVOICE_16FEB21 COMPRESS TABLESPACE ES_NOLOG NOLOGGING  AS select 1 x from dual;
 
 -- Print SQL for a deep copy CTAS sqlcl:
 ctas orders bobclonedtbl;
@@ -7186,6 +7187,9 @@ select max(length('ITEM_PREFIX')) from MKC_REVENUE_ADJ;
 
 -- Character set nvarchar2 etc:
 select column_name, CHARACTER_SET_NAME, CHAR_COL_DECL_LENGTH, CHAR_LENGTH, CHAR_USED FROM all_tab_columns WHERE lower(table_name) = 'foo' and char_length >0;
+
+-- Last updated by:
+select account_team_assignment_id, actual_updated, actual_updatedby from account_team_assign_all where actual_updated = ( select max(actual_updated) FROM account_team_assign_all);
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
