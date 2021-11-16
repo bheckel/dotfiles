@@ -4474,7 +4474,7 @@ gco() { \ if [ -z "$1" ];then \ git checkout develop; \ else \ git checkout feat
 # Which of my ports are listening:
 lsof -i -P -n|grep LISTEN
 
-# Find monitor resolution aspect ratio:
+# Find screen monitor resolution aspect ratio:
 xrandr
 
 # system messages since last boot:
