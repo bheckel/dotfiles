@@ -5470,6 +5470,7 @@ select * from t WHERE t.min_end_time> TIMESTAMP '2019-01-16 08:26:50'
 INSERT INTO test_table (timestamp_col) VALUES (TIMESTAMP '2017-01-21 12:34:56.78');
 -- Oracle ANSI TIMESTAMP literal with timezone:
 INSERT INTO test_table (timestamp_tz_col) VALUES (to_timestamp_tz('2017-01-21 21:05:53.46 +02:00', 'YYYY-MM-DD HH24:MI:SS.FF TZH:TZM');
+select to_timestamp_tz(SYSDATE,'DD-MON-YYYY HH24:MI:SS') from dual;
 
 -- Copy first few rows of Oracle table into an existing table:
 INSERT INTO mynewtbl SELECT * FROM myoldtbl WHERE rownum<11; commit;
