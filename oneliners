@@ -5909,7 +5909,7 @@ CREATE OR REPLACE PROCEDURE SLEEP(P_MILLI_SECONDS IN NUMBER) AS LANGUAGE JAVA NA
 BEGIN sleep(60 * 1000); END;
 -- Oracle sleep 9 seconds if no Java:
 begin for i in 1 .. 3 loop DBMS_OUTPUT.put_line('x'); sys.dbms_lock.sleep(3); end loop; end;
-SYS.DBMS_SESSION.sleep(60);  -- 18c+ 1 minute
+begin SYS.DBMS_SESSION.sleep(60); end; -- 18c+ 1 minute
 
 -- Oracle date time yesterday one day ago:
 select (SYSDATE - INTERVAL '1' hour) from dual  -- one hour ago
@@ -5951,7 +5951,7 @@ CREATE TABLE zzorion32822 AS SELECT * FROM zorion32822 SAMPLE(50)
 -- Random subset 0.1% of all records in Oracle table:
 SELECT account_id FROM t SAMPLE(0.1);
 
--- Error exception handler (if you don't give SQLERRM a valid Oracle error code it uses SQLCODE as the error code):
+-- Error exception handler canonical (if you don't give SQLERRM a valid Oracle error code it uses SQLCODE as the error code):
 WHEN OTHERS THEN dbms_output.put_line(SQLCODE || ': ' || SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
 
 BEGIN DBMS_OUTPUT.put_line(TO_DATE('2010 10 10 44:55:66', 'YYYSS')); EXCEPTION WHEN OTHERS THEN IF SQLCODE = -01830 THEN DBMS_OUTPUT.put_line('we hit a date error, throw it'); END IF; RAISE; END;
@@ -6435,6 +6435,11 @@ SELECT ADD_MONTHS(SYSDATE, -1 * DBMS_RANDOM.VALUE(1, 6)) FROM dual  -- 8/29/2018
 
 to_number(trunc(dbms_random.value(1000,9999))|| to_char(systimestamp,'FFSS')|| seq.nextval))
 
+SELECT extract(second from localtimestamp) x, trunc(dbms_random.value(1,20)) random_number_between_one_and_twenty FROM dual CONNECT BY level <= 10
+
+-- Populate an existing sample dummy Oracle table with 100K random strings of VARCHAR(30):
+insert /*+APPEND*/ into mytbl select level, dbms_random.string('a',30) from dual connect by level <= 100000
+
 CAST(trunc(aa.duns_nbr) AS VARCHAR2(90)) duns_nbr
 cast(l.value_description as varchar2(96)) as value_description,
 
@@ -6533,9 +6538,6 @@ CREATE TABLE JS_INVOICE_16FEB21 COMPRESS TABLESPACE ES_NOLOG NOLOGGING  AS selec
 -- Print SQL for a deep copy CTAS sqlcl:
 ctas orders bobclonedtbl;
 
--- Populate an existing sample dummy Oracle table with 100K random strings of VARCHAR(30):
-insert /*+APPEND*/ into mytbl select level, dbms_random.string('a',30) from dual connect by level <= 100000
-
 -- Oracle create sample data and round to 15 minute increments intervals:
 WITH v AS (select trunc(sysdate)+548/1440+rownum/1440 d1 from dual connect by level <= 10 ) SELECT TRUNC(d1, 'hh24') + ROUND(to_char(d1,'MI') / 15) * 15 / 1440 round_to_15min_intervals FROM v
 
@@ -6602,7 +6604,7 @@ insert into bricks_target  select * from bricks_source b2 where NOT exists ( sel
 -- Upsert:
 MERGE into target a using ( select id, name, score from source ) b on (a.id=b.id) WHEN MATCHED then update set a.name=b.name, a.score=b.score WHEN NOT MATCHED then insert (a.id, a.name, a.score) values (b.id, b.name, b.score)
 
--- Full drop:
+-- Full drop this won't help you: ALTER SESSION SET recyclebin = ON;
 drop table mytbl cascade constraints purge
 
 /* Check for data existence: */
@@ -7191,6 +7193,9 @@ select column_name, CHARACTER_SET_NAME, CHAR_COL_DECL_LENGTH, CHAR_LENGTH, CHAR_
 
 -- Last updated by:
 select account_team_assignment_id, actual_updated, actual_updatedby from account_team_assign_all where actual_updated = ( select max(actual_updated) FROM account_team_assign_all);
+
+-- System Global Area
+sql> show sga
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 

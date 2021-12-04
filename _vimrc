@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Sat 16-Oct-2021 (Bob Heckel)
+" Modified: Tue 30-Nov-2021 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -170,10 +170,10 @@ endif
 " :se guifont=* to open OS-specific menu
 if has("gui_running")
   " Gvim window coordinates dimensions height/width. Overriden later depending on file type.
-  winpos 295 295
-  set columns=100
+  "winpos 295 295
+  set columns=110
   " Most of the time we're just doing fast edits so make it small
-  set lines=30
+  set lines=40
 
   if has("gui_gtk3")
     set guifont=Cousine\ 8
