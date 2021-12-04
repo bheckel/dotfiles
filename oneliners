@@ -4486,6 +4486,8 @@ systemctl list-unit-files --state=enabled --no-pager
 # Remove local and remote branches:
 git branch -D feature/ROION-50062 && git fetch -p && git push origin --delete feature/ROION-50062
 
+wsl --install -d Ubuntu
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
