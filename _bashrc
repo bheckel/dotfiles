@@ -4,7 +4,7 @@
 # Summary: bash config for at least Unix, Linux, Cygwin and z/OS
 #
 #  Created: 19-May-1998 (Bob Heckel)
-# Modified: 06-Oct-2021 (Bob Heckel)
+# Modified: 05-Dec-2021 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -340,7 +340,11 @@ tmn() {
     #tmux -u -2 new -s s1\; split-window -h
     tmux new
   else
-    tmux -u -2 new -s "s${1}"\; split-window -h
+    if [ $HOSTNAME = 'metta' ]; then
+      tmux -u new -s "s${1}"\; split-window -h
+    else
+      tmux -u -2 new -s "s${1}"\; split-window -h
+    fi
   fi
 }
 
