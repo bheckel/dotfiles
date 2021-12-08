@@ -33,6 +33,7 @@ printf '\e]4;4;#6495ed\a'
 #-----------------------
 # Generic Export  #{{{2
 #-----------------------
+export C=/mnt/c
 export EDITOR=vi
 # For git PS1 function
 export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
@@ -153,6 +154,7 @@ alias tmux='tmux -u'  # UTF8
 alias tre="\ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
 alias uvi="$HOME/code/scripting/uvi"  # don't change timestamp
 alias ve="vim $HOME/.vimrc"
+alias vi=vim
 alias wget='wget -c'  # continue failures
 
 #-----------------------------------
@@ -468,11 +470,7 @@ case "$OSTYPE" in
     # Export Cygwin  #{{{2
     #-------------------
     # For drives not mounted by Cygwin
-    export a=/cygdrive/a
-    export c=/cygdrive/c
-    export d=/cygdrive/d
-    export e=/cygdrive/e
-    export u=/cygdrive/u
+    export C=/cygdrive/c
     export CYGWIN=nodosfilewarning  # MS-DOS style path detected: u:/tmp/bdfCURR.rtpsh005
     # export CVSROOT=$HOME/repository
 		export EDITOR=vim
