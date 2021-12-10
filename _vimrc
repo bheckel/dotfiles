@@ -954,6 +954,8 @@ if hostname() == 'penguin'
   nnoremap ,p :r ~/.crouton-clipboard/data.txt<CR>
 elseif hostname() == 'localhost'
   nnoremap ,p :r !termux-clipboard-get
+elseif hostname() == 'metta'
+  nnoremap ,p :r !powershell.exe Get-Clipboard<CR>
 else
   nnoremap ,p "*p
 endif
