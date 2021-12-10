@@ -5656,8 +5656,7 @@ OPEN c1; LOOP FETCH c1 INTO v_lastname, v_jobid; EXIT WHEN c1%NOTFOUND; DBMS_OUT
 where ename LIKE UPPER('foo%')
 
 -- Oracle 11/2/2018 9:08:23 AM becomes 11/2/2018 00:00:00:
-select trunc(SYSDATE) from dual
-select trunc(SYSDATE, 'day') from dual
+select trunc(SYSDATE) from dual;  --same: select trunc(SYSDATE, 'day') from dual
 
 select SYSDATE, TO_CHAR(SYSDATE, 'DD-MON-YYYY HH24:MI:SS') sysdate_with_time from dual;
 select to_char(sysdate, 'DDMONYYYY HH:MI:SS PM') into start_time from dual;
@@ -5679,7 +5678,6 @@ select * from activity_log where trunc(activity_dt)=TO_DATE('16-JAN-06','DD-MON-
 
 -- Oracle date with hours minutes seconds:
 SELECT to_char(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI:SS') FROM dual; --2020-01-16 18:26:57
-SELECT SYSDATE FROM dual; --16-JAN-20 18:26:57
 
 dbms_output.put_line('rpt at: ' || TO_CHAR(sysdate, 'dd-mon-yy hh:mipm'));
 
@@ -5691,6 +5689,86 @@ SELECT updated, trunc(updated), to_char(updated, 'DD-MON-YYYY') FROM contac;
 
 -- Oracle date criteria only this month's orders:
 WHERE order_dt > TRUNC(SYSDATE, 'MONTH')
+
+-- Oracle date time yesterday one day ago:
+select (SYSDATE - INTERVAL '1' hour) from dual  -- one hour ago
+select (SYSDATE - INTERVAL '1' day) from dual  -- 17-JUL-19 12:11:48
+select (SYSTIMESTAMP - INTERVAL '1' day) from dual  -- 17-JUL-19 12.12.11.043644000 PM -04:00
+select sysdate, (sysdate - .5) twelve_hours_ago_ora, (SYSDATE - INTERVAL '12' hour) twelve_hours_ago from dual;
+
+-- 18-JUL-19 12.13.00.755657000 PM -04:00 / 18-JUL-19 12.13.00.756657000 PM -04:00 / 18-JUN-19 12:13:00
+SELECT (systimestamp - INTERVAL '0.001' SECOND), SYSTIMESTAMP, (SYSDATE - INTERVAL '1' MONTH) FROM dual
+
+-- Max number of seconds that won't throw ORA-01873:
+select NUMTODSINTERVAL(power(2,31) - 1, 'SECOND') as interval from dual;
+select date '1970-01-01' + NUMTODSINTERVAL(power(2,31) - 1, 'SECOND') as max_interval_from_epoch from dual; -- 19-JAN-38 03:14:07
+
+-- Oracle first day of current month:
+select trunc(sysdate,'MM') from dual;  --same: select trunc(sysdate,'month') from dual;
+
+-- First and last day of last year date:
+SELECT ADD_MONTHS(TRUNC(SYSDATE,'YEAR'), -12) jan_prev_yr, ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), -1) +30 dec_prev_yr FROM dual
+
+-- Oracle date time interval in the last 5 minutes:
+SELECT (SYSTIMESTAMP - INTERVAL '5' minute) AS five_minutes_ago, SYSTIMESTAMP FROM dual
+SELECT * FROM account_team where created>(SYSDATE - INTERVAL '5' minute);
+SELECT controlfile_time, CURRENT_TIMESTAMP - controlfile_time minutes_ago FROM v$database;
+WHERE execute_time >= (SYSTIMESTAMP - INTERVAL '5' minute)
+start_date := cast(SYSTIMESTAMP + (1/(24*60) * 5) AS TIMESTAMP);  -- 5 minutes from now in future DEPRECATED
+-- 18-MAR-19 09.40.30.000000 AM   18-MAR-19 09.40.30.000000 AM       3/18/2019 09:40:30 AM   33/18/2019 09:40:30 AM      3/20/2019 09:38:30 AM
+SELECT cast(SYSTIMESTAMP + (.000694 * 2) AS TIMESTAMP) AS cast_ddmmmyy, CAST(sysdate + interval '2' minute AS TIMESTAMP) AS cast_ddmmmyy2, SYSTIMESTAMP + (.000694 * 2) AS mddyyyy, sysdate + interval '2' MINUTE AS mmddyyyy2, SYSTIMESTAMP + 2 AS days FROM dual
+-- 3 hours from now DEPRECATED:
+SELECT systimestamp + (3/24) FROM dual;
+-- 3 minutes from now DEPRECATED:
+SELECT systimestamp + (3/(24 * 60)) FROM dual;
+-- 12 hours from now:
+select sysdate+1/2 from dual;
+select sysdate + interval '12' hour from dual;
+-- 23 months ago:
+SELECT add_months(systimestamp,-23) FROM dual;
+SELECT sysdate - interval '23' month from dual;
+select add_months(date '2016-01-01', level - 1) from dual connect by level <= 48;  -- generate build time series the last 48 months dates rows
+
+SELECT last_day(TIMESTAMP '2017-01-21 21:32:48') "last day of month", next_day(SYSDATE', 'FRIDAY') "next day after friday" FROM dual;
+-- 5 years and 3 months from now in future:
+SELECT systimestamp + TO_YMINTERVAL('5-3') "fiveyrs threemos fromnow" FROM dual;
+-- 12 days 8 hours and 4 minutes from now in future:
+SELECT systimestamp + TO_DSINTERVAL('12 8:04:00') "near future" FROM dual;
+
+-- Oracle default full date time with timezone, both same 27-AUG-19 04.17.21.981474000 PM -04:00:
+select to_char(SYSTIMESTAMP, 'DD-MON-YYYY HH.MI.SS.FF9 AM TZR'), SYSTIMESTAMP from dual;
+select SYSTIMESTAMP - INTERVAL '1' day from dual                       -- 17-JUL-19 11.59.01.335483000 AM -04:00
+select cast(SYSTIMESTAMP - INTERVAL '1' day as timestamp) from dual    -- 17-JUL-19 11.59.01.335483000 AM
+select cast(SYSTIMESTAMP - INTERVAL '1' day as timestamp(1)) from dual -- 17-JUL-19 11.58.14.800000000 AM
+select cast(SYSTIMESTAMP - INTERVAL '1' day as timestamp(7)) from dual -- 17-JUL-19 11.59.01.335483000 AM
+
+-- Choose highest value in list:
+SELECT GREATEST(SYSDATE, to_date('01JAN2029'), to_date('01jan2030')) FROM dual
+
+-- Oracle create sample data and round to 15 minute increments intervals:
+WITH v AS (select trunc(sysdate)+548/1440+rownum/1440 d1 from dual connect by level <= 10 ) SELECT TRUNC(d1, 'hh24') + ROUND(to_char(d1,'MI') / 15) * 15 / 1440 round_to_15min_intervals FROM v
+
+SELECT SYSDATE + interval '1' minute from dual; --01-MAY-20 13:36:33
+-- Good for dbms_scheduler start_date start_date => '01-MAY-20 01.51.00PM EST5EDT',:
+SELECT CAST(SYSDATE + interval '1' minute AS TIMESTAMP) from dual; --01-MAY-20 01.37.07.000000000 PM
+
+EXECUTE IMMEDIATE q'[select 'ASP_TASK_JOB_' || TO_CHAR(sysdate, 'DD_MM__HH24_MI_SS') from dual]' INTO v_job_name;
+
+SELECT TO_CHAR(SYSDATE, 'Q') numeric_quarter_qtr FROM dual
+SELECT TO_CHAR(TO_DATE(mydt, 'dd.mm.yyyy'), 'Q') numeric_quarter_qtr FROM mytbl
+-- Group by character quarter date:
+group by prod_category, to_char(trunc(time_id,'Q'),'MON')
+
+-- Want quarter in which a date falls:
+SELECT to_char(TRUNC(DATE '2019-11-20','Q'), 'MON') FROM dual -- OCT
+
+-- Quarter in which date falls.  qtr is all '01-JAN-10', qtrnum is all '1':
+create table t1 as select date '2010-01-01'+rownum x, rownum y  from dual connect by level <= 35; select x, TRUNC(x,'Q') qtr, to_char(TRUNC(x,'Q'), 'Q') qtrnum from t1;
+
+-- Oracle date calculation 15 minutes ago (SYSDATE won't work here):
+SELECT CURRENT_TIMESTAMP - NUMTODSINTERVAL(15, 'MINUTE') localtime, systimestamp - NUMTODSINTERVAL(15, 'MINUTE') utcsometimes FROM dual;
+
+SELECT sysdate, TO_CHAR(SYSDATE, 'DD-MON-YYYY HH24:MI:SS') sysdate_as_char, localtimestamp , systimestamp, extract(second from localtimestamp), trunc(SYSDATE, 'month'), trunc(SYSDATE, 'MM') FROM dual;
 
 select rpad('5star', 10, '*'), lpad('6dot', 10, '.'), lpad('xxx', 2) || 'doublex' from dual
 
@@ -5912,22 +5990,6 @@ BEGIN sleep(60 * 1000); END;
 -- Oracle sleep 9 seconds if no Java:
 begin for i in 1 .. 3 loop DBMS_OUTPUT.put_line('x'); sys.dbms_lock.sleep(3); end loop; end;
 begin SYS.DBMS_SESSION.sleep(60); end; -- 18c+ 1 minute
-
--- Oracle date time yesterday one day ago:
-select (SYSDATE - INTERVAL '1' hour) from dual  -- one hour ago
-select (SYSDATE - INTERVAL '1' day) from dual  -- 17-JUL-19 12:11:48
-select (SYSTIMESTAMP - INTERVAL '1' day) from dual  -- 17-JUL-19 12.12.11.043644000 PM -04:00
-select sysdate, (sysdate - .5) twelve_hours_ago_ora, (SYSDATE - INTERVAL '12' hour) twelve_hours_ago from dual;
-
--- 18-JUL-19 12.13.00.755657000 PM -04:00 / 18-JUL-19 12.13.00.756657000 PM -04:00 / 18-JUN-19 12:13:00
-SELECT (systimestamp - INTERVAL '0.001' SECOND), SYSTIMESTAMP, (SYSDATE - INTERVAL '1' MONTH) FROM dual
-
--- Oracle date calculation 15 minutes ago (SYSDATE won't work here):
-SELECT CURRENT_TIMESTAMP - NUMTODSINTERVAL(15, 'MINUTE') localtime, systimestamp - NUMTODSINTERVAL(15, 'MINUTE') utcsometimes FROM dual;
-
--- Max number of seconds that won't throw ORA-01873:
-select NUMTODSINTERVAL(power(2,31) - 1, 'SECOND') as interval from dual;
-select date '1970-01-01' + NUMTODSINTERVAL(power(2,31) - 1, 'SECOND') as max_interval_from_epoch from dual; -- 19-JAN-38 03:14:07
 
 -- SHOW ERR[ORS] in sqlplus uses this table (but sqlplus only shows the latest error):
 SELECT * FROM USER_ERRORS WHERE name IN ('PLCH_PKG', 'PLCH_GET_NUMBERS')
@@ -6161,12 +6223,6 @@ DROP TABLE bobhlm;
 INSERT INTO links_material (matl_desc) VALUES ('Waiting for update from SAP'); commit;
 INSERT INTO links_material (matl_desc, matl_mfg_dt, matl_exp_dt, matl_nbr, batch_nbr, matl_typ) VALUES ('Waiting for update from SAP', '01-JAN-1960', '01-JAN-1960', '0737003', '6ZP8404', 'MANL'); commit;
 
--- Oracle first day of current month:
-select trunc(sysdate,'MM') from dual;
-
--- First and last day of last year date:
-SELECT ADD_MONTHS(TRUNC(SYSDATE,'YEAR'), -12) jan_prev_yr, ADD_MONTHS(TRUNC(SYSDATE, 'YEAR'), -1) +30 dec_prev_yr FROM dual
-
 -- Postgres first day of last month:
 select date_trunc('MONTH', now())-'1 month'::interval;
 -- Postgres earlier than first of this month:
@@ -6381,39 +6437,6 @@ SELECT aid, ab.account_id FROM (SELECT to_number(column_value) aid FROM xmltable
 
 CURSOR contacts IS SELECT trim(COLUMN_VALUE) contact_id FROM XMLTABLE(upper(TRIM('"' || replace(in_contact_id_list, ',', '","') || '"'))); FOR rec IN contacts LOOP...
 
--- Oracle date time interval in the last 5 minutes:
-SELECT (SYSTIMESTAMP - INTERVAL '5' minute) AS five_minutes_ago, SYSTIMESTAMP FROM dual
-SELECT * FROM account_team where created>(SYSDATE - INTERVAL '5' minute);
-SELECT controlfile_time, CURRENT_TIMESTAMP - controlfile_time minutes_ago FROM v$database;
-WHERE execute_time >= (SYSTIMESTAMP - INTERVAL '5' minute)
-start_date := cast(SYSTIMESTAMP + (1/(24*60) * 5) AS TIMESTAMP);  -- 5 minutes from now in future DEPRECATED
--- 18-MAR-19 09.40.30.000000 AM   18-MAR-19 09.40.30.000000 AM       3/18/2019 09:40:30 AM   33/18/2019 09:40:30 AM      3/20/2019 09:38:30 AM
-SELECT cast(SYSTIMESTAMP + (.000694 * 2) AS TIMESTAMP) AS cast_ddmmmyy, CAST(sysdate + interval '2' minute AS TIMESTAMP) AS cast_ddmmmyy2, SYSTIMESTAMP + (.000694 * 2) AS mddyyyy, sysdate + interval '2' MINUTE AS mmddyyyy2, SYSTIMESTAMP + 2 AS days FROM dual
--- 3 hours from now DEPRECATED:
-SELECT systimestamp + (3/24) FROM dual;
--- 3 minutes from now DEPRECATED:
-SELECT systimestamp + (3/(24 * 60)) FROM dual;
--- 12 hours from now:
-select sysdate+1/2 from dual;
-select sysdate + interval '12' hour from dual;
--- 23 months ago:
-SELECT add_months(systimestamp,-23) FROM dual;
-SELECT sysdate - interval '23' month from dual;
-select add_months(date '2016-01-01', level - 1) from dual connect by level <= 48;  -- generate build time series the last 48 months dates rows
-
-SELECT last_day(TIMESTAMP '2017-01-21 21:32:48') "last day of month", next_day(SYSDATE', 'FRIDAY') "next day after friday" FROM dual;
--- 5 years and 3 months from now in future:
-SELECT systimestamp + TO_YMINTERVAL('5-3') "fiveyrs threemos fromnow" FROM dual;
--- 12 days 8 hours and 4 minutes from now in future:
-SELECT systimestamp + TO_DSINTERVAL('12 8:04:00') "near future" FROM dual;
-
--- Oracle default full date time with timezone, both same 27-AUG-19 04.17.21.981474000 PM -04:00:
-select to_char(SYSTIMESTAMP, 'DD-MON-YYYY HH.MI.SS.FF9 AM TZR'), SYSTIMESTAMP from dual;
-select SYSTIMESTAMP - INTERVAL '1' day from dual                       -- 17-JUL-19 11.59.01.335483000 AM -04:00
-select cast(SYSTIMESTAMP - INTERVAL '1' day as timestamp) from dual    -- 17-JUL-19 11.59.01.335483000 AM
-select cast(SYSTIMESTAMP - INTERVAL '1' day as timestamp(1)) from dual -- 17-JUL-19 11.58.14.800000000 AM
-select cast(SYSTIMESTAMP - INTERVAL '1' day as timestamp(7)) from dual -- 17-JUL-19 11.59.01.335483000 AM
-
 -- Oracle repeat character tab:
 dbms_output.put_line('modifying: ' || j.full_job_name || rpad(chr(09), 4, chr(09)) || ' ' || j.start_date || ' to ' || j.new_start_date);
 
@@ -6519,9 +6542,6 @@ INSERT INTO RION_37551 (email_messages_id, subject) VALUES (uid_rion_37551.NEXTV
 
 CREATE OR REPLACE TRIGGER on_schema_mod_trigger AFTER ALTER OR CREATE ON scott.SCHEMA WHEN (ORA_DICT_OBJ_TYPE = 'TABLE') BEGIN dbms_output.put_line('ok'); END;
 
--- Choose highest value in list:
-SELECT GREATEST(SYSDATE, to_date('01JAN2029'), to_date('01jan2030')) FROM dual
-
 -- Sample CTAS database table with tens of thousands of rows:
 CREATE TABLE dummy_table AS SELECT owner, object_name, object_id FROM all_objects;
 -- Sample CTAS database table with 1 column holding 1,2,3... in 10 rows:
@@ -6540,9 +6560,6 @@ CREATE TABLE JS_INVOICE_16FEB21 COMPRESS TABLESPACE ES_NOLOG NOLOGGING  AS selec
 -- Print SQL for a deep copy CTAS sqlcl:
 ctas orders bobclonedtbl;
 
--- Oracle create sample data and round to 15 minute increments intervals:
-WITH v AS (select trunc(sysdate)+548/1440+rownum/1440 d1 from dual connect by level <= 10 ) SELECT TRUNC(d1, 'hh24') + ROUND(to_char(d1,'MI') / 15) * 15 / 1440 round_to_15min_intervals FROM v
-
 -- View list determine Oracle grants privileges:
 SELECT * FROM  DBA_SYS_PRIVS WHERE grantee='SETARS' and privilege like '%OBJ%';
 SELECT * FROM  DBA_role_PRIVS WHERE grantee='SETARS';
@@ -6558,10 +6575,6 @@ BEGIN DBMS_SCHEDULER.create_job( job_name   => 'JOB_RION54143', job_type   => 'P
 BEGIN dbms_scheduler.drop_schedule('DAILY_SCHEDULE'); dbms_scheduler.drop_job('DAILY_JOB'); END;
 BEGIN dbms_scheduler.drop_job('SETARS.DAILY_DATA_MAINTENANCE_JOB'); END; exec DBMS_SCHEDULER.stop_job(job_name => 'JOB_LOAD_NB'); exec DBMS_SCHEDULER.disable(job_name => 'JOB_ROION48384');
 SELECT * FROM user_scheduler_notifications WHERE job_name = 'MKC_REVENUE_LOAD' and event='JOB_STARTED';
-
-SELECT SYSDATE + interval '1' minute from dual; --01-MAY-20 13:36:33
--- Good for dbms_scheduler start_date start_date => '01-MAY-20 01.51.00PM EST5EDT',:
-SELECT CAST(SYSDATE + interval '1' minute AS TIMESTAMP) from dual; --01-MAY-20 01.37.07.000000000 PM
 
 -- Oracle dbms_scheduler scheduled jobs:
 SELECT * from USER_SCHEDULER_JOBS order by last_start_date desc
@@ -6656,17 +6669,6 @@ select filldate from rxfilldata_201709 where clientid=19 order by 1 desc limit 1
 select distinct deptno, first_value(ename) over ( partition by deptno order by sal desc, hiredate ) as top_oldest_emp, first_value(sal) over ( partition by deptno ) as sal from scott.emp order by 1;
 -- Get person with highest salary by dept, ties broken by length of service, using correlated self join subquery:
 select deptno, empno top_oldest_emp, sal from scott.emp e where not exists ( select 1 from scott.emp where deptno = e.deptno and (sal > e.sal) or (sal = e.sal and hiredate < e.hiredate)) order by 1;
-
-SELECT TO_CHAR(SYSDATE, 'Q') numeric_quarter_qtr FROM dual
-SELECT TO_CHAR(TO_DATE(mydt, 'dd.mm.yyyy'), 'Q') numeric_quarter_qtr FROM mytbl
--- Group by character quarter date:
-group by prod_category, to_char(trunc(time_id,'Q'),'MON')
-
--- Want quarter in which a date falls:
-SELECT to_char(TRUNC(DATE '2019-11-20','Q'), 'MON') FROM dual -- OCT
-
--- Quarter in which date falls.  qtr is all '01-JAN-10', qtrnum is all '1':
-create table t1 as select date '2010-01-01'+rownum x, rownum y  from dual connect by level <= 35; select x, TRUNC(x,'Q') qtr, to_char(TRUNC(x,'Q'), 'Q') qtrnum from t1;
 
 -- Modified analytic outer join to get every hr, every room and who reserved it:
 select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2;
@@ -6934,8 +6936,6 @@ SELECT * FROM account_team where created>(SYSDATE - INTERVAL '4' hour);
 
 -- Exponential notation:
 THEN assign_table(i).new_account_team_assignment_id:=1.257E+993;
-
-EXECUTE IMMEDIATE q'[select 'ASP_TASK_JOB_' || TO_CHAR(sysdate, 'DD_MM__HH24_MI_SS') from dual]' INTO v_job_name;
 
 -- View cached cursor (library cache) from a previous query, if found avoids hard parse and uses existing execution plan:
 SELECT * FROM v$open_cursor v where upper(v.sql_text) like '%MYTBL%' and user_name = 'SCOTT'
