@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Tue 30-Nov-2021 (Bob Heckel)
+" Modified: Sat 11-Dec-2021 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -774,7 +774,13 @@ vnoremap <silent> yx  "*y
 
 if $PATH =~ 'termux'
   vnoremap <silent> yx :'<,'>!termux-clipboard-set<CR>u
+"elseif hostname() == 'metta'
+"  vnoremap <silent> yx :'<,'>!clip.exe
 endif
+
+"if hostname() == 'metta'
+  "vnoremap yx :!clip.exe<CR>u
+"endif
 
 " Crostini clipboard support is a mess in 2021
 if hostname() == 'penguin'
@@ -796,9 +802,6 @@ nnoremap ' `
 
 " End of word fast append
 nnoremap E ea
-
-" Useful for visualize to the very end
-nnoremap G G$
 
 " Don't accidentally drop into ex mode
 nnoremap Q :q
@@ -1879,6 +1882,14 @@ if !exists("autocommands_loaded")
 
   " This file has several language's comments, highlight them all
   au BufRead  *oneliners syn match Comment @^".*$\|^--.*$\|^\/\/.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@ contains=Search
+
+let s:clip = '/mnt/c/Windows/System32/clip.exe'
+if executable(s:clip)
+  augroup WSLYank
+    autocmd!
+      autocmd TextYankPost * if v:event.operator ==# 'y' | call system(s:clip, @0) | endif
+  augroup END
+endif
 
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
   "

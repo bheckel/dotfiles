@@ -774,7 +774,7 @@ case "$OSTYPE" in
         # Hack for missing clipboard support
         # alias cb='echo do v yx on this to clipboard it on chromebook; gvim ~/.crouton-clipboard/data.txt'
         function cb(){
-          echo do v yx on this to clipboard it on chromebook: gvim ~/.crouton-clipboard/data.txt
+          echo in vim do v yx on this to clipboard it on chromebook: gvim ~/.crouton-clipboard/data.txt
           catput ~/.crouton-clipboard/data.txt
           echo or use the carriage return-less version just copied
         }
