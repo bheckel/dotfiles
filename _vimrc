@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Sat 11-Dec-2021 (Bob Heckel)
+" Modified: Tue 14-Dec-2021 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -770,7 +770,12 @@ nnoremap <expr> gp '`[' . strpart(getregtype(), 0, 1) . '`]'
 nnoremap gw <Esc>:split<CR>gf
 
 " Copy visual mode selection to system clipboard. Like Windows gVim's default. See also :set clipboard=
-vnoremap <silent> yx  "*y
+if $WSLENV =~ 'WT_SESSION::WT_PROFILE_ID'
+  " Not needed except to keep keystrokes consistent - see Autocommands Yankme
+  vnoremap <silent> yx  y
+else
+  vnoremap <silent> yx  "*y
+endif
 
 if $PATH =~ 'termux'
   vnoremap <silent> yx :'<,'>!termux-clipboard-set<CR>u
@@ -1883,13 +1888,16 @@ if !exists("autocommands_loaded")
   " This file has several language's comments, highlight them all
   au BufRead  *oneliners syn match Comment @^".*$\|^--.*$\|^\/\/.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@ contains=Search
 
-let s:clip = '/mnt/c/Windows/System32/clip.exe'
-if executable(s:clip)
-  augroup WSLYank
-    autocmd!
-      autocmd TextYankPost * if v:event.operator ==# 'y' | call system(s:clip, @0) | endif
-  augroup END
-endif
+"TODO handle WSL tmux too instead of having to use tmux's Ctr-a [
+  if hostname() == 'metta'
+    let s:clip = '/mnt/c/Windows/System32/clip.exe'
+  endif
+  if executable(s:clip)
+    augroup Yankme
+      autocmd!
+        autocmd TextYankPost * if v:event.operator ==# 'y' | call system(s:clip, @0) | endif
+    augroup END
+  endif
 
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
   "
