@@ -1891,6 +1891,8 @@ if !exists("autocommands_loaded")
 "TODO handle WSL tmux too instead of having to use tmux's Ctr-a [
   if hostname() == 'metta'
     let s:clip = '/mnt/c/Windows/System32/clip.exe'
+  else
+    let s:clip = ''
   endif
   if executable(s:clip)
     augroup Yankme

@@ -123,7 +123,7 @@ alias gpull='git pull'
 #alias gstash='git stash save --include-untracked'
 alias gs='git status'
 alias gsl='git stash list'
-alias gfatal='echo "cd ~/dotfiles && git merge && git push; git remote show origin; cd ~/code && git merge && git push; git remote show origin"'
+alias gfatal='echo "cd ~/dotfiles && git merge && git push; cd ~/code && git merge && git push; git remote show origin"'
 alias h='history|tail -n20'
 alias ha='history -a'  # append this
 alias hr='history -n'  # read in from others
@@ -513,6 +513,7 @@ case "$OSTYPE" in
     alias d13="(cd /cygdrive/c/temp; vi -Rc 'map q :qa<CR>' -Rd 1 3)"
     alias d23="(cd /cygdrive/c/temp; vi -Rc 'map q :qa<CR>' -Rd 2 3)"
     alias d123="(cd /cygdrive/c/temp; vi -Rc 'map q :qa<CR>' -Rd 1 2 3)"
+    alias d34="(cd /cygdrive/c/temp; vi -Rc 'map q :qa<CR>' -Rd 3 4)"
     # alias cygwin=$HOME/code/misc/cygwin.bat  # norc bat version must be doubleclicked
     ###alias budrsync='rsync -avz /home/bheckel/code/ root@buddha:/home/bheckel/code && rsync -avzL /home/bheckel/tobuddha/ root@buddha:/home/bheckel/tobuddha'
     # Cygwin bugfix.  Use the real fg for e.g. fg %2
