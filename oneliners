@@ -8066,4 +8066,9 @@ crosh> vmc stop termina  # allows to force close the whole Linux container
 
 This file 'oneliners' is Copyright © 2021 Bob Heckel b dot heckel at gmail dot com
 
+-- Windows home c:\users\bheckel
+%HOMEDRIVE%%HOMEPATH%
+-- Windows WSL2 home
+\\wsl.localhost\Ubuntu\home\bheckel
+
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
