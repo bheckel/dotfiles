@@ -6415,6 +6415,8 @@ select employee_id, jobtitle from employee e where extract(year from termination
 -- Split on semicolon FREQ=MINUTELY;INTERVAL=10;
 ,regexp_substr(repeat_interval, '[^;]+;', 1, 1) time  -- FREQ=MINUTELY;
 ,regexp_substr(repeat_interval, '[^;]+;', 1, 2) interval  -- INTERVAL=10;
+-- Split parse pick off first delimited piece based on dot periods:
+select db_link, regexp_substr(db_link, '[^\.]+', 1, 1) from user_synonyms where synonym_name = 'DL_APPEDW_COMPANY_DIM';--MKC_CDSP.VSP.AS.COM MKC_CDSP
 
 -- Concatenate full name without extra spaces when no middle name provided:
 RETURN (TRIM(REGEXP_REPLACE( (first_name_in || ' ' || middle_name_in || ' ' || last_name_in), ' +', ' ')) );
