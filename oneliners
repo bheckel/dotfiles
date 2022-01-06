@@ -7123,7 +7123,7 @@ where (gender, stage) NOT IN ( ('F', 'A'), ('M', 'B') )
 where (gender, stage) != ALL ( ('F', 'A'), ('M', 'B') )
 where NOT (gender, stage) = ANY ( ('F', 'A'), ('M', 'B') )
 
--- SQL USING join syntax if join names are same no prefixes needed:
+-- SQL USING join syntax if join names are same no prefixes needed AND the USING column isn't explicitly prefixed in the SELECT:
 select employee_id, territory_desc from employee e left join rpt_v t USING(territory_lov_id) where employee_id in(9);
 
 -- Print every 1000 loop:
