@@ -791,7 +791,7 @@ case "$OSTYPE" in
         alias cdd="cd $HOME/downloads"
         alias dia='w3m -dump https://finance.yahoo.com/quote/DIA%3Fp=DIA/ | grep --after-context=4 watchlist | tail -n3 | termux-toast'
         # When $HOME/code/misc/gitall isn't available
-        alias gital='cd ~/dotfiles && git add . && git commit -m"mod gitall termux" && git push; git pull'
+        alias gital='cd ~/dotfiles && git add . && git commit -m"mod gitall termux" && git push; git pull; cd -'
         alias nb='newsboat -q -r'
         alias pa='termux-media-player pause'
         alias pl='termux-media-player play'
