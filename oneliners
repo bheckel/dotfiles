@@ -6688,6 +6688,8 @@ select /*+ gather_plan_statistics */ * from bricks b join colours c on b.colour=
 SELECT /*+gather_plan_statistics*/ * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display_cursor(sql_id=>null, format=>'ALLSTATS LAST +cost +bytes +outline +PEEKED_BINDS'));
 SELECT SQL_FULLTEXT, SQL_ID, FIRST_LOAD_TIME FROM v$sql WHERE lower(sql_text) like '%fooba%' order by 3 desc;  -- find your query l234kj9afl
 select * from table(dbms_xplan.display_cursor('l234kj9afl', format => 'ALLSTATS LAST'));  -- BEST implies ROWSTATS IOSTATS MEMSTATS
+-- Best? Run EXPLAIN PLAN trace without running query don't run query too:
+set autotrace traceonly explain -- in sqlplus then select ...
 
 -- Who is logged in what are they running:
 select SID, SERIAL#, USERNAME, STATUS, OSUSER, MACHINE, PROGRAM, SQL_ID, SQL_EXEC_START, PREV_SQL_ID, PREV_EXEC_START, LOGON_TIME, LAST_CALL_ET, CLIENT_IDENTIFIER, STATE, SERVICE_NAME, trunc(last_call_et/ 3600) as Hours from v$session where username is not null order by SQL_EXEC_START desc nulls last;
