@@ -778,7 +778,8 @@ else
 endif
 
 if $PATH =~ 'termux'
-  vnoremap <silent> yx :'<,'>!termux-clipboard-set<CR>u
+"vnoremap <silent> yx :'<,'>!termux-clipboard-set<CR>u
+  vnoremap <silent> yx :!termux-clipboard-set<CR>u
 "elseif hostname() == 'metta'
 "  vnoremap <silent> yx :'<,'>!clip.exe
 endif
