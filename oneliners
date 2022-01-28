@@ -5919,9 +5919,9 @@ SELECT table_name FROM user_tables WHERE lower(table_name) LIKE '%search%' order
 -- Poke around search all tables want for a specific column name does column exist:
 SELECT * from  user_tab_columns WHERE table_name = 'FOO' AND column_name LIKE '%NEW%';
 
--- What the object references, tables etc:
+-- What the object references, tables etc depends on:
 select * from user_dependencies where name = 'RPT_OPP_MULTI_YDEAL' and referenced_type not in ('SYNONYM') order by 4;
--- What references the object, views etc:
+-- What references the object, views etc depends on:
 select * from user_dependencies where REFERENCED_NAME = 'OPP_BASE' and referenced_type not in ('SYNONYM') order by 1;
 
 -- List all of a table's indexes and tablespace does table have index all indexes for a table what is indexed:
@@ -7773,7 +7773,7 @@ git branch -v -a
 # ls for git list which files are tracked under git source control not just staged:
 git ls-files 
 
-# git revert abandon discard throw away trash abandon changes NOT STAGED for commit:
+# git revert abandon discard throw away trash abandon toss single file changes ("NOT STAGED for commit"):
 git checkout -- DataPost_Configuration.map  # can also try  git checkout .  for >1 file 'not staged for commit'
 # git unstage a bad staged file "Changes to be committed" i.e. revert last 'git add' back to the working area:
 git reset [HEAD] Daily_data_maintenance.pck
