@@ -6676,29 +6676,29 @@ select deptno, empno top_oldest_emp, sal from scott.emp e where not exists ( sel
 -- Modified analytic outer join to get every hr, every room and who reserved it:
 select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2;
 
--- Suppress sqlplus SQL output while calculating execution plan cost:
-set autotrace traceonly explain
-SELECT ename FROM emp;
-
-EXPLAIN PLAN FOR SELECT * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display(null, null, 'typical')); ROLLBACK;
--- Find a previous sql in cache:
-select * /* my uniquified qry id */ from foo; select * from v$sql where sql_text = 'my qry id'; select * from table(dbms_xplan.display_cursor('THE ID YOU JUST FOUND');
--- Autotrace:
-select /*+ gather_plan_statistics */ * from bricks b join colours c on b.colour=c.colour; select * from table(DBMS_XPLAN.display_cursor(null, format => 'ROWSTATS LAST'));  -- alternatively set this to avoid the hint: ALTER SESSION SET statistics_level = all;
-SELECT /*+gather_plan_statistics*/ * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display_cursor(sql_id=>null, format=>'ALLSTATS LAST +cost +bytes +outline +PEEKED_BINDS'));
-SELECT SQL_FULLTEXT, SQL_ID, FIRST_LOAD_TIME FROM v$sql WHERE lower(sql_text) like '%fooba%' order by 3 desc;  -- find your query l234kj9afl
-select * from table(dbms_xplan.display_cursor('l234kj9afl', format => 'ALLSTATS LAST'));  -- BEST implies ROWSTATS IOSTATS MEMSTATS
--- Best? Run EXPLAIN PLAN trace without running query don't run query too:
+-- Suppress sqlplus SQL output just display calculate execution plan explain plan cost:
 set autotrace traceonly explain -- in sqlplus then select ...
+
+EXPLAIN PLAN FOR SELECT * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display(null, null, 'typical')); ROLLBACK; -- deprecated, use dbms_xplan
+-- Autotrace BEST:
+select /*+ gather_plan_statistics */ * from bricks b join colours c on b.colour=c.colour; select * from table(DBMS_XPLAN.display_cursor(null, null, 'allstats +cost +bytes'));  -- alternatively set this to avoid the hint: ALTER SESSION SET statistics_level = all;
+
+-- Find a previous sql in cache using a contrived tag:
+select * /* my uniquified qry id */ from foo; select * from v$sql where sql_text = 'my qry id'; select * from table(dbms_xplan.display_cursor('THE SQL_ID YOU JUST FOUND');
+
+SELECT SQL_FULLTEXT, SQL_ID, FIRST_LOAD_TIME FROM v$sql WHERE lower(sql_text) like '%fooba%' order by 3 desc;  -- find your query l234kj9afl
+select * from table(dbms_xplan.display_cursor('l234kj9afl', format => 'ALLSTATS LAST'));  -- ALLSTATS implies ROWSTATS IOSTATS MEMSTATS
+
+-- Capture sql_ids:
+set feedback on sql_id
 
 -- Who is logged in what are they running:
 select SID, SERIAL#, USERNAME, STATUS, OSUSER, MACHINE, PROGRAM, SQL_ID, SQL_EXEC_START, PREV_SQL_ID, PREV_EXEC_START, LOGON_TIME, LAST_CALL_ET, CLIENT_IDENTIFIER, STATE, SERVICE_NAME, trunc(last_call_et/ 3600) as Hours from v$session where username is not null order by SQL_EXEC_START desc nulls last;
 
-select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_text like '%CUSTOMER%'
 -- Have sql_id want running query text:
 select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_id='63ygwpcj2s227';
-
-begin dbms_stats.gather_table_stats('SETARS','SAP_DETAILS');  end;
+-- Don't have sql_id want running query text:
+select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_text like '%CUSTOMER%'
 
 -- Check for histograms:
 select utcs.column_name, utcs.histogram, utcs.num_buckets from user_tables ut join user_tab_col_statistics utcs on ut.table_name = utcs.table_name where ut.table_name = 'BRICKS';
@@ -6709,7 +6709,7 @@ begin DBMS_STATS.set_table_prefs(null, 'bricks', 'method_opt', 'for all columns 
 
 -- Create update histogram stats statistics manually:
 BEGIN DBMS_STATS.gather_table_stats(USER, 'CONTACT_EXTERNAL2', estimate_percent=>100); END; 
-SQL> exec DBMS_STATS.gather_table_stats('HR', 'EMPLOYEES', method_opt=>'FOR COLUMNS SIZE 254 JOB_ID');
+exec DBMS_STATS.gather_table_stats('HR', 'EMPLOYEES', method_opt=>'FOR COLUMNS SIZE 254 JOB_ID');
 
 -- Are table statistics stale? last gather stats is NULL until first exec dbms_stats.gather_table_stats(null, 'bricks'); Both have LAST_ANALYZED column:
 select stale_stats from user_tab_statistics where table_name = 'BRICKS'; -- YES or NO
@@ -6981,7 +6981,7 @@ alias db6='psql -h db-06.aeb.com AEBMART'
 SELECT REGEXP_REPLACE(text, '\s+', ' ') FROM user_source;
 
 -- Have SID want to know what SQL is running:
-select q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action from v$session s, v$sql q where s.sql_id=q.sql_id(+) and SID= order by s.sql_exec_start; 
+select q.sql_fulltext, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action from v$session s, v$sql q where s.sql_id=q.sql_id(+) and SID= order by s.sql_exec_start; 
 -- Don't have SID want to know what SQL a scheduled job is running:
 select distinct 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action,osuser from v$session s, v$sql q where s.sql_id=q.sql_id(+) and s.action='MY_PERIODIC_LIFECYCLE_JOB' and sql_exec_start is not null order by s.sql_exec_start; 
 
@@ -7112,7 +7112,7 @@ CREATE OR REPLACE PUBLIC SYNONYM RPT_CYCLE_MS_OVERVIEW FOR ESTARS.RPT_CYCLE_MS_O
 -- Use pseudocolumn for hierarchical query that tells you if the node is at the lowest level without children (is a leaf):
 select lpad('* ', (LEVEL-1)*2, '* ') || ename as programmer, CONNECT_BY_ISLEAF as isleaf from emp START WITH mgr is null CONNECT BY mgr = prior empno order SIBLINGS by ename;
 
--- Want only last year and this year:
+-- Want only extract get return last year and this year:
 AND EXTRACT(YEAR FROM o.close_date) in( EXTRACT(YEAR FROM SYSDATE), EXTRACT(YEAR FROM SYSDATE) + 1 )
 
 -- Last 1 year of data:
