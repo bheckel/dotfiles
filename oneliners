@@ -14,7 +14,7 @@
 #          ^^^^__^^^^^__^^^_^^^
 #
 #  Created: 02-Jun-1998 (Bob Heckel)
-# Modified: 25-Sep-2021 (Bob Heckel)
+# Modified: 08-Feb-2022 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -5418,15 +5418,30 @@ DECLARE p1 PLS_INTEGER := 2147483647; p2 INTEGER := 1; n NUMBER; BEGIN n := p1 +
 
 -- Find my active sessions:
 select s.PROGRAM, s.SQL_ID, s.SQL_EXEC_START, s.LOGON_TIME, q.sql_text from v$session s, v$sql q where s.sql_id=q.sql_id(+) and /*status='ACTIVE' and*/ osuser='bheck';
--- Find active sessions active for more than 10 seconds:
-select s.sid||','||s.serial# sess, s.osuser, s.USERNAME, s.last_call_et, s.status, s.sql_address, s.program from v$session s where ( s.status = 'ACTIVE' and s.last_call_et > 10 );
 -- Find inactive sessions older than 20 minutes:
 select s.sid||','||s.serial# sess, s.osuser, s.USERNAME, s.last_call_et, s.status, s.sql_address, s.program from v$session s where ( s.status != 'ACTIVE' and s.last_call_et > 1200 );
--- Find all recent sql executed:
-select s.SID, s.SERIAL#, USERNAME, s.STATUS, SCHEMANAME, OSUSER, s.MACHINE, PORT, PROGRAM, TYPE, s.SQL_ID, LOGON_TIME, CLIENT_IDENTIFIER, STATE, SQL_TEXT, SQL_FULLTEXT, RESULT_CACHE from v$session s, v$sql q where s.sql_id=q.sql_id(+) and SQL_EXEC_START > sysdate - interval '1' hour order by LAST_ACTIVE_TIME desc;
 -- Find sql_id of my recent query that started with this LIKE:
 SELECT * FROM v$sql WHERE lower(sql_text) like 'with edw%';-- 5w8bqa53r774x
 select dbms_sql_translator.sql_id('SELECT * FROM salesgroup') from dual;
+-- Find a previous sql in cache using a contrived tag:
+select * /* my uniquified qry id */ from foo; select * from v$sql where sql_text = 'my qry id'; select * from table(dbms_xplan.display_cursor('THE SQL_ID YOU JUST FOUND');
+
+-- EXPLAIN PLAN
+SELECT SQL_FULLTEXT, SQL_ID, FIRST_LOAD_TIME FROM v$sql WHERE lower(sql_text) like '%fooba%' order by 3 desc;  -- find your query l234kj9afl
+select * from table(dbms_xplan.display_cursor('l234kj9afl', format => 'ALLSTATS LAST'));  -- ALLSTATS implies ROWSTATS IOSTATS MEMSTATS
+
+-- Capture sql_ids:
+set feedback on sql_id
+
+-- Who is logged in what are they running:
+select SID, SERIAL#, USERNAME, STATUS, OSUSER, MACHINE, PROGRAM, SQL_ID, SQL_EXEC_START, PREV_SQL_ID, PREV_EXEC_START, LOGON_TIME, LAST_CALL_ET, CLIENT_IDENTIFIER, STATE, SERVICE_NAME, trunc(last_call_et/ 3600) as Hours from v$session where username is not null order by SQL_EXEC_START desc nulls last;
+
+-- Have sql_id want running query text:
+select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_id='63ygwpcj2s227';
+-- Have SID want to know what SQL is running:
+select q.sql_fulltext, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action from v$session s, v$sql q where s.sql_id=q.sql_id(+) and SID= order by s.sql_exec_start; 
+-- Don't have SID want to know what SQL a scheduled job is running:
+select distinct 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action,osuser from v$session s, v$sql q where s.sql_id=q.sql_id(+) and s.action='MY_PERIODIC_LIFECYCLE_JOB' and sql_exec_start is not null order by s.sql_exec_start; 
 
 lock table table1 in exclusive mode; -- then rollback;
 
@@ -5438,8 +5453,17 @@ SELECT s.osuser, O.OBJECT_NAME, S.SID, S.SERIAL#, P.SPID, S.PROGRAM, SQ.SQL_FULL
 -- Oracle user sessions who is logged and potentially kill them:
 select s.sid||','||s.serial# sess, s.osuser, s.username, s.last_call_et, s.status, s.sql_address, s.program from v$session s where ( s.status = 'ACTIVE' );
 select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, USERNAME, COMMAND, STATUS, SCHEMANAME, OSUSER, MACHINE, PROGRAM, TYPE, SQL_ID, SQL_EXEC_START, MODULE, ACTION, LOGON_TIME, CLIENT_IDENTIFIER, STATE from v$session where username is not null order by status, logon_time;
--- Kill running session Cloud. Column 's' also allows viewing of running SQL:
+-- Kill running session CLOUD. Column 's' also allows viewing of running SQL:
 select distinct 'ALTER SYSTEM KILL SESSION ''' || sid || ',' || serial# || ''';' x, substr(q.sql_text,1,500) s from v$session s, v$sql q where s.sql_id=q.sql_id(+) and q.sql_text not like 'select distinct ''exec sys%';
+
+-- Kill Oracle kill session (sid, serial#):
+SQL> exec sys.kill_session(51,6449);
+
+-- Kill Oracle kill session sqlplus format:
+SQL> set linesize 200
+SQL> col sql_text format a160
+SQL> col x form a30
+select distinct  'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text from v$session s, v$sql q where s.sql_id=q.sql_id(+) and osuser='bheck' and sql_text is not null;
 
 -- Insert newline for blank row spacing:
 rc PLS_INTEGER; rc := SQL%ROWCOUNT; dbms_output.new_line(); dbms_output.put_line('rows affected: ' || rc);
@@ -5502,6 +5526,7 @@ where Profit < 15 or Profit IS NULL
 -- Better Oracle way to include nulls (you no longer need a separate "or column is null" test):
 where NVL(Profit, 0) < 15
 
+-- Improved NVL(): accepts more than two arguments, uses short-circuit evaluation so it stops looking for a non-null value when it finds one (and, therefore, does not evaluate every expression in the list, which NVL does):
 coalesce(patriots_didnt_cheat, honest_salesman, lowprice_at_disney, emacs_is_great, 0) as coalesce_approach_1st_nonnull_is_returned;
 
 -- Choose the most recent of 3 dates highest higher date Oracle:
@@ -5635,14 +5660,6 @@ SELECT /*+ INDEX (employees emp_department_ix)*/ employee_id, department_id FROM
 SELECT /*+ FULL(ddl_event)*/ * FROM ddl_event;
 
 select /*+ NO_PARALLEL */ empno from emp;
-
--- Kill Oracle kill session sqlplus format:
-SQL> set linesize 200
-SQL> col sql_text format a160
-SQL> col x form a30
-select distinct  'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text from v$session s, v$sql q where s.sql_id=q.sql_id(+) and osuser='bheck' and sql_text is not null;
--- Kill Oracle kill session (sid, serial#):
-SQL> exec sys.kill_session(51,6449);
 
 GRANT EXECUTE ON SYS.DBMS_LOCK TO unit_test_repos;
 alter system kill session '671,62164';
@@ -6071,9 +6088,11 @@ psql -h db-06.taeb.com TAEBMART -c "select * from analytis.reportlog where rpt='
 -- Empty 2 tables (implicit COMMIT because TRUNCATE is DDL, DDL statements issue a commit BEFORE and AFTER they run). Faster than DELETE. (1) it does an implicit commit (exceptions: PostgreSQL and SQL Server); (2) it does not execute any triggers:
 TRUNCATE bigtable, fattable;  -- no WHERE clause allowed
 
--- Postgres remove leading zeros to find 01, 1, 03, 3:
+-- Remove leading zeros to find 01, 1, 03, 3:
 where trim(leading '0' from storeid) in ('1','3')
 select distinct concat(a.clientid::text,trim(leading '0' from b.clientstoreid::text),pharmacypatientid::text) as upid
+-- Make day e.g. 09 be 9:
+SELECT TRIM(LEADING '0' FROM TO_CHAR(sysdate-31, 'DD')) FROM dual;
 
 -- Postgres cast convert type:
 select * from stores where clients_fkid=999 and storeid::int4=3
@@ -6545,6 +6564,9 @@ INSERT INTO RION_37551 (email_messages_id, subject) VALUES (uid_rion_37551.NEXTV
 
 CREATE OR REPLACE TRIGGER on_schema_mod_trigger AFTER ALTER OR CREATE ON scott.SCHEMA WHEN (ORA_DICT_OBJ_TYPE = 'TABLE') BEGIN dbms_output.put_line('ok'); END;
 
+-- Generate a sequence of numbers (5 row result):
+select level from dual connect by level <= 5;
+
 -- Sample CTAS database table with tens of thousands of rows:
 CREATE TABLE dummy_table AS SELECT owner, object_name, object_id FROM all_objects;
 -- Sample CTAS database table with 1 column holding 1,2,3... in 10 rows:
@@ -6680,25 +6702,8 @@ select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right out
 set autotrace traceonly explain -- in sqlplus then select ...
 
 EXPLAIN PLAN FOR SELECT * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display(null, null, 'typical')); ROLLBACK; -- deprecated, use dbms_xplan
--- Autotrace BEST:
+-- Autotrace BEST execution plan cost:
 select /*+ gather_plan_statistics */ * from bricks b join colours c on b.colour=c.colour; select * from table(DBMS_XPLAN.display_cursor(null, null, 'allstats +cost +bytes'));  -- alternatively set this to avoid the hint: ALTER SESSION SET statistics_level = all;
-
--- Find a previous sql in cache using a contrived tag:
-select * /* my uniquified qry id */ from foo; select * from v$sql where sql_text = 'my qry id'; select * from table(dbms_xplan.display_cursor('THE SQL_ID YOU JUST FOUND');
-
-SELECT SQL_FULLTEXT, SQL_ID, FIRST_LOAD_TIME FROM v$sql WHERE lower(sql_text) like '%fooba%' order by 3 desc;  -- find your query l234kj9afl
-select * from table(dbms_xplan.display_cursor('l234kj9afl', format => 'ALLSTATS LAST'));  -- ALLSTATS implies ROWSTATS IOSTATS MEMSTATS
-
--- Capture sql_ids:
-set feedback on sql_id
-
--- Who is logged in what are they running:
-select SID, SERIAL#, USERNAME, STATUS, OSUSER, MACHINE, PROGRAM, SQL_ID, SQL_EXEC_START, PREV_SQL_ID, PREV_EXEC_START, LOGON_TIME, LAST_CALL_ET, CLIENT_IDENTIFIER, STATE, SERVICE_NAME, trunc(last_call_et/ 3600) as Hours from v$session where username is not null order by SQL_EXEC_START desc nulls last;
-
--- Have sql_id want running query text:
-select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_id='63ygwpcj2s227';
--- Don't have sql_id want running query text:
-select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_text like '%CUSTOMER%'
 
 -- Check for histograms:
 select utcs.column_name, utcs.histogram, utcs.num_buckets from user_tables ut join user_tab_col_statistics utcs on ut.table_name = utcs.table_name where ut.table_name = 'BRICKS';
@@ -6825,6 +6830,7 @@ select translate('abcdef', 'abcde', '1234') from dual -- 1234f
 
 -- Create a big disposable dummy sample table for testing:
 CREATE TABLE million_rows AS SELECT ROWNUM AS id, RPAD('x',100) AS data FROM dual CONNECT BY ROWNUM < 1000000;  ALTER TABLE million_rows ADD CONSTRAINT million_rows_pk PRIMARY KEY (id);  BEGIN DBMS_STATS.GATHER_TABLE_STATS(USER, 'MILLION_ROWS', estimate_percent=>100); END;
+create table bigtab as select d.* from dba_objects d, ( select 1 from dual connect by level <= 1000 );
 
 -- Size of source code in bytes:
 select SOURCE_SIZE from user_object_size where name in('ACCOUNTSPKG');
@@ -6979,11 +6985,6 @@ alias db6='psql -h db-06.aeb.com AEBMART'
 
 -- Remove multiple spaces with one space Oracle (like COMPBL that doesn't exist):
 SELECT REGEXP_REPLACE(text, '\s+', ' ') FROM user_source;
-
--- Have SID want to know what SQL is running:
-select q.sql_fulltext, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action from v$session s, v$sql q where s.sql_id=q.sql_id(+) and SID= order by s.sql_exec_start; 
--- Don't have SID want to know what SQL a scheduled job is running:
-select distinct 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action,osuser from v$session s, v$sql q where s.sql_id=q.sql_id(+) and s.action='MY_PERIODIC_LIFECYCLE_JOB' and sql_exec_start is not null order by s.sql_exec_start; 
 
 ALTER SESSION set NLS_DATE_FORMAT = 'DD-MON-RR HH24:MI:SS'; -- 04-SEP-21 14:11:22
 -- Unhide Oracle BC session date problems:
