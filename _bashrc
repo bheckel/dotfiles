@@ -350,16 +350,12 @@ tmn() {
   fi
 }
 
-tmna() {
-  if [ $HOSTNAME = 'metta' ]; then
-    tmux -a -t s1
-  fi
-}
-
-# Re-attach to existing session, usually named s1, s2...
+# Re-attach to existing Cygwin session, usually named s1, s2...
 tma() {
   if [ -z ${1} ]; then
     tmux -u -2 a -t "s1"
+  elif [ $HOSTNAME = 'metta' ]; then
+    tmux attach
   else
     tmux -u -2 a -t "s${1}"
   fi

@@ -2898,7 +2898,7 @@ find . -path '*bqh0'            # directories with the word 'bqh0' at the end
 # Do something to each file for each
 for f in $( find /Drugs/TMMEligibility -print | grep 20180601 | grep DSBRDTMMPATADD ); do ls $f done
 
-# Throw away 'Permission denied', etc. by dumping STDERR to blackhole device any errors to the bit bucket:
+# Throw away 'Permission denied', etc. by dumping STDERR to blackhole device bitbucket any errors to the bit bucket:
 find / -name '*.mac' 2>/dev/null
 # Redirect both STDOUT and STDERR to the bit bucket, send nothing to the console (error messages are written to STDOUT instead of STDERR)
 $ /opt/tasty/bin/mypgm >/dev/null 2>&1 &
