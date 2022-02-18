@@ -7211,6 +7211,8 @@ sql> show sga
 -- Null out null trigger:
 CREATE OR REPLACE TRIGGER SETARS.MKC_REVENUE_FULL_UAT_IUD BEFORE INSERT OR UPDATE OR DELETE ON MKC_REVENUE_FULL_UAT FOR EACH ROW BEGIN null; END;
 
+-- DIMENSION attributes supply the report filters and labeling, FACT tables supply the report numeric values
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
