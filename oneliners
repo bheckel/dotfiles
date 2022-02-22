@@ -250,12 +250,12 @@ $ vim -c 'argdo set nomore | g!/-2008/d | update' foo.csv
 " After you've forgotten to check file permissions:
 :w !sudo tee %
 
-" Search find a word and move cursor offset to one or more char positions from match.
+" Search find a word and move cursor offset to one or more char positions from match:
 /myword/b     <---cursor is on m (default -- beginning)
 /myword/b+1   <---cursor is on y
-/myword/e     <---cursor is on d -- end (good for "delete thru this char": d /.../e )
-/myword/e-2   <---cursor is on o
-/myword/e+    <---cursor is on first char after myword -- end plus 1 char
+/myword/e     <---cursor is on d  -- end of string (good for "delete thru this char": d /.../e )
+/myword/e-2   <---cursor is on o  -- end of string offset by minus 2
+/myword/e+    <---cursor is on first char after myword  -- end plus 1 char
 
 " Insert date on current line:
 !!date
@@ -5967,6 +5967,8 @@ SELECT column_name FROM user_cons_columns ucc, user_constraints uc WHERE uc.CONS
 
 -- Want all constraints including primary on this table:
 SELECT * FROM user_cons_columns ucc, user_constraints uc WHERE uc.table_name = 'KMC_REVENUE_FULL' /*AND uc.CONSTRAINT_TYPE = 'P'*/ AND ucc.CONSTRAINT_NAME = uc.CONSTRAINT_NAME;
+-- Which constraint was violated?:
+SELECT * FROM user_cons_columns ucc, user_constraints uc WHERE uc.table_name = 'ACCOUNT_TEAM_EMPLOYEE' AND ucc.CONSTRAINT_NAME = uc.CONSTRAINT_NAME and ucc.constraint_name='NN_ACCOUNT_TM_EMP_H';
 
 -- What foreign keys are on this table:
 select * from all_constraints where table_name ='SP_PROCESSING' and CONSTRAINT_TYPE='R';
