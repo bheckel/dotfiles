@@ -5489,15 +5489,6 @@ SELECT TO_DATE('21 JANUARY 2017','DD MONTH YYYY') - DATE '2017-01-01' "date diff
 SELECT LAST_DAY(DATE '2019-01-01') last_day_of_month FROM dual
 lastDayOfQuarter := LAST_DAY(TO_DATE(to_char((payoutQuarter * 3), '00') || '/01/' || targetYear, 'mm/dd/YYYY'));
 
--- Oracle ANSI datetime timestamp constants literals (client controls display format). Both are 29-OCT-12 12.01.01.123000000 PM:
-select TIMESTAMP '2012-10-29 14:01:01', TIMESTAMP '2012-10-29 12:01:01.123', to_timestamp('2012-10-29 12:01:01.123', 'YYYY-MM-DD HH:MI:SS.FF AM') from dual;
--- Oracle ANSI TIMESTAMP literal:
-select * from t WHERE t.min_end_time> TIMESTAMP '2019-01-16 08:26:50'
-INSERT INTO test_table (timestamp_col) VALUES (TIMESTAMP '2017-01-21 12:34:56.78');
--- Oracle ANSI TIMESTAMP literal with timezone:
-INSERT INTO test_table (timestamp_tz_col) VALUES (to_timestamp_tz('2017-01-21 21:05:53.46 +02:00', 'YYYY-MM-DD HH24:MI:SS.FF TZH:TZM');
-select to_timestamp_tz(SYSDATE,'DD-MON-YYYY HH24:MI:SS') from dual;
-
 -- Copy first few rows of Oracle table into an existing table:
 INSERT INTO mynewtbl SELECT * FROM myoldtbl WHERE rownum<11; commit;
 -- Copy all rows of Oracle table into an existing empty table (CTAS for insert):
@@ -5595,13 +5586,6 @@ select distinct count(distinct decode(th.parent_territory_lov_id, NULL, ataa.ass
 -- SQL sum count a group flag.  Good for later excluding a group of records if any record contains 'CANCEL':
 sum(case when status = 'CANCEL' then 1 else 0 end) as cancelflag
 
--- SQL convert timestamp to date then sum pickeduptimestamp if picked up in a during month, a range of dates:
-sum(case when date(pickeduptimestamp) between '01MAY2015' and '31MAY2015' then 1 else 0 end) as May2015, ...
-...and (date(pickeduptimestamp) between date('2016-02-01') and date('2016-04-30'))...
-
--- Set binary date flags in SQL:
-sum(case when date(pickeduptimestamp) between '01MAR2015' and '31MAR2015' then 1 else 0 end) as Mar2015
-
 -- PLSQL return a BOOLEAN:
 RETURN(CASE WHEN(l_column_count > 0) THEN TRUE ELSE FALSE END);
 
@@ -5659,6 +5643,8 @@ SELECT /*+ INDEX (employees emp_department_ix)*/ employee_id, department_id FROM
 -- Oracle force full table scan hint:
 SELECT /*+ FULL(ddl_event)*/ * FROM ddl_event;
 
+-- Parallel hint;
+select /*+ PARALLEL(8) */ empno from emp;
 select /*+ NO_PARALLEL */ empno from emp;
 
 GRANT EXECUTE ON SYS.DBMS_LOCK TO unit_test_repos;
@@ -5693,6 +5679,35 @@ select TO_DATE('6-JAN-06'), TO_DATE('06JAN06'), TO_DATE('6JAN2006');  -- all sam
 select TO_DATE('15-may-2006 16:00:01','dd-mon-yyyy hh24:mi:ss') from dual; -- 15-May-06 04:00:01 PM
 select * from activity_log where trunc(activity_dt)=TO_DATE('16-JAN-06','DD-MON-YY');
 
+-- Oracle ANSI datetime timestamp constants literals (client controls display format). Both are 29-OCT-12 12.01.01.123000000 PM:
+select TIMESTAMP '2012-10-29 14:01:01', TIMESTAMP '2012-10-29 12:01:01.123', to_timestamp('2012-10-29 12:01:01.123', 'YYYY-MM-DD HH:MI:SS.FF AM') from dual;
+-- Oracle ANSI TIMESTAMP literal:
+select * from t WHERE t.min_end_time> TIMESTAMP '2019-01-16 08:26:50'
+INSERT INTO test_table (timestamp_col) VALUES (TIMESTAMP '2017-01-21 12:34:56.78');
+-- Oracle ANSI TIMESTAMP literal with timezone:
+INSERT INTO test_table (timestamp_tz_col) VALUES (to_timestamp_tz('2017-01-21 21:05:53.46 +02:00', 'YYYY-MM-DD HH24:MI:SS.FF TZH:TZM');
+select to_timestamp_tz(SYSDATE,'DD-MON-YYYY HH24:MI:SS') from dual;
+
+-- Generate a year's worth of 1st of month dates:
+select timestamp'2021-01-01 00:00:00' + numtodsinterval(level, 'day') dt from DUAL connect by level <= 365;
+-- Generate a year's worth of dates starting with now:
+select sysdate + numtodsinterval(level, 'day') dt from DUAL connect by level <= 365;
+
+-- Max number of seconds that won't throw ORA-01873:
+select NUMTODSINTERVAL(power(2,31) - 1, 'SECOND') as interval from dual;
+select date '1970-01-01' + NUMTODSINTERVAL(power(2,31) - 1, 'SECOND') as max_interval_from_epoch from dual; -- 19-JAN-38 03:14:07
+
+SELECT SYSDATE + interval '1' minute from dual; --01-MAY-20 13:36:33
+-- Good for dbms_scheduler start_date start_date => '01-MAY-20 01.51.00PM EST5EDT',:
+SELECT CAST(SYSDATE + interval '1' minute AS TIMESTAMP) from dual; --01-MAY-20 01.37.07.000000000 PM
+
+-- SQL convert timestamp to date then sum pickeduptimestamp if picked up in a during month, a range of dates:
+sum(case when date(pickeduptimestamp) between '01MAY2015' and '31MAY2015' then 1 else 0 end) as May2015, ...
+...and (date(pickeduptimestamp) between date('2016-02-01') and date('2016-04-30'))...
+
+-- Set binary date flags in SQL:
+sum(case when date(pickeduptimestamp) between '01MAR2015' and '31MAR2015' then 1 else 0 end) as Mar2015
+
 -- Oracle date with hours minutes seconds:
 SELECT to_char(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI:SS') FROM dual; --2020-01-16 18:26:57
 
@@ -5715,10 +5730,6 @@ select sysdate, (sysdate - .5) twelve_hours_ago_ora, (SYSDATE - INTERVAL '12' ho
 
 -- 18-JUL-19 12.13.00.755657000 PM -04:00 / 18-JUL-19 12.13.00.756657000 PM -04:00 / 18-JUN-19 12:13:00
 SELECT (systimestamp - INTERVAL '0.001' SECOND), SYSTIMESTAMP, (SYSDATE - INTERVAL '1' MONTH) FROM dual
-
--- Max number of seconds that won't throw ORA-01873:
-select NUMTODSINTERVAL(power(2,31) - 1, 'SECOND') as interval from dual;
-select date '1970-01-01' + NUMTODSINTERVAL(power(2,31) - 1, 'SECOND') as max_interval_from_epoch from dual; -- 19-JAN-38 03:14:07
 
 -- Oracle first day of current month:
 select trunc(sysdate,'MM') from dual;  --same: select trunc(sysdate,'month') from dual;
@@ -5764,10 +5775,6 @@ SELECT GREATEST(SYSDATE, to_date('01JAN2029'), to_date('01jan2030')) FROM dual
 
 -- Oracle create sample data and round to 15 minute increments intervals:
 WITH v AS (select trunc(sysdate)+548/1440+rownum/1440 d1 from dual connect by level <= 10 ) SELECT TRUNC(d1, 'hh24') + ROUND(to_char(d1,'MI') / 15) * 15 / 1440 round_to_15min_intervals FROM v
-
-SELECT SYSDATE + interval '1' minute from dual; --01-MAY-20 13:36:33
--- Good for dbms_scheduler start_date start_date => '01-MAY-20 01.51.00PM EST5EDT',:
-SELECT CAST(SYSDATE + interval '1' minute AS TIMESTAMP) from dual; --01-MAY-20 01.37.07.000000000 PM
 
 EXECUTE IMMEDIATE q'[select 'ASP_TASK_JOB_' || TO_CHAR(sysdate, 'DD_MM__HH24_MI_SS') from dual]' INTO v_job_name;
 
@@ -6704,8 +6711,8 @@ select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right out
 set autotrace traceonly explain -- in sqlplus then select ...
 
 EXPLAIN PLAN FOR SELECT * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display(null, null, 'typical')); ROLLBACK; -- deprecated, use dbms_xplan
--- Autotrace BEST execution plan cost:
-select /*+ gather_plan_statistics */ * from bricks b join colours c on b.colour=c.colour; select * from table(DBMS_XPLAN.display_cursor(null, null, 'allstats +cost +bytes'));  -- alternatively set this to avoid the hint: ALTER SESSION SET statistics_level = all;
+-- Autotrace explain BEST execution plan cost optimizer:
+select /*+ gather_plan_statistics */ * from bricks b join colours c on b.colour=c.colour; /* set pagesize 0 */ select * from table(dbms_xplan.display_cursor(format => 'IOSTATS LAST  +cost +bytes'));  -- alternatively set this to avoid the hint: ALTER SESSION SET statistics_level = all;
 
 -- Check for histograms:
 select utcs.column_name, utcs.histogram, utcs.num_buckets from user_tables ut join user_tab_col_statistics utcs on ut.table_name = utcs.table_name where ut.table_name = 'BRICKS';
@@ -6728,13 +6735,13 @@ select * from user_indexes where status='UNUSABLE' where index_name='DI_SITE_DAT
 alter index DI_SITE_DATE_DUNS_NBR rebuild ONLINE PARALLEL;
 alter index DI_SITE_DATE_DUNS_NBR NOPARALLEL;
 
+-- Split string into pieces chunks into 2 chunks of 5:
+with v as (select '00000111112222233333' s from dual) select substr(s, (level-1)*5+1, 5) chnk from v connect by level <= 2;
 -- Split string into pieces chunks 5 chars wide based on length:
 select regexp_substr(s, '.{5}', 1, lvl) chunk from (select s, level lvl from (select '00000111112222233333' s from dual) connect by level <= length(s) / 5)
 -- Split string into pieces chunks 5 chars wide based on length:
 with data as (select '00000111112222233333' s from dual) select substr(s, (level-1)*5+1, 5) chnk from data connect by level <= length(s) / 5
 with data as (select '00000111112222233333' s, 5 len from dual) select substr(s, (level-1)*len+1, len) chnk from data connect by level <= length(s)/len
--- Split string into pieces chunks into 2 chunks of 18:
-with data as (select '00000111112222233333' s from dual) select substr(s, (level-1)*18+1, 18) chnk from data connect by level <= 2   
 -- Split comma-separated list of number to rows:
 select split_out_nums from customer_favorites OUTER APPLY json_table( '[' || cf.favorite_list || ']', '$[*]' columns ( split_out_nums number path '$'));
 
@@ -7214,6 +7221,8 @@ sql> show sga
 CREATE OR REPLACE TRIGGER SETARS.MKC_REVENUE_FULL_UAT_IUD BEFORE INSERT OR UPDATE OR DELETE ON MKC_REVENUE_FULL_UAT FOR EACH ROW BEGIN null; END;
 
 -- DIMENSION attributes supply the report filters and labeling, FACT tables supply the report numeric values
+
+select dbms_stats.get_prefs('STALE_PERCENT',user,'MKC_REVENUE_FULL') stale_percent from dual;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
