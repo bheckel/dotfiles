@@ -5507,7 +5507,7 @@ select nullif('a','a') from dual  -- NULL
 select nullif('a','b') from dual  -- a
 case qty when 0 then 0.0001 else qty end / nullif(mycol, 0)  -- avoid any division by zero errors
 
--- Fill down sparse values with the previous value if current is zero:
+-- Fill down sparse values, just use the previous value if current is zero:
 nvl(last_value(nullif(col2, 0)) IGNORE NULLS OVER (ORDER BY col1), 0) col2,
 
 -- This won't include NULLs as Profit because the result of comparing NULL to anything is unknown, not < 0 i.e. nulls propagate:
@@ -5526,12 +5526,10 @@ select greatest(nvl(an.updated, ac.updated), nvl(an_parent.updated, ac.updated),
 -- When any part of an expression evaluates to NULL, the entire expression will evaluate to NULL unless wrapped in a function like NVL:
 select NVL(NULL, 'it is NULL') from dual;  -- returns 'it is NULL'
 select NVL(TO_CHAR(3), 'NULL') from dual;  -- returns 3
-DBMS_OUTPUT.PUT(NVL(TO_CHAR(name.age.years), 'NULL') || ' yrs ');  -- just put() with no newline
-NVL2(x, return_value1_bc_x_isNOTnull, return_value2_bc_x_ISnull);
 
 -- NVL vs NVL2:
-SELECT opportunity_id, actual_sale_amount, nvl(ACTUAL_SALE_AMOUNT, 999) x FROM opportunity_base WHERE  opportunity_id in(999);  -- puts 999 in place of null
-SELECT opportunity_id, actual_sale_amount, nvl2(ACTUAL_SALE_AMOUNT, 'AMOUNT IS NOT NULL', 'NULL') x FROM opportunity_base WHERE  opportunity_id in(999);  -- better
+SELECT actual_sale_amount, nvl(actual_sale_amount, 0) x FROM ... -- use 0 instead of NULL
+SELECT actual_sale_amount, nvl2(actual_sale_amount, 'amount is NOT NULL so return this string', 'is NULL so return this string') x FROM ...
 
 -- Oracle - prevent nulls from propagating:
 SELECT ename, comm, sal, 12*sal+NVL(comm,0) ...
@@ -5558,20 +5556,21 @@ UPDATE contact_note SET original_contact_id = contact_id WHERE contact_id IN (SE
 UPDATE contact_note SET original_contact_id = contact_id WHERE NVL(original_contact_id, -1) = -1
 
 -- Don't ignore NULLs in counts:
-SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,0)), POOR_CLOSEOUT_OPT_OUT FROM OPPORTUNITY_OPT_OUT GROUP BY POOR_CLOSEOUT_OPT_OUT
+SELECT count(nvl(POOR_CLOSEOUT_OPT_OUT,0)), POOR_CLOSEOUT_OPT_OUT FROM OPPORTUNITY_OPT_OUT GROUP BY POOR_CLOSEOUT_OPT_OUT;
 
 -- HTML use <BLANK> use when description is NULL;
 NVL(lov.value_description, '&lt;;BLANK&gt;;') AS value_description,
 
 -- Update table to new value if newloc not null otherwise leave it alone:
 update departments set location = decode(newloc, NULL, location, newloc);
+
 -- Update the CODE column for 10 rows, setting it to itself for 8 rows and to the value NULL for 2 rows. BETWEEN is inclusive like >= ... <= operators:
 UPDATE dest SET code = DECODE(id, 9, NULL, 10, NULL, code) WHERE id BETWEEN 1 AND 10;
 
 -- If day is Saturday set flag:
 CASE WHEN TO_CHAR(b.sample_status_date,'DY')='SAT' THEN 1 ELSE 0 END;
 
--- Do division on a potential zero:
+-- Do division safely on a potential zero:
 SELECT symbol, DECODE(earnings, 0, NULL, price / earnings);
 
 select dt, ticker, decode(transact, 'Buy', +1, -1)*qty qty;
@@ -7223,6 +7222,10 @@ CREATE OR REPLACE TRIGGER SETARS.MKC_REVENUE_FULL_UAT_IUD BEFORE INSERT OR UPDAT
 -- DIMENSION attributes supply the report filters and labeling, FACT tables supply the report numeric values
 
 select dbms_stats.get_prefs('STALE_PERCENT',user,'MKC_REVENUE_FULL') stale_percent from dual;
+
+SELECT name, value FROM v$parameter WHERE name = 'max_string_size';--if EXTENDED, varchar2 can hold 32767
+--same:
+SHOW PARAMETER max_string_size;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 

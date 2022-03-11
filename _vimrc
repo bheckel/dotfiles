@@ -7,7 +7,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Tue 14-Dec-2021 (Bob Heckel)
+" Modified: Thu 10-Mar-2022 (Bob Heckel)
 "
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
@@ -1671,6 +1671,8 @@ endfunction
 if !exists("autocommands_loaded")
   let autocommands_loaded = 1
  
+"au BufReadPre,FileReadPre *testmetestmewhydontyouarrestme.sql* echon 'foo'
+
 	" Return to the line and column of last edited position
 	autocmd BufReadPost * if line("'\"") | exe "normal '\"" | endif
 	" autocmd BufReadPost [^vimxfer_ses] if line("'\"") | exe "normal '\"" | endif
@@ -1924,7 +1926,7 @@ if !exists("autocommands_loaded")
 
     " au BufReadPre,FileReadPre [ETHR]:/* set noswapfile
 """    au BufReadPre,FileReadPre /cygdrive/[mswxyz]/* set noswapfile
-    au BufReadPre,FileReadPre Source/* set noswapfile
+    au BufReadPre,FileReadPre *Source/* set noswapfile
 
     " Do not use The Force on Test & Production
     """au BufEnter [YZ]:/DataPost* set readonly
@@ -1940,6 +1942,8 @@ if !exists("autocommands_loaded")
   " end Temporary project-specific
     au BufWritePre,BufLeave * set nobomb
   end
+au BufReadPre,FileReadPre */Source/* set noswapfile
+au BufReadPre,FileReadPre */sashq/* set noswapfile
   
   if has('gui')
     " Maximize window upon opening
