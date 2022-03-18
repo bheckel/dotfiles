@@ -2821,7 +2821,7 @@ for i in `find /Drugs/Personnel -maxdepth 1 -type d`; do du -sh $i; done | sort 
 
 # Total size of each item (directory) in CWD and sort numerically diskhogs:
 for i in `find . -type d`; do du -sh $i; done | sort -n
-# Troubleshoot a disk full error (find the largest big offending file):
+# Troubleshoot a disk full error (find the largest big offending file) importantly skipping infinite loop virtual process directory:
 find / -type f -size +1000000c -exec ls -l {} \; 2>/dev/null | grep -v "/proc"
 find /workspace -type f -size +50G -exec ls -lh {} \;
 
