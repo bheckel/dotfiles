@@ -6883,6 +6883,7 @@ select count(*) from mytbl as of TIMESTAMP to_timestamp('2019-08-26 10:10:38.97'
 SELECT  to_char(systimestamp, 'MM-DD_HH24:MI:SS.FF') FROM dual;
 
 -- Oracle restore table undelete undrop dropped table or index from recyclebin:
+ALTER SESSION SET recyclebin = ON;
 drop table t; SELECT * FROM user_recyclebin where lower(original_name) = 't'; FLASHBACK TABLE t TO BEFORE DROP;-- [RENAME TO rescuedog];  -- most recent drop is restored
 
 SELECT sum(((space*8)/1024)/1024) space_gb FROM dba_recyclebin WHERE  owner = 'SETARS';
@@ -7226,6 +7227,11 @@ select dbms_stats.get_prefs('STALE_PERCENT',user,'MKC_REVENUE_FULL') stale_perce
 SELECT name, value FROM v$parameter WHERE name = 'max_string_size';--if EXTENDED, varchar2 can hold 32767
 --same:
 SHOW PARAMETER max_string_size;
+
+TYPE t_varchar2Table IS TABLE OF VARCHAR2(32767);
+chartable t_varchar2Table := t_varchar2Table();
+--same
+chartable SYS.odcivarchar2list := SYS.odcivarchar2list();
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
