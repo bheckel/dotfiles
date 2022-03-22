@@ -948,7 +948,11 @@ if has('win32unix')
   " nnoremap ,h :%!putclip<CR><Esc>u
   nnoremap ,h :1,$ y *<CR>
 elseif has('unix')
-  nnoremap ,h :%!xclip<CR>
+  if $WSLENV =~ 'WT_SESSION::WT_PROFILE_ID'
+    nnoremap ,h mz<ESC>ggVGy`z
+  else
+    nnoremap ,h :%!xclip<CR>
+  endif
 elseif has('gui_running')
   nnoremap ,h mz<ESC>ggvG"*Y`z
 endif
