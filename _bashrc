@@ -38,7 +38,8 @@ export EDITOR=vi
 # For git PS1 function
 export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 export GIT_CEILING_DIRECTORIES=/home
-export HISTFILESIZE=50000  # max lines in $HISTFILE
+export HISTSIZE=10000
+export HISTFILESIZE=10000  # max lines in $HISTFILE
 export HISTIGNORE='f:fg:l:ls:la:cd:h:ll::d:by:&'  # '&' supposedly same as HISTCONTROL=ignoredups - consecutive dups that is
 # No duplicates, no same successive entries ('&' HISTIGNORE doesn't work 2007-11-18)
 export HISTCONTROL=ignoreboth
