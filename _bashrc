@@ -68,6 +68,7 @@ export VIMSTATUSL='?@?'
 #fi
 #export GREP_OPTIONS
 
+# Terminal font colors
 # Used by at least PS1, also good for use in shell scripts.  But bad for printing env.
 # Ctrl-v escape to insert the ^[ because  "\[\033[01;38;5;52m\]"  won't work.
 # Use this to find e.g. 243 for darkgray
