@@ -3795,6 +3795,7 @@ Ctr-a d  # detach (from within screen session)
 # Set a shell variable's default even if it is not set, or is missing:
 f=foo.txt; if test "x$f" = "x" && f=bar; then ... fi
 
+# test command logic IFTHEN alternative:
 test $HOSTNAME = 10g279 && echo ok
 
 # Push, flush, sync bash history from one xterm to another
