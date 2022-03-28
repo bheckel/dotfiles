@@ -4317,8 +4317,7 @@ scp -r /Drugs/Drugs/AcmeControl bheckel@sas-01.twa.taeb.com:tmp/
 
 # CentOS package manager installer:
 sudo yum install vim-enhanced.x86_64
-sudo yum install postgresql  # psql
-sudo yum update  # do both apt-gets at once
+sudo yum update -y  # do both apt-gets at once
 
 # CentOS reboot:
 sudo shutdown -r now
