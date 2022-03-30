@@ -341,11 +341,11 @@ tmn() {
     #tmux -u -2 new -s s1\; split-window -h
     tmux new
   else
-    if [ $HOSTNAME = 'metta' ]; then
-      tmux -u new -s "s${1}"\; split-window -h
-    else
+#    if [ $HOSTNAME = 'metta' ]; then
+#      tmux -u new -s "s${1}"\; split-window -h
+#    else
       tmux -u -2 new -s "s${1}"\; split-window -h
-    fi
+#    fi
   fi
 }
 
