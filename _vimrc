@@ -1,5 +1,4 @@
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
-"
 "     Name: $HOME/.vimrc
 "  Summary: Platform-independent, overly ambitious, Vim config file
 "                                                                         
@@ -8,7 +7,6 @@
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
 " Modified: Thu 10-Mar-2022 (Bob Heckel)
-"
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -29,7 +27,7 @@ set nocompatible
 " Watch changes to text happen slowly (default is 0)
 """set writedelay=5
 
-if has ('win32unix')
+if has ('win32unix')  " Cygwin
   let g:netrw_cygwin=1  " scp to be provided by Cygwin
   let g:netrw_browsex_viewer='cygstart'
 endif
@@ -65,7 +63,7 @@ if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
     " let VTMP = 't:/Personnel/bob/tmp'
     let VTMP = ''
     let VTMPU = 'u:/temp'
-  elseif has('win32unix')
+  elseif has('win32unix')  " Cygwin
     " Cygwin terminal
     " let VTMP = '/cygdrive/t/Personnel/bob/tmp'
     let VTMP = ''
@@ -80,7 +78,7 @@ else
   if has('gui') && has('win32')
     " Windows gVim
     let VTMP = 'c:/temp'
-  elseif has('win32unix')
+  elseif has('win32unix')  " Cygwin
     " Cygwin terminal
     let VTMP = '/cygdrive/c/temp'
   else
@@ -94,8 +92,9 @@ if has('ebcdic')
   set t_le=
 endif
 
-if has('unix') && !has('win32unix')
+if has('unix') && !has('win32unix')  " not Cygwin
   " Make sure this comes before the syntax area of this file:
+  echo 'do i need this?'
   set t_Co=256
 endif
 " set t_ut=
@@ -169,7 +168,7 @@ endif
 
 " :se guifont=* to open OS-specific menu
 if has("gui_running")
-  " Gvim window coordinates dimensions height/width. Overriden later depending on file type.
+  " gVim window coordinates dimensions height/width. Overriden later depending on file type.
   "winpos 295 295
   set columns=110
   " Most of the time we're just doing fast edits so make it small
@@ -220,7 +219,7 @@ set hlsearch
 syntax enable
 
 " Avoid reading text presented like it was written on a light bulb.  We're
-" relying on .mintty or .Xdefaults so this is only for gvim.
+" relying on .mintty or .Xdefaults so this is only for gVim.
 hi Normal guifg=White guibg=Black
 
 hi Comment ctermbg=Black ctermfg=DarkGray guibg=Black guifg=DarkGray
@@ -556,8 +555,8 @@ set equalprg=sort
 " Default.  K to activate.  See Autocommands for exceptions.
 set keywordprg=man
 
-if has('win32')
-  " Allow uniq, etc. to run in Windows gvim
+if has('win32unix')  " Cygwin
+  " Allow uniq, etc. to run in Windows gVim
   set shell=c:\cygwin64\bin\bash.exe\ -login
   set shellcmdflag=-c
   set shellquote=\"
