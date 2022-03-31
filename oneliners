@@ -6480,9 +6480,6 @@ WHERE batch_time > '2008-02-13'
 
 -- SQL Server version:  SELECT @@VERSION
 
--- Return anything but Y, regardless of existence of nulls (where val != 'Y' would not include any nulls):
-select * from basic_data where lnnvl(val = 'Y')
-
 -- Oracle generate random number roll dice:
 exec dbms_random.seed(0);
 SELECT DBMS_RANDOM.VALUE(1, 6) FROM dual;  -- 3.32932424
@@ -6495,6 +6492,9 @@ SELECT extract(second from localtimestamp) x, trunc(dbms_random.value(1,20)) ran
 
 -- Populate an existing sample dummy Oracle table with 100K random strings of VARCHAR(30):
 insert /*+APPEND*/ into mytbl select level, dbms_random.string('a',30) from dual connect by level <= 100000
+
+-- Random fake airport code:
+select dbms_random.string('U', 3) airport from dual;
 
 CAST(trunc(aa.duns_nbr) AS VARCHAR2(90)) duns_nbr
 cast(l.value_description as varchar2(96)) as value_description,
