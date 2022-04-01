@@ -92,11 +92,11 @@ if has('ebcdic')
   set t_le=
 endif
 
-if has('unix') && !has('win32unix')  " not Cygwin
-  " Make sure this comes before the syntax area of this file:
-  echo 'do i need this?'
-  set t_Co=256
-endif
+"if has('unix') && !has('win32unix')  " not Cygwin
+"  " Make sure this comes before the syntax area of this file:
+"  echo 'do i need this?'
+"  set t_Co=256
+"endif
 " set t_ut=
 " set background=dark
 
