@@ -7215,7 +7215,7 @@ select column_name, CHARACTER_SET_NAME, CHAR_COL_DECL_LENGTH, CHAR_LENGTH, CHAR_
 -- Last updated by:
 select account_team_assignment_id, actual_updated, actual_updatedby from account_team_assign_all where actual_updated = ( select max(actual_updated) FROM account_team_assign_all);
 
--- System Global Area
+-- System Global Area:
 sql> show sga
 
 -- Null out null trigger:
@@ -7230,9 +7230,14 @@ SELECT name, value FROM v$parameter WHERE name = 'max_string_size';--if EXTENDED
 SHOW PARAMETER max_string_size;
 
 TYPE t_varchar2Table IS TABLE OF VARCHAR2(32767);
-chartable t_varchar2Table := t_varchar2Table();
---same
-chartable SYS.odcivarchar2list := SYS.odcivarchar2list();
+mychartable t_varchar2Table := t_varchar2Table();
+--same:
+mychartable SYS.odcivarchar2list := SYS.odcivarchar2list();
+--same:
+mychartable SYS.odcivarchar2list;
+
+-- KILLANY:
+select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, USERNAME, COMMAND, STATUS, SCHEMANAME, OSUSER, MACHINE, PROGRAM, TYPE, SQL_ID, SQL_EXEC_START, MODULE, ACTION, LOGON_TIME, CLIENT_IDENTIFIER, STATE from v$session where username is not null order by status, logon_time;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
