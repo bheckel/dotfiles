@@ -167,20 +167,20 @@ if version > 702
 endif
 
 " :se guifont=* to open OS-specific menu
-if has("gui_running")
+if has('gui_running')
   " gVim window coordinates dimensions height/width. Overriden later depending on file type.
   "winpos 295 295
   set columns=110
   " Most of the time we're just doing fast edits so make it small
   set lines=40
 
-  if has("gui_gtk3")
+  if has('gui_gtk3')
     set guifont=Cousine\ 8
-  elseif has("x11")
+  elseif has('x11')
     " set guifont=*-Consolas-medium-r-normal-*-*-180-*-*-m-*-*
-    set guifont=Consolas\ 8
+    set guifont=Consolas\ 9
   elseif has("gui_win32")
-    set guifont=Consolas:h8
+    set guifont=Consolas:h9
   endif
 endif
 
@@ -188,16 +188,11 @@ if has('gui')
   set guioptions+=a
   set guioptions+=b
   set guioptions+=r
+  set guioptions+=i
+
   set guioptions-=T
   set guioptions-=m
 endif
-
-" Use  :set guifont=*  to browse
-"""if matchstr(HOMEBOXARRAY, THISBOX) == THISBOX
-"""  set guifont=Consolas\ 8
-"""elseif has ('win32')
-"""  set guifont=Consolas:h8,Andale_Mono:h8,Lucida_Console:h8,Terminal:h8,Courier_new:h8,Courier:h7
-"""endif
 
 " For Win32 cmd only.  Unix uses t_ti and t_te.
 set restorescreen
