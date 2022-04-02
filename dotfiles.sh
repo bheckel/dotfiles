@@ -1,19 +1,23 @@
 #!/bin/bash
 
-#  Created: Sat 03 May 2015 (Bob Heckel) 
-# Modified: Sun 29-Nov-2020 (Bob Heckel)
+#  Created: 03-May-2015 (Bob Heckel) 
+# Modified: 01-Apr-2022 (Bob Heckel)
 
 # No leading dots!
-majordots='bashrc vimrc tmux.conf inputrc minttyrc gitconfig'
+if [ -z WSL_DISTRO_NAME ]; then
+  majordots='bashrc vimrc tmux.conf inputrc minttyrc gitconfig'
+else
+  majordots='bashrc vimrc tmux.conf inputrc gitconfig'
+fi
   
 if [ "$#" -ge 1 ]; then 
   cat <<EOT
 Usage: $0
-  Setup dotfiles in a new environment
+  Setup dotfiles ($majordots) in a new environment
 
-  Assumes $HOME/dotfiles/ is where you cloned
+  Assumes $HOME/dotfiles/ is where we cloned
 
-  Alternatively: 
+  Alternatively for specific dotfiles only e.g.: 
     $ echo 'source ~/dotfiles/_vimrc' >> ~/.vimrc && echo 'source ~/dotfiles/_bashrc' >> ~/.bashrc
 EOT
   exit 1
