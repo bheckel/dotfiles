@@ -7238,6 +7238,7 @@ mychartable SYS.odcivarchar2list;
 
 -- KILLANY:
 select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, USERNAME, COMMAND, STATUS, SCHEMANAME, OSUSER, MACHINE, PROGRAM, TYPE, SQL_ID, SQL_EXEC_START, MODULE, ACTION, LOGON_TIME, CLIENT_IDENTIFIER, STATE from v$session where username is not null order by status, logon_time;
+select 'alter system kill session ''' || sid || ',' || serial# || ''';' from v$session where username = 'DEV';
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
