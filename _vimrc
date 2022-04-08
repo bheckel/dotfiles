@@ -550,14 +550,14 @@ set equalprg=sort
 " Default.  K to activate.  See Autocommands for exceptions.
 set keywordprg=man
 
-"if has('win32unix')  " Cygwin
+if has('gui_win32')
   " Allow uniq, etc. to run in Windows gVim
-"  set shell=c:\\cygwin64\\bin\\bash.exe\ -login
-"  set shellcmdflag=-c
-"  set shellquote=\"
-"else
+  set shell=c:\cygwin64\bin\bash.exe\ -login
+  set shellcmdflag=-c
+  set shellquote=\"
+else
   set shell=bash
-"endif
+endif
 
 
 "                               22 running make and jumping to errors {{{2
