@@ -1829,7 +1829,7 @@ if !exists("autocommands_loaded")
     au GUIEnter * simalt ~x
     """set guifont=Andale_Mono:h7
     " TODO gtk
-    set guifont=Consolas:h7
+    set guifont=Consolas:h8
   endif
 
   au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
