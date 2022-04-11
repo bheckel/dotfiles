@@ -380,7 +380,7 @@ function loc() {
 
 # Find/search my README files by title
 function rme() {
-  find $HOME/code/rme | grep -i "${1}" | grep -v '\.git' >|$HOME/tmp/.rme.grep && vim $HOME/tmp/.rme.grep
+  find $HOME/code/rme | grep -i "${1}" | grep -v '\.git' >|$HOME/tmp/.rme.grep && vim -R $HOME/tmp/.rme.grep
 }
 
 
