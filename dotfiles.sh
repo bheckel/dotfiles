@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  Created: 03-May-2015 (Bob Heckel) 
-# Modified: 01-Apr-2022 (Bob Heckel)
+# Modified: 08-Apr-2022 (Bob Heckel)
 
 # No leading dots!
 if [ -z WSL_DISTRO_NAME ]; then
@@ -76,7 +76,10 @@ echo 'or'
 echo "$ sudo apt-get install tmux vim-gtk3 w3m bc git ssh"
 echo
 
+echo 'Consider running:'
 if [ -e /cygdrive ]; then
-  echo 'Consider running:'
   echo '$ mkdir -p /cygdrive/c/temp'
 fi
+echo 'git config --global user.email "b.heckel@gmail.com"'
+echo 'git config --global user.name "Bob Heckel"'
+
