@@ -5944,6 +5944,8 @@ SELECT table_name FROM user_tables WHERE lower(table_name) LIKE '%search%' order
 -- Poke around search all tables want for a specific column name does column exist:
 SELECT * from  user_tab_columns WHERE table_name = 'FOO' AND column_name LIKE '%NEW%';
 
+select utc1.column_name, utc1.data_default vc_contents from user_tab_cols utc1 where utc1.TABLE_NAME = 'MKC_REVENUE_FULL_HIST' and utc1.VIRTUAL_COLUMN = 'YES';
+
 -- What the object references, tables etc depends on:
 select * from user_dependencies where name = 'RPT_OPP_MULTI_YDEAL' and referenced_type not in ('SYNONYM') order by 4;
 -- What references the object, views etc depends on:
@@ -6067,6 +6069,8 @@ ALTER TRIGGER "SETARS"."DDL_LOGGING_TRIG" ENABLE;
 -- Oracle number format angle bracket for negative numbers, commas and decimal point e.g. <7,592.59>:
 to_char(rate*qty,'999,999.99pr') amt
 select to_char(-12345,'999,999.99pr') from dual; -- <1,234.00>
+-- Comma thousands format:
+SELECT geo3, to_char(sum(round(lbdamt)),'9,999,999,999pr') FROM mkc_revenue_geob group by geo3 ORDER BY 1 ;
 
 -- Postgres dates:
 created > date('now') - 365
@@ -6800,11 +6804,6 @@ PROCEDURE send_cdhub(in_job_action VARCHAR2, in_job_prefix VARCHAR2 DEFAULT 'DEL
 
 -- PLSQL preprocessor version check:
 BEGIN $IF dbms_db_version.ver_le_11_2 $THEN dbms_output.put_line('ok') /*RESULT_CACHE*/ $END; END;
-
-select utc1.column_name, utc1.data_default vc_contents from user_tab_cols utc1 where utc1.TABLE_NAME = 'MKC_REVENUE_FULL_HIST' and utc1.VIRTUAL_COLUMN = 'YES';
-
--- Skip virtual columns:
-IF upper(trim(t_cols_tab(i).virtual_column)) = 'YES' THEN CONTINUE; END IF;
 
 CREATE MATERIALIZED VIEW TAXONOMY ON PREBUILT TABLE REFRESH COMPLETE ON DEMAND AS SELECT ...
 create table t as select * from dba_objects; create materialized view mv compress basic logging build immediate refresh complete on commit disable query rewrite as select owner from t group by owner;
