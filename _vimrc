@@ -6,7 +6,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Thu 10-Mar-2022 (Bob Heckel)
+" Modified: Sat 16-Apr-2022 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -764,11 +764,12 @@ nnoremap <expr> gp '`[' . strpart(getregtype(), 0, 1) . '`]'
 nnoremap gw <Esc>:split<CR>gf
 
 " Copy visual mode selection to system clipboard. Like Windows gVim's default. See also :set clipboard=
-if $WSLENV =~ 'WT_SESSION::WT_PROFILE_ID'
+if $WSLENV =~ 'WT_SESSION::WT_PROFILE_ID' || !empty($WSL_HOST_IP)
   " Not needed except to keep keystrokes consistent - see Autocommands Yankme
-  vnoremap <silent> yx  y
+  vnoremap <silent>yx  y
 else
-  vnoremap <silent> yx  "*y
+  vnoremap <silent>yx  "*y
+  "echo 'ok'
 endif
 
 if $PATH =~ 'termux'
@@ -942,7 +943,7 @@ if has('win32unix')
   " nnoremap ,h :%!putclip<CR><Esc>u
   nnoremap ,h :1,$ y *<CR>
 elseif has('unix')
-  if $WSLENV =~ 'WT_SESSION::WT_PROFILE_ID'
+  if $WSLENV =~ 'WT_SESSION::WT_PROFILE_ID' || !empty($WSL_HOST_IP)
     nnoremap ,h mz<ESC>ggVGy`z
   else
     nnoremap ,h :%!xclip<CR>

@@ -8112,4 +8112,7 @@ This file 'oneliners' is Copyright © 2021 Bob Heckel b dot heckel at gmail dot 
 -- Windows WSL2 home
 \\wsl.localhost\Ubuntu\home\bheckel
 
+-- Windows system device Win11 environment via Powershell:
+Get-ComputerInfo
+
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
