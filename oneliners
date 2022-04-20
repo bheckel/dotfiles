@@ -4489,6 +4489,9 @@ git branch -D feature/ROION-50062 && git fetch -p && git push origin --delete fe
 
 wsl --install -d Ubuntu
 
+# Only run one time
+TTY=$(ps|grep pty1); if [ -z "${TTY}" ];then echo run; else echo no; fi
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -6570,11 +6573,6 @@ SQL> ALTER PROCEDURE z_set_activ_match_code COMPILE;  -- if compilation errors: 
 -- Compile entire schema's invalid objects:
 EXEC DBMS_UTILITY.compile_schema('SETARS', FALSE);  -- FALSE == compile only INVALID objects
 
-create table emp as select * from scott.emp; insert into emp values (999, 'joe', 'CLERK', 0, null, 10, null, 99);
-
--- Create an empty zero record table based on another table:
-CREATE TABLE orion_37551 AS SELECT * FROM valid_orders WHERE 1=0;
-
 CREATE SEQUENCE UID_RION_37551 MINVALUE 1 MAXVALUE 999999999999999999999999999 INCREMENT BY 10  START WITH 1 CACHE 20 NOORDER NOCYCLE 
 -- Increment sequence using it as a primary key:
 INSERT INTO RION_37551 (email_messages_id, subject) VALUES (uid_rion_37551.NEXTVAL, 'test sequence'); COMMIT;
@@ -6583,6 +6581,11 @@ CREATE OR REPLACE TRIGGER on_schema_mod_trigger AFTER ALTER OR CREATE ON scott.S
 
 -- Generate a sequence of numbers (5 row result):
 select level from dual connect by level <= 5;
+
+create table emp as select * from scott.emp; insert into emp values (999, 'joe', 'CLERK', 0, null, 10, null, 99);
+
+-- Create an empty zero record table based on another table:
+CREATE TABLE orion_37551 AS SELECT * FROM valid_orders WHERE 1=0;
 
 -- Sample CTAS database table with tens of thousands of rows:
 CREATE TABLE dummy_table AS SELECT owner, object_name, object_id FROM all_objects;
@@ -6598,6 +6601,8 @@ create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dua
 -- Sample CTAS table using a csv list that would normally overflow an IN() list max of 1K 1000 items (18c+):
 create table dummy_table as SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE('123,456', ',', '","') || '"'));
 CREATE TABLE JS_INVOICE_16FEB21 COMPRESS TABLESPACE ES_NOLOG NOLOGGING  AS select 1 x from dual;
+
+create table foo PARALLEL 8 COMPRESS NOLOGGING as select /*+NO_GATHER_OPTIMIZER_STATISTICS */ mkc_revenue_id from mkc_revenue_full where rownum<9;
 
 -- Print SQL for a deep copy CTAS sqlcl:
 ctas orders bobclonedtbl;
@@ -6716,7 +6721,7 @@ select deptno, empno top_oldest_emp, sal from scott.emp e where not exists ( sel
 select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2;
 
 -- Suppress sqlplus SQL output just display calculate execution plan explain plan cost:
-set autotrace traceonly explain -- in sqlplus then select ...
+set autotrace ON  then  set autotrace traceonly explain -- in sqlplus then select ...
 
 EXPLAIN PLAN FOR SELECT * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display(null, null, 'typical')); ROLLBACK; -- deprecated, use dbms_xplan
 -- Autotrace explain BEST execution plan cost optimizer:
@@ -8114,5 +8119,8 @@ This file 'oneliners' is Copyright © 2021 Bob Heckel b dot heckel at gmail dot 
 
 -- Windows system device Win11 environment via Powershell:
 Get-ComputerInfo
+
+-- Microsoft Word quotes
+echo ‘I am a virtual di ’ > /dev/pty7
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
