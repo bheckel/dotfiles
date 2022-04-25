@@ -8123,7 +8123,12 @@ This file 'oneliners' is Copyright © 2021 Bob Heckel b dot heckel at gmail dot 
 -- Windows WSL2 home
 \\wsl.localhost\Ubuntu\home\bheckel
 
+-- Search for commands Powershell;
+Get-Command -Name '*Process'
+Get-Command -Name '*Get'
+
 -- Windows system device Win11 environment via Powershell:
+$PSVersionTable.PSVersion
 Get-ComputerInfo
 
 -- Microsoft Word quotes
