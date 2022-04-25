@@ -1180,10 +1180,10 @@ proc freq data=t order=freq; tables name / nocum; run;  /* show order by most fr
 http://myserver/cgi-bin/broker.exe?_SERVICE=default&_DEBUG=131&_PROGRAM=MYLIB.mypgm.sas&mymvar=foo
 
  /* Display SAS Intrnet ENVIRONMENT */
-http://rtpsawn321/sasweb/cgi-bin/broker.exe?_DEBUG=16384&_SERVICE=default
+http://trpsawn321/sasweb/cgi-bin/broker.exe?_DEBUG=16384&_SERVICE=default
 
  /* Wake up, ping restarted IntrNet server */
-http://rtpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program=ping&_adminpw=
+http://trpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program=ping&_adminpw=
 
  /* SAS version of Oracle ROWNUM<5 or Postgres LIMIT 5 */
 ... WHERE monotonic() < 5 ...
@@ -1960,9 +1960,6 @@ data _null_; file print; put #3 @10 "Data set &dsn. does not exist"; run;
 x='2005/6/30 12:30'; ymd_no_ampm=input(x, ymddttm16.);
 ymd_ampm=input(z, ?? ymddttm18.);
 
-SAS/SHARE remote server (running proc server) -> local client
-SAS/CONNECT remote server (running spawner.exe) -> remote server (only the .sas file with rsubmit; endrsubmit; gets sent to server)
-
  /* Eliminate error "Format F_APRCLS not found or couldn't be loaded for variable APRCLASS" when opening dataset for viewing: */
 options NOfmterr;
 
@@ -2598,6 +2595,12 @@ options DATASTMTCHK=COREKEYWORDS;
 %let bm_previous=%sysfunc(intnx(MONTH, "&SYSDATE"d, -1, B),YYMMDDN.); data _null_; if fileexist("/Drugs/TMMEligibility/BRStores/Dashboard/&bm_previous") then put 'previous month folder directory exists'; run;
 
 libname atlas cas caslib="MKC - Atlas (DNFS)" datalimit=ALL; proc print data=atlas.diball(obs=10);run;
+
+SAS/SHARE remote server (running proc server) -> local client
+SAS/CONNECT remote server (running spawner.exe) -> remote server (only the .sas file with rsubmit; endrsubmit; gets sent to server)
+
+ /* List all datasets in libname */
+proc contents data = mirror._ALL_ NODS; run;
 
 %put &SYSTCPIPHOSTNAME; /* hostname */
 
@@ -6622,6 +6625,9 @@ BEGIN DBMS_SCHEDULER.create_job( job_name   => 'JOB_RION54143', job_type   => 'P
 BEGIN dbms_scheduler.drop_schedule('DAILY_SCHEDULE'); dbms_scheduler.drop_job('DAILY_JOB'); END;
 BEGIN dbms_scheduler.drop_job('SETARS.DAILY_DATA_MAINTENANCE_JOB'); END; exec DBMS_SCHEDULER.stop_job(job_name => 'JOB_LOAD_NB'); exec DBMS_SCHEDULER.disable(job_name => 'JOB_ROION48384');
 SELECT * FROM user_scheduler_notifications WHERE job_name = 'MKC_REVENUE_LOAD' and event='JOB_STARTED';
+
+-- Run DBMS_SCHEDULER job every 20 minutes:
+repeat_interval => 'Freq=Minutely;Interval=20',
 
 -- Oracle dbms_scheduler scheduled jobs:
 SELECT * from USER_SCHEDULER_JOBS order by last_start_date desc
