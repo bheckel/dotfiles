@@ -1306,8 +1306,6 @@ array nvars[*] x1-x3; if sum(of nvars[*]))>10 then flag=1; else flag=0;
  /* Self join. Only take the lowest age if there are more than one: */
 select * from rxfilldata_extra a left join rxfilldata_extra b on (a.storeid=b.storeid and a.pharmacypatientid=b.pharmacypatientid and a.age>b.age)
 
- /* Open EG Metadata sessions: */
-ps -ef |grep sasexe
  /* Which user has an EG session open: */
 ps -ef |grep sasexe|awk '{print $1}'|uniq
 
