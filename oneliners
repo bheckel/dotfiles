@@ -7258,6 +7258,9 @@ select 'alter system kill session ''' || sid || ',' || serial# || ''';' from v$s
 > set numformat 9999999999999999
 > select sum(invoice_amount) from MKC_REVENUE_FULL;
 
+-- Ignore INDEX using a hint:
+SELECT /*+ NO_INDEX(EMPLOYEES EMPLOYEES_PK) */ first_name, last_name
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -7561,9 +7564,9 @@ C:\Users\bheck\vim\vim81\gvim.exe -u c:\cygwin64\home\bheck\dotfiles\_vimrc
 
 XML declaration header: <?xml version="1.0" ?> or <?xml version="1.0" encoding="UTF-8"?>
 
-$ telnet locahost http
-# or
-$ telnet locahost 80
+# Test OID port:
+cat < /dev/tcp/plcm00.unx.as.com/6500
+$ telnet locahost http  # or $ telnet locahost 80
 GET / HTTP/1.0
 <CR>
 

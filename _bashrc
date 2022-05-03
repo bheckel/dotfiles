@@ -156,6 +156,14 @@ alias ve="vim $HOME/.vimrc"
 alias vi=vim
 alias wget='wget -c'  # continue failures
 
+# Quick diff
+alias d1="vim $TMP/1 $TMP/2"
+alias d2="vim $TMP/2"
+alias d12="(cd $TMP; rm 1 2; touch 1 2; vi -c 'map q :qa<CR>' -d 1 2)"
+alias d13="(cd $TMP; vi -Rd 1 3)"
+alias d123="(cd $TMP; vi -Rd 1 2 3)"
+alias d34="(cd $TMP; rm 3 4; touch 3 4; vi -c 'map q :qa<CR>' -d 3 4)"
+
 #-----------------------------------
 # bash functions must precede calls
 # Generic Functions  #{{{2
@@ -507,19 +515,12 @@ case "$OSTYPE" in
     #-------------------
     # Alias Cygwin  #{{{2
     #-------------------
-    alias d1='vim /cygdrive/c/temp/1 /cygdrive/c/temp/2'
-    alias d2='vim /cygdrive/c/temp/2'
-    alias d12="(cd /cygdrive/c/temp; vi -c 'map q :qa<CR>' -d 1 2)"
-    alias d13="(cd /cygdrive/c/temp; vi -c 'map q :qa<CR>' -d 1 3)"
-    alias d23="(cd /cygdrive/c/temp; vi -c 'map q :qa<CR>' -d 2 3)"
-    alias d123="(cd /cygdrive/c/temp; vi -c 'map q :qa<CR>' -d 1 2 3)"
-    alias d34="(cd /cygdrive/c/temp; vi -c 'map q :qa<CR>' -d 3 4)"
     # alias cygwin=$HOME/code/misc/cygwin.bat  # norc bat version must be doubleclicked
     ###alias budrsync='rsync -avz /home/bheckel/code/ root@buddha:/home/bheckel/code && rsync -avzL /home/bheckel/tobuddha/ root@buddha:/home/bheckel/tobuddha'
     # Cygwin bugfix.  Use the real fg for e.g. fg %2
     alias f='fg; echo'
     #TODO make generic
-    alias gv='(cd ~/dotfiles && $(cygpath -H)/$USER/vim/vim81/gvim.exe -u _vimrc)'
+    #alias gv='(cd ~/dotfiles && $(cygpath -H)/$USER/vim/vim81/gvim.exe -u _vimrc)'
     # Allow output to be triple clicked as a noop
     ###alias h='history|tail -20|perl -pe "s/(\d+)(.*)/: \1; \2/"'
     alias l='ls -GFw80 --color=none'   # for speed on Cygwin
@@ -643,13 +644,6 @@ case "$OSTYPE" in
       # Alias Linux  #{{{2 
       #----------------
 
-      # Quick diff
-      alias d1="vim $HOME/tmp/1 $HOME/tmp/2"
-      alias d2="vim $HOME/tmp/2"
-      alias d12="(cd ~/tmp; vi -Rd 1 2)"
-      alias d13="(cd ~/tmp; vi -Rd 1 3)"
-      alias d123="(cd ~/tmp; vi -Rd 1 2 3)"
-      alias d34="(cd ~/tmp; vi -Rd 3 4)"
       alias hiber='pkexec xfce4-pm-helper --hibernate && sleep 3 && sudo tlsdate -V -H encrypted.google.com'
       alias ll='ls -lh --color --group-directories-first'
       ###alias moz='export DISPLAY=158.111.250.170:0.0; mozilla&'
