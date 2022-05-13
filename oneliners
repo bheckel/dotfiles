@@ -5955,6 +5955,9 @@ select * from user_dependencies where name = 'RPT_OPP_MULTI_YDEAL' and reference
 -- What references the object, views etc depends on:
 select * from user_dependencies where REFERENCED_NAME = 'OPP_BASE' and referenced_type not in ('SYNONYM') order by 1;
 
+-- What tablespace does a table reside in?:
+select tablespace_name from user_tables where TABLE_NAME = 'MKC_REVENUE_FULL_BOB';
+
 -- List all of a table's indexes and tablespace does table have index all indexes for a table what is indexed:
 select index_name, tablespace_name from user_indexes where TABLE_NAME = 'SP_PROCESSING' and index_name not like 'SYS_%';
 
@@ -5981,7 +5984,8 @@ SELECT column_name FROM user_cons_columns ucc, user_constraints uc WHERE uc.CONS
 
 -- Want all constraints including primary on this table:
 SELECT * FROM user_cons_columns ucc, user_constraints uc WHERE uc.table_name = 'KMC_REVENUE_FULL' /*AND uc.CONSTRAINT_TYPE = 'P'*/ AND ucc.CONSTRAINT_NAME = uc.CONSTRAINT_NAME;
--- Which constraint was violated?:
+-- ORA-02291: integrity constraint (SETARS.ASP_PROC_REQ_ASP_PROC_TERR_FK) violated - parent key not found. Which foreign key constraint was violated?:
+SELECT * FROM user_cons_columns ucc, user_constraints uc WHERE ucc.CONSTRAINT_NAME = uc.CONSTRAINT_NAME and ucc.constraint_name='SETARS.ASP_PROC_REQ_ASP_PROC_TERR_FK';
 SELECT * FROM user_cons_columns ucc, user_constraints uc WHERE uc.table_name = 'ACCOUNT_TEAM_EMPLOYEE' AND ucc.CONSTRAINT_NAME = uc.CONSTRAINT_NAME and ucc.constraint_name='NN_ACCOUNT_TM_EMP_H';
 
 -- What foreign keys are on this table:
@@ -6053,6 +6057,8 @@ SELECT account_id FROM t SAMPLE(0.1);
 WHEN OTHERS THEN dbms_output.put_line(SQLCODE || ': ' || SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
 
 BEGIN DBMS_OUTPUT.put_line(TO_DATE('2010 10 10 44:55:66', 'YYYSS')); EXCEPTION WHEN OTHERS THEN IF SQLCODE = -01830 THEN DBMS_OUTPUT.put_line('we hit a date error, throw it'); END IF; RAISE; END;
+
+EXCEPTION WHEN OTHERS THEN DBMS_OUTPUT.put_line(SQLCODE || ':' || SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
 
 -- Print Oracle EXCEPTION error code description for a given code:
 BEGIN dbms_output.put_line(SQLERRM(0)); END; -- ORA-0000: normal, successful completion
@@ -6747,7 +6753,7 @@ select stale_stats from user_tab_statistics where table_name = 'BRICKS'; -- YES 
 select table_name, last_analyzed from user_tables where table_name = 'BRICKS';
 exec DBMS_STATS.gather_SCHEMA_stats(null);
 
--- Fix unused indexes:
+-- Fix unusable disabled indexes:
 select * from user_indexes where status='UNUSABLE' where index_name='DI_SITE_DATE_DUNS_NBR';
 alter index DI_SITE_DATE_DUNS_NBR rebuild ONLINE PARALLEL;
 alter index DI_SITE_DATE_DUNS_NBR NOPARALLEL;
@@ -7054,7 +7060,8 @@ l_nums  DBMS_SQL.number_table; l_names  DBMS_SQL.varchar2a;
 -- Limit constraint insertable value to 0-99:
 CREATE TABLE mysmallnums(n NUMBER(2));
 
--- BEST: block <- extent <- segment <- tablespace. Each tablespace consists of one or more data files, which conform to the OS. The data is stored in the data files located in each tablespace. A segment can span one or more data files, but it cannot span multiple tablespaces. Oracle automatically allocates the first data files of any database for the SYSTEM tablespace during database creation. The SYSTEM tablespace contains the data dictionary, a set of tables that contains database metadata. Typically, a database also has an undo tablespace and a TEMP tablespace.
+-- block <- extent <- segment <- tablespace. Each tablespace consists of one or more data files, which conform to the OS. The data is stored in the data files located in each tablespace. A segment can span one or more data files, but it cannot span multiple tablespaces. Oracle automatically allocates the first data files of any database for the SYSTEM tablespace during database creation. The SYSTEM tablespace contains the data dictionary, a set of tables that contains database metadata. Typically, a database also has an undo tablespace and a TEMP tablespace.
+SELECT DISTINCT sgm.TABLESPACE_NAME , dtf.FILE_NAME, sgm.owner FROM DBA_SEGMENTS sgm JOIN DBA_DATA_FILES dtf ON (sgm.TABLESPACE_NAME = dtf.TABLESPACE_NAME) /*WHERE sgm.OWNER = 'ADMIN'*/ ORDER BY 1;
 
 -- Default SQL Developer date format:
 SELECT TO_CHAR(STARTUP_TIME,'MON-DD-RR HH24:MI:SS')...
@@ -7062,8 +7069,8 @@ SELECT TO_CHAR(STARTUP_TIME,'MON-DD-RR HH24:MI:SS')...
 -- SQL Developer output formats:
 SELECT /*csv*/ * FROM scott.emp; SELECT /*json-formatted*/ * FROM scott.emp; SELECT /*html*/ * FROM scott.emp; SELECT /*delimited*/ * FROM scott.emp; SELECT /*insert*/ * FROM scott.emp; SELECT /*loader*/ * FROM scott.emp; SELECT /*fixed*/ * FROM scott.emp; SELECT /*text*/ * FROM scott.emp;
 
--- Database uptime
-SELECT TO_CHAR(STARTUP_TIME,'MON-DD-RR HH24:MI:SS') AS "Instance Start Time", (startup_time-SYSDATE)*-1 as uptime FROM V$INSTANCE;
+-- Database uptime:
+SELECT TO_CHAR(STARTUP_TIME,'MON-DD-RR HH24:MI:SS') AS "Instance Start Time", (startup_time-SYSDATE)*-1 as "Uptime Days" FROM V$INSTANCE;
 
 -- Oracle which database HOST am i on e.g durax2342:
 SELECT SYS_CONTEXT('USERENV', 'SERVER_HOST') FROM DUAL;
@@ -7248,7 +7255,7 @@ mychartable SYS.odcivarchar2list := SYS.odcivarchar2list();
 --same:
 mychartable SYS.odcivarchar2list;
 
--- KILLANY:
+-- kill session KILLANY session:
 select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, USERNAME, COMMAND, STATUS, SCHEMANAME, OSUSER, MACHINE, PROGRAM, TYPE, SQL_ID, SQL_EXEC_START, MODULE, ACTION, LOGON_TIME, CLIENT_IDENTIFIER, STATE from v$session where username is not null order by status, logon_time;
 select 'alter system kill session ''' || sid || ',' || serial# || ''';' from v$session where username = 'DEV';
 
@@ -7261,6 +7268,18 @@ SELECT /*+ NO_INDEX(EMPLOYEES EMPLOYEES_PK) */ first_name, last_name
 
 -- Defragment table:
 ALTER TABLE MKC_REVENUE_FULL MOVE ONLINE; 
+
+-- Is trigger enabled exist?:
+SELECT trigger_name, trigger_type, triggering_event, table_name, status, trigger_body FROM USER_TRIGGERS WHERE table_name like 'COUNTRY_SUBSIDIARY_GEO3_MAPPING%' ORDER BY 3, 2, 1;
+
+-- Run an existing DBMS_SCHEDULER scheduled job:
+BEGIN DBMS_SCHEDULER.run_job (job_name => 'MKC_REVENUE_LOAD_DAVESIM', use_current_session => FALSE); END;
+
+-- Select limit to small random subset percentage of rows:
+select opportunity_id from opportunity_base sample(0.01) 
+
+-- Where used in plsql package code:?
+SELECT * FROM user_source WHERE lower(text) like '%cdhub_jms%' and type != 'PACKAGE' order by type, name, line;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
