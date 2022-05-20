@@ -6676,9 +6676,6 @@ insert into bricks_target  select * from bricks_source b2 where NOT exists ( sel
 -- Upsert:
 MERGE into target a using ( select id, name, score from source ) b on (a.id=b.id) WHEN MATCHED then update set a.name=b.name, a.score=b.score WHEN NOT MATCHED then insert (a.id, a.name, a.score) values (b.id, b.name, b.score)
 
--- Full drop this won't help you: ALTER SESSION SET recyclebin = ON;
-drop table mytbl cascade constraints purge
-
 /* Check for data existence: */
 EXECUTE IMMEDIATE 'select count(*) from accounts ast, site s where ast.site_id=s.site_id and s.site_number=trim(:1)' into cnt_orion using l_curr_site;
 
@@ -6901,11 +6898,15 @@ select count(*) from mytbl as of TIMESTAMP to_timestamp('2019-08-26 10:10:38.97'
 -- 12-11_13:08:19.331048 for unique identification:
 SELECT  to_char(systimestamp, 'MM-DD_HH24:MI:SS.FF') FROM dual;
 
+-- Full drop so this won't help you: ALTER SESSION SET recyclebin = ON;
+drop table mytbl cascade constraints PURGE;
+
 -- Oracle restore table undelete undrop dropped table or index from recyclebin:
 ALTER SESSION SET recyclebin = ON;
 drop table t; SELECT * FROM user_recyclebin where lower(original_name) = 't'; FLASHBACK TABLE t TO BEFORE DROP;-- [RENAME TO rescuedog];  -- most recent drop is restored
 
 SELECT sum(((space*8)/1024)/1024) space_gb FROM dba_recyclebin WHERE  owner = 'SETARS';
+PURGE RECYCLEBIN;  -- empty it (for current user)
 
 SELECT * FROM v$parameter where description='PL/SQL compiler warnings settings';
 
