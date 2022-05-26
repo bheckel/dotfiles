@@ -1925,7 +1925,6 @@ if !exists("autocommands_loaded")
 
     " au BufReadPre,FileReadPre [ETHR]:/* set noswapfile
 """    au BufReadPre,FileReadPre /cygdrive/[mswxyz]/* set noswapfile
-    au BufReadPre,FileReadPre *Source/* set noswapfile
 
     " Do not use The Force on Test & Production
     """au BufEnter [YZ]:/DataPost* set readonly
@@ -1941,9 +1940,10 @@ if !exists("autocommands_loaded")
   " end Temporary project-specific
     au BufWritePre,BufLeave * set nobomb
   end
-au BufReadPre,FileReadPre */Source/* set noswapfile
-au BufReadPre,FileReadPre */sashq/* set noswapfile
   
+  au BufReadPre,FileReadPre *Source/* set noswapfile
+  au BufReadPre,FileReadPre *sashq/* set noswapfile
+
   if has('gui')
     " Maximize window upon opening
     " au GUIEnter *.log simalt ~x
