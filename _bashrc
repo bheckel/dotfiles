@@ -4,7 +4,7 @@
 # Summary: Hyper-config for at least Unix, Linux, Cygwin and z/OS
 #
 #  Created: 19-May-1998 (Bob Heckel)
-# Modified: 27-May-2022 (Bob Heckel)
+# Modified: 30-May-2022 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -629,6 +629,9 @@ case "$OSTYPE" in
   # Linux  #{{{1
   #-------------------
   linux-* | Linux)
+      shopt -s cdspell checkhash checkwinsize cmdhist dotglob histappend 
+      stty erase ^? intr ^C kill ^K
+
       #----------------
       # Export Linux  #{{{2 
       #----------------
@@ -741,11 +744,8 @@ case "$OSTYPE" in
              ~/.dropbox-dist/dropboxd &
           fi
         fi
-
         # export VIMRUNTIME=/home/chronos/user/.vim
-      fi
-
-      if [ $HOSTNAME = 'penguin' ];then
+      elif [ $HOSTNAME = 'penguin' ];then
         function catput() {
           buf=$(cat ${1})
           # Mask for printf
@@ -773,8 +773,7 @@ case "$OSTYPE" in
           catput ~/.crouton-clipboard/data.txt
           echo or use the carriage return-less version just copied
         }
-
-      fi  # penguin
+      fi  # ChromeOS
 
 
       # Termux  # {{{2
@@ -829,9 +828,11 @@ case "$OSTYPE" in
         }
       fi  # we're probably running termux
 
-      shopt -s cdspell checkhash checkwinsize cmdhist dotglob histappend 
-
-      stty erase ^? intr ^C kill ^K
+      # Oracle Linux #{{{2
+      #----------------
+      if [ ${LOGNAME} = 'oracle' ]; then
+        export ORACLE_HOME=/u01/app/oracle/product/version/db_1/
+      fi
 
   ;; # end Linux
 
