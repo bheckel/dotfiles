@@ -6961,9 +6961,10 @@ SELECT regexp_substr(regexp_replace('from plan_goal_HIST ptgh', '/\*.*\*/', ''),
 -- Size of an index:
 SELECT BYTES/(1024*1024) mb FROM user_segments WHERE  segment_name = 'SALES_IDX';
 
--- Clear out old queries (as SYSTEM user):
-alter system flush shared_pool; 
+-- Clear out old queries (as SYSTEM):
+ALTER SYSTEM FLUSH SHARED_POOL; 
 select pool,name,bytes from v$sgastat where name='free memory' and pool='shared pool';
+ALTER SYSTEM FLUSH BUFFER_CACHE; 
 
 CREATE UNIQUE INDEX ASP_DFLT_TSR_OWN_TEAM_TSAT_IX ON ASP_DFLT_TSR_OWN_TEAM(FUTURE_TSR_OWNER_ID,ACCOUNT_TEAM_ID);
 
