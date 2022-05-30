@@ -4,7 +4,7 @@
 # Summary: Hyper-config for at least Unix, Linux, Cygwin and z/OS
 #
 #  Created: 19-May-1998 (Bob Heckel)
-# Modified: 27-Mar-2022 (Bob Heckel)
+# Modified: 27-May-2022 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -459,7 +459,7 @@ function divcol() {
 }
 
 
-function gstash() {
+function stash() {
   msg=${1:-saved `date`}
 
   git stash save --include-untracked --message "$msg"

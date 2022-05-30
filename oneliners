@@ -3915,40 +3915,6 @@ $ md5sum * > tampering.md5                        # build
 $ md5sum * > check.md5; diff tampering.md5 t.md5  # check
 $ md5sum * | diff - tampering.md5                 # better check
 
-# Canonical sh bash if then else
-if [ expression ];then commands elif [ expression2 ];then commands else commands fi
-
-# Wrong number arguments no parameters passed to shell script:
-[ $# -lt 2 ] && echo "Usage: $0 arg1 arg2" && exit 1
-[ $# -eq 1 ] || echo "Usage: $0 arg1" && exit 1
-if [ $# = 0 ]; then ... fi
-# Less than 1 argument default parameter passed to shell script:
-[ $# -lt 1 ] && echo "Usage: $0 arg1 arg2" && exit 1
-
-# Default an empty missing bash shelldefault environment variable:
-test "x$no_of_days" = "x" && no_of_days=10
-# Default an empty missing bash shelldefault incoming parameter environment variable:
-daysback=${1}
-test "x${1}" = "x" && daysback=1
-
-# Check for any default pararmeters arguments passed no parameter:
-[ -z "$1" ] && echo "No argument supplied" && exit 1
-
-# Don't complain if file does not exist:
-[ -e $1.txt ] && rm -i $1.txt
-
-# Length of string is 1 character:
-if [ ${#month} -eq 1 ];then echo 'ok'; fi
-
-if [ 'foo' = 'bar' ]; then... fi  # shell string comparison
-if [ 2 -eq 42 ]; then... fi  # shell integer comparison
-
-# Shell arithmetic addition:
-$increment = `expr 42 + 1`
-
-# Determine if a file has a certain suffix, extension (mnemonic # on keyboard is to the left, % is to the right).  Bash only.
-if [ "${1##*.}" = 'tar' ]; then ... fi
-
 # Untar single file from tarball
 $ tar -x extract_only_me.txt -vf my.tar
 
@@ -4284,9 +4250,6 @@ awk -F, '{a[$1];}END{for (i in a)print i;}' t.csv  # filter only that field
 awk -F, '$28 ~ /2014/ {a[$28]} END{for (i in a) print i}' mondayOLS_0016T_vairDiskus.csv |sort |tail -n20| tac
 grep 100000089317 t.csv | awk -F, '{a[$19];}END{for (i in a)print i;}' - |uniq |sort
 
-# Are we on Cygwin?:
-x=`uname`; if [ ${x:0:6} = CYGWIN ];then echo isCygwin; fi
-
 # awk vs. cut:
 git show-ref --heads |cut -d' ' -f2
 git show-ref --heads |awk 'print{$2}'
@@ -4444,9 +4407,6 @@ whatismyip=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '
 50 15 * * * ssh b@sas-01.mrk.taeb.com ~/bin/saslog_grep.pl -x /sasdata/Cron/Daily/TMMTargetedList/tmm_run_check.log
 
 sudo timedatectl set-timezone America/New_York
-
-# Default shell bash variable if none provided:
-JIRA=${1:-99999999}
 
 # Find all control characters like BOM byte order mark (handles spaces in filename):
 find . -type f -print0 | xargs -0 grep --color='auto' -P -n "[\x80-\xFF]"
@@ -5362,6 +5322,48 @@ perl -pe 's/ {2,}/ /g' sp_audit.out | perl -pe 's/,//g' | perl -pe 's/(Failure: 
 # Read a csv file in R language:
 d <- read.table('/home/rsh86800/t.csv',header=TRUE,sep=',')
 d2 <- read.csv(file="readfile.csv.r.txt",head=TRUE,sep=",")  # same
+
+# Canonical sh bash if then else
+if [ expression ];then commands elif [ expression2 ];then commands else commands fi
+
+# Wrong number arguments no parameters passed to shell script:
+[ $# -lt 2 ] && echo "Usage: $0 arg1 arg2" && exit 1
+[ $# -eq 1 ] || echo "Usage: $0 arg1" && exit 1
+if [ $# = 0 ]; then ... fi
+# Less than 1 argument default parameter passed to shell script:
+[ $# -lt 1 ] && echo "Usage: $0 arg1 arg2" && exit 1
+
+# Default an empty missing bash shelldefault environment variable:
+test "x$no_of_days" = "x" && no_of_days=10
+# Default an empty missing bash shelldefault incoming parameter environment variable:
+daysback=${1}
+test "x${1}" = "x" && daysback=1
+
+# Check for any default pararmeters arguments passed no parameter:
+[ -z "$1" ] && echo "No argument supplied" && exit 1
+
+# Don't complain if file does not exist:
+[ -e $1.txt ] && rm -i $1.txt
+
+# Length of string is 1 character:
+if [ ${#month} -eq 1 ];then echo 'ok'; fi
+
+if [ 'foo' = 'bar' ]; then... fi  # shell string comparison
+if [ 2 -eq 42 ]; then... fi  # shell integer comparison
+
+# Shell arithmetic addition:
+$increment = `expr 42 + 1`
+
+# Determine if a file has a certain suffix, extension (mnemonic # on keyboard is to the left, % is to the right).  Bash only.
+if [ "${1##*.}" = 'tar' ]; then ... fi
+
+# Default shell bash variable if none provided:
+JIRA=${1:-99999999}
+# Optional variable defaulting to empty:
+DEBUG="${DEBUG:-}"
+
+# Are we on Cygwin? Shell variable truncation:
+x=`uname`; if [ ${x:0:6} = CYGWIN ];then echo isCygwin; fi
 
 xxSCRIPTINGxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
