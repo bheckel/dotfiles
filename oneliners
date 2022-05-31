@@ -6933,7 +6933,7 @@ if (to_char(sysdate, 'HH24MI') not between '0300' and '0400') Then
 -- Oracle index NULLs indexed. NULL can be indexed by adding another not nullable column to the index:
 CREATE INDEX with_null ON table_name (nullable_column, '1');
 
--- Lowest plan cost to find names like 'Kochhar' without an index-ignoring leading '%hhar':
+-- Lowest plan cost to find names like 'Kochhar' without an index-ignoring leading wildcard '%hhar':
 create index last_name_reverse_index on employees(REVERSE(last_name)); select employee_id, first_name, last_name, reverse(last_name), salary from employees where reverse(last_name) LIKE 'rahh%';
 
 -- Use BITMAP index if cardinality is low (e.g gender) vs. high (last_name), index is not modified frequently and nulls may exist

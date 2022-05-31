@@ -840,13 +840,7 @@ case "$OSTYPE" in
   # NetBSD  #{{{1
   #-------------------
   'netbsd')
-    # TODO be careful this is only expecting sdf, add hostname filter
-     ###if [ -z $NONINTERACTIVE  ]; then
-       # Used  touch ~/.hushlogin  to shutup MOTD and it somehow affects
-       # this.  No big loss.
-       ###top -d 2 | col -b | grep states
-       ###mailstat $HOME/.procmail/log
-     ###fi
+    # TODO this is only expecting sdf, add hostname filter
 
      export EDITOR=/usr/pkg/bin/vim
      # For mutt on sdf at least
