@@ -6110,7 +6110,7 @@ psql -h ajsperdb1.edp.atbe.com TEBMART
 psql -U atbleau -h db-02.twa.taeb.com teb
 psql -h db-06.taeb.com TAEBMART -c "select * from analytis.reportlog where rpt='TMMRep' order by lastmodified desc LIMIT 1"
 
--- Empty 2 tables (implicit COMMIT because TRUNCATE is DDL, DDL statements issue a commit BEFORE and AFTER they run). Faster than DELETE. (1) it does an implicit commit (exceptions: PostgreSQL and SQL Server); (2) it does not execute any triggers:
+-- Empty 2 tables (implicit COMMIT because TRUNCATE is DDL, DDL statements issue a commit BEFORE and AFTER they run). Faster than DELETE. (1) it does an implicit commit (exceptions: PostgreSQL and SQL Server); (2) it does not execute any DML triggers:
 TRUNCATE bigtable, fattable;  -- no WHERE clause allowed
 
 -- Remove leading zeros to find 01, 1, 03, 3:
