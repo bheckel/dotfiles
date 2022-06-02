@@ -6203,7 +6203,7 @@ select 'EXPIRE='||to_char(date('now')+365,'YYYYMMDD') as x2
 -- Yesterday in Postgres date:
 and lastmodified >= CURRENT_DATE-1
 
-To save postgresql output to comma pipe delimited csv file (warning - multiple runs append so \q when done):
+-- To save postgresql output to comma pipe delimited csv file (warning - multiple runs append so \q when done):
 psql> \o t.out
 psql> \f '|' \a \o /Drugs/Personnel/bob/t.csv
 psql> \f ',' \a \t \o ~/tmp/bob/withoutheader.csv
@@ -7189,6 +7189,9 @@ SELECT stattype_locked FROM dba_tab_statistics WHERE table_name = 'TABLE_NAME' a
 
 -- Remove trailing comma from a loop built-up list:
 v_set_cols := substr(v_set_cols, 1, length(v_set_cols) - 1);
+
+-- PLSQL loop a list comma delimited list:
+loop l_comma_index := instr(l_account_ids, ',', l_index); exit when l_comma_index = 0; l_account_id := trim(substr(l_account_ids, l_index, l_comma_index - l_index)); l_index := l_comma_index + 1; ... end loop;
 
 -- All database links:
 SELECT DB_LINK, USERNAME, HOST FROM ALL_DB_LINKS 
