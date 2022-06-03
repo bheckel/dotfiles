@@ -14,7 +14,7 @@
 #          ^^^^__^^^^^__^^^_^^^
 #
 #  Created: 02-Jun-1998 (Bob Heckel)
-# Modified: 05-Apr-2022 (Bob Heckel)
+# Modified: 01-Jun-2022 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -439,8 +439,9 @@ Finds line longer than 80 characters:
 :call MaxLineLen(1)
 
 :DirDiff . //trpsawnv0312/CODE/
-:DirDiff $y/datapost/code $z/datapost/code  ' not to be confused with vimdiff
+:DirDiff $y/datapost/code $z/datapost/code  " not to be confused with vimdiff
 " dp to 'diff put' change to the other window, arrow keys to nav (double arrow up to de-syntax)
+" do to 'diff obtain'
 To synch DirDiff: s  (in bottom pane with cursor ==>)
 To synch DirDiff ranges of updates (internal DirDiff cmds like 'u' not working 2011-04-27):
 :se nu
@@ -451,8 +452,7 @@ To synch DirDiff ranges of updates (internal DirDiff cmds like 'u' not working 2
 " vimdiff keymaps
 do == :diffget
 dp == :diffput
-
-" Synch whole file
+" Synch vimdiff diff whole file this window to the other:
 :%diffput
 
 " Run info(1) on word under cursor. Good demo of running an arbitrary command on the current word.
@@ -4374,6 +4374,7 @@ for f in $(find . -name '*.log'); do echo $f; saslog_grep.pl $f | grep ERROR; do
 
 # Convert mapped backslash Windows drive path to forwardslash Unix:
 perl -e '$x=q{T:\TMMEligibility\WallMediCent\Imports\20170522\Data}; $x=~s:\\:/:g; $x=~s|T:|/Drugs|; print "$x\n";'
+perl -e '$x=q{"\\sashq\root\dept\kmc\rion\prod\src\batch\jobs\Strategic_Accounts_Rpt.sas"}; $x=~s:\\:/:g; $x=~s|sashq|/sashq|; $x=~s:"::g; print "$x\n";' | clip.exe
 
 # Summary of disk space by folder
 for i in `find /Drugs/Personnel -maxdepth 1 -type d`; do du -sh $i; done | sort -hr
@@ -5407,18 +5408,19 @@ show connection
 
 c:\oracle\ora920\network\admin\tnsnames.ora
 
--- Oracle substring:
+-- Oracle substring searching:
 SELECT SUBSTR('CORPORATE FLOOR', 2, 4) FROM dual  -- ORPO
-
-SELECT INSTR('CORPORATE FLOOR', 'OR') FROM dual  -- 2
+SELECT INSTR('CORPORATE FLOOR', 'OR') FROM dual  -- pos 2
 SELECT INSTR('CORPORATE FLOOR', 'OR', 4) FROM dual  -- 5 start looking from pos 4
-SELECT INSTR('CORPORATE FLOOR', 'OR', 4, 2) FROM dual  -- 14  start looking from pos 4 but skip the first match at pos 5
-SELECT INSTR('CORPORATE FLOOR', 'XX') FROM dual  -- 0
+SELECT INSTR('CORPORATE FLOOR', 'OR', 4, 2) FROM dual  -- pos 14  start looking from pos 4 but skip the first match at pos 5, count the found position using entire string
+SELECT INSTR('CORPORATE FLOOR', 'XX') FROM dual  -- pos 0
 SELECT INSTR(NULL, 'ORA') FROM dual  -- NULL
+SELECT INSTR('CORPORATE FLOOR','OR', -3, 2) "Reversed Instring" FROM DUAL;  -- pos 2
+select * from territory_ptg_targets where instr(territory_description,'Ireland') > 0; -- same
+select * from territory_ptg_targets where territory_description like '%Ireland%';  -- same
 
-select * from territory_ptg_targets where instr(territory_description,'Ireland') > 0;
--- same
-select * from territory_ptg_targets where territory_description like '%Ireland%';
+-- PLSQL loop a list comma delimited list:
+loop l_comma_index := instr(l_account_ids, ',', l_index); exit when l_comma_index = 0; l_account_id := trim(substr(l_account_ids, l_index, l_comma_index - l_index)); l_index := l_comma_index + 1; ... end loop;
 
 -- Overflows using PLS_INTEGER but ok with INTEGER:
 DECLARE p1 PLS_INTEGER := 2147483647; p2 INTEGER := 1; n NUMBER; BEGIN n := p1 + p2; END; /
@@ -7190,9 +7192,6 @@ SELECT stattype_locked FROM dba_tab_statistics WHERE table_name = 'TABLE_NAME' a
 -- Remove trailing comma from a loop built-up list:
 v_set_cols := substr(v_set_cols, 1, length(v_set_cols) - 1);
 
--- PLSQL loop a list comma delimited list:
-loop l_comma_index := instr(l_account_ids, ',', l_index); exit when l_comma_index = 0; l_account_id := trim(substr(l_account_ids, l_index, l_comma_index - l_index)); l_index := l_comma_index + 1; ... end loop;
-
 -- All database links:
 SELECT DB_LINK, USERNAME, HOST FROM ALL_DB_LINKS 
 SELECT DB_LINK, USERNAME, HOST, 'select count(1) from user_tables@'||db_link  x FROM user_DB_LINKS;
@@ -7286,6 +7285,9 @@ select opportunity_id from opportunity_base sample(0.01)
 
 -- Where used in plsql package code:?
 SELECT * FROM user_source WHERE lower(text) like '%cdhub_jms%' and type != 'PACKAGE' order by type, name, line;
+
+-- Should be only one manager per rollup account:
+select count(distinct global_account_manager) over(partition by rollup_name) n_gam from global_beacon_master where rollup_name = 'Nest';
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 

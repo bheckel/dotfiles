@@ -469,6 +469,8 @@ set diffopt+=filler
 if v:version > 801 && has("patch148")
   set diffopt+=iwhiteall
   set diffopt+=algorithm:patience
+  " Avoid having to use  :vert diffsplit
+  set diffopt+=vertical
 endif
 
 set diffexpr="--ignore-blank-lines"
@@ -500,25 +502,41 @@ endif
 set nomodeline
 set nosourceany
 
-" Just use my ;5 checkpoint map before starting important changes
-set nobackup
-
 " Allow gf on %foo to open /sasdata/macros/foo.sas
 set suffixesadd=.sas
+
 
 "                               19 the swap file {{{2
 
 " Avoid placing swapfiles where other users might be confused by them
-if has('gui_win32')
-  if $HOMEDRIVE == 'C:' && $HOMEPATH == '\Users\boheck'
-    set directory=C:\cygwin64\home\boheck\tmp
-  endif
-else
-    set directory=~/tmp/
+"""if has('gui_win32')
+"""  if $HOMEDRIVE == 'C:' && $HOMEPATH == '\Users\boheck'
+"""    set directory=C:\cygwin64\home\boheck\tmp
+"""  endif
+"""else
+"""    set directory=~/tmp/
+"""endif
+
+set undofile
+set undolevels=1000                 " how many undos
+set undoreload=10000                " number of lines to save for undo
+set backup                          " enable backups
+set swapfile                        " enable swaps
+set updatetime=60000                " write swap file to disk after 60 inactive seconds
+set undodir=$HOME/.vim/tmp/undo     " undo files
+set backupdir=$HOME/.vim/tmp/backup " backups
+set directory=$HOME/.vim/tmp/swap   " swap files
+" Make those folders if they don't already exist
+if !isdirectory(expand(&undodir))
+  call mkdir(expand(&undodir), "p")
+endif
+if !isdirectory(expand(&backupdir))
+  call mkdir(expand(&backupdir), "p")
+endif
+if !isdirectory(expand(&directory))
+  call mkdir(expand(&directory), "p")
 endif
 
-" Write swap file to disk after 60 inactive seconds
-set updatetime=60000
 
 
 "                               20 command line editing {{{2
@@ -1821,16 +1839,16 @@ if !exists("autocommands_loaded")
   "TODO handle Cygwin paths
   " au BufRead *.pdf silent execute "!explorer" . shellescape(expand("%:p")) . " &>/dev/null &" | buffer# | bdelete# | redraw! | syntax on
 
-  " This block must be placed near end of au commands for syntax coloring to
+  " This block must be placed near the end of au commands for syntax coloring to
   " be disabled.
   if &diff
-    " Don't interfere with diff's syntax
+    " Don't interfere with diff's syntax coloring
     au BufNewFile,BufRead,BufEnter * syntax off
     " Always maximize gvim when using vimdiff
     au GUIEnter * simalt ~x
     """set guifont=Andale_Mono:h7
-    " TODO gtk
     set guifont=Consolas:h8
+    " TODO gtk
   endif
 
   au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
@@ -1937,11 +1955,13 @@ if !exists("autocommands_loaded")
 
   " cab SqL e /cygdrive/c/Orion/workspace/data/Source/SQL/
 
-  " end Temporary project-specific
     au BufWritePre,BufLeave * set nobomb
   end
   
   au BufReadPre,FileReadPre *Source/* set noswapfile
+
+  au BufReadPre,FileReadPre *sashq/* set nobackup
+  au BufReadPre,FileReadPre *sashq/* set nowritebackup
   au BufReadPre,FileReadPre *sashq/* set noswapfile
 
   if has('gui')
