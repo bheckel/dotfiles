@@ -7289,6 +7289,12 @@ SELECT * FROM user_source WHERE lower(text) like '%cdhub_jms%' and type != 'PACK
 -- Should be only one manager per rollup account:
 select count(distinct global_account_manager) over(partition by rollup_name) n_gam from global_beacon_master where rollup_name = 'Nest';
 
+-- How many indexes are function-based FBI ?:
+select * from user_indexes where index_type like 'FUNCTION-BASED%' and table_name='MKC_REVENUE_FULL'
+
+select DBMS_METADATA_DIFF.compare_alter('TABLE','MKC_REVENUE_FULL_BOB','MKC_REVENUE_FULL_PART') from dual;
+select DBMS_METADATA_DIFF.compare_alter('TABLE','MKC_REVENUE_FULL','MKC_REVENUE_FULL',network_link2=>'ATLAS_TEST_RW') from dual;
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -8164,5 +8170,8 @@ Get-ComputerInfo
 
 -- Microsoft Word quotes
 echo ‘I am a virtual di ’ > /dev/pty7
+
+-- Minimize / maximize Window:
+Alt+Shift+Spacebar
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
