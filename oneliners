@@ -7249,6 +7249,7 @@ CREATE OR REPLACE TRIGGER SETARS.MKC_REVENUE_FULL_UAT_IUD BEFORE INSERT OR UPDAT
 
 select dbms_stats.get_prefs('STALE_PERCENT',user,'MKC_REVENUE_FULL') stale_percent from dual;
 
+-- Determine what oracle system parameter is:
 SELECT name, value FROM v$parameter WHERE name = 'max_string_size';--if EXTENDED, varchar2 can hold 32767
 --same:
 SHOW PARAMETER max_string_size;
@@ -7294,6 +7295,9 @@ select * from user_indexes where index_type like 'FUNCTION-BASED%' and table_nam
 
 select DBMS_METADATA_DIFF.compare_alter('TABLE','MKC_REVENUE_FULL_BOB','MKC_REVENUE_FULL_PART') from dual;
 select DBMS_METADATA_DIFF.compare_alter('TABLE','MKC_REVENUE_FULL','MKC_REVENUE_FULL',network_link2=>'ATLAS_TEST_RW') from dual;
+
+-- DBMS_OUTPUT without a newline:
+DBMS_OUTPUT.put('end: ' || SYSDATE || ' sqlcode: ' || SQLCODE || ' ');
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
