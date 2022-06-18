@@ -8021,7 +8021,7 @@ System.out.println("Return".concat(" of").concat(" the king."));
 // Java array
 int[] array = new int[5] { 1, 2, 3, 4, 5 };
 
-:: Win7 Administrator cmd.exe command prompt:
+:: Win7 run as Administrator cmd.exe command prompt:
 Run : type cmd : Ctrl-Shift-Enter
 :: Win7 Administrator Cygwin/vim:
 Run : C:\cygwin64\bin\mintty.exe : Ctrl-Shift-Enter
