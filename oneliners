@@ -2635,6 +2635,9 @@ $ make 2>&1 | tee build.log
 # To append further log to build.log, continue with:
 $ make modules 2>&1 | tee -a build.log
 
+# Get a file and both write it to a file and to stdout simultaneously:
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo tee /etc/apt/trusted.gpg.d/docker.asc
+
 # Copy everything (except dot files) in a dir except for one file (smb.txt in this case):
 cp /notathome/[^smb.txt]* /foodir
 
@@ -4395,6 +4398,7 @@ curl http://ifconfig.me/ip
 
 # Which distro am I using:
 cat /etc/*-release | grep VERSION | perl -pe 's/VERSION="//g'
+winver.exe
 
 # Take first field in pipe delimited file in all 2017 folders
 for f in $(find /Drugs/TMMEligibility/GiantEagle/Imports/2017* -name 'GiantEagle_TMM_candidates_fdw.csv' ); do cut -d'|' -f1 $f >>~/junk20180417; done;
