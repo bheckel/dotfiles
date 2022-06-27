@@ -7201,6 +7201,9 @@ create database link SEP connect to SETARS identified by "xxxx" using 'SEP';
 -- Create xml table from a CSV string comma separated string;
 CREATE TABLE mytbl AS SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE( '426792,1030348,1030369,1030370', ',', '","') || '"'));
 
+-- Create a virtual view with a CSV list of numbers:
+with v as ( SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE( '426792,1030348,1030369,1030370', ',', '","') || '"'))) select * from v;
+
 -- Is index being used?:
 select index_name, table_name, used from v$object_usage;--null alter index KRB_HC_IN_CIX monitoring usage; select index_name, table_name, used from v$object_usage;--not null
 

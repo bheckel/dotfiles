@@ -6,7 +6,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Sat 16-Apr-2022 (Bob Heckel)
+" Modified: Fri 24-Jun-2022 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -251,7 +251,8 @@ hi CursorLineNr ctermfg=White ctermbg=DarkGray guifg=White guibg=DarkGray cterm=
 hi CursorColumn ctermfg=247 ctermbg=234 guibg=#444444
 
 " For :se rnu relative number gutter
-hi LineNr ctermfg=246 ctermbg=237 guifg=DarkGray guibg=#444444
+"hi LineNr ctermfg=246 ctermbg=237 guifg=DarkGray guibg=#222222
+hi LineNr ctermfg=246 ctermbg=234 guifg=DarkGray guibg=#222222
 
 " Tab completion dropdown
 hi Pmenu ctermfg=Black ctermbg=Gray guifg=White guibg=Gray 
