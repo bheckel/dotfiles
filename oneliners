@@ -4458,6 +4458,9 @@ wsl --install -d Ubuntu
 # Only run one time
 TTY=$(ps|grep pty1); if [ -z "${TTY}" ];then echo run; else echo no; fi
 
+# Filename case insensitive:
+find . -iname  '*nterestedparty*'
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -7305,6 +7308,10 @@ select DBMS_METADATA_DIFF.compare_alter('TABLE','MKC_REVENUE_FULL','MKC_REVENUE_
 
 -- DBMS_OUTPUT without a newline:
 DBMS_OUTPUT.put('end: ' || SYSDATE || ' sqlcode: ' || SQLCODE || ' ');
+
+-- Characterset e.g. Nestlé set Windows env var NLS_LANG from AMERICAN_AMERICA.WE8MSWIN1252 to 'AMERICAN_AMERICA.AL32UTF8' or Computer\HKEY_LOCAL_MACHINE\SOFTWARE\ORACLE\KEY_OraClient19Home1;
+SELECT * FROM V$NLS_PARAMETERS where lower(parameter) in('nls_language', 'nls_territory', 'nls_characterset');
+
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
