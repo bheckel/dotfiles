@@ -6642,6 +6642,8 @@ SELECT * FROM user_scheduler_notifications WHERE job_name = 'MKC_REVENUE_LOAD' a
 
 -- Run DBMS_SCHEDULER job every 20 minutes:
 repeat_interval => 'Freq=Minutely;Interval=20',
+-- Run DBMS_SCHEDULER job every hour:
+repeat_interval =>'Freq=Hourly;Interval=1',
 
 -- Oracle dbms_scheduler scheduled jobs:
 SELECT * from USER_SCHEDULER_JOBS order by last_start_date desc
@@ -6737,7 +6739,7 @@ select deptno, empno top_oldest_emp, sal from scott.emp e where not exists ( sel
 -- Modified analytic outer join to get every hr, every room and who reserved it:
 select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2;
 
--- Suppress sqlplus SQL output just display calculate execution plan explain plan cost:
+-- Suppress throw away sqlplus SQL output just display calculate execution plan explain plan cost:
 set autotrace ON  then  set autotrace traceonly explain -- in sqlplus then select ...
 
 EXPLAIN PLAN FOR SELECT * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display(null, null, 'typical')); ROLLBACK; -- deprecated, use dbms_xplan
