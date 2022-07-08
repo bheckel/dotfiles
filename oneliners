@@ -7306,7 +7306,7 @@ select count(distinct global_account_manager) over(partition by rollup_name) n_g
 select * from user_indexes where index_type like 'FUNCTION-BASED%' and table_name='MKC_REVENUE_FULL'
 
 select DBMS_METADATA_DIFF.compare_alter('TABLE','MKC_REVENUE_FULL_BOB','MKC_REVENUE_FULL_PART') from dual;
-select DBMS_METADATA_DIFF.compare_alter('TABLE','MKC_REVENUE_FULL','MKC_REVENUE_FULL',network_link2=>'ATLAS_TEST_RW') from dual;
+select DBMS_METADATA_DIFF.compare_alter('TABLE','MKC_REVENUE_FULL','MKC_REVENUE_FULL',network_link2=>'ATLAS_TEST_RW') from dual;--db link version - run on prod - returns DDL to run to make prod synch up with tst
 
 -- DBMS_OUTPUT without a newline:
 DBMS_OUTPUT.put('end: ' || SYSDATE || ' sqlcode: ' || SQLCODE || ' ');
@@ -7986,7 +7986,7 @@ git checkout -b feature/RION-9999 && git push --set-upstream origin feature/RION
 # git squash together all commits after d3fbfd5 (the one I didn't touch). Leave the first entry (oldest commit) alone as 'pick', set others to 's[quash]', next screen lets you edit the message, doing nothing uses all old messages, wipe and type for a new one:
 git rebase --interactive d3fbfd5
 
-# git show last touches and authors for all remote branches:
+# git show last touches and owner authors for all remote branches:
 for branch in `git branch -r | grep -v HEAD`;do echo -e `git show --format="%ci %cr\t%an\t" $branch | head -n 1` \\t$branch; done | sort -r
 
 <!-- Predefined HTML character entities -->
