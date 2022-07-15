@@ -6,7 +6,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Fri 24-Jun-2022 (Bob Heckel)
+" Modified: Tue 12-Jul-2022 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -212,9 +212,12 @@ set hlsearch
 " ~/code/misc/vim_colors.txt
 "--------------------------------------------------------------------------
 syntax enable
+"TODO
+"syntax sync maxlines=500 ccomment
+"syntax sync maxlines=1000
 
-" Avoid reading text presented like it was written on a light bulb.  We're
-" relying on .mintty or .Xdefaults so this is only for gVim.
+" Avoid reading text presented like it was written on a lightbulb.  We're
+" usually relying on .mintty or .Xdefaults so this is often only for gVim.
 hi Normal guifg=White guibg=Black
 
 hi Comment ctermbg=Black ctermfg=DarkGray guibg=Black guifg=DarkGray

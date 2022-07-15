@@ -5935,18 +5935,18 @@ SELECT * FROM user_tab_comments  where table_name ='MKC_REVENUE_FULL';
 -- Column's comments:
 SELECT * FROM user_col_comments where table_name ='MKC_REVENUE_FULL';
 
+-- What tablespace does a table reside in?:
+select tablespace_name from user_tables where TABLE_NAME = 'MKC_REVENUE_FULL_BOB';
+
 -- Oracle list browse show all schemas poke around:
 SELECT username FROM all_users ORDER BY username;
+
 -- Does this table exist? num_rows is NOT NULL if so:
 select num_rows from user_tables where table_name like 'KR11MAR2021%'; 
 -- Oracle list browse all database tables poke around all available schema:
 SELECT owner, table_name FROM all_tables where owner = 'SCOTT';
 SELECT owner, table_name FROM user_tables where owner = 'SCOTT';
 SELECT owner, table_name FROM all_tables@xyz.us.oracle.com
-
--- Oracle list browse all views find view is it a view does view exist:
-select * from all_views where view_name like '%SPEC%'
-select * from user_views where view_name ='MKC_REVENUE';
 
 -- Oracle list browse all table details:
 SELECT table_name, column_name, data_type, data_length, nullable, num_distinct, low_value, high_value, density FROM user_tab_columns WHERE table_name in(SELECT table_name FROM all_tables where owner ='SCOTT') and owner ='SCOTT' ORDER BY table_name, column_name
@@ -5962,15 +5962,13 @@ SELECT table_name FROM user_tables WHERE lower(table_name) LIKE '%search%' order
 -- Poke around search all tables want for a specific column name does column exist in table:
 SELECT * from  user_tab_columns WHERE table_name = 'FOO' AND column_name LIKE '%NEW%';
 
+-- Poke around virtual columns:
 select utc1.column_name, utc1.data_default vc_contents from user_tab_cols utc1 where utc1.TABLE_NAME = 'MKC_REVENUE_FULL_HIST' and utc1.VIRTUAL_COLUMN = 'YES';
 
 -- What the object references, tables etc depends on:
 select * from user_dependencies where name = 'RPT_OPP_MULTI_YDEAL' and referenced_type not in ('SYNONYM') order by 4;
 -- What references the object, views etc depends on:
 select * from user_dependencies where REFERENCED_NAME = 'OPP_BASE' and referenced_type not in ('SYNONYM') order by 1;
-
--- What tablespace does a table reside in?:
-select tablespace_name from user_tables where TABLE_NAME = 'MKC_REVENUE_FULL_BOB';
 
 -- List all of a table's indexes and tablespace does table have index all indexes for a table what is indexed:
 select index_name, tablespace_name from user_indexes where TABLE_NAME = 'SP_PROCESSING' and index_name not like 'SYS_%';
@@ -6012,14 +6010,14 @@ select constraint_name, constraint_type from user_constraints WHERE constraint_n
 -- Does any other table reference this table LIST_OF_VALUES i.e. do any foreign keys exist:
 select * FROM all_constraints WHERE constraint_type = 'R' and r_constraint_name IN (select constraint_name from all_constraints where table_name like 'LIST_OF_VALUES%') order by table_name;
 
--- View all details of Oracle table in a schema poke around table (subset of ddl mytbl):
+-- SQL Developer view indexes, last analyzed etc alternative to DBMS_METADATA sqlcl:
+clear screen; info contact_dhub; ddl contact_dhub;
+
+-- View all details of Oracle table in a schema poke around table (subset of SQL Developer's ddl MYTBL):
 select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES', 'SETARS') from dual;
 
 -- Get DDL to recreate an index (and SET to avoid truncation of set serveroutput on):
 set long 90000; select dbms_metadata.get_ddl('INDEX','KRB_9BYTE_CD_IX','SETARS') x from dual;
-
--- SQL Developer view indexes, last analyzed etc alternative to DBMS_METADATA sqlcl:
-clear screen; info contact_dhub; ddl contact_dhub;
 
 -- View some details of Oracle table (like sqlplus DESC):
 select column_name, nullable, concat(concat(concat(data_type,'('),data_length),')') from user_tab_columns where table_name = 'EMAIL_MESSAGES';
@@ -6048,6 +6046,8 @@ SELECT * FROM USER_ERRORS WHERE name IN ('PLCH_PKG', 'PLCH_GET_NUMBERS')
 -- Search view full source code of all compiled database objects (except Views):
 select * from SYS.USER_SOURCE t WHERE /*t.TYPE='PACKAGE BODY'and*/ lower(t.text) like '%cdhub_jms%';
 select * from SYS.USER_SOURCE t WHERE t.TYPE='PACKAGE BODY' and t.name like 'RION%' AND (upper(t.TEXT) LIKE '%BHECK%');  -- my abandoned WIP packages
+-- Search views text avoid "ORA-00932: inconsistent datatypes: expected CHAR got LONG" - but TEXT_VC is a VARCHAR2(4000) chars so truncation can occur:
+select * from ALL_VIEWS where OWNER = 'SETARS' and TEXT_VC like '%bheck%';
 
 -- SQL Server list information about each owner's table in a database:
 select * from information_schema.tables where table_type='BASE TABLE' and table_schema='rheckel'
@@ -6056,7 +6056,7 @@ select * from information_schema.tables where table_type='BASE TABLE' and table_
 SELECT LOV.LIST_OF_VALUES_ID, LOV.VALUE FROM LIST_OF_VALUES LOV WHERE LOV.RETIRED = 0 START WITH LOV.LIST_OF_VALUES_ID IN (1,2,3) CONNECT BY PRIOR LOV.LIST_OF_VALUES_ID = LOV.PARENT_ID
 select sys_connect_by_path (job, '/') job_path, sys_connect_by_path (ename, '/') ename_path from scott.emp start with mgr is null connect by prior empno=mgr
 
-rc pls_integer := 0; rc := SQL%ROWCOUNT; dbms_output.put_line('rows affected: ' || rc); 
+rc PLS_INTEGER := 0; rc := sql%ROWCOUNT; dbms_output.put_line('rows affected: ' || rc); 
 
 -- Oracle random 50% subset create test table:
 CREATE TABLE zzorion32822 AS SELECT * FROM zorion32822 SAMPLE(50)
