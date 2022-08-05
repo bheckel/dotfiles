@@ -5596,6 +5596,8 @@ select dt, ticker, decode(transact, 'Buy', +1, -1)*qty qty;
 
 select prod_nm, DECODE(prod_grp, 'MDPI','m', 'Solid Dose','sd', 'unk') from samp;
 
+SELECT distinct a.account_id, case when a.account_id=5079068 then NULL else account_site_id end as account_site_id ...
+
 CASE WHEN warehouse_id=1 THEN 'Southlake' WHEN warehouse_id=2 THEN 'San Francisco' WHEN warehouse_id=3 THEN 'New Jersey' ELSE 'Non-domestic' END;
 DECODE(warehouse_id, 1,'Southlake', 2,'San Francisco', 3,'New Jersey', 'Non-domestic') ;
 
@@ -6740,7 +6742,7 @@ select deptno, empno top_oldest_emp, sal from scott.emp e where not exists ( sel
 select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2;
 
 -- Suppress throw away sqlplus SQL output just display calculate execution plan explain plan cost:
-set autotrace ON  then  set autotrace traceonly explain -- in sqlplus then select ...
+set autotrace traceonly explain -- in sqlplus then select ...
 
 EXPLAIN PLAN FOR SELECT * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display(null, null, 'typical')); ROLLBACK; -- deprecated, use dbms_xplan
 -- Autotrace explain BEST execution plan cost optimizer:
@@ -7570,6 +7572,11 @@ C:\Users\bheck\Desktop
 C:\Documents and Settings\bheck\Application Data\SQL Developer
 C:\Users\bheck\AppData\Roaming\SQL Developer
 
+:: Windows System Information command prompt environment properties:
+systeminfo
+:: Windows System Information Tool GUI (Ctrl+R) environment properties:
+msinfo32
+
 # uptime for Windows:
 $ systeminfo|grep 'Up T'
 eventvwr.msc : Windows logs : System : Actions → Create Custom View : By sources : Kernel-Boot
@@ -7986,6 +7993,9 @@ git checkout -b feature/RION-9999 && git push --set-upstream origin feature/RION
 # git squash together all commits after d3fbfd5 (the one I didn't touch). Leave the first entry (oldest commit) alone as 'pick', set others to 's[quash]', next screen lets you edit the message, doing nothing uses all old messages, wipe and type for a new one:
 git rebase --interactive d3fbfd5
 
+# git stash mantra:
+stash && git pull && git stash pop   && git add  . && git commit -m ' ' && git push
+
 # git show last touches and owner authors for all remote branches:
 for branch in `git branch -r | grep -v HEAD`;do echo -e `git show --format="%ci %cr\t%an\t" $branch | head -n 1` \\t$branch; done | sort -r
 
@@ -8088,9 +8098,6 @@ vi '\\okpsawn557\d$\oracle\ora81\network\ADMIN\Tnsnames.ora'
 
 -- Activate blank Windows screensaver from a .bat:
 start %windir%\system32\scrnsave.scr -s
-
--- Windows System Information Tool
-msinfo32
 
 -- Comma separated column
 select string_agg(distinct taebpatientid::varchar,',') from cce.ccepatientstaging where clientid=22;
