@@ -6520,9 +6520,6 @@ to_number(trunc(dbms_random.value(1000,9999))|| to_char(systimestamp,'FFSS')|| s
 
 SELECT extract(second from localtimestamp) x, trunc(dbms_random.value(1,20)) random_number_between_one_and_twenty FROM dual CONNECT BY level <= 10
 
--- Populate an existing sample dummy Oracle table with 100K random strings of VARCHAR(30):
-insert /*+APPEND*/ into mytbl select level, dbms_random.string('a',30) from dual connect by level <= 100000
-
 -- Random fake airport code:
 select dbms_random.string('U', 3) airport from dual;
 
@@ -6619,11 +6616,14 @@ create table dummy_table(id PRIMARY KEY, tag) as select rownum id, to_char(rownu
 create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dual connect by level <= 365*5;
 -- Sample CTAS table using a csv list that would normally overflow an IN() list max of 1K 1000 items (18c+):
 create table dummy_table as SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE('123,456', ',', '","') || '"'));
+-- Populate an existing sample dummy Oracle table with 100K random strings of VARCHAR(30):
+insert /*+APPEND*/ into dummy_table select level, dbms_random.string('a',30) from dual connect by level <= 100000
+
 CREATE TABLE JS_INVOICE_16FEB21 COMPRESS TABLESPACE ES_NOLOG NOLOGGING  AS select 1 x from dual;
 
 create table foo PARALLEL 8 COMPRESS NOLOGGING as select /*+NO_GATHER_OPTIMIZER_STATISTICS */ mkc_revenue_id from mkc_revenue_full where rownum<9;
 
--- Print SQL for a deep copy CTAS sqlcl:
+-- Print SQL for a deep copy CTAS sqlcl (includes primary key but not indexes):
 ctas orders bobclonedtbl;
 
 -- View list determine Oracle grants privileges:
@@ -7307,6 +7307,7 @@ select count(distinct global_account_manager) over(partition by rollup_name) n_g
 -- How many indexes are function-based FBI ?:
 select * from user_indexes where index_type like 'FUNCTION-BASED%' and table_name='MKC_REVENUE_FULL'
 
+-- Synchronize two tables differences auto generate DDL
 select DBMS_METADATA_DIFF.compare_alter('TABLE','MKC_REVENUE_FULL_BOB','MKC_REVENUE_FULL_PART') from dual;
 select DBMS_METADATA_DIFF.compare_alter('TABLE','MKC_REVENUE_FULL','MKC_REVENUE_FULL',network_link2=>'ATLAS_TEST_RW') from dual;--db link version - run on prod - returns DDL to run to make prod synch up with tst
 
@@ -7907,6 +7908,8 @@ git reset c4c9473
 git reset --hard HEAD^  # or git reset --hard HEAD~1 for DOS  or git reset --hard c4c9473 if it's not the previous you want to go back to but rather a specific commit
 # git undo discard bad accidental stash pop SP_PROCESSING.pck and MYUNTRACKED.txt 2020
 git reset HEAD . && git restore SP_PKG.pck && rm MYUNTRACKED.txt
+# git discard due to other person push f'up - "On branch develop Your branch and 'origin/develop' have diverged, and have 3 and 351 different commits each, respectively.  (use "git pull" to merge the remote branch into yours) nothing to commit, working tree clean"
+git pull origin develop --rebase
 
 # Merge a feature branch:
 git checkout develop && git pull && git merge feature/RION-31587 && git push
