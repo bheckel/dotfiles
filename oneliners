@@ -6050,6 +6050,7 @@ select * from SYS.USER_SOURCE t WHERE /*t.TYPE='PACKAGE BODY'and*/ lower(t.text)
 select * from SYS.USER_SOURCE t WHERE t.TYPE='PACKAGE BODY' and t.name like 'RION%' AND (upper(t.TEXT) LIKE '%BHECK%');  -- my abandoned WIP packages
 -- Search views text avoid "ORA-00932: inconsistent datatypes: expected CHAR got LONG" - but TEXT_VC is a VARCHAR2(4000) chars so truncation can occur:
 select * from ALL_VIEWS where OWNER = 'SETARS' and TEXT_VC like '%bheck%';
+select * from user_VIEWS where view_name ='FOO_VW';
 
 -- SQL Server list information about each owner's table in a database:
 select * from information_schema.tables where table_type='BASE TABLE' and table_schema='rheckel'
@@ -7317,6 +7318,8 @@ DBMS_OUTPUT.put('end: ' || SYSDATE || ' sqlcode: ' || SQLCODE || ' ');
 -- Characterset e.g. Nestlé set Windows env var NLS_LANG from AMERICAN_AMERICA.WE8MSWIN1252 to 'AMERICAN_AMERICA.AL32UTF8' or Computer\HKEY_LOCAL_MACHINE\SOFTWARE\ORACLE\KEY_OraClient19Home1;
 SELECT * FROM V$NLS_PARAMETERS where lower(parameter) in('nls_language', 'nls_territory', 'nls_characterset');
 
+-- Generate unique temp table name:
+v_temp_table_name VARCHAR2(30) := 'RPTH_R' || TO_CHAR(SYSDATE, 'DDMONYYYYhh24miss'); --RPTH_R16AUG2022132038
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
