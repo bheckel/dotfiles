@@ -6499,6 +6499,18 @@ SELECT aid, ab.account_id FROM (SELECT to_number(column_value) aid FROM xmltable
 
 CURSOR contacts IS SELECT trim(COLUMN_VALUE) contact_id FROM XMLTABLE(upper(TRIM('"' || replace(in_contact_id_list, ',', '","') || '"'))); FOR rec IN contacts LOOP...
 
+-- Create xml table from a CSV string comma separated string;
+CREATE TABLE mytbl AS SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE( '426792,1030348,1030369,1030370', ',', '","') || '"'));
+-- Create a virtual view with a CSV list of numbers:
+with v as ( SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE( '426792,1030348,1030369,1030370', ',', '","') || '"'))) select * from v;
+
+-- Parse query XML as if it were a table:
+select col1 from xmltable('/set' passing xmltype('<set><tag>abc</tag></set>') columns col1 path 'tag') x;
+create or replace view zbob as select col1 from xmltable('/set' passing xmltype('<set><tag>abc</tag></set>') columns col1 VARCHAR2(3) path 'tag') x;  -- default is VARCHAR2(32767) but be careful no warning, truncates anything >3
+-- Query JSON version gives a null if >3
+select col1 from ( select '{ "tag" : "abc" }' data from dual ), json_table(data, '$' columns (col1 VARCHAR2(3) path '$.tag'));
+select col1 from ( select '{ "tag" : "abc" }' data from dual ), json_table(data, '$' columns (col1 VARCHAR2(2) path '$.tag'  ERROR ON ERROR));  -- better
+
 -- Oracle repeat character tab:
 dbms_output.put_line('modifying: ' || j.full_job_name || rpad(chr(09), 4, chr(09)) || ' ' || j.start_date || ' to ' || j.new_start_date);
 
@@ -7210,12 +7222,6 @@ SELECT DB_LINK, USERNAME, HOST, 'select count(1) from user_tables@'||db_link  x 
 
 create database link SEP connect to SETARS identified by "xxxx" using 'SEP';
        
--- Create xml table from a CSV string comma separated string;
-CREATE TABLE mytbl AS SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE( '426792,1030348,1030369,1030370', ',', '","') || '"'));
-
--- Create a virtual view with a CSV list of numbers:
-with v as ( SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE( '426792,1030348,1030369,1030370', ',', '","') || '"'))) select * from v;
-
 -- Is index being used?:
 select index_name, table_name, used from v$object_usage;--null alter index KRB_HC_IN_CIX monitoring usage; select index_name, table_name, used from v$object_usage;--not null
 
@@ -7865,7 +7871,7 @@ git stash clear
 # git snapshot ...
 git stash --include-untracked -m'mynamedstash' && git stash apply
 # If the apply tries to modify a file that you've since modified, you'll get a merge conflict and will have to try to resolve it. This creates a new branch for you, checks out the commit you were on when you stashed your work, reapplies your work there, and then drops the stash if it applies successfully:
-git stash branch teststashbranch
+git stash branch mystashbranch
 
 git log --pretty=oneline
 git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
@@ -7961,8 +7967,9 @@ git add -f ignoreme.txt
 # github commit mantra (github is origin we PUSH TO origin FROM master), update index and HEAD:
 git add . && git commit -m 'mod' && git push origin master
 
-# git new install bare box setup want clone an existing github repo to a new foreign server (AKA origin, a bookmark) which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
-ssh-keygen; # then  cat ~/.ssh/id_rsa.pub  # copy it to https://github.com/settings/keys
+# git new install bare box setup want clone an existing github repo which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
+ssh-keygen -t ed25519 -C "foo@bar.com"; # then  cat ~/.ssh/id_ed25519.pub  # copy it to https://github.com/settings/keys
+# Test git ssh connectivity github test:
 # PULL FROM origin to master & PUSH TO origin FROM master:
 git clone git@github.com:bheckel/dotfiles.git && git config --global user.name "Bob Heckel" && git config --global user.email rsh@rshdev.com # ...edit/add/commit... then  git pull origin master && git push origin master
 # may be required for older git versions:
