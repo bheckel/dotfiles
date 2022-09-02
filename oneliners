@@ -5477,8 +5477,8 @@ SQL> exec sys.kill_session(51,6449);
 
 -- Kill Oracle kill session sqlplus format:
 SQL> set linesize 200
-SQL> col sql_text format a160
-SQL> col x form a30
+SQL> column mywidecolumn format a80
+SQL> col mywidecolumn form a80
 select distinct  'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text from v$session s, v$sql q where s.sql_id=q.sql_id(+) and osuser='bheck' and sql_text is not null;
 
 -- Insert newline for blank row spacing:
@@ -6627,7 +6627,7 @@ create table dummy_table as select rownum pid, 'product '||rownum descr from dua
 create table dummy_table(id PRIMARY KEY, tag) as select rownum id, to_char(rownum) tag from dual CONNECT BY level <=10;
 -- Sample CTAS database table load 5 years of data from 2018-01-02 to 2022-12-31:
 create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dual connect by level <= 365*5;
--- Sample CTAS table using a csv list that would normally overflow an IN() list max of 1K 1000 items (18c+):
+-- Sample CTAS table using a csv list that would normally overflow an IN() list get around max of 1K 1000 items (18c+):
 create table dummy_table as SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE('123,456', ',', '","') || '"'));
 -- Populate an existing sample dummy Oracle table with 100K random strings of VARCHAR(30):
 insert /*+APPEND*/ into dummy_table select level, dbms_random.string('a',30) from dual connect by level <= 100000
