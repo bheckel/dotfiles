@@ -1,10 +1,10 @@
 #!/bin/bash
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 #    Name: $HOME/.bashrc
-# Summary: Hyper-config for at least Unix, Linux, Cygwin and z/OS
+# Summary: Bash shell config for at least Unix, Linux, WSL2, Cygwin and z/OS
 #
 #  Created: 19-May-1998 (Bob Heckel)
-# Modified: 30-May-2022 (Bob Heckel)
+# Modified: 04-Sep-2022 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -129,12 +129,13 @@ alias ha='history -a'  # append this
 alias hr='history -n'  # read in from others
 alias j="jobs -s"  # only show STOPPED (e.g. skip RUNNING blink.exe &) jobs
 alias l='ls'
-# Overridden later if non-GNU ls is present.  Do not move.
+# Overridden later if non-GNU ls is present
 alias la='ls -FA --color=auto'
+alias lastdocker='docker start -a -i `docker ps -q -l`'
 alias ls='ls --color --group-directories-first'
 alias ll='ls -gh --color --group-directories-first'
 alias lla='ls -agh --color --group-directories-first'
-# Thanks Berkely...
+# List directories
 alias lsd='find . -type d'
 alias m=less
 alias one="vi $HOME/dotfiles/oneliners"
