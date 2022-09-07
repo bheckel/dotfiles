@@ -4464,6 +4464,9 @@ find . -iname  '*nterestedparty*'
 -- Debug bash shell print each line executed:
 set -x  # set +x to disable
 
+-- Place at top of script to avoid continuing willy-nilly after a bash script error:
+set -e
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
