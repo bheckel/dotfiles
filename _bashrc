@@ -72,7 +72,6 @@ export VIMSTATUSL='?@?'
 # Ctrl-v escape to insert the ^[ because  "\[\033[01;38;5;52m\]"  won't work.
 # Use this to find e.g. 243 for darkgray
 # for i in {0..255} ; do printf "\x1b[38;5;${i}mcolour${i}\n"; done;
-export normal="[0m"
 export fg_whitebold="[1;37m"
 export fg_lightgray="[0;37m"
 export fg_lightgraybold="[1;37m"
@@ -90,6 +89,7 @@ export fg_magenta="[0;35m"
 export fg_magentabold="[1;35m"
 export fg_yellow="[0;33m"
 export fg_yellowbold="[1;33m"
+export normal="[0m"
 
 #-----------------------
 # Generic Alias	 #{{{2
@@ -838,7 +838,7 @@ case "$OSTYPE" in
 
       # Oracle Linux #{{{2
       #----------------
-      if [ ${LOGNAME} = 'oracle' ]; then
+      if [ "${LOGNAME}" = 'oracle' ]; then
         export ORACLE_HOME=/u01/app/oracle/product/version/db_1/
       fi
 
