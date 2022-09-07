@@ -35,7 +35,9 @@ read
 echo
 
 for f in $majordots; do
-  echo -n "setting up $myhome/.$f .............	 "
+  echo -n "setting up "
+  echo -n "$myhome/.$f     "
+  echo -n ".............	 "
   if [ -e $myhome/.$f ] || [ -L $myhome/.$f ]; then
     mv $myhome/.$f $myhome/.$f.ORIG
     #echo .$f was backed-up as .$f.ORIG
