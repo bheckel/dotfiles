@@ -42,7 +42,8 @@ for f in $majordots; do
   #else
     #echo .$f does not yet exist
   fi
-  ln -s $myhome/dotfiles/_$f $myhome/.$f && echo "[${fg_green}  OK  ${normal}]"
+  ln -s $myhome/dotfiles/_$f $myhome/.$f && echo "[[0;32m  OK  [0m]"
+export fg_green="[0;32m"
 done
 
 # 24-Aug-19 works on Oracle VM so commenting out
