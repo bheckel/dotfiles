@@ -4461,6 +4461,9 @@ TTY=$(ps|grep pty1); if [ -z "${TTY}" ];then echo run; else echo no; fi
 # Filename case insensitive:
 find . -iname  '*nterestedparty*'
 
+-- Debug bash shell print each line executed:
+set -x  # set +x to disable
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
