@@ -614,7 +614,6 @@ set sessionoptions=curdir,folds,slash,unix,winsize,winpos,buffers
 " Using the '%' switch is very subtle - if you open vim w/o a filename
 " it'll silently put the MRU filelist into the buffer.  So don't use '%'
 " because it's confusing as hell with BufExplorer.
-" Make sure _viminfo file is ff=unix
 set viminfo='1000,\"750,:5000
 
 " For :mkview & :loadview.  Force gvim to Cygwin's default.

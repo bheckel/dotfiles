@@ -6871,6 +6871,7 @@ ALTER SESSION SET plsql_warnings = 'ENABLE:ALL';
 -- Reduce script failures 60 seconds:
 ALTER SESSION SET ddl_lock_timeout=60;  
 
+select distinct name from v$parameter ORDER BY 1;  -- which Oracle session settings variables are available?
 -- View current value of variable set via alter session:
 select * from v$parameter where name = 'optimizer_features_enable';
 
@@ -8011,8 +8012,8 @@ git checkout -b feature/RION-9999 && git push --set-upstream origin feature/RION
 # git squash together all commits after d3fbfd5 (the one I didn't touch). Leave the first entry (oldest commit) alone as 'pick', set others to 's[quash]', next screen lets you edit the message, doing nothing uses all old messages, wipe and type for a new one:
 git rebase --interactive d3fbfd5
 
-# git stash mantra:
-stash && git pull && git stash pop   && git add  . && git commit -m ' ' && git push
+# git stash mantra (prior to push minimize chance of collisions or upstream changes):
+stash && git pull && git stash pop   && git add  . && git commit -m ' ' && git push  # stashit
 
 # git show last touches and owner authors for all remote branches:
 for branch in `git branch -r | grep -v HEAD`;do echo -e `git show --format="%ci %cr\t%an\t" $branch | head -n 1` \\t$branch; done | sort -r
