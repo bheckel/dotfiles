@@ -6250,9 +6250,6 @@ EXEC sp_help lu_prescriber
 -- or less helpfully
 EXEC sp_columns lu_prescriber
 
--- SQL Server whoami
-select user_name()
-
 SQL Server < 2005 alternative to Microsoft SQL Server Management Studio
 osql -L   # list available SQL Servers on network
 osql -E -S 'W23PSQL02\PRODUCTION' -i t.sql -o t.out
@@ -7035,9 +7032,6 @@ dbms_output.enable(NULL);
 -- sqlplus execute script:
 $ sqlplus userid/password@hostname @c:/cygwin//home/rheckel/code/misccode/_sqlplusrc.sql -- need an exit; to run standalone
 
--- whoami sqlplus:
-show user
-
 -- sqlplus benchmark show elapsed query time:
 set time on; set timing on;
 
@@ -7117,8 +7111,18 @@ select SYS_CONTEXT('USERENV', 'DB_NAME') from dual;  --same as SELECT name FROM 
 l_db_name VARCHAR2(20) := SYS_CONTEXT('USERENV', 'DB_NAME');  if (l_db_name IN ('SEPS')) THEN...
 
 -- Oracle which schema am i on current schema name whoami user e.g. SETARS:
+select USERNAME, SCHEMANAME, OSUSER, MACHINE, PROGRAM, TYPE, MODULE, LOGON_TIME, CLIENT_IDENTIFIER from v$session where username is not null and type='USER' order by status, logon_time;
 select sys_context('USERENV', 'CURRENT_SCHEMA') from dual;
 declare x varchar2(99); begin x := 'my schema is ' || USER; dbms_output.put_line(x); end;
+-- Which schema/user am i whoami?
+select SYS_CONTEXT('USERENV', 'SESSION_USER') from dual;
+-- Capture Oracle userid (note NO SEMICOLON to terminate the SQL):
+EXECUTE IMMEDIATE q'[ SELECT sys_context('setars_context', 'employee_id') from dual ]' INTO whoami;
+-- whoami sqlplus:
+show user
+
+-- SQL Server whoami
+select user_name()
 
 -- Oracle which client PC am i are we on client hostname running client whereami e.g. lg01992:
 select SYS_CONTEXT('USERENV','HOST') from dual;
@@ -7128,9 +7132,6 @@ select SYS_CONTEXT('USERENV','HOST') from dual;
 
 select sys_context('USERENV','SID') as my_session_id_sid from dual;
 
--- Capture Oracle userid (note NO SEMICOLON to terminate the SQL):
-EXECUTE IMMEDIATE q'[ SELECT sys_context('setars_context', 'employee_id') from dual ]' INTO whoami;
-
 -- What is my current date format:
 SELECT value FROM v$nls_parameters WHERE parameter ='NLS_DATE_FORMAT';
 SELECT sys_context('USERENV', 'NLS_DATE_FORMAT') from dual; -- DD-MON-RR HH24:MI:SS
@@ -7139,9 +7140,6 @@ select * from dba_context; SELECT cast(sys_context('mycontext', 'actual_employee
 
 -- Which Oracle client am i running?:
 SELECT DISTINCT s.client_version FROM v$session_connect_info s WHERE s.sid = SYS_CONTEXT('USERENV', 'SID');
-
--- Which schema/user am i whoami?
-select SYS_CONTEXT('USERENV', 'SESSION_USER') from dual;
 
 ALTER TABLE departments DISABLE CONSTRAINT dept_mgr_fk;
 ALTER TABLE departments ENABLE CONSTRAINT dept_mgr_fk;

@@ -4,7 +4,7 @@
 # Summary: Bash shell config for at least Unix, Linux, WSL2, Cygwin and z/OS
 #
 #  Created: 19-May-1998 (Bob Heckel)
-# Modified: 04-Sep-2022 (Bob Heckel)
+# Modified: 19-Sep-2022 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -477,6 +477,7 @@ function stash() {
 #-------------------
 case "$OSTYPE" in
   CYGWIN*|cygwin*)
+  echo '.bashrc: Cygwin detected'
 
     #-------------------
     # Export Cygwin  #{{{2
@@ -680,6 +681,7 @@ case "$OSTYPE" in
       #----------------
       # Ubuntu #{{{2
       #----------------
+      echo '.bashrc: Ubuntu detected'
 
       alias pse="ps -ef | grep ^$USER | grep -vP 'ps -ef|grep' | grep -v chrome"
       alias systeminfo='df -h && echo && free -m && echo && grep --color="never" name /proc/cpuinfo | uniq && echo && lspci | grep --color="never" VGA && echo && xrandr | grep --color="never" connected && echo && uname -rms'
@@ -710,6 +712,7 @@ case "$OSTYPE" in
       #----------------
       # CentOS  # {{{2
       #----------------
+      echo '.bashrc: CentOS detected'
       if [ $HOSTNAME = 'sasdev-01.twa.foo.com' ]; then
         export PS1='${fg_darkgray}\j ${fg_yellowbold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
       fi
@@ -739,6 +742,7 @@ case "$OSTYPE" in
       #----------------
       # ChromeOS #{{{2
       #----------------
+      echo '.bashrc: ChromeOS detected'
 
       if [ $HOSTNAME = 'chromeos' ]; then
         sudo mount -i -o remount,exec /home/chronos/user
@@ -785,7 +789,7 @@ case "$OSTYPE" in
       fi  # ChromeOS
 
 
-      # Termux  # {{{2
+      # Android  # {{{2
       if [ $HOSTNAME = 'localhost' -a $HOSTTYPE = 'aarch64' ]; then
         echo '.bashrc: Android detected'
 
@@ -834,13 +838,14 @@ case "$OSTYPE" in
           sed 's/"ct"/Current/; s/"fl"/Feels Like/; s/"hu"/Humidity/; s/"uv"/UV/; s/"ws"/Wind/; s/"wr"/Weather/; s/"sr"/Sunrise/; s/"ss"/Sunset/; s/"pop1"/Precip Probability 1 hr/; s/"pop2"/Precip 2 hr/' \
             ~/tmp/w
         }
-      fi  # we're probably running termux
+      fi  # Android
 
-      # Oracle Linux #{{{2
-      #----------------
-      if [ "${LOGNAME}" = 'oracle' ]; then
-        export ORACLE_HOME=/u01/app/oracle/product/version/db_1/
-      fi
+    # Oracle Linux #{{{2
+    #----------------
+    if [ "${LOGNAME}" = 'oracle' ]; then
+      echo '.bashrc: Oracle detected'
+      export ORACLE_HOME=/u01/app/oracle/product/version/db_1/
+    fi
 
   ;; # end Linux
 
@@ -848,6 +853,7 @@ case "$OSTYPE" in
   # NetBSD  #{{{1
   #-------------------
   'netbsd')
+    echo '.bashrc: NetBSD detected'
     # TODO this is only expecting sdf, add hostname filter
 
      export EDITOR=/usr/pkg/bin/vim
@@ -893,6 +899,7 @@ case "$OSTYPE" in
   # Mainframe  #{{{1
   #-------------------
   'OS/390')
+      echo '.bashrc: OS/390 detected'
       export EDITOR=vim
       export PATH=$HOME/bin:/IBMGNU/bin:/usr/local/bin:$PATH
       # Mandatory for dtelnet
