@@ -637,6 +637,7 @@ case "$OSTYPE" in
       shopt -s cdspell checkhash checkwinsize cmdhist dotglob histappend 
       stty erase ^? intr ^C kill ^K
 
+      echo '.bashrc: Linux detected'
       #----------------
       # Export Linux  #{{{2 
       #----------------
@@ -681,8 +682,6 @@ case "$OSTYPE" in
       #----------------
       # Ubuntu #{{{2
       #----------------
-      echo '.bashrc: Ubuntu detected'
-
       alias pse="ps -ef | grep ^$USER | grep -vP 'ps -ef|grep' | grep -v chrome"
       alias systeminfo='df -h && echo && free -m && echo && grep --color="never" name /proc/cpuinfo | uniq && echo && lspci | grep --color="never" VGA && echo && xrandr | grep --color="never" connected && echo && uname -rms'
       alias usb='sudo fdisk -l; mount|grep "^/dev/sd"; sudo mkdir /media/usb; echo; echo "try this: sudo mount -t vfat /dev/sdb /media/usb -o uid=1000,gid=1000,utf8,dmask=027,fmask=137"; echo; echo "usually /dev/sdb or sdc, disconnect: sudo umount /media/usb"'
@@ -712,7 +711,6 @@ case "$OSTYPE" in
       #----------------
       # CentOS  # {{{2
       #----------------
-      echo '.bashrc: CentOS detected'
       if [ $HOSTNAME = 'sasdev-01.twa.foo.com' ]; then
         export PS1='${fg_darkgray}\j ${fg_yellowbold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
       fi
@@ -742,8 +740,6 @@ case "$OSTYPE" in
       #----------------
       # ChromeOS #{{{2
       #----------------
-      echo '.bashrc: ChromeOS detected'
-
       if [ $HOSTNAME = 'chromeos' ]; then
         sudo mount -i -o remount,exec /home/chronos/user
         cd ~
