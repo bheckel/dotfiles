@@ -4,7 +4,7 @@
 # Summary: Bash shell config for at least Unix, Linux, WSL2, Cygwin and z/OS
 #
 #  Created: 19-May-1998 (Bob Heckel)
-# Modified: 19-Sep-2022 (Bob Heckel)
+# Modified: 26-Sep-2022 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -143,7 +143,7 @@ alias one="vi $HOME/dotfiles/oneliners"
 alias qr="$HOME/code/misc/quickref_find.sh"
 # Good luck Yoshi...
 alias robots="export ROBOTOPTS=moveheaps,showscores,screwdriver,fastrobots; robots"
-alias sasrun=$HOME/code/sas/sasrun
+#alias sasrun=$HOME/code/sas/sasrun
 alias sdf='ssh -l bheckel sdf.org; date'
 alias sl='ls --color=none'  # dyslexic daim branage
 alias sr="$HOME/code/sas/sasrun2"
@@ -494,6 +494,7 @@ case "$OSTYPE" in
     # '\[ ... \]' says "ignore this material while calculating the size of the prompt".
     # Want our history appended (-a) and other term's history merged into ours (-n)
     # export PROMPT_COMMAND='history -a; echo -ne "\033]0;${PWD}\007";'
+    # TODO remove need for LCHOSTNAME for Cygwin, move to generic section
     export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${LCHOSTNAME}${fg_darkgray}$(parse_git_branch) \w/ \d \t ${normal} \n\$ '
     export PS2=' '  # allow multiple line copy to clipboard 
     # export SENSIBLE_BROWSER='/cygdrive/c/Program\ Files/mozilla\ firefox/firefox.exe'
