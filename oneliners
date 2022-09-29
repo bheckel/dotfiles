@@ -4467,6 +4467,9 @@ set -x  # set +x to disable
 -- Place at top of script to avoid continuing willy-nilly after a bash script error:
 set -e
 
+-- Date calculator:
+date --date='11/01/2020 +5 days'
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
