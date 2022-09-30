@@ -6787,6 +6787,7 @@ exec DBMS_STATS.gather_SCHEMA_stats(null);
 select * from user_indexes where status='UNUSABLE' where index_name='DI_SITE_DATE_DUNS_NBR';
 alter index DI_SITE_DATE_DUNS_NBR rebuild ONLINE PARALLEL;
 alter index DI_SITE_DATE_DUNS_NBR NOPARALLEL;
+select index_name, degree from user_indexes where index_name = 'DI_SITE_DATE_DUNS_NBR'; -- now 1 instead of DEFAULT
 
 -- Split string into pieces chunks into 2 chunks of 5:
 with v as (select '00000111112222233333' s from dual) select substr(s, (level-1)*5+1, 5) chnk from v connect by level <= 2;
@@ -7247,6 +7248,9 @@ nvl(regexp_substr(msg, '\d+'),0) as recs
 -- Determine index fragmentation - bad if ratio >.10
 analyze index sgix validate structure;
 select DECODE(LF_ROWS, 0, 0, ROUND((DEL_LF_ROWS/LF_ROWS)*100,2)) RATIO, HEIGHT, LF_BLKS, LF_ROWS FROM INDEX_STATS I;
+
+-- Determine table defragmentation:
+select table_name,avg_row_len,round(((blocks*16/1024)),2)||'MB' "total_size", round((num_rows*avg_row_len/1024/1024),2)||'MB' "actual_size", round(((blocks*16/1024)-(num_rows*avg_row_len/1024/1024)),2) ||'MB' "fragmented_space", (round(((blocks*16/1024)-(num_rows*avg_row_len/1024/1024)),2)/round(((blocks*16/1024)),2))*100 "percentage" from all_tables where table_name='ASP_DETAILS';
 
 -- Determine when materialized view last updated
 select owner, name, last_refresh, error, status, refresh_mode  from  all_snapshots where owner = 'SETARS' and name like 'RPT_RION_TERR%';
@@ -7864,7 +7868,7 @@ git config --global merge.tool vimdiff
 git stash --include-untracked -m 'mynamedstash'
 git stash list
 
-# git show the changes recorded in the stash entry as a diff between the stashed contents and the commit back when the stash entry was first created:
+# git show what file changed the changes recorded in the stash entry as a diff between the stashed contents and the commit back when the stash entry was first created:
 git stash show
 git stash show -p 0  # details for specific stash index
 
@@ -7879,6 +7883,9 @@ git stash clear
 git stash --include-untracked -m'mynamedstash' && git stash apply
 # If the apply tries to modify a file that you've since modified, you'll get a merge conflict and will have to try to resolve it. This creates a new branch for you, checks out the commit you were on when you stashed your work, reapplies your work there, and then drops the stash if it applies successfully:
 git stash branch mystashbranch
+
+# git stash mantra (prior to push minimize chance of collisions from upstream changes):
+stash && git pull && git stash pop   && git add  . && git commit -m ' ' && git push  # stashit
 
 git log --pretty=oneline
 git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
@@ -7995,9 +8002,6 @@ git branch -d feature/RION-31587 && git push origin --delete feature/RION-31587 
 # github undo commit of a file >50M:
 git filter-branch --tree-filter 'rm -rf 02-White-Noise-60min.mp3' HEAD && git push && git pull
 
-# git view history of a file (--follow even if filename has changed, --all branches, -p all patches):
-gitk --follow --all -p SUP_HAS_ACTIVE_SITES.fnc
-
 # git view revision and author last modified history for each line of a file, it does not tell you anything about lines which have been deleted or replaced:
 git blame SUP_HAS_ACTIVE_SITES.fnc
 
@@ -8012,9 +8016,6 @@ git checkout -b feature/RION-9999 && git push --set-upstream origin feature/RION
 
 # git squash together all commits after d3fbfd5 (the one I didn't touch). Leave the first entry (oldest commit) alone as 'pick', set others to 's[quash]', next screen lets you edit the message, doing nothing uses all old messages, wipe and type for a new one:
 git rebase --interactive d3fbfd5
-
-# git stash mantra (prior to push minimize chance of collisions or upstream changes):
-stash && git pull && git stash pop   && git add  . && git commit -m ' ' && git push  # stashit
 
 # git show last touches and owner authors for all remote branches:
 for branch in `git branch -r | grep -v HEAD`;do echo -e `git show --format="%ci %cr\t%an\t" $branch | head -n 1` \\t$branch; done | sort -r
@@ -8102,6 +8103,8 @@ u:\misc> del /A:H Thumbs.db
 <!--  «  a left-pointing double angle html entity -->
 &#171;
 
+Double arrows unicode « »
+
 <!-- xslt if AND -->
 <xsl:if test="ExtractEnabled &gt; 0 and Folder='LIFT'"> 
 <!-- xslt if AND LIKE -->
@@ -8110,17 +8113,17 @@ u:\misc> del /A:H Thumbs.db
 # Edit a Windows file using UNC path under Cygwin
 vi '\\okpsawn557\d$\oracle\ora81\network\ADMIN\Tnsnames.ora'
 
-' Excel: B11 holds a code you dont understand, A2:B4 is the lookup "table" whose 1st col contains B11, its 2nd col contains the lookup value to put in the current cell. "2" indicates the table lookup value is in the 2nd column. FALSE=not sorted.
-=VLOOKUP(B11, A2:B4, 2, FALSE)
-
-' Excel difference in cell values:
-=IF(A6<>BD6, "yes", "no")
-
 -- Activate blank Windows screensaver from a .bat:
 start %windir%\system32\scrnsave.scr -s
 
 -- Comma separated column
 select string_agg(distinct taebpatientid::varchar,',') from cce.ccepatientstaging where clientid=22;
+
+' Excel: B11 holds a code you dont understand, A2:B4 is the lookup "table" whose 1st col contains B11, its 2nd col contains the lookup value to put in the current cell. "2" indicates the table lookup value is in the 2nd column. FALSE=not sorted:
+=VLOOKUP(B11, A2:B4, 2, FALSE)
+
+' Excel difference in cell values:
+=IF(A6<>BD6, "yes", "no")
 
 ' Excel multiply two columns and produce a scalar:
 =SUMPRODUCT(O37:O38,P37:P38)
@@ -8166,8 +8169,6 @@ alert( 0.1.toFixed(20) ); // 0.10000000000000000555
 alert( 6.35.toFixed(20) ); // 6.34999999999999964473
 alert( (6.35 * 10).toFixed(20) ); // 63.50000000000000000000
 alert( Math.round(6.35 * 10) / 10); // 6.35 -> 63.5 -> 64(rounded) -> 6.4
-
-Double arrows unicode « »
 
 :: Send To folder c:\temp
 %APPDATA%\Microsoft\Windows\SendTo
