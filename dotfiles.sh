@@ -1,14 +1,14 @@
 #!/bin/bash
 
 #  Created: 03-May-2015 (Bob Heckel) 
-# Modified: 26-Aug-2022 (Bob Heckel)
+# Modified: 29-Sep-2022 (Bob Heckel)
 
 # No leading dots!
-if [ -z WSL_DISTRO_NAME ]; then
+#if [ -z WSL_DISTRO_NAME ]; then
+#  majordots='bashrc vimrc tmux.conf inputrc minttyrc gitconfig'
+#else
   majordots='bashrc vimrc tmux.conf inputrc minttyrc gitconfig'
-else
-  majordots='bashrc vimrc tmux.conf inputrc gitconfig'
-fi
+#fi
   
 myhome=$HOME
 # Debug toggle
