@@ -483,7 +483,7 @@ case "$OSTYPE" in
     # Export Cygwin  #{{{2
     #-------------------
     # For drives not mounted by Cygwin
-    export C=/cygdrive/c
+    export C=/cygdrive/c/
     export CYGWIN=nodosfilewarning  # MS-DOS style path detected: u:/tmp/bdfCURR.rtpsh005
     # export CVSROOT=$HOME/repository
 		export EDITOR=vim
