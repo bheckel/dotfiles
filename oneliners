@@ -3369,12 +3369,17 @@ for i in `find -name '*one*'`; do mv "$i" `echo $i | sed 's/ /_/g'`; done
 
 # Date calculation - add one day to today
 echo `date +%s` + 86400 | bc
+date --date='1 day'  # better
 # Compare convert Unix and SAS epochs (10 years apart):
 date +%s;echo `date +%s` + 315569520 | bc
 # Convert a string date to a Unix datetime number.  Go from words to numbers.
 date +%s -d'05/12/1998'
 # Convert a string date to a SAS datetime number.  Go from words to numbers.
 echo `date +%s -d'05/12/1998'` + 315569520 | bc
+# Date calculate day date that was 3 years ago from today:
+date --date='-1080 days'
+# Date calculate 42 days from Xmas Eve:
+date --date='12/24/2022 +42 days'
 
 # Sort then sum a column
 sed 's/[)(]//g' junk | awk '{print $2}' | sort | xargs | sed 's/ /+/g' | bc
@@ -4200,11 +4205,6 @@ find data/sgk/zebulon -name 'ols*.sas7bdat'|sed 's/\(.*\)/cp -i \1 \/cygdrive\/x
 
 # Find the bash process id of the current process:
 echo $$
-
-# Date calculate date that was 3 years ago from today:
-~/code/scripting/datecalc -1080
-# Date calculate 42 days from Xmas eve:
-~/code/scripting/datecalc 12/24/05 42
 
 # Add a line to first line in each file:
 for f in ja_e_*.htm; do cp $f tmpf; echo '<link href="../ja.css" rel="stylesheet" type="text/css" />' >| $f; cat tmpf >> $f; done;
@@ -5976,10 +5976,10 @@ SELECT * from  user_tab_columns WHERE table_name = 'FOO' AND column_name LIKE '%
 -- Poke around virtual columns:
 select utc1.column_name, utc1.data_default vc_contents from user_tab_cols utc1 where utc1.TABLE_NAME = 'MKC_REVENUE_FULL_HIST' and utc1.VIRTUAL_COLUMN = 'YES';
 
--- What the object references, tables etc depends on:
-select * from user_dependencies where name = 'RPT_OPP_MULTI_YDEAL' and referenced_type not in ('SYNONYM') order by 4;
--- What references the object, views etc depends on:
-select * from user_dependencies where REFERENCED_NAME = 'OPP_BASE' and referenced_type not in ('SYNONYM') order by 1;
+-- What this object references. What this object depends on:
+select * from user_dependencies where name = 'ASP_PKG' and referenced_type not in ('SYNONYM') order by 4; -- i depend on these
+-- What references this object. What depends on this object:
+select * from user_dependencies where REFERENCED_NAME = 'ASP_PKG' and referenced_type not in ('SYNONYM') order by 1; -- others depend on me
 
 -- List all of a table's indexes and tablespace does table have index all indexes for a table what is indexed:
 select index_name, tablespace_name from user_indexes where TABLE_NAME = 'SP_PROCESSING' and index_name not like 'SYS_%';
@@ -6093,6 +6093,9 @@ SELECT trigger_name, trigger_type, triggering_event, table_name, status, trigger
 
 -- Toggle trigger off/on:
 ALTER TRIGGER "SETARS"."DDL_LOGGING_TRIG" ENABLE;
+
+-- Is trigger enabled exist?:
+SELECT trigger_name, trigger_type, triggering_event, table_name, status, trigger_body FROM USER_TRIGGERS WHERE table_name like 'COUNTRY_SUBSIDIARY_GEO3_MAPPING%' ORDER BY 3, 2, 1;
 
 -- Oracle calculate business non-weekdays days:
 (TO_CHAR(b.sample_status_date,'J')-TO_CHAR(b.sample_received_date,'J'))+1 - ((((TRUNC(b.sample_status_date,'D'))-(TRUNC(b.sample_received_date,'D')))/7)*2) -
@@ -7307,9 +7310,6 @@ SELECT /*+ NO_INDEX(EMPLOYEES EMPLOYEES_PK) */ first_name, last_name
 -- Defragment table:
 ALTER TABLE MKC_REVENUE_FULL MOVE ONLINE; 
 
--- Is trigger enabled exist?:
-SELECT trigger_name, trigger_type, triggering_event, table_name, status, trigger_body FROM USER_TRIGGERS WHERE table_name like 'COUNTRY_SUBSIDIARY_GEO3_MAPPING%' ORDER BY 3, 2, 1;
-
 -- Run an existing DBMS_SCHEDULER scheduled job:
 BEGIN DBMS_SCHEDULER.run_job (job_name => 'MKC_REVENUE_LOAD_DAVESIM', use_current_session => FALSE); END;
 
@@ -7337,6 +7337,9 @@ SELECT * FROM V$NLS_PARAMETERS where lower(parameter) in('nls_language', 'nls_te
 
 -- Generate unique temp table name:
 v_temp_table_name VARCHAR2(30) := 'RPTH_R' || TO_CHAR(SYSDATE, 'DDMONYYYYhh24miss'); --RPTH_R16AUG2022132038
+
+-- Modify scheduler time:
+BEGIN sys.dbms_scheduler.set_attribute(name => 'PERIODICLIFECYCLEUPDATE', attribute => 'REPEAT_INTERVAL', value => 'Freq=Daily;ByHour=19;ByMinute=00;BySecond=00'); END;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
