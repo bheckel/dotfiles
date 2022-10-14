@@ -6499,23 +6499,19 @@ SELECT account_id FROM (SELECT TO_NUMBER(COLUMN_VALUE) AS account_id FROM XMLTAB
 
 -- Delimited list of hardcoded numbers:
 ...AND territory_lov_id IN(SELECT to_number(column_value) FROM xmltable(('"' || REPLACE(terrlist, ',', '","') || '"')))  -- terrlist is a varchar2 holding '123,456'
-...AND ( territory_lov_id IN(SELECT to_number(column_value) FROM xmltable(('"' || REPLACE(terrlist, ',', '","') || '"'))) OR terrlist IS NULL )  -- accomodate cases where no comma delimited input parameter passed to procedure:
 -- Delimited list of hardcoded numbers:
 CURSOR c1 IS SELECT account_id FROM account_base WHERE account_id IN ( SELECT in_id FROM (SELECT TO_NUMBER(COLUMN_VALUE) in_id FROM XMLTABLE(TRIM(in_ids))) );
 
--- Compare Oracle table to csv list of numbers:
-SELECT aid, ab.account_id FROM (SELECT to_number(column_value) aid FROM xmltable(('"' || REPLACE('123,456', ',', '","') || '"'))) csv LEFT JOIN account_base ab ON csv.aid=ab.account_id
-
-CURSOR contacts IS SELECT trim(COLUMN_VALUE) contact_id FROM XMLTABLE(upper(TRIM('"' || replace(in_contact_id_list, ',', '","') || '"'))); FOR rec IN contacts LOOP...
+-- Compare an Oracle table to a CSV list of numbers:
+SELECT aid, ab.account_id FROM ( SELECT to_number(column_value) aid FROM xmltable(('"' || REPLACE('123,456', ',', '","') || '"')) ) csv LEFT JOIN account_base ab ON csv.aid=ab.account_id;
 
 -- Create xml table from a CSV string comma separated string;
 CREATE TABLE mytbl AS SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE( '426792,1030348,1030369,1030370', ',', '","') || '"'));
--- Create a virtual view with a CSV list of numbers:
-with v as ( SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE( '426792,1030348,1030369,1030370', ',', '","') || '"'))) select * from v;
 
 -- Parse query XML as if it were a table:
 select col1 from xmltable('/set' passing xmltype('<set><tag>abc</tag></set>') columns col1 path 'tag') x;
 create or replace view zbob as select col1 from xmltable('/set' passing xmltype('<set><tag>abc</tag></set>') columns col1 VARCHAR2(3) path 'tag') x;  -- default is VARCHAR2(32767) but be careful no warning, truncates anything >3
+
 -- Query JSON version gives a null if >3
 select col1 from ( select '{ "tag" : "abc" }' data from dual ), json_table(data, '$' columns (col1 VARCHAR2(3) path '$.tag'));
 select col1 from ( select '{ "tag" : "abc" }' data from dual ), json_table(data, '$' columns (col1 VARCHAR2(2) path '$.tag'  ERROR ON ERROR));  -- better
@@ -6636,7 +6632,7 @@ create table dummy_table as select rownum pid, 'product '||rownum descr from dua
 create table dummy_table(id PRIMARY KEY, tag) as select rownum id, to_char(rownum) tag from dual CONNECT BY level <=10;
 -- Sample CTAS database table load 5 years of data from 2018-01-02 to 2022-12-31:
 create table dummy_table as select DATE '2018-01-01'+rownum x, rownum y from dual connect by level <= 365*5;
--- Sample CTAS table using a csv list that would normally overflow an IN() list get around max of 1K 1000 items (18c+):
+-- Sample CTAS table using a csv list that would normally overflow an IN() list to get around max of 1K 1000 items (18c+):
 create table dummy_table as SELECT to_number(COLUMN_VALUE) account_id FROM xmltable(('"' || REPLACE('123,456', ',', '","') || '"'));
 -- Populate an existing sample dummy Oracle table with 100K random strings of VARCHAR(30):
 insert /*+APPEND*/ into dummy_table select level, dbms_random.string('a',30) from dual connect by level <= 100000
@@ -6668,23 +6664,15 @@ SELECT * FROM user_scheduler_notifications WHERE job_name = 'MKC_REVENUE_LOAD' a
 repeat_interval => 'Freq=Minutely;Interval=20',
 -- Run DBMS_SCHEDULER job every hour:
 repeat_interval =>'Freq=Hourly;Interval=1',
+-- Run DBMS_SCHEDULER job 6 days per week:
+repeat_interval => 'Freq=Daily;ByDay=MON,TUE,WED,THU,FRI,SAT;ByHour=16;ByMinute=00;BySecond=0',
 
 -- Oracle dbms_scheduler scheduled jobs:
-SELECT * from USER_SCHEDULER_JOBS order by last_start_date desc
 select * from user_scheduler_job_log order by log_date desc
-SELECT * FROM user_SCHEDULER_JOB_RUN_DETAILS order by actual_start_date desc
 -- Oracle dbms_scheduler scheduled job next run and what it executes (JOB_ACTION):
 SELECT * from user_scheduler_jobs WHERE job_name LIKE '%MAINT%' or upper(job_action) like '%MAINT%'
-
 -- What dbms_scheduler scheduled jobs exist with this string:
 select a.job_name, a.JOB_TYPE, a.JOB_ACTION, a.start_date, a.REPEAT_INTERVAL, a.end_date, a.JOB_CLASS, a.ENABLED, a.AUTO_DROP, a.comments from user_scheduler_jobs a where lower(job_action) like '%period%';
-
--- Oracle dbms_scheduler scheduled job canonical:
---scheduled/running status
-SELECT state, job_name, job_type, job_action, start_date, repeat_interval, end_date, job_class, enabled, auto_drop, comments FROM user_scheduler_jobs WHERE job_name = 'JOB_RION48384';
---job finished status
-SELECT job_name, status, error#, errors, actual_start_date, run_duration, output, errors FROM user_scheduler_job_run_details WHERE job_name = 'JOB_RION48384' ORDER BY actual_start_date DESC;
-
 -- What are all the dbms_scheduler scheduled jobs that ran in the last 2 days:
 SELECT distinct job_name FROM ALL_SCHEDULER_JOB_RUN_DETAILS WHERE actual_start_date>sysdate-2 order by 1;
 -- Oracle dbms_scheduler scheduled job outcome log success or fail (STATUS) and the error text (ADDITIONAL_INFO):
@@ -6697,6 +6685,12 @@ exec SYS.DBMS_SCHEDULER.disable('SETARS.PERIODIC_LIFECYCLE_UPDATE');
 SELECT job_name from user_scheduler_jobs WHERE state='RUNNING';
 -- Which scheduled jobs ran around 1am?:
 SELECT * FROM user_SCHEDULER_JOB_RUN_DETAILS WHERE to_char(REQ_START_DATE, 'HH24MI')  between '0100' and '0200' ;
+
+-- Oracle dbms_scheduler scheduled job canonical:
+--scheduled/running status
+SELECT state, job_name, job_type, job_action, start_date, repeat_interval, end_date, job_class, enabled, auto_drop, comments FROM user_scheduler_jobs WHERE job_name = 'JOB_RION48384';
+--job finished status
+SELECT job_name, status, error#, errors, actual_start_date, run_duration, output FROM user_scheduler_job_run_details WHERE job_name = 'JOB_RION48384' ORDER BY actual_start_date DESC;
 
 AUTHID DEFINER is the default PLSQL permission, aka define's rights, check SQL at compile-time. AUTHID CURRENT_USER, aka invoker's rights, check SQL at run-time
 CREATE OR REPLACE PACKAGE rion37368 AUTHID DEFINER IS ... -- only on the spec, not body
@@ -7205,8 +7199,10 @@ IF (MOD(i, 1000) = 0) THEN DBMS_OUTPUT.put_line(i || ' id: ' || l_recs(i).id); E
 -- List information about each table in a database (SQL Server):
 select * from information_schema.tables where  table_type='BASE TABLE' 
 
--- Double quote each string in a list:
+-- Single quote each string in a list:
 select '''' || x || '''' indexkeys from ( SELECT listagg(column_name, ''',''') within group (order by column_position) x FROM user_ind_columns WHERE index_name = 'KIR_HC_DV_CIX' );
+-- Double quote ASCII each string in a list:
+select chr(34) || x || chr(34) indexkeys from ( SELECT listagg(column_name, '","') within group (order by column_position) x FROM user_ind_columns WHERE index_name = 'KRFBH_HC_ADJ_CIX' );
 
 -- Index key list for an index:
 SELECT listagg(column_name, ',') within group (order by column_position) x from user_ind_columns WHERE index_name = 'KRB_HC_VP_CIX';
@@ -7340,6 +7336,9 @@ v_temp_table_name VARCHAR2(30) := 'RPTH_R' || TO_CHAR(SYSDATE, 'DDMONYYYYhh24mis
 
 -- Modify scheduler time:
 BEGIN sys.dbms_scheduler.set_attribute(name => 'PERIODICLIFECYCLEUPDATE', attribute => 'REPEAT_INTERVAL', value => 'Freq=Daily;ByHour=19;ByMinute=00;BySecond=00'); END;
+
+-- Which columns differ on two tables?:
+SELECT COLUMN_NAME from  user_tab_columns  WHERE table_name = 'ACCOUNT' minus SELECT COLUMN_NAME from  user_tab_columns@rion_test WHERE table_name = 'ACCOUNT'
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -8204,8 +8203,6 @@ Remove all right-click listeners: $("*").off("contextmenu");
 crosh> help_advanced
 crosh> vmc stop termina  # allows to force close the whole Linux container
 
-This file 'oneliners' is Copyright © 2021 Bob Heckel b dot heckel at gmail dot com
-
 -- Windows home c:\users\bheckel
 %HOMEDRIVE%%HOMEPATH%
 -- Windows WSL2 home
@@ -8224,5 +8221,7 @@ echo ‘I am a virtual di ’ > /dev/pty7
 
 -- Minimize / maximize Window:
 Alt+Shift+Spacebar
+
+This file 'oneliners' is Copyright © 2022 Bob Heckel b dot heckel at gmail dot com
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
