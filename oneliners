@@ -4396,6 +4396,9 @@ nmcli dev show | grep DNS
 # What is my IP (if no ifconfig):
 curl http://ifconfig.me/ip
 
+# Sample REST call:
+curl -X GET https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/avg_interest_rates
+
 # Which distro am I using:
 cat /etc/*-release | grep VERSION | perl -pe 's/VERSION="//g'
 winver.exe
