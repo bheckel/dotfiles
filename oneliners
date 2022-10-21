@@ -5627,8 +5627,9 @@ l_db_name := CASE WHEN (l_db_name = 'ERS') THEN 'EPS' ELSE 'ESSP' END;
 -- PLSQL check a column as BOOLEAN:
 ... v_gonereason := (c.gonereason = 0); IF v_gonereason THEN ...
 
--- Custom sort order:
+-- ORDER BY custom sort order customer:
 order by decode(TOP_LEVEL_ITEM_TEXT, 'accounts', 1, 'contacts', 2, 'opportunities', 3, 999)
+SELECT * FROM co.customers ORDER BY substr(email_address, instr(email_address, '@'));  -- sort by domain
 
 -- Avoid ugly double space 'John  Doe' while allowing for a blank middle initial 'John Q. Doe':
 SELECT x.*, trim(x.first_name || ' ' || x.middle_name || DECODE(x.middle_name, NULL, '', ' ') || x.last_name) as contact_name
@@ -8185,6 +8186,8 @@ curl -d '{"key1":"value1", "key2":"value2"}' -H "Content-Type: application/json"
 
 # Calculate mirror size 4884 1.0123+10 is 10GB in 4884 files
 curl -s ftp://mirror.cs.vt.edu/pub/cygwin/cygwin/x86/setup.ini | awk '/^install: / { T = T + $3 ; N++ }; END { print N, T }'
+
+curl -X GET 'https://rionapi-dev.unx.as.com/rest/accountTeams/assignments/sites?accountId=99999' -H 'Accept: application/hal+json;v=EDGE' -H 'X-Orion-Principal-User:rynt\ppt' -H 'Authorization: OWS FRb8g' -H 'Host: rionapi-dev.unx.as.com'
 
 # Avoid cloning a repo if you only need read only:
 w3m https://github.com/bheckel/code/blob/master/rme/

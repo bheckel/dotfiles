@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  Created: 03-May-2015 (Bob Heckel) 
-# Modified: 29-Sep-2022 (Bob Heckel)
+# Modified: 17-Oct-2022 (Bob Heckel)
 
 # No leading dots!
 #if [ -z WSL_DISTRO_NAME ]; then
@@ -67,7 +67,7 @@ if [ ! -e $HOME/tmp ]; then
 fi
 
 if [ -e /cygdrive ]; then
-  mkdir -p /cygdrive/c/temp
+  mkdir -p /cygdrive/c/temp && cd ~ && ln -s /cygdrive/c/temp .
 fi
 
 echo
