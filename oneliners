@@ -7117,12 +7117,17 @@ l_db_name VARCHAR2(20) := SYS_CONTEXT('USERENV', 'DB_NAME');  if (l_db_name IN (
 
 -- Oracle which schema am i on current schema name whoami user e.g. SETARS:
 select USERNAME, SCHEMANAME, OSUSER, MACHINE, PROGRAM, TYPE, MODULE, LOGON_TIME, CLIENT_IDENTIFIER from v$session where username is not null and type='USER' order by status, logon_time;
+select sys_context('USERENV','OS_USER') as my_name_from_os from dual;  -- obheck
 select sys_context('USERENV', 'CURRENT_SCHEMA') from dual;
 declare x varchar2(99); begin x := 'my schema is ' || USER; dbms_output.put_line(x); end;
 -- Which schema/user am i whoami?
-select SYS_CONTEXT('USERENV', 'SESSION_USER') from dual;
+select SYS_CONTEXT('USERENV', 'SESSION_USER') from dual;  -- SETARS
+-- What is my session ID:
+select sys_context('USERENV','SID') as my_session_id_sid from dual;
+
 -- Capture Oracle userid (note NO SEMICOLON to terminate the SQL):
 EXECUTE IMMEDIATE q'[ SELECT sys_context('setars_context', 'employee_id') from dual ]' INTO whoami;
+
 -- whoami sqlplus:
 show user
 
@@ -7134,8 +7139,6 @@ select SYS_CONTEXT('USERENV','HOST') from dual;
 
 -- Use my id if i exist but if i do not exist, use superowner's:
 ..., actual_updatedby = nvl(sys_context('mystars_context', 'employee_id'), 0)
-
-select sys_context('USERENV','SID') as my_session_id_sid from dual;
 
 -- What is my current date format:
 SELECT value FROM v$nls_parameters WHERE parameter ='NLS_DATE_FORMAT';
@@ -7339,7 +7342,7 @@ SELECT * FROM V$NLS_PARAMETERS where lower(parameter) in('nls_language', 'nls_te
 v_temp_table_name VARCHAR2(30) := 'RPTH_R' || TO_CHAR(SYSDATE, 'DDMONYYYYhh24miss'); --RPTH_R16AUG2022132038
 
 -- Modify scheduler time:
-BEGIN sys.dbms_scheduler.set_attribute(name => 'PERIODICLIFECYCLEUPDATE', attribute => 'REPEAT_INTERVAL', value => 'Freq=Daily;ByHour=19;ByMinute=00;BySecond=00'); END;
+BEGIN sys.dbms_scheduler.set_attribute(name => 'KMC_REVENUE_LOAD_DAVESIM_BH_ORNDBDRW01', attribute => 'REPEAT_INTERVAL', value => 'Freq=Daily;ByDay=MON,TUE,WED,THU,FRI,SAT;ByHour=06;ByMinute=00;BySecond=0'); END;
 
 -- Which columns differ on two tables?:
 SELECT COLUMN_NAME from  user_tab_columns  WHERE table_name = 'ACCOUNT' minus SELECT COLUMN_NAME from  user_tab_columns@rion_test WHERE table_name = 'ACCOUNT'

@@ -172,7 +172,7 @@ if has('gui_running')
   "winpos 295 295
   set columns=110
   " Most of the time we're just doing fast edits so make it small
-  set lines=40
+  set lines=42
 
   if has('gui_gtk3')
     set guifont=Cousine\ 8
