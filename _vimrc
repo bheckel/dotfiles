@@ -1041,7 +1041,7 @@ endif
 
 " Checkpoint backup current file:
 " map ;5 :silent! write! /c/temp/%:t<CR>
-nnoremap ;5 :call BkupFile(VTMP)<CR>
+nnoremap ;5 :call BkupFile(VTMP)<CR>:echo VTMP<CR>
 
 " Maximize window without RSI.  Alternative to z99.  Same as map ,b without
 " the jumping.  (B)ig buffer.  Also see nnoremap zz for cycling windows.
