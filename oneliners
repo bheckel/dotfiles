@@ -5507,19 +5507,6 @@ TYPE names_t IS TABLE OF VARCHAR2(100); my_family names_t := ('Vera','Chris','El
 
 define_editor="C:\Program Files (x86)\Vim\vim74\gvim.exe -u C:\Users\obheck\_gvimrc"
 
--- Oracle DATE literal
-select * from t WHERE t.min_end_time> '16jan19'
--- Oracle ANSI date constants literals (client controls display format):
-select TRUNC(date'2020-02-20', 'Q') dt, TRUNC(TO_DATE('2020-02-20','YYYY-MM-DD'), 'Q') dt_same from dual;
-select to_date('1978-12-25 09:00 AM', 'YYYY-MM-DD HH:MI AM')  -- 9am
--- ANSI date literal must be YYYY-MM-DD             _________________ not Oracle '21JAN17':
-SELECT TO_DATE('21 JANUARY 2017','DD MONTH YYYY') - DATE '2017-01-01' "date diff" FROM DUAL;
-SELECT LAST_DAY(DATE '2019-01-01') last_day_of_month FROM dual
-lastDayOfQuarter := LAST_DAY(TO_DATE(to_char((payoutQuarter * 3), '00') || '/01/' || targetYear, 'mm/dd/YYYY'));
-
--- PLSQL date constant:
-sp_active_end   CONSTANT DATE := '31DEC2099';
-
 -- Copy first few rows of Oracle table into an existing table:
 INSERT INTO mynewtbl SELECT * FROM myoldtbl WHERE rownum<11; commit;
 -- Copy all rows of Oracle table into an existing empty table (CTAS for insert):
@@ -5712,25 +5699,41 @@ select TO_DATE('6-JAN-06'), TO_DATE('06JAN06'), TO_DATE('6JAN2006');  -- all sam
 select TO_DATE('15-may-2006 16:00:01','dd-mon-yyyy hh24:mi:ss') from dual; -- 15-May-06 04:00:01 PM
 select * from activity_log where trunc(activity_dt)=TO_DATE('16-JAN-06','DD-MON-YY');
 
+-- Oracle DATE literal
+select * from t WHERE t.min_end_time> '16jan19'
+-- Oracle ANSI date constants literals (client controls display format):
+select TRUNC(date'2020-02-20', 'Q') dt, TRUNC(TO_DATE('2020-02-20','YYYY-MM-DD'), 'Q') dt_same from dual;
+select to_date('1978-12-25 09:00 AM', 'YYYY-MM-DD HH:MI AM')  -- 9am
+-- ANSI date literal must be YYYY-MM-DD             _________________ not Oracle '21JAN17':
+SELECT TO_DATE('21 JANUARY 2017','DD MONTH YYYY') - DATE '2017-01-01' "date diff" FROM DUAL;
+SELECT LAST_DAY(DATE '2019-01-01') last_day_of_month FROM dual
+lastDayOfQuarter := LAST_DAY(TO_DATE(to_char((payoutQuarter * 3), '00') || '/01/' || targetYear, 'mm/dd/YYYY'));
+
+-- PLSQL date constant:
+sp_active_end   CONSTANT DATE := '31DEC2099';
+
 -- Oracle ANSI datetime timestamp constants literals (client controls display format). Both are 29-OCT-12 12.01.01.123000000 PM:
 select TIMESTAMP '2012-10-29 14:01:01', TIMESTAMP '2012-10-29 12:01:01.123', to_timestamp('2012-10-29 12:01:01.123', 'YYYY-MM-DD HH:MI:SS.FF AM') from dual;
 -- Oracle ANSI TIMESTAMP literal:
 select * from t WHERE t.min_end_time> TIMESTAMP '2019-01-16 08:26:50'
+
 INSERT INTO test_table (timestamp_col) VALUES (TIMESTAMP '2017-01-21 12:34:56.78');
--- Oracle ANSI TIMESTAMP literal with timezone:
+-- Oracle TIMESTAMP literal with timezone:
 INSERT INTO test_table (timestamp_tz_col) VALUES (to_timestamp_tz('2017-01-21 21:05:53.46 +02:00', 'YYYY-MM-DD HH24:MI:SS.FF TZH:TZM');
 select to_timestamp_tz(SYSDATE,'DD-MON-YYYY HH24:MI:SS') from dual;
 
 -- Generate a year's worth of 1st of month dates:
 select timestamp'2021-01-01 00:00:00' + numtodsinterval(level, 'day') dt from DUAL connect by level <= 365;
--- Generate a year's worth of dates starting with now:
+-- Generate a year's worth of dummy dates starting with now:
 select sysdate + numtodsinterval(level, 'day') dt from DUAL connect by level <= 365;
 
 -- Max number of seconds that won't throw ORA-01873:
 select NUMTODSINTERVAL(power(2,31) - 1, 'SECOND') as interval from dual;
 select date '1970-01-01' + NUMTODSINTERVAL(power(2,31) - 1, 'SECOND') as max_interval_from_epoch from dual; -- 19-JAN-38 03:14:07
 
-SELECT SYSDATE + interval '1' minute from dual; --01-MAY-20 13:36:33
+select SYSDATE + interval '1' minute from dual; -- 1 minute from now 01-MAY-20 13:36:33
+select TIMESTAMP '2012-10-29 12:01:01.123' - interval '3' minute from dual;  -- 3 minutes ago from then 29-OCT-12 11.58.01.123000000 AM
+
 -- Good for dbms_scheduler start_date start_date => '01-MAY-20 01.51.00PM EST5EDT',:
 SELECT CAST(SYSDATE + interval '1' minute AS TIMESTAMP) from dual; --01-MAY-20 01.37.07.000000000 PM
 
@@ -6008,7 +6011,7 @@ ALTER TABLE contact_opp   ADD CONSTRAINT opp_contact_opp_fk FOREIGN KEY (opp_id)
 SELECT column_name FROM user_cons_columns ucc, user_constraints uc WHERE uc.table_name = 'ACCOUNT_BAS' AND uc.CONSTRAINT_TYPE = 'P' AND ucc.CONSTRAINT_NAME = uc.CONSTRAINT_NAME;
 
 -- Have constraint name want column affected by it. ORA-02291: integrity constraint (SETARS.ASP_PROC_REQ_ASP_PROC_TERR_FK) violated - parent key not found. Which foreign key constraint was violated failed?:
-SELECT column_name FROM user_cons_columns ucc, user_constraints uc WHERE uc.CONSTRAINT_NAME = 'ACCT_TM_ACC_TM_ASSIGN_FK' AND ucc.CONSTRAINT_NAME = uc.CONSTRAINT_NAME;
+SELECT uc.CONSTRAINT_NAME, uc.TABLE_NAME, COLUMN_NAME, DELETE_RULE, STATUS FROM user_cons_columns ucc, user_constraints uc WHERE uc.CONSTRAINT_NAME in('ACTIVITY_CONTACT_ACT_FK','OPPORTUNITY_CONTACT_OPP_FK','OPP_FUNNEL_ACT_OPP_FK') AND ucc.CONSTRAINT_NAME = uc.CONSTRAINT_NAME;
 
 -- Want all constraints including primary on this table:
 SELECT * FROM user_cons_columns ucc, user_constraints uc WHERE uc.table_name = 'KMC_REVENUE_FULL' /*AND uc.CONSTRAINT_TYPE = 'P'*/ AND ucc.CONSTRAINT_NAME = uc.CONSTRAINT_NAME;
@@ -6764,9 +6767,10 @@ select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right out
 -- Suppress throw away sqlplus SQL output just display calculate execution plan explain plan cost:
 set autotrace traceonly explain -- in sqlplus then select ...
 
-EXPLAIN PLAN FOR SELECT * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display(null, null, 'typical')); ROLLBACK; -- deprecated, use dbms_xplan
--- Autotrace explain BEST execution plan cost optimizer:
-select /*+ gather_plan_statistics */ * from bricks b join colours c on b.colour=c.colour; /* set pagesize 0 */ select * from table(dbms_xplan.display_cursor(format => 'IOSTATS LAST  +cost +bytes'));  -- alternatively set this to avoid the hint: ALTER SESSION SET statistics_level = all;
+EXPLAIN PLAN FOR SELECT * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display(null, null, 'typical')); ROLLBACK; -- deprecated
+-- Autotrace explain BEST execution plan cost optimizer. Alternatively set this to avoid the hint: ALTER SESSION SET statistics_level = all;
+-- set pagesize 0
+select  /*+ gather_plan_statistics */ count(1) from rpt_strategic_accounts; SELECT * FROM v$sqlstats WHERE lower(sql_text) like '%count(1) from rpt_strategic%' and last_active_time > sysdate-interval '1' minute;--57fa0bfh942nu select * From TABLE(dbms_xplan.display_cursor('57fa0bfh942nu',null,'ALLSTATS LAST +COST'));
 
 -- Check for histograms:
 select utcs.column_name, utcs.histogram, utcs.num_buckets from user_tables ut join user_tab_col_statistics utcs on ut.table_name = utcs.table_name where ut.table_name = 'BRICKS';
@@ -7157,9 +7161,6 @@ SELECT job_name, job_action, CASE WHEN (state = 'SCHEDULED' AND last_run_duratio
 DROP INDEX sp_processing_id_pk;  --fail
 ALTER TABLE SP_PROCESSING DROP CONSTRAINT sp_processing_id_pk;  -- success
 
--- Show the column affected by ORA-02291 constraint:
-SELECT column_name FROM user_cons_columns ucc, user_constraints uc WHERE uc.CONSTRAINT_NAME = 'ACCT_TM_ACC_TM_ASSIGN_FK' AND ucc.CONSTRAINT_NAME = uc.CONSTRAINT_NAME;
-
 -- Oracle max length index name 30 char
 
 -- Calculate difference in minutes between 2 DATE columns in a table:
@@ -7346,6 +7347,9 @@ BEGIN sys.dbms_scheduler.set_attribute(name => 'KMC_REVENUE_LOAD_DAVESIM_BH_ORND
 
 -- Which columns differ on two tables?:
 SELECT COLUMN_NAME from  user_tab_columns  WHERE table_name = 'ACCOUNT' minus SELECT COLUMN_NAME from  user_tab_columns@rion_test WHERE table_name = 'ACCOUNT'
+
+-- Want consistent gets for tuning sqlplus:
+set autotrace traceonly stat
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
