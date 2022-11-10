@@ -6,7 +6,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Tue 12-Jul-2022 (Bob Heckel)
+" Modified: Thu 10-Nov-2022 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -276,18 +276,15 @@ hi Statement ctermfg=Yellow guifg=LightYellow guibg=Black
 hi String ctermfg=White guifg=White guibg=Black cterm=bold gui=bold
 
 " May be overridden by aucommands.  Mirror any change here to there.
-" Alert if we're using older versions of Vim
-" if version < 600
-  " hi StatusLine ctermfg=Green ctermbg=White guifg=Green guibg=Blue
-  " hi StatusLineNC ctermfg=Green ctermbg=Black guifg=Green guibg=Black gui=inverse,bold
-" else
-  " For statusline setting below
-  hi User1 ctermfg=red guifg=red cterm=inverse,bold 
-  " Active status line
+hi User1 ctermfg=red guifg=red cterm=inverse,bold 
+
+ if version < 800
+  hi StatusLine ctermfg=Blue ctermbg=White guifg=Blue guibg=White
+  hi StatusLineNC ctermfg=Blue ctermbg=Gray guifg=Blue guibg=Gray
+else
   hi StatusLine ctermfg=23 ctermbg=White guifg=#005f5f guibg=White
-  " Inactive status line
   hi StatusLineNC ctermfg=23 ctermbg=Gray guifg=#005f5f guibg=Gray
-" endif
+endif
 
 hi TabLine ctermfg=Gray ctermbg=DarkGray
 hi TabLineSel ctermfg=White ctermbg=DarkGray

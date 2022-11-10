@@ -26,6 +26,7 @@ stty -ixon
 complete -d cd
 
 shopt -s extglob 
+shopt -s histappend  # append, don't overwrite
 
 # Make fscking dark blue readable
 #printf '\e]4;4;#6495ed\a'
@@ -33,32 +34,31 @@ shopt -s extglob
 #-----------------------
 # Generic Export  #{{{2
 #-----------------------
-export EDITOR=vi
+EDITOR=vi
 # For git PS1 function
-export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
-export GIT_CEILING_DIRECTORIES=/home
-export HISTSIZE=10000
-export HISTFILESIZE=10000  # max lines in $HISTFILE
-export HISTIGNORE='f:fg:l:ls:la:cd:h:ll::d:by:&'  # '&' supposedly same as HISTCONTROL=ignoredups - consecutive dups that is
-# No duplicates, no same successive entries ('&' HISTIGNORE doesn't work 2007-11-18)
-export HISTCONTROL=ignoreboth
-export HISTTIMEFORMAT='%F %T '
-export IGNOREEOF=1  # require 2 ctr-d to exit
-export LESS='--ignore-case'  # but still honors 'ThisSearchPattern'
+GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+GIT_CEILING_DIRECTORIES=/home
+HISTSIZE=10000
+HISTFILESIZE=10000  # max lines in $HISTFILE
+HISTIGNORE='f:fg:l:ls:la:cd:h:ll::d:by:&'  # '&' supposedly same as HISTCONTROL=ignoredups - consecutive dups that is
+HISTCONTROL=ignoredups:erasedups
+HISTTIMEFORMAT='%F %T '
+IGNOREEOF=1  # require 2 ctr-d to exit
+LESS='--ignore-case'  # but still honors 'ThisSearchPattern'
 # Prevent ugly default bolding
 ###export LS_COLORS='*.swp=00;35:*.swo=00;35:*.bak=00;35:ex=00;32:*.java=00;32:*.pm=00;32:no=00:fi=00:di=01;34:ln=00;36:*.lnk=00;36:*.gz=00;31:*.bz2=00;31:*.zip=00;31:*.tgz=00;31:*.7z=00;31'
 # ow= avoid hard-to-read gray on green for rwxrwxrwx files
-export LS_COLORS='ow=30;42:*.swp=00;35:*.swo=00;35:*.bak=00;35:ex=00;32'
-export PAGER=less  # for man(1)
-export PARINIT='rTbgqR B=.?_A_a Q=_s>| w65'  # par formatter
-export PATH=$PATH:~/bin
-export PERLLIB=$HOME/perllib
-export PROMPT_COMMAND='echo -ne "\033]0;${PWD}\007";'
-export TMP=$HOME/tmp
+LS_COLORS='ow=30;42:*.swp=00;35:*.swo=00;35:*.bak=00;35:ex=00;32'
+PAGER=less  # for man(1)
+PARINIT='rTbgqR B=.?_A_a Q=_s>| w65'  # par formatter
+PATH=$PATH:~/bin
+PERLLIB=$HOME/perllib
+PROMPT_COMMAND='echo -ne "\033]0;${PWD}\007";'
+TMP=$HOME/tmp
 # Default "unknown host" indicator for my .vimrc statusline
-export VIMSTATUSL='?@?'
+VIMSTATUSL='?@?'
 
-# Deprecated
+# DEPRECATED
 #GREP_OPTIONS=
 #if grep --help | grep -- --exclude-dir &>/dev/null; then
 #  for PATTERN in .cvs .git .hg .svn; do
@@ -72,24 +72,24 @@ export VIMSTATUSL='?@?'
 # Ctrl-v escape to insert the ^[ because  "\[\033[01;38;5;52m\]"  won't work.
 # Use this to find e.g. 243 for darkgray
 # for i in {0..255} ; do printf "\x1b[38;5;${i}mcolour${i}\n"; done;
-export fg_whitebold="[1;37m"
-export fg_lightgray="[0;37m"
-export fg_lightgraybold="[1;37m"
-export fg_darkgray="[0;38;5;243m"
-export fg_darkgraybold="[1;38;5;243m"
-export fg_blue="[0;34m"
-export fg_bluebold="[1;34m"
-export fg_green="[0;32m"
-export fg_greenbold="[1;32m"
-export fg_cyan="[0;36m"
-export fg_cyanbold="[1;36m"
-export fg_red="[0;31m"
-export fg_redbold="[1;31m"
-export fg_magenta="[0;35m"
-export fg_magentabold="[1;35m"
-export fg_yellow="[0;33m"
-export fg_yellowbold="[1;33m"
-export normal="[0m"
+fg_whitebold="[1;37m"
+fg_lightgray="[0;37m"
+fg_lightgraybold="[1;37m"
+fg_darkgray="[0;38;5;243m"
+fg_darkgraybold="[1;38;5;243m"
+fg_blue="[0;34m"
+fg_bluebold="[1;34m"
+fg_green="[0;32m"
+fg_greenbold="[1;32m"
+fg_cyan="[0;36m"
+fg_cyanbold="[1;36m"
+fg_red="[0;31m"
+fg_redbold="[1;31m"
+fg_magenta="[0;35m"
+fg_magentabold="[1;35m"
+fg_yellow="[0;33m"
+fg_yellowbold="[1;33m"
+normal="[0m"
 
 #-----------------------
 # Generic Alias	 #{{{2
@@ -112,9 +112,7 @@ alias ddg='w3m http://duckduckgo.com/lite'
 alias f='fg'  # jobs -s  to list what's suspended
 alias g=$HOME/dotfiles/gone.sh
 alias ga="$HOME/code/misc/gitall"
-# Can't use sed to eliminate leading spaces or it breaks coloring
-# alias gb='git branch -v; echo "MRU:"; git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)" | head -n5'
-alias gb='git branch'
+alias gb='for branch in `git branch -r | grep -v HEAD`;do echo -e `git show --format="%ci %cr\t%an\t" $branch | head -n 1` \\t$branch; done | sort -r'
 alias gbc='gnome-terminal -- bc 1>/dev/null'
 alias gitall="$HOME/code/misc/gitall"
 alias gpul='git pull'

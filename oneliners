@@ -5410,16 +5410,14 @@ union all
 -- Records common to both tables:
 select deptno from scott.emp INTERSECT select deptno from scott.dept  -- 10, 20, 30
 
+-- Determine TNS, Oracle version 19c:
+show connection
 -- Determine Oracle version digits v9+.  E.g. 18:
 SQL> SET SERVEROUT ON; SQL> EXEC DBMS_OUTPUT.PUT_LINE(DBMS_DB_VERSION.VERSION);
 -- Full dotted Oracle version:
 SELECT * FROM v$version; -- Oracle Database 11g Enterprise Edition Release 11.2.0.4.0 - 64bit Production
-
 --Oracle database hostname instance version, rack, status information:
 select * from v$instance;
-
--- TNS, Oracle version etc:
-show connection
 
 -- Also allows determination of which oracle version(s) are installed:
 /oracle/app/oracle/product/9208HP64DB1_PAR/bin/tnslsnr LISTENER
@@ -5839,8 +5837,10 @@ SELECT empno, job, LPAD('*', sal/100, '.') graph FROM emp
 -- Update query: 
 update retain.fnsh_prod set prod_sel = 'N', prod_sel_dt = NULL;
 
--- Oracle SQL*Plus (like SELECT TOP 10 *... in SQL Server)
+-- Oracle: 
 select * from activity_log where rownum<10;
+-- SQL Server:
+select TOP 10 *
 
 -- Format Oracle format if column too wide that truncation occurs in sqlplus window:
 SQL> col MFG_SPEC_TXT_A form a15  -- sqlplus column format width 15 characters
@@ -6034,7 +6034,7 @@ clear screen; info contact_dhub; ddl contact_dhub;
 -- View all details of Oracle table in a schema poke around table (subset of SQL Developer's ddl MYTBL):
 select DBMS_METADATA.GET_DDL('TABLE', 'EMAIL_MESSAGES', 'SETARS') from dual;
 
--- Get DDL to recreate an index (and SET to avoid truncation of set serveroutput on):
+-- Get DDL to recreate an index (and SET to avoid truncation of set serveroutput on). Avoid sqlplus truncation:
 set long 90000; select dbms_metadata.get_ddl('INDEX','KRB_9BYTE_CD_IX','SETARS') x from dual;
 
 -- View some details of Oracle table (like sqlplus DESC):
@@ -6765,9 +6765,10 @@ select deptno, empno top_oldest_emp, sal from scott.emp e where not exists ( sel
 select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2;
 
 -- Suppress throw away sqlplus SQL output just display calculate execution plan explain plan cost:
-set autotrace traceonly explain -- in sqlplus then select ...
+set autotrace traceonly -- in sqlplus then select foo /*+gather_plan_statistics*/ from bar;
 
 EXPLAIN PLAN FOR SELECT * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display(null, null, 'typical')); ROLLBACK; -- deprecated
+
 -- Autotrace explain BEST execution plan cost optimizer. Alternatively set this to avoid the hint: ALTER SESSION SET statistics_level = all;
 -- set pagesize 0
 select  /*+ gather_plan_statistics */ count(1) from rpt_strategic_accounts; SELECT * FROM v$sqlstats WHERE lower(sql_text) like '%count(1) from rpt_strategic%' and last_active_time > sysdate-interval '1' minute;--57fa0bfh942nu select * From TABLE(dbms_xplan.display_cursor('57fa0bfh942nu',null,'ALLSTATS LAST +COST'));
@@ -7347,9 +7348,6 @@ BEGIN sys.dbms_scheduler.set_attribute(name => 'KMC_REVENUE_LOAD_DAVESIM_BH_ORND
 
 -- Which columns differ on two tables?:
 SELECT COLUMN_NAME from  user_tab_columns  WHERE table_name = 'ACCOUNT' minus SELECT COLUMN_NAME from  user_tab_columns@rion_test WHERE table_name = 'ACCOUNT'
-
--- Want consistent gets for tuning sqlplus:
-set autotrace traceonly stat
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
