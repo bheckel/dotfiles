@@ -6338,6 +6338,9 @@ select * from ( select empno, ename, job, hiredate, sal, comm, dense_rank() OVER
 -- Top-N query, but it can only do the top-rows (RANK aka Olympic rule), internally implementing it like an inline view with row_number or rank analytic functions. But if you want top-values rule, you must do it yourself with dense_rank.
 FETCH FIRST 3 ROWS WITH TIES
 
+-- Show all possible values of cust_id:
+listagg(distinct cust_id, '|' ON OVERFLOW TRUNCATE '...') within group(order by cust_id) as cust_id,
+
 -- Build concatenate a random comma separated CSV list of ids:
 SELECT listagg(account_search_id,', ') WITHIN GROUP (ORDER BY account_search_id) FROM account_search SAMPLE(0.1) WHERE ROWNUM<99;
 
@@ -7557,11 +7560,6 @@ ASP shorthand alternative to Response.Write(Date())
 :: DOS wildcard:
 c:> echo %random%
 
-Hidden startup executables (not found in Programs:StartUp see also Powershell approach):
-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
-or under Cygwin:
-$ regtool -v list '\machine\SOFTWARE\Microsoft\Windows\CurrentVersion\Run'
-
 :: doskey in DOS == alias in Unix
 doskey vi=vim $1
 
@@ -8219,13 +8217,18 @@ crosh> vmc stop termina  # allows to force close the whole Linux container
 -- Windows WSL2 home
 \\wsl.localhost\Ubuntu\home\bheckel
 
+Hidden startup executables (not found in Programs:StartUp see also Powershell approach):
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+or under Cygwin:
+$ regtool -v list '\machine\SOFTWARE\Microsoft\Windows\CurrentVersion\Run'
+
 -- Search for commands Powershell;
 Get-Command -Name '*Process'
 Get-Command -Name '*Get'
 
 -- Windows system device Win11 environment via Powershell:
 $PSVersionTable.PSVersion
-Get-ComputerInfo
+powershell.exe Get-ComputerInfo
 
 -- Microsoft Word quotes
 echo ‘I am a virtual di ’ > /dev/pty7

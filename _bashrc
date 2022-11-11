@@ -500,17 +500,20 @@ case "$OSTYPE" in
     # Functions Cygwin  #{{{2
     #-------------------
 
-    if [ ${OSTYPE:0:6} = 'cygwin' ]; then
-      function catput() {
-        echo 'putclip...'
-        if [ -e /usr/bin/putclip ]; then
-          echo 'putclip...'
-          cat "$1" | putclip
-        else
-          echo putclip not installed
-        fi
-      }
-    fi
+   # if [ ${OSTYPE:0:6} = 'cygwin' ]; then
+   #   function catput() {
+   #     echo 'putclip...'
+   #     if [ -e /usr/bin/putclip ]; then
+   #       echo 'putclip...'
+   #       cat "$1" | putclip
+   #     else
+   #       echo putclip not installed
+   #     fi
+   #   }
+   # fi
+   function putclip() {
+     echo "$1" | xargs powershell.exe Set-Clipboard -Value
+   }
 
     # end Functions Cygwin
 
