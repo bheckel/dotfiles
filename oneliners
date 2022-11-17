@@ -6741,7 +6741,9 @@ COUNT(ColName)          -- returns the number of rows that have a non null value
 COUNT(DISTINCT ColName) -- returns the number of unique values for column ColName (can't use * )
 -- Oracle faster but less accurate count function:
 SELECT NUM_ROWS FROM ALL_TABLES WHERE TABLE_NAME = 'MYTBL';
-SELECT prod_id, APPROX_COUNT_DISTINCT(cust_id) ...
+select APPROX_COUNT_DISTINCT(salesgroup) from salesgroup;
+select count(DISTINCT(salesgroup)) from salesgroup;
+select count(DISTINCT salesgroup) from salesgroup;
 
 -- Oracle how many rows of data in table:
 select max(rownum) from pks_extraction_control
@@ -6754,8 +6756,6 @@ select count(*) from [W23PSQL01\Production].bpms_va.dbo.claims_pharmacy
 -- Built-in scalar date function SQL Server:
 SELECT CURRENT_TIMESTAMP
 
-SELECT DATEDIFF (YEAR, '1/1/2002', '1/1/2005')
-
 -- Faster alternative to max() on unindexed table:
 select filldate from rxfilldata_201709 where clientid=19 order by 1 desc limit 1 ;
 
@@ -6767,14 +6767,14 @@ select deptno, empno top_oldest_emp, sal from scott.emp e where not exists ( sel
 -- Modified analytic outer join to get every hr, every room and who reserved it:
 select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2;
 
+EXPLAIN PLAN FOR SELECT * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display(null, null, 'typical')); ROLLBACK; -- deprecated
+
 -- Suppress throw away sqlplus SQL output just display calculate execution plan explain plan cost:
 set autotrace traceonly -- in sqlplus then select foo /*+gather_plan_statistics*/ from bar;
 
-EXPLAIN PLAN FOR SELECT * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display(null, null, 'typical')); ROLLBACK; -- deprecated
-
--- Autotrace explain BEST execution plan cost optimizer. Alternatively set this to avoid the hint: ALTER SESSION SET statistics_level = all;
+-- Autotrace explain execution plan cost optimizer. Alternatively set this to avoid the hint: ALTER SESSION SET statistics_level = all;
 -- set pagesize 0
-select  /*+ gather_plan_statistics */ count(1) from rpt_strategic_accounts; SELECT * FROM v$sqlstats WHERE lower(sql_text) like '%count(1) from rpt_strategic%' and last_active_time > sysdate-interval '1' minute;--57fa0bfh942nu select * From TABLE(dbms_xplan.display_cursor('57fa0bfh942nu',null,'ALLSTATS LAST +COST'));
+sElEcT /*+gather_plan_statistics*/ count(1) from rpt_account where account_id=436139; select sql_id FROM v$sqlstats WHERE sql_text like 'sElEcT %' ORDER BY LAST_LOAD_TIME DESC; select * from table(dbms_xplan.display_cursor('2pv5ufk1w1g00', format => 'ALLSTATS LAST +cost +bytes'));
 
 -- Check for histograms:
 select utcs.column_name, utcs.histogram, utcs.num_buckets from user_tables ut join user_tab_col_statistics utcs on ut.table_name = utcs.table_name where ut.table_name = 'BRICKS';
