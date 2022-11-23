@@ -40,9 +40,6 @@ for f in $majordots; do
   echo -n ".............	 "
   if [ -e $myhome/.$f ] || [ -L $myhome/.$f ]; then
     mv $myhome/.$f $myhome/.$f.ORIG
-    #echo .$f was backed-up as .$f.ORIG
-  #else
-    #echo .$f does not yet exist
   fi
   ln -s $myhome/dotfiles/_$f $myhome/.$f && echo "[[0;32m  OK  [0m]"
 export fg_green="[0;32m"

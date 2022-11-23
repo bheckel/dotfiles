@@ -4473,6 +4473,8 @@ set -e
 -- Date calculator:
 date --date='11/01/2020 +5 days'
 
+echo mystr | awk '{x=length()} END {while(x-- > 0) print "."}' | xargs echo
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -5469,7 +5471,7 @@ select q.sql_fulltext, s.sql_exec_start, state, status, s.sql_id, machine, progr
 -- Don't have SID want to know what SQL a scheduled job is running:
 select distinct 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text, s.sql_exec_start, state, status, s.sql_id, machine, program, logon_time, s.action,osuser from v$session s, v$sql q where s.sql_id=q.sql_id(+) and s.action='MY_PERIODIC_LIFECYCLE_JOB' and sql_exec_start is not null order by s.sql_exec_start; 
 
-lock table table1 in exclusive mode; -- then rollback;
+LOCK TABLE table1 IN EXCLUSIVE MODE; --  rollback; to free it
 
 -- Oracle find uncommitted transactions locks:
 SELECT s.OSUSER, s.sid ,s.serial# ,s.username ,s.machine ,s.status ,s.lockwait ,t.used_ublk ,t.used_urec ,t.start_time from v$transaction t inner join v$session s on t.addr = s.taddr;
@@ -5490,6 +5492,10 @@ SQL> set linesize 200
 SQL> column mywidecolumn format a80
 SQL> col mywidecolumn form a80
 select distinct  'exec sys.kill_session(' || sid || ',' || serial# || ');' x, q.sql_text from v$session s, v$sql q where s.sql_id=q.sql_id(+) and osuser='bheck' and sql_text is not null;
+
+-- kill session KILLANY session:
+select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, USERNAME, COMMAND, STATUS, SCHEMANAME, OSUSER, MACHINE, PROGRAM, TYPE, SQL_ID, SQL_EXEC_START, MODULE, ACTION, LOGON_TIME, CLIENT_IDENTIFIER, STATE from v$session where username is not null order by status, logon_time;
+select 'alter system kill session ''' || sid || ',' || serial# || ''';' from v$session where username = 'DEV';
 
 -- Insert newline for blank row spacing:
 rc PLS_INTEGER; rc := SQL%ROWCOUNT; dbms_output.new_line(); dbms_output.put_line('rows affected: ' || rc);
@@ -6772,9 +6778,13 @@ EXPLAIN PLAN FOR SELECT * FROM emp WHERE sal > 10; select * from table(dbms_xpla
 -- Suppress throw away sqlplus SQL output just display calculate execution plan explain plan cost:
 set autotrace traceonly -- in sqlplus then select foo /*+gather_plan_statistics*/ from bar;
 
--- Autotrace explain execution plan cost optimizer. Alternatively set this to avoid the hint: ALTER SESSION SET statistics_level = all;
--- set pagesize 0
-sElEcT /*+gather_plan_statistics*/ count(1) from rpt_account where account_id=436139; select sql_id FROM v$sqlstats WHERE sql_text like 'sElEcT %' ORDER BY LAST_LOAD_TIME DESC; select * from table(dbms_xplan.display_cursor('2pv5ufk1w1g00', format => 'ALLSTATS LAST +cost +bytes'));
+-- Autotrace without autotrace explain execution plan cost optimizer E-Rows A-Rows:
+set pagesize 0
+set termout off
+@t  -- assumes it holds  sElEcT /*+gather_plan_statistics*/ count(1) from rpt_account where account_id=436139;
+set termout on
+select sql_id FROM v$sql WHERE sql_text like 'sElEcT %' ORDER BY last_load_time desc; -- 223zcj56p82ca
+select * from table(dbms_xplan.display_cursor('223zcj56p82ca', format => 'ALLSTATS LAST +cost +bytes +outline'));
 
 -- Check for histograms:
 select utcs.column_name, utcs.histogram, utcs.num_buckets from user_tables ut join user_tab_col_statistics utcs on ut.table_name = utcs.table_name where ut.table_name = 'BRICKS';
@@ -7303,10 +7313,6 @@ mychartable t_varchar2Table := t_varchar2Table();
 mychartable SYS.odcivarchar2list := SYS.odcivarchar2list();
 --same:
 mychartable SYS.odcivarchar2list;
-
--- kill session KILLANY session:
-select 'exec sys.kill_session(' || sid || ',' || serial# || ');' x, USERNAME, COMMAND, STATUS, SCHEMANAME, OSUSER, MACHINE, PROGRAM, TYPE, SQL_ID, SQL_EXEC_START, MODULE, ACTION, LOGON_TIME, CLIENT_IDENTIFIER, STATE from v$session where username is not null order by status, logon_time;
-select 'alter system kill session ''' || sid || ',' || serial# || ''';' from v$session where username = 'DEV';
 
 -- Avoid exponentiation in sqlplus:
 > set numformat 9999999999999999
@@ -7989,6 +7995,9 @@ git add -f ignoreme.txt
 
 # github commit mantra (github is origin we PUSH TO origin FROM master), update index and HEAD:
 git add . && git commit -m 'mod' && git push origin master
+
+# github readonly:
+git clone https://github.com/bheckel/dotfiles
 
 # git new install bare box setup want clone an existing github repo which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
 ssh-keygen -t ed25519 -C "foo@bar.com"; # then  cat ~/.ssh/id_ed25519.pub  # copy it to https://github.com/settings/keys
