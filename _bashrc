@@ -4,7 +4,7 @@
 # Summary: Bash shell config for at least Unix, Linux, WSL2, Cygwin and z/OS
 #
 #  Created: 19-May-1998 (Bob Heckel)
-# Modified: 26-Sep-2022 (Bob Heckel)
+# Modified: 24-Nov-2022 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -132,9 +132,10 @@ alias ls='ls --color --group-directories-first'
 alias ll='ls -gh --color --group-directories-first'
 alias lla='ls -agh --color --group-directories-first'
 # List directories
-alias lsd='find . -type d'
+alias lsd='find . -maxdepth 1 -type d'
 alias m=less
 alias one="vi $HOME/dotfiles/oneliners"
+alias opc='ssh opc@129.158.230.148'
 #alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
 alias qr="$HOME/code/misc/quickref_find.sh"
 # Good luck Yoshi...
@@ -145,7 +146,7 @@ alias sl='ls --color=none'  # dyslexic daim branage
 alias sr="$HOME/code/sas/sasrun2"
 alias srcb="source $HOME/dotfiles/_bashrc"
 alias tmls='tmux list-sessions'
-alias tmux='tmux -u'  # UTF8
+#alias tmux='tmux -u'  # UTF8
 # If tree isn't installed:
 alias tre="\ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
 alias uvi="$HOME/code/scripting/uvi"  # don't change timestamp
@@ -479,7 +480,8 @@ case "$OSTYPE" in
     # Export Cygwin  #{{{2
     #-------------------
     # For drives not mounted by Cygwin
-    export C=/cygdrive/c/
+    export c=/cygdrive/c/
+    export cu=/cygdrive/c/Users/$USER
     export CYGWIN=nodosfilewarning  # MS-DOS style path detected: u:/tmp/bdfCURR.rtpsh005
     # export CVSROOT=$HOME/repository
 		export EDITOR=vim

@@ -4475,6 +4475,9 @@ date --date='11/01/2020 +5 days'
 
 echo mystr | awk '{x=length()} END {while(x-- > 0) print "."}' | xargs echo
 
+# Print color palette e.g. what does colour81 look like:
+for i in {0..255} ; do printf "\x1b[38;5;${i}mcolour${i}\n"; done
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1

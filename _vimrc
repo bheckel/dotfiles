@@ -1669,7 +1669,7 @@ endfu
 function! AmIPasting()  " {{{2
   if &paste
 		" :echohl WarningMsg | echo "Don't panic!" | echohl None
-    return ' <<<                                   P A S T E                                   >>>'
+    return ' <<<                         P A S T E                         >>>'
   else
     return ''
   endif
