@@ -3837,17 +3837,15 @@ diskpct=$(df /cygdrive/c|tail -1|awk '{print $5}'|perl -pe 's/%//'); if [ $diskp
 /opt/sfw/bin/rxvt -rv -e bash&
 rxvt -bg white -fg black -geometry 80x40+159+46 -fn "Andale Mono-12"
 
-# Typing speed
+# Typing speed Ctl-d to exit:
 START=`date +%s`;WORDS=`cat|wc -w`; STOP=`date +%s`; SPEED=`echo "$WORDS / ( ( $STOP - $START ) / 60 )"|bc`;echo "You have a typing speed of $SPEED words per minute."
 
-# Configure passwordless ssh for no password:
-ssh-keygen -t dsa  # on mario but  ssh-keygen -t rsa -b 4096  is a standard for 2012
-cat /home/chronos/.ssh/id_dsa.pub | ssh rheckel@sdf.org 'cat - >> ~/.ssh/authorized_keys'
-# Better passwordless ssh no password,  Ignores mkdir if ~/.ssh/ already exists:
-ssh user@host "mkdir -p .ssh && cat >> .ssh/authorized_keys" < ~/.ssh/id_rsa.pub
-# Best passwordless ssh
-ssh-copy-id -i ~/.ssh/id_rsa.pub bheckel@sas-01.twa.taeb.com
-ssh-copy-id bheckel@sas-01.twa.taeb.com
+# Configure passwordless ssh for no password on an established remote box but a bare local box:
+ssh-keygen -t rsa -b 4096 && ssh user@host "mkdir -p .ssh && cat >> .ssh/authorized_keys" < ~/.ssh/id_rsa.pub
+ssh-keygen -t rsa -b 4096 && cat ~/.ssh/id_rsa.pub | ssh rheckel@sdf.org 'cat - >> ~/.ssh/authorized_keys'
+# Best passwordless ssh if we have password, not just .key:
+ssh-copy-id -i ~/.ssh/id_rsa.pub bheckel@sas-01.taeb.com
+ssh-copy-id bheck@sas-01.taeb.com
 
 # Performance benchmark:
 time echo "scale=5000; 4*a(1)" | bc -l -q
@@ -7943,7 +7941,7 @@ git mergetool  # <C-W => in vim if windows are collapsed
 git reset --merge 2e40a3
 # git discard throw away trash abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area and leave your INDEX alone. You could now git add and git commit again to accomplish what git commit --amend would have done:
 git reset --soft c4c9473
-# git discard throw away trash abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area:
+# git discard throw away trash abandon all commits after commit c4c9473 and bring changed code AFTER that back into the working area. Then git restore README.md to throw away your recent edits:
 git reset c4c9473
 # git disaster discard throw away trash abandon all commits (or staged files) after the previous commit and reset files to that older/good commit (ignoring any untrackeds!). Make the working directory look like the index - not WD safe!:
 git reset --hard HEAD^  # or git reset --hard HEAD~1 for DOS  or git reset --hard c4c9473 if it's not the previous you want to go back to but rather a specific commit
