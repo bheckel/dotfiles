@@ -6,7 +6,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Thu 10-Nov-2022 (Bob Heckel)
+" Modified: Sun 04-Dec-2022 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -783,22 +783,21 @@ nnoremap gw <Esc>:split<CR>gf
 
 " Copy visual mode selection to system clipboard. Like Windows gVim's default. See also :set clipboard=
 if $WSLENV =~ 'WT_SESSION::WT_PROFILE_ID' || !empty($WSL_HOST_IP)
-  " Not needed except to keep keystrokes consistent - see Autocommands Yankme
-  vnoremap <silent>yx  y
+  " Not needed except to keep keystrokes consistent - see autocommands Yankme
+  vnoremap <silent>yx y
 else
-  vnoremap <silent>yx  "*y
-  "echo 'ok'
+  " Works for Cygwin
+  vnoremap <silent>yx "*y
 endif
 
 if $PATH =~ 'termux'
-"vnoremap <silent> yx :'<,'>!termux-clipboard-set<CR>u
   vnoremap <silent> yx :!termux-clipboard-set<CR>u
 "elseif hostname() == 'metta'
 "  vnoremap <silent> yx :'<,'>!clip.exe
 endif
 
-"if hostname() == 'metta'
-  "vnoremap yx :!clip.exe<CR>u
+"if !empty($CYGWIN)
+"  vnoremap yx :!clip.exe<CR>u
 "endif
 
 " Crostini clipboard support is a mess in 2021
@@ -1743,9 +1742,9 @@ if !exists("autocommands_loaded")
   " au BufNewFile,BufEnter *.py set tabstop=4
 
   au FileType sh set fileformat=unix
-  if hostname() != 'penguin'
+  "if hostname() != 'penguin'
     au BufWritePost *.sh silent !chmod a+x <afile>
-  endif
+  "endif
   "
   au FileType basic map ,m yy0I'''<ESC>p
   au FileType basic map ;s :s:^:''':<CR>
@@ -1905,11 +1904,11 @@ if !exists("autocommands_loaded")
     endif
   endif
 
-  " This file has several language's comments, highlight them all
+  " This file has comments in several languages, just highlight them all
   au BufRead  *oneliners syn match Comment @^".*$\|^--.*$\|^\/\/.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@ contains=Search
 
-"TODO handle WSL tmux too instead of having to use tmux's Ctr-a [
-  if hostname() == 'metta'
+  "if hostname() == 'metta'
+  if $WSLENV =~ 'WT_SESSION::WT_PROFILE_ID' || !empty($WSL_HOST_IP)
     let s:clip = '/mnt/c/Windows/System32/clip.exe'
   else
     let s:clip = ''

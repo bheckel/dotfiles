@@ -632,6 +632,19 @@ case "$OSTYPE" in
      umask 027
   ;; # end SunOS
 
+   #------------------
+   # Oracle Linux  #{{{1 
+   #------------------
+  'Oracle Linux')
+     #------------------
+     # Export Oracle Linux  #{{{2 
+     #------------------
+     #--------------
+     # Alias Oracle Linux  #{{{2 
+     #------------------
+     alias docker="sudo /usr/bin/docker"
+  ;; # end Oracle Linux
+
   #-------------------
   # Linux  #{{{1
   #-------------------
