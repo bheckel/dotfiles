@@ -633,17 +633,6 @@ case "$OSTYPE" in
   ;; # end SunOS
 
    #------------------
-   # Oracle Linux  #{{{1 
-   #------------------
-  'Oracle Linux')
-     #------------------
-     # Export Oracle Linux  #{{{2 
-     #------------------
-     #--------------
-     # Alias Oracle Linux  #{{{2 
-     #------------------
-     alias docker="sudo /usr/bin/docker"
-  ;; # end Oracle Linux
 
   #-------------------
   # Linux  #{{{1
@@ -857,6 +846,10 @@ case "$OSTYPE" in
       echo '.bashrc: Oracle detected'
       export ORACLE_HOME=/u01/app/oracle/product/version/db_1/
     fi
+
+    #TODO
+    #$ cat /etc/*-release
+    #NAME="Oracle Linux Server"
 
   ;; # end Linux
 

@@ -5388,6 +5388,8 @@ DEBUG="${DEBUG:-}"
 # Are we on Cygwin? Shell variable truncation:
 x=`uname`; if [ ${x:0:6} = CYGWIN ];then echo isCygwin; fi
 
+/etc/alternatives/pip3 install requests
+
 xxSCRIPTINGxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxDATABASExx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -8247,5 +8249,8 @@ echo ‘I am a virtual di ’ > /dev/pty7
 Alt+Shift+Spacebar
 
 This file 'oneliners' is Copyright © 2022 Bob Heckel b dot heckel at gmail dot com
+
+-- Credit card to f' with scammers:
+4007000000027
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
