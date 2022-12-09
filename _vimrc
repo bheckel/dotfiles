@@ -784,32 +784,25 @@ nnoremap gw <Esc>:split<CR>gf
 " Copy visual mode selection to system clipboard. Like Windows gVim's default. See also :set clipboard=
 if $WSLENV =~ 'WT_SESSION::WT_PROFILE_ID' || !empty($WSL_HOST_IP)
   " Not needed except to keep keystrokes consistent - see autocommands Yankme
-  vnoremap <silent>yx y
-else
-  " Works for Cygwin
-  vnoremap <silent>yx "*y
-endif
-
-if $PATH =~ 'termux'
+  vnoremap <silent> yx y
+elsif $PATH =~ 'termux'
   vnoremap <silent> yx :!termux-clipboard-set<CR>u
 "elseif hostname() == 'metta'
 "  vnoremap <silent> yx :'<,'>!clip.exe
-endif
-
-"if !empty($CYGWIN)
-"  vnoremap yx :!clip.exe<CR>u
-"endif
-
+elsif hostname() == 'penguin'
 " Crostini clipboard support is a mess in 2021
-if hostname() == 'penguin'
   if ! has('gui_running')
     vnoremap <silent> yx :'<,'>w! ~/.crouton-clipboard/data.txt<CR>
     "TODO avoid an external $ catput ~/.crouton-clipboard/data.txt
     "vnoremap <silent> yx :'<,'>w! ~/.crouton-clipboard/data.txt; catput ~/.crouton-clipboard/data.txt<CR>
   else
     " Crostini Gvim clipboard works normally
-    vnoremap <silent> yx  "+y
+    vnoremap <silent> yx "+y
   endif
+else
+"elsif !empty($CYGWIN)
+  " Works for Cygwin
+  vnoremap <silent> yx "*y
 endif
 
 " Jump to the exact position where you left, not to beginning of line
