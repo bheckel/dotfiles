@@ -2640,6 +2640,11 @@ $ make modules 2>&1 | tee -a build.log
 # Get a file and both write it to a file and to stdout simultaneously:
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo tee /etc/apt/trusted.gpg.d/docker.asc
 
+# Write a file from command line:
+$ sudo tee -a /etc/postfix/main.cf >/dev/null <<EOF
+> myhostname = $(hostname -f)
+> EOF
+
 # Copy everything (except dot files) in a dir except for one file (smb.txt in this case):
 cp /notathome/[^smb.txt]* /foodir
 
