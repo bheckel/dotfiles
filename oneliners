@@ -3852,12 +3852,12 @@ START=`date +%s`;WORDS=`cat|wc -w`; STOP=`date +%s`; SPEED=`echo "$WORDS / ( ( $
 
 # Canonical configure passwordless ssh for no password on an established remote box but a bare local box:
 ssh-keygen -t rsa -b 4096 && ssh user@host "mkdir -p .ssh && cat >> .ssh/authorized_keys" < ~/.ssh/id_rsa.pub
-ssh-keygen -t rsa -b 4096 && cat ~/.ssh/id_rsa.pub | ssh rheckel@sdf.org 'cat - >> ~/.ssh/authorized_keys'
-# Canonical passwordless ssh if we have password, not just .key:
-ssh-copy-id -i ~/.ssh/id_rsa.pub bheckel@sas-01.taeb.com
-ssh-copy-id bheck@sas-01.taeb.com
+# Canonical configure passwordless ssh for no password on an established remote box and an established local box:
+cat ~/.ssh/id_rsa.pub | ssh rheckel@sdf.org 'cat - >> ~/.ssh/authorized_keys'
+# Canonical passwordless ssh config if we know the remote password, not just have its private key e.g. $ ssh -i .ssh/ssh-key-2021-11-21.key pc@129.158.230.042:
+ssh-copy-id -i ~/.ssh/id_rsa.pub bheckel@sas-01.taeb.com  # usually run from Cygwin
 
-# Maximize / minimize rxvt font: Shift++ or Shift+- (+/- is using numeric pad with numlock on)
+# Maximize / minimize rxvt font: Shift+ + or Shift+ - (and +/- key is using numeric pad with numlock on)
 
 # Zip and remove original file on success
 for c in 1 2; do zip lelim$c.sas7bdat.zip lelim$c.sas7bdat && rm -v lelim$c.sas7bdat; done
@@ -4457,9 +4457,6 @@ journalctl -b -1
 journalctl --since "2015-02-02 20:30:00"
 
 systemctl list-unit-files --state=enabled --no-pager
-
-# Remove local and remote branches:
-git branch -D feature/ROION-50062 && git fetch -p && git push origin --delete feature/ROION-50062
 
 wsl --install -d Ubuntu
 
@@ -7881,6 +7878,9 @@ c:\> wmic cpu get loadpercentage
 
 cygcheck -cv w3m  # is package OK?
 
+# Remove local and remote branches:
+git branch -D feature/ROION-50062 && git fetch -p && git push origin --delete feature/ROION-50062
+
 #                      git add           git commit              git push
 # UNTRACKED/UNSTAGED -----------> STAGED ----------> LOCAL REPO -------------> REMOTE REPO
 
@@ -8010,7 +8010,7 @@ git add . && git commit -m 'mod' && git push origin master
 git clone https://github.com/bheckel/dotfiles
 
 # git new install bare box setup want clone an existing github repo which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
-ssh-keygen -t ed25519 -C "foo@bar.com"; # then  cat ~/.ssh/id_ed25519.pub  # copy it to https://github.com/settings/keys
+ssh-keygen -t ed25519 -C "boblaptopfoo@bar.com";  then  cat ~/.ssh/id_ed25519.pub  # copy/paste it into https://github.com/settings/keys
 # Test git ssh connectivity github test:
 # Canonical PULL FROM origin to master & PUSH TO origin FROM master:
 git clone git@github.com:bheckel/dotfiles.git && git config --global user.name "Bob Heckel" && git config --global user.email rsh@rsh.com # ...edit/add/commit... then  git pull origin master && git push origin master
@@ -8044,6 +8044,10 @@ git checkout -b feature/RION-9999 && git push --set-upstream origin feature/RION
 
 # git squash together all commits after d3fbfd5 (the one I didn't touch). Leave the first entry (oldest commit) alone as 'pick', set others to 's[quash]', next screen lets you edit the message, doing nothing uses all old messages, wipe and type for a new one:
 git rebase --interactive d3fbfd5
+
+# git restore some old commit:
+head .git/logs/refs/heads/master  # [old sha]  [new sha]  [commit msg] ...
+git checkout 7a76d39
 
 # git show last touches and owner authors for all remote branches:
 for branch in `git branch -r | grep -v HEAD`;do echo -e `git show --format="%ci %cr\t%an\t" $branch | head -n 1` \\t$branch; done | sort -r
