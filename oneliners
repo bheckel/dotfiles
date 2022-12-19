@@ -4480,6 +4480,20 @@ echo mystr | awk '{x=length()} END {while(x-- > 0) print "."}' | xargs echo
 # Print color palette e.g. what does colour81 look like:
 for i in {0..255} ; do printf "\x1b[38;5;${i}mcolour${i}\n"; done
 
+postconf mail_version
+sudo firewall-cmd --zone=public --add-service=smtp --permanent
+sudo firewall-cmd --reload
+sudo systemctl enable --now postfix
+systemctl status postfix.service
+sudo postfix stop
+journalctl -xe
+sudo vi /etc/postfix/main.cf
+sudo vi /etc/aliases
+sudo postfix reload
+
+# gcc c++ java etc
+sudo dnf groupinstall "Development Tools"
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -7366,6 +7380,10 @@ BEGIN sys.dbms_scheduler.set_attribute(name => 'KMC_REVENUE_LOAD_DAVESIM_BH_ORND
 SELECT COLUMN_NAME from  user_tab_columns  WHERE table_name = 'ACCOUNT' minus SELECT COLUMN_NAME from  user_tab_columns@rion_test WHERE table_name = 'ACCOUNT'
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
+
+--sqlcl column improvement over sqlplus:
+set sqlformat ansiconsole
+show sqlformat
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
