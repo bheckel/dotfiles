@@ -678,6 +678,7 @@ if filereadable("~/tmp/SpecificFileExists") ...
 
 vi -c 'map q :qa<CR>' ~/bin/allp
 
+" Save occasionally to:
 :silent! w!~/onedrive/misc/bkup/%:t
 
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
@@ -5486,6 +5487,8 @@ set feedback on sql_id
 
 -- Who is logged in what are they running:
 select SID, SERIAL#, USERNAME, STATUS, OSUSER, MACHINE, PROGRAM, SQL_ID, SQL_EXEC_START, PREV_SQL_ID, PREV_EXEC_START, LOGON_TIME, LAST_CALL_ET, CLIENT_IDENTIFIER, STATE, SERVICE_NAME, trunc(last_call_et/ 3600) as Hours from v$session where username is not null order by SQL_EXEC_START desc nulls last;
+
+select * from v$parameter where name='service_names';
 
 -- Have sql_id want running query text:
 select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_id='63ygwpcj2s227';
