@@ -8063,6 +8063,13 @@ git checkout -b feature/RION-9999 && git push --set-upstream origin feature/RION
 # git squash together all commits after d3fbfd5 (the one I didn't touch). Leave the first entry (oldest commit) alone as 'pick', set others to 's[quash]', next screen lets you edit the message, doing nothing uses all old messages, wipe and type for a new one:
 git rebase --interactive d3fbfd5
 
+# Initialize feature branch:
+git checkout develop && git pull && git checkout -b feature/RION-62332 && git push --set-upstream origin feature/RION-62332 && git checkout feature/RION-62332
+# Do work, repeat as needed:
+# git add . && git commit -m 'RION-62332: SP January Bulk Processing' && git push
+# Merge without github PR/UI:
+gco && gpul && gco 62332 && git merge develop && gpul && gco && git merge --squash feature/RION-62332 && git add . && git commit -m 'RION-62332: SP January Bulk Processing' && git push && git branch -D feature/RION-62332 && git fetch -p && git push origin --delete feature/RION-62332
+
 # git restore some old commit:
 head .git/logs/refs/heads/master  # [old sha]  [new sha]  [commit msg] ...
 git checkout 7a76d39
