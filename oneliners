@@ -4491,6 +4491,8 @@ sudo vi /etc/postfix/main.cf
 sudo vi /etc/aliases
 sudo postfix reload
 
+sudo dnf search java 
+
 # gcc c++ java etc
 sudo dnf groupinstall "Development Tools"
 
@@ -7379,11 +7381,14 @@ BEGIN sys.dbms_scheduler.set_attribute(name => 'KMC_REVENUE_LOAD_DAVESIM_BH_ORND
 -- Which columns differ on two tables?:
 SELECT COLUMN_NAME from  user_tab_columns  WHERE table_name = 'ACCOUNT' minus SELECT COLUMN_NAME from  user_tab_columns@rion_test WHERE table_name = 'ACCOUNT'
 
-xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
-
 --sqlcl column improvement over sqlplus:
 set sqlformat ansiconsole
 show sqlformat
+
+-- Generate INSERT INTO statements:
+SELECT /*insert*/ mgr, hiredate FROM emp where rownum<3;
+
+xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
