@@ -678,6 +678,7 @@ if filereadable("~/tmp/SpecificFileExists") ...
 
 vi -c 'map q :qa<CR>' ~/bin/allp
 
+" Save occasionally to:
 :silent! w!~/onedrive/misc/bkup/%:t
 
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
@@ -3852,12 +3853,12 @@ START=`date +%s`;WORDS=`cat|wc -w`; STOP=`date +%s`; SPEED=`echo "$WORDS / ( ( $
 
 # Canonical configure passwordless ssh for no password on an established remote box but a bare local box:
 ssh-keygen -t rsa -b 4096 && ssh user@host "mkdir -p .ssh && cat >> .ssh/authorized_keys" < ~/.ssh/id_rsa.pub
-ssh-keygen -t rsa -b 4096 && cat ~/.ssh/id_rsa.pub | ssh rheckel@sdf.org 'cat - >> ~/.ssh/authorized_keys'
-# Canonical passwordless ssh if we have password, not just .key:
-ssh-copy-id -i ~/.ssh/id_rsa.pub bheckel@sas-01.taeb.com
-ssh-copy-id bheck@sas-01.taeb.com
+# Canonical configure passwordless ssh for no password on an established remote box and an established local box:
+cat ~/.ssh/id_rsa.pub | ssh rheckel@sdf.org 'cat - >> ~/.ssh/authorized_keys'
+# Canonical passwordless ssh config if we know the remote password, not just have its private key e.g. $ ssh -i .ssh/ssh-key-2021-11-21.key pc@129.158.230.042:
+ssh-copy-id -i ~/.ssh/id_rsa.pub bheckel@sas-01.taeb.com  # usually run from Cygwin
 
-# Maximize / minimize rxvt font: Shift++ or Shift+- (+/- is using numeric pad with numlock on)
+# Maximize / minimize rxvt font: Shift+ + or Shift+ - (and +/- key is using numeric pad with numlock on)
 
 # Zip and remove original file on success
 for c in 1 2; do zip lelim$c.sas7bdat.zip lelim$c.sas7bdat && rm -v lelim$c.sas7bdat; done
@@ -4458,9 +4459,6 @@ journalctl --since "2015-02-02 20:30:00"
 
 systemctl list-unit-files --state=enabled --no-pager
 
-# Remove local and remote branches:
-git branch -D feature/ROION-50062 && git fetch -p && git push origin --delete feature/ROION-50062
-
 wsl --install -d Ubuntu
 
 # Only run one time
@@ -4482,6 +4480,22 @@ echo mystr | awk '{x=length()} END {while(x-- > 0) print "."}' | xargs echo
 
 # Print color palette e.g. what does colour81 look like:
 for i in {0..255} ; do printf "\x1b[38;5;${i}mcolour${i}\n"; done
+
+postconf mail_version
+sudo firewall-cmd --zone=public --add-service=smtp --permanent
+sudo firewall-cmd --reload
+sudo systemctl enable --now postfix
+systemctl status postfix.service
+sudo postfix stop
+journalctl -xe
+sudo vi /etc/postfix/main.cf
+sudo vi /etc/aliases
+sudo postfix reload
+
+sudo dnf search java 
+
+# gcc c++ java etc
+sudo dnf groupinstall "Development Tools"
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5473,6 +5487,8 @@ set feedback on sql_id
 
 -- Who is logged in what are they running:
 select SID, SERIAL#, USERNAME, STATUS, OSUSER, MACHINE, PROGRAM, SQL_ID, SQL_EXEC_START, PREV_SQL_ID, PREV_EXEC_START, LOGON_TIME, LAST_CALL_ET, CLIENT_IDENTIFIER, STATE, SERVICE_NAME, trunc(last_call_et/ 3600) as Hours from v$session where username is not null order by SQL_EXEC_START desc nulls last;
+
+select * from v$parameter where name='service_names';
 
 -- Have sql_id want running query text:
 select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_id='63ygwpcj2s227';
@@ -7368,6 +7384,13 @@ BEGIN sys.dbms_scheduler.set_attribute(name => 'KMC_REVENUE_LOAD_DAVESIM_BH_ORND
 -- Which columns differ on two tables?:
 SELECT COLUMN_NAME from  user_tab_columns  WHERE table_name = 'ACCOUNT' minus SELECT COLUMN_NAME from  user_tab_columns@rion_test WHERE table_name = 'ACCOUNT'
 
+--sqlcl column improvement over sqlplus:
+set sqlformat ansiconsole
+show sqlformat
+
+-- Generate INSERT INTO statements:
+SELECT /*insert*/ mgr, hiredate FROM emp where rownum<3;
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -7881,6 +7904,9 @@ c:\> wmic cpu get loadpercentage
 
 cygcheck -cv w3m  # is package OK?
 
+# Remove local and remote branches:
+git branch -D feature/ROION-50062 && git fetch -p && git push origin --delete feature/ROION-50062
+
 #                      git add           git commit              git push
 # UNTRACKED/UNSTAGED -----------> STAGED ----------> LOCAL REPO -------------> REMOTE REPO
 
@@ -8010,7 +8036,7 @@ git add . && git commit -m 'mod' && git push origin master
 git clone https://github.com/bheckel/dotfiles
 
 # git new install bare box setup want clone an existing github repo which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
-ssh-keygen -t ed25519 -C "foo@bar.com"; # then  cat ~/.ssh/id_ed25519.pub  # copy it to https://github.com/settings/keys
+ssh-keygen -t ed25519 -C "boblaptopfoo@bar.com";  then  cat ~/.ssh/id_ed25519.pub  # copy/paste it into https://github.com/settings/keys
 # Test git ssh connectivity github test:
 # Canonical PULL FROM origin to master & PUSH TO origin FROM master:
 git clone git@github.com:bheckel/dotfiles.git && git config --global user.name "Bob Heckel" && git config --global user.email rsh@rsh.com # ...edit/add/commit... then  git pull origin master && git push origin master
@@ -8044,6 +8070,17 @@ git checkout -b feature/RION-9999 && git push --set-upstream origin feature/RION
 
 # git squash together all commits after d3fbfd5 (the one I didn't touch). Leave the first entry (oldest commit) alone as 'pick', set others to 's[quash]', next screen lets you edit the message, doing nothing uses all old messages, wipe and type for a new one:
 git rebase --interactive d3fbfd5
+
+# Initialize feature branch:
+git checkout develop && git pull && git checkout -b feature/RION-62332 && git push --set-upstream origin feature/RION-62332 && git checkout feature/RION-62332
+# Do work, repeat as needed:
+# git add . && git commit -m 'RION-62332: SP January Bulk Processing' && git push
+# Merge without github PR/UI:
+gco && gpul && gco 62332 && git merge develop && gpul && gco && git merge --squash feature/RION-62332 && git add . && git commit -m 'RION-62332: SP January Bulk Processing' && git push && git branch -D feature/RION-62332 && git fetch -p && git push origin --delete feature/RION-62332
+
+# git restore some old commit:
+head .git/logs/refs/heads/master  # [old sha]  [new sha]  [commit msg] ...
+git checkout 7a76d39
 
 # git show last touches and owner authors for all remote branches:
 for branch in `git branch -r | grep -v HEAD`;do echo -e `git show --format="%ci %cr\t%an\t" $branch | head -n 1` \\t$branch; done | sort -r

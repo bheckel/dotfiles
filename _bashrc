@@ -350,6 +350,7 @@ tmn() {
 #    if [ $HOSTNAME = 'metta' ]; then
 #      tmux -u new -s "s${1}"\; split-window -h
 #    else
+#TODO 16-Dec-22 is -2 required still?
       tmux -u -2 new -s "s${1}"\; split-window -h
 #    fi
   fi
