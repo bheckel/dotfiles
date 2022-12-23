@@ -3855,7 +3855,7 @@ START=`date +%s`;WORDS=`cat|wc -w`; STOP=`date +%s`; SPEED=`echo "$WORDS / ( ( $
 ssh-keygen -t rsa -b 4096 && ssh user@host "mkdir -p .ssh && cat >> .ssh/authorized_keys" < ~/.ssh/id_rsa.pub
 # Canonical configure passwordless ssh for no password on an established remote box and an established local box:
 cat ~/.ssh/id_rsa.pub | ssh rheckel@sdf.org 'cat - >> ~/.ssh/authorized_keys'
-# Canonical passwordless ssh config if we know the remote password, not just have its private key e.g. $ ssh -i .ssh/ssh-key-2021-11-21.key pc@129.158.230.042:
+# Canonical passwordless ssh config if we know the remote password, not just have its private key e.g. $ ssh -i .ssh/ssh-key-2021-11-21.key pc@129.158.230.14x:
 ssh-copy-id -i ~/.ssh/id_rsa.pub bheckel@sas-01.taeb.com  # usually run from Cygwin
 
 # Maximize / minimize rxvt font: Shift+ + or Shift+ - (and +/- key is using numeric pad with numlock on)

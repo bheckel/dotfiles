@@ -103,6 +103,7 @@ alias cd..='cd ..; ls'
 alias cdc="cd $HOME/code"
 alias cdd="cd $HOME/code/database"
 alias cdo="cd $HOME/dotfiles"
+alias cdot="cd $HOME/dotfiles"
 alias cdm="cd $HOME/code/misc"
 alias cds="cd $HOME/code/sas"
 alias cls=clear
