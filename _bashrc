@@ -854,7 +854,8 @@ case "$OSTYPE" in
 
     if [ "${LOGNAME}" = 'opc' ]; then
       echo '.bashrc: Oracle detected'
-      alias mailx='mailx -f /home/opc/mail'
+      #alias mailx='mailx -f /home/opc/mail'
+      MAIL=/home/opc/mail
     fi
 
   ;; # end Linux
