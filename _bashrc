@@ -924,7 +924,7 @@ case "$OSTYPE" in
       alias ls='ls -F'
       alias la='ls -aF'
       alias ll='ls -lF'
-      alias lt='ls -ltF | head -n20'     # latest twenty
+      alias lt='ls -ltF | head -n10'     # latest ten
       alias vi=vim
 
       umask 022
