@@ -9,8 +9,8 @@
 #           To avoid using this .muttrc:
 #           /bin/mutt -F foo  <---foo must exist
 #
-#  Created: Sun 03 Jun 2001 14:02:02 (Bob Heckel)
-# Modified: Tue 04 Mar 2014 11:25:47 (Bob Heckel)
+#  Created: 03-Jun-2001 (Bob Heckel)
+# Modified: 26-Dec-2022 (Bob Heckel)
 #
 #¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø#
 
@@ -20,6 +20,10 @@ unhook *
 unlists *
 source $HOME/.email_addr
 source $HOME/.muttprivate   # personal config specific to this box
+# E.g.
+#send-hook . 'my_hdr From: Bob Heckel <foo@rshdev.com>
+#send-hook . 'my_hdr Reply-To: Bob Heckel <foo@rshdev.com>
+
 # Show version at startup; side effect is to give visual confirmation after
 # .muttrc has been sourced from its command line.
 push V   
@@ -43,32 +47,31 @@ set edit_headers
 set editor="vim -c 'set tw=68 et' +/^$"
 # Uses attachment detection logic.  TODO is it worth it?
 ###set editor=/arpa/ag/b/bheckel/bin/mutt-editor
-# Avoid the tampering that certain mail delivery and transport agents tend to
-# do with 'From' in messages.
+# Avoid the tampering that certain mail delivery and transport agents tend to do with 'From' in messages.
 set encode_from=yes
 set fast_reply=yes
 set fcc_attach        # save attachments with body of sent msgs
-set folder=$HOME/Mail
+#set folder=$HOME/Mail
+set folder=$HOME/mail
 set folder_format="%1N%4C %10F%10u %9s %15f %4C"  # file Directory window
 set forward_format="Fwd: %s"
 set hdrs=yes    # user defined header fields are added to every new message
 set history=100
 set include=yes  # quote all, save time, can always del the quoted part in Vim
 set ispell="aspell -e -c"
-set locale=EST
 set pager_context=1 # N lines from bot of prev is also on start of new pg
 set pager_index_lines=7
 # SENDER's date/time on sender's machine when he sent the email.
 set pager_format="Bytes:%c"   # email message status line
 set pager_stop    # don't fall thru to next message
-set postponed=$HOME/Mail/postponed
+#set postponed=$HOME/Mail/postponed
 set print=ask-yes
 unset mark_old       # don't mark as read if I haven't read it
 unset markers  # no '+' markers at the beginning of wrapped lines (for clipbd)
 # Hide .procmailusage and archive files when using file browser.  Double
 # backslashes!
 set mask="!(^\\.|gz$)"  
-set mbox=$HOME/Mail/mbox
+#set mbox=$HOME/Mail/mbox
 set metoo=no      # remove yourself from To: line during replies
 set menu_scroll=yes
 set message_format="%s"
@@ -78,7 +81,7 @@ set print=ask-yes
 set quit=yes
 set quote_regexp="^ {0,4}[a-zA-Z]*([^<]*{0,4}[>%])"
 set read_inc=5
-set record="$HOME/Mail/sentmail"
+#set record="$HOME/Mail/sentmail"
 set reply_to=ask-yes   # use or ignore Reply-To
 set reverse_name  # reply as the user to whom the mail was sent to
 ###set sendmail_wait=-1  # don't wait for actual send to occur
@@ -145,8 +148,7 @@ bind index \eP     previous-new
 bind index \CN     next-unread
 bind index \CP     previous-unread
 bind index *       tag-entry  # toggle
-# Can't use this due to macros like ,1 which calls less.  But I don't usually
-# flag messages anyway.
+# Can't use this due to macros like ,1 which calls less.  But I don't usually flag messages anyway.
 ###bind index !       flag-message  # toggle.  Clashes with shell-escape (good)
 bind index B       bounce-message
 bind index C       collapse-all  # clashes with copy-message
@@ -282,14 +284,9 @@ folder-hook . save-hook . =trash
 
 folder-hook '!' save-hook . =Tmp
 folder-hook 'Cygwin' set index_format="[%-12.12n]\\ %s"
-###folder-hook 'Sqlledger' set index_format="[%-12.12n]\\ %s"
-# TODO
-###folder-hook 'Cygwin' collapse-all .
+# TODO folder-hook 'Cygwin' collapse-all .
 folder-hook 'Mutt' set index_format="[%-12.12n]\\ %s"
 folder-hook 'Perl' set index_format="[%-12.12n]\\ %s"
-###folder-hook 'SASl' set index_format="[%-12.12n]\\ %s"
-# TODO 
-###folder-hook 'SASl' collapse-all
 folder-hook 'Vim' set index_format="[%-12.12n]\\ %s"
 # Default simple_search above looks at From: and Subject:
 # This uses To: and Subject: since it's all mail from me to others.
