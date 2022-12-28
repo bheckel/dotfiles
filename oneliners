@@ -4486,16 +4486,18 @@ sudo firewall-cmd --zone=public --add-service=smtp --permanent
 sudo firewall-cmd --reload
 sudo systemctl enable --now postfix
 systemctl status postfix.service
-sudo postfix stop
 journalctl -xe
 sudo vi /etc/postfix/main.cf
 sudo vi /etc/aliases
-sudo postfix reload
+sudo systemctl reload postfix
 
 sudo dnf search java 
 
 # gcc c++ java etc
 sudo dnf groupinstall "Development Tools"
+
+# Backup directory folder:
+tar czf /root/postfix-$(date "+%F").tar.gz /etc/postfix
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
