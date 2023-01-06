@@ -7312,7 +7312,7 @@ select * from all_synonyms where synonym_name = upper('&synonym_name'); -- other
 select '692329979 ', regexp_replace('692329979 ', '\W$') from dual;
 
 -- Find max length of data in a column:
-select max(length('ITEM_PREFIX')) from MKC_REVENUE_ADJ;
+select max(length(ITEM_PREFIX)) from MKC_REVENUE_ADJ;
 
 -- Character set nvarchar2 etc:
 select column_name, CHARACTER_SET_NAME, CHAR_COL_DECL_LENGTH, CHAR_LENGTH, CHAR_USED FROM all_tab_columns WHERE lower(table_name) = 'foo' and char_length >0;
@@ -7392,6 +7392,9 @@ show sqlformat
 
 -- Generate INSERT INTO statements:
 SELECT /*insert*/ mgr, hiredate FROM emp where rownum<3;
+
+-- Group by year aggregate:
+select extract(year from rate_date), count(1) cnt from mkc_revenue_full group by extract(year from rate_date) order by 1 desc;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
