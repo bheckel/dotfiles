@@ -6082,6 +6082,9 @@ $ ps -ef |grep lsn  # /oracle/app/oracle/product/8.0.6/bin/tnslsnr LISTENER -inh
 -- Confirm LDAP adapter etc:
 $ tnsping usdev10
 
+-- Path 1.  C:\app\client\bheck\product\12.1.0\client_1\network\admin
+show tns
+
 -- Oracle are you pingable are you up?:
 $ while true; do tnsping sprd25|grep OK|awk '{print $2}'|sed 's/^.//'; sleep 120; done;
 
