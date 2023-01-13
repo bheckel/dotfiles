@@ -5680,7 +5680,7 @@ SELECT count(1) FROM user_procedures WHERE object_name = 'AUTO_CREATE';
 -- Does a procedure inside a package exist?:
 SELECT * FROM user_procedures WHERE OBJECT_TYPE IN('PROCEDURE', 'PACKAGE') AND object_name='REFERENCES' AND procedure_name='AUTO_CREATE';
 
--- Oracle single q quote quoting masking:
+-- Oracle single q quote quoting masking. If using with anonymous block must have this all on one line  ...END;]'):
 foo CONSTANT  varchar2(4000) := q'[bar 'ok' then 4000 is max varchar2]';
 
 DROP PACKAGE test_bob;
@@ -7398,6 +7398,12 @@ SELECT /*insert*/ mgr, hiredate FROM emp where rownum<3;
 
 -- Group by year aggregate:
 select extract(year from rate_date), count(1) cnt from mkc_revenue_full group by extract(year from rate_date) order by 1 desc;
+
+-- Percentage format oracle e.g. 0.42:
+to_char(current_ytd_pct_of_previous_ytd,'0D00') ytdpct
+
+-- View VC virtual columns:
+select utc1.column_name, utc1.data_default vc_contents from user_tab_cols utc1 where utc1.TABLE_NAME = 'MKC_REVENUE_FULL' and utc1.VIRTUAL_COLUMN = 'YES' order by 1;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
