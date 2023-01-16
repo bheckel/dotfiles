@@ -4499,6 +4499,14 @@ sudo dnf groupinstall "Development Tools"
 # Backup directory folder:
 tar czf /root/postfix-$(date "+%F").tar.gz /etc/postfix
 
+# Secure a directory SELinux:
+$ ls -Z t.txt
+unconfined_u:object_r:user_home_t:s0 t.txt
+$ chcon -v --type=httpd_sys_content_t t.txt
+changing security context of 't.txt'
+$ ls -Z t.txt
+unconfined_u:object_r:httpd_sys_content_t:s0 t.txt
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
