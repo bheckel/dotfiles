@@ -4499,6 +4499,14 @@ sudo dnf groupinstall "Development Tools"
 # Backup directory folder:
 tar czf /root/postfix-$(date "+%F").tar.gz /etc/postfix
 
+# Secure a directory SELinux:
+$ ls -Z t.txt
+unconfined_u:object_r:user_home_t:s0 t.txt
+$ chcon -v --type=httpd_sys_content_t t.txt
+changing security context of 't.txt'
+$ ls -Z t.txt
+unconfined_u:object_r:httpd_sys_content_t:s0 t.txt
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -5680,7 +5688,7 @@ SELECT count(1) FROM user_procedures WHERE object_name = 'AUTO_CREATE';
 -- Does a procedure inside a package exist?:
 SELECT * FROM user_procedures WHERE OBJECT_TYPE IN('PROCEDURE', 'PACKAGE') AND object_name='REFERENCES' AND procedure_name='AUTO_CREATE';
 
--- Oracle single q quote quoting masking:
+-- Oracle single q quote quoting masking. If using with anonymous block must have this all on one line  ...END;]'):
 foo CONSTANT  varchar2(4000) := q'[bar 'ok' then 4000 is max varchar2]';
 
 DROP PACKAGE test_bob;
@@ -6081,6 +6089,9 @@ select column_name, nullable, concat(concat(concat(data_type,'('),data_length),'
 $ ps -ef |grep lsn  # /oracle/app/oracle/product/8.0.6/bin/tnslsnr LISTENER -inherit
 -- Confirm LDAP adapter etc:
 $ tnsping usdev10
+
+-- Path 1.  C:\app\client\bheck\product\12.1.0\client_1\network\admin
+show tns
 
 -- Oracle are you pingable are you up?:
 $ while true; do tnsping sprd25|grep OK|awk '{print $2}'|sed 's/^.//'; sleep 120; done;
@@ -7312,7 +7323,7 @@ select * from all_synonyms where synonym_name = upper('&synonym_name'); -- other
 select '692329979 ', regexp_replace('692329979 ', '\W$') from dual;
 
 -- Find max length of data in a column:
-select max(length('ITEM_PREFIX')) from MKC_REVENUE_ADJ;
+select max(length(ITEM_PREFIX)) from MKC_REVENUE_ADJ;
 
 -- Character set nvarchar2 etc:
 select column_name, CHARACTER_SET_NAME, CHAR_COL_DECL_LENGTH, CHAR_LENGTH, CHAR_USED FROM all_tab_columns WHERE lower(table_name) = 'foo' and char_length >0;
@@ -7392,6 +7403,15 @@ show sqlformat
 
 -- Generate INSERT INTO statements:
 SELECT /*insert*/ mgr, hiredate FROM emp where rownum<3;
+
+-- Group by year aggregate:
+select extract(year from rate_date), count(1) cnt from mkc_revenue_full group by extract(year from rate_date) order by 1 desc;
+
+-- Percentage format oracle e.g. 0.42:
+to_char(current_ytd_pct_of_previous_ytd,'0D00') ytdpct
+
+-- View VC virtual columns:
+select utc1.column_name, utc1.data_default vc_contents from user_tab_cols utc1 where utc1.TABLE_NAME = 'MKC_REVENUE_FULL' and utc1.VIRTUAL_COLUMN = 'YES' order by 1;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 

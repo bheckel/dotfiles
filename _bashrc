@@ -277,12 +277,12 @@ sbx() {
 }
 
 
-# Last twenty (or so)
+# Last ten
 lt() {
   if test "x$1" = "x"; then
-    \ls -lt | head -n30
+    \ls -lt | head -n10
   else
-    \ls -lt "$1" | head -n30
+    \ls -lt "$1" | head -n10
   fi
 }
 

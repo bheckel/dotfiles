@@ -6,7 +6,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Sun 04-Dec-2022 (Bob Heckel)
+" Modified: Mon 16-Jan-2023 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -972,7 +972,7 @@ if hostname() == 'penguin'
   nnoremap ,p :r ~/.crouton-clipboard/data.txt<CR>
 elseif hostname() == 'localhost'
   nnoremap ,p :r !termux-clipboard-get
-elseif hostname() == 'metta'
+elseif hostname() == 'metta' && has('win32unix')
   nnoremap ,p :r !powershell.exe Get-Clipboard<CR>
 else
   nnoremap ,p "*p
