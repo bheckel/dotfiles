@@ -10,7 +10,7 @@
 #           /bin/mutt -F foo  <---foo must exist
 #
 #  Created: 03-Jun-2001 (Bob Heckel)
-# Modified: 26-Dec-2022 (Bob Heckel)
+# Modified: 21-Jan-2023 (Bob Heckel)
 #
 #¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø#
 
@@ -70,7 +70,7 @@ unset markers  # no '+' markers at the beginning of wrapped lines (for clipbd)
 # Hide .procmailusage and archive files when using file browser.  Double
 # backslashes!
 set mask="!(^\\.|gz$)"  
-#set mbox=$HOME/Mail/mbox
+set mbox=$HOME/mail/saved
 set metoo=no      # remove yourself from To: line during replies
 set menu_scroll=yes
 set message_format="%s"
@@ -211,8 +211,7 @@ macro index <F12> "quit" "Quit"  # like Vim
 macro index \ee "<resend-message>f=sentmail\n" \
                 "Resend message with fcc set to sentmail"
 macro index j "<next-entry>@" "View sender's email in statusbar"
-# Replied to mail is normally deleted.  This saves it to where it would
-# normally be if it was not replied to.
+# Replied to mail is normally deleted
 macro index r "C=repliedto\n<reply>" "Save a copy then reply"
 macro index x "c?" "Keystroke saving mailbox browsing"
 # TODO is this working?
@@ -265,12 +264,14 @@ hdr_order Sender: From: Reply-To: To: Cc: Bcc: Subject: Organization: \
 ###charset-hook x-unknown US-ASCII
 
 
-# Mutt knows to use the second one in the pager because of the
-# 'copiousoutput', and uses the first one if I select a pdf attachment from
-# the attachment menu.
+alternative_order text/plain text/enriched text/html
+# Mutt knows to use the second one in the pager because of 'copiousoutput'. It uses the first one if we select 
+# a pdf attachment from the attachment menu.
 # from .mailcap:
 #   text/html; /usr/pkg/bin/links %s; nametemplate=%s.html
 #   text/html; /usr/pkg/bin/links -dump %s; copiousoutput
+# or probably better:
+#   text/html; w3m -I %{charset} -T text/html; copiousoutput;
 auto_view "text/html"
 
 
