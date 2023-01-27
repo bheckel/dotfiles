@@ -7378,7 +7378,7 @@ select count(distinct global_account_manager) over(partition by rollup_name) n_g
 -- How many indexes are function-based FBI ?:
 select * from user_indexes where index_type like 'FUNCTION-BASED%' and table_name='MKC_REVENUE_FULL'
 
--- Synchronize two tables differences auto generate DDL
+-- Synchronize two tables differences auto generate DDL (no output if identical otherwise run ALTERs to synch up to network_link2):
 select DBMS_METADATA_DIFF.compare_alter('TABLE','MKC_REVENUE_FULL_BOB','MKC_REVENUE_FULL_PART') from dual;
 select DBMS_METADATA_DIFF.compare_alter('TABLE','MKC_REVENUE_FULL','MKC_REVENUE_FULL',network_link2=>'ATLAS_TEST_RW') from dual;--db link version - run on prod - returns DDL to run to make prod synch up with tst
 
@@ -8104,7 +8104,7 @@ gco && gpul && gco 62332 && git merge develop && gpul && gco && git merge --squa
 head .git/logs/refs/heads/master  # [old sha]  [new sha]  [commit msg] ...
 git checkout 7a76d39
 
-# git show last touches and owner authors for all remote branches:
+# git show last touches and owner authors for all remote branches find my git branches:
 for branch in `git branch -r | grep -v HEAD`;do echo -e `git show --format="%ci %cr\t%an\t" $branch | head -n 1` \\t$branch; done | sort -r
 
 <!-- Predefined HTML character entities -->
