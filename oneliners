@@ -8319,4 +8319,8 @@ This file 'oneliners' is Copyright © 2022 Bob Heckel b dot heckel at gmail dot 
 -- Credit card to f' with scammers:
 4007000000027
 
+-- Win11 laptop batter sleep settings:
+powercfg.exe /getactivescheme
+powercfg.exe /q [GUID of the active scheme]
+
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
