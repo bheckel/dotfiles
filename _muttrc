@@ -263,7 +263,6 @@ hdr_order Sender: From: Reply-To: To: Cc: Bcc: Subject: Organization: \
 ###charset-hook x-unknown ISO-8859-1
 ###charset-hook x-unknown US-ASCII
 
-
 alternative_order text/plain text/enriched text/html
 # Mutt knows to use the second one in the pager because of 'copiousoutput'. It uses the first one if we select 
 # a pdf attachment from the attachment menu.
@@ -272,8 +271,7 @@ alternative_order text/plain text/enriched text/html
 #   text/html; /usr/pkg/bin/links -dump %s; copiousoutput
 # or probably better:
 #   text/html; w3m -I %{charset} -T text/html; copiousoutput;
-auto_view "text/html"
-
+#auto_view "text/html"
 
 # Note: folder-hook requires double backslashes for one space!
 # Defaults:
