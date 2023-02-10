@@ -6,7 +6,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Mon 16-Jan-2023 (Bob Heckel)
+" Modified: Wed 08-Feb-2023 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -710,7 +710,7 @@ iab SaO filename F 'junk'; data t(rename=(PRODDESC=nm APRCLASS=class)); infile F
 iab SaP <Esc>0ititle "&SYSDSN";proc print data=_LAST_(obs=10) width=minimum heading=H;run;title;
 iab SaQ proc sql;<CR>  create table t as<CR>select *<CR>from t a join t2 b on a.foo=b.foo<CR>where<CR>group by<CR>;<CR><Left><Left>quit;<Esc><Up><Up><Up>
 iab SaS select ( myvar );<CR><Space><Space>when ( 42 ) delete;<CR><Space><Space>otherwise;<CR><Left><Left>end;
-
+iab SiL :silent! w!~/onedrive/misc/bkup/%:t<CR>
 cab Sy0 source $VIMRUNTIME/syntax/nosyntax.vim
 cab SyH source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/html.vim
 cab SyL source $HOME/code/sas/saslog.vim

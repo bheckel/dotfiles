@@ -5500,6 +5500,8 @@ select SID, SERIAL#, USERNAME, STATUS, OSUSER, MACHINE, PROGRAM, SQL_ID, SQL_EXE
 
 select * from v$parameter where name='service_names';
 
+SELECT * FROM DBA_TAB_PRIVS d WHERE d.grantee='ESTARS';--want to see table_name KILL_SESSION
+
 -- Have sql_id want running query text:
 select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_id='63ygwpcj2s227';
 -- Have SID want to know what SQL is running:
@@ -6024,6 +6026,9 @@ SELECT * from  user_tab_columns WHERE table_name = 'FOO' AND column_name LIKE '%
 
 -- Poke around virtual columns:
 select utc1.column_name, utc1.data_default vc_contents from user_tab_cols utc1 where utc1.TABLE_NAME = 'MKC_REVENUE_FULL_HIST' and utc1.VIRTUAL_COLUMN = 'YES';
+
+-- Does function exist?:
+SELECT * FROM SYS.user_objects where object_type='FUNCTION';
 
 -- What this object references. What this object depends on:
 select * from user_dependencies where name = 'ASP_PKG' and referenced_type not in ('SYNONYM') order by 4; -- i depend on these
