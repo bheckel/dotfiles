@@ -271,7 +271,7 @@ alternative_order text/plain text/enriched text/html
 #   text/html; /usr/pkg/bin/links -dump %s; copiousoutput
 # or probably better:
 #   text/html; w3m -I %{charset} -T text/html; copiousoutput;
-#auto_view "text/html"
+auto_view "text/html"
 
 # Note: folder-hook requires double backslashes for one space!
 # Defaults:
