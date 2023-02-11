@@ -2713,7 +2713,7 @@ $ export DISPLAY=158.111.250.163:0.0 && mozilla&
 
 # crontab -e fields: min hr day mon wkday(0=Sun,6=Sat)
 
-# Run cron job on last day of every month
+# Run cron job on last day of every month, must escape %:
 00 07 28-31 * * [[ $(date -d +1day +\%d) -eq 01 ]] && echo 'james script will be ok at 500 today' | mailx heckel@gmail.com
 # Run cron job every 30 minutes:
 5,35 * * * * /usr/bin/dfmon
@@ -2736,6 +2736,16 @@ $ export DISPLAY=158.111.250.163:0.0 && mozilla&
 
 # cron every other week (errors at EOY):
 49 15 * * 3 [ `expr \`date +\%V\` \% 2` -eq 0 ] && ~/crontest.sh
+
+*/15 * * * * echo "This 'silent' crontab entry runs every 15 minutes but output is redirected to /dev/null" > /dev/null 2>&1
+
+* * * * * echo "The date and time is $(date +\%Y-\%m-\%d\ \%H:\%M:\%S)" >> $HOME/crontab.log
+
+# Combine all users crons in .txt cron into a new .txt:
+while read f; do echo "---$f---"; crontab -l -u $f; done </mnt/nfs/home/bheckel/users.txt >/mnt/nfs/home/bheckel/crontabs20150619.txt
+
+# If no MTA exists to forward errors:
+sudo tail /var/log/cron
 
 # Human readable disk space Solaris
 df -h
@@ -2797,7 +2807,7 @@ for p in `pgrep smbd`; do kill -9 $p; done
 # Kill fscking Norton antivirus
 winkill `ps -W | grep rtvscan | head -n1 | awk '{print $1}'`
 
-# Create a ~500MB (~500,000,000 bytes) dummy file of garbage (like mkfile) that is a specific size in bytes:
+# Create a ~500MB (~500,000,000 bytes) dummy file of garbage (like mkfile) that is a specific size in bytes stresstest disk:
 #                             ea block   num blocks
 dd if=/dev/zero of=biggarbage bs=50000 count=10000
 dd if=/dev/zero of=biggarbage bs=100000 count=10000  # gigabyte
@@ -3761,9 +3771,6 @@ while read f; do bfp $f "bqh0.pgm.lib(`basename $f .sas`)"; done <filelist.txt
 find . -name '*DEL' | while read fn; do echo "found file $fn"; done
 find . -type d  | while read dn; do echo "found dir $dn"; done
 
-# Combine all users crons in .txt cron into a new .txt:
-while read f; do echo "---$f---"; crontab -l -u $f; done </mnt/nfs/home/bheckel/users.txt >/mnt/nfs/home/bheckel/crontabs20150619.txt
-
 # ROT13 encryption
  echo foo | tr 'a-zA-Z' 'n-za-mN-ZA-M'  # sbb
 cat "$@" | tr 'a-zA-Z' 'n-za-mN-ZA-M'   # "a" goes to "n", "b" to "o", etc.
@@ -3845,7 +3852,7 @@ diskpct=$(df /cygdrive/c|tail -1|awk '{print $5}'|perl -pe 's/%//'); if [ $diskp
 /opt/sfw/bin/rxvt -rv -e bash&
 rxvt -bg white -fg black -geometry 80x40+159+46 -fn "Andale Mono-12"
 
-# Performance benchmark:
+# Performance benchmark stresstest CPU:
 time echo "scale=5000; 4*a(1)" | bc -l -q
 
 # Typing speed Ctl-d to exit:
@@ -5500,6 +5507,8 @@ select SID, SERIAL#, USERNAME, STATUS, OSUSER, MACHINE, PROGRAM, SQL_ID, SQL_EXE
 
 select * from v$parameter where name='service_names';
 
+SELECT * FROM DBA_TAB_PRIVS d WHERE d.grantee='ESTARS';--want to see table_name KILL_SESSION
+
 -- Have sql_id want running query text:
 select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_id='63ygwpcj2s227';
 -- Have SID want to know what SQL is running:
@@ -6024,6 +6033,9 @@ SELECT * from  user_tab_columns WHERE table_name = 'FOO' AND column_name LIKE '%
 
 -- Poke around virtual columns:
 select utc1.column_name, utc1.data_default vc_contents from user_tab_cols utc1 where utc1.TABLE_NAME = 'MKC_REVENUE_FULL_HIST' and utc1.VIRTUAL_COLUMN = 'YES';
+
+-- Does function exist?:
+SELECT * FROM SYS.user_objects where object_type='FUNCTION';
 
 -- What this object references. What this object depends on:
 select * from user_dependencies where name = 'ASP_PKG' and referenced_type not in ('SYNONYM') order by 4; -- i depend on these
