@@ -3852,9 +3852,6 @@ diskpct=$(df /cygdrive/c|tail -1|awk '{print $5}'|perl -pe 's/%//'); if [ $diskp
 /opt/sfw/bin/rxvt -rv -e bash&
 rxvt -bg white -fg black -geometry 80x40+159+46 -fn "Andale Mono-12"
 
-# Performance benchmark stresstest CPU:
-time echo "scale=5000; 4*a(1)" | bc -l -q
-
 # Typing speed Ctl-d to exit:
 START=`date +%s`;WORDS=`cat|wc -w`; STOP=`date +%s`; SPEED=`echo "$WORDS / ( ( $STOP - $START ) / 60 )"|bc`;echo "You have a typing speed of $SPEED words per minute."
 
@@ -4513,6 +4510,10 @@ $ chcon -v --type=httpd_sys_content_t t.txt
 changing security context of 't.txt'
 $ ls -Z t.txt
 unconfined_u:object_r:httpd_sys_content_t:s0 t.txt
+
+# Performance benchmark stresstest CPU:
+time echo "scale=5000; 4*a(1)" | bc -l -q
+for i in 1 2 3; do echo "scale=5000; 4*a(1)" | bc -l -q >/dev/null 2>&1; done
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
