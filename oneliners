@@ -5749,6 +5749,10 @@ select TO_DATE('6-JAN-06'), TO_DATE('06JAN06'), TO_DATE('6JAN2006');  -- all sam
 select TO_DATE('15-may-2006 16:00:01','dd-mon-yyyy hh24:mi:ss') from dual; -- 15-May-06 04:00:01 PM
 select * from activity_log where trunc(activity_dt)=TO_DATE('16-JAN-06','DD-MON-YY');
 
+-- Oracle datetime range predicates:
+execute_time >= TO_DATE('2020-06-03 17:02:00', 'YYYY-MM-DD HH24:MI:SS') AND execute_time <= TO_DATE('2020-06-03 17:05:00', 'YYYY-MM-DD HH24:MI:SS')
+retired_time between to_date('13-mar-2020 20:00', 'dd-mon-yyyy hh24:mi') and to_date('13-mar-2020 21:10', 'dd-mon-yyyy hh24:mi')
+
 -- Oracle DATE literal
 select * from t WHERE t.min_end_time> '16jan19'
 -- Oracle ANSI date constants literals (client controls display format):
@@ -8003,6 +8007,8 @@ git reset [HEAD] Daily_data_maintenance.pck
 git reset [--mixed] HEAD^ 
 # git revert discard throw away trash abandon a pull - not WD safe!:
 git reset --hard ORIG_HEAD; git gc;
+# git revert a merge commit:
+git revert --no-commit <MergeCommitHash>
 # git abandon discard throw away trash abandon a merge collision (remove conflict markers "master|MERGING" from the file but you still have merge conflicts when you do git pull next time):
 git merge --abort  # or git reset --merge
 # git error "CONFLICT (content): Merge conflict in"... collision:
