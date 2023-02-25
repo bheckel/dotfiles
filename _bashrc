@@ -879,7 +879,7 @@ case "$OSTYPE" in
      # export PROMPT_COMMAND='echo -ne "\033]0;`stoppedjobs`${HOSTNAME:0:6}:${PWD}\007"'
      export SURFRAW_text_browser=w3m
      export WWW_HOME=http://www.google.com
-     export TERM=xterm
+     export TERM=xterm-256color
      export TZ=/usr/share/zoneinfo/US/Eastern
 
      if [ $HOSTNAME = 'sdf' ] || [ $HOSTNAME = 'sverige' ]; then
