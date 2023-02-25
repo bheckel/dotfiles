@@ -6418,6 +6418,9 @@ SELECT LISTAGG(ename, ', ' ON OVERFLOW TRUNCATE '...' WITHOUT COUNT) WITHIN GROU
 LISTAGG(ao.associated_opp_id, '/' ON OVERFLOW TRUNCATE '...' WITHOUT COUNT) WITHIN GROUP (ORDER BY ao.associated_opp_id) OVER (partition by op.opportunity_id) as linked_consulting_oppts,
 COUNT(ao.opportunity_id) over(partition by op.opportunity_id) as num_linked_consulting_oppts
 
+-- Custom sort with TSR first:
+listagg(DISTINCT ate.employee_id, ';') within group (order by decode(function_lov_id, 2750, 0, 1))
+
 -- RANK as an aggregate function:
 select rank(1600) WITHIN GROUP (order by sal desc) from emp;  -- 7 i.e. 7th place, vs. analytic OVER(ORDER BY...) gives whole table with ranks
 select dense_rank(1600) WITHIN GROUP (order by sal desc) from emp;  -- 6 i.e. 6th place
