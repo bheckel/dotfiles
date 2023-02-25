@@ -6,7 +6,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Wed 08-Feb-2023 (Bob Heckel)
+" Modified: Sat 25-Feb-2023 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -26,6 +26,8 @@ set nocompatible
 """set verbose=1
 " Watch changes to text happen slowly (default is 0)
 """set writedelay=5
+
+let g:netrw_bufsettings="noma nomod nonu nobl nowrap ro rnu"
 
 if has ('win32unix')  " Cygwin
   let g:netrw_cygwin=1  " scp to be provided by Cygwin

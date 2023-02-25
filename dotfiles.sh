@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  Created: 03-May-2015 (Bob Heckel) 
-# Modified: 17-Oct-2022 (Bob Heckel)
+# Modified: 25-Feb-2023 (Bob Heckel)
 
 # No leading dots!
 #if [ -z WSL_DISTRO_NAME ]; then
@@ -27,17 +27,31 @@ EOT
   exit 1
 fi
 
-cd $myhome
+function strlen {
+  echo ${#1}     
+}                
 
+cd $myhome
 echo
 echo -n "Setup dotfiles in $myhome? "
 read
 echo
 
-for f in $majordots; do
-  echo -n "setting up "
-  echo -n "$myhome/.$f     "
-  echo -n ".............	 "
+
+maxlen=0                                  
+for f in $majordots; do                   
+  len=$(strlen "$myhome/.$f")             
+  if (( len > maxlen )); then             
+    maxlen=$len                           
+  fi                                      
+done                                      
+                                          
+for f in $majordots; do                   
+  echo -n "setting up "                   
+  len=$(strlen "$myhome/.$f")             
+  padding=$((maxlen-len))                 
+  printf "%s%*s" "$myhome/.$f " $padding "" 
+
   if [ -e $myhome/.$f ] || [ -L $myhome/.$f ]; then
     mv $myhome/.$f $myhome/.$f.ORIG
   fi
@@ -67,10 +81,12 @@ if [ -e /cygdrive ]; then
   mkdir -p /cygdrive/c/temp && cd ~ && ln -s /cygdrive/c/temp .
 fi
 
-echo
-echo "Consider installing:"
-echo "$ sudo apt-get install tmux vim-nox w3m bc ssh"
-echo 'or'
-echo "$ sudo apt-get install tmux vim-gtk3 w3m bc ssh"
-echo
+#echo
+#echo "Consider installing:"
+#echo "$ sudo apt-get install tmux vim-nox w3m bc ssh"
+#echo "$ sudo dnf install tmux vim-nox w3m bc ssh"
+#echo 'or'
+#echo "$ sudo apt-get install tmux vim-gtk3 w3m bc ssh"
+#echo "$ sudo dnf install tmux vim-gtk3 w3m bc ssh"
+#echo
 

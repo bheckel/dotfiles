@@ -8071,12 +8071,12 @@ git difftool 1908af7:./PTG.pck PTG.pck
 # git force file to staging even if it's excluded by .gitignore:
 git add -f ignoreme.txt
 
-# github remove whitespace trash from github diff webpage: https://github.com/ion/data/compare/feature/RION-39172?w=1
+# github remove whitespace trailing trash from github diff webpage: https://github.com/ion/data/compare/feature/RION-39172?w=1
 
 # github commit mantra (github is origin we PUSH TO origin FROM master), update index and HEAD:
 git add . && git commit -m 'mod' && git push origin master
 
-# github readonly:
+# github readonly for temp test boxes:
 git clone https://github.com/bheckel/dotfiles
 
 # git new install bare box setup want clone an existing github repo which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
