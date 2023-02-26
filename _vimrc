@@ -5,6 +5,8 @@
 "           The mechanic that would perfect his work must first sharpen
 "           his tools -- Confucius
 "
+"           Code at the speed of thought -- anonymous
+"
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
 " Modified: Sat 25-Feb-2023 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø

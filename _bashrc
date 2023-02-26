@@ -4,7 +4,7 @@
 # Summary: Bash shell config for at least Unix, Linux, WSL2, Cygwin and z/OS
 #
 #  Created: 19-May-1998 (Bob Heckel)
-# Modified: 24-Nov-2022 (Bob Heckel)
+# Modified: 26-Feb-2023 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -153,7 +153,7 @@ alias tre="\ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^
 alias uvi="$HOME/code/scripting/uvi"  # don't change timestamp
 alias ve="vim $HOME/.vimrc"
 alias vi=vim
-alias wget='wget -c'  # continue failures
+alias xfer='vi scp://opc@rshdev.com/tmp/.vimxfer'
 
 # Quick diff
 alias d1="vim $TMP/1 $TMP/2"
@@ -719,11 +719,6 @@ case "$OSTYPE" in
       #----------------
       if [ $HOSTNAME = 'sasdev-01.twa.foo.com' ]; then
         export PS1='${fg_darkgray}\j ${fg_yellowbold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
-      fi
-
-      if [ $HOSTNAME = 'sas-01.mrk.foo.com' ]; then
-        export PS1='${fg_darkgray}\j ${fg_redbold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
-        alias usvx='vi scp://bheckel@sas-01.twa.foo.com//Drugs/Personnel/bob/tmp/.vimxfer'
       fi
 
       if [ $HOSTNAME = 'sas-01.twa.foo.com' ] || [ $HOSTNAME = 'sasdev-01.twa.foo.com' ] || [ $HOSTNAME = 'sas-01.mrk.foo.com' ]; then

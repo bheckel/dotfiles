@@ -35,8 +35,6 @@ cd $myhome
 echo
 echo -n "Setup dotfiles in $myhome? "
 read
-echo
-
 
 maxlen=0                                  
 for f in $majordots; do                   
@@ -55,8 +53,8 @@ for f in $majordots; do
   if [ -e $myhome/.$f ] || [ -L $myhome/.$f ]; then
     mv $myhome/.$f $myhome/.$f.ORIG
   fi
+  #export fg_green="[0;32m"
   ln -s $myhome/dotfiles/_$f $myhome/.$f && echo "[[0;32m  OK  [0m]"
-export fg_green="[0;32m"
 done
 
 # 24-Aug-19 works on Oracle VM so commenting out

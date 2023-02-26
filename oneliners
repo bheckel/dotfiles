@@ -4189,7 +4189,7 @@ ls -l ~/c && sleep 10 && cd ~ && find code/ -type f -newer c |xargs tar cvfz c &
 cd ~ && find -L code/ -type f -newer ~/Downloads/c.PREV |grep -v '/.git/'|grep -v '.swp'|xargs tar cvfz ~/Downloads/c.NEW  # Ubuntu simple synch
 cd && find -L code/ -type f -newer ~/Downloads/c.PREV |grep -v '/.git/' |grep -v '.swp' |xargs tar cvfz ~/Downloads/c.NEW && scp ~/Downloads/c bheckel@dsf.org: && ssh bheckel@dsf.org mailx -a c -s c rsh8680@sgk.com && cd -  # Ubuntu complex synch
 
-sudo fdisk -l
+sudo fdisk -l | grep /dev/sd
 sudo dd if=lubuntu-desktop-12.04-1-miniand.com.img of=/dev/sdb1 && sudo sync
 
 # Imagemagic PNG to PDF conversion:
