@@ -504,19 +504,12 @@ case "$OSTYPE" in
     # Functions Cygwin  #{{{2
     #-------------------
 
-   # if [ ${OSTYPE:0:6} = 'cygwin' ]; then
-   #   function catput() {
-   #     echo 'putclip...'
-   #     if [ -e /usr/bin/putclip ]; then
-   #       echo 'putclip...'
-   #       cat "$1" | putclip
-   #     else
-   #       echo putclip not installed
-   #     fi
-   #   }
-   # fi
    function putclip() {
-     echo "$1" | xargs powershell.exe Set-Clipboard -Value
+     powershell.exe -Command "Set-Clipboard $1" 
+   }
+
+   function catput() {
+     powershell.exe -Command "Get-Content $1 | Set-Clipboard"
    }
 
     # end Functions Cygwin
@@ -524,13 +517,7 @@ case "$OSTYPE" in
     #-------------------
     # Alias Cygwin  #{{{2
     #-------------------
-    # alias cygwin=$HOME/code/misc/cygwin.bat  # norc bat version must be doubleclicked
-    ###alias budrsync='rsync -avz /home/bheckel/code/ root@buddha:/home/bheckel/code && rsync -avzL /home/bheckel/tobuddha/ root@buddha:/home/bheckel/tobuddha'
-    # Cygwin bugfix.  Use the real fg for e.g. fg %2
-    alias f='fg; echo'
-    #TODO make generic
-    #alias gv='(cd ~/dotfiles && $(cygpath -H)/$USER/vim/vim81/gvim.exe -u _vimrc)'
-    # Allow output to be triple clicked as a noop
+    alias f='fg'
     ###alias h='history|tail -20|perl -pe "s/(\d+)(.*)/: \1; \2/"'
     alias l='ls -GFw80 --color=none'   # for speed on Cygwin
     # Eliminate . .., owner and group info on Cygwin
