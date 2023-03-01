@@ -29,30 +29,26 @@ set nocompatible
 " Watch changes to text happen slowly (default is 0)
 """set writedelay=5
 
-let g:netrw_bufsettings="noma nomod nonu nobl nowrap ro rnu"
-
 if has ('win32unix')  " Cygwin
   let g:netrw_cygwin=1  " scp to be provided by Cygwin
   let g:netrw_browsex_viewer='cygstart'
 endif
+let g:netrw_bufsettings="noma nomod nonu nobl nowrap ro rnu"
+let g:netrw_banner=0
 " Tree view
-let g:netrw_liststyle= 3
-
+let g:netrw_liststyle=3
 " Refresh dir listings only if dir not seen before
 let g:netrw_fastbrowse=2
-
 " 2: <CR> opens vert split
 " 3: <CR> opens in new tab (use v to browse vertical split window)
-let g:netrw_browse_split=3
+let g:netrw_browse_split=2
 " File browser on left, file on right
 let g:netrw_altv=1
 " Width of file window opened with 'o' or 'v'
-let g:netrw_winsize=80
+let g:netrw_winsize=25
 let g:netrw_preview=1
-
 " Ignore case
 let g:netrw_sort_options="i"
-
 let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
 """let g:netrw_list_cmd = '\ls -l'
 """let g:netrw_list_cmd = '/cygdrive/c/windows/System32/WindowsPowerShell/v1.0/powershell -Command dir'
