@@ -15,7 +15,7 @@
 "    Who set it last e.g.:  :verbose se shiftwidth?
 "    Ordered by ':option option-window' convention
 "--------------------------------------------------------------------------
-"                                1 initialization {{{2
+"                                00 initialization {{{2
 " C:\Users\x\vim\vim81\gvim.exe -c "set noswapfile" -u c:\cygwin64\home\x\dotfiles\_vimrc
 
 " Unleash the beast VIVIVI:
@@ -28,30 +28,6 @@ set nocompatible
 """set verbose=1
 " Watch changes to text happen slowly (default is 0)
 """set writedelay=5
-
-if has ('win32unix')  " Cygwin
-  let g:netrw_cygwin=1  " scp to be provided by Cygwin
-  let g:netrw_browsex_viewer='cygstart'
-endif
-let g:netrw_bufsettings="noma nomod nonu nobl nowrap ro rnu"
-let g:netrw_banner=0
-" Tree view
-let g:netrw_liststyle=3
-" Refresh dir listings only if dir not seen before
-let g:netrw_fastbrowse=2
-" 2: <CR> opens vert split
-" 3: <CR> opens in new tab (use v to browse vertical split window)
-let g:netrw_browse_split=2
-" File browser on left, file on right
-let g:netrw_altv=1
-" Width of file window opened with 'o' or 'v'
-let g:netrw_winsize=25
-let g:netrw_preview=1
-" Ignore case
-let g:netrw_sort_options="i"
-let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
-"""let g:netrw_list_cmd = '\ls -l'
-"""let g:netrw_list_cmd = '/cygdrive/c/windows/System32/WindowsPowerShell/v1.0/powershell -Command dir'
 
 let THISBOX = hostname()
 let WORKBOXARRAY = [ 'HOSTNM1', 'HOSTNM2' ]
@@ -108,7 +84,32 @@ endif
 """execute pathogen#infect()
 " cd ~/.vim/bundle && git clone git://github.com/tpope/vim-commentary.git
 
-"                                2 moving around, searching and pattern {{{2
+"                                01 NetRW {{{2
+let g:netrw_banner=0
+let g:netrw_bufsettings="noma nomod nonu nobl nowrap ro rnu"
+let g:netrw_liststyle=3
+let g:netrw_fastbrowse=2
+let g:netrw_browse_split=4
+let g:netrw_altv=1
+let g:netrw_winsize=15
+let g:netrw_sort_options="i"
+let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
+"""let g:netrw_list_cmd = '\ls -l'
+"""let g:netrw_list_cmd = '/cygdrive/c/windows/System32/WindowsPowerShell/v1.0/powershell -Command dir'
+
+if has ('win32unix')  " Cygwin
+  let g:netrw_cygwin=1  " scp to be provided by Cygwin
+  let g:netrw_browsex_viewer='cygstart'
+endif
+
+if ! &diff
+augroup ProjectDrawer
+  autocmd!
+  autocmd VimEnter * :Vexplore
+augroup END
+endif
+
+"                                02 moving around, searching and pattern {{{2
 " H, M, L, gg, etc commands move cursor to first blank in line.
 set nostartofline
 
@@ -120,7 +121,6 @@ set nostartofline
   set path=**
 " endif
 
-" TODO 20-Apr-20 'search hit BOTTOM, continuing at TOP' message flashes
 set wrapscan
 
 set incsearch
@@ -136,10 +136,10 @@ set ignorecase
 set nosmartcase
 
 
-"                                3 tags {{{2
+"                                03 tags {{{2
 
 
-"                                4 displaying text {{{2
+"                                04 displaying text {{{2
 
 set nowrap
 
@@ -151,8 +151,8 @@ set showbreak=^
 
 set sidescroll=5
 
-" Minimum number screen lines of context to keep above top and below bottom the cursor
-set scrolloff=1
+" Minimum number screen lines of context offset buffer to keep above top and below bottom the cursor
+set scrolloff=0
 
 set scrollopt=hor,ver
 
@@ -198,7 +198,7 @@ endif
 set restorescreen
 
 
-"                                5 syntax, highlighting and spelling {{{2
+"                                05 syntax, highlighting and spelling {{{2
 
 " Adjusted by filetype below:
 set hlsearch
@@ -298,6 +298,8 @@ hi Visual ctermfg=Black ctermbg=LightMagenta guifg=Black guibg=LightMagenta
 
 hi WarningMsg ctermfg=Magenta ctermbg=Yellow guifg=Magenta guibg=Yellow
 
+hi VertSplit ctermfg=Black ctermbg=DarkGray guifg=Black guibg=DarkGray
+
 """hi WhitespaceEOL ctermbg=red guibg=red
 """match WhitespaceEOL /\s\+$/
 
@@ -312,7 +314,7 @@ hi WarningMsg ctermfg=Magenta ctermbg=Yellow guifg=Magenta guibg=Yellow
 hi GitCollision ctermbg=red guibg=yellow
 match GitCollision /^\(<\|=\|>\)\{7\}\([^=].\+\)\?$/
 
-"                                6 multiple windows {{{2
+"                                06 multiple windows {{{2
 
 " Mandatory for displaying a status line:
 set laststatus=2
@@ -340,10 +342,10 @@ set nosplitbelow
 " New window opens on the right
 set splitright
 
-"                                7 multiple tab pages {{{2
+"                                07 multiple tab pages {{{2
 
 
-"                                8 terminal {{{2
+"                                08 terminal {{{2
 
 " <C-r>" pastes while in insert mode:
 set esckeys
@@ -353,7 +355,7 @@ set title
 set titlelen=90
 
 
-"                                9 using the mouse {{{2
+"                                09 using the mouse {{{2
 
 set mousehide
 " For spellchecking:
@@ -1812,7 +1814,7 @@ if !exists("autocommands_loaded")
   au BufReadPre *.doc set hlsearch!
   au BufReadPre *.doc nnoremap q :q!<CR>
   au BufReadPost *.doc echon '.vimrc: q mapped to :q!'
-  " If installed
+  " If program is installed
   if exists(":antiword")
     au BufReadPost *.doc %!antiword "%"
   endif
@@ -1851,7 +1853,7 @@ if !exists("autocommands_loaded")
   au BufEnter oneliners,.vimrc,_vimrc,.bashrc,_bashrc set foldmethod=marker
 	au BufRead,BufNewFile oneliners set filetype=txt
 
-  " We'll never need to edit a tarball or QuickFix list. TODO why NETRW ignored
+  " We'll never need to edit a tarball or QuickFix list
   au FileType TAR,QF,NETRW map q :q<CR>
 
   " Always edit git commit messages at position 1L,1C
@@ -1861,10 +1863,6 @@ if !exists("autocommands_loaded")
   au WinEnter * checktime
 
   au BufNewFile,BufRead *.md   set syntax=markdown
-
-  " Without this, NetRW loses its place when returning to the tree (use buffer n because mz is taken by netrw):
-	au BufLeave NetrwTreeListing mn
-	au BufEnter NetrwTreeListing `n
 
   " Enterprise Guide files
   au BufReadCmd *.egp call zip#Browse(expand("<amatch>"))
