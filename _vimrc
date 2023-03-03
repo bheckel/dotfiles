@@ -85,15 +85,15 @@ endif
 " cd ~/.vim/bundle && git clone git://github.com/tpope/vim-commentary.git
 
 "                                01 NetRW {{{2
-let g:netrw_banner=0
-let g:netrw_bufsettings="noma nomod nonu nobl nowrap ro rnu"
-let g:netrw_liststyle=3
-let g:netrw_fastbrowse=2
-let g:netrw_browse_split=4
 let g:netrw_altv=1
-let g:netrw_winsize=15
+let g:netrw_banner=0
+let g:netrw_browse_split=4
+let g:netrw_bufsettings="noma nomod nonu nobl nowrap ro rnu"
+let g:netrw_fastbrowse=2
+let g:netrw_liststyle=3
 let g:netrw_sort_options="i"
 let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
+let g:netrw_winsize=15
 """let g:netrw_list_cmd = '\ls -l'
 """let g:netrw_list_cmd = '/cygdrive/c/windows/System32/WindowsPowerShell/v1.0/powershell -Command dir'
 
@@ -298,21 +298,18 @@ hi Visual ctermfg=Black ctermbg=LightMagenta guifg=Black guibg=LightMagenta
 
 hi WarningMsg ctermfg=Magenta ctermbg=Yellow guifg=Magenta guibg=Yellow
 
-hi VertSplit ctermfg=Black ctermbg=DarkGray guifg=Black guibg=DarkGray
+" NetRW
+hi VertSplit ctermfg=243 ctermbg=233 guifg=#545454 guibg=#141414
 
 """hi WhitespaceEOL ctermbg=red guibg=red
 """match WhitespaceEOL /\s\+$/
 
-"""hi ColorizeFirst10 ctermbg=red guibg=red
-"""match ColorizeFirst10 /^........../
-
-"TODO why ignored but double quotes 201c & 201d are highlighted w/o this?
-" Microsoft fancy single quote apostrophes and dashes of death cause vim 'CONVERSION ERROR' among other trauma
-" hi EvilChars ctermfg=White ctermbg=Red
-" match EvilChars /\%u2018\|\%u2019\|\%u2013/
-
 hi GitCollision ctermbg=red guibg=yellow
 match GitCollision /^\(<\|=\|>\)\{7\}\([^=].\+\)\?$/
+
+" Microsoft fancy quotes, Teams, etc 
+hi EvilChars ctermbg=Red guibg=Red
+match EvilChars /\%u201c\|\%u201d\|\%u00a0/
 
 "                                06 multiple windows {{{2
 
