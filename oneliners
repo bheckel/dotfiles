@@ -2638,9 +2638,6 @@ $ make 2>&1 | tee build.log
 # To append further log to build.log, continue with:
 $ make modules 2>&1 | tee -a build.log
 
-# Get a file and both write it to a file and to stdout simultaneously:
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo tee /etc/apt/trusted.gpg.d/docker.asc
-
 # Write a file from command line:
 $ sudo tee -a /etc/postfix/main.cf >/dev/null <<EOF
 > myhostname = $(hostname -f)
@@ -4402,6 +4399,12 @@ cat ~/clids.txt | xargs ~bheckel/bin/isdata.sh; ssh b@sas-01.mrk.taeb.com 'cat ~
 
 # What is my DNS?:
 nmcli dev show | grep DNS
+
+# Decode resolve unhide a shortened bitly URL:
+curl --head --location https://bit.ly/2yDyS4T
+
+# Get a file and both write it to a file and to stdout simultaneously:
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo tee /etc/apt/trusted.gpg.d/docker.asc
 
 # What is my IP (if no ifconfig):
 curl http://ifconfig.me/ip
