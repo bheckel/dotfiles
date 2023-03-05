@@ -57,7 +57,7 @@ for f in $majordots; do
 
   line='.........................'
   #ln -s $myhome/dotfiles/_$f $myhome/.$f && echo "[[0;32m  OK  [0m]"
-  ln -s $myhome/dotfiles/_$f $myhome/.$f && printf "%s %s [OK]\n" $f "${line:${#f}}"
+  ln -s $myhome/dotfiles/_$f $myhome/.$f && printf "%s %s [[0;32m  OK  [0m]\n" $f "${line:${#f}}"
 done
 
 # 24-Aug-19 works on Oracle VM so commenting out
