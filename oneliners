@@ -5863,6 +5863,9 @@ select cast(SYSTIMESTAMP - INTERVAL '1' day as timestamp) from dual    -- 17-JUL
 select cast(SYSTIMESTAMP - INTERVAL '1' day as timestamp(1)) from dual -- 17-JUL-19 11.58.14.800000000 AM
 select cast(SYSTIMESTAMP - INTERVAL '1' day as timestamp(7)) from dual -- 17-JUL-19 11.59.01.335483000 AM
 
+-- Subtract two timestamps:
+select extract( day from diff ) days, extract( hour from diff ) hours, extract( minute from diff ) minutes, extract( second from diff ) seconds from (select systimestamp - to_timestamp( '2012-07-23', 'yyyy-mm-dd' ) diff from dual);
+
 -- Choose highest value in list:
 SELECT GREATEST(SYSDATE, to_date('01JAN2029'), to_date('01jan2030')) FROM dual
 

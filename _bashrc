@@ -499,6 +499,7 @@ case "$OSTYPE" in
     export PS2=' '  # allow multiple line copy to clipboard 
     # export SENSIBLE_BROWSER='/cygdrive/c/Program\ Files/mozilla\ firefox/firefox.exe'
     # export TEMP=/cygdrive/c/temp
+    export TERM=xterm-256color
     export VIMSTATUSL="${USERNAME}@`echo ${HOSTNAME} | tr [A-Z] [a-z]`"
     #-------------------
     # Functions Cygwin  #{{{2

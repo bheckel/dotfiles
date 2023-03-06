@@ -93,7 +93,7 @@ let g:netrw_fastbrowse=2
 let g:netrw_liststyle=3
 let g:netrw_sort_options="i"
 let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
-let g:netrw_winsize=15
+let g:netrw_winsize=20
 """let g:netrw_list_cmd = '\ls -l'
 """let g:netrw_list_cmd = '/cygdrive/c/windows/System32/WindowsPowerShell/v1.0/powershell -Command dir'
 
@@ -102,12 +102,12 @@ if has ('win32unix')  " Cygwin
   let g:netrw_browsex_viewer='cygstart'
 endif
 
-if ! &diff
-augroup ProjectDrawer
-  autocmd!
-  autocmd VimEnter * :Vexplore
-augroup END
-endif
+"if ! &diff
+"  augroup ProjectDrawer
+"    autocmd!
+"    autocmd VimEnter * :Vexplore
+"  augroup END
+"endif
 
 "                                02 moving around, searching and pattern {{{2
 " H, M, L, gg, etc commands move cursor to first blank in line.
@@ -825,6 +825,9 @@ nnoremap Y y$
 " The command {number}CTRL-G show the current buffer number.  Prevent a loop in
 " the mapping by using 'nnoremap'.
 nnoremap <C-G> 2<C-G>
+
+" NetRW
+nnoremap <C-N> :Vexplore
 
 " Like Firefox...
 nnoremap <C-T> :tabnew<CR>
