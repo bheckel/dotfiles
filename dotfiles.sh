@@ -36,25 +36,28 @@ echo
 echo -n "Setup dotfiles in $myhome? "
 read
 
-maxlen=0                                  
-for f in $majordots; do                   
-  len=$(strlen "$myhome/.$f")             
-  if (( len > maxlen )); then             
-    maxlen=$len                           
-  fi                                      
-done                                      
+#maxlen=0                                  
+#for f in $majordots; do                   
+#  len=$(strlen "$myhome/.$f")             
+#  if (( len > maxlen )); then             
+#    maxlen=$len                           
+#  fi                                      
+#done                                      
                                           
 for f in $majordots; do                   
   echo -n "setting up "                   
-  len=$(strlen "$myhome/.$f")             
-  padding=$((maxlen-len))                 
-  printf "%s%*s" "$myhome/.$f " $padding "" 
+#  len=$(strlen "$myhome/.$f")             
+#  padding=$((maxlen-len))                 
+#  printf "%s%*s" "$myhome/.$f " $padding "" 
 
   if [ -e $myhome/.$f ] || [ -L $myhome/.$f ]; then
     mv $myhome/.$f $myhome/.$f.ORIG
   fi
   #export fg_green="[0;32m"
-  ln -s $myhome/dotfiles/_$f $myhome/.$f && echo "[[0;32m  OK  [0m]"
+
+  line='.........................'
+  #ln -s $myhome/dotfiles/_$f $myhome/.$f && echo "[[0;32m  OK  [0m]"
+  ln -s $myhome/dotfiles/_$f $myhome/.$f && printf "%s %s [[0;32m  OK  [0m]\n" $f "${line:${#f}}"
 done
 
 # 24-Aug-19 works on Oracle VM so commenting out
