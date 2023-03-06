@@ -1850,7 +1850,7 @@ if !exists("autocommands_loaded")
   au BufEnter oneliners,.vimrc,_vimrc,.bashrc,_bashrc set foldmethod=marker
 	au BufRead,BufNewFile oneliners set filetype=txt
 
-  " We'll never need to edit a tarball or QuickFix list
+  " We'll never need to edit a tarball, QuickFix list nor a pane
   au FileType TAR,QF,NETRW map q :q<CR>
 
   " Always edit git commit messages at position 1L,1C
