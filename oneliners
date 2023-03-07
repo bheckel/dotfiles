@@ -14,7 +14,7 @@
 #          ^^^^__^^^^^__^^^_^^^
 #
 #  Created: 02-Jun-1998 (Bob Heckel)
-# Modified: 01-Jun-2022 (Bob Heckel)
+# Modified: 07-Mar-2023 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -5820,6 +5820,7 @@ select (SYSDATE - INTERVAL '1' hour) from dual  -- one hour ago
 select (SYSDATE - INTERVAL '1' day) from dual  -- 17-JUL-19 12:11:48
 select (SYSTIMESTAMP - INTERVAL '1' day) from dual  -- 17-JUL-19 12.12.11.043644000 PM -04:00
 select sysdate, (sysdate - .5) twelve_hours_ago_ora, (SYSDATE - INTERVAL '12' hour) twelve_hours_ago from dual;
+SELECT to_char(trunc(sysdate)-1,'DDMONYY') FROM dual;
 
 -- 18-JUL-19 12.13.00.755657000 PM -04:00 / 18-JUL-19 12.13.00.756657000 PM -04:00 / 18-JUN-19 12:13:00
 SELECT (systimestamp - INTERVAL '0.001' SECOND), SYSTIMESTAMP, (SYSDATE - INTERVAL '1' MONTH) FROM dual

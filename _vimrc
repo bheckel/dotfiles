@@ -300,6 +300,7 @@ hi WarningMsg ctermfg=Magenta ctermbg=Yellow guifg=Magenta guibg=Yellow
 
 " NetRW
 hi VertSplit ctermfg=243 ctermbg=233 guifg=#545454 guibg=#141414
+hi netrwDir ctermfg=99 ctermbg=Black guifg=#648ed1 guibg=Black
 
 """hi WhitespaceEOL ctermbg=red guibg=red
 """match WhitespaceEOL /\s\+$/
@@ -827,7 +828,7 @@ nnoremap Y y$
 nnoremap <C-G> 2<C-G>
 
 " NetRW
-nnoremap <C-N> :Vexplore
+nnoremap <C-N> :Vexplore<CR>
 
 " Like Firefox...
 nnoremap <C-T> :tabnew<CR>
