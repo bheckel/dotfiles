@@ -212,9 +212,9 @@ set hlsearch
 " ~/code/misc/vim_colors.txt
 "--------------------------------------------------------------------------
 syntax enable
-"TODO
 "syntax sync maxlines=500 ccomment
 "syntax sync maxlines=1000
+syntax sync fromstart
 
 " Avoid reading text presented like it was written on a lightbulb.  We're
 " usually relying on .mintty or .Xdefaults so this is often only for gVim.
