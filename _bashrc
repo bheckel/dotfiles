@@ -345,15 +345,16 @@ md() {
 # Create new tmux session
 tmn() {
   if [ -z ${1} ]; then
-    #tmux -u -2 new -s s1\; split-window -h
     tmux new
   else
-#    if [ $HOSTNAME = 'metta' ]; then
-#      tmux -u new -s "s${1}"\; split-window -h
-#    else
-#TODO 16-Dec-22 is -2 required still?
-      tmux -u -2 new -s "s${1}"\; split-window -h
-#    fi
+    # Two vertical panes
+    if [ $HOSTNAME = 'metta' ]; then
+      tmux new -s "s${1}"\; split-window -h
+    else
+      #tmux -u -2 new -s "s${1}"\; split-window -h
+      # Four panes
+      tmux new -s "s${1}"\; split-window -v \; split-window -h \; select-pane -t 0 \; split-window -h
+    fi
   fi
 }
 
@@ -499,6 +500,7 @@ case "$OSTYPE" in
     export PS2=' '  # allow multiple line copy to clipboard 
     # export SENSIBLE_BROWSER='/cygdrive/c/Program\ Files/mozilla\ firefox/firefox.exe'
     # export TEMP=/cygdrive/c/temp
+    export TERM=xterm-256color
     export VIMSTATUSL="${USERNAME}@`echo ${HOSTNAME} | tr [A-Z] [a-z]`"
     #-------------------
     # Functions Cygwin  #{{{2
