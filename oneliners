@@ -1188,6 +1188,9 @@ http://trpsawn321/sasweb/cgi-bin/broker.exe?_DEBUG=16384&_SERVICE=default
  /* Wake up, ping restarted IntrNet server */
 http://trpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program=ping&_adminpw=
 
+ /* Run IntrNet d:\sas_programs\t.sas with debug on */
+http://rtpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program=LINKS.t.sas&UID=rsh8680&_debug=131
+
  /* SAS version of Oracle ROWNUM<5 or Postgres LIMIT 5 */
 ... WHERE monotonic() < 5 ...
 proc sql outobs=5; select * from sashelp.shoes; quit;  /* but only affects printing results, still rips thru all records */
@@ -1214,9 +1217,6 @@ data _null_; do while ( x<3 ); put x=; x+1; end; run;
 %macro w; %let i=0; %do %while ( &i lt 3 ); %put &i; %let i=%eval(&i+1); %end; %mend; %w
 ... do year=1990 to 2004 while ( capital > -1 ); ...
 ... %do i=1 %to 4 %by 2; %put &minyr.&i; %end; ...  /* only 2 puts */
-
- /* Run IntrNet d:\sas_programs\t.sas with debug on */
-http://rtpsawn321/sasweb/cgi-bin/broker.exe?_service=default&_program=LINKS.t.sas&UID=rsh8680&_debug=131
 
  /* NODUP eliminates obs that are exactly the same across ALL variables.  NODUPKEY eliminates obs that are exactly the same across *only* the BY variables. */
 proc sort data=foo OUT=bar NODUPKEY; by x y; run;
@@ -8132,6 +8132,8 @@ gco && gpul && gco 62332 && git merge develop && gpul && gco && git merge --squa
 # git restore some old commit:
 head .git/logs/refs/heads/master  # [old sha]  [new sha]  [commit msg] ...
 git checkout 7a76d39
+
+Use .git/info/exclude instead of .gitignore
 
 # git show last touches and owner authors for all remote branches find my git branches:
 for branch in `git branch -r | grep -v HEAD`;do echo -e `git show --format="%ci %cr\t%an\t" $branch | head -n 1` \\t$branch; done | sort -r

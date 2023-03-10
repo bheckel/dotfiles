@@ -300,7 +300,7 @@ hi WarningMsg ctermfg=Magenta ctermbg=Yellow guifg=Magenta guibg=Yellow
 
 " NetRW
 hi VertSplit ctermfg=243 ctermbg=233 guifg=#545454 guibg=#141414
-hi netrwDir ctermfg=99 ctermbg=Black guifg=#648ed1 guibg=Black
+hi netrwDir ctermfg=99 ctermbg=Black guifg=#648ed1 guibg=Black cterm=bold gui=bold
 
 """hi WhitespaceEOL ctermbg=red guibg=red
 """match WhitespaceEOL /\s\+$/
@@ -1706,9 +1706,9 @@ if !exists("autocommands_loaded")
   " Define pairs to allow the 'bounce on %' plugin to work.  Case insensitive.  No spaces between pairs!
   au BufNewFile,BufRead,BufEnter *.sas let b:match_words = '\<do\>:\<end\>,\<data\s\+\w\+:\<run\;,%macro.*\;:\<mend\>.*\;,\<sql.*;:\<quit;'
   " Filter SAS Log for error-like lines (and lines that should be errors) only
-  au BufNewFile,BufRead,BufEnter *.log nnoremap <silent> <F8> :g!/^ERROR:\\\|^WARNING:\\\|lines were truncated\\\|^NOTE: Invalid data for\\\|^NOTE: Variable/d<CR>
+  au BufNewFile,BufRead,BufEnter *.log nnoremap <silent> <F8> :g!/^ERROR:\\|^WARNING:\\|lines were truncated\\|^NOTE: Invalid data for\\|^NOTE: Variable/d<CR>
   " au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR:/<CR>
-  au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\\|^WARNING:/<CR>
+  au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\|^WARNING:/<CR>
   " Bounce using %
   au BufNewFile,BufRead,BufEnter *.plsql,*.pck,*.prc,*.fnc let b:match_words = '\<begin\>:\<end\>,\<loop\>:\<end loop\>'
 
