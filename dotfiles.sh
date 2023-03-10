@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  Created: 03-May-2015 (Bob Heckel) 
-# Modified: 25-Feb-2023 (Bob Heckel)
+# Modified: 05-Mar-2023 (Bob Heckel)
 
 # No leading dots!
 #if [ -z WSL_DISTRO_NAME ]; then
@@ -53,8 +53,9 @@ for f in $majordots; do
   if [ -e $myhome/.$f ] || [ -L $myhome/.$f ]; then
     mv $myhome/.$f $myhome/.$f.ORIG
   fi
-  #export fg_green="[0;32m"
 
+  #TODO
+  #export fg_green="[0;32m"
   line='.........................'
   #ln -s $myhome/dotfiles/_$f $myhome/.$f && echo "[[0;32m  OK  [0m]"
   ln -s $myhome/dotfiles/_$f $myhome/.$f && printf "%s %s [[0;32m  OK  [0m]\n" $f "${line:${#f}}"
