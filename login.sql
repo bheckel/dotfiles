@@ -1,3 +1,5 @@
+set cloudconfig wallet.zip
+set define off
 -- Do not autocommit on Ctl-C crashouts
 set exitcommit OFF
 set sqlformat ANSICONSOLE
