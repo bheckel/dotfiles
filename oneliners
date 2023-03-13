@@ -3564,6 +3564,9 @@ wget -m -L --reject=gif http://www.catb.org/~esr/writings/taoup/html
 # Pretend to be IE
 wget --header="User-Agent: Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)" http://msie.only.url/here
 
+# Stresstest generate network traffic:
+wget -q -O /tmp/1GB.bin https://speed.hetzner.de/1GB.bin && rm /tmp/1GB.bin
+
 # Loop in shell:
 while : ; do echo bob; sleep 6; done
 

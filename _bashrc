@@ -345,7 +345,8 @@ md() {
 # Create new tmux session
 tmn() {
   if [ -z ${1} ]; then
-    tmux new
+    # Two panes
+    tmux new -s "s${1}"\; split-window -h
   else
     # Two vertical panes
     if [ $HOSTNAME = 'metta' ]; then
@@ -500,7 +501,8 @@ case "$OSTYPE" in
     export PS2=' '  # allow multiple line copy to clipboard 
     # export SENSIBLE_BROWSER='/cygdrive/c/Program\ Files/mozilla\ firefox/firefox.exe'
     # export TEMP=/cygdrive/c/temp
-    export TERM=xterm-256color
+    #export TERM=xterm-256color
+    export TERM=mintty
     export VIMSTATUSL="${USERNAME}@`echo ${HOSTNAME} | tr [A-Z] [a-z]`"
     #-------------------
     # Functions Cygwin  #{{{2
