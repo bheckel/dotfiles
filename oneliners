@@ -5439,10 +5439,8 @@ xxSCRIPTINGxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxDATABASExx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
--- Connect to oracle db SER as user SEKMC with pw xxx:
+-- Connect to oracle db ser as user SEKMC with pw xxx:
 SQL> connect SEKMC/xxx@ser;
-
-SQL> connect scott/tiger;
 
 $ sqlplus / as sysdba;
 
@@ -7443,6 +7441,9 @@ to_char(current_ytd_pct_of_previous_ytd,'0D00') ytdpct
 -- View VC virtual columns:
 select utc1.column_name, utc1.data_default vc_contents from user_tab_cols utc1 where utc1.TABLE_NAME = 'MKC_REVENUE_FULL' and utc1.VIRTUAL_COLUMN = 'YES' order by 1;
 
+--view create & load times
+SELECT msg, request_id, execute_time, row_number() OVER (partition by request_id order by execute_time desc) rn FROM user_oncall_results WHERE request_id like 'KMC_REVENUE_FULL.ORION_RESELLER_%' and (msg like 'CREATE%' or msg like 'LOAD%');
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -8135,6 +8136,12 @@ gco && gpul && gco 62332 && git merge develop && gpul && gco && git merge --squa
 # git restore some old commit:
 head .git/logs/refs/heads/master  # [old sha]  [new sha]  [commit msg] ...
 git checkout 7a76d39
+
+# Compare differences across this branch and a feature branch:
+git difftool feature/DMA-46
+
+# Compare differences across this branch and a feature branch for a specific file:
+git difftool feature/DMA-46 datamaint.pck
 
 Use .git/info/exclude instead of .gitignore
 
