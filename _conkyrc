@@ -9,7 +9,7 @@
 # Modified: Sun 20-Dec-2020 (Bob Heckel)
 ################################################################################
 
-# set to yes if you want Conky to be forked in the background
+# Set to yes if you want Conky to be forked in the background
 background yes
 
 use_xft yes

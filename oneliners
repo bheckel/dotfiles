@@ -3822,6 +3822,8 @@ f=foo.txt; if test "x$f" = "x" && f=bar; then ... fi
 # test command logic IFTHEN alternative:
 test $HOSTNAME = 10g279 && echo ok
 
+if test -n $CYGWIN ; then echo ok; fi
+
 # Push, flush, sync bash history from one xterm to another
 history -a  # append this terminal history
 history -n  # read in the other xterms appended history into this terminal
