@@ -1,10 +1,11 @@
 #!/bin/bash
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 #    Name: $HOME/.bashrc
-# Summary: Bash shell config for at least Unix, Linux, WSL2, Cygwin and z/OS
+# Summary: Bloated bash shell config for at least Unix, Linux, WSL2, Cygwin 
+#          and z/OS
 #
 #  Created: 19-May-1998 (Bob Heckel)
-# Modified: 26-Feb-2023 (Bob Heckel)
+# Modified: 20-Mar-2023 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -342,20 +343,31 @@ md() {
 }
 
 
-# Create new tmux session
+# Create new tmux session with preconfigured window splits
+#tmn() {
+#  if [ -z ${1} ]; then
+#    # Two panes
+#    tmux new -s "s${1}"\; split-window -h
+#  else
+#    # Two vertical panes
+#    if [ $HOSTNAME = 'metta' ]; then
+#      tmux new -s "s${1}"\; split-window -h
+#    else
+#      #tmux -u -2 new -s "s${1}"\; split-window -h
+#      # Four panes
+#      tmux new -s "s${1}"\; split-window -v \; split-window -h \; select-pane -t 0 \; split-window -h
+#    fi
+#  fi
+#}
 tmn() {
-  if [ -z ${1} ]; then
-    # Two panes
-    tmux new -s "s${1}"\; split-window -h
-  else
+  if [ ${1} -eq 2 ]; then
     # Two vertical panes
-    if [ $HOSTNAME = 'metta' ]; then
-      tmux new -s "s${1}"\; split-window -h
-    else
-      #tmux -u -2 new -s "s${1}"\; split-window -h
-      # Four panes
-      tmux new -s "s${1}"\; split-window -v \; split-window -h \; select-pane -t 0 \; split-window -h
-    fi
+    tmux new -s "s${1}"\; split-window -h
+  elif [ ${1} -eq 4 ]; then
+    # Four vertical panes
+    tmux new -s "s${1}"\; split-window -v \; split-window -h \; select-pane -t 0 \; split-window -h
+  else
+    echo specify 2 or 4 windows
   fi
 }
 
@@ -910,7 +922,7 @@ case "$OSTYPE" in
       alias ls='ls -F'
       alias la='ls -aF'
       alias ll='ls -lF'
-      alias lt='ls -ltF | head -n10'     # latest ten
+      alias lt='ls -ltF | head -n20'     # latest twenty
       alias vi=vim
 
       umask 022

@@ -4,6 +4,7 @@ alias ..='cd ..'
 alias by=exit
 alias h='history|tail -n20'
 alias ll='ls -l'
+alias lt='ls -ltF | head -n20'
 alias vi=vim
 HISTSIZE=10000
 HISTFILESIZE=10000
