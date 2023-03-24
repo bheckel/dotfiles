@@ -509,11 +509,13 @@ case "$OSTYPE" in
     #-------------------
 
    function putclip() {
-     powershell.exe -Command "Set-Clipboard $1" 
+     #powershell.exe -Command "Set-Clipboard $1" 
+     echo "${1}" | clip.exe
    }
 
    function catput() {
-     powershell.exe -Command "Get-Content $1 | Set-Clipboard"
+     #powershell.exe -Command "Get-Content $1 | Set-Clipboard"
+     clip.exe < "${1}"
    }
 
     # end Functions Cygwin
