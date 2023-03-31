@@ -698,7 +698,7 @@ put 'WARNING: ' _ALL_;
 put 'WAR' 'NING: ' _ALL_;  /* better if you're searching a Log for real WARNINGs not a SOURCE or MPRINT: */
  /* Write all variables to the Log with "foo=" notation on one line per var: */
 put (_ALL_)(=)
- /* Use anywhere but can't combine to one %put */
+ /* Print all macrovariables. Use anywhere but can't combine to one %put: */
 %put !!!; %put _USER_;
 
  /* Macro -- no quotes! */
@@ -726,7 +726,7 @@ proc datasets NOlist library=l; delete patmod_all_cha rxfilldata_all_cha; run; q
 
  /* Column input with some missing data -- use TRUNCOVER List input with some missing data at the rightmost edge -- use MISSOVER to keep SAS from trying the next line (e.g. when you're not using @@ and want it to keep going) "SAS went to a new line when" */
 
- /* Print list describe paths to SAS libname libraries: */
+ /* Print list describe all paths to SAS libname libraries: */
 libname _ALL_ list;
 
  /* Clear libnames: */
@@ -5803,6 +5803,9 @@ sum(case when date(pickeduptimestamp) between '01MAY2015' and '31MAY2015' then 1
 
 -- Set binary date flags in SQL:
 sum(case when date(pickeduptimestamp) between '01MAR2015' and '31MAR2015' then 1 else 0 end) as Mar2015
+
+-- Best NLS date format for SQL Developer options:
+to_char(EXECUTE_TIME,'DD-MON-RR HH24:MI:SS')
 
 -- Oracle date with hours minutes seconds:
 SELECT to_char(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI:SS') FROM dual; --2020-01-16 18:26:57

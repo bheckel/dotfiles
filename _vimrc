@@ -8,7 +8,7 @@
 "           Code at the speed of thought -- anonymous
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Sat 25-Feb-2023 (Bob Heckel)
+" Modified: Thu 30-Mar-2023 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -710,15 +710,16 @@ iab SaO filename F 'junk'; data t(rename=(PRODDESC=nm APRCLASS=class)); infile F
 iab SaP <Esc>0ititle "&SYSDSN";proc print data=_LAST_(obs=10) width=minimum heading=H;run;title;
 iab SaQ proc sql;<CR>  create table t as<CR>select *<CR>from t a join t2 b on a.foo=b.foo<CR>where<CR>group by<CR>;<CR><Left><Left>quit;<Esc><Up><Up><Up>
 iab SaS select ( myvar );<CR><Space><Space>when ( 42 ) delete;<CR><Space><Space>otherwise;<CR><Left><Left>end;
-iab SiL :silent! w!~/onedrive/misc/bkup/%:t<CR>
+"iab SiL :silent! w!~/onedrive/misc/bkup/%:t<CR>
 cab Sy0 source $VIMRUNTIME/syntax/nosyntax.vim
 cab SyH source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/html.vim
 cab SyL source $HOME/code/sas/saslog.vim
 cab SyJ source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/javascript.vim
 cab SyQ source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/sql.vim 
-cab SyS source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/sas/sas.vim
+"cab SyS source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/sas/sas.vim
 cab SyS source $HOME/code/sas/sas.vim
 
+" Oracle
 iab DbO DBMS_OUTPUT.put_line('sysdate: ' \|\| SYSDATE);<Esc><Left>i
 
 " end Abbreviations-
@@ -1914,7 +1915,7 @@ if !exists("autocommands_loaded")
 
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
   "
-	" TODO move to ~/.vimrc.project or something
+	" TODO move to ~/.vimrc.local or something
   " Temporary project-specific hacks to normalize messy problem-spaces:
 
   if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
@@ -3207,10 +3208,12 @@ endif
 "--------------------------------------------------------------------------
 
 " Machine/Security Settings: {{{1
-if filereadable(glob("$HOME/.vimrc.project"))
-  " echon 'sourcing $HOME/.vimrc.project'
-  source $HOME/.vimrc.project
-elseif filereadable("c:/cygwin64/home/boheck/.vimrc.project") 
-  " echon 'sourcing c:/cygwin64/home/boheck/.vimrc.project'
-  source c:/cygwin64/home/boheck/.vimrc.project
+
+" .vimrc.local is NOT in dotfiles repo
+if filereadable(glob("$HOME/.vimrc.local"))
+  " echon 'sourcing $HOME/.vimrc.local'
+  source $HOME/.vimrc.local
+elseif filereadable("c:/cygwin64/home/boheck/.vimrc.local") 
+  " echon 'sourcing c:/cygwin64/home/boheck/.vimrc.local'
+  source c:/cygwin64/home/boheck/.vimrc.local
 endif  "}}}
