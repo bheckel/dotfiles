@@ -4523,6 +4523,9 @@ unconfined_u:object_r:httpd_sys_content_t:s0 t.txt
 time echo "scale=5000; 4*a(1)" | bc -l -q
 for i in 1 2 3; do echo "scale=5000; 4*a(1)" | bc -l -q >/dev/null 2>&1; done
 
+# Bare box config setup initialize:
+sudo dnf install git -y && git clone https://github.com/bheckel/dotfiles && dotfiles/dotfiles.sh
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
