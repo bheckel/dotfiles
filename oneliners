@@ -5556,7 +5556,7 @@ rc PLS_INTEGER; rc := SQL%ROWCOUNT; dbms_output.new_line(); dbms_output.put_line
 CREATE OR REPLACE TYPE numberTable IS TABLE OF NUMBER; TYPE dateTable IS TABLE OF DATE; TYPE varcharTable IS TABLE OF VARCHAR2(4000); TYPE CursorTable IS TABLE OF c1%ROWTYPE; TYPE varray_type IS VARRAY(4) OF VARCHAR2(4000); TYPE associativearrayTable IS TABLE OF INTEGER INDEX BY VARCHAR2(10); TYPE aa_t IS TABLE OF scott.emp.deptno%TYPE INDEX BY BINARY_INTEGER; TYPE aa_t IS TABLE OF scott.emp%ROWTYPE INDEX BY BINARY_INTEGER; TYPE aa_numbers_t IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
 
 TYPE numberTable IS TABLE OF NUMBER; numtbl numberTable;
-IF numtbl IS NULL OR numtbl.COUNT = 0 THEN DBMS_OUTPUT.PUT_LINE('collection is empty'); END IF;
+IF numtbl IS NULL OR numtbl.COUNT = 0 THEN DBMS_OUTPUT.put_line('collection is empty'); END IF;
 
 -- Oracle collection declare and initialize a table:
 TYPE names_t IS TABLE OF VARCHAR2(100); my_family names_t := ('Vera','Chris','Eli');
@@ -6158,11 +6158,9 @@ CREATE TABLE zzorion32822 AS SELECT * FROM zorion32822 SAMPLE(50)
 SELECT account_id FROM t SAMPLE(0.1);
 
 -- Error exception handler canonical (if you don't give SQLERRM a valid Oracle error code it uses SQLCODE as the error code):
-WHEN OTHERS THEN dbms_output.put_line(SQLCODE || ': ' || SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
+EXCEPTION WHEN OTHERS THEN DBMS_OUTPUT.put_line(SQLCODE || ': ' || SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
 
 BEGIN DBMS_OUTPUT.put_line(TO_DATE('2010 10 10 44:55:66', 'YYYSS')); EXCEPTION WHEN OTHERS THEN IF SQLCODE = -01830 THEN DBMS_OUTPUT.put_line('we hit a date error, throw it'); END IF; RAISE; END;
-
-EXCEPTION WHEN OTHERS THEN DBMS_OUTPUT.put_line(SQLCODE || ':' || SQLERRM || ': ' || DBMS_UTILITY.format_error_backtrace);
 
 -- Print Oracle EXCEPTION error code description for a given code:
 BEGIN dbms_output.put_line(SQLERRM(0)); END; -- ORA-0000: normal, successful completion
@@ -7243,6 +7241,9 @@ ALTER TABLE departments DISABLE CONSTRAINT dept_mgr_fk;
 ALTER TABLE departments ENABLE CONSTRAINT dept_mgr_fk;
 
 SELECT job_name, job_action, CASE WHEN (state = 'SCHEDULED' AND last_run_duration IS NOT NULL) THEN 'CLEAR' ELSE 'ALERT' END AS status, last_run_duration, cast(sysdate - last_start_date as INTERVAL DAY(9) TO SECOND(6)) AS time_since_last_run, last_start_date, next_run_date FROM USER_SCHEDULER_JOBS WHERE enabled = 'TRUE';
+
+-- Multiple else if logic for CASE:
+case when subcategory in('Consulting Services','Education') then 'Services' when subcategory in('Xaas','Remote Managed Services') then 'Software and Managed' end as subcat2,
 
 DROP INDEX sp_processing_id_pk;  --fail
 ALTER TABLE SP_PROCESSING DROP CONSTRAINT sp_processing_id_pk;  -- success
