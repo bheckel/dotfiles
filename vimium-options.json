@@ -25,7 +25,7 @@
   "filterLinkHints": false,
   "waitForEnterForFilteredHints": true,
   "hideHud": false,
-  "keyMappings": "# Insert your preferred key mappings her\nmap ' `\nmap l goForward\nmap h goBack\nmap d removeTab\nmap u restoreTab\n#map <Left> previousTab\n#map <Right> nextTab\nmap zl scrollLeft\nmap zr scrollRight\n\"map <C-b> scrollPageUp\n\"map <C-f> scrollPageDown\nmap <C-e> scrollPageUp\nmap <C-y> scrollPageDown\nmap m Marks.activateCreateMode       #  same as the existing mapping\nmap ' Marks.activateGotoMode             #  ` still works too",
+  "keyMappings": "# Insert your preferred key mappings her\nmap ' `\nmap l goForward\nmap h goBack\nmap d removeTab\nmap q removeTab\nmap u restoreTab\n#map <Left> previousTab\n#map <Right> nextTab\nmap zl scrollLeft\nmap zr scrollRight\n\"map <C-b> scrollPageUp\n\"map <C-f> scrollPageDown\nmap <C-e> scrollPageUp\nmap <C-y> scrollPageDown\nmap m Marks.activateCreateMode       #  same as the existing mapping\nmap ' Marks.activateGotoMode             #  ` still works too",
   "linkHintCharacters": "sadfjklewcmpgh",
   "linkHintNumbers": "0123456789",
   "newTabUrl": "about:newtab",

@@ -114,6 +114,7 @@ alias ddg='w3m http://duckduckgo.com/lite'
 alias f='fg'  # jobs -s  to list what's suspended
 alias g=$HOME/dotfiles/gone.sh
 alias ga="$HOME/code/misc/gitall"
+alias gafix='(cd ~/code && git merge && git push && cd ~/dotfiles && git merge && git push;)'
 alias gb='for branch in `git branch -r | grep -v HEAD`;do echo -e `git show --format="%ci %cr\t%an\t" $branch | head -n 1` \\t$branch; done | sort -r'
 alias gbc='gnome-terminal -- bc 1>/dev/null'
 alias gitall="$HOME/code/misc/gitall"
