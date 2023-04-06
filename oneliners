@@ -2950,6 +2950,8 @@ ssh tpsh005 'find /opt/QCServer/A.05.00/svr/files -name 'Inspec_Lot-*' -mtime -3
 # Skip exclude the dirs pattern:
 (cd ~ && find ~/bob/ -maxdepth 2 -not -path '*/tmp/*' -name 'Session.vim')
 
+find . -type f -not -path '*.prismbak*' -print0 |xargs -0 grep -i "${1}"
+
 # grep for 'findme' but skip ignore string 'foo' if in the same line:
 grep findme * | grep -v foo
 
@@ -7452,6 +7454,9 @@ select utc1.column_name, utc1.data_default vc_contents from user_tab_cols utc1 w
 
 --view create & load times
 SELECT msg, request_id, execute_time, row_number() OVER (partition by request_id order by execute_time desc) rn FROM user_oncall_results WHERE request_id like 'KMC_REVENUE_FULL.ORION_RESELLER_%' and (msg like 'CREATE%' or msg like 'LOAD%');
+
+-- Next year:
+select trunc(SYSDATE, 'YEAR') + interval '1' year from dual;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
