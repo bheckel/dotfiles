@@ -4505,10 +4505,15 @@ sudo vi /etc/postfix/main.cf
 sudo vi /etc/aliases
 sudo systemctl reload postfix
 
+sudo dnf info java  # description if available in vi /etc/yum.repos.d/oracle-linux-ol8.repo
+sudo dnf list java  # components if available in vi /etc/yum.repos.d/oracle-linux-ol8.repo
 sudo dnf search java 
 
 # gcc c++ java etc
 sudo dnf groupinstall "Development Tools"
+
+# Bare box config setup initialize:
+sudo dnf install git -y && git clone https://github.com/bheckel/dotfiles && dotfiles/dotfiles.sh
 
 # Backup directory folder:
 tar czf /root/postfix-$(date "+%F").tar.gz /etc/postfix
@@ -4524,9 +4529,6 @@ unconfined_u:object_r:httpd_sys_content_t:s0 t.txt
 # Performance benchmark stresstest CPU:
 time echo "scale=5000; 4*a(1)" | bc -l -q
 for i in 1 2 3; do echo "scale=5000; 4*a(1)" | bc -l -q >/dev/null 2>&1; done
-
-# Bare box config setup initialize:
-sudo dnf install git -y && git clone https://github.com/bheckel/dotfiles && dotfiles/dotfiles.sh
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
