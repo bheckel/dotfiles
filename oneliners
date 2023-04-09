@@ -4100,8 +4100,6 @@ touch {a,b,c}{a,b,c}{a,b,c}
 # Append to a remote text file via ssh:
 ssh rheckel@sdf.org 'cat >> remotefoo' < localfoo
 
-# System monitoring tools: top iostat ps vmstat (memory) lsof (list open files)
-
 export PROMPT_COMMAND=; echo -ne "\033]0; override change rxvt window title\007"
 
 # Is log file writeable?
@@ -4356,11 +4354,18 @@ watch -d 'ls -l ~ |grep sas'
 # Read control file to determine which code to run:
 while read -r clid; do nice -n19 $SAS -sysin ~/$clid.sas -log ~/$clid.log done <$FILE
 
+# System monitoring tools: top iostat ps vmstat (memory) lsof (list open files)
+
 # Count number of cores.  Cores = Cores per socket x Sockets.  CPU cores count.
 nproc --all
 lscpu | egrep 'Thread|Core|Socket|^CPU\('
+
 # Count available memory:
 vmstat -s | grep memory
+vmstat 5 3  # 3 runs 5 seconds apart
+
+# CPU info:
+mpstat 5 3  # 3 runs 5 seconds apart
 
 # Process using most memory:
 ps -e -o pid,vsz,comm= | sort -n -k 2
@@ -4419,6 +4424,9 @@ curl http://ifconfig.me/ip
 # Sample REST call:
 curl -X GET https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/avg_interest_rates
 
+sudo docker ps -a  # all containers e.g. CONTAINER ID ad16fabd34f9  IMAGE hello-world  COMMAND "/hello"  NAMES cool_dijkstra  
+sudo docker image ls  # all images e.g. REPOSITORY container-registry.oracle.com/database/free  IMAGE ID 7c64410c08d5
+
 # Which distro am I using:
 cat /etc/*-release | grep VERSION | perl -pe 's/VERSION="//g'
 winver.exe
@@ -4471,7 +4479,11 @@ xrandr
 journalctl -b -1
 journalctl --since "2015-02-02 20:30:00"
 
+systemctl list-unit-files --type service  # list all available services
+systemctl list-units --type service  # list all running services
 systemctl list-unit-files --state=enabled --no-pager
+systemctl disable httpd
+systemctl enable httpd
 
 wsl --install -d Ubuntu
 
