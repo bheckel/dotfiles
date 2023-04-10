@@ -5963,6 +5963,7 @@ SELECT * FROM employees WHERE trunc(hire_date) = '01-JAN-2019';
 select TRUNC(date'2020-02-20', 'Q') quarter_start, TRUNC(ADD_MONTHS(date'2020-02-20', +3), 'Q') - (1/(24*60*60)) quarter_end from dual;
 
 v_day_of_week VARCHAR2(20) := TO_CHAR(SYSDATE, 'DAY'); -- SATURDAY
+IF (TRIM(v_day_of_week) = 'MONDAY') THEN...
 
 -- TRUNC(sale_date) = TRUNC(sysdate) is used sometimes because Oracle's DATE has a time component. Explicit date range is better, it will use index since no functions are involved:
 sale_date >= TRUNC(sysdate) AND sale_date < TRUNC(sysdate + INTERVAL '1' DAY)
