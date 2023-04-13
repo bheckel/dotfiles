@@ -786,20 +786,20 @@ nnoremap gw <Esc>:split<CR>gf
 if $WSLENV =~ 'WT_SESSION::WT_PROFILE_ID' || !empty($WSL_HOST_IP)
   " Not needed except to keep keystrokes consistent - see autocommands Yankme
   vnoremap <silent> yx y
-elsif $PATH =~ 'termux'
-  vnoremap <silent> yx :!termux-clipboard-set<CR>u
+"elsif $PATH =~ 'termux'
+"  vnoremap <silent> yx :!termux-clipboard-set<CR>u
 "elseif hostname() == 'metta'
 "  vnoremap <silent> yx :'<,'>!clip.exe
-elsif hostname() == 'penguin'
+"elsif hostname() == 'penguin'
 " Crostini clipboard support is a mess in 2021
-  if ! has('gui_running')
-    vnoremap <silent> yx :'<,'>w! ~/.crouton-clipboard/data.txt<CR>
+"  if ! has('gui_running')
+"    vnoremap <silent> yx :'<,'>w! ~/.crouton-clipboard/data.txt<CR>
     "TODO avoid an external $ catput ~/.crouton-clipboard/data.txt
     "vnoremap <silent> yx :'<,'>w! ~/.crouton-clipboard/data.txt; catput ~/.crouton-clipboard/data.txt<CR>
-  else
+"  else
     " Crostini Gvim clipboard works normally
-    vnoremap <silent> yx "+y
-  endif
+"    vnoremap <silent> yx "+y
+"  endif
 else
 "elsif !empty($CYGWIN)
   " Works for Cygwin

@@ -4355,17 +4355,16 @@ watch -d 'ls -l ~ |grep sas'
 while read -r clid; do nice -n19 $SAS -sysin ~/$clid.sas -log ~/$clid.log done <$FILE
 
 # System monitoring tools: top iostat ps vmstat (memory) lsof (list open files)
-
 # Count number of cores.  Cores = Cores per socket x Sockets.  CPU cores count.
 nproc --all
 lscpu | egrep 'Thread|Core|Socket|^CPU\('
-
 # Count available memory:
 vmstat -s | grep memory
 vmstat 5 3  # 3 runs 5 seconds apart
-
 # CPU info:
 mpstat 5 3  # 3 runs 5 seconds apart
+mpstat -P ALL 4 10
+vmstat 4 4 && mpstat 4 4
 
 # Process using most memory:
 ps -e -o pid,vsz,comm= | sort -n -k 2
@@ -4517,6 +4516,9 @@ sudo vi /etc/postfix/main.cf
 sudo vi /etc/aliases
 sudo systemctl reload postfix
 
+dnf repolist  # e.g. ol8_developer_EPEL
+sudo dnf config-manager --enable ol8_developer_EPEL
+
 sudo dnf info java  # description if available in vi /etc/yum.repos.d/oracle-linux-ol8.repo
 sudo dnf list java  # components if available in vi /etc/yum.repos.d/oracle-linux-ol8.repo
 sudo dnf search java 
@@ -4541,6 +4543,9 @@ unconfined_u:object_r:httpd_sys_content_t:s0 t.txt
 # Performance benchmark stresstest CPU:
 time echo "scale=5000; 4*a(1)" | bc -l -q
 for i in 1 2 3; do echo "scale=5000; 4*a(1)" | bc -l -q >/dev/null 2>&1; done
+
+# Alpine Linux package manager:
+apk add vim
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -7723,9 +7728,9 @@ C:\Users\bheck\Desktop
 C:\Documents and Settings\bheck\Application Data\SQL Developer
 C:\Users\bheck\AppData\Roaming\SQL Developer
 
-:: Windows System Information command prompt environment properties:
+:: Windows System Information environment properties (CLI):
 systeminfo
-:: Windows System Information Tool GUI (Ctrl+R) environment properties:
+:: Windows System Information Tool (run via Ctrl+R) environment properties (GUI):
 msinfo32
 
 # uptime for Windows:
