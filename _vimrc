@@ -8,7 +8,7 @@
 "           Code at the speed of thought -- anonymous
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Thu 30-Mar-2023 (Bob Heckel)
+" Modified: Sat 15-Apr-2023 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -1701,8 +1701,10 @@ if !exists("autocommands_loaded")
 
   " au BufNewFile,BufRead,BufEnter *.sas map ;; :call setline('.', Commentout(getline('.'), 'sas'))<CR>
   " au BufNewFile,BufRead,BufEnter *.sas map ;c 0Di  *  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
-  au BufNewFile,BufRead,BufEnter *.sas map ;c 0Di  *  Created: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
-  au BufNewFile,BufRead,BufEnter *.sas map ;m 0Di  * Modified: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
+  "au BufNewFile,BufRead,BufEnter *.sas map ;c 0Di  *  Created: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
+  au BufNewFile,BufRead,BufEnter *.sas map ;c 0Di  *  Created: <C-R>=strftime("%d-%b-%Y")<CR> (Bob Heckel)<ESC>0
+  "au BufNewFile,BufRead,BufEnter *.sas map ;m 0Di  * Modified: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
+  au BufNewFile,BufRead,BufEnter *.sas map ;m 0Di  * Modified: <C-R>=strftime("%d-%b-%Y")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.sas map ,m yy0I***<ESC>p
   " Define pairs to allow the 'bounce on %' plugin to work.  Case insensitive.  No spaces between pairs!
   au BufNewFile,BufRead,BufEnter *.sas let b:match_words = '\<do\>:\<end\>,\<data\s\+\w\+:\<run\;,%macro.*\;:\<mend\>.*\;,\<sql.*;:\<quit;'
@@ -1764,7 +1766,7 @@ if !exists("autocommands_loaded")
 
 	" Conveniences for my custom searching code e.g. bgrep, rme or prj
   au BufNewFile,BufEnter */tmp/*.grep source ~/code/misc/bgrep.vim
-  au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme map <CR> <C-W>f :set winheight=9999<CR>/<C-R>/<CR>
+  au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme map <CR> <C-W>f :set winheight=9999<CR>:only<CR>
   au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme map q :q<CR>
   au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme set hls
   au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme echon '.vimrc: <CR> to select file, q to quit'

@@ -4484,7 +4484,10 @@ systemctl list-unit-files --state=enabled --no-pager
 systemctl disable httpd
 systemctl enable httpd
 
-wsl --install -d Ubuntu
+# Which WSL2 distros installed:
+wsl --list --verbose
+# Uninstall
+wsl --unregister Ubuntu
 
 # Only run one time
 TTY=$(ps|grep pty1); if [ -z "${TTY}" ];then echo run; else echo no; fi
@@ -8382,6 +8385,7 @@ Get-Command -Name '*Get'
 -- Windows system device Win11 environment via Powershell:
 $PSVersionTable.PSVersion
 powershell.exe Get-ComputerInfo
+Get-CimInstance -ClassName Win32_Battery -Property *
 
 -- Microsoft Word quotes
 echo ‘I am a virtual di ’ > /dev/pty7
