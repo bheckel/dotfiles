@@ -4131,7 +4131,8 @@ sudo apt-cache show vim
 sudo apt-cache policy vim
 
 # Debian, Ubuntu regular package update mantra (NOT dist upgrade!):
-sudo apt-get update && sudo apt-get upgrade
+sudo apt-get update && sudo apt-get upgrade -y
+sudo apt install git w3m tmux bc -y
 sudo apt -y update && sudo apt -y upgrade && sudo apt -y autoremove
 
 # Process substitution ssh diff across network DEPRECATED USE VIM:
