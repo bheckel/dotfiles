@@ -124,8 +124,8 @@ alias gs='git status'
 alias gsl='git stash list'
 alias gfatal='echo "cd ~/dotfiles && git merge && git push; cd ~/code && git merge && git push; git remote show origin"'
 alias h='history|tail -n20'
-alias ha='history -a'  # append this
-alias hr='history -n'  # read in from others
+alias ha='history -a'  # append this hist to others
+alias hr='history -n'  # read in hist from others
 alias j="jobs -s"  # only show STOPPED (e.g. skip RUNNING blink.exe &) jobs
 alias l='ls'
 # Overridden later if non-GNU ls is present
