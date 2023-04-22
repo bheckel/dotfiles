@@ -4131,7 +4131,8 @@ sudo apt-cache show vim
 sudo apt-cache policy vim
 
 # Debian, Ubuntu regular package update mantra (NOT dist upgrade!):
-sudo apt-get update && sudo apt-get upgrade
+sudo apt-get update && sudo apt-get upgrade -y
+sudo apt install git w3m tmux bc -y
 sudo apt -y update && sudo apt -y upgrade && sudo apt -y autoremove
 
 # Process substitution ssh diff across network DEPRECATED USE VIM:
@@ -4484,7 +4485,10 @@ systemctl list-unit-files --state=enabled --no-pager
 systemctl disable httpd
 systemctl enable httpd
 
-wsl --install -d Ubuntu
+# Which WSL2 distros installed:
+wsl --list --verbose
+# Uninstall
+wsl --unregister Ubuntu
 
 # Only run one time
 TTY=$(ps|grep pty1); if [ -z "${TTY}" ];then echo run; else echo no; fi
@@ -5978,7 +5982,7 @@ sale_date >= TO_DATE('1970-01-01', 'YYYY-MM-DD') AND sale_date <  TO_DATE('1970-
 -- SQL check for duplicates, returns nothing if all samp_id are unique:
 select count(*) from samp group by samp_id having count(*)>1;
 
--- SQLplus save spool output to file:
+-- SQLplus save spool output to file Oracle sqlplus do not display query results (usually when sending output to .out file)
 set termout off; set linesize 2000; set pagesize 9999; spool u:/serevent.out; ...SQL...; spool off; quit;
 
 -- SQLplus show running code with line numbers when executing:
@@ -5990,9 +5994,6 @@ set echo on
 -- Oracle SQLPlus
 SQL> ed  -- edits afiedt.buf (assuming a query has already been run)
 SQL> r  -- run query
-
--- Oracle sqlplus do not display query results (usually when sending output to .out file)
-set termout off
 
 -- Oracle run script:
 $ sqlplus -S me/pw@esd @query  # default is SET SUFFIX .sql
@@ -6869,17 +6870,6 @@ select deptno, empno top_oldest_emp, sal from scott.emp e where not exists ( sel
 select hrs.hr, t1.room, t1.who from bookings t1 partition by (t1.room) right outer join hrs on hrs.hr=t1.hr order by 1,2;
 
 EXPLAIN PLAN FOR SELECT * FROM emp WHERE sal > 10; select * from table(dbms_xplan.display(null, null, 'typical')); ROLLBACK; -- deprecated
-
--- Suppress throw away sqlplus SQL output just display calculate execution plan explain plan cost:
-set autotrace traceonly -- in sqlplus/sqlcl then select /*+gather_plan_statistics*/ foo from bar;
-
--- Autotrace without autotrace explain execution plan cost optimizer E-Rows A-Rows:
-set pagesize 0
-set termout off
-@t  -- assumes it holds  sElEcT /*+gather_plan_statistics*/ count(1) from rpt_account where account_id=436139;
-set termout on
-select sql_id FROM v$sql WHERE sql_text like 'sElEcT %' ORDER BY last_load_time desc; -- 223zcj56p82ca
-select * from table(dbms_xplan.display_cursor('223zcj56p82ca', format => 'ALLSTATS LAST +cost +bytes +outline'));
 
 -- Check for histograms:
 select utcs.column_name, utcs.histogram, utcs.num_buckets from user_tables ut join user_tab_col_statistics utcs on ut.table_name = utcs.table_name where ut.table_name = 'BRICKS';
@@ -8382,6 +8372,7 @@ Get-Command -Name '*Get'
 -- Windows system device Win11 environment via Powershell:
 $PSVersionTable.PSVersion
 powershell.exe Get-ComputerInfo
+Get-CimInstance -ClassName Win32_Battery -Property *
 
 -- Microsoft Word quotes
 echo ‘I am a virtual di ’ > /dev/pty7

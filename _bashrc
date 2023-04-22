@@ -5,7 +5,7 @@
 #          and z/OS
 #
 #  Created: 19-May-1998 (Bob Heckel)
-# Modified: 20-Mar-2023 (Bob Heckel)
+# Modified: 15-Apr-2023 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -124,8 +124,8 @@ alias gs='git status'
 alias gsl='git stash list'
 alias gfatal='echo "cd ~/dotfiles && git merge && git push; cd ~/code && git merge && git push; git remote show origin"'
 alias h='history|tail -n20'
-alias ha='history -a'  # append this
-alias hr='history -n'  # read in from others
+alias ha='history -a'  # append this hist to others
+alias hr='history -n'  # read in hist from others
 alias j="jobs -s"  # only show STOPPED (e.g. skip RUNNING blink.exe &) jobs
 alias l='ls'
 # Overridden later if non-GNU ls is present
@@ -397,13 +397,13 @@ bak() {
 # If locate() is not available
 function loc() {
   # find $HOME/code | grep -i "${1}" | grep -v '\.git' | xargs ls -ltG >|/tmp/.loc && vim -c "/${1}" /tmp/.loc
-  find $HOME/code | grep -i "${1}" | grep -v '\.git' >|/tmp/.loc.grep && vim -R /tmp/.loc.grep
+  find $HOME/code | grep -i "${1}" | grep -v '\.git' >|/tmp/.loc$$.grep && vim -R /tmp/.loc.grep
 }
 
 
 # Find/search my README files by title
 function rme() {
-  find $HOME/code/rme | grep -i "${1}" | grep -v '\.git' >|$HOME/tmp/.rme.grep && vim -R $HOME/tmp/.rme.grep
+  find $HOME/code/rme | grep -i "${1}" | grep -v '\.git' >|$HOME/tmp/.rme$$.grep && vim $HOME/tmp/.rme$$.grep
 }
 
 

@@ -13,13 +13,14 @@
 #
 #           TODO fix inability to pass -c -0
 #
-#  Created: Wed 20 Nov 2002 12:54:09 (Bob Heckel)
-# Modified: Mon 14 Jan 2019 09:08:58 (Bob Heckel)
+#  Created: 20-Nov-2002 (Bob Heckel)
+# Modified: 15-Apr-2023 (Bob Heckel)
 ##############################################################################
   
 F="$HOME/dotfiles/oneliners"
 
-IGCASE=--ignore-case
+#IGCASE=--ignore-case
+IGCASE=-i  # for busybox grep
 
 Usage() {
   echo "Usage: `basename $0` [-c] PERLREGEX [ (d)atabase | (s)as | s(c)ripting | (u)nix | (v)im | (m)isc ]
