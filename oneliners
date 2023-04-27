@@ -7468,6 +7468,9 @@ SELECT msg, request_id, execute_time, row_number() OVER (partition by request_id
 -- Next year:
 select trunc(SYSDATE, 'YEAR') + interval '1' year from dual;
 
+-- System parameters like PASSWORD_LOCK_TIME etc:
+SELECT * FROM DBA_PROFILES ORDER BY PROFILE;
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
