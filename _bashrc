@@ -1,7 +1,7 @@
 #!/bin/bash
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 #    Name: $HOME/.bashrc
-# Summary: Bloated bash shell config for at least Unix, Linux, WSL2, Cygwin 
+# Summary: A bloated bash shell config for at least Unix, Linux, Cygwin, WSL2
 #          and z/OS
 #
 #  Created: 19-May-1998 (Bob Heckel)
