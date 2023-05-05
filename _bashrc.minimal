@@ -1,13 +1,19 @@
 #!/bin/bash
 
+# Created: 04-May-2023 (Bob Heckel)
+# Avoid using my normal monstrous .bashrc in certain environments
+
 set -o vi
 shopt -s histappend
+
 alias ..='cd ..'
 alias by=exit
 alias h='history|tail -n20'
 alias ll='ls -l'
 alias lt='ls -ltF | head -n20'
+alias srcb='source ~/.bashrc'
 alias vi=vim
+
 HISTSIZE=10000
 HISTFILESIZE=10000
 HISTIGNORE='f:fg:l:ls:la:cd:h:ll::d:by:&'
@@ -15,7 +21,26 @@ HISTCONTROL=ignoredups:erasedups
 HISTTIMEFORMAT='%F %T '
 TERM=xterm-256color
 
-function bgrep(){
-  find . -type f -print0 |xargs -0 grep -i "${1}"
+function bak() {
+  cp -iv ${1} ${1}.bak
 }
 
+function bgrep(){
+  if [ $# -eq 1 ]; then
+    find . -maxdepth 1 -type f -not -path '*.prismbak*' -print0 |xargs -0 grep -i "${1}"
+  elif [ $# -eq 2 ]; then
+    find . -type f -not -path '*.prismbak*' -print0 |xargs -0 grep -i "${2}"
+  else
+    echo 'Usage: bgrep [-r]'
+  fi
+}
+
+function fin(){
+  if [ $# -eq 1 ]; then
+    find . -maxdepth 1 -iname "*${1}*";
+  else
+    if [ $# -eq 2 ]; then
+        find . -iname "*${2}*";
+    fi;
+  fi
+}

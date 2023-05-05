@@ -2535,6 +2535,8 @@ numdate = inputn(strip(chardate), 'DATE9.');
  /* Loop date range producing formatted dates: */
 %let start=%sysfunc(inputn(12DEC2015,ANYDTDTE9.)); %do j=0 %to 5; %let myd = %sysfunc(putn(%eval(&start+&j), date9.)); %put &=myd; %end;
 
+%if %sysfunc(floor(%sysfunc(datetime()))) < %sysfunc(floor(%sysfunc(dhms(%sysfunc(mdy(4,26,2023)),0,0,0)))) %then %do;
+
 if product eq vname(a[i]) then do; ...
 call vname(a[i], breakfast);  /* new var breakfast filled with former var names in the array loop */
 

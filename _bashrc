@@ -5,7 +5,7 @@
 #          and z/OS
 #
 #  Created: 19-May-1998 (Bob Heckel)
-# Modified: 15-Apr-2023 (Bob Heckel)
+# Modified: 05-May-2023 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -492,6 +492,8 @@ function stash() {
 case "$OSTYPE" in
   CYGWIN*|cygwin*)
   echo '.bashrc: Cygwin detected'
+  # mintty bug workaround for changing gray text to black on first execution of external programs
+  touch $$ && clip.exe < $$ && rm $$
 
     #-------------------
     # Export Cygwin  #{{{2
@@ -516,6 +518,7 @@ case "$OSTYPE" in
     # export TEMP=/cygdrive/c/temp
     #export TERM=xterm-256color
     #export TERM=mintty
+    # Only way to get color ls (bug?). Assumes Terminal is set to mintty in mintty Settings.
     export TERM=screen-256color
     export VIMSTATUSL="${USERNAME}@`echo ${HOSTNAME} | tr [A-Z] [a-z]`"
     #-------------------
