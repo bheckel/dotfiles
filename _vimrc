@@ -87,10 +87,12 @@ endif
 "                                01 NetRW {{{2
 let g:netrw_altv=1
 let g:netrw_banner=0
-let g:netrw_browse_split=2
+"let g:netrw_browse_split=2
+let g:netrw_browse_split=0
 let g:netrw_bufsettings="noma nomod nonu nobl nowrap ro rnu"
 let g:netrw_fastbrowse=2
-let g:netrw_liststyle=3
+"let g:netrw_liststyle=3
+let g:netrw_liststyle=0
 let g:netrw_sort_options="i"
 let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
 let g:netrw_winsize=20
@@ -717,7 +719,7 @@ cab SyL source $HOME/code/sas/saslog.vim
 cab SyJ source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/javascript.vim
 cab SyQ source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/sql.vim 
 "cab SyS source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/sas/sas.vim
-cab SyS source $HOME/code/sas/sas.vim
+"cab SyS source $HOME/code/sas/sas.vim
 
 " Oracle
 iab DbO DBMS_OUTPUT.put_line('sysdate: ' \|\| SYSDATE);<Esc><Left>i
@@ -1858,7 +1860,8 @@ if !exists("autocommands_loaded")
 	au BufRead,BufNewFile oneliners set filetype=txt
 
   " We'll never need to edit a tarball, QuickFix list nor a pane
-  au FileType TAR,QF,NETRW map q :q<CR>
+  "au FileType TAR,QF,NETRW map q :q<CR>
+  au FileType TAR,QF map q :q<CR>
 
   " Always edit git commit messages at position 1L,1C
   au FileType GITCOMMIT :1
