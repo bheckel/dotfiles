@@ -492,8 +492,8 @@ function stash() {
 case "$OSTYPE" in
   CYGWIN*|cygwin*)
   echo '.bashrc: Cygwin detected'
-  # mintty bug workaround for changing gray text to black on first execution of external programs
-  touch $$ && clip.exe < $$ && rm $$
+  # mintty bug hack workaround for changing gray text to black on first execution of external programs
+  # touch $$ && clip.exe < $$ && rm $$
 
     #-------------------
     # Export Cygwin  #{{{2

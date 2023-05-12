@@ -92,6 +92,7 @@ let g:netrw_browse_split=0
 let g:netrw_bufsettings="noma nomod nonu nobl nowrap ro rnu"
 let g:netrw_fastbrowse=2
 "let g:netrw_liststyle=3
+" i to toggle details
 let g:netrw_liststyle=0
 let g:netrw_sort_options="i"
 let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
