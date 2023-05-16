@@ -87,8 +87,9 @@ endif
 "                                01 NetRW {{{2
 let g:netrw_altv=1
 let g:netrw_banner=0
-"let g:netrw_browse_split=2
 let g:netrw_browse_split=0
+"let g:netrw_browse_split=2
+"let g:netrw_preview=1
 let g:netrw_bufsettings="noma nomod nonu nobl nowrap ro rnu"
 let g:netrw_fastbrowse=2
 "let g:netrw_liststyle=3
