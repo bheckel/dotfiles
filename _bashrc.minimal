@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Created: 04-May-2023 (Bob Heckel)
+#  Created: 04-May-2023 (Bob Heckel)
+# Modified: 26-May-2023 (Bob Heckel)
 # Avoid using my normal monstrous .bashrc in certain environments
 
 set -o vi
@@ -9,6 +10,7 @@ shopt -s histappend
 alias ..='cd ..'
 alias by=exit
 alias h='history|tail -n20'
+alias la='ls -a'
 alias ll='ls -l'
 alias lt='ls -ltF | head -n20'
 alias srcb='source ~/.bashrc'

@@ -14,7 +14,7 @@
 #          ^^^^__^^^^^__^^^_^^^
 #
 #  Created: 02-Jun-1998 (Bob Heckel)
-# Modified: 07-Mar-2023 (Bob Heckel)
+# Modified: 26-May-2023 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -678,7 +678,7 @@ if filereadable("~/tmp/SpecificFileExists") ...
 
 vi -c 'map q :qa<CR>' ~/bin/allp
 
-" Save occasionally to:
+" Save vim backup this file with vim occasionally to:
 :silent! w!~/onedrive/misc/bkup/%:t
 
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
@@ -2608,6 +2608,9 @@ proc contents data = mirror._ALL_ NODS; run;
 %put &SYSTCPIPHOSTNAME; /* hostname */
 
 proc sql NOPRINT; /* don't apply labels */
+
+/* Modulus every 5 days it's 0: */
+%put !!! %sysfunc(mod((%sysfunc(today())-"09SEP2015"d),5));
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -5545,6 +5548,7 @@ select SID, SERIAL#, USERNAME, STATUS, OSUSER, MACHINE, PROGRAM, SQL_ID, SQL_EXE
 select * from v$parameter where name='service_names';
 
 SELECT * FROM DBA_TAB_PRIVS d WHERE d.grantee='ESTARS';--want to see table_name KILL_SESSION
+SELECT * FROM USER_SYS_PRIVS@atlas_test_rw; -- System privileges granted to the user
 
 -- Have sql_id want running query text:
 select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_id='63ygwpcj2s227';
