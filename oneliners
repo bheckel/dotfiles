@@ -2612,6 +2612,9 @@ proc sql NOPRINT; /* don't apply labels */
 /* Modulus every 5 days it's 0: */
 %put !!! %sysfunc(mod((%sysfunc(today())-"09SEP2015"d),5));
 
+ /* Add to top of .sas to print resolved macrovariables */
+options mfile; filename MPRINT 'u:\projects\datapost\code\printresolvedSAScode.log';
+
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxUNIXxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1

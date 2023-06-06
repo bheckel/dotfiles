@@ -345,44 +345,35 @@ md() {
 
 
 # Create new tmux session with preconfigured window splits
-#tmn() {
-#  if [ -z ${1} ]; then
-#    # Two panes
-#    tmux new -s "s${1}"\; split-window -h
-#  else
-#    # Two vertical panes
-#    if [ $HOSTNAME = 'metta' ]; then
-#      tmux new -s "s${1}"\; split-window -h
-#    else
-#      #tmux -u -2 new -s "s${1}"\; split-window -h
-#      # Four panes
-#      tmux new -s "s${1}"\; split-window -v \; split-window -h \; select-pane -t 0 \; split-window -h
-#    fi
-#  fi
-#}
 tmn() {
-  if [ ${1} -eq 2 ]; then
+  # Defaults
+  numpanes=${1:-1}
+  sesnm=`date +%d%b_%H%M%S`
+  echo "Opening ${numpanes} pane(s) in session ${sesnm}"
+
+  if [ ${numpanes} -eq 2 ]; then
     # Two vertical panes
-    tmux new -s "s${1}"\; split-window -h
-  elif [ ${1} -eq 4 ]; then
+    # tmux new -s "s${1}"\; split-window -h
+    tmux new -s "2|${sesnm}"\; split-window -h
+  elif [ ${numpanes} -eq 4 ]; then
     # Four vertical panes
-    tmux new -s "s${1}"\; split-window -v \; split-window -h \; select-pane -t 0 \; split-window -h
+    tmux new -s "4|${sesnm}"\; split-window -v \; split-window -h \; select-pane -t 0 \; split-window -h
   else
-    echo specify 2 or 4 windows
+    tmux new -s "${sesnm}"
   fi
 }
 
 # Re-attach to existing Cygwin session, usually named s1, s2...
-tma() {
-  if [ -z ${1} ]; then
-    tmux -u -2 a -t "s1"
-  elif [ $HOSTNAME = 'metta' ]; then
-    tmux attach
-  else
-    tmux -u -2 a -t "s${1}"
-  fi
-  tmux list-sessions
-}
+#tma() {
+#  if [ -z ${1} ]; then
+#    tmux -u -2 a -t "s1"
+#  elif [ $HOSTNAME = 'metta' ]; then
+#    tmux attach
+#  else
+#    tmux -u -2 a -t "s${1}"
+#  fi
+#  tmux list-sessions
+#}
 
 
 bak() {
