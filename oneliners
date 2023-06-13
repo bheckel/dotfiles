@@ -14,7 +14,7 @@
 #          ^^^^__^^^^^__^^^_^^^
 #
 #  Created: 02-Jun-1998 (Bob Heckel)
-# Modified: 07-Mar-2023 (Bob Heckel)
+# Modified: 26-May-2023 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -678,7 +678,7 @@ if filereadable("~/tmp/SpecificFileExists") ...
 
 vi -c 'map q :qa<CR>' ~/bin/allp
 
-" Save occasionally to:
+" Save vim backup this file with vim occasionally to:
 :silent! w!~/onedrive/misc/bkup/%:t
 
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
@@ -2535,6 +2535,8 @@ numdate = inputn(strip(chardate), 'DATE9.');
  /* Loop date range producing formatted dates: */
 %let start=%sysfunc(inputn(12DEC2015,ANYDTDTE9.)); %do j=0 %to 5; %let myd = %sysfunc(putn(%eval(&start+&j), date9.)); %put &=myd; %end;
 
+%if %sysfunc(floor(%sysfunc(datetime()))) < %sysfunc(floor(%sysfunc(dhms(%sysfunc(mdy(4,26,2023)),0,0,0)))) %then %do;
+
 if product eq vname(a[i]) then do; ...
 call vname(a[i], breakfast);  /* new var breakfast filled with former var names in the array loop */
 
@@ -2606,6 +2608,12 @@ proc contents data = mirror._ALL_ NODS; run;
 %put &SYSTCPIPHOSTNAME; /* hostname */
 
 proc sql NOPRINT; /* don't apply labels */
+
+/* Modulus every 5 days it's 0: */
+%put !!! %sysfunc(mod((%sysfunc(today())-"09SEP2015"d),5));
+
+ /* Add to top of .sas to print resolved macrovariables */
+options mfile; filename MPRINT 'u:\projects\datapost\code\printresolvedSAScode.log';
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -3295,6 +3303,10 @@ $ date --set=17:03:01
 # Determine how much memory (in MB) you have:
 $ free -m  # 193397 is 193G how much amount of RAM on this system box machine
 vi /proc/meminfo
+
+# Memory hogs:
+ps -eo pid,ppid,cmd,rss
+
 # Determine how much swap (in MB) you have on Solaris:
 /usr/sbin/swap -s
 # Determine how much memory (in MB) you have on Solaris:
@@ -5543,6 +5555,7 @@ select SID, SERIAL#, USERNAME, STATUS, OSUSER, MACHINE, PROGRAM, SQL_ID, SQL_EXE
 select * from v$parameter where name='service_names';
 
 SELECT * FROM DBA_TAB_PRIVS d WHERE d.grantee='ESTARS';--want to see table_name KILL_SESSION
+SELECT * FROM USER_SYS_PRIVS@atlas_test_rw; -- System privileges granted to the user
 
 -- Have sql_id want running query text:
 select sql_id, child_number, sql_text, sql_fulltext from v$sql where sql_id='63ygwpcj2s227';
@@ -7467,6 +7480,9 @@ SELECT msg, request_id, execute_time, row_number() OVER (partition by request_id
 
 -- Next year:
 select trunc(SYSDATE, 'YEAR') + interval '1' year from dual;
+
+-- System parameters like PASSWORD_LOCK_TIME etc:
+SELECT * FROM DBA_PROFILES ORDER BY PROFILE;
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 

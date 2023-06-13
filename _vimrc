@@ -87,15 +87,19 @@ endif
 "                                01 NetRW {{{2
 let g:netrw_altv=1
 let g:netrw_banner=0
-let g:netrw_browse_split=2
+let g:netrw_browse_split=0
+"let g:netrw_browse_split=2
 let g:netrw_bufsettings="noma nomod nonu nobl nowrap ro rnu"
 let g:netrw_fastbrowse=2
-let g:netrw_liststyle=3
+" i to toggle details
+let g:netrw_liststyle=0
 let g:netrw_sort_options="i"
 let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
-let g:netrw_winsize=20
 """let g:netrw_list_cmd = '\ls -l'
 """let g:netrw_list_cmd = '/cygdrive/c/windows/System32/WindowsPowerShell/v1.0/powershell -Command dir'
+let g:netrw_preview   = 1
+let g:netrw_liststyle = 3
+let g:netrw_winsize   = 25
 
 if has ('win32unix')  " Cygwin
   let g:netrw_cygwin=1  " scp to be provided by Cygwin
@@ -702,7 +706,7 @@ iab PeR #!/usr/bin/perl<CR><CR>use warnings;<CR>use strict;<CR>use v5.10;<CR>
 " SAS/(C)onnect
 """iab SaC options ls=max;<CR>%include "&HOME/code/sas/connect_setup.sas";<CR>signon cdcjes2;<CR>%global CHICKENPARM;<CR>%syslput CHICKENPARM=&SYSPARM;<CR>rsubmit;<CR><CR><CR><CR><CR><CR>endrsubmit;<CR>signoff cdcjes2;
 " Debug Log inline, best:
-iab SaD options ls=max;<Esc>0idata _NULL_; set _LAST_(obs=100 where=(myid in:('foo'))); put '!!!wtf '(_ALL_)(=);run;
+iab SaD %put "&SYSDSN"; options ls=max;<Esc>0idata _NULL_; set _LAST_(obs=100 where=(myid in:('foo'))); put '!!!wtf '(_ALL_)(=);run;
 " (E)lapsed
 iab SaE %let START=%sysfunc(time());<CR>%put !!! (&SYSCC) Elapsed minutes: %sysevalf((%sysfunc(time())-&START)/60);
 iab SaL options ls=180 ps=max; libname l '.';
@@ -717,7 +721,7 @@ cab SyL source $HOME/code/sas/saslog.vim
 cab SyJ source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/javascript.vim
 cab SyQ source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/sql.vim 
 "cab SyS source $VIMRUNTIME/syntax/nosyntax.vim \| source $HOME/code/sas/sas.vim
-cab SyS source $HOME/code/sas/sas.vim
+"cab SyS source $HOME/code/sas/sas.vim
 
 " Oracle
 iab DbO DBMS_OUTPUT.put_line('sysdate: ' \|\| SYSDATE);<Esc><Left>i
@@ -1693,17 +1697,12 @@ if !exists("autocommands_loaded")
   " Move cursor to filename for fast gf
 	" autocmd BufReadPost /tmp/.loc,/tmp/.rme exe "normal $"
 
-  " Handle my ~/bin/sasrun script files
+  " Handle my ~/bin/sasrun script output
   au BufRead tmpsas.*.log,tmpsas.*.lst map q :qa!<CR>
   au BufRead tmpsas.*.log,tmpsas.*.lst echo '.vimrc: q to quit all'
-  " au BufRead /cygdrive/c/temp/query.out map q :qa!<CR>
-  " au BufRead /cygdrive/c/temp/query.out echo '.vimrc: q to quit all'
 
   " au BufNewFile,BufRead,BufEnter *.sas map ;; :call setline('.', Commentout(getline('.'), 'sas'))<CR>
-  " au BufNewFile,BufRead,BufEnter *.sas map ;c 0Di  *  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
-  "au BufNewFile,BufRead,BufEnter *.sas map ;c 0Di  *  Created: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.sas map ;c 0Di  *  Created: <C-R>=strftime("%d-%b-%Y")<CR> (Bob Heckel)<ESC>0
-  "au BufNewFile,BufRead,BufEnter *.sas map ;m 0Di  * Modified: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.sas map ;m 0Di  * Modified: <C-R>=strftime("%d-%b-%Y")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.sas map ,m yy0I***<ESC>p
   " Define pairs to allow the 'bounce on %' plugin to work.  Case insensitive.  No spaces between pairs!
@@ -1735,14 +1734,13 @@ if !exists("autocommands_loaded")
   
 	au BufRead,BufNewFile *.plsql,*.pkg,*.pck,*.spc,*.prc,*.fnc set filetype=plsql
 
-  " TODO use &ft instead of python, need function?
   au BufNewFile,BufRead,BufEnter *.py nmap ;z :!echo && echo && python %<CR>
   " TODO
   " au BufNewFile,BufEnter *.py set tabstop=4
 
   au FileType sh set fileformat=unix
   "if hostname() != 'penguin'
-    au BufWritePost *.sh silent !chmod a+x <afile>
+    "au BufWritePost *.sh silent !chmod a+x <afile>
   "endif
   "
   au FileType basic map ,m yy0I'''<ESC>p
@@ -1858,7 +1856,8 @@ if !exists("autocommands_loaded")
 	au BufRead,BufNewFile oneliners set filetype=txt
 
   " We'll never need to edit a tarball, QuickFix list nor a pane
-  au FileType TAR,QF,NETRW map q :q<CR>
+  "au FileType TAR,QF,NETRW map q :q<CR>
+  au FileType TAR,QF map q :q<CR>
 
   " Always edit git commit messages at position 1L,1C
   au FileType GITCOMMIT :1
