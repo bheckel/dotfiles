@@ -7484,6 +7484,9 @@ select trunc(SYSDATE, 'YEAR') + interval '1' year from dual;
 -- System parameters like PASSWORD_LOCK_TIME etc:
 SELECT * FROM DBA_PROFILES ORDER BY PROFILE;
 
+-- Count commas in a CSV string:
+IF (l_num_acctids < regexp_count(l_account_ids,',')) THEN
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1

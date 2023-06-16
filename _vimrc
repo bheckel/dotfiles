@@ -160,6 +160,7 @@ set scrolloff=0
 
 set scrollopt=hor,ver
 
+set nonumber
 if version > 702
   " if ! has("gui_running")
     set cursorcolumn
