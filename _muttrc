@@ -10,7 +10,7 @@
 #           /bin/mutt -F foo  <---foo must exist
 #
 #  Created: 03-Jun-2001 (Bob Heckel)
-# Modified: 21-Jan-2023 (Bob Heckel)
+# Modified: 05-May-2023 (Bob Heckel)
 #
 #¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø#
 
@@ -89,7 +89,10 @@ set simple_search="~f %s | ~s %s"
 ###set score_threshold_read=80    # mark crap not sent directly to me as read
 set smart_wrap
 # The method that comes second (after the '/' ).  'date-sent' is same as 'date'
-set sort_aux=date-sent
+#set sort_aux=date-sent
+set sort_aux=last-date-received
+set sort=threads
+set sort_re
 # Status line displayed in the index menu.  
 set status_format="%h %f[Tot:%?M?%M/?%m%?n? New:%n?%?o? Old:%o?%?d? Del:%d? Postp:%p](%s/%S)%> (%P)" 
 set suspend  # allow Ctrl-z
@@ -263,6 +266,7 @@ hdr_order Sender: From: Reply-To: To: Cc: Bcc: Subject: Organization: \
 ###charset-hook x-unknown ISO-8859-1
 ###charset-hook x-unknown US-ASCII
 
+# Render HTML in mutt
 alternative_order text/plain text/enriched text/html
 # Mutt knows to use the second one in the pager because of 'copiousoutput'. It uses the first one if we select 
 # a pdf attachment from the attachment menu.
@@ -271,12 +275,21 @@ alternative_order text/plain text/enriched text/html
 #   text/html; /usr/pkg/bin/links -dump %s; copiousoutput
 # or probably better:
 #   text/html; w3m -I %{charset} -T text/html; copiousoutput;
+#
+# TODO how to toggle in app?
 auto_view "text/html"
+#
+# To forward as HTML press C-T (after :wq but before Y to send) 
+# and specify text/html;
+# e.g. Content-Type: text/plain; charset=iso-8859-1
+# becomes
+#      Content-Type: text/html;
 
 # Note: folder-hook requires double backslashes for one space!
 # Defaults:
 folder-hook . set index_format="%2C%Z%(%b%d)\\ %-10.10n:\\ %s"
-folder-hook . set sort=date-sent
+#folder-hook . set sort=date-sent
+folder-hook . set sort=last-date-received
 folder-hook . set sort=threads   # want cursor on msg 1
 folder-hook . save-hook . =trash
 
