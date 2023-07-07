@@ -4563,6 +4563,9 @@ for i in 1 2 3; do echo "scale=5000; 4*a(1)" | bc -l -q >/dev/null 2>&1; done
 # Alpine Linux package manager:
 apk add vim
 
+# Send an attachment email:
+echo -e "To: recipient@example.com\nFrom: sender@example.com\nSubject: Example Email with Attachment\nMIME-Version: 1.0\nContent-Type: multipart/mixed; boundary=\"boundary\"\n\n--boundary\nContent-Type: text/plain; charset=\"utf-8\"\n\nHello,\n\nPlease find attached the file you requested.\n\nRegards,\nSender\n\n--boundary\nContent-Type: application/pdf\nContent-Disposition: attachment; filename=\"example.pdf\"\n\n$(base64 < /path/to/example.pdf)\n--boundary--" | sendmail -t
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -6895,6 +6898,8 @@ begin DBMS_STATS.set_table_prefs(null, 'bricks', 'method_opt', 'for all columns 
 BEGIN DBMS_STATS.gather_table_stats(USER, 'CONTACT_EXTERNAL2', estimate_percent=>100); END; 
 exec DBMS_STATS.gather_table_stats('HR', 'EMPLOYEES', method_opt=>'FOR COLUMNS SIZE 254 JOB_ID');
 
+execute dbms_stats.gather_table_stats(ownname => 'ESTARS', tabname =>'KMC_REVENUE_03JUL23', estimate_percent =>DBMS_STATS.AUTO_SAMPLE_SIZE, method_opt => 'FOR ALL COLUMNS SIZE AUTO');
+
 -- Are table statistics stale? last gather stats is NULL until first exec dbms_stats.gather_table_stats(null, 'bricks'); Both have LAST_ANALYZED column:
 select stale_stats from user_tab_statistics where table_name = 'BRICKS'; -- YES or NO
 select table_name, last_analyzed from user_tables where table_name = 'BRICKS';
@@ -8185,6 +8190,9 @@ git difftool feature/DMA-46
 
 # Compare differences across this branch and a feature branch for a specific file:
 git difftool feature/DMA-46 datamaint.pck
+
+# Determine what code was involved in a commit using its hash:
+git show --stat b8ab11831d3
 
 Use .git/info/exclude instead of .gitignore
 
