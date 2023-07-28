@@ -6328,6 +6328,9 @@ select nextval('enrollmentperf_tmm_enrollmentperfid_seq');
 -- Postgres remove seconds from timestamp:
 psql -h db-06.twa.taeb.com TAEBMART -c "select to_char(lastmodified, 'yyyy-mm-dd HH24:MI') from reportinglog where reportname='TMMRep_Reporting_Automation' order by lastmodified desc limit 1"
 
+-- Oracle remove seconds from datetime timestamp:
+select to_char(trunc(sysdate), 'DD-MON-YYYY') from dual;
+
 -- Postgres between two dates date range:
 where created>='2016-05-11' and created<'2016-05-12'
 -- Postgres 2016-09-01 thru 2016-09-30 date range:
@@ -7491,6 +7494,9 @@ SELECT * FROM DBA_PROFILES ORDER BY PROFILE;
 
 -- Count commas in a CSV string:
 IF (l_num_acctids < regexp_count(l_account_ids,',')) THEN
+
+-- No email body:
+l_email_ftr := '</table><br><br><br><br>' || '<a href="mailto:orionoc@wnt.com?subject=Inquiry%20about%20Opp%20Won%20email%20[OPP_INTELLIGENCE_EMAIL.email_csm_opp_win]">Questions?</a>' || '</body></html>';
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
