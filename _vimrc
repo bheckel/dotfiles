@@ -87,9 +87,9 @@ endif
 "                                01 NetRW {{{2
 let g:netrw_altv=1
 let g:netrw_banner=0
-let g:netrw_browse_split=0
-"let g:netrw_browse_split=2
 let g:netrw_bufsettings="noma nomod nonu nobl nowrap ro rnu"
+" Avoid Cygwin CRLF problem
+let g:netrw_dirhistmax=0
 let g:netrw_fastbrowse=2
 " i to toggle details
 let g:netrw_liststyle=0
@@ -97,14 +97,15 @@ let g:netrw_sort_options="i"
 let g:netrw_timefmt='%d-%b-%y %H:%M:%S'
 """let g:netrw_list_cmd = '\ls -l'
 """let g:netrw_list_cmd = '/cygdrive/c/windows/System32/WindowsPowerShell/v1.0/powershell -Command dir'
+
 let g:netrw_preview   = 1
 let g:netrw_liststyle = 3
 let g:netrw_winsize   = 25
 
-if has ('win32unix')  " Cygwin
-  let g:netrw_cygwin=1  " scp to be provided by Cygwin
-  let g:netrw_browsex_viewer='cygstart'
-endif
+"if has ('win32unix')  " Cygwin
+"  let g:netrw_cygwin=1  " scp to be provided by Cygwin
+"  let g:netrw_browsex_viewer='cygstart'
+"endif
 
 "if ! &diff
 "  augroup ProjectDrawer
@@ -160,6 +161,7 @@ set scrolloff=0
 
 set scrollopt=hor,ver
 
+set nonumber
 if version > 702
   " if ! has("gui_running")
     set cursorcolumn
@@ -1743,8 +1745,8 @@ if !exists("autocommands_loaded")
     "au BufWritePost *.sh silent !chmod a+x <afile>
   "endif
   "
-  au FileType basic map ,m yy0I'''<ESC>p
-  au FileType basic map ;s :s:^:''':<CR>
+  "au FileType basic map ,m yy0I'''<ESC>p
+  "au FileType basic map ;s :s:^:''':<CR>
   au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;c 0Di//  Created: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;m 0Di// Modified: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
   au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ,m yy0I///<ESC>p
@@ -1856,9 +1858,12 @@ if !exists("autocommands_loaded")
 	au BufRead,BufNewFile oneliners set filetype=txt
 
   " We'll never need to edit a tarball, QuickFix list nor a pane
-  "au FileType TAR,QF,NETRW map q :q<CR>
   au FileType TAR,QF map q :q<CR>
 
+  "TODO ignored 26-Jul-23
+  "au FileType NETRW echo 'ok'
+  "au FileType NETRW map :q :close
+  "
   " Always edit git commit messages at position 1L,1C
   au FileType GITCOMMIT :1
 
