@@ -2535,6 +2535,7 @@ numdate = inputn(strip(chardate), 'DATE9.');
  /* Loop date range producing formatted dates: */
 %let start=%sysfunc(inputn(12DEC2015,ANYDTDTE9.)); %do j=0 %to 5; %let myd = %sysfunc(putn(%eval(&start+&j), date9.)); %put &=myd; %end;
 
+/* Conditional check for dont run until after specific date to execute run macro: */
 %if %sysfunc(floor(%sysfunc(datetime()))) < %sysfunc(floor(%sysfunc(dhms(%sysfunc(mdy(4,26,2023)),0,0,0)))) %then %do;
 
 if product eq vname(a[i]) then do; ...
@@ -6772,9 +6773,6 @@ CREATE TABLE JS_INVOICE_16FEB21 COMPRESS TABLESPACE ES_NOLOG NOLOGGING  AS selec
 
 create table foo PARALLEL 8 COMPRESS NOLOGGING as select /*+NO_GATHER_OPTIMIZER_STATISTICS */ mkc_revenue_id from mkc_revenue_full where rownum<9;
 
--- Print SQL for a deep copy CTAS sqlcl (includes primary key but not indexes):
-ctas orders bobclonedtbl;
-
 -- View list determine Oracle grants privileges:
 SELECT * FROM  DBA_SYS_PRIVS WHERE grantee='SETARS' and privilege like '%OBJ%';
 SELECT * FROM  DBA_role_PRIVS WHERE grantee='SETARS';
@@ -7467,9 +7465,15 @@ BEGIN sys.dbms_scheduler.set_attribute(name => 'KMC_REVENUE_LOAD_DAVESIM_BH_ORND
 -- Which columns differ on two tables?:
 SELECT COLUMN_NAME from  user_tab_columns  WHERE table_name = 'ACCOUNT' minus SELECT COLUMN_NAME from  user_tab_columns@rion_test WHERE table_name = 'ACCOUNT'
 
+-- Print SQL for a deep copy CTAS sqlcl (includes primary key but not indexes):
+ctas orders bobclonedtbl;
+
 --sqlcl column improvement over sqlplus:
 set sqlformat ansiconsole
 show sqlformat
+
+-- sqlcl paths to login.sh
+show login
 
 -- Generate INSERT INTO statements:
 SELECT /*insert*/ mgr, hiredate FROM emp where rownum<3;
