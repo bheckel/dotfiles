@@ -3307,6 +3307,7 @@ vi /proc/meminfo
 
 # Memory hogs:
 ps -eo pid,ppid,cmd,rss
+systemd-cgtop -m -n 10
 
 # Determine how much swap (in MB) you have on Solaris:
 /usr/sbin/swap -s
