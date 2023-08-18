@@ -10,7 +10,7 @@
 #           /bin/mutt -F foo  <---foo must exist
 #
 #  Created: 03-Jun-2001 (Bob Heckel)
-# Modified: 05-May-2023 (Bob Heckel)
+# Modified: 29-Jul-2023 (Bob Heckel)
 #
 #¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø#
 
@@ -276,14 +276,11 @@ alternative_order text/plain text/enriched text/html
 # or probably better:
 #   text/html; w3m -I %{charset} -T text/html; copiousoutput;
 #
-# TODO how to toggle in app?
-auto_view "text/html"
-#
-# To forward as HTML press C-T (after :wq but before Y to send) 
-# and specify text/html;
-# e.g. Content-Type: text/plain; charset=iso-8859-1
-# becomes
-#      Content-Type: text/html;
+# #TODO how to toggle in app?
+# On for view / off for fwd
+#auto_view "text/html"
+# To forward as HTML press C-T (after :q but before Y to send) and edit "plain" to something
+# like "Content-Type: text/html; charset=utf-8"
 
 # Note: folder-hook requires double backslashes for one space!
 # Defaults:

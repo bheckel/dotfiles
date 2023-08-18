@@ -2535,6 +2535,7 @@ numdate = inputn(strip(chardate), 'DATE9.');
  /* Loop date range producing formatted dates: */
 %let start=%sysfunc(inputn(12DEC2015,ANYDTDTE9.)); %do j=0 %to 5; %let myd = %sysfunc(putn(%eval(&start+&j), date9.)); %put &=myd; %end;
 
+/* Conditional check for dont run until after specific date to execute run macro: */
 %if %sysfunc(floor(%sysfunc(datetime()))) < %sysfunc(floor(%sysfunc(dhms(%sysfunc(mdy(4,26,2023)),0,0,0)))) %then %do;
 
 if product eq vname(a[i]) then do; ...
@@ -6329,6 +6330,9 @@ select nextval('enrollmentperf_tmm_enrollmentperfid_seq');
 -- Postgres remove seconds from timestamp:
 psql -h db-06.twa.taeb.com TAEBMART -c "select to_char(lastmodified, 'yyyy-mm-dd HH24:MI') from reportinglog where reportname='TMMRep_Reporting_Automation' order by lastmodified desc limit 1"
 
+-- Oracle remove seconds from datetime timestamp:
+select to_char(trunc(sysdate), 'DD-MON-YYYY') from dual;
+
 -- Postgres between two dates date range:
 where created>='2016-05-11' and created<'2016-05-12'
 -- Postgres 2016-09-01 thru 2016-09-30 date range:
@@ -6769,9 +6773,6 @@ insert /*+APPEND*/ into dummy_table select level, dbms_random.string('a',30) fro
 CREATE TABLE JS_INVOICE_16FEB21 COMPRESS TABLESPACE ES_NOLOG NOLOGGING  AS select 1 x from dual;
 
 create table foo PARALLEL 8 COMPRESS NOLOGGING as select /*+NO_GATHER_OPTIMIZER_STATISTICS */ mkc_revenue_id from mkc_revenue_full where rownum<9;
-
--- Print SQL for a deep copy CTAS sqlcl (includes primary key but not indexes):
-ctas orders bobclonedtbl;
 
 -- View list determine Oracle grants privileges:
 SELECT * FROM  DBA_SYS_PRIVS WHERE grantee='SETARS' and privilege like '%OBJ%';
@@ -7465,9 +7466,15 @@ BEGIN sys.dbms_scheduler.set_attribute(name => 'KMC_REVENUE_LOAD_DAVESIM_BH_ORND
 -- Which columns differ on two tables?:
 SELECT COLUMN_NAME from  user_tab_columns  WHERE table_name = 'ACCOUNT' minus SELECT COLUMN_NAME from  user_tab_columns@rion_test WHERE table_name = 'ACCOUNT'
 
+-- Print SQL for a deep copy CTAS sqlcl (includes primary key but not indexes):
+ctas orders bobclonedtbl;
+
 --sqlcl column improvement over sqlplus:
 set sqlformat ansiconsole
 show sqlformat
+
+-- sqlcl paths to login.sh
+show login
 
 -- Generate INSERT INTO statements:
 SELECT /*insert*/ mgr, hiredate FROM emp where rownum<3;
@@ -7492,6 +7499,9 @@ SELECT * FROM DBA_PROFILES ORDER BY PROFILE;
 
 -- Count commas in a CSV string:
 IF (l_num_acctids < regexp_count(l_account_ids,',')) THEN
+
+-- No email body:
+l_email_ftr := '</table><br><br><br><br>' || '<a href="mailto:orionoc@wnt.com?subject=Inquiry%20about%20Opp%20Won%20email%20[OPP_INTELLIGENCE_EMAIL.email_csm_opp_win]">Questions?</a>' || '</body></html>';
 
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 

@@ -1858,10 +1858,11 @@ if !exists("autocommands_loaded")
 	au BufRead,BufNewFile oneliners set filetype=txt
 
   " We'll never need to edit a tarball, QuickFix list nor a pane
-  "au FileType TAR,QF,NETRW map q :q<CR>
   au FileType TAR,QF map q :q<CR>
 
-  "au FileType NETRW set fileformat=unix
+  "TODO ignored 26-Jul-23
+  "au FileType NETRW echo 'ok'
+  "au FileType NETRW map :q :close
   "
   " Always edit git commit messages at position 1L,1C
   au FileType GITCOMMIT :1
