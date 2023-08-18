@@ -14,7 +14,7 @@
 #          ^^^^__^^^^^__^^^_^^^
 #
 #  Created: 02-Jun-1998 (Bob Heckel)
-# Modified: 26-May-2023 (Bob Heckel)
+# Modified: 15-Aug-2023 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -678,7 +678,7 @@ if filereadable("~/tmp/SpecificFileExists") ...
 
 vi -c 'map q :qa<CR>' ~/bin/allp
 
-" Save vim backup this file with vim occasionally to:
+" Save vim snapshot backup this file with vim occasionally to:
 :silent! w!~/onedrive/misc/bkup/%:t
 
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
@@ -2535,7 +2535,7 @@ numdate = inputn(strip(chardate), 'DATE9.');
  /* Loop date range producing formatted dates: */
 %let start=%sysfunc(inputn(12DEC2015,ANYDTDTE9.)); %do j=0 %to 5; %let myd = %sysfunc(putn(%eval(&start+&j), date9.)); %put &=myd; %end;
 
-/* Conditional check for dont run until after specific date to execute run macro: */
+/* Conditional threshold date check for dont run until after specific date to execute run macro: */
 %if %sysfunc(floor(%sysfunc(datetime()))) < %sysfunc(floor(%sysfunc(dhms(%sysfunc(mdy(4,26,2023)),0,0,0)))) %then %do;
 
 if product eq vname(a[i]) then do; ...
