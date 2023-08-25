@@ -7230,13 +7230,16 @@ SELECT /*csv*/ * FROM scott.emp; SELECT /*json-formatted*/ * FROM scott.emp; SEL
 -- Database uptime:
 SELECT TO_CHAR(STARTUP_TIME,'MON-DD-RR HH24:MI:SS') AS "Instance Start Time", (startup_time-SYSDATE)*-1 as "Uptime Days" FROM V$INSTANCE;
 
--- Oracle which database HOST am i on e.g durax2342:
+-- Oracle what db which database HOST am i on e.g durax2342:
 SELECT SYS_CONTEXT('USERENV', 'SERVER_HOST') FROM DUAL;
 IF (SYS_CONTEXT('USERENV', 'DB_NAME') in ('SER', 'SETS')) THEN RETURN; END IF;
 
--- Oracle which database am i on e.g. SEP:
+-- Oracle what db which database am i on e.g. SEP:
 select SYS_CONTEXT('USERENV', 'DB_NAME') from dual;  --same as SELECT name FROM V$DATABASE;
 l_db_name VARCHAR2(20) := SYS_CONTEXT('USERENV', 'DB_NAME');  if (l_db_name IN ('SEPS')) THEN...
+
+-- Oracle whoami whereami on which database ES_ROION@RONDBPRD01:
+select sys_context('USERENV', 'CURRENT_SCHEMA') || '@' || SYS_CONTEXT('USERENV', 'DB_NAME') from dual;
 
 -- Oracle which schema am i on current schema name whoami user e.g. SETARS:
 select USERNAME, SCHEMANAME, OSUSER, MACHINE, PROGRAM, TYPE, MODULE, LOGON_TIME, CLIENT_IDENTIFIER from v$session where username is not null and type='USER' order by status, logon_time;
