@@ -186,19 +186,19 @@ cdl(){
 }
 
 
-ses() {
-  # List (without arg) or access (with search string) any available vim Sessions (see .vimrc map ;r to read in the commands while in fc)
-  if [ ! -z "$1" ];then
-    # E.g. $ ses syngat  puts vi -S /mnt/nfs/home/bheckel/bob/Syngate/Session.vim in .vimxfer_ses then on exit prints the vi -S in case we
-    # want to restart the same session later
-    # TODO check for 0 results before fc
-    # TODO detect hostname for find path
-    (cd ~ && find ~/onedrive/ -maxdepth 3 -not -path '*/tmp/*' -not -path '*/_old/*' -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $10}' | grep -i "$1" >| /cygdrive/c/temp/.vimxfer_ses \
-     && cat /cygdrive/c/temp/.vimxfer_ses && fc && echo "vi -S $9")
-  else
-    (cd ~ && find ~/onedrive/ -maxdepth 3 -not -path '*/tmp/*' -not -path '*/_old/*' -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $10}')
-  fi
-}
+#ses() {
+#  # List (without arg) or access (with search string) any available vim Sessions (see .vimrc map ;r to read in the commands while in fc)
+#  if [ ! -z "$1" ];then
+#    # E.g. $ ses syngat  puts vi -S /mnt/nfs/home/bheckel/bob/Syngate/Session.vim in .vimxfer_ses then on exit prints the vi -S in case we
+#    # want to restart the same session later
+#    # TODO check for 0 results before fc
+#    # TODO detect hostname for find path
+#    (cd ~ && find ~/onedrive/ -maxdepth 3 -not -path '*/tmp/*' -not -path '*/_old/*' -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $10}' | grep -i "$1" >| /cygdrive/c/temp/.vimxfer_ses \
+#     && cat /cygdrive/c/temp/.vimxfer_ses && fc && echo "vi -S $9")
+#  else
+#    (cd ~ && find ~/onedrive/ -maxdepth 3 -not -path '*/tmp/*' -not -path '*/_old/*' -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $10}')
+#  fi
+#}
 
 
 # Overly complex Recycler to ReMoVe files we're not yet man enough to delete

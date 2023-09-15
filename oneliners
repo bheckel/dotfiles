@@ -678,7 +678,7 @@ if filereadable("~/tmp/SpecificFileExists") ...
 
 vi -c 'map q :qa<CR>' ~/bin/allp
 
-" Save vim snapshot backup this file with vim occasionally to:
+" Save vim snapshot poormans backup this file with vim occasionally to:
 :silent! w!~/onedrive/misc/bkup/%:t
 
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
