@@ -707,8 +707,8 @@ iab PeR #!/usr/bin/perl<CR><CR>use warnings;<CR>use strict;<CR>use v5.10;<CR>
 " SAS
 " SAS/(C)onnect
 """iab SaC options ls=max;<CR>%include "&HOME/code/sas/connect_setup.sas";<CR>signon cdcjes2;<CR>%global CHICKENPARM;<CR>%syslput CHICKENPARM=&SYSPARM;<CR>rsubmit;<CR><CR><CR><CR><CR><CR>endrsubmit;<CR>signoff cdcjes2;
-" Debug Log inline, best:
-iab SaD %put "&SYSDSN"; options ls=max;<Esc>0idata _NULL_; set _LAST_(obs=100 where=(myid in:('foo'))); put '!!!wtf '(_ALL_)(=);run;
+" Debug Log inline, best for IntrNet:
+iab SaD options ls=max;<Esc>0idata _NULL_; set _LAST_(obs=100 where=(myid in:('foo'))); put "!!!wtf &SYSDSN"(_ALL_)(=);run;
 " (E)lapsed
 iab SaE %let START=%sysfunc(time());<CR>%put !!! (&SYSCC) Elapsed minutes: %sysevalf((%sysfunc(time())-&START)/60);
 iab SaL options ls=180 ps=max; libname l '.';

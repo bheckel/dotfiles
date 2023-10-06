@@ -8125,6 +8125,7 @@ git show
 git show eacbd91:./ods_0002e.sas
 # git view previous old version of file from the past history (in editor):
 git show master:cfg/DataPost_Configuration.html |vi -
+git show bb6c5c5d5f2:./ASP_PKG.pck ASP_PKG.pck | vim -
 
 # git diff view your changes before committing. "Changes not staged for commit" (your pre-committed change), same as  $ git difftool HEAD:
 git difftool
