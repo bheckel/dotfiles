@@ -3411,6 +3411,7 @@ echo `date +%s -d'05/12/1998'` + 315569520 | bc
 date --date='-1080 days'
 # Date calculate 42 days from Xmas Eve:
 date --date='12/24/2022 +42 days'
+date --date='2/12/2023 + 31days'
 
 # Sort then sum a column
 sed 's/[)(]//g' junk | awk '{print $2}' | sort | xargs | sed 's/ /+/g' | bc
@@ -4515,9 +4516,6 @@ set -x  # set +x to disable
 
 -- Place at top of script to avoid continuing willy-nilly after a bash script error:
 set -e
-
--- Date calculator:
-date --date='11/01/2020 +5 days'
 
 echo mystr | awk '{x=length()} END {while(x-- > 0) print "."}' | xargs echo
 
