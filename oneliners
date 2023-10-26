@@ -7354,6 +7354,9 @@ SELECT stattype_locked FROM dba_tab_statistics WHERE table_name = 'TABLE_NAME' a
 -- Remove trailing comma from a loop built-up list:
 v_set_cols := substr(v_set_cols, 1, length(v_set_cols) - 1);
 
+-- Ignore the final trailing semicolon in a built-up list string comparison:
+SELECT x.*, CASE WHEN x.currteam != regexp_replace(x.dftltteam,';$','') THEN 1 ELSE 0 END curr_team_ne_dflt_team ...
+
 -- All database links:
 SELECT DB_LINK, USERNAME, HOST FROM ALL_DB_LINKS 
 SELECT DB_LINK, USERNAME, HOST, 'select count(1) from user_tables@'||db_link  x FROM user_DB_LINKS;
