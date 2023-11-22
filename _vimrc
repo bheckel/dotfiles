@@ -8,7 +8,7 @@
 "           Code at the speed of thought -- anonymous
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Sat 15-Apr-2023 (Bob Heckel)
+" Modified: Fri 10-Nov-2023 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -513,7 +513,7 @@ set nosourceany
 set suffixesadd=.sas
 
 
-"                               19 the swap file {{{2
+"                               19 swap file {{{2
 
 " Avoid placing swapfiles where other users might be confused by them
 """if has('gui_win32')
@@ -917,7 +917,7 @@ inoremap <C-U> <Esc>viwUea
 """"""""""""""""""""""""""""""
 " Begin ',' comma map leader 
 """"""""""""""""""""""""""""""
-" Greenbar highlight every other line.  Also see HighlightCurrentLine()
+" 'Greenbar' highlight every other line.  Also see HighlightCurrentLine()
 nnoremap ,<Tab> :set hls<CR>/\\n.*\\n/<CR>
 
 " Single quote a word

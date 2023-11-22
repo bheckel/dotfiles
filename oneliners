@@ -1081,6 +1081,8 @@ call execute(str1);
 
 trim() returns a space for a blank string, trimn() returns a null
 
+datepart(LBD_DATE) as LBD_DATE format=date9.,
+
  /* Convert DATETIME variable to DATE */
 mysasdate = datepart(mysasdatetime);
  /* Convert DATE to DATETIME */
