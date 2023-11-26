@@ -8280,6 +8280,9 @@ C:\cygwin64\bin\mintty.exe -i /Cygwin-Terminal.ico -
 mintty.exe -i /Cygwin-Terminal.ico -p 0,30 -s 312,75 -e ssh -l bheckel sas-01.twa.taeb.com &
 mintty.exe -i /Cygwin-Terminal.ico -p right -s maxheight -e ssh -l bheckel sas-01.twa.taeb.com
 
+# mintty shortcut as a calculator shortcut:
+C:\cygwin64\bin\mintty.exe -s 60,30 bash -c "bc -lq"
+
 :: Cygwin SendTo Properties open with:
 C:\cygwin64\bin\mintty.exe -e c:\cygwin64\bin\vim
 
