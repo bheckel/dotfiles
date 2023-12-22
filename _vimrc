@@ -298,7 +298,11 @@ hi TabLineFill cterm=underline ctermbg=Gray
 
 hi Title ctermfg=White ctermbg=Magenta guifg=White guibg=Purple
 
-hi Todo cterm=undercurl gui=undercurl 
+" Don't highlight NOTE
+hi clear Todo
+" TODO haha
+"hi myTodo cterm=undercurl gui=undercurl ctermbg=Yellow guibg=Yellow
+"match MyTodo /\<TODO\>/
 
 hi Visual ctermfg=Black ctermbg=LightMagenta guifg=Black guibg=LightMagenta
 
@@ -317,6 +321,7 @@ match GitCollision /^\(<\|=\|>\)\{7\}\([^=].\+\)\?$/
 " Microsoft fancy quotes, Teams, etc 
 hi EvilChars ctermbg=Red guibg=Red
 match EvilChars /\%u201c\|\%u201d\|\%u00a0/
+
 
 "                                06 multiple windows {{{2
 
