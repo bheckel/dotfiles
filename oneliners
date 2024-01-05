@@ -7511,6 +7511,9 @@ IF (l_num_acctids < regexp_count(l_account_ids,',')) THEN
 -- No email body:
 l_email_ftr := '</table><br><br><br><br>' || '<a href="mailto:orionoc@wnt.com?subject=Inquiry%20about%20Opp%20Won%20email%20[OPP_INTELLIGENCE_EMAIL.email_csm_opp_win]">Questions?</a>' || '</body></html>';
 
+-- Create a long 1000 character dummy string:
+SELECT  lpad('X',1000,'X') into l_msg from dual;
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
