@@ -7517,6 +7517,9 @@ SELECT  lpad('X',1000,'X') into l_msg from dual;
 -- Extract a number from a string based on a pattern:
 select sdm_business_key, OVERRIDE_NOTE, REGEXP_REPLACE(substr(OVERRIDE_NOTE,1,length(override_note)-1), 'DMA-1302.*\(was ', '') pre_fusion_sdmbk from kmc_revenue_FULL where override_note like '%(was%';
 
+-- Convert SAS number to Oracle date:
+select mrstart, TO_TIMESTAMP('1960-01-01 00:00:00.0','YYYY-MM-DD HH24:MI:SS.FF') + NUMTODSINTERVAL(mrstart, 'DAY') from IPD_LGCY;
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
