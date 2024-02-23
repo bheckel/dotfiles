@@ -1036,8 +1036,10 @@ if 1 <= (dosedate-sampdate) <= 5 then ...
 
 options pagesize=32767; options pagesize=max;  /* same */
 
- /* Comma separated, single quoted : */
+ /* Comma separated, single quoted: */
 select quote(strip(gpi),"'") into :formulary_gpis separated by ','
+ /* Comma separated, single quoted with carriage return: */
+select distinct quote(trim(cpu_country),"'") into :missingsg separated by "%sysfunc(byte(10))"
 
 select froms, tos, dist into :ITEM1, :ITEM2, :ITEM3
 
@@ -7492,6 +7494,8 @@ select extract(year from rate_date), count(1) cnt from mkc_revenue_full group by
 
 -- Percentage format oracle e.g. 0.42:
 to_char(current_ytd_pct_of_previous_ytd,'0D00') ytdpct
+-- better
+nvl(round((o.risk_amount / (o.commit_amount + o.upside_amount))*100,2),0)||'%'
 
 -- View VC virtual columns:
 select utc1.column_name, utc1.data_default vc_contents from user_tab_cols utc1 where utc1.TABLE_NAME = 'MKC_REVENUE_FULL' and utc1.VIRTUAL_COLUMN = 'YES' order by 1;
