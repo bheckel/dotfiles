@@ -3744,6 +3744,9 @@ find /home -type f -name '*.PDF' -a -newer /tmp/fx -exec ls -lo {} \; 2>/dev/nul
 # Monitor a box for logons:
 while true; do last|head|grep -v rheckel; sleep 60; done
 
+# Poll directory for 15 minutes;
+for i in `seq 1 875`; do date >> /r/ge.unx.com/vol/vol110/u11/bheck/t.log && ls -l /dept/atlas/prod/data/jmp/incoming/ >> /r/ge.unx.com/vol/vol110/u11/bheck/t.log; sleep 5; done
+
 # Monitor process load and get the cpu info you need that xload and uptime don't tell you:
 top -d 2 | col -b | grep states
 
@@ -8226,6 +8229,8 @@ git difftool feature/DMA-46 datamaint.pck
 
 # Determine what code was involved in a commit using its hash:
 git show --stat b8ab11831d3
+
+ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 
 Use .git/info/exclude instead of .gitignore
 
