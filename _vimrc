@@ -5,8 +5,6 @@
 "           The mechanic that would perfect his work must first sharpen
 "           his tools -- Confucius
 "
-"           Code at the speed of thought -- anonymous
-"
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
 " Modified: Fri 10-Nov-2023 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
@@ -91,6 +89,7 @@ let g:netrw_bufsettings="noma nomod nonu nobl nowrap ro rnu"
 " Avoid Cygwin CRLF problem
 let g:netrw_dirhistmax=0
 let g:netrw_fastbrowse=2
+"let g:netrw_dirhistmax = 0
 " i to toggle details
 let g:netrw_liststyle=0
 let g:netrw_sort_options="i"
