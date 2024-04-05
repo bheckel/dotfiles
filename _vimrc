@@ -6,7 +6,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Fri 10-Nov-2023 (Bob Heckel)
+" Modified: Wed 03-Apr-2024 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -851,8 +851,10 @@ nnoremap <Tab> :tabnext<CR>
 noremap <Space> <C-F>
 
 " Speed movement up a bit
-nnoremap <C-E> 2<C-E>
-nnoremap <C-Y> 2<C-Y>
+if !exists('g:vscode')
+  nnoremap <C-E> 2<C-E>
+  nnoremap <C-Y> 2<C-Y>
+endif
 
 " Use for simple window jumping.  Use C-W for complex jumps.  Normal zz is the
 " same as z. so override it here since z. is better.  Also see maps ,b ;b ;h ;j ;k ;ll
@@ -888,7 +890,9 @@ inoremap <C-K> <C-X><C-K>
 """inoremap <silent> <TAB> <C-R>=SmartComplete()<CR>
 
 " Tab completion.  Find (p)revious completions.  See set complete.
-inoremap <silent> <TAB> <C-P>
+if !exists('g:vscode')
+  inoremap <silent> <TAB> <C-P>
+endif
 
 " TODO interferes with copy/paste inserts
 " inoremap ( ()<Esc>i
