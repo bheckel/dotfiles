@@ -1109,18 +1109,28 @@ nnoremap ;q viw"zxllciwhhpll"zp
 """  nmap ;rx :!chmod 755 $u/temp/.vimxfer
 """else
   " nmap ;r :call ReadFromFile(VTMP, '.vimxfer')<CR>
+if !exists('g:vscode')
   nmap ;r :call ReadFromFile(VTMP, '.vimxfer')<CR>
+else
+  map ;r :. read c:/temp/.vimxfer<CR>
+  vmap ;r :'<,'>read c:/temp/.vimxfer<CR>
+endif
 """  echon VTMP 'x' THISBOX
 """endif
 
 " Pt. 2 Transfer/read and write one block of text between vim sessions:
-noremap ;a :call WriteToFile(VTMP, '.vimxfer', 1)<CR>
-vnoremap ;a :call WriteToFile(VTMP, '.vimxfer', 1)<CR>
-noremap ;w :call WriteToFile(VTMP, '.vimxfer', 0)<CR>
-vnoremap ;w :call WriteToFile(VTMP, '.vimxfer', 0)<CR>
-" The non-pathologically-overengineered version:
-" map ;w :. write! /c/temp/.vimxfer<CR>
-" vmap ;w :'<,'>write! /c/temp/.vimxfer<CR>
+if !exists('g:vscode')
+  noremap ;a :call WriteToFile(VTMP, '.vimxfer', 1)<CR>
+  vnoremap ;a :call WriteToFile(VTMP, '.vimxfer', 1)<CR>
+  noremap ;w :call WriteToFile(VTMP, '.vimxfer', 0)<CR>
+  vnoremap ;w :call WriteToFile(VTMP, '.vimxfer', 0)<CR>
+  " The non-pathologically-overengineered version:
+  " map ;w :. write! /c/temp/.vimxfer<CR>
+  " vmap ;w :'<,'>write! /c/temp/.vimxfer<CR>
+else
+  map ;w :. write! c:/temp/.vimxfer<CR>
+  vmap ;w :'<,'>write! c:/temp/.vimxfer<CR>
+endif
 
 " nnoremap ;sv :source $MYVIMRC<CR>
 
