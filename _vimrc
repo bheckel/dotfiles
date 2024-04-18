@@ -6,7 +6,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Wed 03-Apr-2024 (Bob Heckel)
+" Modified: Thu 18-Apr-2024 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -190,7 +190,8 @@ if has('gui_running')
 endif
 
 if has('gui')
-  set guioptions+=a
+  " Use yx instead of gvim's copy-on-select
+  "set guioptions+=a
   set guioptions+=b
   set guioptions+=r
   set guioptions+=i
@@ -721,6 +722,7 @@ iab SaP <Esc>0ititle "&SYSDSN";proc print data=_LAST_(obs=10) width=minimum head
 iab SaQ proc sql;<CR>  create table t as<CR>select *<CR>from t a join t2 b on a.foo=b.foo<CR>where<CR>group by<CR>;<CR><Left><Left>quit;<Esc><Up><Up><Up>
 iab SaS select ( myvar );<CR><Space><Space>when ( 42 ) delete;<CR><Space><Space>otherwise;<CR><Left><Left>end;
 "iab SiL :silent! w!~/onedrive/misc/bkup/%:t<CR>
+"
 cab Sy0 source $VIMRUNTIME/syntax/nosyntax.vim
 cab SyH source $VIMRUNTIME/syntax/nosyntax.vim \| source $VIMRUNTIME/syntax/html.vim
 cab SyL source $HOME/code/sas/saslog.vim
@@ -850,7 +852,7 @@ nnoremap <Tab> :tabnext<CR>
 
 noremap <Space> <C-F>
 
-" Speed movement up a bit
+" Speed up movement a bit
 if !exists('g:vscode')
   nnoremap <C-E> 2<C-E>
   nnoremap <C-Y> 2<C-Y>
@@ -907,9 +909,11 @@ cmap vvv vimgrep // **/*.*<C-F>$Bhhi
 " Search all SAS files recursively in pwd
 cmap vvs vimgrep //g **/*.sas<C-F>$Bhhhi
 
-" Increment / sequence / (a)dd a visualized column.  Cursor on number to 
-" start from.  C-V C-A.  To do more complicated things like increase by 100 use
-" :'<,'>Inc(100)
+"cmap cda cd \\\\sashq\\root\\dept\\mkc\\atlas\\prod
+"cmap cdd cd c:/Users/bheck/OneDrive\ -\ SAS/
+
+" Increment / sequence / (a)dd a visualized column.  Cursor on number to " start from.  C-V C-A.
+" To do more complicated things like increase by 100 use  :'<,'>Inc(100)
 vnoremap <C-A> :Inc<CR>
 
 " Sum a column of digits.  Think (p)lus.  Assumes bc(1) exists.
@@ -1049,6 +1053,7 @@ endif
 " Checkpoint backup current file:
 " map ;5 :silent! write! /c/temp/%:t<CR>
 nnoremap ;5 :call BkupFile(VTMP)<CR>:echo VTMP<CR>
+"noremap ;6 :silent! w! c:/Users/bheck/OneDrive\ -\ SAS/misc/bkup/%:t<CR>
 
 " Maximize window without RSI.  Alternative to z99.  Same as map ,b without
 " the jumping.  (B)ig buffer.  Also see nnoremap zz for cycling windows.
