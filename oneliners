@@ -2622,6 +2622,8 @@ options mfile; filename MPRINT 'u:\projects\datapost\code\printresolvedSAScode.l
 
 proc sql; connect to odbc (user=&user password=&ajsperpassword dsn='ajsper'); execute (truncate myschem.atpapients) by odbc; disconnect from odbc; quit;
 
+CREATE TABLE astars.jmpcsv (dbsastype=(begin_date='DATE' ldbdate='DATE' report_date='DATE' last_apply_date='DATE')) AS
+
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxUNIXxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1

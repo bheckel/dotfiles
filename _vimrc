@@ -190,8 +190,9 @@ if has('gui_running')
 endif
 
 if has('gui')
-  " Use yx instead of gvim's copy-on-select
-  "set guioptions+=a
+  " gvim's copy-on-select visual highlight mode
+  set guioptions+=a
+
   set guioptions+=b
   set guioptions+=r
   set guioptions+=i
@@ -1757,6 +1758,7 @@ if !exists("autocommands_loaded")
 """  au BufNewFile,BufRead,BufEnter *.pl,*.pm map ;; :call setline('.', Commentout(getline('.'), 'perl'))<CR>
   " end Perl
   
+  "au BufRead,BufNewFile,BufEnter *ORION-* set filetype=plsql
 	au BufRead,BufNewFile *.plsql,*.pkg,*.pck,*.spc,*.prc,*.fnc set filetype=plsql
 
   au BufNewFile,BufRead,BufEnter *.py nmap ;z :!echo && echo && python %<CR>
