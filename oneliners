@@ -7529,6 +7529,9 @@ select sdm_business_key, OVERRIDE_NOTE, REGEXP_REPLACE(substr(OVERRIDE_NOTE,1,le
 -- Convert SAS number to Oracle date:
 select mrstart, TO_TIMESTAMP('1960-01-01 00:00:00.0','YYYY-MM-DD HH24:MI:SS.FF') + NUMTODSINTERVAL(mrstart, 'DAY') from IPD_LGCY;
 
+-- Remove trailing spaces from column:
+trim(trailing ' ' from sp.product_description) as wtf,  
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
