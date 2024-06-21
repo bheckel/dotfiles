@@ -684,6 +684,9 @@ vi -c 'map q :qa<CR>' ~/bin/allp
 cmap xxo e \\\\sashq\\root\\dept\\mkc\\rion\\prod\\
 cmap xxx e c:/Users/bheck/OneDrive\ -\ SAS/
 
+" Buffer path search case insensitive:
+:filter /\cfindme/ ls
+
 xxVIMxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSASxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -732,7 +735,7 @@ proc datasets NOlist library=l; delete patmod_all_cha rxfilldata_all_cha; run; q
  /* Print list describe all paths to SAS libname libraries: */
 libname _ALL_ list;
 
- /* Clear libnames: */
+ /* Clear delete libnames: */
 libname _ALL_ clear;
 libname L clear  /* only one libname allowed! */
 
@@ -1706,6 +1709,8 @@ proc means data=sashelp.shoes; class region; var sales; run;
 proc means data=data.rxfilldata mean; var age;run;
 proc means data=sashelp.shoes NOprint; output out=t; class region; var sales; run;
 proc summary data=sashelp.shoes PRINT; class region; var sales; run;
+ /* Like a freq, sum dollars by classification: */
+proc summary data=prod2; class newren; var lbdamt; output out=prodsum2 sum=lbdamt; run; title "&SYSDSN";proc print data=_LAST_ width=minimum heading=H;run;title;  
 proc sql; select region, count(sales), sum(sales) format=DOLLAR16. from sashelp.shoes group by region; quit;
  /* Count numeric missings: */
 proc means data=sashelp.class N NMISS; run;
@@ -2628,6 +2633,10 @@ options mfile; filename MPRINT 'u:\projects\datapost\code\printresolvedSAScode.l
 proc sql; connect to odbc (user=&user password=&ajsperpassword dsn='ajsper'); execute (truncate myschem.atpapients) by odbc; disconnect from odbc; quit;
 
 CREATE TABLE astars.jmpcsv (dbsastype=(begin_date='DATE' ldbdate='DATE' report_date='DATE' last_apply_date='DATE')) AS
+
+%if &sysday=Monday %then %do; endsas; %end;
+
+%put %sysfunc(getoption(WORK));
 
 xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 

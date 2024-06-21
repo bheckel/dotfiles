@@ -131,8 +131,7 @@ set incsearch
 
 set magic
 
-" Override noignorecase with /\c... but smartcase should be smart enough to
-" not require that.
+" Override noignorecase with /\c... but smartcase should be smart enough to not require that.
 set ignorecase 
 
 " Sadly can't use smartcase because using [I while sitting on an upper or mixed
