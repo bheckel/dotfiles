@@ -6642,6 +6642,9 @@ select employee_id, jobtitle from employee e where extract(year from termination
 -- Split parse pick off first delimited piece based on dot periods:
 select db_link, regexp_substr(db_link, '[^\.]+', 1, 1) from user_synonyms where synonym_name = 'DL_APPEDW_COMPANY_DIM';--MKC_CDSP.VSP.AS.COM MKC_CDSP
 
+-- Only take chars up to the first semicolon:
+NVL(SUBSTR(pd."LEAD_OWNER_TERRITORY_LOV_ID", 1, INSTR(pd."LEAD_OWNER_TERRITORY_LOV_ID", ';') - 1), pd."LEAD_OWNER_TERRITORY_LOV_ID") AS "LEAD_OWNER_TERRITORY_LOV_ID",
+
 -- Concatenate full name without extra spaces when no middle name provided:
 RETURN (TRIM(REGEXP_REPLACE( (first_name_in || ' ' || middle_name_in || ' ' || last_name_in), ' +', ' ')) );
 
