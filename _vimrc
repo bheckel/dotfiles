@@ -334,6 +334,11 @@ set laststatus=2
 " E.g. ~/.vimrc [+,VIM,unix,b1] rsh868@ZEBWL12H99999   485/4494L,1C(10%)
 " TODO
 "set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)%{$GB_VIMSTATUSL}%{AmIPasting()}
+"TODO
+"function VarExists(var)
+"    if exists(a:var) | return v:this_session | else | return '' | endif
+"endfunction
+"set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)%{AmIPasting()} %{VarExists('v:this_session')}
 set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)%{AmIPasting()}
 
 " Use <C-W>= to force equal as needed:
