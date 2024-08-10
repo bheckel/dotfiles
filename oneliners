@@ -7549,6 +7549,8 @@ select mrstart, TO_TIMESTAMP('1960-01-01 00:00:00.0','YYYY-MM-DD HH24:MI:SS.FF')
 -- Remove trailing spaces from column:
 trim(trailing ' ' from sp.product_description) as wtf,  
 
+SELECT TRUNC(ADD_MONTHS(SYSDATE, -1), 'MM') AS first_day_of_mo, LAST_DAY(ADD_MONTHS(SYSDATE, -1)) AS last_day_of_mo from dual;
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -8151,6 +8153,9 @@ git checkout develop && git pull && git merge feature/RION-31587 && git push
 git checkout develop && git pull && git merge --no-ff feature/RION-31587 && git push && git branch -d feature/RION-31587 && git fetch -p && git push origin --delete feature/RION-31587
 # Merge a feature branch - manual pull request completion ready to merge without using Github UI merge & delete branch buttons - collision version:
 git checkout develop && git pull && git merge --no-ff feature/RION-31587 && rmv myfile.orig && git commit -m'resolved collision' && git push && git branch -d feature/RION-31587 && git fetch -p && git push origin --delete feature/RION-31587
+
+# Delete a remote feature branch:
+gco && gpul && git branch -D feature/DMA-2076 && git fetch -p && git push origin --delete feature/DMA-2076
 
 # git branch has collision conflicts that must be resolved:
 git fetch origin && git checkout -b feature/RION-999 origin/feature/RION-999 && git merge develop  # then git mergetool, use github to squash, then delete local branch
