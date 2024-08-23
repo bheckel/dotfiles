@@ -8095,8 +8095,11 @@ git stash --include-untracked -m'mynamedstash' && git stash apply
 # If the apply tries to modify a file that you've since modified, you'll get a merge conflict and will have to try to resolve it. This creates a new branch for you, checks out the commit you were on when you stashed your work, reapplies your work there, and then drops the stash if it applies successfully:
 git stash branch mystashbranch
 
-# git stash mantra (prior to push minimize chance of collisions from upstream changes):
+# git stash mantra (prior to a push to minimize chance of collisions from upstream changes):
 stash && git pull && git stash pop   && git add  . && git commit -m ' ' && git push  # stashit
+
+git stash show stash@{0}
+git stash show -p stash@{0}  # print diffs
 
 git log --pretty=oneline
 git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
@@ -8157,9 +8160,8 @@ git checkout develop && git pull && git merge --no-ff feature/RION-31587 && rmv 
 # Delete a remote feature branch:
 gco && gpul && git branch -D feature/DMA-2076 && git fetch -p && git push origin --delete feature/DMA-2076
 
-# git branch has collision conflicts that must be resolved:
-git fetch origin && git checkout -b feature/RION-999 origin/feature/RION-999 && git merge develop  # then git mergetool, use github to squash, then delete local branch
-git checkout develop && git pull && git checkout feature/RION-999 && git merge develop  # then git mergetool, use github to squash, then delete local branch
+# 21-Aug-24 git branch has collision conflicts that must be resolved before merge:
+git checkout develop && git pull && git checkout feature/DMA-837 && git merge develop # then $ git mergetool then $ git add . && git commit -m "Resolve merge conflicts" && git push -u origin feature/DMA-837
 
 # git edit modify rewrite previous existing git commit message:
 git commit --amend -m 'change your previous, last, wrong, commit message to this'
