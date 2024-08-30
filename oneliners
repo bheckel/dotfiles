@@ -14,7 +14,7 @@
 #          ^^^^__^^^^^__^^^_^^^
 #
 #  Created: 02-Jun-1998 (Bob Heckel)
-# Modified: 15-Aug-2023 (Bob Heckel)
+# Modified: 29-Aug-2024 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -8157,11 +8157,11 @@ git checkout develop && git pull && git merge --no-ff feature/RION-31587 && git 
 # Merge a feature branch - manual pull request completion ready to merge without using Github UI merge & delete branch buttons - collision version:
 git checkout develop && git pull && git merge --no-ff feature/RION-31587 && rmv myfile.orig && git commit -m'resolved collision' && git push && git branch -d feature/RION-31587 && git fetch -p && git push origin --delete feature/RION-31587
 
+# git branch has conflict collision conflicts that must be resolved before merge:
+git checkout develop && git pull && git checkout feature/DMA-837 && git merge develop # then $ git mergetool then $ git add . && git commit -m "Resolve merge conflicts" && git push -u origin feature/DMA-837
+
 # Delete a remote feature branch:
 gco && gpul && git branch -D feature/DMA-2076 && git fetch -p && git push origin --delete feature/DMA-2076
-
-# 21-Aug-24 git branch has collision conflicts that must be resolved before merge:
-git checkout develop && git pull && git checkout feature/DMA-837 && git merge develop # then $ git mergetool then $ git add . && git commit -m "Resolve merge conflicts" && git push -u origin feature/DMA-837
 
 # git edit modify rewrite previous existing git commit message:
 git commit --amend -m 'change your previous, last, wrong, commit message to this'
