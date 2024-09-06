@@ -1849,8 +1849,6 @@ data t; set t; region=right(region);
  /* Avoid asciibetical sort by inserting leading blanks if data is large (single pass): */
 proc format; value $rtfunc OTHER=[right()]; run; proc freq data=t order=formatted; table region; format region $rtfunc.; run;
 
-options NOlabel; /* prevent proc sql default from displaying labels instead of varnames */
-
  /* View control and non numchar characters (v8): */
 c=compress(comments1159,'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
 onlyKeepDigits=compress('919-844-0641', kd)  /* 9198440641 */
@@ -2003,7 +2001,7 @@ proc format CNTLIN=control; run;  data t2; set t; animal=put(code, ANIFMT.); run
  /* Print a CNTLIN stored format: */
 proc format library=work FMTLIB; run;
 
-options NOlabel;  /* Avoid proc sql printing pretty labels names instead of varnames */
+options NOlabel;  /* prevent avoid proc sql default printing pretty labels names instead of varnames */
 
  /* Convert SAS epoch date to human: */
 ~/code/scripting/datecalc 1/1/1960 19272
