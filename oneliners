@@ -5671,6 +5671,7 @@ select NVL(TO_CHAR(3), 'NULL') from dual;  -- returns 3
 -- NVL vs NVL2:
 SELECT actual_sale_amount, nvl(actual_sale_amount, 0) x FROM ... -- use 0 instead of NULL
 SELECT actual_sale_amount, nvl2(actual_sale_amount, 'amount is NOT NULL so return this string', 'is NULL so return this string') x FROM ...
+cast((case when (e.gone = 'Y') then 'Gone-' else NULL end) || e.last_name || nvl2(e.first_name,', ',null) || e.first_name as varchar2(300)) as emp_name
 
 -- Oracle - prevent nulls from propagating:
 SELECT ename, comm, sal, 12*sal+NVL(comm,0) ...
