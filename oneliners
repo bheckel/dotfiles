@@ -7550,6 +7550,8 @@ trim(trailing ' ' from sp.product_description) as wtf,
 
 SELECT TRUNC(ADD_MONTHS(SYSDATE, -1), 'MM') AS first_day_of_mo, LAST_DAY(ADD_MONTHS(SYSDATE, -1)) AS last_day_of_mo from dual;
 
+cast(dbms_lob.substr(n.note, 1000, 1)    as varchar2(3000)) as note0,
+
 xxDATABASExx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxMISCxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -8168,7 +8170,7 @@ git commit --amend -m 'change your previous, last, wrong, commit message to this
 # git list branch dates sorted descending
 git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:short) %(authorname) %(refname:short)"
 
-# git diff with last commit:
+# git diff with last commit show only the files edited affected by commits on this branch what files changed while working in this branch:
 git show
 # git view show previous old version of file the past (in pager):
 git show eacbd91:./ods_0002e.sas
@@ -8257,6 +8259,13 @@ git difftool feature/DMA-46 datamaint.pck
 
 # Determine what code was involved in a commit using its hash:
 git show --stat b8ab11831d3
+
+# Switch to your feature branch:
+git checkout feature/DMA-2209
+# Ensure you have the latest changes from the remote repository:
+git fetch origin
+# Merge the changes from develop into your feature branch. This command will create a new merge commit in your feature branch, combining the latest changes from develop with your feature branch:
+git merge origin/develop
 
 ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 
@@ -8435,7 +8444,7 @@ curl -s ftp://mirror.cs.vt.edu/pub/cygwin/cygwin/x86/setup.ini | awk '/^install:
 
 curl -X GET 'https://rionapi-dev.unx.as.com/rest/accountTeams/assignments/sites?accountId=99999' -H 'Accept: application/hal+json;v=EDGE' -H 'X-Orion-Principal-User:rynt\ppt' -H 'Authorization: OWS FRb8g' -H 'Host: rionapi-dev.unx.as.com'
 
-# Avoid cloning a repo if you only need read only:
+# Avoid cloning a repo if you only need to browse read only:
 w3m https://github.com/bheckel/code/blob/master/rme/
 
 # Markdown URL:
