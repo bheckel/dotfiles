@@ -6,7 +6,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Thu 18-Apr-2024 (Bob Heckel)
+" Modified: Tue 05-Nov-2024 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -608,7 +608,8 @@ set makeprg=gcc\ -Wall\ %
 "                               23 language specific {{{2
 
 " Eliminated default '%' to enable SAS macro gf functionality
-set isfname=@,48-57,/,.,-,_,+,,,#,$,~,=
+" TODO gvim fails to open Windows paths like \\dept\foo\file.txt
+"set isfname=@,48-57,/,.,-,_,+,,,#,$,~,=
 
 "                               24 multi-byte characters {{{2
 
