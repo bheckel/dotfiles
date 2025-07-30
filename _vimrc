@@ -6,7 +6,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Tue 05-Nov-2024 (Bob Heckel)
+" Modified: Wed 30-Jul-2025 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -800,10 +800,12 @@ nnoremap <expr> gp '`[' . strpart(getregtype(), 0, 1) . '`]'
 " Open a window for the file under cursor - (g)et this file a (w)indow
 nnoremap gw <Esc>:split<CR>gf
 
-" Copy visual mode selection to system clipboard. Like Windows gVim's default. See also :set clipboard=
-if $WSLENV =~ 'WT_SESSION::WT_PROFILE_ID' || !empty($WSL_HOST_IP)
+" Copy visual mode selection to system clipboard if :has('clipboard')==0. Like Windows gVim's default. See also :set clipboard=
+if $WSLENV =~ 'WT_SESSION:WT_PROFILE_ID:' || !empty($WSL_HOST_IP)
   " Not needed except to keep keystrokes consistent - see autocommands Yankme
   vnoremap <silent> yx y
+  "vnoremap <silent> yx :'<,'>!/mnt/c/Windows/System32/clip.exe
+  "vnoremap <silent> yx :'<,'>!clip.exe
 "elsif $PATH =~ 'termux'
 "  vnoremap <silent> yx :!termux-clipboard-set<CR>u
 "elseif hostname() == 'metta'
@@ -1937,7 +1939,7 @@ if !exists("autocommands_loaded")
   au BufRead  *oneliners syn match Comment @^".*$\|^--.*$\|^\/\/.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@ contains=Search
 
   "if hostname() == 'metta'
-  if $WSLENV =~ 'WT_SESSION::WT_PROFILE_ID' || !empty($WSL_HOST_IP)
+  if $WSLENV =~ 'WT_SESSION:WT_PROFILE_ID' || !empty($WSL_HOST_IP)
     let s:clip = '/mnt/c/Windows/System32/clip.exe'
   else
     let s:clip = ''
