@@ -4589,6 +4589,10 @@ apk add vim
 # Send an attachment email:
 echo -e "To: recipient@example.com\nFrom: sender@example.com\nSubject: Example Email with Attachment\nMIME-Version: 1.0\nContent-Type: multipart/mixed; boundary=\"boundary\"\n\n--boundary\nContent-Type: text/plain; charset=\"utf-8\"\n\nHello,\n\nPlease find attached the file you requested.\n\nRegards,\nSender\n\n--boundary\nContent-Type: application/pdf\nContent-Disposition: attachment; filename=\"example.pdf\"\n\n$(base64 < /path/to/example.pdf)\n--boundary--" | sendmail -t
 
+# Details on swapfile:
+free -h
+swapon --show
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
