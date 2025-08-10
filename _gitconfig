@@ -18,7 +18,7 @@
 [push]
 	default = upstream
 [user]
-	email = rsh@rshdev.com
+	email = b.heckel@gmail.com
 	name = Bob Heckel
 [pull]
   # "fatal: Not possible to fast-forward, aborting."
