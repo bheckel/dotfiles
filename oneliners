@@ -4593,6 +4593,13 @@ echo -e "To: recipient@example.com\nFrom: sender@example.com\nSubject: Example E
 free -h
 swapon --show
 
+# WSL remote clipboard:
+ssh opc@rshdev.com "cat /var/www/html/index.html" | clip.exe
+
+# SELinux
+ls -Z
+sudo chcon -t httpd_sys_script_exec_t contact.pl
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
