@@ -6,7 +6,6 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-<<<<<<< HEAD
 " Modified: Thu 07-Aug-2025 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
