@@ -284,7 +284,8 @@ hi String ctermfg=White guifg=White guibg=Black cterm=bold gui=bold
 " May be overridden by aucommands.  Mirror any change here to there.
 hi User1 ctermfg=red guifg=red cterm=inverse,bold 
 
- if version < 800
+ "if version < 800
+if hostname() == 'webserver'
   hi StatusLine ctermfg=Blue ctermbg=White guifg=Blue guibg=White
   hi StatusLineNC ctermfg=Blue ctermbg=Gray guifg=Blue guibg=Gray
 else
