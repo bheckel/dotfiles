@@ -2773,8 +2773,8 @@ while read f; do echo "---$f---"; crontab -l -u $f; done </mnt/nfs/home/bheckel/
 # If no MTA exists to forward errors:
 sudo tail /var/log/cron
 
-# Human readable disk space Solaris
-df -h
+# Human readable disk space
+lsblk && df -h
 # Human readable disk space HPUX
 bdf
 # Top CPU users HPUX
