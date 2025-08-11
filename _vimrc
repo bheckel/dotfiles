@@ -6,7 +6,8 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Wed 30-Jul-2025 (Bob Heckel)
+<<<<<<< HEAD
+" Modified: Thu 07-Aug-2025 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -1702,7 +1703,7 @@ endfu
 function! AmIPasting()  " {{{2
   if &paste
 		" :echohl WarningMsg | echo "Don't panic!" | echohl None
-    return ' <<<                         P A S T E                         >>>'
+    return ' <<<   P A S T E   M O D E   >>>'
   else
     return ''
   endif
