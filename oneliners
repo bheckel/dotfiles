@@ -8509,4 +8509,7 @@ powercfg.exe /q [GUID of the active scheme]
 # Powershell help open in browser:
 Get-Help Copy-Item -Online
 
+# Format JSON:
+oci iam region list | jq -r '.data[].name'
+
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
