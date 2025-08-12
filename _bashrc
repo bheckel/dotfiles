@@ -676,19 +676,30 @@ case "$OSTYPE" in
       # Functions Linux  #{{{2 
       #----------------
 
-      # if [ $(uname) = 'Linux' ]; then
-        function catput() {
-          if [ -e /usr/bin/xclip ]; then
-            cat "$1" | xclip
-          else
-            echo xclip not installed
-          fi
-        }
-      # fi
+      # An entire file, otherwise see putclip
+			function catput() {
+				if [ -e /usr/bin/xclip ]; then
+					xclip < "$1"
+				elif [ -d /mnt/c/Windows ]; then
+					clip.exe < "$1"
+				else
+					echo "xclip or clip.exe not installed"
+				fi
+			}
 
       function distro() {
         cat /etc/*-release | grep VERSION | perl -pe 's/VERSION="//g' | head -n1
       }
+
+			function putclip() {
+				if [ -e /usr/bin/xclip ]; then
+          echo "${1}" | xclip
+				elif [ -d /mnt/c/Windows ]; then
+          echo "${1}" | clip.exe
+				else
+					echo "xclip or clip.exe not installed"
+				fi
+			}
 
       #----------------
       # Ubuntu #{{{2
