@@ -4534,7 +4534,9 @@ TTY=$(ps|grep pty1); if [ -z "${TTY}" ];then echo run; else echo no; fi
 # Filename case insensitive:
 find . -iname  '*nterestedparty*'
 
--- Debug bash shell print each line executed:
+# Debug bash shell print each line executed:
+#!/bin/bash -x
+or
 set -x  # set +x to disable
 
 -- Place at top of script to avoid continuing willy-nilly after a bash script error:
@@ -4565,8 +4567,8 @@ sudo dnf search java
 # gcc c++ java etc
 sudo dnf groupinstall "Development Tools"
 
-# Bare box config setup initialize:
-sudo dnf install git -y && git clone https://github.com/bheckel/dotfiles && dotfiles/dotfiles.sh
+# Bare box readonly config setup initialize from ~:
+sudo dnf install git -y && git clone https://github.com/bheckel/dotfiles && dotfiles/dotfiles.sh && source .bashrc
 
 # Backup directory folder:
 tar czf /root/postfix-$(date "+%F").tar.gz /etc/postfix
@@ -4599,6 +4601,9 @@ ssh opc@rshdev.com "cat /var/www/html/index.html" | clip.exe
 # SELinux
 ls -Z
 sudo chcon -t httpd_sys_script_exec_t contact.pl
+
+# Stress an OCI Free Tier system:
+$ dnf list updates
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -8211,9 +8216,6 @@ git add -f ignoreme.txt
 
 # github commit mantra (github is origin we PUSH TO origin FROM master), update index and HEAD:
 git add . && git commit -m 'mod' && git push origin master
-
-# github readonly for temp test boxes:
-git clone https://github.com/bheckel/dotfiles
 
 # git new install bare box setup want clone an existing github repo which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
 ssh-keygen -t ed25519 -C "boblaptopfoo@bar.com";  then  cat ~/.ssh/id_ed25519.pub  # copy/paste it into https://github.com/settings/keys
