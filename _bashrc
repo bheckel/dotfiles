@@ -170,10 +170,18 @@ alias d34="(cd $TMP; rm 3 4; touch 3 4; vi -c 'map q :qa<CR>' -d 3 4)"
 # Generic Functions  #{{{2
 #-----------------------------------
 
+function whichubu() {
+  if [ -d /mnt/c/Windows ]; then
+    explorer.exe "${1:-.}"
+  else
+    pcmanfm "${1:-.}"
+  fi 
+}
+
 # A Windows-ish Start to open a file or file manager
 case "$OSTYPE" in
          cygwin) st() { explorer    "${1:-.}"; } ;;
-      linux-gnu) st() { pcmanfm     "${1:-.}"; } ;;
+      linux-gnu) st() { `whichubu`           ; } ;;
         darwin*) st() { open        "${1:-.}"; } ;;
   linux-android) st() { termux-open "${1:-.}"; } ;;
          netbsd) st() { echo 'no can do, man'; } ;;  # avoid "Unknown" message on sdf login
