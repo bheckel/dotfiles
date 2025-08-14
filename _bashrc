@@ -689,7 +689,8 @@ case "$OSTYPE" in
 			}
 
       function distro() {
-        cat /etc/*-release | grep VERSION | perl -pe 's/VERSION="//g' | head -n1
+        # cat /etc/*-release | grep VERSION | perl -pe 's/VERSION="//g' | head -n1
+        cat /etc/*-release
       }
 
 			function putclip() {
