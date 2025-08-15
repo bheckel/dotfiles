@@ -1008,7 +1008,7 @@ if hostname() == 'penguin'
   nnoremap ,p :r ~/.crouton-clipboard/data.txt<CR>
 elseif hostname() == 'localhost'
   nnoremap ,p :r !termux-clipboard-get
-elseif $WSLENV =~ 'WT_SESSION:WT_PROFILE_ID:'
+elseif exists('$WSLENV')
   nnoremap ,p :r !powershell.exe Get-Clipboard<CR>
 else
   nnoremap ,p "*p
