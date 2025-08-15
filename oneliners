@@ -4601,6 +4601,7 @@ ssh opc@rshdev.com "cat /var/www/html/index.html" | clip.exe
 # SELinux
 ls -Z
 sudo chcon -t httpd_sys_script_exec_t contact.pl
+sudo chcon -t httpd_sys_rw_content_t style.css
 
 # Stress an OCI Free Tier system:
 $ dnf list updates
