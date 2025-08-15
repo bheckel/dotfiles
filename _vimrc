@@ -332,7 +332,7 @@ set laststatus=2
 " Depends on this being set above:
 " hi User1 term=inverse,bold cterm=inverse,bold ctermfg=red guifg=red
 " ...and $VIMSTATUSL being set in .bashrc 
-" E.g. ~/.vimrc [+,VIM,unix,b1] rsh868@ZEBWL12H99999   485/4494L,1C(10%)
+" E.g. ~/.vimrc [+,VIM,unix,b1] rsh868@ZEBWL12H99999           485/4494L,1C(10%)
 " TODO
 "set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)%{$GB_VIMSTATUSL}%{AmIPasting()}
 "TODO
@@ -340,7 +340,12 @@ set laststatus=2
 "    if exists(a:var) | return v:this_session | else | return '' | endif
 "endfunction
 "set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)%{AmIPasting()} %{VarExists('v:this_session')}
-set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)%{AmIPasting()}
+"if !exists('$VIMSTATUSL')
+if !empty($VIMSTATUSL)
+  set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)%{AmIPasting()}
+else
+  set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ CAUTION:\ USER\ UNKNOWN\ (ROOT??)\ %=\ %l/%LL,%cC%V(%P)%{AmIPasting()}
+endif
 
 " Use <C-W>= to force equal as needed:
 set noequalalways
@@ -1003,7 +1008,7 @@ if hostname() == 'penguin'
   nnoremap ,p :r ~/.crouton-clipboard/data.txt<CR>
 elseif hostname() == 'localhost'
   nnoremap ,p :r !termux-clipboard-get
-elseif hostname() == 'metta' && has('win32unix')
+elseif $WSLENV =~ 'WT_SESSION:WT_PROFILE_ID:'
   nnoremap ,p :r !powershell.exe Get-Clipboard<CR>
 else
   nnoremap ,p "*p

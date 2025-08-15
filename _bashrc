@@ -299,12 +299,12 @@ lt() {
 
 
 #TODO
-curr_git_branch() {
-echo 'ok'
-  GB_VIMSTATUSL=$(git branch 2>/dev/null | head -n1)
-echo $GB_VIMSTATUSL
-echo 'xx'
-}
+#curr_git_branch() {
+#echo 'ok'
+#  GB_VIMSTATUSL=$(git branch 2>/dev/null | head -n1)
+#echo $GB_VIMSTATUSL
+#echo 'xx'
+#}
 
 parse_git_dirty() {
   GS_PS1=$(git status 2>/dev/null | tail -n1)
