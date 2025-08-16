@@ -5,7 +5,7 @@
 #          and z/OS
 #
 #  Created: 19-May-1998 (Bob Heckel)
-# Modified: 14-Aug-2025 (Bob Heckel)
+# Modified: 16-Aug-2025 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -52,7 +52,7 @@ LESS='--ignore-case'  # but still honors 'ThisSearchPattern'
 LS_COLORS='ow=30;42:*.swp=00;35:*.swo=00;35:*.bak=00;35:ex=00;32'
 PAGER=less  # for man(1)
 PARINIT='rTbgqR B=.?_A_a Q=_s>| w65'  # par formatter
-PATH=$PATH:~/bin
+# PATH=$PATH:~/bin
 PERLLIB=$HOME/perllib
 PROMPT_COMMAND='echo -ne "\033]0;${PWD}\007";'
 TMP=$HOME/tmp
@@ -93,7 +93,7 @@ export fg_yellowbold="[1;33m"
 export normal="[0m"
 
 #-----------------------
-# Generic Alias	 #{{{2
+# Generic Alias   #{{{2
 #-----------------------
 alias ..='cd ..'
 alias bc="bc -lq"  # allow floating point calcs, mess up other stuff
@@ -108,7 +108,6 @@ alias cdot="cd $HOME/dotfiles"
 alias cdm="cd $HOME/code/misc"
 alias cds="cd $HOME/code/sas"
 alias cls=clear
-alias cro='crontab -e'
 alias datecalc="$HOME/code/scripting/datecalc"
 alias ddg='w3m http://duckduckgo.com/lite'
 alias f='fg'  # jobs -s  to list what's suspended
@@ -262,12 +261,12 @@ rmv() {
     done
   else  # rare
     echo "uh oh $HOME/tmp does not exist ... attempting to mkdir ..."
-		mkdir $HOME/tmp
-		if [ -e $HOME/tmp ]; then
-		  echo "... success ... try again now"
-		else
-		  echo "ERROR: cannot create $HOME/tmp"
-		fi
+    mkdir $HOME/tmp
+    if [ -e $HOME/tmp ]; then
+      echo "... success ... try again now"
+    else
+      echo "ERROR: cannot create $HOME/tmp"
+    fi
   fi
 }
 
@@ -503,7 +502,7 @@ case "$OSTYPE" in
     export cu=/cygdrive/c/Users/$USER
     export CYGWIN=nodosfilewarning  # MS-DOS style path detected: u:/tmp/bdfCURR.rtpsh005
     # export CVSROOT=$HOME/repository
-		export EDITOR=vim
+    export EDITOR=vim
     export LANG=en_US
     # Lowercase Windows hostnames
     export LCHOSTNAME="`echo ${HOSTNAME} | tr [A-Z] [a-z]`"
@@ -584,7 +583,6 @@ case "$OSTYPE" in
      alias ls='ls -F'
      alias ll='ls -Fl'
      alias lla='ls -FlA'
-     export PATH=$HOME/bin:$PATH
 
      # Box specific differences:
 
@@ -687,30 +685,30 @@ case "$OSTYPE" in
       #----------------
 
       # An entire file, otherwise see putclip
-			function catput() {
-				if [ -e /usr/bin/xclip ]; then
-					xclip < "$1"
-				elif [ -d /mnt/c/Windows ]; then
-					clip.exe < "$1"
-				else
-					echo "xclip or clip.exe not installed"
-				fi
-			}
+      function catput() {
+        if [ -e /usr/bin/xclip ]; then
+          xclip < "$1"
+        elif [ -d /mnt/c/Windows ]; then
+          clip.exe < "$1"
+        else
+          echo "xclip or clip.exe not installed"
+        fi
+      }
 
       function distro() {
         # cat /etc/*-release | grep VERSION | perl -pe 's/VERSION="//g' | head -n1
         cat /etc/*-release
       }
 
-			function putclip() {
-				if [ -e /usr/bin/xclip ]; then
+      function putclip() {
+        if [ -e /usr/bin/xclip ]; then
           echo "${1}" | xclip
-				elif [ -d /mnt/c/Windows ]; then
+        elif [ -d /mnt/c/Windows ]; then
           echo "${1}" | clip.exe
-				else
-					echo "xclip or clip.exe not installed"
-				fi
-			}
+        else
+          echo "xclip or clip.exe not installed"
+        fi
+      }
 
       #----------------
       # Ubuntu #{{{2
@@ -718,6 +716,12 @@ case "$OSTYPE" in
       alias pse="ps -ef | grep ^$USER | grep -vP 'ps -ef|grep' | grep -v chrome"
       alias systeminfo='df -h && echo && free -m && echo && grep --color="never" name /proc/cpuinfo | uniq && echo && lspci | grep --color="never" VGA && echo && xrandr | grep --color="never" connected && echo && uname -rms'
       alias usb='sudo fdisk -l; mount|grep "^/dev/sd"; sudo mkdir /media/usb; echo; echo "try this: sudo mount -t vfat /dev/sdb /media/usb -o uid=1000,gid=1000,utf8,dmask=027,fmask=137"; echo; echo "usually /dev/sdb or sdc, disconnect: sudo umount /media/usb"'
+
+      #TODO WSL only
+      case ":$PATH:" in
+         *":/mnt/c/Users/bheck/AppData/Local/Android/Sdk/platform-tools:"*) ;;
+         *) PATH="$PATH:/mnt/c/Users/bheck/AppData/Local/Android/Sdk/platform-tools" ;;
+      esac
 
       if [ $HOSTNAME = 'yoniso' ]; then
         alias cdrom='sudo mount -t iso9660 /dev/cdrom /media/cdrom; mount|grep "^/dev/cd"; echo "sudo umount /media/cdrom"'
@@ -926,7 +930,7 @@ case "$OSTYPE" in
       #----------------
 
       shopt -s cdspell checkhash checkwinsize cmdhist huponexit \
-	             histappend cdable_vars
+               histappend cdable_vars
 
   ;; # end NetBSD
 
