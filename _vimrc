@@ -989,10 +989,12 @@ if has('win32unix')
   " nnoremap ,h :%!putclip<CR><Esc>u
   nnoremap ,h :1,$ y *<CR>
 elseif has('unix')
-  if $WSLENV =~ 'WT_SESSION::WT_PROFILE_ID' || !empty($WSL_HOST_IP)
-    nnoremap ,h mz<ESC>ggVGy`z
+  " WSL
+  if isdirectory('/mnt/c/Windows/System32/')
+  "  nnoremap ,h mz<ESC>ggVGy`z
+    nnoremap ,h :%!clip.exe<CR><Esc>u
   else
-    nnoremap ,h :%!xclip<CR>
+    nnoremap ,h :%!xclip<CR><Esc>u
   endif
 elseif has('gui_running')
   nnoremap ,h mz<ESC>ggvG"*Y`z
