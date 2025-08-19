@@ -138,6 +138,7 @@ alias lsd='find . -maxdepth 1 -type d'
 alias m=less
 alias one="vi $HOME/dotfiles/oneliners"
 alias opc='ssh opc@129.158.230.148'
+alias opc2='ssh opc@129.158.203.232'
 #alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
 alias qr="$HOME/code/misc/quickref_find.sh"
 # Good luck Yoshi...
