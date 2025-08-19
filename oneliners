@@ -4606,6 +4606,8 @@ sudo chcon -t httpd_sys_rw_content_t style.css
 # Stress an OCI Free Tier system:
 $ dnf list updates
 
+set -o vi   alias by=exit   PS1="$USER@${HOSTNAME:0:8}$ "
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
