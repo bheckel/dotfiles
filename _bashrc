@@ -138,7 +138,7 @@ alias lsd='find . -maxdepth 1 -type d'
 alias m=less
 alias one="vi $HOME/dotfiles/oneliners"
 alias opc='ssh opc@129.158.230.148'
-alias opc2='ssh opc@129.158.203.232'
+alias opc2='ssh -L 5901:localhost:5901 opc@129.158.203.232'
 #alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
 alias qr="$HOME/code/misc/quickref_find.sh"
 # Good luck Yoshi...
@@ -148,7 +148,7 @@ alias sdf='ssh -l bheckel sdf.org; date'
 alias sl='ls --color=none'  # dyslexic daim branage
 alias sr="$HOME/code/sas/sasrun2"
 alias srcb="source $HOME/dotfiles/_bashrc"
-alias tmls='tmux list-sessions'
+#alias tmls='tmux list-sessions'
 #alias tmux='tmux -u'  # UTF8
 # If tree isn't installed:
 alias tre="\ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"
@@ -673,7 +673,7 @@ case "$OSTYPE" in
       # Alias Linux  #{{{2 
       #----------------
 
-      alias hiber='pkexec xfce4-pm-helper --hibernate && sleep 3 && sudo tlsdate -V -H encrypted.google.com'
+      #alias hiber='pkexec xfce4-pm-helper --hibernate && sleep 3 && sudo tlsdate -V -H encrypted.google.com'
       alias ll='ls -lh --color --group-directories-first'
       ###alias moz='export DISPLAY=158.111.250.170:0.0; mozilla&'
       ###alias sqlplus=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/sqlplus
@@ -684,6 +684,24 @@ case "$OSTYPE" in
       #----------------
       # Functions Linux  #{{{2 
       #----------------
+      function get_distro() {
+        if [[ -f /etc/os-release ]]; then
+          source /etc/os-release
+           echo "$ID"
+        else
+          uname
+          echo wtf
+        fi
+      }
+
+			case "$(get_distro)" in
+				ubuntu) echo ".bashrc: Ubuntu";;
+				fedora) echo ".bashrc: Fedora";;
+				debian) echo ".bashrc: Debian";;
+				Darwin) echo ".bashrc: macOS";;
+				    ol) echo ".bashrc: Oracle";;
+				     *) echo ".bashrc: unknown distro";;
+			esac
 
       # An entire file, otherwise see putclip
       function catput() {
@@ -872,16 +890,13 @@ case "$OSTYPE" in
     # Oracle Linux #{{{2
     #----------------
     if [ "${LOGNAME}" = 'oracle' ]; then
-      echo '.bashrc: Oracle detected'
+      echo '.bashrc: setting ORACLE_HOME...'
       export ORACLE_HOME=/u01/app/oracle/product/version/db_1/
     fi
 
-    #TODO
-    #$ cat /etc/*-release
-    #NAME="Oracle Linux Server"
 
     if [ "${LOGNAME}" = 'opc' ]; then
-      echo '.bashrc: Oracle detected'
+      echo '.bashrc: opc user detected'
       #alias mailx='mailx -f /home/opc/mail'
       MAIL=/home/opc/mail
     fi
