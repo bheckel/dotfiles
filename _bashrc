@@ -695,11 +695,11 @@ case "$OSTYPE" in
       }
 
 			case "$(get_distro)" in
-				ubuntu) echo ".bashrc: Ubuntu";;
-				fedora) echo ".bashrc: Fedora";;
-				debian) echo ".bashrc: Debian";;
-				Darwin) echo ".bashrc: macOS";;
-				    ol) echo ".bashrc: Oracle";;
+				ubuntu) echo ".bashrc: Ubuntu detected";;
+				fedora) echo ".bashrc: Fedora detected";;
+				debian) echo ".bashrc: Debian detected";;
+				Darwin) echo ".bashrc: macOS detected";;
+				    ol) echo ".bashrc: Oracle detected";;
 				     *) echo ".bashrc: unknown distro";;
 			esac
 
