@@ -4172,6 +4172,8 @@ sudo apt-cache policy vim
 sudo apt-get update && sudo apt-get upgrade -y
 sudo apt install git w3m tmux bc -y
 sudo apt -y update && sudo apt -y upgrade && sudo apt -y autoremove
+# Oracle Linux package update mantra:
+sudo dnf -y update
 
 # Process substitution ssh diff across network DEPRECATED USE VIM:
 vi -d <(ssh b@sas-01.twa.taeb.com "cat /Drugs/Personnel/bob/t.sas") <(cat /Drugs/bheckel/t.sas)

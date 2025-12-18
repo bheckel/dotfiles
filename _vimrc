@@ -679,7 +679,7 @@ iab YdS <C-R>=strftime("%Y-%m-%d")<CR>
 iab YdG <C-R>=strftime("%d-%b-%y")<CR>
 
 " HTML (also see :TOhtml)
-iab HtA <a href="http://example.com">example link</a>
+iab HtA <a href=" "> </a>
 iab HtM <!DOCTYPE html><CR><html><CR>  <head><meta charset="utf-8"><title></title></head><CR><body></body><CR><Left><Left></html>
 iab HtT <table><CR>  <tr><td> </td></tr><CR><Left><Left></table>
 " Character entities:
