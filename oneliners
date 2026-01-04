@@ -14,7 +14,7 @@
 #          ^^^^__^^^^^__^^^_^^^
 #
 #  Created: 02-Jun-1998 (Bob Heckel)
-# Modified: 29-Aug-2024 (Bob Heckel)
+# Modified: 03-Jan-2026 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -8518,5 +8518,8 @@ Get-Help Copy-Item -Online
 
 # Format JSON:
 oci iam region list | jq -r '.data[].name'
+
+-- Run cmd as admin and execute followed by a restart to repair system files:
+sfc /scannow 
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
