@@ -10,7 +10,7 @@
 #           /bin/mutt -F foo  <---foo must exist
 #
 #  Created: 03-Jun-2001 (Bob Heckel)
-# Modified: 29-Jul-2023 (Bob Heckel)
+# Modified: 08-Jan-2026 (Bob Heckel)
 #
 #¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø#
 
@@ -281,6 +281,9 @@ alternative_order text/plain text/enriched text/html
 #auto_view "text/html"
 # To forward as HTML press C-T (after :q but before Y to send) and edit "plain" to something
 # like "Content-Type: text/html; charset=utf-8"
+#
+set mailcap_path = ~/.mailcap
+auto_view text/html
 
 # Note: folder-hook requires double backslashes for one space!
 # Defaults:
