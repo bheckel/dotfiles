@@ -5,7 +5,7 @@
 #          and z/OS
 #
 #  Created: 19-May-1998 (Bob Heckel)
-# Modified: 16-Aug-2025 (Bob Heckel)
+# Modified: 16-Jan-2026 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -58,15 +58,6 @@ PROMPT_COMMAND='echo -ne "\033]0;${PWD}\007";'
 TMP=$HOME/tmp
 # Default "unknown host" indicator for my .vimrc statusline
 VIMSTATUSL='?@?'
-
-# DEPRECATED
-#GREP_OPTIONS=
-#if grep --help | grep -- --exclude-dir &>/dev/null; then
-#  for PATTERN in .cvs .git .hg .svn; do
-#    GREP_OPTIONS="$GREP_OPTIONS --exclude-dir=$PATTERN"
-#  done
-#fi
-#export GREP_OPTIONS
 
 # Terminal font colors
 # Used by PS1, also good for use in shell scripts.  But bad for printing env.
@@ -137,11 +128,9 @@ alias lla='ls -agh --color --group-directories-first'
 alias lsd='find . -maxdepth 1 -type d'
 alias m=less
 alias one="vi $HOME/dotfiles/oneliners"
-alias opc='ssh opc@129.158.230.148'
-alias opc2='ssh -L 5901:localhost:5901 opc@129.158.203.232'
 #alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
 alias qr="$HOME/code/misc/quickref_find.sh"
-# Good luck Yoshi...
+# Good luck Yoshimi...
 alias robots="export ROBOTOPTS=moveheaps,showscores,screwdriver,fastrobots; robots"
 #alias sasrun=$HOME/code/sas/sasrun
 alias sdf='ssh -l bheckel sdf.org; date'
@@ -155,7 +144,6 @@ alias tre="\ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^
 alias uvi="$HOME/code/scripting/uvi"  # don't change timestamp
 alias ve="vim $HOME/.vimrc"
 alias vi=vim
-alias xfer='vi scp://opc@rshdev.com/tmp/.vimxfer'
 
 # Quick diff
 alias d1="vim $TMP/1 $TMP/2"
@@ -193,21 +181,6 @@ esac
 cdl(){
   command cd "$@" && command ls;
 }
-
-
-#ses() {
-#  # List (without arg) or access (with search string) any available vim Sessions (see .vimrc map ;r to read in the commands while in fc)
-#  if [ ! -z "$1" ];then
-#    # E.g. $ ses syngat  puts vi -S /mnt/nfs/home/bheckel/bob/Syngate/Session.vim in .vimxfer_ses then on exit prints the vi -S in case we
-#    # want to restart the same session later
-#    # TODO check for 0 results before fc
-#    # TODO detect hostname for find path
-#    (cd ~ && find ~/onedrive/ -maxdepth 3 -not -path '*/tmp/*' -not -path '*/_old/*' -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $10}' | grep -i "$1" >| /cygdrive/c/temp/.vimxfer_ses \
-#     && cat /cygdrive/c/temp/.vimxfer_ses && fc && echo "vi -S $9")
-#  else
-#    (cd ~ && find ~/onedrive/ -maxdepth 3 -not -path '*/tmp/*' -not -path '*/_old/*' -name 'Session.vim' | xargs ls -lt | awk '{print "vi -S " $10}')
-#  fi
-#}
 
 
 # Overly complex Recycler to ReMoVe files we're not yet man enough to delete
@@ -372,19 +345,6 @@ tmn() {
   fi
 }
 
-# Re-attach to existing Cygwin session, usually named s1, s2...
-#tma() {
-#  if [ -z ${1} ]; then
-#    tmux -u -2 a -t "s1"
-#  elif [ $HOSTNAME = 'metta' ]; then
-#    tmux attach
-#  else
-#    tmux -u -2 a -t "s${1}"
-#  fi
-#  tmux list-sessions
-#}
-
-
 bak() {
   if [ -e $HOME/code/misc/bak ];then
     $HOME/code/misc/bak ${1}
@@ -515,7 +475,6 @@ case "$OSTYPE" in
     export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${LCHOSTNAME}${fg_darkgray}$(parse_git_branch) \w/ \d \t ${normal} \n\$ '
     export PS2=' '  # allow multiple line copy to clipboard 
     # export SENSIBLE_BROWSER='/cygdrive/c/Program\ Files/mozilla\ firefox/firefox.exe'
-    # export TEMP=/cygdrive/c/temp
     #export TERM=xterm-256color
     #export TERM=mintty
     # Only way to get color ls (bug?). Assumes Terminal is set to mintty in mintty Settings.
