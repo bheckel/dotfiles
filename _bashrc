@@ -620,6 +620,8 @@ case "$OSTYPE" in
       # export PROMPT_COMMAND='history -a; echo -ne "\033]0;${HOSTNAME:0:4}:${PWD}\007";'
       if [ $HOSTNAME = 'webserver' ]; then
         export PS1='${fg_darkgray}\j ${fg_bluebold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
+      elif [ $HOSTNAME = 'evolved' ]; then
+        export PS1='${fg_darkgray}\j ${fg_magentabold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
       else
         export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
       fi
@@ -947,3 +949,4 @@ if [ -e $HOME/.bashrc.local ]; then
   echo ".bashrc: sourcing $HOME/.bashrc.local..."
   source $HOME/.bashrc.local
 fi
+#
