@@ -14,7 +14,7 @@
 #          ^^^^__^^^^^__^^^_^^^
 #
 #  Created: 02-Jun-1998 (Bob Heckel)
-# Modified: 03-Jan-2026 (Bob Heckel)
+# Modified: 17-Jan-2026 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -4610,6 +4610,9 @@ $ dnf list updates
 
 set -o vi   alias by=exit   PS1='[\u@\h \W]\n\$ '
 
+# Worst website offenders:
+sudo grep "16/Jan/2026" /var/log/httpd/access_log | awk '{print $1}' | sort | uniq -c | sort -nr | head -10
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -8225,6 +8228,7 @@ git add . && git commit -m 'mod' && git push origin master
 # git new install bare box setup want clone an existing github repo which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
 ssh-keygen -t ed25519 -C "boblaptopfoo@bar.com";  then  cat ~/.ssh/id_ed25519.pub  # copy/paste it into https://github.com/settings/keys
 # Test git ssh connectivity github test:
+ssh -vT git@github.com
 # Canonical PULL FROM origin to master & PUSH TO origin FROM master:
 git clone git@github.com:bheckel/dotfiles.git && git config --global user.name "Bob Heckel" && git config --global user.email rsh@rsh.com # ...edit/add/commit... then  git pull origin master && git push origin master
 # may be required for older git versions:
