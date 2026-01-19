@@ -645,7 +645,7 @@ case "$OSTYPE" in
       ###alias sqlplus=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/sqlplus
       # Print Windows Working Directory. $ pwd|sed 's/\//\\/g'" before backslashitis.
       alias pwwd="pwd|sed 's/\\//\\\\/g'"
-      alias svim="sudo vim -u ~/.vimrc "
+      alias sv="sudo vim -u ~/.vimrc "
 
       #----------------
       # Functions Linux  #{{{2 
