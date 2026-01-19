@@ -4607,6 +4607,8 @@ sudo chcon -t httpd_sys_rw_content_t style.css
 
 # Stress an OCI Free Tier system:
 $ dnf list updates
+# dnf mantra
+sudo dnf update -y && sudo dnf upgrade -y
 
 set -o vi   alias by=exit   PS1='[\u@\h \W]\n\$ '
 
