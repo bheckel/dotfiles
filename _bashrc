@@ -855,6 +855,8 @@ case "$OSTYPE" in
 
     # Oracle Linux #{{{2
     #----------------
+    export TZ="America/New_York"
+
     if [ "${LOGNAME}" = 'oracle' ]; then
       echo '.bashrc: setting ORACLE_HOME...'
       export ORACLE_HOME=/u01/app/oracle/product/version/db_1/
