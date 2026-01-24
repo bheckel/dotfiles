@@ -4608,7 +4608,7 @@ sudo chcon -t httpd_sys_rw_content_t style.css
 # Stress an OCI Free Tier system:
 $ dnf list updates
 # dnf mantra
-sudo dnf update -y && sudo dnf upgrade -y && sudo dnf autoremove -y
+sudo dnf update -y && sudo dnf upgrade -y && sudo dnf autoremove -y && sudo dnf needs-restarting --reboothint
 
 set -o vi   alias by=exit   PS1='[\u@\h \W]\n\$ '
 
@@ -5475,8 +5475,11 @@ coffees = ["French Roast", "Columbian", "Kona"]; myArray = new Array("Hello", my
 # Where Ruby libraries are installed
 ruby -e "puts $:"
 
-# Test AJAX etc that won't work using file:// etc.
+# Test AJAX etc that won't work using file:// etc.:
 $ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
+
+# python mantra:
+python -m venv .venv && source .venv/bin/activate && python -m pip install --upgrade pip setuptools wheel && pip install -e .
 
 # Chain filters:
 perl -pe 's/ {2,}/ /g' sp_audit.out | perl -pe 's/,//g' | perl -pe 's/(Failure: Account \d+) /,$1,/' | perl -pe 's/(Success: Account \d+) /,$1,/' | perl -pe 's/<br> ?/,/g' | perl -pe 's/: Account/,/' >| sp_audit.csv
