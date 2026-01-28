@@ -454,8 +454,8 @@ set notildeop
 
 "                               14 tabs and indenting {{{2
 
-set shiftwidth=4
-set softtabstop=4
+set shiftwidth=2
+set softtabstop=2
 
 " Tabs expanded to spaces.  Replaces the tabs you create when pressing <tab>
 " with spaces (to the count of your tabstop).  Alternatively use :retab to
@@ -1684,7 +1684,8 @@ endfu
 
 fu! WrapToggle()  " {{{2
   if &textwidth == 0
-    setlocal textwidth=130
+    "setlocal textwidth=130
+    setlocal textwidth=0
     setlocal linebreak
     setlocal wrap
     map j gj
