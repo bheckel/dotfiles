@@ -6,7 +6,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Sat 17-Jan-2026 (Bob Heckel)
+" Modified: Fri 06-Feb-2026 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -666,7 +666,7 @@ iab MoO Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
 iab NuM 1234567890123456789012345678901234567890123456789012345678901234567890
 iab RuL ----+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8----+----9----+----0
 "iab ShE #!/bin/bash<CR><CR>set -e<CR>set -o nounset<CR>
-iab ShE #!/bin/bash<CR><CR>
+iab ShE #!/bin/bash<CR><CR>set -euo pipefail<CR>
 
 " Date/Time see man strftime or date --help.  Convention stolen from Sven Guckes:
 " iab YdC Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)
