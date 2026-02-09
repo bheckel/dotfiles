@@ -256,8 +256,8 @@ hi Number ctermfg=Magenta guifg=Magenta
 
 hi CursorLineNr ctermfg=White ctermbg=DarkGray guifg=White guibg=DarkGray cterm=bold gui=bold
 
-" Vertical bar
-hi CursorColumn ctermfg=247 ctermbg=234 guibg=#444444
+" Vertical bar. Must use '!' due to syntax groups
+hi! CursorColumn ctermfg=247 ctermbg=234 guifg=#9e9e9e guibg=#1c1c1c
 
 " For :se rnu relative number gutter
 "hi LineNr ctermfg=246 ctermbg=237 guifg=DarkGray guibg=#222222

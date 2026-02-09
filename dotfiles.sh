@@ -1,15 +1,10 @@
 #!/bin/bash
 
 #  Created: 03-May-2015 (Bob Heckel) 
-# Modified: 05-Mar-2023 (Bob Heckel)
+# Modified: 09-Feb-2026 (Bob Heckel)
 
 # No leading dots!
-#if [ -z WSL_DISTRO_NAME ]; then
-#  majordots='bashrc vimrc tmux.conf inputrc minttyrc gitconfig'
-#else
-  majordots='bashrc vimrc tmux.conf inputrc minttyrc gitconfig'
-#fi
-  
+majordots='bashrc vimrc tmux.conf inputrc minttyrc gitconfig'
 myhome=$HOME
 # Debug toggle
 #myhome=$(pwd)
@@ -61,18 +56,9 @@ for f in $majordots; do
   ln -s $myhome/dotfiles/_$f $myhome/.$f && printf "%s %s [[0;32m  OK  [0m]\n" $f "${line:${#f}}"
 done
 
-# 24-Aug-19 works on Oracle VM so commenting out
-# These won't source as a symlink:
-# for f in inputrc; do
-#   echo setting up $myhome/.$f...
-#   if [ -e $myhome/.$f ] || [ -L $myhome/.$f ]; then
-#     mv -i $myhome/.$f $myhome/.$f.ORIG
-#     echo .$f was backed-up as .$f.ORIG
-#   else
-#     echo .$f does not yet exist
-#   fi
-#   cp $myhome/dotfiles/_$f $myhome/.$f
-# done
+if [ ! -e $HOME/bin ]; then
+  mkdir $HOME/bin
+fi
 
 # For vim swapfile
 if [ ! -e $HOME/tmp ]; then
@@ -83,12 +69,21 @@ if [ -e /cygdrive ]; then
   mkdir -p /cygdrive/c/temp && cd ~ && ln -s /cygdrive/c/temp .
 fi
 
-#echo
-#echo "Consider installing:"
-#echo "$ sudo apt-get install tmux vim-nox w3m bc ssh"
-#echo "$ sudo dnf install tmux vim-nox w3m bc ssh"
-#echo 'or'
-#echo "$ sudo apt-get install tmux vim-gtk3 w3m bc ssh"
-#echo "$ sudo dnf install tmux vim-gtk3 w3m bc ssh"
-#echo
+if [[ -f /etc/os-release ]]; then
+  . /etc/os-release
+
+  if [[ "${ID:-}" == "ol" || "${ID_LIKE:-}" == *"ol"* ]]; then
+    echo "Version: ${VERSION_ID:-unknown}"
+    echo "Pretty name: ${PRETTY_NAME:-unknown}"
+    sudo timedatectl set-timezone America/New_York
+  else
+    echo "Not Oracle Linux (ID=${ID:-unset})"
+  fi
+fi
+
+echo
+echo "Consider installing:"
+echo "$ sudo apt-get install git tmux vim-nox w3m bc"
+echo "$ sudo dnf install git tmux vim-nox w3m bc"
+echo
 

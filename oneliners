@@ -777,6 +777,9 @@ randomnum = ranuni(-1)*23 + 100;
  /* Generate random number between 0 and 1 (but not 0 or 1): */
 randomnum = round(ranuni(-1));
 
+# Generate random number:
+openssl rand -base64 48
+
  /* Shuffle a ds: */
 data t; set t; shuffle=ranuni(0); run;  proc sort; by shuffle; run;
 
@@ -4612,7 +4615,7 @@ sudo dnf update -y && sudo dnf upgrade -y && sudo dnf autoremove -y && sudo dnf 
 
 set -o vi   alias by=exit   PS1='[\u@\h \W]\n\$ '
 
-# Worst website offenders:
+# Worst website offenders to block:
 sudo grep "16/Jan/2026" /var/log/httpd/access_log | awk '{print $1}' | sort | uniq -c | sort -nr | head -10
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
@@ -8238,7 +8241,7 @@ ssh -vT git@github.com
 git clone git@github.com:bheckel/dotfiles.git && git config --global user.name "Bob Heckel" && git config --global user.email rsh@rsh.com # ...edit/add/commit... then  git pull origin master && git push origin master
 # may be required for older git versions:
 git remote add origin git@github.com:bheckel/dotfiles.git
-# But need this instead of remote add if your clone was git clone git://github.com/bheckel/misc.git
+# But need this instead of remote add if your clone was git clone git://github.com/bheckel/dotfiles.git
 git remote set-url origin git@github.com:bheckel/dotfiles.git
 # if 'you cant push':
 git config --local -e

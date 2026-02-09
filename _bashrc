@@ -5,7 +5,7 @@
 #          and z/OS
 #
 #  Created: 19-May-1998 (Bob Heckel)
-# Modified: 17-Jan-2026 (Bob Heckel)
+# Modified: 06-Feb-2026 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -625,6 +625,8 @@ case "$OSTYPE" in
         export PS1='${fg_darkgray}\j ${fg_bluebold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
       elif [ $HOSTNAME = 'evolved' ]; then
         export PS1='${fg_darkgray}\j ${fg_magentabold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
+      elif [ $HOSTNAME = 'sandcastle' ]; then
+        export PS1='${fg_darkgray}\j ${fg_yellowbold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
       else
         export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
       fi
