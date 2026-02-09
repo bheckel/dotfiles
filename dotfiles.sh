@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  Created: 03-May-2015 (Bob Heckel) 
-# Modified: 05-Mar-2023 (Bob Heckel)
+# Modified: 09-Feb-2026 (Bob Heckel)
 
 # No leading dots!
 #if [ -z WSL_DISTRO_NAME ]; then
@@ -83,12 +83,24 @@ if [ -e /cygdrive ]; then
   mkdir -p /cygdrive/c/temp && cd ~ && ln -s /cygdrive/c/temp .
 fi
 
-#echo
-#echo "Consider installing:"
-#echo "$ sudo apt-get install tmux vim-nox w3m bc ssh"
-#echo "$ sudo dnf install tmux vim-nox w3m bc ssh"
+if [[ -f /etc/os-release ]]; then
+  . /etc/os-release
+
+  if [[ "${ID:-}" == "ol" || "${ID_LIKE:-}" == *"ol"* ]]; then
+    echo "Version: ${VERSION_ID:-unknown}"
+    echo "Pretty name: ${PRETTY_NAME:-unknown}"
+    sudo timedatectl set-timezone America/New_York
+  else
+    echo "Not Oracle Linux (ID=${ID:-unset})"
+  fi
+fi
+
+echo
+echo "Consider installing:"
+echo "$ sudo apt-get install git tmux vim-nox w3m bc"
+echo "$ sudo dnf install git tmux vim-nox w3m bc"
 #echo 'or'
 #echo "$ sudo apt-get install tmux vim-gtk3 w3m bc ssh"
 #echo "$ sudo dnf install tmux vim-gtk3 w3m bc ssh"
-#echo
+echo
 

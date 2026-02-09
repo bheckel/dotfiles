@@ -777,6 +777,9 @@ randomnum = ranuni(-1)*23 + 100;
  /* Generate random number between 0 and 1 (but not 0 or 1): */
 randomnum = round(ranuni(-1));
 
+# Generate random number:
+openssl rand -base64 48
+
  /* Shuffle a ds: */
 data t; set t; shuffle=ranuni(0); run;  proc sort; by shuffle; run;
 
