@@ -1,5 +1,5 @@
 #
-# Modified: Mon 09-Sep-2019 (Bob Heckel)
+# Modified: 09-Feb-2026 (Bob Heckel)
 #
 # git config -e           # ./.git/config
 # git config --global -e  # ~/.gitconfig
@@ -27,4 +27,6 @@
   # you did intend to create a merge commit, you can now follow with git
   # merge. You then perform the "downloading" and the "committing" in two
   # different steps, which helps mentally separate these two operations.
+  #
+  # To continue: git pull --no-ff origin master && git push
 	ff = only
