@@ -6,7 +6,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Fri 06-Feb-2026 (Bob Heckel)
+" Modified: Thu 12-Feb-2026 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -20,12 +20,12 @@
 set nocompatible
 
 " DEBUG toggle:
-"""scriptnames
 """echo 'reach'
 " Watch initialization, etc.  Or use $ vim -V
 """set verbose=1
 " Watch changes to text happen slowly (default is 0)
 """set writedelay=5
+"""scriptnames
 
 let THISBOX = hostname()
 let WORKBOXARRAY = [ 'HOSTNM1', 'HOSTNM2' ]
@@ -608,7 +608,6 @@ endif
 " commands for C++ files.  Warning: can't undo after make returns.
 """set makeprg=make
 set makeprg=gcc\ -Wall\ %
-"""set makeprg=gcc\ -mno-cygwin\ -Wall\ %
 """set makeprg=gcc\ -Wall\ %\ -lmenu\ -lncurses
 
 
@@ -1891,6 +1890,9 @@ if !exists("autocommands_loaded")
     set guifont=Consolas:h8
     " TODO gtk
   endif
+
+  " Hack to avoid searching for column 1 - not sure how it gets set
+  autocmd GUIEnter * let @/ = ""
 
   au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
 

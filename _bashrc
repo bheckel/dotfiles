@@ -271,20 +271,13 @@ lt() {
 }
 
 
-#TODO
-#curr_git_branch() {
-#echo 'ok'
-#  GB_VIMSTATUSL=$(git branch 2>/dev/null | head -n1)
-#echo $GB_VIMSTATUSL
-#echo 'xx'
-#}
-
 parse_git_dirty() {
   GS_PS1=$(git status 2>/dev/null | tail -n1)
   [[ ${GS_PS1:0:17} != 'nothing to commit' ]] && echo '*'
 }
 
 
+# To avoid 'parse_git_branch: command not found' `$ sudo visudo` and remove PS1 & PS2
 parse_git_branch() {
   # Assumes  export GIT_DISCOVERY_ACROSS_FILESYSTEM=1  to avoid slowness on network drives
   local _tmp=$( git status 2>/dev/null | head -n1 )
