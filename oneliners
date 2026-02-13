@@ -4515,18 +4515,23 @@ gco() { \ if [ -z "$1" ];then \ git checkout develop; \ else \ git checkout feat
 # Which of my ports are listening:
 lsof -i -P -n|grep LISTEN
 
-# Find screen monitor resolution aspect ratio:
+# Screen monitor resolution aspect ratio:
 xrandr
 
 # system messages since last boot:
 journalctl -b -1
 journalctl --since "2015-02-02 20:30:00"
 
+sudo systemd-analyze time
+sudo systemd-analyze critical-chain
+sudo systemd-analyze blame | head -15
 systemctl list-unit-files --type service  # list all available services
 systemctl list-units --type service  # list all running services
 systemctl list-unit-files --state=enabled --no-pager
 systemctl disable httpd
 systemctl enable httpd
+systemctl cat sshd.service
+systemctl list-dependencies ollama #--reverse
 
 # Which WSL2 distros installed:
 wsl --list --verbose
