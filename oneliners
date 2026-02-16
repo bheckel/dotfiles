@@ -4393,7 +4393,7 @@ tar cvfz tmp.tgz -C /cygdrive/e/TMMEligibilittPatientReport/20160517/Output .
 CID='-sysin /Drugs/Cron/Weekly/TMMCensusHPLoop/tmm_census_loop.sas -sysparm 329'
 CLIENTID="${CID##*sysparm }"
 
-watch -d 'ls -l ~ |grep sas'
+watch -n 5 free -h  # every 5 seconds
 
 # Read control file to determine which code to run:
 while read -r clid; do nice -n19 $SAS -sysin ~/$clid.sas -log ~/$clid.log done <$FILE
@@ -8544,5 +8544,9 @@ jq -n --arg model "ev1:latest" --rawfile prompt t.txt '{model:$model, prompt:$pr
 
 -- Run cmd as admin and execute followed by a restart to repair system files:
 sfc /scannow 
+
+-- What is my IPV6 address:
+PS C:\Users\heck> curl.exe -6 ifconfig.me
+$ curl.exe -6 ifconfig.me
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
