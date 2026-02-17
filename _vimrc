@@ -1023,7 +1023,7 @@ nnoremap ,qq :q!<CR>
 nnoremap ,s :%s::g<Left><Left>
 
 " Prepare to paste from system clipboard without stairstepping
-nnoremap ,t :set invpaste<CR>\|:set paste?<CR>
+nnoremap ,t :set invpaste<CR>:set expandtab\|:set paste?<CR>
 " nnoremap ,t :set paste<CR>\|"*p\|:set nopaste<CR>
 
 " Uppercase a word and stay on the same character
@@ -1682,19 +1682,26 @@ endfu
 " }}}
 
 fu! WrapToggle()  " {{{2
-  if &textwidth == 0
-    "setlocal textwidth=130
-    setlocal textwidth=0
-    setlocal linebreak
-    setlocal wrap
-    map j gj
-    map k gk
-  else
-    setlocal textwidth=0
-    setlocal nolinebreak
+  if &l:wrap
+    " Turn soft-wrap OFF
     setlocal nowrap
-"""    unmap j
-"""    unmap k
+    setlocal nolinebreak
+    setlocal textwidth=0
+
+    silent! nunmap <buffer> j
+    silent! nunmap <buffer> k
+
+    echo "wrap off"
+  else
+    " Turn soft-wrap ON
+    setlocal wrap
+    setlocal linebreak
+    setlocal textwidth=111
+
+    nnoremap <buffer> <silent> j gj
+    nnoremap <buffer> <silent> k gk
+
+    echo "wrap on"
   endif
 endfu
 " }}}
