@@ -14,7 +14,7 @@
 #          ^^^^__^^^^^__^^^_^^^
 #
 #  Created: 02-Jun-1998 (Bob Heckel)
-# Modified: 17-Jan-2026 (Bob Heckel)
+# Modified: 19-Feb-2026 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -2650,9 +2650,6 @@ TODAY=`date +%Y%m%d`  # 20160331
 # Find newish file that is not empty zero bytes:
 ssh tpsh005 find /home/gaaadmin/GAAAdapter/gaa/logs -name 'InspectionRes*error*' -mtime -7 -a -size +0
 
-# Specify different user to login as:
-ssh -l root 192.168.0.108
-
 # Poor man's copy cp:
 $ cat <original.txt >duplicate.txt
 
@@ -3205,7 +3202,8 @@ find -mtime -7 -type f -name '*.vb' -print0 | xargs -0 vi  # DON'T USE ...| xarg
 find -mtime -7 -type f -name '*.vb' -print0 | xargs -0 tar cvfz junk.tgz
 
 # Simple find and edit search string (like my bgrep but without duplicate filenames):
-find /sasdata/Cron/Daily/HPTask -name '*.sas'|xargs grep 'any deceased pat' |awk -F: '{print $1}'|sort|uniq >|~/bob/tmp/1
+grep -rl "After" . | sort -u >| ~/tmp/.vimxfer && vi -c ':r ~/tmp/.vimxfer'
+find . -name 'eve*' | xargs grep 'PARAMETER' | awk -F: '{print $1}' | sort | uniq >|~/tmp/.vimxfer && vi
 vim `find . -type f -print0 | xargs -0 grep -i 'http.*' | awk -F: '{print $1}' | sort | uniq`
 
 vi `find . -name "*" -exec grep -l "bobh" {} \;`
@@ -3907,6 +3905,12 @@ cat ~/.ssh/id_rsa.pub | ssh rheckel@sdf.org 'cat - >> ~/.ssh/authorized_keys'
 # Canonical passwordless ssh config if we know the remote password, not just have its private key e.g. $ ssh -i .ssh/ssh-key-2021-11-21.key pc@129.158.230.14x:
 ssh-copy-id -i ~/.ssh/id_rsa.pub bheckel@sas-01.taeb.com  # usually run from Cygwin
 
+# Specify different user to login as:
+ssh -l root 192.168.0.108
+
+# Prints the ssh public key:
+ssh-keygen -y -f ~/.ssh/id_rsa 
+
 # Maximize / minimize rxvt font: Shift+ + or Shift+ - (and +/- key is using numeric pad with numlock on)
 
 # Zip and remove original file on success
@@ -4520,10 +4524,12 @@ xrandr
 
 # system messages since last boot:
 journalctl -b -1
+journalctl -u '*dnf*' --since "yesterday"
 journalctl --since "2015-02-02 20:30:00"
 
 sudo systemd-analyze time
 sudo systemd-analyze critical-chain
+systemctl list-dependencies httpd.service #--reverse
 sudo systemd-analyze blame | head -15
 systemctl list-unit-files --type service  # list all available services
 systemctl list-units --type service  # list all running services
@@ -4532,6 +4538,7 @@ systemctl disable httpd
 systemctl enable httpd
 systemctl cat sshd.service
 systemctl list-dependencies ollama #--reverse
+systemctl list-timers
 
 # Which WSL2 distros installed:
 wsl --list --verbose
@@ -4606,7 +4613,7 @@ free -h
 swapon --show
 
 # WSL remote clipboard:
-ssh opc@rshdev.com "cat /var/www/html/index.html" | clip.exe
+ssh opc@host.com "cat /var/www/html/index.html" | clip.exe
 
 # SELinux
 ls -Z
@@ -4622,6 +4629,7 @@ set -o vi   alias by=exit   PS1='[\u@\h \W]\n\$ '
 
 # Worst website offenders to block:
 sudo grep "16/Jan/2026" /var/log/httpd/access_log | awk '{print $1}' | sort | uniq -c | sort -nr | head -10
+sudo awk '{print $1}' /etc/httpd/logs/access_log | sort | uniq -c | sort -rn | head -n20
 
 # Debut boot issues:
 systemd-analyze
@@ -5492,7 +5500,7 @@ ruby -e "puts $:"
 $ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
 
 # python mantra:
-python -m venv .venv && source .venv/bin/activate && python -m pip install --upgrade pip setuptools wheel && pip install -e .
+python -m venv .venv && source .venv/bin/activate && python -m pip install --upgrade pip setuptools wheel #&& pip install -e .
 
 # Chain filters:
 perl -pe 's/ {2,}/ /g' sp_audit.out | perl -pe 's/,//g' | perl -pe 's/(Failure: Account \d+) /,$1,/' | perl -pe 's/(Success: Account \d+) /,$1,/' | perl -pe 's/<br> ?/,/g' | perl -pe 's/: Account/,/' >| sp_audit.csv
@@ -8540,6 +8548,7 @@ Get-Help Copy-Item -Online
 
 # Format JSON:
 oci iam region list | jq -r '.data[].name'
+oci compute instance get --instance-id ocid1.instance.oc1.iad.xnuwcljt6cxruoikzje75 | jq '.data."availability-domain"'
 jq -n --arg model "ev1:latest" --rawfile prompt t.txt '{model:$model, prompt:$prompt}' >| payload.json
 
 -- Run cmd as admin and execute followed by a restart to repair system files:
