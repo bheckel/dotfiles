@@ -3180,8 +3180,8 @@ dd if=bladerun_crawl of=junkcrawl bs=1 skip=2 count=3
 
 # Uppercase all characters in a file:
 dd if=foo.txt of=foo.upper.txt conv=ucase # or lowercase dd if=foo.txt of=foo.lower.txt conv=lcase
-# Uppercase all characters in a file:
-cat foo.txt | tr '[a-z]' '[A-Z]' >| foo.txt # or lowercase cat foo.txt | tr '[A-Z]' '[a-z]' >| foo.txt
+# Uppercase all characters in a file or lowercase '[A-Z]' '[a-z]':
+cat foo.txt | tr '[a-z]' '[A-Z]' >| foo.txt
 
 # Delete filenames containing spaces:
 $ rm *\ *   $ rm *' '*
@@ -3346,8 +3346,6 @@ while true; do date >> ~/free.txt ; free -g -o >> ~/free.txt; sleep 5; done
 
 # Determine the maximum non-swap memory (in MB) you have on Solaris:
 /usr/sbin/prtconf | grep Mem
-# Vendorid/deviceid
-prtconf -pv
 
 # Echo rxvt text in color (type  echo "foo" with this after foo and before the closequote:  Ctrl-V Esc then [0;31;40mThis Is In Red")
 
@@ -4538,18 +4536,14 @@ systemctl disable httpd
 systemctl enable httpd
 systemctl cat sshd.service
 systemctl list-dependencies ollama #--reverse
+sv /etc/dnf/automatic.conf; sudo systemctl daemon-reload && sudo systemctl restart dnf-automatic-install.timer
 systemctl list-timers
+sudo systemctl enable --now system-monitor-motd.timer
 
 # Which WSL2 distros installed:
 wsl --list --verbose
 # Uninstall
 wsl --unregister Ubuntu
-
-# Only run one time
-TTY=$(ps|grep pty1); if [ -z "${TTY}" ];then echo run; else echo no; fi
-
-# Filename case insensitive:
-find . -iname  '*nterestedparty*'
 
 # Debug bash shell print each line executed:
 #!/bin/bash -x
@@ -4559,8 +4553,6 @@ set -x  # set +x to disable
 -- Place at top of script to avoid continuing willy-nilly after a bash script error:
 set -e
 
-echo mystr | awk '{x=length()} END {while(x-- > 0) print "."}' | xargs echo
-
 # Print color palette e.g. what does colour81 look like:
 for i in {0..255} ; do printf "\x1b[38;5;${i}mcolour${i}\n"; done
 
@@ -4569,7 +4561,6 @@ sudo firewall-cmd --zone=public --add-service=smtp --permanent
 sudo firewall-cmd --reload
 sudo systemctl enable --now postfix
 systemctl status postfix.service
-journalctl -xe
 sudo vi /etc/postfix/main.cf
 sudo vi /etc/aliases
 sudo systemctl reload postfix
@@ -4598,12 +4589,14 @@ changing security context of 't.txt'
 $ ls -Z t.txt
 unconfined_u:object_r:httpd_sys_content_t:s0 t.txt
 
+# SELinux
+ls -Z
+sudo chcon -t httpd_sys_script_exec_t contact.pl
+sudo chcon -t httpd_sys_rw_content_t style.css
+
 # Performance benchmark stresstest CPU:
 time echo "scale=5000; 4*a(1)" | bc -l -q
 for i in 1 2 3; do echo "scale=5000; 4*a(1)" | bc -l -q >/dev/null 2>&1; done
-
-# Alpine Linux package manager:
-apk add vim
 
 # Send an attachment email:
 echo -e "To: recipient@example.com\nFrom: sender@example.com\nSubject: Example Email with Attachment\nMIME-Version: 1.0\nContent-Type: multipart/mixed; boundary=\"boundary\"\n\n--boundary\nContent-Type: text/plain; charset=\"utf-8\"\n\nHello,\n\nPlease find attached the file you requested.\n\nRegards,\nSender\n\n--boundary\nContent-Type: application/pdf\nContent-Disposition: attachment; filename=\"example.pdf\"\n\n$(base64 < /path/to/example.pdf)\n--boundary--" | sendmail -t
@@ -4614,11 +4607,6 @@ swapon --show
 
 # WSL remote clipboard:
 ssh opc@host.com "cat /var/www/html/index.html" | clip.exe
-
-# SELinux
-ls -Z
-sudo chcon -t httpd_sys_script_exec_t contact.pl
-sudo chcon -t httpd_sys_rw_content_t style.css
 
 # Stress an OCI Free Tier system:
 $ dnf list updates
@@ -4631,7 +4619,7 @@ set -o vi   alias by=exit   PS1='[\u@\h \W]\n\$ '
 sudo grep "16/Jan/2026" /var/log/httpd/access_log | awk '{print $1}' | sort | uniq -c | sort -nr | head -10
 sudo awk '{print $1}' /etc/httpd/logs/access_log | sort | uniq -c | sort -rn | head -n20
 
-# Debut boot issues:
+# Debug boot issues:
 systemd-analyze
 systemd-analyze critical-chain
 systemd-analyze blame
@@ -8550,6 +8538,7 @@ Get-Help Copy-Item -Online
 oci iam region list | jq -r '.data[].name'
 oci compute instance get --instance-id ocid1.instance.oc1.iad.xnuwcljt6cxruoikzje75 | jq '.data."availability-domain"'
 jq -n --arg model "ev1:latest" --rawfile prompt t.txt '{model:$model, prompt:$prompt}' >| payload.json
+oci compute instance list -c ocid1.tenancy.oc1..aaaaaaaaq7usblv3gb42ks7dzlzmr62ukjnpd7uv7boib2hofl4ihp2utgt | jq -r '.data[] | [ ."display-name", ."lifecycle-state", .shape, ."availability-domain" ] | @tsv' | column -t -s $'\t'
 
 -- Run cmd as admin and execute followed by a restart to repair system files:
 sfc /scannow 
