@@ -2643,6 +2643,9 @@ xxSASxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxUNIXxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
 
+# Canonical RHEL test:
+#!/bin/bash echo "Run Command enabled on this instance - $(date)" > /var/tmp/runcommand.txt && logger -t oci-run-test "Run Command test from new instance"
+
 # Canonical date stamp:
 date +%d%b%y  # 31Mar16 like SAS DATE7.
 TODAY=`date +%Y%m%d`  # 20160331
@@ -4524,6 +4527,8 @@ xrandr
 journalctl -b -1
 journalctl -u '*dnf*' --since "yesterday"
 journalctl --since "2015-02-02 20:30:00"
+sudo journalctl -g "error|failed|denied"
+logger -t oci-run-test "Run Command test script executed via OCI Console"
 
 sudo systemd-analyze time
 sudo systemd-analyze critical-chain
