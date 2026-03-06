@@ -2750,7 +2750,7 @@ $ export DISPLAY=158.111.250.163:0.0 && mozilla&
 59 3,4,17 * * 6-7 /bin/df -h 
 
 # When a script is started from cron and anything is sent to STDOUT it will either get logged in the system messages file or emailed.  To prevent this:
-5 0 * * * /usr/bin/disk_hogs > /dev/null 2>&1
+5 0 * * * /usr/bin/myscript.sh > /dev/null 2>&1
 # Avoid cron email on cron output (use logfile instead):
 59 * * * * /usr/bin/fooprg >> /home/rheckel/fooprglog.txt 2>&1
 
@@ -2863,28 +2863,25 @@ rsh zrtph128 'cat /home/rheckel/junk' | vi -
 
 # Size of directory:
 $ du -sh ~/tmp
-
+# Top-level overview — which directories eat the most?:
+sudo du -shx /* 2>/dev/null | sort -hr | head -15
+sudo du -shx /var/* 2>/dev/null | sort -hr | head -10
 # Top 20 largest diskhog files AND directories:
 sudo du -sh /saswork/* | sort -rn | head -n20 | awk '{print $2}' | xargs sudo ls -dl  # must use the '*' or get dir tot only
 for i in *; do du -sh $i; done | sort -rh | head -n20  # best
-
 for i in `find /Drugs/Personnel -maxdepth 1 -type d`; do du -sh $i; done | sort -hr
-
 # Total size of each item (directory) in CWD and sort numerically diskhogs:
 for i in `find . -type d`; do du -sh $i; done | sort -n
 # Troubleshoot a disk full error (find the largest big offending file) importantly skipping infinite loop virtual process directory:
 find / -type f -size +1000000c -exec ls -l {} \; 2>/dev/null | grep -v "/proc"
 find /workspace -type f -size +50G -exec ls -lh {} \;
-
+# Find files in the /tmp directory that are larger than 10 megabytes (10 million bytes) that have not been modified in the last 48 hours:
+find /tmp -size +10000000c -and -mtime +2
 # Troubleshoot find largest file:
 find ~/tmp -size +1M | xargs ls -lh | awk '{print$5,$3,$4,$6,$7,$8,$9}' | sort -rh
 cd ~/tmp; du -sh * | sort -h
 # Largest temp files:
 for i in `find ~/tmp`; do du -sh $i; done | sort -hr |head -n75
-
-# Find files in the /tmp directory that are larger than 10 megabytes (10 million bytes) that have not been modified in the last 48 hours:
-find /tmp -size +10000000c -and -mtime +2
-
 # Use the rotate utility if a logfile gets to be 2MB or larger:
 find . -name access.log -size +1900000c -exec rotate {} \;
 
@@ -4544,6 +4541,8 @@ systemctl list-dependencies ollama #--reverse
 sv /etc/dnf/automatic.conf; sudo systemctl daemon-reload && sudo systemctl restart dnf-automatic-install.timer
 systemctl list-timers
 sudo systemctl enable --now system-monitor-motd.timer
+systemd-analyze cat-config systemd/journald.conf
+journalctl --disk-usage
 
 # Which WSL2 distros installed:
 wsl --list --verbose
