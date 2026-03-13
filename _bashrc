@@ -16,6 +16,7 @@
 # in those cases.
 [[ "$-" != *i* ]] && return
 
+# set -o | grep noclobber
 # If you change this to "emacs" a kitten will die:
 set -o vi
 set -o noclobber
