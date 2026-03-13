@@ -4482,7 +4482,8 @@ for f in $(find /Drugs/TMMEligibility/GiantEagle/Imports/2017* -name 'GiantEagle
 # RGB hex color picker in terminal print colors available to tmux and vim:
 for i in {0..255} ; do printf "\x1b[38;5;${i}mcolour${i}\n"; done
 
-whatismyip=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
+whatismyip_local=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
+whatismyip_external=$(curl ifconfig.me)
 
 # ssh cron ssh:
 50 15 * * * ssh b@sas-01.mrk.taeb.com ~/bin/saslog_grep.pl -x /sasdata/Cron/Daily/TMMTargetedList/tmm_run_check.log
@@ -4523,6 +4524,7 @@ xrandr
 # system messages since last boot:
 journalctl -b -1
 journalctl -u '*dnf*' --since "yesterday"
+sudo journalctl -u fail2ban --since "24 hours ago" | grep -i ban
 journalctl --since "2015-02-02 20:30:00"
 sudo journalctl -g "error|failed|denied"
 logger -t oci-run-test "Run Command test script executed via OCI Console"
@@ -4563,6 +4565,7 @@ for i in {0..255} ; do printf "\x1b[38;5;${i}mcolour${i}\n"; done
 postconf mail_version
 sudo firewall-cmd --zone=public --add-service=smtp --permanent
 sudo firewall-cmd --reload
+sudo firewall-cmd --state
 sudo systemctl enable --now postfix
 systemctl status postfix.service
 sudo vi /etc/postfix/main.cf
