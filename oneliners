@@ -2885,6 +2885,9 @@ for i in `find ~/tmp`; do du -sh $i; done | sort -hr |head -n75
 # Use the rotate utility if a logfile gets to be 2MB or larger:
 find . -name access.log -size +1900000c -exec rotate {} \;
 
+sudo dnf clean all
+sudo rm -rf /var/tmp/dnf-*
+
 # HP-UX System Admin Tool -- sam
 # Solaris Administration Tool -- admintool or sam
 # Solaris top is prstat
