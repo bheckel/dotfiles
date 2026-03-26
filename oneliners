@@ -4527,6 +4527,8 @@ journalctl --since "2015-02-02 20:30:00"
 sudo journalctl -g "error|failed|denied"
 logger -t oci-run-test "Run Command test script executed via OCI Console"
 
+systemctl list-unit-files --type=service --state=enabled  # what runs at startup
+systemctl is-enabled docker
 sudo systemd-analyze time
 sudo systemd-analyze critical-chain
 systemctl list-dependencies httpd.service #--reverse
@@ -4632,6 +4634,9 @@ systemd-analyze blame
 # Count top 20 server login attack attempts by IP:
 sudo ausearch -m USER_ERR -ts today -i | grep -oP 'addr=\K[^ ]+' | sort | uniq -c | sort -nr | head -n 20
 sudo ausearch -m USER_ERR -ts today | wc -l
+
+# Is port open?:
+nc -zv evo.sub10261308142.mynet.oraclevcn.com 25
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
