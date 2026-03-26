@@ -2868,7 +2868,8 @@ sudo du -shx /* 2>/dev/null | sort -hr | head -15
 sudo du -shx /var/* 2>/dev/null | sort -hr | head -10
 # Top 20 largest diskhog files AND directories:
 sudo du -sh /saswork/* | sort -rn | head -n20 | awk '{print $2}' | xargs sudo ls -dl  # must use the '*' or get dir tot only
-for i in *; do du -sh $i; done | sort -rh | head -n20  # best
+sudo du -xh / | sort -h | tail -20  # best
+for i in *; do du -sh $i; done | sort -rh | head -n20
 for i in `find /Drugs/Personnel -maxdepth 1 -type d`; do du -sh $i; done | sort -hr
 # Total size of each item (directory) in CWD and sort numerically diskhogs:
 for i in `find . -type d`; do du -sh $i; done | sort -n
@@ -3679,9 +3680,6 @@ volcheck
 # If ls -lS isn't available:
 ls -l | sort +4r | grep -v "total"
 
-# Give multiple users the same group and password:
-useradd -g daebstat -m -p N6lPzsXhb5TLg dwj
-
 mailx -s 'email subject type CTRL-D or dot on blank line to end' root@adeb
 mailx -s "mysubject" -r LMITHELP@dcc.gov -c 'boswell@dcc.gov rheckel@dcc.gov' 'ck@dcc.gov kj@dcc.gov' <junk
 ? touch *    # mark all as read and write to mbox in mailx...
@@ -4330,7 +4328,10 @@ $ [ -e t.sh ] && ( echo file exists; exit 1 )
 # if then using only brackets:
 [ -e /rugs/eports/Health\ Plans/Archive/foo.txt ] && echo file exists
 
+# Add user:
+useradd -s /bin/bash newbashuser
 # Add user to another group:
+groupadd sas
 usermod -a -G sas bheckel
 
 # scp recursive scp:
@@ -4500,7 +4501,7 @@ echo ${PS1:0: -4}
 # Static libraries have names like libname.a, while shared libraries are libname.so.x.y.z where x.y.z is some form of version number. Shared libraries often also have links pointing to them.  The standard libraries come in both shared and static formats.  You can find out what shared libraries a program requires by using ldd (List Dynamic Dependencies):
 ldd /usr/bin/lynx
 
-# Cygwin Windows free diskspace free
+# Cygwin Windows poll free diskspace free:
 while true; do df -h '//opsawn557/e$'; sleep 60; done
 
 # Capture current Cygpath in Cygwin:
