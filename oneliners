@@ -340,7 +340,8 @@ vnoremap <C-A> :Inc<CR>
 :1,4call IncPattern('p@','s0','i1')  <--(p)attern, (s)tart at number, (i)ncrement by 
 
 " Yank the one single character that cursor is on:
-yl
+"ayl
+/[ctr+r][a]
 
 " Create fold zf, open fold zo, close all zx, delete zd, :set foldcolumn=2
 
@@ -4328,11 +4329,22 @@ $ [ -e t.sh ] && ( echo file exists; exit 1 )
 # if then using only brackets:
 [ -e /rugs/eports/Health\ Plans/Archive/foo.txt ] && echo file exists
 
+# Add group:
+sudo groupadd engineers
 # Add user:
-useradd -s /bin/bash newbashuser
-# Add user to another group:
-groupadd sas
-usermod -a -G sas bheckel
+sudo useradd -s /bin/bash alice
+# Add user to group:
+sudo usermod -aG engineers alice
+# New files inherit the group:
+sudo mkdir /engdata && sudo chown :engineers /engdata && sudo chmod 2770 /engdata
+sudo touch /engdata/report.txt && sudo chown alice:engineers /engdata/report.txt
+# drwxrws---. 2 root engineerstest 24 Mar 31 12:09 /engdata
+# -rw-r--r--. 1 alice engineerstest 2 Mar 31 12:22 report.txt
+
+# Permissions:
+chmod 4755 file    # setuid - run as the file owner
+chmod 2755 dir     # setgid - common for shared dirs, files inherit directory's group
+chmod 1777 dir     # sticky - /tmp style, restrict deletion to owner of file
 
 # scp recursive scp:
 scp -r bheckel@sas-01.twa.taeb.com://Drugs/Cron/Daily/update_shortname_ds/ .
@@ -4431,6 +4443,8 @@ uuencode /Drugs/TMMEligibility/Studies/QC_DelhcaInc.pdf | mail -s 'mail attachme
 # Lookup username from user number id:
 getent passwd "594" | cut -d: -f1
 
+getent group
+
 # Zero pad a list of numbers e.g. 001 002:
 awk '{printf "%03d\n", $0}' junk
 
@@ -4517,9 +4531,6 @@ vim `find . -type f -print0 | xargs -0 grep -i 'ACCOUNT_TEAM' | awk -F: '{print 
 # if then default parameter:
 gco() { \ if [ -z "$1" ];then \ git checkout develop; \ else \ git checkout feature/ORION-${1}; \ fi \ }
 
-# Which of my ports are listening:
-lsof -i -P -n|grep LISTEN
-
 # Screen monitor resolution aspect ratio:
 xrandr
 
@@ -4532,13 +4543,11 @@ sudo journalctl -g "error|failed|denied"
 logger -t oci-run-test "Run Command test script executed via OCI Console"
 
 systemctl list-unit-files --type=service --state=enabled  # what runs at startup
-systemctl is-enabled docker
+systemctl is-enabled docker  # or just systemctl start docker (harmless if running)
 sudo systemd-analyze time
 sudo systemd-analyze critical-chain
 systemctl list-dependencies httpd.service #--reverse
 sudo systemd-analyze blame | head -15
-systemctl list-unit-files --type service  # list all available services
-systemctl list-units --type service  # list all running services
 systemctl list-unit-files --state=enabled --no-pager
 systemctl disable httpd
 systemctl enable httpd
@@ -4549,6 +4558,13 @@ systemctl list-timers
 sudo systemctl enable --now system-monitor-motd.timer
 systemd-analyze cat-config systemd/journald.conf
 journalctl --disk-usage
+
+systemctl start httpd
+systemctl enable httpd
+systemctl status httpd
+# Which of my ports are listening:
+ss -tuln | grep :80
+journalctl -u httpd
 
 # Which WSL2 distros installed:
 wsl --list --verbose
