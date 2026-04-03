@@ -193,10 +193,7 @@ bind pager p      previous-entry
 bind pager t      display-toggle-weed  # act like slrn; clashes with tag
 ###bind pager x      noop  # currently being used as a macro
 
-
-# Use  $ muttman  outside of mutt.  It is configured as:  alias muttman='less
-# /usr/doc/mutt/manual.txt' in .bashrc
-
+# Use capital letter in descriptions to disambiguate from system mappings
 #macro attach J "<save-entry>~/html/tmp.jpg" "Save JPG image to ~/html for viewing in browser"
 #macro attach S "<save-entry>~/html/tmp." "Save image to ~/html for viewing in browser"
 
@@ -206,8 +203,8 @@ macro index,pager <F12> "quit" "Quit"  # like Vim
 # known "feature" -- here's a workaround:
 macro index,pager \ee "<resend-message>f=sentmail\n" \
                 "Resend message with fcc set to sentmail"
-macro index,pager z "<enter-command>set mailcap_path=~/.mailcap-plain<enter>" "HTML OFF"
-macro index,pager Z "<enter-command>set mailcap_path=~/.mailcap<enter>" "HTML ON"
+macro index,pager z "<enter-command>set mailcap_path=~/.mailcap-plain<enter>" "HTML Off"
+macro index,pager Z "<enter-command>set mailcap_path=~/.mailcap<enter>" "HTML On"
 
 # Archive older than 9 months.  Must be in folder of interest.
 ###macro index ,a "<tag-pattern>~r>9m!(~F|~N)<enter><tag-prefix><save-message>mailarch/ARCH"
@@ -215,6 +212,7 @@ macro index j "<next-entry>@" "View sender's email in statusbar"
 # Replied to mail is normally deleted
 macro index,pager r "C=repliedto\n<reply>" "Save a copy then reply"
 macro index x "c?" "Keystroke saving mailbox browsing"
+macro index r $ "Check for new mail"
 # TODO is this working?
 macro index R "C=repliedto\n<group-reply>" "Save a copy then reply to all"
 # TODO hangs mutt don't know why
@@ -268,7 +266,6 @@ alternative_order text/plain text/enriched text/html
 # or probably better:
 #   text/html; w3m -I %{charset} -T text/html; copiousoutput;
 #
-# #TODO how to toggle in app?
 # On for view / off for fwd
 # To forward as HTML press C-T (after :q but before Y to send) and edit "plain" to something
 # like "Content-Type: text/html; charset=utf-8"
@@ -337,3 +334,7 @@ color body brightgreen white " [;:]-*[)>(<|]"            # :-) etc...
 color body brightcyan  black "(^|[[:space:]])\\*[^[:space:]]+\\*([[:space:]]|$)" # *bold* text
 color body brightcyan  black "(^|[[:space:]])_[^[:space:]]+_([[:space:]]|$)"     # _underlined_ text
 color body brightblue  yellow "(^|[[:space:]])/[^[:space:]]+/([[:space:]]|$)"     # /italic/ text
+
+# Use  $ muttman  outside of mutt.  It is configured as:  alias muttman='less
+# /usr/doc/mutt/manual.txt' in .bashrc
+
