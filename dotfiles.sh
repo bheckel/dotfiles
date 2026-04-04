@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #  Created: 03-May-2015 (Bob Heckel) 
-# Modified: 09-Feb-2026 (Bob Heckel)
+# Modified: 02-Apr-2026 (Bob Heckel)
 
 # No leading dots!
 majordots='bashrc vimrc tmux.conf inputrc minttyrc gitconfig'
@@ -60,9 +60,9 @@ if [ ! -e $HOME/bin ]; then
   mkdir $HOME/bin
 fi
 
-# For vim swapfile
+# For vim swapfile and mksession
 if [ ! -e $HOME/tmp ]; then
-  mkdir $HOME/tmp
+  mkdir $HOME/tmp && mkdir $HOME/tmp/ses
 fi
 
 if [ -e /cygdrive ]; then
@@ -84,6 +84,6 @@ fi
 echo
 echo "Consider installing:"
 echo "$ sudo apt-get install git tmux vim-nox w3m bc"
-echo "$ sudo dnf install git tmux vim-nox w3m bc"
+echo "$ sudo dnf     install git tmux vim-nox w3m bc"
 echo
 
