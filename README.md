@@ -4,11 +4,11 @@ Personal Linux/Unix configuration files used for daily system administration, au
 
 ## Overview
 
-This repository contains my core shell and environment configuration used across Linux systems, including personal Oracle Cloud Infrastructure (OCI) environments and development machines.
+This repository contains my core shell and environment configuration used across Linux systems, including personal OCI environments and development machines.
 
 The goal is to streamline common administrative tasks, improve efficiency, and maintain a consistent working environment across systems.
 
-## Contents
+## Contents (partial)
 
 - **Bash**
   - Aliases and functions for navigation, process management, and system tasks
@@ -17,6 +17,9 @@ The goal is to streamline common administrative tasks, improve efficiency, and m
 - **Vim**
   - Lightweight configuration for fast editing in terminal environments
   - Optimized for log analysis, scripting, and config editing
+
+- **oneliners / gone.sh**
+  - Code snippets from 1997 to present and a way to search it
 
 - **tmux**
   - Session management for persistent remote work
