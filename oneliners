@@ -4469,8 +4469,20 @@ cat ~/clids.txt | xargs ~bheckel/bin/isdata.sh; ssh b@sas-01.mrk.taeb.com 'cat ~
 # Make tmux windows panes tile evenly:
 :select-layout even-horizontal
 
+# Change set static IP:
+nmcli dev show | grep GENERAL.CONNECTION  # get "System eth0"
+nmcli con mod "System eth0" ipv4.addresses 192.168.1.50/24 ipv4.gateway 192.168.1.1 ipv4.dns 8.8.8.8 ipv4.method manual
+nmcli con up "System eth0"
+nmcli con mod "System eth0" connection.autoconnect yes
+ip addr show eth0
+ip route
+nmcli con show
+
 # What is my DNS?:
 nmcli dev show | grep DNS
+
+# Reverse an IP address for Spamhaus etc:
+echo 129.108.230.108 | awk -F. '{print $4"."$3"."$2"."$1}'
 
 # Decode resolve unhide a shortened bitly URL:
 curl --head --location https://bit.ly/2yDyS4T
