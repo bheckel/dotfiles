@@ -33,10 +33,12 @@ The goal is to streamline common administrative tasks, improve efficiency, and m
 
 - **Misc**
   - Helper scripts and bootstrap logic for setting up new environments
-  - Files are prefixed with "_" for portability and safe linking.
 
 ## Example Use Cases
 
 - Quickly diagnosing system issues via aliases and log shortcuts  
 - Managing long-running sessions with tmux over SSH  
 - Editing configs and logs efficiently using Vim  
+
+## Notes
+  - Files are prefixed with "_" for portability and safe linking.
