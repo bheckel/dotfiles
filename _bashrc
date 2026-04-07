@@ -124,7 +124,7 @@ alias ll='ls -gh --color --group-directories-first'
 alias lla='ls -agh --color --group-directories-first'
 alias lsd='find . -maxdepth 1 -type d' # list directories
 alias m=less
-alias one="vi $HOME/dotfiles/oneliners"
+alias one="vi $HOME/dotfiles/oneliners.txt"
 #alias plinstall='perl Makefile.PL && make && make TEST_VERBOSE=1 test && make install'
 alias qr="$HOME/code/misc/quickref_find.sh"
 alias robots="export ROBOTOPTS=moveheaps,showscores,screwdriver,fastrobots; robots" # Good luck Yoshimi...
