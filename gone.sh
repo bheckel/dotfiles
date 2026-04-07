@@ -1,8 +1,8 @@
 #!/bin/bash
 ##############################################################################
-#     Name: gone.sh (grep oneliners)
+#     Name: gone.sh (grep oneliners.txt)
 #
-#  Summary: grep $HOME/code/misccode/oneliners, highlight the search word and 
+#  Summary: grep $HOME/dotfiles/oneliners.txt, highlight the search word and 
 #           display context surrounding each hit.  Optionally allow searching
 #           only specific sections of oneliners file.
 #
@@ -17,7 +17,7 @@
 # Modified: 15-Apr-2023 (Bob Heckel)
 ##############################################################################
   
-F="$HOME/dotfiles/oneliners"
+F="$HOME/dotfiles/oneliners.txt"
 
 #IGCASE=--ignore-case
 IGCASE=-i  # for busybox grep
