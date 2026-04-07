@@ -1906,8 +1906,8 @@ if !exists("autocommands_loaded")
   au BufEnter .vimrc echo ".vimrc: $MYVIMRC:" $MYVIMRC
   " au BufEnter .vimrc set textwidth=100
 
-  au BufEnter oneliners,.vimrc,_vimrc,.bashrc,_bashrc set foldmethod=marker
-	au BufRead,BufNewFile oneliners set filetype=txt
+  au BufEnter oneliners.txt,.vimrc,_vimrc,.bashrc,_bashrc set foldmethod=marker
+	au BufRead,BufNewFile oneliners.txt set filetype=txt
 
   " We'll never need to edit a tarball, QuickFix list nor a pane
   au FileType TAR,QF map q :q<CR>
@@ -1956,7 +1956,7 @@ if !exists("autocommands_loaded")
   endif
 
   " This file has comments in several languages, just highlight them all
-  au BufRead  *oneliners syn match Comment @^".*$\|^--.*$\|^\/\/.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@ contains=Search
+  au BufRead oneliners.txt syn match Comment @^".*$\|^--.*$\|^\/\/.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@ contains=Search
 
   "if hostname() == 'metta'
   if $WSLENV =~ 'WT_SESSION:WT_PROFILE_ID' || !empty($WSL_HOST_IP)
