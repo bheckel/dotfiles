@@ -2869,7 +2869,7 @@ sudo du -shx /* 2>/dev/null | sort -hr | head -15
 sudo du -shx /var/* 2>/dev/null | sort -hr | head -10
 # Top 20 largest diskhog files AND directories:
 sudo du -sh /saswork/* | sort -rn | head -n20 | awk '{print $2}' | xargs sudo ls -dl  # must use the '*' or get dir tot only
-sudo du -xh / | sort -h | tail -20  # best
+sudo du -xh / | sort -h | tail -20  # best diskhogs
 for i in *; do du -sh $i; done | sort -rh | head -n20
 for i in `find /Drugs/Personnel -maxdepth 1 -type d`; do du -sh $i; done | sort -hr
 # Total size of each item (directory) in CWD and sort numerically diskhogs:
