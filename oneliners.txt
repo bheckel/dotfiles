@@ -3206,6 +3206,9 @@ find -mtime -7 -type f -name '*.vb' -print0 | xargs -0 vi  # DON'T USE ...| xarg
 # May be easier to edit the .tgz in vim:
 find -mtime -7 -type f -name '*.vb' -print0 | xargs -0 tar cvfz junk.tgz
 
+# bgrep search directory folder alternative:
+grep -rniI "foo" .
+
 # Simple find and edit search string (like my bgrep but without duplicate filenames):
 >|~/tmp/.vimxfer && grep -rl "user" . | sort -u >|~/tmp/.vimxfer && vi -c ':r ~/tmp/.vimxfer'
 find . -name 'eve*' | xargs grep 'PARAMETER' | awk -F: '{print $1}' | sort | uniq >|~/tmp/.vimxfer && vi
