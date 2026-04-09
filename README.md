@@ -1,6 +1,6 @@
 # Linux Dotfiles
 
-Personal Linux/Unix configuration files used for daily system administration, automation, and terminal-based workflows.
+Personal Linux/Unix configuration files used for daily system administration, automation and terminal-based workflows.
 
 ## Overview
 
@@ -19,17 +19,20 @@ The goal is to streamline common administrative tasks, improve efficiency, and m
   - Optimized for log analysis, scripting, and config editing
 
 - **oneliners / gone.sh**
-  - Code snippets from 1997 to present and a way to search it
+  - My code snippets from 1997 to present and a script to search it by section
 
 - **tmux**
   - Session management for persistent remote work
   - Window and pane workflow optimization
 
+- **git**
+  - CLI-focused configuration for efficient version control
+
 - **mutt**
   - Terminal-based email configuration for lightweight system access
 
-- **git**
-  - CLI-focused configuration for efficient version control
+- **settings.json**
+  - Microsoft Terminal configuration
 
 - **Misc**
   - Helper scripts and bootstrap logic for setting up new environments
@@ -41,4 +44,4 @@ The goal is to streamline common administrative tasks, improve efficiency, and m
 - Editing configs and logs efficiently using Vim  
 
 ## Notes
-  - Files are prefixed with "_" for portability and safe linking.
+  - Certain files are prefixed with "_" for portability and safe linking.

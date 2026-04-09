@@ -5,7 +5,7 @@
 #          and z/OS
 #
 #  Created: 19-May-1998 (Bob Heckel)
-# Modified: 13-Mar-2026 (Bob Heckel)
+# Modified: 08-Apr-2026 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -606,6 +606,10 @@ case "$OSTYPE" in
 
       export PATH=~/bin:$PATH
       # export PROMPT_COMMAND='history -a; echo -ne "\033]0;${HOSTNAME:0:4}:${PWD}\007";'
+
+      # red highlight search results
+      export LESS_TERMCAP_so=$'\E[01;31m'
+      export LESS_TERMCAP_se=$'\E[0m'
 
 #TODO avoid 'root@host:~-bash: parse_git_branch: command not found' this doesn't work
 #if [[ $EUID -ne 0 && "$(id -u)" -ne 0 ]]; then

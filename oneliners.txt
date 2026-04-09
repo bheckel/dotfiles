@@ -4317,6 +4317,8 @@ grep 100000089317 t.csv | awk -F, '{a[$19];}END{for (i in a)print i;}' - |uniq |
 git show-ref --heads |cut -d' ' -f2
 git show-ref --heads |awk 'print{$2}'
 
+git tag v1.0.1 && git push origin v1.0.1
+
 # Open most recent file:
 vim $( ls /tmp/*.__* | sort -r | head -n 1 )
 
@@ -4551,7 +4553,7 @@ xrandr
 
 # system messages since last boot:
 journalctl -b -1
-journalctl -u '*dnf*' --since "yesterday"
+journalctl -u '*dnf*' --since yesterday
 sudo journalctl -u fail2ban --since "24 hours ago" | grep -i ban
 journalctl --since "2015-02-02 20:30:00"
 sudo journalctl -g "error|failed|denied"
