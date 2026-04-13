@@ -454,15 +454,16 @@ set notildeop
 
 "                               14 tabs and indenting {{{2
 
-set shiftwidth=2
-set softtabstop=2
-
 " Tabs expanded to spaces.  Replaces the tabs you create when pressing <tab>
 " with spaces (to the count of your tabstop).  Alternatively use :retab to
 " replace tabs with spaces.
 " Without this, doing an 'o' on an indented line, or a '>>' anywhere, inserts a
 " new line that starts with one or more tabs.
 set expandtab
+
+set shiftwidth=2
+
+set softtabstop=2
 
 " :retab to convert tabs to 2 spaces
 set tabstop=2
