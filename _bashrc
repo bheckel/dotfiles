@@ -40,9 +40,9 @@ EDITOR=vi
 # For git PS1 function
 GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 GIT_CEILING_DIRECTORIES=/home
-HISTSIZE=10000
-HISTFILESIZE=10000  # max lines in $HISTFILE
-HISTIGNORE='f:fg:l:ls:la:cd:h:ll::d:by:&'  # '&' supposedly same as HISTCONTROL=ignoredups - consecutive dups that is
+HISTSIZE=40000  # max in RAM
+HISTFILESIZE=40000  # max lines in $HISTFILE
+HISTIGNORE='f:fg:l:ls:la:cd:h:ll::by'  # ':&' supposedly same as HISTCONTROL=ignoredups - consecutive dups that is
 HISTCONTROL=ignoredups:erasedups
 HISTTIMEFORMAT='%F %T '
 IGNOREEOF=1  # require 2 ctr-d to exit

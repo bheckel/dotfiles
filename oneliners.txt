@@ -3207,7 +3207,7 @@ find -mtime -7 -type f -name '*.vb' -print0 | xargs -0 vi  # DON'T USE ...| xarg
 find -mtime -7 -type f -name '*.vb' -print0 | xargs -0 tar cvfz junk.tgz
 
 # bgrep search directory folder alternative:
-grep -rniI "foo" .
+grep -rniP "foo.*bar" .
 
 # Simple find and edit search string (like my bgrep but without duplicate filenames):
 >|~/tmp/.vimxfer && grep -rl "user" . | sort -u >|~/tmp/.vimxfer && vi -c ':r ~/tmp/.vimxfer'
@@ -3511,7 +3511,7 @@ dd if=myinfile.txt of=myoutfile.txt conv=ascii
 # Translate convert ASCII to EBCDIC
 dd if=myinfile.txt of=myoutfile.txt conv=ebcdic
 
-# Canonical zip - foo.zip comes FIRST in parameter list (original is left unchanged!):
+# Canonical zip  (original is left unchanged!):
 zip foo.zip foo.txt
 zip foo.zip *
 # Canonical recursive zip:
@@ -3790,7 +3790,7 @@ cat xa* > origrebuilt.tgz
 
 # Encrypt decrypt a file. Original file is not saved.  But foo.txt.gpg is readable in vim if use passphrase:
 gpg -c foo.txt  # encrypt
-gpg -d foo.txt.gpg  # decrypt to STDOUT
+gpg -d foo.txt.gpg  # decrypt to STDOUT (no flag just decrypts file, leaves original)
 gpg -d foo.txt.gpg >foo.txt  # decrypt to file
 
 # Recursive wc recursive find - safe for Windows filenames w/ spaces (Cygwin) canonical total count lines of code (alternatively use :vimgrep /foo/ **/*.vb)

@@ -1972,6 +1972,8 @@ if !exists("autocommands_loaded")
     augroup END
   endif
 
+  autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
+
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
   "
 	" TODO move to ~/.vimrc.local or something
@@ -2004,13 +2006,10 @@ if !exists("autocommands_loaded")
 """    au BufReadPre,FileReadPre /Drugs/Macros/* set noswapfile
 """    au BufReadPre,FileReadPre /Drugs/Cron/* set directory=/Drugs/Personnel/bob/
 
-  " cab SqL e /cygdrive/c/Orion/workspace/data/Source/SQL/
-
     au BufWritePre,BufLeave * set nobomb
   end
   
   au BufReadPre,FileReadPre *Source/* set noswapfile
-
   au BufReadPre,FileReadPre *sashq/* set nobackup
   au BufReadPre,FileReadPre *sashq/* set nowritebackup
   au BufReadPre,FileReadPre *sashq/* set noswapfile
