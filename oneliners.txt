@@ -5537,8 +5537,8 @@ ruby -e "puts $:"
 # Test AJAX etc that won't work using file:// etc.:
 $ python -m SimpleHTTPServer  # http://0.0.0.0:8000 now exists
 
-# python mantra:
-python -m venv .venv && source .venv/bin/activate && python -m pip install --upgrade pip setuptools wheel #&& pip install -e .
+# python venv environment mantra:
+python -m venv .venv && source .venv/bin/activate && python -m pip install --upgrade pip setuptools wheel #&& pip install -e . # deactivate
 
 # Chain filters:
 perl -pe 's/ {2,}/ /g' sp_audit.out | perl -pe 's/,//g' | perl -pe 's/(Failure: Account \d+) /,$1,/' | perl -pe 's/(Success: Account \d+) /,$1,/' | perl -pe 's/<br> ?/,/g' | perl -pe 's/: Account/,/' >| sp_audit.csv
@@ -8196,9 +8196,9 @@ git log --since="3 months ago" --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %
 # git show only the files edited affected by commits on this branch:
 git log --name-only --date=short
 
-# git create new repo (first add it on github.com):
-mkdir ~/scripts && cd ~/scripts && git init && git remote add origin git@github.com:bheckel/linux-scripts.git
-&& git remote -v && touch README.md && git add . && git commit -m "init" && git push origin master && git push --set-upstream origin master
+# git create new repo (first add it on github.com w/o readme, license, etc):
+git init && git add . && git commit -m "init" && git branch -M main && git remote add origin git@github.com:bheckel/ansible.git
+&& git push -u origin main && git remote -v && git remote show origin
 
 # git create new then checkout branch:
 git branch mynewbranch; git checkout mynewbranch

@@ -1,7 +1,10 @@
 #!/bin/bash
 
+# Setup a new WSL or Cygwin instance.
+# Other distros should use Ansible repo ($ ansible-playbook site.yml --tags "base,dotfiles").
+#
 #  Created: 03-May-2015 (Bob Heckel) 
-# Modified: 02-Apr-2026 (Bob Heckel)
+# Modified: 15-Apr-2026 (Bob Heckel)
 
 # No leading dots!
 majordots='bashrc vimrc tmux.conf inputrc minttyrc gitconfig'
