@@ -5,7 +5,7 @@
 #          and z/OS
 #
 #  Created: 19-May-1998 (Bob Heckel)
-# Modified: 08-Apr-2026 (Bob Heckel)
+# Modified: 16-Apr-2026 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -50,7 +50,7 @@ LESS='--ignore-case'  # but still honors 'ThisSearchPattern'
 # Prevent ugly default bolding
 ###export LS_COLORS='*.swp=00;35:*.swo=00;35:*.bak=00;35:ex=00;32:*.java=00;32:*.pm=00;32:no=00:fi=00:di=01;34:ln=00;36:*.lnk=00;36:*.gz=00;31:*.bz2=00;31:*.zip=00;31:*.tgz=00;31:*.7z=00;31'
 # ow= avoid hard-to-read gray on green for rwxrwxrwx files
-LS_COLORS='ow=30;42:*.swp=00;35:*.swo=00;35:*.bak=00;35:ex=00;32'
+LS_COLORS='ow=30;42:*.swp=00;35:*.swo=00;35:*.bak=00;35:ex=00;32:di=1;34'
 PAGER=less  # for man(1)
 PARINIT='rTbgqR B=.?_A_a Q=_s>| w65'  # par formatter
 # PATH=$PATH:~/bin
@@ -599,7 +599,6 @@ case "$OSTYPE" in
       shopt -s cdspell checkhash checkwinsize cmdhist dotglob histappend 
       stty erase ^? intr ^C kill ^K
 
-      echo '.bashrc: Linux detected'
       #----------------
       # Export Linux  #{{{2 
       #----------------
@@ -691,66 +690,52 @@ case "$OSTYPE" in
       }
 
       #----------------
-      # Ubuntu #{{{2
+      # Ubuntu #{{{1
       #----------------
-      alias pse="ps -ef | grep ^$USER | grep -vP 'ps -ef|grep' | grep -v chrome"
-      alias systeminfo='df -h && echo && free -m && echo && grep --color="never" name /proc/cpuinfo | uniq && echo && lspci | grep --color="never" VGA && echo && xrandr | grep --color="never" connected && echo && uname -rms'
-      alias usb='sudo fdisk -l; mount|grep "^/dev/sd"; sudo mkdir /media/usb; echo; echo "try this: sudo mount -t vfat /dev/sdb /media/usb -o uid=1000,gid=1000,utf8,dmask=027,fmask=137"; echo; echo "usually /dev/sdb or sdc, disconnect: sudo umount /media/usb"'
+      if [[ -f /etc/os-release ]]; then
+        . /etc/os-release
+        if [[ "$ID" == "ubuntu" ]]; then
+      
+          alias systeminfo='df -h && echo && free -m && echo && grep --color="never" name /proc/cpuinfo | uniq && echo && lspci | grep --color="never" VGA && echo && xrandr | grep --color="never" connected && echo && uname -rms'
+          alias usb='sudo fdisk -l; mount|grep "^/dev/sd"; sudo mkdir /media/usb; echo; echo "try this: sudo mount -t vfat /dev/sdb /media/usb -o uid=1000,gid=1000,utf8,dmask=027,fmask=137"; echo; echo "usually /dev/sdb or sdc, disconnect: sudo umount /media/usb"'
 
-      #TODO WSL only
-      case ":$PATH:" in
-         *":/mnt/c/Users/bheck/AppData/Local/Android/Sdk/platform-tools:"*) ;;
-         *) PATH="$PATH:/mnt/c/Users/bheck/AppData/Local/Android/Sdk/platform-tools" ;;
-      esac
+          if [ $HOSTNAME = 'yoniso' ]; then
+            alias cdrom='sudo mount -t iso9660 /dev/cdrom /media/cdrom; mount|grep "^/dev/cd"; echo "sudo umount /media/cdrom"'
+            alias kindle='sudo mount -t vfat /dev/sdb /media/kindle -o uid=1000,gid=1000,utf8,dmask=027,fmask=137; mount|grep "^/dev/sd"; echo "sudo umount /media/kindle"'
+            alias nexus='sudo mount -t vfat /dev/sdb /media/nexus -o uid=1000,gid=1000,utf8,dmask=027,fmask=137; mount|grep "^/dev/sd"; echo "sudo umount /media/nexus"'
+          fi
 
-      if [ $HOSTNAME = 'yoniso' ]; then
-        alias cdrom='sudo mount -t iso9660 /dev/cdrom /media/cdrom; mount|grep "^/dev/cd"; echo "sudo umount /media/cdrom"'
-        alias kindle='sudo mount -t vfat /dev/sdb /media/kindle -o uid=1000,gid=1000,utf8,dmask=027,fmask=137; mount|grep "^/dev/sd"; echo "sudo umount /media/kindle"'
-        alias nexus='sudo mount -t vfat /dev/sdb /media/nexus -o uid=1000,gid=1000,utf8,dmask=027,fmask=137; mount|grep "^/dev/sd"; echo "sudo umount /media/nexus"'
-      fi
+          if [ $HOSTNAME = 'appa' ]; then
+            alias brinno='sudo mount -t vfat /dev/sdb1 /media/brinno/ -o uid=1000,gid=100,utf8,dmask=027,fmask=137'
+            alias ubrinno='sudo umount /media/brinno'
 
-      if [ $HOSTNAME = 'appa' ]; then
-        alias brinno='sudo mount -t vfat /dev/sdb1 /media/brinno/ -o uid=1000,gid=100,utf8,dmask=027,fmask=137'
-        alias ubrinno='sudo umount /media/brinno'
+            alias sandisk='sudo mount -t vfat /dev/sdc /media/sandisk/ -o uid=1000,gid=100,utf8,dmask=027,fmask=137'
+            alias usandisk='sudo umount /media/sandisk'
+          fi
 
-        alias sandisk='sudo mount -t vfat /dev/sdc /media/sandisk/ -o uid=1000,gid=100,utf8,dmask=027,fmask=137'
-        alias usandisk='sudo umount /media/sandisk'
+          # For ~/.fluxbox/menu.  Keep terminal open.
+          if [ -n "$RUNCMDFLUXBOX" ]; then
+            eval "$RUNCMDFLUXBOX"
+            unset RUNCMDFLUXBOX
+          fi
 
-        alias vim='/usr/local/bin/vim'
-      fi
-
-      # For ~/.fluxbox/menu.  Keep terminal open.
-      if [ -n "$RUNCMDFLUXBOX" ]; then
-        eval "$RUNCMDFLUXBOX"
-        unset RUNCMDFLUXBOX
+        fi
       fi
 
       #----------------
-      # CentOS  # {{{2
+      # WSL  # {{{1
       #----------------
-      if [ $HOSTNAME = 'sasdev-01.twa.foo.com' ]; then
-        export PS1='${fg_darkgray}\j ${fg_yellowbold}\u@${HOSTNAME}${fg_darkgray}$(parse_git_branch) \W/ \d \t ${normal} \n\$ '
-      fi
+      if uname -r | grep -qi microsoft; then
+         echo "WSL detected"
 
-      if [ $HOSTNAME = 'sas-01.twa.foo.com' ] || [ $HOSTNAME = 'sasdev-01.twa.foo.com' ] || [ $HOSTNAME = 'sas-01.mrk.foo.com' ]; then
-        unset SSH_ASKPASS
-        alias cavx='vi scp://bheckel@sas-01.mrk.foo.com//Drugs/Personnel/bob/tmp/.vimxfer'
-        alias vi=$HOME/usr/local/bin/vim
-
-        # This sometimes keeps things from failing when the minimal vim is installed as vi
-        export EDITOR=/mnt/nfs/home/bheckel/usr/local/bin/vim
-        export SASV9_OPTIONS='-validvarname=any'
-
-        # E.g. Mar  3 07:32 /Drugs/Cron/Daily/tmm_enroll_ratio/tmm_enroll_ratio.log
-        function myls() {
-          ls -lgG $1 | sed -r 's/^\S+ \S+ \w+ //g'
-        }
-
-        #umask 022  # 022 is 755, 037 is 740
+         case ":$PATH:" in
+           *":/mnt/c/Users/bheck/AppData/Local/Android/Sdk/platform-tools:"*) ;;
+           *) PATH="$PATH:/mnt/c/Users/bheck/AppData/Local/Android/Sdk/platform-tools" ;;
+         esac
       fi
 
       #----------------
-      # ChromeOS #{{{2
+      # ChromeOS #{{{1
       #----------------
       if [ $HOSTNAME = 'chromeos' ]; then
         sudo mount -i -o remount,exec /home/chronos/user
@@ -797,7 +782,7 @@ case "$OSTYPE" in
       fi  # ChromeOS
 
 
-      # Android  # {{{2
+      # Android  # {{{1
       if [ $HOSTNAME = 'localhost' -a $HOSTTYPE = 'aarch64' ]; then
         echo '.bashrc: Android detected'
 
@@ -848,22 +833,27 @@ case "$OSTYPE" in
         }
       fi  # Android
 
-    # Oracle Linux #{{{2
+    # Oracle Linux #{{{1
     #----------------
-    export TZ="America/New_York"
+    if [[ -f /etc/os-release ]]; then
+      . /etc/os-release
+      if [[ "$ID" == "ol" ]]; then
+    
+        export TZ="America/New_York"
 
-    if [ "${LOGNAME}" = 'oracle' ]; then
-      echo '.bashrc: setting ORACLE_HOME...'
-      export ORACLE_HOME=/u01/app/oracle/product/version/db_1/
-    fi
+        if [ "${LOGNAME}" = 'oracle' ]; then
+          echo '.bashrc: setting ORACLE_HOME...'
+          export ORACLE_HOME=/u01/app/oracle/product/version/db_1/
+        fi
 
+        if [ "${LOGNAME}" = 'opc' ]; then
+          #echo '.bashrc: opc user detected'
+          #alias mailx='mailx -f /home/opc/mail'
+          MAIL=/home/opc/mail
+        fi
 
-    if [ "${LOGNAME}" = 'opc' ]; then
-      echo '.bashrc: opc user detected'
-      #alias mailx='mailx -f /home/opc/mail'
-      MAIL=/home/opc/mail
-    fi
-
+        fi
+      fi
   ;; # end Linux
 
   #-------------------
