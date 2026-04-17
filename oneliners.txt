@@ -2887,9 +2887,6 @@ for i in `find ~/tmp`; do du -sh $i; done | sort -hr |head -n75
 # Use the rotate utility if a logfile gets to be 2MB or larger:
 find . -name access.log -size +1900000c -exec rotate {} \;
 
-sudo dnf clean all
-sudo rm -rf /var/tmp/dnf-*
-
 # HP-UX System Admin Tool -- sam
 # Solaris Administration Tool -- admintool or sam
 # Solaris top is prstat
@@ -3311,12 +3308,6 @@ awk -F: '$7 ~ /bash/ {print $5}' /etc/passwd
 # Select a range of rows:
 awk 'NR < 5 {print}' 8_2_ntlx72ba.bm
 awk 'NR >5 && NR <11 {print}' 8_2_ntlx72ba.bm
-
-rpm -qip foo.rpm          # query
-rpm -qf /usr/sbin/bind    # give the installed pkg name & num
-rpm -Uvh foo.rpm          # install
-rpm -qa | grep -i pine    # determine if a pine RPM has been installed
-rpm -e emacs              # remove
 
 # Athena scrollbar        middle mouse to drag the scroll bar up and down
 # Athena scrollbar High   left mouse scrolls one LINE up
@@ -4557,6 +4548,7 @@ sudo journalctl -u fail2ban --since "24 hours ago" | grep -i ban
 journalctl --since "2015-02-02 20:30:00"
 sudo journalctl -g "error|failed|denied"
 logger -t oci-run-test "Run Command test script executed via OCI Console"
+sudo journalctl -t sshd --since "30 minutes ago"
 
 systemctl list-unit-files --type=service --state=enabled  # what runs at startup
 systemctl is-enabled docker  # or just systemctl start docker (harmless if running)
@@ -4615,11 +4607,29 @@ sudo dnf info java  # description if available in vi /etc/yum.repos.d/oracle-lin
 sudo dnf list java  # components if available in vi /etc/yum.repos.d/oracle-linux-ol8.repo
 sudo dnf search java 
 
+sudo dnf clean all
+sudo rm -rf /var/tmp/dnf-*
+
 # gcc c++ java etc
 sudo dnf groupinstall "Development Tools"
 
 # Bare box readonly config setup initialize from ~:
 sudo dnf install git -y && git clone https://github.com/bheckel/dotfiles && dotfiles/dotfiles.sh && source .bashrc
+
+# Stress an OCI Free Tier system:
+$ dnf list updates
+# dnf mantra:
+sudo dnf update -y && sudo dnf upgrade -y && sudo dnf autoremove -y && sudo dnf needs-restarting --reboothint
+
+# query dnf
+rpm -qip foo.rpm
+rpm -qa | grep -i nginx
+dnf list installed | grep httpd
+
+# give the installed pkg name & num
+rpm -qf /usr/sbin/bind    
+rpm -Uvh foo.rpm  # install
+rpm -e emacs  # remove
 
 # Backup directory folder:
 tar czf /root/postfix-$(date "+%F").tar.gz /etc/postfix
@@ -4650,11 +4660,6 @@ swapon --show
 
 # WSL remote clipboard:
 ssh opc@host.com "cat /var/www/html/index.html" | clip.exe
-
-# Stress an OCI Free Tier system:
-$ dnf list updates
-# dnf mantra:
-sudo dnf update -y && sudo dnf upgrade -y && sudo dnf autoremove -y && sudo dnf needs-restarting --reboothint
 
 set -o vi   alias by=exit   PS1='[\u@\h \W]\n\$ '
 
@@ -8600,5 +8605,8 @@ sfc /scannow
 -- What is my IPV6 address:
 PS C:\Users\heck> curl.exe -6 ifconfig.me
 $ curl.exe -6 ifconfig.me
+
+-- Windows System Event Log without GUI:
+Get-WinEvent -LogName System -MaxEvents 20 | Format-List TimeCreated, Id, Message
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
