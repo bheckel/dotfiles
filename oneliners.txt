@@ -4153,25 +4153,6 @@ stty -ixon
 # Temporary file:
 $ PROCSFILE=$(mktemp) && echo $PROCSFILE && ps -ef >$PROCSFILE
 
-# List all installed apt-get packages:
-sudo dpkg -l
-# Install .deb package on debian ubuntu:
-sudo dpkg -i google-chrome-stable_current_i386.deb
-# Fix Linux timezone:
-sudo dpkg-reconfigure tzdata
-# Which large packages are taking up space?:
-dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
-
-# Query apt-get query installed programs:
-sudo apt-cache search vim
-sudo apt-cache show vim
-sudo apt-cache policy vim
-
-# Debian, Ubuntu regular package update apt mantra (NOT dist upgrade!):
-sudo apt -y update && sudo apt -y upgrade && sudo apt -y autoremove
-sudo apt install git w3m tmux bc -y
-sudo add-apt-repository --remove ppa:ansible/ansible -y && sudo apt update
-
 # Process substitution ssh diff across network DEPRECATED USE VIM:
 vi -d <(ssh b@sas-01.twa.taeb.com "cat /Drugs/Personnel/bob/t.sas") <(cat /Drugs/bheckel/t.sas)
 vi -d <(ssh b@atlon3 "cat /Drugs/EGP/Humana_weekly_task_Freds.sas") <(cat Freds_priority_enrollment.orig.sas)
@@ -4630,6 +4611,29 @@ dnf list installed | grep httpd
 rpm -qf /usr/sbin/bind    
 rpm -Uvh foo.rpm  # install
 rpm -e emacs  # remove
+
+# List all installed apt-get packages:
+sudo dpkg -l
+# Search apt installed:
+dpkg -l | grep -i android
+# Install .deb package on debian ubuntu:
+sudo dpkg -i google-chrome-stable_current_i386.deb
+# Fix Linux timezone:
+sudo dpkg-reconfigure tzdata
+# Which large packages are taking up space?:
+dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n
+
+# Query apt-get query installed programs:
+sudo apt-cache search vim
+sudo apt-cache show vim
+sudo apt-cache policy vim
+
+sudo apt purge android-sdk-platform-tools-common && sudo apt autoremove
+
+# Debian, Ubuntu regular package update apt mantra (NOT dist upgrade!):
+sudo apt -y update && sudo apt -y upgrade && sudo apt -y autoremove
+sudo apt install git w3m tmux bc -y
+sudo add-apt-repository --remove ppa:ansible/ansible -y && sudo apt update
 
 # Backup directory folder:
 tar czf /root/postfix-$(date "+%F").tar.gz /etc/postfix
