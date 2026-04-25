@@ -4577,16 +4577,20 @@ sudo firewall-cmd --reload
 sudo firewall-cmd --state
 sudo systemctl enable --now postfix
 systemctl status postfix.service
+sudo tail -f /var/log/maillog  # in another terminal
 sudo vi /etc/postfix/main.cf
+sudo postfix check  # check valid postfix config file
 sudo vi /etc/aliases
 sudo systemctl reload postfix
+systemctl status postfix --no-pager -l
 
 dnf repolist  # e.g. ol8_developer_EPEL
 sudo dnf config-manager --enable ol8_developer_EPEL
 
-sudo dnf info java  # description if available in vi /etc/yum.repos.d/oracle-linux-ol8.repo
-sudo dnf list java  # components if available in vi /etc/yum.repos.d/oracle-linux-ol8.repo
-sudo dnf search java 
+sudo dnf info vim  # description if available in vi /etc/yum.repos.d/oracle-linux-ol8.repo
+sudo dnf list vim  # components if available in vi /etc/yum.repos.d/oracle-linux-ol8.repo
+sudo dnf search vim 
+dnf list installed | grep vim
 
 sudo dnf clean all
 sudo rm -rf /var/tmp/dnf-*
@@ -4599,6 +4603,10 @@ sudo dnf install git -y && git clone https://github.com/bheckel/dotfiles && dotf
 
 # Stress an OCI Free Tier system:
 $ dnf list updates
+
+# Anything dnf-automatic hasn't run yet:
+sudo dnf updateinfo list security
+
 # dnf mantra:
 sudo dnf update -y && sudo dnf upgrade -y && sudo dnf autoremove -y && sudo dnf needs-restarting --reboothint
 
@@ -4636,7 +4644,7 @@ sudo apt install git w3m tmux bc -y
 sudo add-apt-repository --remove ppa:ansible/ansible -y && sudo apt update
 
 # Backup directory folder:
-tar czf /root/postfix-$(date "+%F").tar.gz /etc/postfix
+tar czf /tmp/mydir-$(date "+%F").tar.gz /etc/mydir
 
 # Secure a directory SELinux:
 $ ls -Z t.txt
@@ -4682,6 +4690,9 @@ sudo ausearch -m USER_ERR -ts today | wc -l
 
 # Is port open?:
 nc -zv evo.sub10261308142.mynet.oraclevcn.com 25
+
+# echo red warning text:
+echo -e "\e[1;31mREBOOT REQUIRED\e[0m"
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
@@ -8612,5 +8623,8 @@ $ curl.exe -6 ifconfig.me
 
 -- Windows System Event Log without GUI:
 Get-WinEvent -LogName System -MaxEvents 20 | Format-List TimeCreated, Id, Message
+
+-- pkill
+powershell.exe -Command "Stop-Process -Name Dropbox -Force"
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
