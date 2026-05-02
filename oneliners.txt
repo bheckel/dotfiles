@@ -3228,10 +3228,15 @@ chown oracle:dba disownme.txt  # (or oracle.dba)
 
 # Mount CDROM
 mount -t iso9660 /dev/cdrom /mnt/cdrom
-# Mount Android
-sudo mount -t vfat /dev/sdb /media/Nexus -o uid=1000,gid=1000,utf8,dmask=027,fmask=137
-# Unmount Android
-sudo umount /media/Nexus
+
+# Mount USB jump drive:
+lsblk -f
+sudo mkdir /media/brinno
+sudo fdisk /dev/sdc
+sudo mkfs.ext4 -L brinno /dev/sdc1  # d, n, t 83 (Linux filesytem), w
+sudo mount /dev/sdc1 /media/brinno
+sudo chown bheckel:bheckel /media/brinno
+sudo umount /media/brinno
 
 # Zero pad a list of numbers with leading zeros to produce e.g. 0012 0123...:
 awk '{printf "%04d\n",$0}' listofnumbers.txt
