@@ -3779,9 +3779,9 @@ split -b 1400000 orig.tgz
 # Unsplit rejoin the 1.4MB pieces
 cat xa* > origrebuilt.tgz
 
-# Encrypt decrypt a file. Original file is not saved.  But foo.txt.gpg is readable in vim if use passphrase:
-gpg -c foo.txt  # encrypt
-gpg -d foo.txt.gpg  # decrypt to STDOUT (no flag just decrypts file, leaves original)
+# Encrypt decrypt a file:
+gpg -c foo.txt  # encrypt (leaves original)
+gpg -d foo.txt.gpg  # decrypt to STDOUT (without any flag just decrypts file, leaves original)
 gpg -d foo.txt.gpg >foo.txt  # decrypt to file
 
 # Recursive wc recursive find - safe for Windows filenames w/ spaces (Cygwin) canonical total count lines of code (alternatively use :vimgrep /foo/ **/*.vb)
