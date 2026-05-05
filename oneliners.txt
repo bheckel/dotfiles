@@ -3232,9 +3232,9 @@ mount -t iso9660 /dev/cdrom /mnt/cdrom
 # Mount USB jump drive:
 lsblk -f
 sudo mkdir /media/brinno
-sudo fdisk /dev/sdc
-#sudo mkfs.vfat -F 32 -n BRINNO /dev/sdc1
-sudo mkfs.ext4 -L brinno /dev/sdc1  # d, n, t 83 (Linux filesytem), w
+sudo fdisk /dev/sdc  # d, n, t 83 (Linux filesytem) or b (DOS), w
+#sudo mkfs.vfat -F 32 -n BRINNO /dev/sdc1  # FAT32 for 4GB flash drive
+sudo mkfs.ext4 -L brinno /dev/sdc1
 sudo mount /dev/sdc1 /media/brinno
 sudo chown bheckel:bheckel /media/brinno
 sudo umount /media/brinno
