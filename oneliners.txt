@@ -3230,7 +3230,7 @@ chown oracle:dba disownme.txt  # (or oracle.dba)
 mount -t iso9660 /dev/cdrom /mnt/cdrom
 
 # Mount USB jump drive:
-lsblk -f
+lsblk --scsi && lsblk -f
 sudo mkdir /media/brinno
 sudo fdisk /dev/sdc  # d, n, t 83 (Linux filesytem) or b (DOS), w
 #sudo mkfs.vfat -F 32 -n BRINNO /dev/sdc1  # FAT32 for 4GB flash drive
@@ -8632,5 +8632,8 @@ Get-WinEvent -LogName System -MaxEvents 20 | Format-List TimeCreated, Id, Messag
 
 -- pkill
 powershell.exe -Command "Stop-Process -Name Dropbox -Force"
+
+-- Restart hung Win11 taskbar:
+taskkill /f /im explorer.exe && start explorer.exe
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
