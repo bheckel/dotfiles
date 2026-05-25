@@ -31,7 +31,7 @@ shopt -s extglob
 shopt -s histappend  # append, don't overwrite
 
 # Make fscking dark blue readable
-#printf '\e]4;4;#6495ed\a'
+printf '\e]4;4;#6495ed\a'
 
 #-----------------------
 # Generic Export  #{{{2

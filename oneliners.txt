@@ -11,10 +11,10 @@
 #              ° °°
 #            {°^°}=~~€ .. .
 #
-#          ^^^^__^^^^^__^^^_^^^
+#          ^^^^__^^^^^__^^^_^^^ॐ 
 #
 #  Created: 02-Jun-1998 (Bob Heckel)
-# Modified: 19-Feb-2026 (Bob Heckel)
+# Modified: 24-May-2026 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -199,10 +199,11 @@ if wrd == "re" || wrd == "ret" || wrd == "retu" || wrd == "retur" ...do somethin
 " is now more cleanly represented as:
 if match(wrd, "\\<re\\%[tur]\\>") > -1 ...do something...  endif
 
-" Alternate unicode foreign character digraph method (better if don't know the code):
-:dig         <---determine digraph's decimal code on (right side)
-Ctrl-v 174   <---in insertmode e.g. copyright © symbol is 169
-To do unicode, must do this first:
+" Unicode foreign diacritical character digraph method (better if don't know the code):
+:dig           <---determine digraph's decimal code on (right side)
+Ctrl-q u 174   <---in insertmode e.g. copyright © symbol is 169  ॐ is 0950
+
+" To do unicode, must do this first:
 set encoding=utf-8
 :se digraph
 Then in insertmode (e.g copyright symbol):
@@ -8448,7 +8449,7 @@ System.out.println("Return".concat(" of").concat(" the king."));
 // Java array
 int[] array = new int[5] { 1, 2, 3, 4, 5 };
 
-:: Win7 run as Administrator cmd.exe command prompt:
+:: Win7 run command as Administrator cmd.exe command prompt:
 Run : type cmd : Ctrl-Shift-Enter
 :: Win7 Administrator Cygwin/vim:
 Run : C:\cygwin64\bin\mintty.exe : Ctrl-Shift-Enter
@@ -8640,5 +8641,13 @@ powershell.exe -Command "Stop-Process -Name Dropbox -Force"
 
 -- Restart hung Win11 taskbar:
 taskkill /f /im explorer.exe && start explorer.exe
+
+-- cmd as Admin reformat readonly USB used as .iso to prep Rufus:
+diskpart
+list disk
+select disk 1
+attributes disk clear readonly
+clean
+exit
 
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
