@@ -7,16 +7,16 @@
                 file:///usr/share/openbox/menu.xsd">
 
 <menu id="root-menu" label="Openbox 3">
+  <!-- This requires the presence of the 'obamenu' package to work -->
+  <item label="File explorer">
+    <action name="Execute"><execute>pcmanfm-qt</execute></action>
+  </item>
   <item label="Terminal emulator">
     <action name="Execute"><execute>lxterminal</execute></action>
   </item>
   <item label="Web browser">
     <action name="Execute"><execute>firefox</execute></action>
   </item>
-  <item label="Explorer">
-    <action name="Execute"><execute>pcmanfm-qt</execute></action>
-  </item>
-  <!-- This requires the presence of the 'obamenu' package to work -->
   <menu id="/Debian" />
   <separator />
   <menu id="applications-menu" label="Applications" execute="/usr/bin/obamenu"/>
