@@ -24,3 +24,4 @@ tint2 &
 feh --bg-max /home/bheckel/shakti-wallpaper.png &
 compton --backend glx --vsync --unredir-if-possible &
 # lxterminal &
+(sleep 3 && conky -c ~/.conkyrc) &
