@@ -68,20 +68,21 @@ ${membar 6}
 
 ${color lightgrey}${execpi 60 mount | grep '^/dev/'}
 ${color lightgrey}/
-${fs_bar 3,100 /home} ${fs_used} / ${fs_size /}
+${fs_bar 3,100 /home} ${fs_used /} / ${fs_size /}
 ${color lightgrey}/mnt/hdd
-${fs_bar 3,100 /mnt/hdd} ${fs_used} / ${fs_size /mnt/hdd}
-${color slate grey}USB:${color}
-${color lightgrey}${execpi 10 lsusb | grep -iv 'hub' | cut --fields=7- --delimiter=' '}
+${fs_bar 3,100 /mnt/hdd} ${fs_used /mnt/hdd} / ${fs_size /mnt/hdd}
+#${color slate grey}USB:${color}
+USB:
+${execpi 10 lsusb | grep -iv 'hub' | cut --fields=7- --delimiter=' '}
 
-${color slate grey}Wifi: ${color lightgrey}${wireless_link_qual_perc wlx000f13890181}%
+Wifi: ${color lightgrey}${wireless_link_qual_perc wlx000f13890181}%
  Up:   ${upspeed wlx000f13890181}
 ${upspeedgraph wlx000f13890181 20,130 ffffff cc4444 -t}
  Down: ${downspeed wlx000f13890181}
 ${downspeedgraph wlx000f13890181 20,130 ffffff cc4444 -t}
-${color slate grey}Listeners:
-${color lightgrey}${execpi 60 lsof -i -P -n|grep LISTEN}
+Listeners:
+${execpi 60 lsof -i -P -n|grep LISTEN}
 
-${color slate grey}journalctl:
-${color lightgrey}${execi journalctl -t 10}
+journalctl:
+${color slate grey}${execi journalctl -t 10}
 ]]
