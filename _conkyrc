@@ -2,12 +2,8 @@ conky.config = {
 --###############################################################################
 --     Name: .conkyrc
 
---           $ conky -x 5 -y 0
-
---           http://www.ifxgroup.net/conky.htm
-
---  Created: Sat 04 Feb 2012 (Bob Heckel - adapted from darcon at gmail.com)
--- Modified: Sun 20-Dec-2020 (Bob Heckel)
+--  Created: 04-Feb-2012 (Bob Heckel)
+-- Modified: 11-Jun-2026 (Bob Heckel)
 --###############################################################################
     -- Window settings
     alignment = 'top_left',
@@ -42,6 +38,7 @@ conky.config = {
     show_graph_range = false,
     show_graph_scale = false,
     stippled_borders = 0,
+    text_buffer_size = 2048,
     update_interval = 1.0,
     uppercase = false,
     use_spacer = 'none',
@@ -49,40 +46,39 @@ conky.config = {
 }
 
 conky.text = [[
-${color}${nodename} ${color slate grey}${offset 0}${color}$kernel ${addr wlx000f13890181} ${color slate grey}Uptime:${color lightgrey} $uptime_short
+${nodename} ${color slate grey}${offset 0}${color}$kernel ${addr wlx000f13890181} ${color slate grey}Uptime:${color lightgrey} $uptime_short
 ${color slate grey}Load:${color lightgrey} $loadavg ${color slate grey}TempF: ${color lightgrey}${execi 120 sensors -f|grep 'Core 0' | cut -c -20 | perl -pe 's/.*\+//' | cut -c -5}
 
 ${color}CPU
-${cpubar cpu1 6}
-${cpubar cpu2 6}
-${cpubar cpu3 6}
-${cpubar cpu4 6}
+${cpubar 5,500 cpu0 00ff00 ff0000}
 ${color slate grey}Processes: ${color}$running_processes/${color}$processes
-${color lightgrey} ${top name 1}${top cpu 1}
-${color lightgrey} ${top name 2}${top cpu 2}
-${color lightgrey} ${top name 3}${top cpu 3}
-${color lightgrey} ${top name 4}${top cpu 4}
+${color} ${top name 1}${top cpu 1}
+${color} ${top name 2}${top cpu 2}
+${color} ${top name 3}${top cpu 3}
+${color} ${top name 4}${top cpu 4}
+${color} ${top name 5}${top cpu 5}
 
 ${color}RAM:$alignr$mem / $memmax
-${membar 6}
+${membar 5,500 00ff00 ff0000}
 
-${color lightgrey}${execpi 60 mount | grep '^/dev/'}
-${color lightgrey}/
-${fs_bar 3,100 /home} ${fs_used /} / ${fs_size /}
-${color lightgrey}/mnt/hdd
-${fs_bar 3,100 /mnt/hdd} ${fs_used /mnt/hdd} / ${fs_size /mnt/hdd}
-#${color slate grey}USB:${color}
+${execpi 60 mount | grep '^/dev/'}
+/
+${fs_bar 3,250 /home} ${fs_used /} / ${fs_size /}
+/mnt/hdd
+${fs_bar 3,250 /mnt/hdd} ${fs_used /mnt/hdd} / ${fs_size /mnt/hdd}
+
 USB:
 ${execpi 10 lsusb | grep -iv 'hub' | cut --fields=7- --delimiter=' '}
 
-Wifi: ${color lightgrey}${wireless_link_qual_perc wlx000f13890181}%
- Up:   ${upspeed wlx000f13890181}
-${upspeedgraph wlx000f13890181 20,130 ffffff cc4444 -t}
- Down: ${downspeed wlx000f13890181}
-${downspeedgraph wlx000f13890181 20,130 ffffff cc4444 -t}
+Wifi: ${wireless_link_bar 3,200 wlx000f13890181}
+ ${color slate grey}Up:${color}   ${upspeed wlx000f13890181}
+ ${color}${upspeedgraph wlx000f13890181 20,130 ffffff cc4444 -t }
+ ${color slate grey}Down:${color} ${downspeed wlx000f13890181}${color}
+ ${downspeedgraph wlx000f13890181 20,130 ffffff cc4444 -t }
+
 Listeners:
 ${execpi 60 lsof -i -P -n|grep LISTEN}
 
 journalctl:
-${color slate grey}${execi journalctl -t 10}
+${color slate grey}${execi 15 journalctl -n 200 --no-pager | grep -v "apparmor=\"DENIED\"" | tail -n 15}${color}
 ]]
