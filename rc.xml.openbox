@@ -343,10 +343,13 @@
       </action>
     </keybind>
     <keybind key="Super_L">
-    <action name="ShowMenu">
-      <menu>root-menu</menu>
-    </action>
-  </keybind>
+      <action name="ShowMenu">
+        <menu>root-menu</menu>
+      </action>
+    </keybind>
+    <keybind key="W-m">
+      <action name="ToggleShowDesktop"/>
+    </keybind>
   </keyboard>
   <mouse>
     <dragThreshold>1</dragThreshold>

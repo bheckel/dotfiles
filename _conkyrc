@@ -7,46 +7,44 @@ conky.config = {
 --  Created: 04-Feb-2012 (Bob Heckel)
 -- Modified: 11-Jun-2026 (Bob Heckel)
 --###############################################################################
--- Window settings
-    alignment = 'top_left',
-    background = false,
-    border_width = 1,
-    cpu_avg_samples = 2,
-    default_color = 'white',
-    default_outline_color = 'white',
-    default_shade_color = 'white',
-    double_buffer = true,
-    draw_borders = false,
-    draw_graph_borders = true,
-    draw_outline = false,
-    draw_shades = false,
-    extra_newline = false,
-    font = 'DejaVu Sans Mono:size=10',
-    gap_x = 3,
-    gap_y = 20,
-    minimum_height = 5,
-    minimum_width = 300,
-    net_avg_samples = 2,
-    no_buffers = true,
-    out_to_console = false,
-    out_to_ncurses = false,
-    out_to_stderr = false,
-    out_to_x = true,
-    own_window = true,
-    own_window_class = 'Conky',
-    own_window_type = 'desktop',
-    own_window_transparent = false,
-    own_window_argb_visual = true,
-    own_window_argb_value = 0,
-    own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager,unfocusable',
-    show_graph_range = false,
-    show_graph_scale = false,
-    stippled_borders = 0,
-    text_buffer_size = 2048,
-    update_interval = 1.0,
-    uppercase = false,
-    use_spacer = 'none',
-    use_xft = true,
+  -- Window settings
+  alignment = 'top_left',
+  background = false,
+  border_width = 1,
+  cpu_avg_samples = 2,
+  default_color = 'white',
+  default_outline_color = 'white',
+  default_shade_color = 'white',
+  double_buffer = true,
+  draw_borders = false,
+  draw_graph_borders = true,
+  draw_outline = false,
+  draw_shades = false,
+  extra_newline = false,
+  font = 'DejaVu Sans Mono:size=10',
+  gap_x = 3,
+  gap_y = 20,
+  minimum_height = 5,
+  minimum_width = 300,
+  net_avg_samples = 2,
+  no_buffers = true,
+  out_to_console = false,
+  out_to_ncurses = false,
+  out_to_stderr = false,
+  out_to_x = true,
+  own_window = true,
+  own_window_class = 'Conky',
+  own_window_type = 'override',
+  own_window_transparent = true,
+  own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
+  show_graph_range = false,
+  show_graph_scale = false,
+  stippled_borders = 0,
+  text_buffer_size = 2048,
+  update_interval = 1.0,
+  uppercase = false,
+  use_spacer = 'none',
+  use_xft = true,
 }
 
 conky.text = [[
@@ -54,7 +52,7 @@ ${nodename} ${color slate grey}${offset 0}${color}$kernel ${addr wlx000f13890181
 ${color slate grey}Load:${color lightgrey} $loadavg ${color slate grey}TempF: ${color lightgrey}${execi 120 sensors -f|grep 'Core 0' | cut -c -20 | perl -pe 's/.*\+//' | cut -c -5}
 
 ${color}CPU
-${cpubar 5,500 cpu0 00ff00 ff0000}
+${cpubar 5,400 cpu0 00ff00 ff0000}
 ${color slate grey}Processes: ${color}$running_processes/${color}$processes
 ${color} ${top name 1}${top cpu 1}
 ${color} ${top name 2}${top cpu 2}
@@ -63,7 +61,7 @@ ${color} ${top name 4}${top cpu 4}
 ${color} ${top name 5}${top cpu 5}
 
 ${color}RAM:
-${membar 5,500 00ff00 ff0000} $mem / $memmax
+${membar 5,400 00ff00 ff0000} $mem / $memmax
 
 ${execpi 60 mount | grep '^/dev/'}
 /
@@ -75,10 +73,10 @@ USB:
 ${execpi 10 lsusb | grep -iv 'hub' | cut --fields=7- --delimiter=' '}
 
 Wifi: ${wireless_link_bar 3,200 wlx000f13890181}
- ${color slate grey}Up:${color}   ${upspeed wlx000f13890181}
- ${color}${upspeedgraph wlx000f13890181 20,130 ffffff cc4444 -t }
- ${color slate grey}Down:${color} ${downspeed wlx000f13890181}${color}
- ${downspeedgraph wlx000f13890181 20,130 ffffff cc4444 -t }
+${color slate grey}Up:${color} ${upspeed wlx000f13890181}
+${color}${upspeedgraph wlx000f13890181 20,130 ffffff cc4444 -t }
+${color slate grey}Down:${color} ${downspeed wlx000f13890181}${color}
+${downspeedgraph wlx000f13890181 20,130 ffffff cc4444 -t }
 
 Listeners:
 ${execpi 60 lsof -i -P -n|grep LISTEN}
