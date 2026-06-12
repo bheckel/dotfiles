@@ -2,10 +2,12 @@ conky.config = {
 --###############################################################################
 --     Name: .conkyrc
 
+-- killall conky && conky &
+
 --  Created: 04-Feb-2012 (Bob Heckel)
 -- Modified: 11-Jun-2026 (Bob Heckel)
 --###############################################################################
-    -- Window settings
+-- Window settings
     alignment = 'top_left',
     background = false,
     border_width = 1,
@@ -33,8 +35,10 @@ conky.config = {
     own_window = true,
     own_window_class = 'Conky',
     own_window_type = 'desktop',
-    own_window_transparent = true,
-    own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
+    own_window_transparent = false,
+    own_window_argb_visual = true,
+    own_window_argb_value = 0,
+    own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager,unfocusable',
     show_graph_range = false,
     show_graph_scale = false,
     stippled_borders = 0,
@@ -58,8 +62,8 @@ ${color} ${top name 3}${top cpu 3}
 ${color} ${top name 4}${top cpu 4}
 ${color} ${top name 5}${top cpu 5}
 
-${color}RAM:$alignr$mem / $memmax
-${membar 5,500 00ff00 ff0000}
+${color}RAM:
+${membar 5,500 00ff00 ff0000} $mem / $memmax
 
 ${execpi 60 mount | grep '^/dev/'}
 /
