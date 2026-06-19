@@ -4706,6 +4706,12 @@ nc -zv evo.sub10261308142.mynet.oraclevcn.com 25
 # echo red warning text:
 echo -e "\e[1;31mREBOOT REQUIRED\e[0m"
 
+# Find hard disk drive UUID and type ext4:
+lsblk -a
+sudo mkdir -p /mnt/hdd && sudo mount -t ext4 /dev/sdb1 /mnt/hdd
+# Make mount permanent svim /etc/fstab:
+UID=b5e2c43c-fb1e-4000-9983-1c9d3d2148de /mnt/hdd       ext4    defaults,nofail,noatime,user 0 2
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -8296,9 +8302,9 @@ git for-each-ref --sort=-committerdate refs/heads/ --format="%(committerdate:sho
 
 # git diff with last commit show only the files edited affected by commits on this branch what files changed while working in this branch:
 git show
-# git view show previous old version of file the past (in pager):
+# git view show previous prior old version of file the past (in pager):
 git show eacbd91:./ods_0002e.sas
-# git view previous old version of file from the past history (in editor):
+# git view previous  prior old version of file from the past history (in editor):
 git show master:cfg/DataPost_Configuration.html |vi -
 git show bb6c5c5d5f2:./ASP_PKG.pck ASP_PKG.pck | vim -
 

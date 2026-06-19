@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Modified: 23-May-2026 (Bob Heckel)  -->
+<!-- Modified: 03-June-2026 (Bob Heckel)  -->
 <openbox_menu xmlns="http://openbox.org/"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://openbox.org/
@@ -8,6 +8,9 @@
 
 <menu id="root-menu" label="Openbox 3">
   <!-- This requires the presence of the 'obamenu' package to work -->
+  <item label="Editor">
+    <action name="Execute"><execute>gvim</execute></action>
+  </item>
   <item label="File explorer">
     <action name="Execute"><execute>pcmanfm-qt</execute></action>
   </item>

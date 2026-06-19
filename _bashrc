@@ -326,7 +326,7 @@ tmn() {
     # tmux new -s "s${1}"\; split-window -h
     tmux new -s "2|${sesnm}"\; split-window -h
   elif [ ${numpanes} -eq 4 ]; then
-    # Four vertical panes
+    # Four panes
     tmux new -s "4|${sesnm}"\; split-window -v \; split-window -h \; select-pane -t 0 \; split-window -h
   else
     tmux new -s "${sesnm}"
