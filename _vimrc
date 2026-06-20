@@ -6,7 +6,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Fri 19-Jun-2026 (Bob Heckel)
+" Modified: Sat 20-Jun-2026 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -693,7 +693,7 @@ iab HtT <table><CR>  <tr><td> </td></tr><CR><Left><Left></table>
 """iab ;& &amp;
 """iab ;_ &nbsp;
 
-" === Sanskrit IAST vowels (macrons) ===
+" === IAST vowels (macrons) ===
 iabbrev xxa  ā
 iabbrev xxA  Ā
 iabbrev xxi  ī
@@ -722,15 +722,58 @@ iabbrev xxD  Ḍ
 iabbrev xxn  ṇ
 iabbrev xxN  Ṇ
 " === Palatal / sibilants ===
-iabbrev xxs   ś
-iabbrev xxS   Ś
-iabbrev xxx   ṣ
-iabbrev xxX   Ṣ
-iabbrev xxxn  ñ
-iabbrev xxxN  Ñ
+iabbrev xxs   ṣ
+iabbrev xxS   Ṣ
+iabbrev xxss  ś
+iabbrev xxSS  Ś
+iabbrev xxnn  ñ
+iabbrev xxNN  Ñ
 " === Velar nasal ===
-iabbrev xxnn  ṅ
-iabbrev xxNN  Ṅ
+iabbrev xxn  ṅ
+iabbrev xxN  Ṅ
+
+" === Sanskrit ===
+iabbrev xxxha    ह
+iabbrev xxxsaaa  स
+iabbrev xxxsaa   ष
+iabbrev xxxsa    श
+iabbrev xxxva    व
+
+#iabbrev xxxla ल
+iabbrev xxxra    र
+#iabbrev xxxya य
+iabbrev xxxla    ल
+iabbrev xxxya    य
+
+iabbrev xxxma    म
+iabbrev xxxbha   भ
+iabbrev xxxba    ब
+iabbrev xxxpha   फ
+iabbrev xxxpa    प
+
+iabbrev xxxnnnna न
+iabbrev xxxdhaa  ध
+iabbrev xxxdaa   द
+iabbrev xxxthaa  थ
+iabbrev xxxtaa   त
+
+iabbrev xxxnnna  ण
+iabbrev xxxdha   ढ
+iabbrev xxxda    ड
+iabbrev xxxtha   ठ
+iabbrev xxxta    ट
+
+iabbrev xxxnna   ञ
+iabbrev xxxjha   झ
+iabbrev xxxja    ज
+iabbrev xxxcha   छ
+iabbrev xxxca    च
+
+iabbrev xxxna    ङ
+iabbrev xxxgha   घ
+iabbrev xxxga    ग
+iabbrev xxxkha   ख
+iabbrev xxxka    क
 
 " Mutt
 """iab MuX X-message-flag: Magic 8Ball says 'Outlook not so good.'  Let me ask about MS Exchange Server...
