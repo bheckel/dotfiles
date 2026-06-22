@@ -4,6 +4,7 @@
 #  Summary: Programming and sysadmin fragments I've collected over the last 
 #           few decades.  Section-searchable via ~/dotfiles/gone.sh.  Comments 
 #           are often written for searching, not proper English.
+#  License: Copyright (c) 2026 Robert S. Heckel Jr.
 #
 #                 °
 #          ~~~~~~~~°~~~~~~~~~~~

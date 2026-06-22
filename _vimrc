@@ -739,9 +739,9 @@ iabbrev xxxsaa   ष
 iabbrev xxxsa    श
 iabbrev xxxva    व
 
-#iabbrev xxxla ल
+"iabbrev xxxla ल
 iabbrev xxxra    र
-#iabbrev xxxya य
+"iabbrev xxxya य
 iabbrev xxxla    ल
 iabbrev xxxya    य
 
