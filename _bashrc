@@ -5,7 +5,7 @@
 #          and z/OS
 #
 #  Created: 19-May-1998 (Bob Heckel)
-# Modified: 16-Apr-2026 (Bob Heckel)
+# Modified: 09-Jul-2026 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -845,15 +845,17 @@ case "$OSTYPE" in
           echo '.bashrc: setting ORACLE_HOME...'
           export ORACLE_HOME=/u01/app/oracle/product/version/db_1/
         fi
-
+        # OCI:
         if [ "${LOGNAME}" = 'opc' ]; then
           #echo '.bashrc: opc user detected'
           #alias mailx='mailx -f /home/opc/mail'
           MAIL=/home/opc/mail
-        fi
-
+          if [[ "$VERSION_ID" == "8.10" ]]; then
+            alias vi=/usr/local/bin/vim
+          fi
         fi
       fi
+    fi
   ;; # end Linux
 
   #-------------------
