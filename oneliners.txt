@@ -4,6 +4,7 @@
 #  Summary: Programming and sysadmin fragments I've collected over the last 
 #           few decades.  Section-searchable via ~/dotfiles/gone.sh.  Comments 
 #           are often written for searching, not proper English.
+#  License: Copyright (c) 2026 Robert S. Heckel Jr.
 #
 #                 °
 #          ~~~~~~~~°~~~~~~~~~~~
@@ -8235,8 +8236,10 @@ git log --since="3 months ago" --pretty=format:"%Cblue%h %ar |%Cgreen %s%Cblue %
 git log --name-only --date=short
 
 # git create new repo (first add it on github.com w/o readme, license, etc):
-git init && git add . && git commit -m "init" && git branch -M main && git remote add origin git@github.com:bheckel/ansible.git
-&& git push -u origin main && git remote -v && git remote show origin
+git init && git add . && git commit -m "init" && git branch -M main && git remote add origin git@github.com:bheckel/ansible.git && git push -u origin main && git remote -v && git remote show origin
+# Use .git/info/exclude instead of .gitignore
+git init; vi .git/info/exclude; git add . && git commit -m "init" && git remote add origin git@github.com:bheckel/varnamala.git && git push -u origin master
+
 
 # git create new then checkout branch:
 git branch mynewbranch; git checkout mynewbranch
@@ -8396,8 +8399,6 @@ git fetch origin
 git merge origin/develop
 
 ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-
-Use .git/info/exclude instead of .gitignore
 
 # git show last touches and owner authors for all remote branches find my git branches:
 for branch in `git branch -r | grep -v HEAD`;do echo -e `git show --format="%ci %cr\t%an\t" $branch | head -n 1` \\t$branch; done | sort -r
@@ -8646,7 +8647,7 @@ Get-WinEvent -LogName System -MaxEvents 20 | Format-List TimeCreated, Id, Messag
 powershell.exe -Command "Stop-Process -Name Dropbox -Force"
 
 -- Restart hung Win11 taskbar:
-taskkill /f /im explorer.exe && start explorer.exe
+PS C:\Users\bheckel> taskkill /f /im explorer.exe && start explorer.exe
 
 -- cmd as Admin reformat readonly USB used as .iso to prep Rufus:
 diskpart

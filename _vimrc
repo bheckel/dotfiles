@@ -1,4 +1,4 @@
-"#§∫∞`∞∫§¯,∏∏,¯§∫∞`∞∫§¯¯§∫∞`∞∫§¯,∏∏,¯§∫∞`∞∫§¯¯§∫∞`∞∫§§∫∞`∞∫§¯,∏∏,¯§∫∞`∞∫§¯
+"#¬§¬∫¬∞`¬∞¬∫¬§√∏,¬∏¬∏,√∏¬§¬∫¬∞`¬∞¬∫¬§√∏√∏¬§¬∫¬∞`¬∞¬∫¬§√∏,¬∏¬∏,√∏¬§¬∫¬∞`¬∞¬∫¬§√∏√∏¬§¬∫¬∞`¬∞¬∫¬§¬§¬∫¬∞`¬∞¬∫¬§√∏,¬∏¬∏,√∏¬§¬∫¬∞`¬∞¬∫¬§√∏
 "     Name: $HOME/.vimrc
 "  Summary: Platform-independent, overly ambitious, Vim config file
 "                                                                         
@@ -6,8 +6,8 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Thu 12-Feb-2026 (Bob Heckel)
-"#§∫∞`∞∫§¯,∏∏,¯§∫∞`∞∫§¯¯§∫∞`∞∫§¯,∏∏,¯§∫∞`∞∫§¯¯§∫∞`∞∫§§∫∞`∞∫§¯,∏∏,¯§∫∞`∞∫§¯
+" Modified: Sat 20-Jun-2026 (Bob Heckel)
+"#¬§¬∫¬∞`¬∞¬∫¬§√∏,¬∏¬∏,√∏¬§¬∫¬∞`¬∞¬∫¬§√∏√∏¬§¬∫¬∞`¬∞¬∫¬§√∏,¬∏¬∏,√∏¬§¬∫¬∞`¬∞¬∫¬§√∏√∏¬§¬∫¬∞`¬∞¬∫¬§¬§¬∫¬∞`¬∞¬∫¬§√∏,¬∏¬∏,√∏¬§¬∫¬∞`¬∞¬∫¬§√∏
 
 "   Settings 	{{{1
 "    Who set it last e.g.:  :verbose se shiftwidth?
@@ -621,6 +621,7 @@ set makeprg=gcc\ -Wall\ %
 "                               24 multi-byte characters {{{2
 
 set encoding=utf-8
+set fileencoding=utf-8
 set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<
 
 "                               25 other {{{2
@@ -692,25 +693,87 @@ iab HtT <table><CR>  <tr><td> </td></tr><CR><Left><Left></table>
 """iab ;& &amp;
 """iab ;_ &nbsp;
 
-" Pali
-" A macron
-"""iab paliA &#256;
-"""" a macron
-"""iab palia <Backspace>&#257;
-"""" I macron
-"""iab paliI <Backspace>&#298;
-"""" i macron
-"""iab palii <Backspace>&#299;
-"""" U macron
-"""iab paliU &#362;
-"""" u macron
-"""iab paliu <Backspace>&#363;
-"""" n dot over (n.)
-"""iab palino <Backspace>&#7749;
-"""" n dot under (still renders as n.)
-"""iab palinu <Backspace>&#7751;
-"""" n tilde (no '#')
-"""iab palit <Backspace>&ntilde;
+" === IAST vowels (macrons) ===
+iabbrev xxa  ƒÅ
+iabbrev xxA  ƒÄ
+iabbrev xxi  ƒ´
+iabbrev xxI  ƒ™
+iabbrev xxu  ≈´
+iabbrev xxU  ≈™
+" === Vocalic r and l ===
+iabbrev xxr  ·πõ
+iabbrev xxR  ·πö
+iabbrev xxrr ·πù
+iabbrev xxRR ·πú
+iabbrev xxl  ·∏∑
+iabbrev xxL  ·∏∂
+iabbrev xxll ·∏π
+iabbrev xxLL ·∏π
+" === Anusvara / Visarga ===
+iabbrev xxm  ·πÉ
+iabbrev xxM  ·πÇ
+iabbrev xxh  ·∏•
+iabbrev xxH  ·∏§
+" === Retroflexes ===
+iabbrev xxt  ·π≠
+iabbrev xxT  ·π¨
+iabbrev xxd  ·∏ç
+iabbrev xxD  ·∏å
+iabbrev xxn  ·πá
+iabbrev xxN  ·πÜ
+" === Palatal / sibilants ===
+iabbrev xxs   ·π£
+iabbrev xxS   ·π¢
+iabbrev xxss  ≈õ
+iabbrev xxSS  ≈ö
+iabbrev xxnn  √±
+iabbrev xxNN  √ë
+" === Velar nasal ===
+iabbrev xxn  ·πÖ
+iabbrev xxN  ·πÑ
+
+" === Sanskrit ===
+iabbrev xxxha    ‡§π
+iabbrev xxxsaaa  ‡§∏
+iabbrev xxxsaa   ‡§∑
+iabbrev xxxsa    ‡§∂
+iabbrev xxxva    ‡§µ
+
+"iabbrev xxxla ‡§≤
+iabbrev xxxra    ‡§∞
+"iabbrev xxxya ‡§Ø
+iabbrev xxxla    ‡§≤
+iabbrev xxxya    ‡§Ø
+
+iabbrev xxxma    ‡§Æ
+iabbrev xxxbha   ‡§≠
+iabbrev xxxba    ‡§¨
+iabbrev xxxpha   ‡§´
+iabbrev xxxpa    ‡§™
+
+iabbrev xxxnnnna ‡§®
+iabbrev xxxdhaa  ‡§ß
+iabbrev xxxdaa   ‡§¶
+iabbrev xxxthaa  ‡§•
+iabbrev xxxtaa   ‡§§
+
+iabbrev xxxnnna  ‡§£
+iabbrev xxxdha   ‡§¢
+iabbrev xxxda    ‡§°
+iabbrev xxxtha   ‡§†
+iabbrev xxxta    ‡§ü
+
+iabbrev xxxnna   ‡§û
+iabbrev xxxjha   ‡§ù
+iabbrev xxxja    ‡§ú
+iabbrev xxxcha   ‡§õ
+iabbrev xxxca    ‡§ö
+
+iabbrev xxxna    ‡§ô
+iabbrev xxxgha   ‡§ò
+iabbrev xxxga    ‡§ó
+iabbrev xxxkha   ‡§ñ
+iabbrev xxxka    ‡§ï
 
 " Mutt
 """iab MuX X-message-flag: Magic 8Ball says 'Outlook not so good.'  Let me ask about MS Exchange Server...
