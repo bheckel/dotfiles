@@ -73,8 +73,8 @@ USB:
 ${color slate grey}${execpi 10 lsusb | grep -iv 'hub' | cut --fields=7- --delimiter=' '}${color}
 
 Wifi:
-${wireless_link_bar 3,200 wlx000f13890181}
-${color slate grey}Up:${color} ${upspeed wlx000f13890181} ${color}${upspeedgraph wlx000f13890181 20,130 ffffff cc4444 -t } ${color slate grey}Down:${color} ${downspeed wlx000f13890181}${color} ${downspeedgraph wlx000f13890181 20,130 ffffff cc4444 -t }
+${wireless_link_bar 3,200 wlx000f13890181} ${color slate grey}Up:${color} ${upspeed wlx000f13890181} ${color slate grey}Down:${color} ${downspeed wlx000f13890181}${color}
+${color}${upspeedgraph wlx000f13890181 50,260 ffffff cc4444 -t } ${downspeedgraph wlx000f13890181 50,260 ffffff cc4444 -t }
 
 Listeners:
 ${color slate grey}${execpi 60 lsof -i -P -n|grep LISTEN}${color}
