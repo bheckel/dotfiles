@@ -807,5 +807,19 @@
 
   # end of the example
 -->
-  </applications>
+<!-- 13-Jun-26 ignored:
+  <application name="firefox">
+      <position force="no">
+        <x>center</x>
+        <y>200</y>
+      </position>
+    </application>
+-->
+  <application name="gvim">
+      <position force="no">
+        <x>center</x>
+        <y>100</y>
+      </position>
+    </application>
+  </applications> 
 </openbox_config>
