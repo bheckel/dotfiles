@@ -5,7 +5,7 @@ conky.config = {
 -- killall conky && conky &
 
 --  Created: 04-Feb-2012 (Bob Heckel)
--- Modified: 11-Jun-2026 (Bob Heckel)
+-- Modified: 13-Jul-2026 (Bob Heckel)
 --###############################################################################
   -- Window settings
   alignment = 'top_left',
@@ -82,5 +82,6 @@ Listeners:
 ${execpi 60 lsof -i -P -n|grep LISTEN}
 
 journalctl:
-${color slate grey}${execi 15 journalctl -n 200 --no-pager | grep -v "apparmor=\"DENIED\"" | tail -n 15}${color}
+#${color slate grey}${execi 15 journalctl -n 200 --no-pager | grep -v "apparmor=\"DENIED\"" | tail -n 15}${color}
+${color slate grey}${execi 15 journalctl -n 200 --no-pager | grep -v "apparmor=\"DENIED\"" | grep -v "CTRL-EVENT-BEACON-LOSS" | tail -n 15}${color}
 ]]
