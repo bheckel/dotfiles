@@ -15,7 +15,7 @@
 #          ^^^^__^^^^^__^^^_^^^ॐ 
 #
 #  Created: 02-Jun-1998 (Bob Heckel)
-# Modified: 24-May-2026 (Bob Heckel)
+# Modified: 13-Jul-2026 (Bob Heckel)
 ###############################################################################
 
 xxVIMxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
@@ -4712,6 +4712,8 @@ lsblk -a
 sudo mkdir -p /mnt/hdd && sudo mount -t ext4 /dev/sdb1 /mnt/hdd
 # Make mount permanent svim /etc/fstab:
 UID=b5e2c43c-fb1e-4000-9983-1c9d3d2148de /mnt/hdd       ext4    defaults,nofail,noatime,user 0 2
+
+alias ga="(cd ~/dotfiles && git status && git add . && git commit -m 'gamod appa' && git push origin master)"
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
