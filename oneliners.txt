@@ -4621,7 +4621,7 @@ $ dnf list updates
 sudo dnf updateinfo list security
 
 # dnf mantra:
-sudo dnf update -y && sudo dnf upgrade -y && sudo dnf autoremove -y && sudo dnf needs-restarting --reboothint
+sudo dnf update -y && sudo needs-restarting --reboothint; sudo dnf autoremove 
 
 # query dnf
 rpm -qip foo.rpm

@@ -6,7 +6,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Sat 20-Jun-2026 (Bob Heckel)
+" Modified: Wed 15-Jul-2026 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -693,7 +693,7 @@ iab HtT <table><CR>  <tr><td> </td></tr><CR><Left><Left></table>
 """iab ;& &amp;
 """iab ;_ &nbsp;
 
-" === IAST vowels (macrons) ===
+" === IAST Sanskrit vowels (macrons) ===
 iabbrev xxa  ā
 iabbrev xxA  Ā
 iabbrev xxi  ī
@@ -732,7 +732,7 @@ iabbrev xxNN  Ñ
 iabbrev xxn  ṅ
 iabbrev xxN  Ṅ
 
-" === Sanskrit ===
+" === 36 Tattvas ===
 iabbrev xxxha    ह
 iabbrev xxxsaaa  स
 iabbrev xxxsaa   ष
@@ -745,30 +745,35 @@ iabbrev xxxra    र
 iabbrev xxxla    ल
 iabbrev xxxya    य
 
+" labial
 iabbrev xxxma    म
 iabbrev xxxbha   भ
 iabbrev xxxba    ब
 iabbrev xxxpha   फ
 iabbrev xxxpa    प
 
+" dental
 iabbrev xxxnnnna न
-iabbrev xxxdhaa  ध
-iabbrev xxxdaa   द
-iabbrev xxxthaa  थ
-iabbrev xxxtaa   त
+iabbrev xxxdha   ध
+iabbrev xxxda    द
+iabbrev xxxtha   थ
+iabbrev xxxta    त
 
+" retroflex (dotted get aa)
 iabbrev xxxnnna  ण
-iabbrev xxxdha   ढ
-iabbrev xxxda    ड
-iabbrev xxxtha   ठ
-iabbrev xxxta    ट
+iabbrev xxxdhaa  ढ
+iabbrev xxxdaa   ड
+iabbrev xxxthaa  ठ
+iabbrev xxxtaa   ट
 
+" palatal
 iabbrev xxxnna   ञ
 iabbrev xxxjha   झ
 iabbrev xxxja    ज
 iabbrev xxxcha   छ
 iabbrev xxxca    च
 
+" gutteral
 iabbrev xxxna    ङ
 iabbrev xxxgha   घ
 iabbrev xxxga    ग

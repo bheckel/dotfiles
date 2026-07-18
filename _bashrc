@@ -44,6 +44,7 @@ HISTSIZE=40000  # max in RAM
 HISTFILESIZE=40000  # max lines in $HISTFILE
 HISTIGNORE='f:fg:l:ls:la:cd:h:ll::by'  # ':&' supposedly same as HISTCONTROL=ignoredups - consecutive dups that is
 HISTCONTROL=ignoredups:erasedups
+# $ history|sort|grep '2026-07-16 1'
 HISTTIMEFORMAT='%F %T '
 IGNOREEOF=1  # require 2 ctr-d to exit
 LESS='--ignore-case'  # but still honors 'ThisSearchPattern'
