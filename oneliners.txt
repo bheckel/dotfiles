@@ -4621,7 +4621,7 @@ $ dnf list updates
 sudo dnf updateinfo list security
 
 # dnf mantra:
-sudo dnf update -y && sudo needs-restarting --reboothint; sudo dnf autoremove 
+sudo dnf upgrade --refresh -y && sudo needs-restarting --reboothint && sudo dnf autoremove
 
 # query dnf
 rpm -qip foo.rpm
@@ -4651,8 +4651,9 @@ sudo apt-cache policy vim
 
 sudo apt purge android-sdk-platform-tools-common && sudo apt autoremove
 
-# Debian, Ubuntu regular package update apt mantra (NOT dist upgrade!):
-sudo apt -y update && sudo apt -y upgrade && sudo apt -y autoremove
+# Debian, Ubuntu regular package update apt mantra:
+sudo apt update && sudo apt full-upgrade -y && sudo apt autoremove --purge -y && sudo apt clean && sudo apt -f install
+
 sudo apt install git w3m tmux bc -y
 sudo add-apt-repository --remove ppa:ansible/ansible -y && sudo apt update
 
