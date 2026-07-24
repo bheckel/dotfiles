@@ -664,12 +664,18 @@ case "$OSTYPE" in
 				     *) echo ".bashrc: unknown distro";;
 			esac
 
-      # An entire file, otherwise see putclip
+
+myclip() {
+  iconv -f utf-8 -t utf-16le | clip.exe
+}
+
+      # Capture an entire file, otherwise see putclip
       function catput() {
         if [ -e /usr/bin/xclip ]; then
           xclip < "$1"
         elif [ -d /mnt/c/Windows ]; then
-          clip.exe < "$1"
+          # clip.exe < "$1"
+          myclip < "$1" 
         else
           echo "xclip or clip.exe not installed"
         fi

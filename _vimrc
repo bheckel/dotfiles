@@ -1081,7 +1081,12 @@ if hostname() == 'penguin'
 elseif hostname() == 'localhost'
   nnoremap ,p :r !termux-clipboard-get
 elseif exists('$WSLENV')
-  nnoremap ,p :r !powershell.exe Get-Clipboard<CR>
+  function! PasteWindowsClipboard()
+      let l:clip = system('powershell.exe -NoProfile -Command Get-Clipboard')
+      let l:clean = substitute(l:clip, '\r', '', 'g')
+      execute "put =l:clean"
+  endfunction
+  nnoremap ,p :call PasteWindowsClipboard()<CR>
 else
   nnoremap ,p "*p
 endif
