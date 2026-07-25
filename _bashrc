@@ -478,6 +478,7 @@ case "$OSTYPE" in
      echo "${1}" | clip.exe
    }
 
+   #TODO
    function catput() {
      #powershell.exe -Command "Get-Content $1 | Set-Clipboard"
      clip.exe < "${1}"
@@ -665,9 +666,9 @@ case "$OSTYPE" in
 			esac
 
 
-myclip() {
-  iconv -f utf-8 -t utf-16le | clip.exe
-}
+      myclip() {
+        iconv -f utf-8 -t utf-16le | clip.exe
+      }
 
       # Capture an entire file, otherwise see putclip
       function catput() {
