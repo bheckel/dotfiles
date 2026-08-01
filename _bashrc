@@ -64,8 +64,7 @@ VIMSTATUSL='?@?'
 # Terminal font colors
 # Used by PS1, also good for use in shell scripts.  But bad for printing env.
 # Ctrl-v escape to insert the ^[ because  "\[\033[01;38;5;52m\]"  won't work.
-# Use this to find e.g. 243 for darkgray
-# for i in {0..255} ; do printf "\x1b[38;5;${i}mcolour${i}\n"; done;
+# Use this to find e.g. 243 for darkgray:  for i in {0..255} ; do printf "\x1b[38;5;${i}mcolour${i}\n"; done;
 export fg_whitebold="[1;37m"
 export fg_lightgray="[0;37m"
 export fg_lightgraybold="[1;37m"
