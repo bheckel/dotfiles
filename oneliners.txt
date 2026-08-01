@@ -3467,6 +3467,9 @@ ls -l | awk '/foo/ {print $3}'
 # Create tarball of all files in pwd that contain string 'ESSENTIAL':
 tar cvfz ~/tmp/essential.tgz `grep 'ESSENTIAL' * | awk -F: '{print $1}'`
 
+# Add append file to existing tarball:
+tar -rvf my.tar myfile.txt && tar -tf my.tar
+
 # Determine total size of selected files.  Add sizes of files together.
 wc *.txt
 

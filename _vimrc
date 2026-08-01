@@ -6,7 +6,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Wed 15-Jul-2026 (Bob Heckel)
+" Modified: Thu 30-Jul-2026 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -1442,11 +1442,13 @@ fu! BkupFile(vtpth)  " {{{2
   let s:stamp = strftime("__%d%b%y_%H.%M.%S__")
 
   if len(s:tail) > 0
-    let s:all = s:head .'.'  . s:stamp . '.' . s:tail
+    "let s:all = s:head .'.'  . s:stamp . '.' . s:tail
+    let s:all = s:head . s:stamp . '.' . s:tail
     """echo 'all ' . s:all
   else
     " Suffix-less file
-    let s:all = s:head .'.'  . s:stamp 
+    "let s:all = s:head .'.'  . s:stamp 
+    let s:all = s:head . s:stamp 
   endif
 
   exec("silent write! " . a:vtpth . "/" . s:all)
