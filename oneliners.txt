@@ -8404,6 +8404,9 @@ git fetch origin
 # Merge the changes from develop into your feature branch. This command will create a new merge commit in your feature branch, combining the latest changes from develop with your feature branch:
 git merge origin/develop
 
+# WTF just merged after a ga collision:
+git diff HEAD^1 HEAD -- myfile
+
 ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 
 # git show last touches and owner authors for all remote branches find my git branches:
