@@ -1850,9 +1850,9 @@ if !exists("autocommands_loaded")
   " Alternate help files via 'K'.  Default s/b set above as keywordprg=man
   au BufNewFile,BufRead,BufEnter *.p[lm] set keywordprg=perldoc\ -f
   au BufNewFile,BufRead,BufEnter *.pl map ,3 :s:^###::g<CR>:se nohls<CR>
-  " if has ('unix') && version > 599
-    " au BufWritePost *.pl silent !chmod a+x <afile>
-  " endif
+   if has ('unix') && version > 599
+     au BufWritePost *.pl,*.sh silent !chmod +x <afile>
+   endif
 """  au BufNewFile,BufRead,BufEnter *.pl,*.pm map ;; :call setline('.', Commentout(getline('.'), 'perl'))<CR>
   " end Perl
   

@@ -4652,7 +4652,7 @@ sudo apt-cache policy vim
 sudo apt purge android-sdk-platform-tools-common && sudo apt autoremove
 
 # Debian, Ubuntu regular package update apt mantra:
-sudo apt update && sudo apt full-upgrade -y && sudo apt autoremove --purge -y && sudo apt clean && sudo apt -f install
+sudo apt update && sudo apt full-upgrade -y && sudo apt autoremove --purge && sudo apt clean && sudo apt -f install
 
 sudo apt install git w3m tmux bc -y
 sudo add-apt-repository --remove ppa:ansible/ansible -y && sudo apt update
