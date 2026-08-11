@@ -4478,7 +4478,7 @@ echo 129.108.230.108 | awk -F. '{print $4"."$3"."$2"."$1}'
 curl --head --location https://bit.ly/2yDyS4T
 
 # Get a file and both write it to a file and to stdout simultaneously:
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo tee /etc/apt/trusted.gpg.d/docker.asc
+curl -fsSL https://download.docker.com/linux/ubuntu/ggg | sudo tee /etc/apt/trusted.gpg.d/docker.asc
 
 # What is my IP (if no ifconfig) wifi router:
 curl http://ifconfig.me/ip
@@ -4564,12 +4564,20 @@ sudo systemctl enable --now system-monitor-motd.timer
 systemd-analyze cat-config systemd/journald.conf
 journalctl --disk-usage
 
+# Disable and don't restart at reboot (even if it's relied on by other services):
+sudo systemctl disable --now tailscaled && sudo systemctl mask tailscaled
+sudo systemctl unmask tailscaled && sudo systemctl enable --now tailscaled
+
 systemctl start httpd
 systemctl enable httpd
 systemctl status httpd
 # Which of my ports are listening:
 ss -tuln | grep :80
 journalctl -u httpd
+sudo firewall-cmd --list-ports
+
+# Open ports:
+sudo ss -tulpn
 
 # Which WSL2 distros installed:
 wsl --list --verbose
@@ -4719,6 +4727,7 @@ UID=b5e2c43c-fb1e-4000-9983-1c9d3d2148de /mnt/hdd       ext4    defaults,nofail,
 
 alias ga="(cd ~/dotfiles && git status && git add . && git commit -m 'gamod appa' && git push origin master)"
 
+ssh -L 1234:127.0.0.1:1234 root@213.113.55.80
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
