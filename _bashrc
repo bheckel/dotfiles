@@ -92,6 +92,7 @@ alias bc="bc -lq"  # allow floating point calcs, mess up other stuff
 alias be="vi $HOME/.bashrc"
 alias bgrep="$HOME/code/scripting/bgrep"
 alias by=exit  # keepin' up the FTP tradition
+alias bye=exit
 alias cd..='cd ..; ls'
 alias cdc="cd $HOME/code"
 alias cdd="cd $HOME/code/database"
