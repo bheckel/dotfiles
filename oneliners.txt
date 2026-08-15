@@ -3469,6 +3469,9 @@ tar cvfz ~/tmp/essential.tgz `grep 'ESSENTIAL' * | awk -F: '{print $1}'`
 
 # Add append file to existing tarball:
 tar -rvf my.tar myfile.txt && tar -tf my.tar
+# Delete file from existing tarball:
+tar --delete -f my.tar ric.txt
+tar -tf my.tar  # confirm
 
 # Determine total size of selected files.  Add sizes of files together.
 wc *.txt
@@ -4478,7 +4481,7 @@ echo 129.108.230.108 | awk -F. '{print $4"."$3"."$2"."$1}'
 curl --head --location https://bit.ly/2yDyS4T
 
 # Get a file and both write it to a file and to stdout simultaneously:
-curl -fsSL https://download.docker.com/linux/ubuntu/ggg | sudo tee /etc/apt/trusted.gpg.d/docker.asc
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo tee /etc/apt/trusted.gpg.d/docker.asc
 
 # What is my IP (if no ifconfig) wifi router:
 curl http://ifconfig.me/ip
