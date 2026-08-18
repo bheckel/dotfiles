@@ -1999,6 +1999,7 @@ if !exists("autocommands_loaded")
   au WinEnter * checktime
 
   au BufNewFile,BufRead *.md   set syntax=markdown
+  au BufNewFile,BufRead *.Modelfile   set syntax=none
 
   " Enterprise Guide files
   au BufReadCmd *.egp call zip#Browse(expand("<amatch>"))
