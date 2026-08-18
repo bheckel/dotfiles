@@ -735,6 +735,7 @@ case "$OSTYPE" in
       #----------------
       if uname -r | grep -qi microsoft; then
          echo "WSL detected"
+         TEMP=/mnt/c/temp
 
          case ":$PATH:" in
            *":/mnt/c/Users/bheck/AppData/Local/Android/Sdk/platform-tools:"*) ;;

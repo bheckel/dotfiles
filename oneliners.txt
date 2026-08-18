@@ -4549,6 +4549,7 @@ journalctl --since "2015-02-02 20:30:00"
 sudo journalctl -g "error|failed|denied"
 logger -t oci-run-test "Run Command test script executed via OCI Console"
 sudo journalctl -t sshd --since "30 minutes ago"
+journalctl -u tailscaled -f  # tail for a service
 
 systemctl list-unit-files --type=service --state=enabled  # what runs at startup
 systemctl is-enabled docker  # or just systemctl start docker (harmless if running)
