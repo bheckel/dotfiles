@@ -625,10 +625,11 @@ case "$OSTYPE" in
       fi
 #fi
 
-      export TERM=screen-256color
-      export VIMSTATUSL="${USER}@`echo ${HOSTNAME}`"
+      TEMP=/tmp
+      TERM=screen-256color
+      VIMSTATUSL="${USER}@`echo ${HOSTNAME}`"
       # For crontab -e
-      export VISUAL=vim
+      VISUAL=vim
 
       #----------------
       # Alias Linux  #{{{2 
