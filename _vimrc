@@ -693,6 +693,7 @@ iab HtT <table><CR>  <tr><td> </td></tr><CR><Left><Left></table>
 """iab ;& &amp;
 """iab ;_ &nbsp;
 
+" See :digraphs
 " === IAST Sanskrit vowels (macrons) ===
 iabbrev xxa  ā
 iabbrev xxA  Ā
@@ -726,11 +727,11 @@ iabbrev xxs   ṣ
 iabbrev xxS   Ṣ
 iabbrev xxss  ś
 iabbrev xxSS  Ś
-iabbrev xxnn  ñ
-iabbrev xxNN  Ñ
+iabbrev xxnya  ñ
+iabbrev xxNYA  Ñ
 " === Velar nasal ===
-iabbrev xxn  ṅ
-iabbrev xxN  Ṅ
+iabbrev xxnn  ṅ
+iabbrev xxNN  Ṅ
 
 " === 36 Tattvas ===
 iabbrev xxxha    ह
