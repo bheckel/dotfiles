@@ -8679,4 +8679,7 @@ attributes disk clear readonly
 clean
 exit
 
+-- Which Startup Apps exist Win11:
+Get-CimInstance Win32_StartupCommand | Select-Object Name, Command, Location
+
 xxMISCxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
