@@ -625,6 +625,7 @@ case "$OSTYPE" in
       fi
 #fi
 
+      SYSTEMD_EDITOR=vim
       TEMP=/tmp
       TERM=screen-256color
       VIMSTATUSL="${USER}@`echo ${HOSTNAME}`"
