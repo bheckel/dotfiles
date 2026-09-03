@@ -4732,6 +4732,11 @@ UID=b5e2c43c-fb1e-4000-9983-1c9d3d2148de /mnt/hdd       ext4    defaults,nofail,
 alias ga="(cd ~/dotfiles && git status && git add . && git commit -m 'gamod appa' && git push origin master)"
 
 ssh -L 1234:127.0.0.1:1234 root@213.113.55.80
+
+# grep a tarfile:
+tar -xf my.tar -O | grep -n "find me"
+tar -xzf archive.tar.gz -O | grep -n "pattern"
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
