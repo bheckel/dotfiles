@@ -217,6 +217,9 @@ set hlsearch
 " for i in {0..255} ; do printf "\x1b[38;5;${i}mcolour${i}\n"; done
 " ~/code/misc/vim_colors.txt
 "--------------------------------------------------------------------------
+"set t_Co=256
+"set t_ut=
+"set termguicolors
 syntax enable
 "syntax sync maxlines=500 ccomment
 "syntax sync maxlines=1000
@@ -226,7 +229,9 @@ syntax sync fromstart
 " usually relying on .mintty or .Xdefaults so this is often only for gVim.
 hi Normal guifg=White guibg=Black
 
-hi Comment ctermbg=Black ctermfg=DarkGray guibg=Black guifg=DarkGray
+"hi Comment ctermbg=Black ctermfg=242 guibg=Black guifg=DarkGray
+"hi Comment guibg=Black guifg=DarkGray
+hi Comment ctermfg=DarkGray ctermbg=Black guifg=DarkGray guibg=Black
 
 hi Folded ctermfg=DarkGray ctermbg=Black guifg=DarkGray guibg=Black cterm=bold gui=bold
 
@@ -343,8 +348,12 @@ set laststatus=2
 "if !exists('$VIMSTATUSL')
 if !empty($VIMSTATUSL)
   set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)%{AmIPasting()}
+  "set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)
+  "set statusline=%<%f%h\ [%M%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)%{AmIPasting()}
+  "set statusline=%<%f%h\ [%M%R%H%Y,%{&ff},b%n]\ %{$VIMSTATUSL}\ %=\ %l/%LL,%cC%V(%P)%{AmIPasting()}%*
 else
   set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ CAUTION:\ USER\ UNKNOWN\ (ROOT??)\ %=\ %l/%LL,%cC%V(%P)%{AmIPasting()}
+  "set statusline=%<%f%h\ [%1*%M%*%R%H%Y,%{&ff},b%n]\ CAUTION:\ USER\ UNKNOWN\ (ROOT??)\ %=\ %l/%LL,%cC%V(%P)
 endif
 
 " Use <C-W>= to force equal as needed:
@@ -1315,7 +1324,6 @@ endfu
 " This won't work:
 """command! -nargs=0 Sas call SASrunSelection()  " }}}
 
-
 fu! CalcBC()   " {{{2
   " Highlight a calculation that has a trailing '=' and this will fill in the
   " answer or echo the result if no '='.  Requires that bc(1) is available.
@@ -1380,7 +1388,6 @@ fu! CalcBC()   " {{{2
   endif
 endfu   " }}}
 
-
 fu! CDtoThisFilesLoc()  " {{{2
   " This changes Vim to the pwd (not the OS to the pwd)
   " TODO how to handle spaces in path?
@@ -1388,7 +1395,6 @@ fu! CDtoThisFilesLoc()  " {{{2
   exec "cd " . _dir
   unlet _dir
 endfu  " }}}
-
 
 fu! MaxLineLen(printmaxlen)  " {{{2
   " This may be simpler:
@@ -1419,15 +1425,13 @@ fu! MaxLineLen(printmaxlen)  " {{{2
 endfu
 command! -nargs=0 Maxl call MaxLineLen(1)  " }}}
 
-
-function! SetOpt(opt, val)  " {{{2
+fu! SetOpt(opt, val)  " {{{2
   " Used to widen gvim to max column width
   let s:opt = a:opt
   let s:val = a:val
 
   execute("set " . s:opt . "=" . s:val)
 endfunction  " }}}
-
 
 fu! BkupFile(vtpth)  " {{{2
   " Make a backup copy.  Inserts stamp before the rightmost
@@ -1455,7 +1459,6 @@ fu! BkupFile(vtpth)  " {{{2
   exec("silent write! " . a:vtpth . "/" . s:all)
   " echo a:vtpth . "/" . s:all
 endfu  " }}}
-
 
 fu! Commadelim()   " {{{2
   " Assumes data has one element per row to be single-quoted and terminated with ','
@@ -1485,7 +1488,6 @@ endfu
 " command! -nargs=0 Commadelim call Commadelim()
 " }}}
 
-
 fu! HighlightCurrentLine()  " {{{2
   " Also see greenbar mapping
   if ! exists("g:CurrentLineUpdateTime")
@@ -1508,7 +1510,6 @@ fu! HighlightCurrentLine()  " {{{2
   endif
 endfu  " }}}
 
-
 fu! ReadFromFile(vtpth, fnm)  " {{{2
   " Used by mappings that transfer/read/write a block of text between vim sessions/terminals
   let fqfn = a:vtpth . '/' . a:fnm
@@ -1516,7 +1517,6 @@ fu! ReadFromFile(vtpth, fnm)  " {{{2
   exec("read " . fqfn)
 endfu
 " }}}
-
 
 fu! WriteToFile(vtpth, fnm, append, ...) range  " {{{2
   " Used by transfer/read and write one block of text between vim sessions/terminals maps
@@ -1545,7 +1545,6 @@ fu! WriteToFile(vtpth, fnm, append, ...) range  " {{{2
   " echom a:vtpth . "/" . a.fnm
 endfu
 " }}}
-
 
 fu! Commentout(line, lang)  " {{{2
 "                                                   ___ not necessarily vim filetype, refers instead to my tags below
@@ -1625,7 +1624,6 @@ fu! Commentout(line, lang)  " {{{2
   return l2
 endfu
 " }}}
-
 
 fu! AlignAssignments()  " {{{2
   " Adapated from Damien Conway http://www.ibm.com/developerworks/linux/library/l-vim-script-2/index.html
@@ -1793,14 +1791,12 @@ fu! WhichEnv() abort  " {{{2
 endfu
 " }}}
 
-function! AmIPasting()  " {{{2
+fu! AmIPasting()  " {{{2
   if &paste
-		" :echohl WarningMsg | echo "Don't panic!" | echohl None
     return ' <<<<  P A S T E   M O D E  >>>>'
-  else
-    return ''
   endif
-endfunction
+  return ''
+endfu
 " }}}
 
 " end Functions-
@@ -2103,6 +2099,9 @@ if !exists("autocommands_loaded")
   endif
   "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 
+"autocmd Syntax * hi Comment ctermfg=DarkGray ctermbg=Black guifg=DarkGray guibg=Black cterm=bold gui=bold
+"              \ | hi link shComment Comment
+"              \ | hi link shTodo Comment
 endif  " ! autocommands_loaded
 
 " end Autocommands-
@@ -3346,9 +3345,17 @@ endif
 
 " .vimrc.local is NOT in dotfiles repo
 if filereadable(glob("$HOME/.vimrc.local"))
-  " echon 'sourcing $HOME/.vimrc.local'
+  echon 'sourcing $HOME/.vimrc.local'
   source $HOME/.vimrc.local
 elseif filereadable("c:/cygwin64/home/boheck/.vimrc.local") 
-  " echon 'sourcing c:/cygwin64/home/boheck/.vimrc.local'
+  echon 'sourcing c:/cygwin64/home/boheck/.vimrc.local'
   source c:/cygwin64/home/boheck/.vimrc.local
 endif  "}}}
+
+"augroup ForceCommentColors
+"    autocmd!
+"    autocmd Syntax * hi Comment ctermfg=DarkGray ctermbg=Black guifg=DarkGray guibg=Black cterm=bold gui=bold
+"                 \ | hi link shComment Comment
+"                 \ | hi link shTodo NONE
+"                 \ | hi link shCommentError NONE
+"augroup END

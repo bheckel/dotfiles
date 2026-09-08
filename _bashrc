@@ -738,7 +738,9 @@ case "$OSTYPE" in
       #----------------
       if uname -r | grep -qi microsoft; then
          echo "WSL detected"
-         TEMP=/mnt/c/temp
+         export TEMP=/mnt/c/temp
+         # Windows Terminal vim syntax bugfix
+         export TERM=screen-256color
 
          case ":$PATH:" in
            *":/mnt/c/Users/bheck/AppData/Local/Android/Sdk/platform-tools:"*) ;;
@@ -861,7 +863,9 @@ case "$OSTYPE" in
         if [ "${LOGNAME}" = 'opc' ]; then
           #echo '.bashrc: opc user detected'
           #alias mailx='mailx -f /home/opc/mail'
-          MAIL=/home/opc/mail
+          export MAIL=/home/opc/mail
+          # Windows Terminal vim syntax bugfix
+          export TERM=screen-256color
           if [[ "$VERSION_ID" == "8.10" ]]; then
             alias vi=/usr/local/bin/vim
           fi
