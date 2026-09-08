@@ -5,7 +5,7 @@
 #          and z/OS
 #
 #  Created: 19-May-1998 (Bob Heckel)
-# Modified: 09-Jul-2026 (Bob Heckel)
+# Modified: 08-Sep-2026 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -36,11 +36,11 @@ printf '\e]4;4;#6495ed\a'
 #-----------------------
 # Generic Export  #{{{2
 #-----------------------
-EDITOR=vi
-GIT_CEILING_DIRECTORIES=/home
+export EDITOR=vi
+export GIT_CEILING_DIRECTORIES=/home
 # For PS1 function
-GIT_DISCOVERY_ACROSS_FILESYSTEM=1
-GIT_EDITOR=vim
+export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+export GIT_EDITOR=vim
 HISTSIZE=40000  # max in RAM
 HISTFILESIZE=40000  # max lines in $HISTFILE
 HISTIGNORE='f:fg:l:ls:la:cd:h:ll::by'  # ':&' supposedly same as HISTCONTROL=ignoredups - consecutive dups that is
@@ -48,19 +48,18 @@ HISTCONTROL=ignoredups:erasedups
 # $ history|sort|grep '2026-07-16 1'
 HISTTIMEFORMAT='%F %T '
 IGNOREEOF=1  # require 2 ctr-d to exit
-LESS='--ignore-case'  # but still honors 'ThisSearchPattern'
+export LESS='--ignore-case'  # but still honors 'ThisSearchPattern'
 # Prevent ugly default bolding
 ###export LS_COLORS='*.swp=00;35:*.swo=00;35:*.bak=00;35:ex=00;32:*.java=00;32:*.pm=00;32:no=00:fi=00:di=01;34:ln=00;36:*.lnk=00;36:*.gz=00;31:*.bz2=00;31:*.zip=00;31:*.tgz=00;31:*.7z=00;31'
-# ow= avoid hard-to-read gray on green for rwxrwxrwx files
-LS_COLORS='ow=30;42:*.swp=00;35:*.swo=00;35:*.bak=00;35:ex=00;32:di=1;34'
-PAGER=less  # for man(1)
-PARINIT='rTbgqR B=.?_A_a Q=_s>| w65'  # par formatter
+export LS_COLORS='ow=01;34:tw=01;34:st=01;34:*.swp=00;35:*.swo=00;35:*.bak=00;35:ex=00:*.tar=00;31:*.gz=00;31:*.bz2=00;31:*.zip=00;31:*.tgz=00;31:*.7z=00;31'
+export PAGER=less  # for man(1)
+#PARINIT='rTbgqR B=.?_A_a Q=_s>| w65'  # par formatter
 # PATH=$PATH:~/bin
-PERLLIB=$HOME/perllib
-PROMPT_COMMAND='echo -ne "\033]0;${PWD}\007";'
-TMP=$HOME/tmp
+export PERLLIB=$HOME/perllib
+export PROMPT_COMMAND='echo -ne "\033]0;${PWD}\007";'
+export TMP=$HOME/tmp
 # Default "unknown host" indicator for my .vimrc statusline
-VIMSTATUSL='?@?'
+export VIMSTATUSL='?@?'
 
 # Terminal font colors
 # Used by PS1, also good for use in shell scripts.  But bad for printing env.
@@ -466,7 +465,6 @@ case "$OSTYPE" in
     export PS1='${fg_darkgray}\j ${fg_greenbold}\u@${LCHOSTNAME}${fg_darkgray}$(parse_git_branch) \w/ \d \t ${normal} \n\$ '
     export PS2=' '  # allow multiple line copy to clipboard 
     # export SENSIBLE_BROWSER='/cygdrive/c/Program\ Files/mozilla\ firefox/firefox.exe'
-    #export TERM=xterm-256color
     #export TERM=mintty
     # Only way to get color ls (bug?). Assumes Terminal is set to mintty in mintty Settings.
     export TERM=screen-256color
@@ -627,12 +625,13 @@ case "$OSTYPE" in
       fi
 #fi
 
-      SYSTEMD_EDITOR=vim
-      TEMP=/tmp
-      TERM=screen-256color
-      VIMSTATUSL="${USER}@`echo ${HOSTNAME}`"
+      export SYSTEMD_EDITOR=vim
+      export TEMP=/tmp
+      #TERM=screen-256color
+      export TERM=xterm-256color
+      export VIMSTATUSL="${USER}@`echo ${HOSTNAME}`"
       # For crontab -e
-      VISUAL=vim
+      export VISUAL=vim
 
       #----------------
       # Alias Linux  #{{{2 
