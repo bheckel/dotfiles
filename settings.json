@@ -25,6 +25,10 @@
             "id": "User.splitPane.A6751878"
         },
         {
+            "command": "find",
+            "id": "User.find"
+        },
+        {
             "command": 
             {
                 "action": "moveFocus",
@@ -33,20 +37,8 @@
             "id": "User.moveFocus.F747588A"
         },
         {
-            "command": "find",
-            "id": "User.find"
-        },
-        {
             "command": "togglePaneZoom",
             "id": "User.togglePaneZoom"
-        },
-        {
-            "command": 
-            {
-                "action": "moveFocus",
-                "direction": "up"
-            },
-            "id": "User.moveFocus.6CD791B"
         },
         {
             "command": 
@@ -56,6 +48,14 @@
                 "splitMode": "duplicate"
             },
             "id": "User.splitPane.10B260D2"
+        },
+        {
+            "command": 
+            {
+                "action": "moveFocus",
+                "direction": "up"
+            },
+            "id": "User.moveFocus.6CD791B"
         },
         {
             "command": 
@@ -85,37 +85,43 @@
     ],
     "copyFormatting": "none",
     "copyOnSelect": true,
-    "defaultProfile": "{51855cb2-8cce-5362-8f54-464b92b32386}",
+    "defaultProfile": "{2c4de342-38b7-51cf-b940-2309a097f518}",
+    "disabledProfileSources": 
+    [
+        "Windows.Terminal.Azure",
+        "Windows.Terminal.VisualStudio",
+        "CanonicalGroupLimited.Ubuntu_79rhkp1fndgsc"
+    ],
     "firstWindowPreference": "persistedWindowLayout",
     "keybindings": 
     [
-        {
-            "id": "User.moveFocus.6CD791B",
-            "keys": "ctrl+shift+k"
-        },
         {
             "id": "User.copy.644BA8F2",
             "keys": "ctrl+c"
         },
         {
-            "id": "User.togglePaneZoom",
-            "keys": "ctrl+shift+z"
+            "id": "User.moveFocus.6CD791B",
+            "keys": "ctrl+shift+k"
         },
         {
             "id": "User.find",
             "keys": "ctrl+shift+f"
         },
         {
+            "id": "User.togglePaneZoom",
+            "keys": "ctrl+shift+z"
+        },
+        {
             "id": "User.splitPane.A6751878",
             "keys": "alt+shift+d"
         },
         {
-            "id": "User.splitPane.FEF0D40B",
-            "keys": "ctrl+shift+5"
-        },
-        {
             "id": null,
             "keys": "ctrl+0"
+        },
+        {
+            "id": "User.splitPane.FEF0D40B",
+            "keys": "ctrl+shift+5"
         },
         {
             "id": null,
@@ -184,7 +190,7 @@
                 "commandline": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
                 "elevate": false,
                 "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
-                "hidden": false,
+                "hidden": true,
                 "name": "PowerShell 1.0"
             },
             {
@@ -208,9 +214,8 @@
             },
             {
                 "adjustIndistinguishableColors": "always",
-                "colorScheme": "Ubuntu-ColorScheme",
                 "guid": "{51855cb2-8cce-5362-8f54-464b92b32386}",
-                "hidden": false,
+                "hidden": true,
                 "name": "Ubuntu",
                 "opacity": 100,
                 "pathTranslationStyle": "wsl",
@@ -222,6 +227,16 @@
                 "guid": "{7c8db0db-017c-4edd-90db-b948c971e9bd}",
                 "hidden": false,
                 "name": "PowerShell 7"
+            },
+            {
+                "colorScheme": "Tango Dark",
+                "cursorShape": "filledBox",
+                "experimental.rainbowSuggestions": false,
+                "guid": "{2c4de342-38b7-51cf-b940-2309a097f518}",
+                "hidden": false,
+                "historySize": 5000,
+                "name": "Ubuntu",
+                "source": "Windows.Terminal.Wsl"
             }
         ]
     },
@@ -229,3 +244,4 @@
     "themes": [],
     "windowingBehavior": "useNew"
 }
+
