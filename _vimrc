@@ -6,7 +6,7 @@
 "           his tools -- Confucius
 "
 "  Created: Wed 06-Jun-1998 (Bob Heckel)
-" Modified: Thu 30-Jul-2026 (Bob Heckel)
+" Modified: Wed 09-Sep-2026 (Bob Heckel)
 "#¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø
 
 "   Settings 	{{{1
@@ -225,8 +225,7 @@ syntax enable
 "syntax sync maxlines=1000
 syntax sync fromstart
 
-" Avoid reading text presented like it was written on a lightbulb.  We're
-" usually relying on .mintty or .Xdefaults so this is often only for gVim.
+" Avoid reading text presented like it was written on a lightbulb. We're " usually relying on .mintty or .Xdefaults for ctermbg/fg.
 hi Normal guifg=White guibg=Black
 
 "hi Comment ctermbg=Black ctermfg=242 guibg=Black guifg=DarkGray
@@ -289,10 +288,12 @@ hi String ctermfg=White guifg=White guibg=Black cterm=bold gui=bold
 " May be overridden by aucommands.  Mirror any change here to there.
 hi User1 ctermfg=red guifg=red cterm=inverse,bold 
 
- "if version < 800
 if hostname() == 'webserver'
-  hi StatusLine ctermfg=Blue ctermbg=White guifg=Blue guibg=White
-  hi StatusLineNC ctermfg=Blue ctermbg=Gray guifg=Blue guibg=Gray
+  hi StatusLine ctermfg=26 ctermbg=White
+  hi StatusLineNC ctermfg=26 ctermbg=Gray
+elseif hostname() == 'evolved'
+  hi StatusLine ctermfg=92 ctermbg=White
+  hi StatusLineNC ctermfg=92 ctermbg=Gray
 else
   hi StatusLine ctermfg=23 ctermbg=White guifg=#005f5f guibg=White
   hi StatusLineNC ctermfg=23 ctermbg=Gray guifg=#005f5f guibg=Gray
@@ -1801,312 +1802,6 @@ endfu
 
 " end Functions-
 
-"   Autocommands  {{{1  
-"  Begin aucommands 	
-"
-"  No spaces between comma-delimited file lists!
-"--------------------------------------------------------------------------
-
-" Avoid double sourcing
-if !exists("autocommands_loaded")
-  let autocommands_loaded = 1
- 
-"au BufReadPre,FileReadPre *testmetestmewhydontyouarrestme.sql* echon 'foo'
-
-	" Return to the line and column of last edited position
-	autocmd BufReadPost * if line("'\"") | exe "normal '\"" | endif
-	" autocmd BufReadPost [^vimxfer_ses] if line("'\"") | exe "normal '\"" | endif
-
-  " Move cursor to filename for fast gf
-	" autocmd BufReadPost /tmp/.loc,/tmp/.rme exe "normal $"
-
-  " Handle my ~/bin/sasrun script output
-  au BufRead tmpsas.*.log,tmpsas.*.lst map q :qa!<CR>
-  au BufRead tmpsas.*.log,tmpsas.*.lst echo '.vimrc: q to quit all'
-
-  " au BufNewFile,BufRead,BufEnter *.sas map ;; :call setline('.', Commentout(getline('.'), 'sas'))<CR>
-  au BufNewFile,BufRead,BufEnter *.sas map ;c 0Di  *  Created: <C-R>=strftime("%d-%b-%Y")<CR> (Bob Heckel)<ESC>0
-  au BufNewFile,BufRead,BufEnter *.sas map ;m 0Di  * Modified: <C-R>=strftime("%d-%b-%Y")<CR> (Bob Heckel)<ESC>0
-  au BufNewFile,BufRead,BufEnter *.sas map ,m yy0I***<ESC>p
-  " Define pairs to allow the 'bounce on %' plugin to work.  Case insensitive.  No spaces between pairs!
-  au BufNewFile,BufRead,BufEnter *.sas let b:match_words = '\<do\>:\<end\>,\<data\s\+\w\+:\<run\;,%macro.*\;:\<mend\>.*\;,\<sql.*;:\<quit;'
-  " Filter SAS Log for error-like lines (and lines that should be errors) only
-  au BufNewFile,BufRead,BufEnter *.log nnoremap <silent> <F8> :g!/^ERROR:\\|^WARNING:\\|lines were truncated\\|^NOTE: Invalid data for\\|^NOTE: Variable/d<CR>
-  " au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR:/<CR>
-  au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\|^WARNING:/<CR>
-  " Bounce using %
-  au BufNewFile,BufRead,BufEnter *.plsql,*.pck,*.prc,*.fnc let b:match_words = '\<begin\>:\<end\>,\<loop\>:\<end loop\>'
-
-  " TOGGLE. Delete the yearly warning lines
-  """au BufRead *.log :g/^WARNING: The Base Product\|installation repres/d
-  """au BufRead *.log :g/^WARNING: Your system is scheduled to expire on/d
-  """au BufRead *.log :g/Please contact your SAS/d
-  """au BufRead *.log :g/information.  The SAS System will no longer function on or after that/d
-  """au BufRead *.log :g/representative to have it renewed/d
-
-  " au BufNewFile,BufRead,BufEnter *.pl nmap ,p :!perl -c %<CR>
-  au BufNewFile,BufRead,BufEnter *.pl nmap ;z :!echo && echo && perl %<CR>
-  " Alternate help files via 'K'.  Default s/b set above as keywordprg=man
-  au BufNewFile,BufRead,BufEnter *.p[lm] set keywordprg=perldoc\ -f
-  au BufNewFile,BufRead,BufEnter *.pl map ,3 :s:^###::g<CR>:se nohls<CR>
-   if has ('unix') && version > 599
-     au BufWritePost *.pl,*.sh silent !chmod +x <afile>
-   endif
-"""  au BufNewFile,BufRead,BufEnter *.pl,*.pm map ;; :call setline('.', Commentout(getline('.'), 'perl'))<CR>
-  " end Perl
-  
-  "au BufRead,BufNewFile,BufEnter *ORION-* set filetype=plsql
-	au BufRead,BufNewFile *.plsql,*.pkg,*.pck,*.spc,*.prc,*.fnc set filetype=plsql
-
-  au BufNewFile,BufRead,BufEnter *.py nmap ;z :!echo && echo && python %<CR>
-  " TODO
-  " au BufNewFile,BufEnter *.py set tabstop=4
-
-  au FileType sh set fileformat=unix
-  "if hostname() != 'penguin'
-    "au BufWritePost *.sh silent !chmod a+x <afile>
-  "endif
-  "
-  "au FileType basic map ,m yy0I'''<ESC>p
-  "au FileType basic map ;s :s:^:''':<CR>
-  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;c 0Di//  Created: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
-  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;m 0Di// Modified: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
-  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ,m yy0I///<ESC>p
-"""  au FileType sh map ;; :call setline('.', Commentout(getline('.'), 'default'))<CR>
-  " Default Vim make is for C, this handles C++
-  au BufNewFile,BufRead,BufEnter *.cpp set makeprg=g++\ -Wall\ %
-  au BufNewFile,BufRead,BufEnter *.c nmap ;z :!gcc %<CR>\|:echon 'compiled a.exe via ;z map'<CR>
-"""  au FileType javascript map ;; :call setline('.', Commentout(getline('.'), 'cpp'))<CR>
-"""  au BufNewFile,BufRead,BufEnter *.htm*,*xsl* map ;; :call setline('.', Commentout(getline('.'), 'html'))<CR>
-  au BufNewFile,BufRead,BufEnter *.htm* map ,m yy0I///<ESC>p
-  au BufNewFile,BufRead,BufEnter *.asp,*.bas let s:VBnotend = '\%(\<end\s\+\)\@<!'
-  au BufNewFile,BufRead,BufEnter *.asp,*.bas let b:match_words = s:VBnotend . '\<if\>:\<end\s\+if\>'
-  " Automatically flow text
-  au BufReadPre,FileReadPre *.email set formatoptions=a
-
-  " au BufNewFile,BufRead,BufEnter *vimperatorrc* source ~/code/misc/vimperator.vim
-
-	" Conveniences for my custom searching code e.g. bgrep, rme or prj
-  au BufNewFile,BufEnter */tmp/*.grep source ~/code/misc/bgrep.vim
-  au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme map <CR> <C-W>f :set winheight=9999<CR>:only<CR>
-  au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme map q :q<CR>
-  au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme set hls
-  au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme echon '.vimrc: <CR> to select file, q to quit'
-
-  "TODO how to keep non-txt bufs that are switched into from being se wrap?
-  " au BufRead,BufEnter *.txt set wrap
-
-  " Don't wrap these
-  au BufRead,BufEnter *.htm*,*.cgi,*/tmp/bash*,afiedt.buf,*.sql set tw=0 wm=0
-
-  au BufRead,BufEnter afiedt.buf set filetype=sql
-  " TODO 06-Feb-19 getting tab indentation some reason - block for now:
-  " au BufRead,BufEnter *.sql,afiedt.buf set noexpandtab
-  au BufRead,BufEnter *.sql,afiedt.buf iab OrD order by 1 DESC
-  au BufRead,BufEnter *.sql,afiedt.buf iab SeL select * from
-  au BufRead,BufEnter *.sql,afiedt.buf iab SeC select count(*) from
-
-  " Enhance /usr/share/vim/vim82/syntax/sqloracle.vim when PLSQL code sneaks into a .sql
-  au BufRead,BufEnter *.sql syn keyword sqlFunction	FORALL SAVE EXCEPTIONS
-  au BufRead,BufEnter *.sql syn keyword sqlKeyword SIBLINGS MERGE
-
-  " See  set cinwords  above.
-"""  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.pl,*.pm,*.sas set smartindent
-  " Fix not-so-smartindent comment outdenting:  TODO ignored, can't use
-  " >> to shift lines starting with '#'
-"""  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.pl,*.pm,*.sas inoremap # X#
-  " Remove trailing blank lines so they don't get '>' quoted.
-  " TODO need to remove blank > lines instead of blank lines
-  """autocmd BufRead mutt-*[0-9],.followup,.article,.letter :1,$!sed -e :a -e '/^\n*$/{$d;N;};/\n$/ba'
-  " end ~/bin/bgrep
-
-  " We never edit these files so simplify exiting:
-  au BufEnter $VIMRUNTIME/doc/*.txt nnoremap q :q<CR>
-  au BufLeave $VIMRUNTIME/doc/*.txt unmap q
-
-  " Set to empty to default to Vim's help:
-  au BufNewFile,BufRead,BufEnter *.vim,.vimrc,*.htm,*.html,*_vimrc set keywordprg=
-  au FileType HELP set keywordprg=
-
-  " au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;c 0Di"  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
-  au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;c 0Di"  Created: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
-  au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;m 0Di" Modified: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
-  au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ,m yy0I"""<ESC>p
-"""  au BufNewFile,BufRead,BufEnter .bashrc,_bashrc* map ;; :call setline('.', Commentout(getline('.'), 'bash'))<CR>
-  au BufNewFile,BufRead,BufEnter *.vim nmap ;z :source %<CR>
-
-  " MS Office
-  au BufReadPre *.doc set ro
-  au BufReadPre *.doc set hlsearch!
-  au BufReadPre *.doc nnoremap q :q!<CR>
-  au BufReadPost *.doc echon '.vimrc: q mapped to :q!'
-  " If program is installed
-  if exists(":antiword")
-    au BufReadPost *.doc %!antiword "%"
-  endif
-
-  augroup Binary
-    au!
-    au BufReadPre  *.exe let &bin=1
-    au BufReadPost *.exe if &bin | %!xxd
-    au BufReadPost *.exe set ft=xxd | endif
-    au BufWritePre *.exe if &bin | %!xxd -r
-    au BufWritePre *.exe endif
-    au BufWritePost *.exe if &bin | %!xxd
-    au BufWritePost *.exe set nomod | endif
-  augroup END
-
-  "TODO handle Cygwin paths
-  " au BufRead *.pdf silent execute "!explorer" . shellescape(expand("%:p")) . " &>/dev/null &" | buffer# | bdelete# | redraw! | syntax on
-
-  " This block must be placed near the end of au commands for syntax coloring to
-  " be disabled.
-  if &diff
-    " Don't interfere with diff's syntax coloring
-    au BufNewFile,BufRead,BufEnter * syntax off
-    " Always maximize gvim when using vimdiff
-    au GUIEnter * simalt ~x
-    """set guifont=Andale_Mono:h7
-    set guifont=Consolas:h8
-    " TODO gtk
-  endif
-
-  " Hack to avoid searching for column 1 - not sure how it gets set
-  autocmd GUIEnter * let @/ = ""
-
-  au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
-
-  au BufEnter .vimrc echo ".vimrc: $MYVIMRC:" $MYVIMRC
-  " au BufEnter .vimrc set textwidth=100
-
-  au BufEnter oneliners.txt,.vimrc,_vimrc,.bashrc,_bashrc set foldmethod=marker
-	au BufRead,BufNewFile oneliners.txt set filetype=txt
-
-  " We'll never need to edit a tarball, QuickFix list nor a pane
-  au FileType TAR,QF map q :q<CR>
-
-  "TODO ignored 26-Jul-23
-  "au FileType NETRW echo 'ok'
-  "au FileType NETRW map :q :close
-  "
-  " Always edit git commit messages at position 1L,1C
-  au FileType GITCOMMIT :1
-
-  " Act like gvim when a file was changed behind our back:
-  au WinEnter * checktime
-
-  au BufNewFile,BufRead *.md   set syntax=markdown
-  au BufNewFile,BufRead *.Modelfile   set syntax=none
-
-  " Enterprise Guide files
-  au BufReadCmd *.egp call zip#Browse(expand("<amatch>"))
-
-  " See my .bashrc function ses()
-  " au BufReadCmd /tmp/bash-fc* nmap ;r :call ReadFromFile(VTMP, '.vimxfer_ses')<CR>
-  " au BufEnter /tmp/bash-fc* set ff=unix
-
-  " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source c:/cygwin64/home/bob.heckel/code/sas/saslog.vim
-  " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim
-  " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $VIMRUNTIME\syntax\saslog.vim
-
-  " Avoid ;w failure if this file is open by accident anywhere by ,e (it should never be edited directly)
-  "au BufReadPre,FileReadPre *.vimxfer,*/tmp/1,*/tmp/2 set noswapfile
-  au BufReadPre,FileReadPre *.vimxfer set noswapfile
-
-  " if THISBOX == 'appa'
-    " au BufNewFile,BufRead,BufEnter *.sas | syntax clear | source $HOME/code/sas/sas.vim
-  " endif
-
-  " Resize buffer (most convenient with number keypad) if more than one exists
-  " GUI uses + for font resizing (due to inability to use control-mousewheel
-  " in 2018)
-  if ! has('gui')
-    if exists('+getbufinfo')
-      au BufEnter * if len(getbufinfo({'buflisted':1})) > 1 | exe "nnoremap + <C-W>+" | endif
-      au BufEnter * if len(getbufinfo({'buflisted':1})) > 1 | exe "nnoremap - <C-W>-" | endif
-      "TODO reset when back to 1 buf
-      " au BufEnter * if len(getbufinfo({'buflisted':1})) == 1 | exe "nnoremap - noop" | endif
-    endif
-  endif
-
-  " This file has comments in several languages, just highlight them all
-  au BufRead oneliners.txt syn match Comment @^".*$\|^--.*$\|^\/\/.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@ contains=Search
-
-  "if hostname() == 'metta'
-  if $WSLENV =~ 'WT_SESSION:WT_PROFILE_ID' || !empty($WSL_HOST_IP)
-    let s:clip = '/mnt/c/Windows/System32/clip.exe'
-  else
-    let s:clip = ''
-  endif
-  if executable(s:clip)
-    augroup Yankme
-      autocmd!
-        autocmd TextYankPost * if v:event.operator ==# 'y' | call system(s:clip, @0) | endif
-    augroup END
-  endif
-
-  autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
-
-  "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
-  "
-	" TODO move to ~/.vimrc.local or something
-  " Temporary project-specific hacks to normalize messy problem-spaces:
-
-  if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
-"""    au BufRead LimsGistTableCount.txt :se list
-"""    au GUIEnter oracle_queries.sql,update.sql winpos 37 55 | se lines=20 | se columns=170 | se wrap | map j gj
-    " SQL*Plus hack to get table/field name completion
-"""    au BufRead afiedt.buf winpos 37 55 | se lines=20 | se columns=170 | se tw=999999 | :new | silent :args $HOME/code/misccode/spool/links/*.LST | :hide | map :wq :wq! | noremap ZZ :wq!<CR>
-    """au VimLeavePre afiedt.buf execute "w ~/tmp/afiedt.buf." . strftime("%m_%d-%H_%M_%S")
-
-    " Platform warning indicators:
-    " gvim
-    " au BufRead,BufWinEnter H:/*             hi StatusLine   guifg=Green guibg=Black gui=inverse,bold
-    " au BufRead,BufWinLeave H:/*             hi StatusLineNC guifg=Green guibg=Gray gui=inverse,bold
-    " vim
-"""    au BufRead,BufWinEnter /cygdrive/c/*    hi StatusLine   ctermfg=Blue ctermbg=White
-"""    au BufRead,BufWinLeave /cygdrive/c/*    hi StatusLineNC ctermfg=Blue ctermbg=Gray gui=inverse,bold
-
-    " au BufReadPre,FileReadPre [ETHR]:/* set noswapfile
-"""    au BufReadPre,FileReadPre /cygdrive/[mswxyz]/* set noswapfile
-
-    " Do not use The Force on Test & Production
-    """au BufEnter [YZ]:/DataPost* set readonly
-    """au BufEnter /cygdrive/[yz]/DataPost* set readonly
-
-		"""au BufNewFile,BufRead,BufEnter DataPost*.log set noswapfile | set hlsearch | source u:/code/sas/saslog.vim 
-		"""au BufRead,BufNewFile *.map set filetype=xslt
-"""    au BufReadPre,FileReadPre /Drugs/Macros/* set noswapfile
-"""    au BufReadPre,FileReadPre /Drugs/Cron/* set directory=/Drugs/Personnel/bob/
-
-    au BufWritePre,BufLeave * set nobomb
-  end
-  
-  au BufReadPre,FileReadPre *Source/* set noswapfile
-  au BufReadPre,FileReadPre *sashq/* set nobackup
-  au BufReadPre,FileReadPre *sashq/* set nowritebackup
-  au BufReadPre,FileReadPre *sashq/* set noswapfile
-
-  if has('gui')
-    " Maximize window upon opening
-    " au GUIEnter *.log simalt ~x
-    " Run SAS on current .sas file:
-    au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!c:/Progra~1/SASIns~1/SAS/V8/sas.exe -sysin %<CR>:args %:r.lst %:r.log<CR>
-  else
-    " Run my execute SAS shell script in a terminal:
-    " au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!~/code/sas/sasrun %:p<CR>
-    au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!~/code/sas/sasrun2 "%:p"<CR>
-  endif
-  "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
-
-"autocmd Syntax * hi Comment ctermfg=DarkGray ctermbg=Black guifg=DarkGray guibg=Black cterm=bold gui=bold
-"              \ | hi link shComment Comment
-"              \ | hi link shTodo Comment
-endif  " ! autocommands_loaded
-
-" end Autocommands-
-
-"--------------------------------------------------------------------------}}}
 "  Inlined Plugins  {{{1
 " Simple plugins that are easier to lazily store here rather than ~/.vim/plugin/
 " And to improve portability (e.g. Cygwin vs gvim problems).
@@ -3341,6 +3036,319 @@ endif
 " end Inlined Plugins-
 "--------------------------------------------------------------------------
 
+"   Autocommands  {{{1  
+"  Begin aucommands 	
+"
+"  No spaces between comma-delimited file lists!
+"--------------------------------------------------------------------------
+
+" Avoid double sourcing
+if !exists("autocommands_loaded")
+  let autocommands_loaded = 1
+ 
+"au BufReadPre,FileReadPre *testmetestmewhydontyouarrestme.sql* echon 'foo'
+
+	" Return to the line and column of last edited position
+	autocmd BufReadPost * if line("'\"") | exe "normal '\"" | endif
+	" autocmd BufReadPost [^vimxfer_ses] if line("'\"") | exe "normal '\"" | endif
+
+  " Move cursor to filename for fast gf
+	" autocmd BufReadPost /tmp/.loc,/tmp/.rme exe "normal $"
+
+  " Handle my ~/bin/sasrun script output
+  au BufRead tmpsas.*.log,tmpsas.*.lst map q :qa!<CR>
+  au BufRead tmpsas.*.log,tmpsas.*.lst echo '.vimrc: q to quit all'
+
+  " au BufNewFile,BufRead,BufEnter *.sas map ;; :call setline('.', Commentout(getline('.'), 'sas'))<CR>
+  au BufNewFile,BufRead,BufEnter *.sas map ;c 0Di  *  Created: <C-R>=strftime("%d-%b-%Y")<CR> (Bob Heckel)<ESC>0
+  au BufNewFile,BufRead,BufEnter *.sas map ;m 0Di  * Modified: <C-R>=strftime("%d-%b-%Y")<CR> (Bob Heckel)<ESC>0
+  au BufNewFile,BufRead,BufEnter *.sas map ,m yy0I***<ESC>p
+  " Define pairs to allow the 'bounce on %' plugin to work.  Case insensitive.  No spaces between pairs!
+  au BufNewFile,BufRead,BufEnter *.sas let b:match_words = '\<do\>:\<end\>,\<data\s\+\w\+:\<run\;,%macro.*\;:\<mend\>.*\;,\<sql.*;:\<quit;'
+  " Filter SAS Log for error-like lines (and lines that should be errors) only
+  au BufNewFile,BufRead,BufEnter *.log nnoremap <silent> <F8> :g!/^ERROR:\\|^WARNING:\\|lines were truncated\\|^NOTE: Invalid data for\\|^NOTE: Variable/d<CR>
+  " au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR:/<CR>
+  au BufNewFile,BufRead,BufEnter *.sas,*.log map ;e /^ERROR\\|^WARNING:/<CR>
+  " Bounce using %
+  au BufNewFile,BufRead,BufEnter *.plsql,*.pck,*.prc,*.fnc let b:match_words = '\<begin\>:\<end\>,\<loop\>:\<end loop\>'
+
+  " TOGGLE. Delete the yearly warning lines
+  """au BufRead *.log :g/^WARNING: The Base Product\|installation repres/d
+  """au BufRead *.log :g/^WARNING: Your system is scheduled to expire on/d
+  """au BufRead *.log :g/Please contact your SAS/d
+  """au BufRead *.log :g/information.  The SAS System will no longer function on or after that/d
+  """au BufRead *.log :g/representative to have it renewed/d
+
+  " au BufNewFile,BufRead,BufEnter *.pl nmap ,p :!perl -c %<CR>
+  au BufNewFile,BufRead,BufEnter *.pl nmap ;z :!echo && echo && perl %<CR>
+  " Alternate help files via 'K'.  Default s/b set above as keywordprg=man
+  au BufNewFile,BufRead,BufEnter *.p[lm] set keywordprg=perldoc\ -f
+  au BufNewFile,BufRead,BufEnter *.pl map ,3 :s:^###::g<CR>:se nohls<CR>
+   if has ('unix') && version > 599
+     au BufWritePost *.pl,*.sh silent !chmod +x <afile>
+   endif
+"""  au BufNewFile,BufRead,BufEnter *.pl,*.pm map ;; :call setline('.', Commentout(getline('.'), 'perl'))<CR>
+  " end Perl
+  
+  "au BufRead,BufNewFile,BufEnter *ORION-* set filetype=plsql
+	au BufRead,BufNewFile *.plsql,*.pkg,*.pck,*.spc,*.prc,*.fnc set filetype=plsql
+
+  au BufNewFile,BufRead,BufEnter *.py nmap ;z :!echo && echo && python %<CR>
+  " TODO
+  " au BufNewFile,BufEnter *.py set tabstop=4
+
+  au FileType sh set fileformat=unix
+  "if hostname() != 'penguin'
+    "au BufWritePost *.sh silent !chmod a+x <afile>
+  "endif
+  "
+  "au FileType basic map ,m yy0I'''<ESC>p
+  "au FileType basic map ;s :s:^:''':<CR>
+  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;c 0Di//  Created: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
+  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ;m 0Di// Modified: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
+  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.h map ,m yy0I///<ESC>p
+"""  au FileType sh map ;; :call setline('.', Commentout(getline('.'), 'default'))<CR>
+  " Default Vim make is for C, this handles C++
+  au BufNewFile,BufRead,BufEnter *.cpp set makeprg=g++\ -Wall\ %
+  au BufNewFile,BufRead,BufEnter *.c nmap ;z :!gcc %<CR>\|:echon 'compiled a.exe via ;z map'<CR>
+"""  au FileType javascript map ;; :call setline('.', Commentout(getline('.'), 'cpp'))<CR>
+"""  au BufNewFile,BufRead,BufEnter *.htm*,*xsl* map ;; :call setline('.', Commentout(getline('.'), 'html'))<CR>
+  au BufNewFile,BufRead,BufEnter *.htm* map ,m yy0I///<ESC>p
+  au BufNewFile,BufRead,BufEnter *.asp,*.bas let s:VBnotend = '\%(\<end\s\+\)\@<!'
+  au BufNewFile,BufRead,BufEnter *.asp,*.bas let b:match_words = s:VBnotend . '\<if\>:\<end\s\+if\>'
+  " Automatically flow text
+  au BufReadPre,FileReadPre *.email set formatoptions=a
+
+  " au BufNewFile,BufRead,BufEnter *vimperatorrc* source ~/code/misc/vimperator.vim
+
+	" Conveniences for my custom searching code e.g. bgrep, rme or prj
+  au BufNewFile,BufEnter */tmp/*.grep source ~/code/misc/bgrep.vim
+  au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme map <CR> <C-W>f :set winheight=9999<CR>:only<CR>
+  au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme map q :q<CR>
+  au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme set hls
+  au BufNewFile,BufEnter */tmp/*.grep,*/tmp/prj.out,*/tmp/.rme echon '.vimrc: <CR> to select file, q to quit'
+
+  "TODO how to keep non-txt bufs that are switched into from being se wrap?
+  " au BufRead,BufEnter *.txt set wrap
+
+  " Don't wrap these
+  au BufRead,BufEnter *.htm*,*.cgi,*/tmp/bash*,afiedt.buf,*.sql set tw=0 wm=0
+
+  au BufRead,BufEnter afiedt.buf set filetype=sql
+  " TODO 06-Feb-19 getting tab indentation some reason - block for now:
+  " au BufRead,BufEnter *.sql,afiedt.buf set noexpandtab
+  au BufRead,BufEnter *.sql,afiedt.buf iab OrD order by 1 DESC
+  au BufRead,BufEnter *.sql,afiedt.buf iab SeL select * from
+  au BufRead,BufEnter *.sql,afiedt.buf iab SeC select count(*) from
+
+  " Enhance /usr/share/vim/vim82/syntax/sqloracle.vim when PLSQL code sneaks into a .sql
+  au BufRead,BufEnter *.sql syn keyword sqlFunction	FORALL SAVE EXCEPTIONS
+  au BufRead,BufEnter *.sql syn keyword sqlKeyword SIBLINGS MERGE
+
+  " See  set cinwords  above.
+"""  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.pl,*.pm,*.sas set smartindent
+  " Fix not-so-smartindent comment outdenting:  TODO ignored, can't use
+  " >> to shift lines starting with '#'
+"""  au BufNewFile,BufRead,BufEnter *.c,*.cpp,*.pl,*.pm,*.sas inoremap # X#
+  " Remove trailing blank lines so they don't get '>' quoted.
+  " TODO need to remove blank > lines instead of blank lines
+  """autocmd BufRead mutt-*[0-9],.followup,.article,.letter :1,$!sed -e :a -e '/^\n*$/{$d;N;};/\n$/ba'
+  " end ~/bin/bgrep
+
+  " We never edit these files so simplify exiting:
+  au BufEnter $VIMRUNTIME/doc/*.txt nnoremap q :q<CR>
+  au BufLeave $VIMRUNTIME/doc/*.txt unmap q
+
+  " Set to empty to default to Vim's help:
+  au BufNewFile,BufRead,BufEnter *.vim,.vimrc,*.htm,*.html,*_vimrc set keywordprg=
+  au FileType HELP set keywordprg=
+
+  " au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;c 0Di"  Created: <C-R>=strftime("%a %d %b %Y %H:%M:%S")<CR> (Bob Heckel)<ESC>0
+  au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;c 0Di"  Created: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
+  au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ;m 0Di" Modified: <C-R>=strftime("%a %d-%b-%Y")<CR> (Bob Heckel)<ESC>0
+  au BufNewFile,BufRead,BufEnter .vimrc,_vimrc*,*.vim,_vimperatorrc map ,m yy0I"""<ESC>p
+"""  au BufNewFile,BufRead,BufEnter .bashrc,_bashrc* map ;; :call setline('.', Commentout(getline('.'), 'bash'))<CR>
+  au BufNewFile,BufRead,BufEnter *.vim nmap ;z :source %<CR>
+
+  " MS Office
+  au BufReadPre *.doc set ro
+  au BufReadPre *.doc set hlsearch!
+  au BufReadPre *.doc nnoremap q :q!<CR>
+  au BufReadPost *.doc echon '.vimrc: q mapped to :q!'
+  " If program is installed
+  if exists(":antiword")
+    au BufReadPost *.doc %!antiword "%"
+  endif
+
+  augroup Binary
+    au!
+    au BufReadPre  *.exe let &bin=1
+    au BufReadPost *.exe if &bin | %!xxd
+    au BufReadPost *.exe set ft=xxd | endif
+    au BufWritePre *.exe if &bin | %!xxd -r
+    au BufWritePre *.exe endif
+    au BufWritePost *.exe if &bin | %!xxd
+    au BufWritePost *.exe set nomod | endif
+  augroup END
+
+  "TODO handle Cygwin paths
+  " au BufRead *.pdf silent execute "!explorer" . shellescape(expand("%:p")) . " &>/dev/null &" | buffer# | bdelete# | redraw! | syntax on
+
+  " This block must be placed near the end of au commands for syntax coloring to
+  " be disabled.
+  if &diff
+    " Don't interfere with diff's syntax coloring
+    au BufNewFile,BufRead,BufEnter * syntax off
+    " Always maximize gvim when using vimdiff
+    au GUIEnter * simalt ~x
+    """set guifont=Andale_Mono:h7
+    set guifont=Consolas:h8
+    " TODO gtk
+  endif
+
+  " Hack to avoid searching for column 1 - not sure how it gets set
+  autocmd GUIEnter * let @/ = ""
+
+  au BufRead *.xml map <F3> :silent 1,$!xmllint --format --recover - 2>/dev/null
+
+  au BufEnter .vimrc echo ".vimrc: $MYVIMRC:" $MYVIMRC
+  " au BufEnter .vimrc set textwidth=100
+
+  au BufEnter oneliners.txt,.vimrc,_vimrc,.bashrc,_bashrc set foldmethod=marker
+	au BufRead,BufNewFile oneliners.txt set filetype=txt
+
+  " We'll never need to edit a tarball, QuickFix list nor a pane
+  au FileType TAR,QF map q :q<CR>
+
+  "TODO ignored 26-Jul-23
+  "au FileType NETRW echo 'ok'
+  "au FileType NETRW map :q :close
+  "
+  " Always edit git commit messages at position 1L,1C
+  au FileType GITCOMMIT :1
+
+  " Act like gvim when a file was changed behind our back:
+  au WinEnter * checktime
+
+  au BufNewFile,BufRead *.md   set syntax=markdown
+  au BufNewFile,BufRead *.Modelfile   set syntax=none
+
+  " Enterprise Guide files
+  au BufReadCmd *.egp call zip#Browse(expand("<amatch>"))
+
+  " See my .bashrc function ses()
+  " au BufReadCmd /tmp/bash-fc* nmap ;r :call ReadFromFile(VTMP, '.vimxfer_ses')<CR>
+  " au BufEnter /tmp/bash-fc* set ff=unix
+
+  " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source c:/cygwin64/home/bob.heckel/code/sas/saslog.vim
+  " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $HOME/code/sas/saslog.vim
+  " au BufNewFile,BufRead,BufEnter *.log set noswapfile | set hlsearch | source $VIMRUNTIME\syntax\saslog.vim
+
+  " Avoid ;w failure if this file is open by accident anywhere by ,e (it should never be edited directly)
+  "au BufReadPre,FileReadPre *.vimxfer,*/tmp/1,*/tmp/2 set noswapfile
+  au BufReadPre,FileReadPre *.vimxfer set noswapfile
+
+  " if THISBOX == 'appa'
+    " au BufNewFile,BufRead,BufEnter *.sas | syntax clear | source $HOME/code/sas/sas.vim
+  " endif
+
+  " Resize buffer (most convenient with number keypad) if more than one exists
+  " GUI uses + for font resizing (due to inability to use control-mousewheel
+  " in 2018)
+  if ! has('gui')
+    if exists('+getbufinfo')
+      au BufEnter * if len(getbufinfo({'buflisted':1})) > 1 | exe "nnoremap + <C-W>+" | endif
+      au BufEnter * if len(getbufinfo({'buflisted':1})) > 1 | exe "nnoremap - <C-W>-" | endif
+      "TODO reset when back to 1 buf
+      " au BufEnter * if len(getbufinfo({'buflisted':1})) == 1 | exe "nnoremap - noop" | endif
+    endif
+  endif
+
+  " This file has comments in several languages, just highlight them all
+  au BufRead oneliners.txt syn match Comment @^".*$\|^--.*$\|^\/\/.*$\|^#.*$\|^::.*$\|^\s\?\/\*.*$@ contains=Search
+
+  "if hostname() == 'metta'
+  if $WSLENV =~ 'WT_SESSION:WT_PROFILE_ID' || !empty($WSL_HOST_IP)
+    let s:clip = '/mnt/c/Windows/System32/clip.exe'
+  else
+    let s:clip = ''
+  endif
+  if executable(s:clip)
+    augroup Yankme
+      autocmd!
+        autocmd TextYankPost * if v:event.operator ==# 'y' | call system(s:clip, @0) | endif
+    augroup END
+  endif
+
+  autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
+
+  "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+  "
+	" TODO move to ~/.vimrc.local or something
+  " Temporary project-specific hacks to normalize messy problem-spaces:
+
+  if matchstr(WORKBOXARRAY, THISBOX) == THISBOX
+"""    au BufRead LimsGistTableCount.txt :se list
+"""    au GUIEnter oracle_queries.sql,update.sql winpos 37 55 | se lines=20 | se columns=170 | se wrap | map j gj
+    " SQL*Plus hack to get table/field name completion
+"""    au BufRead afiedt.buf winpos 37 55 | se lines=20 | se columns=170 | se tw=999999 | :new | silent :args $HOME/code/misccode/spool/links/*.LST | :hide | map :wq :wq! | noremap ZZ :wq!<CR>
+    """au VimLeavePre afiedt.buf execute "w ~/tmp/afiedt.buf." . strftime("%m_%d-%H_%M_%S")
+
+    " Platform warning indicators:
+    " gvim
+    " au BufRead,BufWinEnter H:/*             hi StatusLine   guifg=Green guibg=Black gui=inverse,bold
+    " au BufRead,BufWinLeave H:/*             hi StatusLineNC guifg=Green guibg=Gray gui=inverse,bold
+    " vim
+"""    au BufRead,BufWinEnter /cygdrive/c/*    hi StatusLine   ctermfg=Blue ctermbg=White
+"""    au BufRead,BufWinLeave /cygdrive/c/*    hi StatusLineNC ctermfg=Blue ctermbg=Gray gui=inverse,bold
+
+    " au BufReadPre,FileReadPre [ETHR]:/* set noswapfile
+"""    au BufReadPre,FileReadPre /cygdrive/[mswxyz]/* set noswapfile
+
+    " Do not use The Force on Test & Production
+    """au BufEnter [YZ]:/DataPost* set readonly
+    """au BufEnter /cygdrive/[yz]/DataPost* set readonly
+
+		"""au BufNewFile,BufRead,BufEnter DataPost*.log set noswapfile | set hlsearch | source u:/code/sas/saslog.vim 
+		"""au BufRead,BufNewFile *.map set filetype=xslt
+"""    au BufReadPre,FileReadPre /Drugs/Macros/* set noswapfile
+"""    au BufReadPre,FileReadPre /Drugs/Cron/* set directory=/Drugs/Personnel/bob/
+
+    au BufWritePre,BufLeave * set nobomb
+  end
+  
+  au BufReadPre,FileReadPre *Source/* set noswapfile
+  au BufReadPre,FileReadPre *sashq/* set nobackup
+  au BufReadPre,FileReadPre *sashq/* set nowritebackup
+  au BufReadPre,FileReadPre *sashq/* set noswapfile
+
+  if has('gui')
+    " Maximize window upon opening
+    " au GUIEnter *.log simalt ~x
+    " Run SAS on current .sas file:
+    au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!c:/Progra~1/SASIns~1/SAS/V8/sas.exe -sysin %<CR>:args %:r.lst %:r.log<CR>
+  else
+    " Run my execute SAS shell script in a terminal:
+    " au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!~/code/sas/sasrun %:p<CR>
+    au BufNewFile,BufRead,BufEnter *.sas nmap ;z :!~/code/sas/sasrun2 "%:p"<CR>
+  endif
+  "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+
+"autocmd Syntax * hi Comment ctermfg=DarkGray ctermbg=Black guifg=DarkGray guibg=Black cterm=bold gui=bold
+"              \ | hi link shComment Comment
+"              \ | hi link shTodo Comment
+endif  " ! autocommands_loaded
+
+"augroup ForceCommentColors
+"    autocmd!
+"    autocmd Syntax * hi Comment ctermfg=DarkGray ctermbg=Black guifg=DarkGray guibg=Black cterm=bold gui=bold
+"                 \ | hi link shComment Comment
+"                 \ | hi link shTodo NONE
+"                 \ | hi link shCommentError NONE
+"augroup END
+" end Autocommands-
+
+"--------------------------------------------------------------------------}}}
 " Machine/Security Settings: {{{1
 
 " .vimrc.local is NOT in dotfiles repo
@@ -3352,10 +3360,3 @@ elseif filereadable("c:/cygwin64/home/boheck/.vimrc.local")
   source c:/cygwin64/home/boheck/.vimrc.local
 endif  "}}}
 
-"augroup ForceCommentColors
-"    autocmd!
-"    autocmd Syntax * hi Comment ctermfg=DarkGray ctermbg=Black guifg=DarkGray guibg=Black cterm=bold gui=bold
-"                 \ | hi link shComment Comment
-"                 \ | hi link shTodo NONE
-"                 \ | hi link shCommentError NONE
-"augroup END
