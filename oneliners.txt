@@ -200,12 +200,10 @@ if wrd == "re" || wrd == "ret" || wrd == "retu" || wrd == "retur" ...do somethin
 " is now more cleanly represented as:
 if match(wrd, "\\<re\\%[tur]\\>") > -1 ...do something...  endif
 
-" Unicode foreign diacritical character digraph method (better if don't know the code):
+" Unicode foreign diacritical character digraph method (if don't know the code). Assumes encoding=utf-8:
 :dig           <---determine digraph's decimal code on (right side)
-Ctrl-q u 174   <---in insertmode e.g. copyright © symbol is 169  ॐ is 0950
-
-" To do unicode, must do this first:
-set encoding=utf-8
+Ctrl-q u 174   <---in insertmode e.g. copyright © symbol is 169, ॐ  is 950
+" if you know the code
 :se digraph
 Then in insertmode (e.g copyright symbol):
 C<BS>o   <---Produces ©

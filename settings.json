@@ -93,6 +93,7 @@
         "CanonicalGroupLimited.Ubuntu_79rhkp1fndgsc"
     ],
     "firstWindowPreference": "persistedWindowLayout",
+    "focusFollowMouse": false,
     "keybindings": 
     [
         {
@@ -178,11 +179,15 @@
     {
         "defaults": 
         {
+            "closeOnExit": "graceful",
+            "compatibility.reloadEnvironmentVariables": false,
             "font": 
             {
                 "face": "Cascadia Mono",
                 "size": 9
-            }
+            },
+            "pathTranslationStyle": "wsl",
+            "showMarksOnScrollbar": true
         },
         "list": 
         [
@@ -207,35 +212,24 @@
                 "source": "Windows.Terminal.PowershellCore"
             },
             {
-                "guid": "{b453ae62-4e3d-5e58-b989-0a998ec441b8}",
-                "hidden": false,
-                "name": "Azure Cloud Shell",
-                "source": "Windows.Terminal.Azure"
-            },
-            {
-                "adjustIndistinguishableColors": "always",
-                "guid": "{51855cb2-8cce-5362-8f54-464b92b32386}",
-                "hidden": true,
-                "name": "Ubuntu",
-                "opacity": 100,
-                "pathTranslationStyle": "wsl",
-                "source": "CanonicalGroupLimited.Ubuntu_79rhkp1fndgsc",
-                "useAcrylic": false
-            },
-            {
                 "commandline": "pwsh.exe",
                 "guid": "{7c8db0db-017c-4edd-90db-b948c971e9bd}",
                 "hidden": false,
                 "name": "PowerShell 7"
             },
             {
-                "colorScheme": "Tango Dark",
+                "colorScheme": "Dimidium",
                 "cursorShape": "filledBox",
                 "experimental.rainbowSuggestions": false,
+                "font": 
+                {
+                    "weight": "semi-bold"
+                },
                 "guid": "{2c4de342-38b7-51cf-b940-2309a097f518}",
                 "hidden": false,
                 "historySize": 5000,
                 "name": "Ubuntu",
+                "showMarksOnScrollbar": false,
                 "source": "Windows.Terminal.Wsl"
             }
         ]
@@ -244,4 +238,3 @@
     "themes": [],
     "windowingBehavior": "useNew"
 }
-
