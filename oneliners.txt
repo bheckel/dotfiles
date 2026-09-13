@@ -308,7 +308,7 @@ $ vi foo`date +%s`.txt
 " Replace both strings Yes and No with foo:
 :0,$:s:\(Yes\)\|\(No\):foo:gc
 
-" Encrypt file for first time: :X  then immediately :w (disable :set key=)
+" Encrypt password protect file for first time: :X  then immediately :w (disable :set key=)
 
 " Open file and place cursor at the search word ERROR or WARN:
 vi -c '/^ERROR\|^WARN/' foo.txt
@@ -3539,9 +3539,6 @@ diff -cw f1.txt f2.txt
 netstat -nl --inet
 netstat -af  # Windows (can't use Cygwin)
 
-# Which modules have been compiled-in an Apache webserver:
-/usr/local/apache/bin/httpd -l
-
 /sbin/runlevel  # RedHat
 who -r  # runlevel on Solaris:
 
@@ -4559,7 +4556,7 @@ systemctl list-unit-files --state=enabled --no-pager
 systemctl disable httpd
 systemctl enable httpd
 systemctl cat sshd.service
-systemctl list-dependencies ollama #--reverse
+systemctl list-dependencies ollam #--reverse
 sv /etc/dnf/automatic.conf; sudo systemctl daemon-reload && sudo systemctl restart dnf-automatic-install.timer
 systemctl list-timers
 sudo systemctl enable --now system-monitor-motd.timer
