@@ -103,6 +103,7 @@ alias cds="cd $HOME/code/sas"
 alias cls=clear
 alias datecalc="$HOME/code/scripting/datecalc"
 alias ddg='w3m http://duckduckgo.com/lite'
+alias df='df -h'
 alias f='fg'  # jobs -s  to list what's suspended
 alias g=$HOME/dotfiles/gone.sh
 alias ga="$HOME/code/misc/gitall"
