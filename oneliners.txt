@@ -2869,7 +2869,7 @@ sudo du -shx /* 2>/dev/null | sort -hr | head -15
 sudo du -shx /var/* 2>/dev/null | sort -hr | head -10
 # Top 20 largest diskhog files AND directories:
 sudo du -sh /saswork/* | sort -rn | head -n20 | awk '{print $2}' | xargs sudo ls -dl  # must use the '*' or get dir tot only
-sudo du -xh / | sort -h | tail -20  # best diskhogs
+sudo du -xh / | sort -h | tail -20 | tac # best diskhogs
 for i in *; do du -sh $i; done | sort -rh | head -n20
 for i in `find /Drugs/Personnel -maxdepth 1 -type d`; do du -sh $i; done | sort -hr
 # Total size of each item (directory) in CWD and sort numerically diskhogs:
@@ -4630,8 +4630,11 @@ $ dnf list updates
 # Anything dnf-automatic hasn't run yet:
 sudo dnf updateinfo list security
 
-# dnf mantra:
+# RHEL attended dnf mantra:
 sudo dnf upgrade --refresh -y && sudo needs-restarting --reboothint && sudo dnf autoremove
+# safer:
+sudo dnf upgrade --refresh --exclude=kernel* -y && sudo needs-restarting --reboothint && sudo dnf autoremove  # then
+sudo dnf upgrade --refresh -y kernel*  # then sudo reboot
 
 # query dnf
 rpm -qip foo.rpm
@@ -4661,7 +4664,7 @@ sudo apt-cache policy vim
 
 sudo apt purge android-sdk-platform-tools-common && sudo apt autoremove
 
-# Debian, Ubuntu regular package update apt mantra:
+# Debian, Ubuntu regular package attended update apt mantra:
 sudo apt update && sudo apt full-upgrade -y && sudo apt autoremove --purge && sudo apt clean && sudo apt -f install
 
 sudo apt install git w3m tmux bc -y
