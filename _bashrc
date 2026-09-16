@@ -747,6 +747,8 @@ case "$OSTYPE" in
            *":/mnt/c/Users/bheck/AppData/Local/Android/Sdk/platform-tools:"*) ;;
            *) PATH="$PATH:/mnt/c/Users/bheck/AppData/Local/Android/Sdk/platform-tools" ;;
          esac
+
+         alias vi='/usr/local/bin/vim'
       fi
 
       #----------------

@@ -4630,11 +4630,13 @@ $ dnf list updates
 # Anything dnf-automatic hasn't run yet:
 sudo dnf updateinfo list security
 
-# RHEL attended dnf mantra:
+# RHEL attended dnf mantra dnf:
 sudo dnf upgrade --refresh -y && sudo needs-restarting --reboothint && sudo dnf autoremove
 # safer:
 sudo dnf upgrade --refresh --exclude=kernel* -y && sudo needs-restarting --reboothint && sudo dnf autoremove  # then
-sudo dnf upgrade --refresh -y kernel*  # then sudo reboot
+sudo dnf upgrade --refresh -y kernel*
+uname -a && sudo grubby --default-kernel
+sudo reboot
 
 # query dnf
 rpm -qip foo.rpm
@@ -4664,7 +4666,7 @@ sudo apt-cache policy vim
 
 sudo apt purge android-sdk-platform-tools-common && sudo apt autoremove
 
-# Debian, Ubuntu regular package attended update apt mantra:
+# Debian, Ubuntu regular package attended update apt mantra apt:
 sudo apt update && sudo apt full-upgrade -y && sudo apt autoremove --purge && sudo apt clean && sudo apt -f install
 
 sudo apt install git w3m tmux bc -y
