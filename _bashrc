@@ -142,6 +142,7 @@ alias tre="\ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^
 alias uvi="$HOME/code/scripting/uvi"  # don't change timestamp
 alias ve="vim $HOME/.vimrc"
 alias vi=vim
+alias wget='wget --continue'
 
 # Quick diff
 alias d1="vim $TMP/1 $TMP/2"
@@ -870,7 +871,7 @@ case "$OSTYPE" in
           # Windows Terminal vim syntax bugfix
           export TERM=screen-256color
           if [[ "$VERSION_ID" == "8.10" ]]; then
-            alias vi=/usr/local/bin/vim
+            alias vi='/usr/local/bin/vim'
           fi
         fi
       fi
