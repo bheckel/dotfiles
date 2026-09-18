@@ -4634,14 +4634,17 @@ sudo dnf updateinfo list security
 sudo dnf upgrade --refresh -y && sudo needs-restarting --reboothint && sudo dnf autoremove
 # safer:
 sudo dnf upgrade --refresh --exclude=kernel* -y && sudo needs-restarting --reboothint && sudo dnf autoremove  # then
+sudo grep -iE "scriptlet|failed|error" /var/log/dnf.rpm.log | tail -30 | tac
 sudo dnf upgrade --refresh -y kernel*
-uname -a && sudo grubby --default-kernel
+sudo grep -iE "scriptlet|failed|error" /var/log/dnf.rpm.log | tail -30 | tac
+uname -a && sudo grubby --default-kernel  # compare current to post-reboot
 sudo reboot
 
 # query dnf
 rpm -qip foo.rpm
 rpm -qa | grep -i nginx
-dnf list installed | grep httpd
+# Is this dnf package installed?:
+dnf list installed | grep -i httpd
 
 # give the installed pkg name & num
 rpm -qf /usr/sbin/bind    
@@ -4736,6 +4739,9 @@ ssh -L 1234:127.0.0.1:1234 root@213.113.55.80
 # grep a tarfile:
 tar -xf my.tar -O | grep -n "find me"
 tar -xzf archive.tar.gz -O | grep -n "pattern"
+
+# Fix time Ubuntu time lag:
+sudo timedatectl set-ntp false && sudo timedatectl set-time "2026-09-17 12:30:00" && sudo timedatectl set-ntp true
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
