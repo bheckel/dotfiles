@@ -708,7 +708,6 @@ case "$OSTYPE" in
       if [[ -f /etc/os-release ]]; then
         . /etc/os-release
         if [[ "$ID" == "ubuntu" ]]; then
-      
           alias systeminfo='df -h && echo && free -m && echo && grep --color="never" name /proc/cpuinfo | uniq && echo && lspci | grep --color="never" VGA && echo && xrandr | grep --color="never" connected && echo && uname -rms'
           alias usb='sudo fdisk -l; mount|grep "^/dev/sd"; sudo mkdir /media/usb; echo; echo "try this: sudo mount -t vfat /dev/sdb /media/usb -o uid=1000,gid=1000,utf8,dmask=027,fmask=137"; echo; echo "usually /dev/sdb or sdc, disconnect: sudo umount /media/usb"'
 
@@ -732,6 +731,7 @@ case "$OSTYPE" in
             unset RUNCMDFLUXBOX
           fi
 
+          export TERM=screen-256color
         fi
       fi
 
