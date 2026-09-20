@@ -4621,7 +4621,7 @@ sudo rm -rf /var/tmp/dnf-*
 # gcc c++ java etc
 sudo dnf groupinstall "Development Tools"
 
-# Bare box readonly config setup initialize from ~:
+# Bare box readonly config setup. Initialize from ~:
 sudo dnf install git -y && git clone https://github.com/bheckel/dotfiles && dotfiles/dotfiles.sh && source .bashrc
 
 # Stress an OCI Free Tier system:
@@ -8364,7 +8364,7 @@ git add -f ignoreme.txt
 # github commit mantra (github is origin we PUSH TO origin FROM master), update index and HEAD:
 git add . && git commit -m 'mod' && git push origin master
 
-# git new install bare box setup want clone an existing github repo which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
+# git new install bare box scp setup want clone an existing github repo which will be called origin/master locally, plus you'll get your own local master branch starting at the same place as origin’s master branch, so you have something to work from:
 ssh-keygen -t ed25519 -C "gitlaptop@bar.com";  then  cat ~/.ssh/id_ed25519.pub  # copy/paste it into https://github.com/settings/keys
 # Test git ssh connectivity github test:
 ssh -vT git@github.com
