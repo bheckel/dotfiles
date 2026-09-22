@@ -3568,6 +3568,9 @@ sas &;  wait %1; echo "SAS process terminated"
 tail -n +4 foo.txt
 cat foo.txt | awk "{if(NR>3)print}"
 
+# Skip unwanted text reading a file bash regex:
+[[ "$line" =~ ^wtmp ]] && continue
+
 # Test procmail regex:
 echo 'to: bheckel@worldnet.att.net, bheckel@att.net' | egrep '^to:.*bhe[a-zA-Z]+@(worldnet)*att.net'
 
