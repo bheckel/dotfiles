@@ -870,9 +870,9 @@ case "$OSTYPE" in
           export MAIL=/home/opc/mail
           # Windows Terminal vim syntax bugfix
           export TERM=screen-256color
-          if [[ "$VERSION_ID" == "8.10" ]]; then
+          #if [[ "$VERSION_ID" == "8.10" ]]; then
             alias vi='/usr/local/bin/vim'
-          fi
+          #fi
         fi
       fi
     fi
