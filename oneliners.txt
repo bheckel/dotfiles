@@ -4633,17 +4633,19 @@ sudo dnf updateinfo list security
 # RHEL attended dnf mantra dnf:
 sudo dnf upgrade --refresh -y && sudo needs-restarting --reboothint && sudo dnf autoremove
 # safer:
-sudo dnf upgrade --refresh --exclude=kernel* -y && sudo needs-restarting --reboothint && sudo dnf autoremove  # then
+sudo dnf upgrade --refresh --exclude=kernel* -y && sudo dnf autoremove && sudo needs-restarting --reboothint  # then
 sudo grep -iE "scriptlet|failed|error" /var/log/dnf.rpm.log | tail -30 | tac
+dnf history info last
+uname -a && sudo grubby --default-kernel  # current
 sudo dnf upgrade --refresh -y kernel*
 sudo grep -iE "scriptlet|failed|error" /var/log/dnf.rpm.log | tail -30 | tac
-uname -a && sudo grubby --default-kernel  # compare current to post-reboot
+uname -a && sudo grubby --default-kernel  # compare current to what installs at reboot
 sudo reboot
 
 # query dnf
 rpm -qip foo.rpm
 rpm -qa | grep -i nginx
-# Is this dnf package installed?:
+# Is installed this dnf package installed?:
 dnf list installed | grep -i httpd
 
 # give the installed pkg name & num
@@ -4686,10 +4688,11 @@ changing security context of 't.txt'
 $ ls -Z t.txt
 unconfined_u:object_r:httpd_sys_content_t:s0 t.txt
 
-# SELinux
-ls -Z
+ls -Z  # SELinux
 sudo chcon -t httpd_sys_script_exec_t contact.pl
 sudo chcon -t httpd_sys_rw_content_t style.css
+journalctl -xe | grep -i selinux
+sudo semodule -B && sudo load_policy  # health check - rebuild and reload
 
 # Performance benchmark stresstest CPU:
 time echo "scale=5000; 4*a(1)" | bc -l -q
