@@ -3468,8 +3468,9 @@ tar cvfz ~/tmp/essential.tgz `grep 'ESSENTIAL' * | awk -F: '{print $1}'`
 # Add append file to existing tarball:
 tar -rvf my.tar myfile.txt && tar -tf my.tar
 # Delete file from existing tarball:
-tar --delete -f my.tar ric.txt
-tar -tf my.tar  # confirm
+tar --delete -f my.tar ric.txt && tar -tf my.tar  # confirm
+tar --delete --wildcards -f ffp.tar home/bheck/downloads/underc*
+mkdir ~/ropbox/ffp2 && cd ~/ropbox/misc && gpg -d ffp.tar.gpg >ffp.tar && rmv ffp.tar.gpg
 
 # Determine total size of selected files.  Add sizes of files together.
 wc *.txt
@@ -4642,7 +4643,7 @@ dnf history info last
 uname -a && sudo grubby --default-kernel  # current
 sudo dnf upgrade --refresh -y kernel*
 sudo grep -iE "scriptlet|failed|error" /var/log/dnf.rpm.log | tail -30 | tac
-uname -a && sudo grubby --default-kernel  # compare current to what installs at reboot
+uname -a && sudo grubby --default-kernel  # compare current kernel to what installs at reboot
 sudo reboot
 
 # query dnf
@@ -4746,7 +4747,7 @@ ssh -L 1234:127.0.0.1:1234 root@213.113.55.80
 tar -xf my.tar -O | grep -n "find me"
 tar -xzf archive.tar.gz -O | grep -n "pattern"
 
-# Fix time Ubuntu time lag:
+# Fix time Ubuntu time lag synchronize time lag:
 sudo timedatectl set-ntp false && sudo timedatectl set-time "2026-09-17 12:30:00" && sudo timedatectl set-ntp true
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
