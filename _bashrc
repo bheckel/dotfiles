@@ -805,13 +805,12 @@ case "$OSTYPE" in
         echo '.bashrc: Android detected'
 
         alias cdd="cd $HOME/downloads"
-        # When $HOME/code/misc/gitall isn't available
-        alias gital='cd ~/dotfiles && git add . && git commit -m"mod gitall termux" && git push; git pull; cd -'
-        alias nb='newsboat -q -r'
         alias pa='termux-media-player pause'
         alias pl='termux-media-player play'
         # Screenscrape TODO need function
         alias schd='w3m -dump https://finance.yahoo.com/quote/SCHD%3Fp=SCHD/ | grep --after-context=4 watchlist | tail -n3 | termux-toast'
+
+        export TERM=screen-256color
 
         function catput() {
           echo 'termux-clipboard-set...'

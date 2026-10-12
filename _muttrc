@@ -10,7 +10,7 @@
 #           /bin/mutt -F foo  <---foo must exist
 #
 #  Created: 03-Jun-2001 (Bob Heckel)
-# Modified: 02-Apr-2026 (Bob Heckel)
+# Modified: 05-Oct-2026 (Bob Heckel)
 #
 #¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø#
 
@@ -28,7 +28,7 @@ source $HOME/.muttprivate   # personal config specific to this box
 # .muttrc has been sourced from its command line.
 push V   
 
-set abort_unmodified=no    # let me send blank emails
+set abort_unmodified=no    # let me send blank body emails
 set alias_format="%4n%t%-17a %r" 
 set noarrow_cursor  # only for index, it is redefined later
 set ascii_chars   # use plain ASCII characters when displaying thread, etc. 
@@ -40,7 +40,7 @@ set write_bcc=no   # fix strangeness with occasionally visible Bcc:
 ###set collapse_unread=no
 set charset=utf-8
 set confirmappend=no  # don't ask me if ok during saves
-set copy=yes      # copies of outgoing messages will be saved (to $record)
+set copy=yes  # copies of outgoing messages will be saved (to $record)
 # Messages marked for deletion will automatically be purged without prompting. 
 set delete=yes
 set edit_headers
@@ -50,38 +50,36 @@ set editor="vim -c 'set tw=68 et' +/^$"
 # Avoid the tampering that certain mail delivery and transport agents tend to do with 'From' in messages.
 set encode_from=yes
 set fast_reply=yes
-set fcc_attach        # save attachments with body of sent msgs
+set fcc_attach  # save attachments with body of sent msgs
 set folder=$HOME/mail
 set folder_format="%1N%4C %10F%10u %9s %15f %4C"  # file Directory window
 set forward_format="Fwd: %s"
-set hdrs=yes    # user defined header fields are added to every new message
+set hdrs=yes  # user defined header fields are added to every new message
 set history=100
 set include=yes  # quote all, save time, can always del the quoted part in Vim
 set ispell="aspell -e -c"
 set pager_context=1 # N lines from bot of prev is also on start of new pg
 set pager_index_lines=7
 # SENDER's date/time on sender's machine when he sent the email.
-set pager_format="Bytes:%c"   # email message status line
-set pager_stop    # don't fall thru to next message
+set pager_format="Bytes:%c"  # email message status line
+set pager_stop  # don't fall thru to next message
 #set postponed=$HOME/Mail/postponed
 set print=ask-yes
-unset mark_old       # don't mark as read if I haven't read it
+unset mark_old  # don't mark as read if I haven't read it
 unset markers  # no '+' markers at the beginning of wrapped lines (for clipbd)
-# Hide .procmailusage and archive files when using file browser.  Double
-# backslashes!
+# Hide .procmailusage and archive files when using file browser.  Double backslashes!
 set mask="!(^\\.|gz$)"  
 set mbox=$HOME/mail/saved
-set metoo=no      # remove yourself from To: line during replies
+set metoo=no  # remove yourself from To: line during replies
 set menu_scroll=yes
 set message_format="%s"
-set move=ask-yes     # ask to move read emails to mbox
+set move=ask-yes  # ask to move read emails to mbox
 set nohelp
-set print=ask-yes
 set quit=yes
 set quote_regexp="^ {0,4}[a-zA-Z]*([^<]*{0,4}[>%])"
 set read_inc=5
 #set record="$HOME/Mail/sentmail"
-set reply_to=ask-yes   # use or ignore Reply-To
+set reply_to=ask-yes  # use or ignore Reply-To
 set reverse_name  # reply as the user to whom the mail was sent to
 ###set sendmail_wait=-1  # don't wait for actual send to occur
 set simple_search="~f %s | ~s %s"
@@ -96,15 +94,14 @@ set sort_re
 # Status line displayed in the index menu.  
 set status_format="%h %f[Tot:%?M?%M/?%m%?n? New:%n?%?o? Old:%o?%?d? Del:%d? Postp:%p](%s/%S)%> (%P)" 
 set suspend  # allow Ctrl-z
-set tilde=yes    # like vi
+set tilde=yes  # like vi
 set tmpdir="$HOME/tmp"
 set to_chars="-+TCF"
 set uncollapse_jump=yes
 set nouser_agent   # creates User-Agent: Mutt/<Version> header
 set wait_key=no  # don't want to press CR after creating a tunnel
 set wrap_search 
-# Clean up mails.
-###set display_filter="$HOME/bin/muttfilter.pl"
+#set display_filter="$HOME/bin/muttfilter.pl"  # clean up mails
 
 
 # vim-like
@@ -123,7 +120,7 @@ bind browser q   exit
 bind attach ' ' next-page
 bind attach G   last-entry
 bind attach L   bottom-page   # clashes with mailing list L; don't need H, M
-bind attach R   group-reply  # override default g
+bind attach R   group-reply   # override default g
 bind attach b   previous-page
 bind attach \Cb previous-page
 bind attach e   edit-type
@@ -149,19 +146,19 @@ bind index \eN     next-new
 bind index \eP     previous-new
 bind index \CN     next-unread
 bind index \CP     previous-unread
-bind index *       tag-entry  # toggle
+bind index *       tag-entry        # toggle
 # Can't use this due to macros like ,1 which calls less.  But I don't usually flag messages anyway.
 ###bind index !       flag-message  # toggle.  Clashes with shell-escape (good)
 bind index B       bounce-message
-bind index C       collapse-all  # clashes with copy-message
+bind index C       collapse-all     # clashes with copy-message
 bind index D       undelete-message # use Tag to select then D to mass undelete
 bind index G       last-entry
-bind index L       bottom-page   # clashes with mailing list L; don't need H, M
+bind index L       bottom-page      # clashes with mailing list L; don't need H, M
 bind index R       group-reply
 bind index b       previous-page 
 bind index \Cb     previous-page 
-bind index g       first-entry   # clashes with group-reply
-bind index k       previous-entry  # override previous-undeleted
+bind index g       first-entry      # clashes with group-reply
+bind index k       previous-entry   # override previous-undeleted
 bind index p       search-opposite
 ###bind index x       noop    # currently being used as a macro
 
@@ -184,7 +181,7 @@ bind pager R      group-reply
 bind pager b      previous-page
 bind pager \Cb    previous-page 
 bind pager g      top
-bind pager h      exit  # like slrn
+bind pager h      exit                 # like slrn
 bind pager i      noop                 # strangely mapped to exit by default
 bind pager j      next-line
 bind pager k      previous-line
@@ -223,7 +220,6 @@ macro index \cx "<tag-pattern>.*\n<tag-prefix>d" "Delete all"
                  ###<forward-message>spamcop@spamcop.net\n\n"
 
 macro pager R "C=repliedto\n<group-reply>" "Save a copy then reply to all"
-# Rather be orthagonal with w3m
 ###macro pager \cb <pipe-entry>'urlview'<enter> "Follow links with urlview"  
 macro pager w "<enter-command>set invsmart_wrap invmarkers<enter>" "Toggle wrapping"
 macro pager \cx "q<tag-pattern>.*\n<tag-prefix>d" "Close current msg and delete all"
@@ -250,7 +246,7 @@ hdr_order Sender: From: Reply-To: To: Cc: Bcc: Subject: Organization: \
 ###my_hdr X-Operating-System: `uname -m -r -s`
 ###my_hdr X-Editor: `$EDITOR -h` # mutt only parses the first line, so this works
 ###my_hdr X-Message-Flag: Have more than thou showest, speak less than thou knowest - Shakespeare
-###my_hdr Bcc: b.heckel@gmail.com
+###my_hdr Bcc: r.heckel@gmail.com
 
 # Handle unknown types:
 ###charset-hook x-unknown ISO-8859-1
@@ -266,13 +262,13 @@ alternative_order text/plain text/enriched text/html
 # or probably better:
 #   text/html; w3m -I %{charset} -T text/html; copiousoutput;
 #
-# On for view / off for fwd
+# On for view / Off for fwd
 # To forward as HTML press C-T (after :q but before Y to send) and edit "plain" to something
 # like "Content-Type: text/html; charset=utf-8"
 #
 #set mailcap_path = ~/.mailcap
 #set mailcap_path = ~/.mailcap-plain
-# See macro z
+# See macro z above
 auto_view text/html
 
 # Note: folder-hook requires double backslashes for one space!
@@ -297,7 +293,6 @@ folder-hook sentmail 'set simple_search="~t %s | ~s %s"'
 # HTML is the LAST option (Outlook protection).
 #alternative_order text/plain text/enriched text/html 
 
-
 # Note:            double backslashes!
 color body       blue black "\\* On .*[^:]:"             # On Thu, May 21...
 color body       green black "(ftp|http)://[^ >]+"       # URLs
@@ -316,7 +311,7 @@ color index      magenta black ~D   # deleted
 color index      yellow black ~T    # tagged
 ###color index      green black ~F       # flagged
 color indicator  black green
-color status     white blue
+color status     black blue
 color tilde      blue black
 color quoted     cyan black
 color quoted1    green black
@@ -334,7 +329,3 @@ color body brightgreen white " [;:]-*[)>(<|]"            # :-) etc...
 color body brightcyan  black "(^|[[:space:]])\\*[^[:space:]]+\\*([[:space:]]|$)" # *bold* text
 color body brightcyan  black "(^|[[:space:]])_[^[:space:]]+_([[:space:]]|$)"     # _underlined_ text
 color body brightblue  yellow "(^|[[:space:]])/[^[:space:]]+/([[:space:]]|$)"     # /italic/ text
-
-# Use  $ muttman  outside of mutt.  It is configured as:  alias muttman='less
-# /usr/doc/mutt/manual.txt' in .bashrc
-
