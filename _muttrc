@@ -10,7 +10,7 @@
 #           /bin/mutt -F foo  <---foo must exist
 #
 #  Created: 03-Jun-2001 (Bob Heckel)
-# Modified: 05-Oct-2026 (Bob Heckel)
+# Modified: 12-Oct-2026 (Bob Heckel)
 #
 #¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤ø,¸¸,ø¤º°`°º¤øø¤º°`°º¤¤º°`°º¤ø,¸¸,ø¤º°`°º¤ø#
 
@@ -78,7 +78,7 @@ set nohelp
 set quit=yes
 set quote_regexp="^ {0,4}[a-zA-Z]*([^<]*{0,4}[>%])"
 set read_inc=5
-#set record="$HOME/Mail/sentmail"
+set record="$HOME/mail/sent"
 set reply_to=ask-yes  # use or ignore Reply-To
 set reverse_name  # reply as the user to whom the mail was sent to
 ###set sendmail_wait=-1  # don't wait for actual send to occur
@@ -279,7 +279,6 @@ folder-hook . set sort=last-date-received
 folder-hook . set sort=threads   # want cursor on msg 1
 folder-hook . save-hook . =trash
 
-folder-hook '!' save-hook . =Tmp
 folder-hook 'Cygwin' set index_format="[%-12.12n]\\ %s"
 # TODO folder-hook 'Cygwin' collapse-all .
 folder-hook 'Mutt' set index_format="[%-12.12n]\\ %s"
