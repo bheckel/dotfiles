@@ -4604,7 +4604,7 @@ sudo firewall-cmd --reload
 sudo firewall-cmd --state
 sudo systemctl enable --now postfix
 systemctl status postfix.service
-sudo tail -f /var/log/maillog  # in another terminal
+sudo tail -f /var/log/maillog  # postfix log file (in another terminal)
 sudo vi /etc/postfix/main.cf
 sudo postfix check  # check valid postfix config file
 sudo vi /etc/aliases

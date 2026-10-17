@@ -5,7 +5,7 @@
 #          and z/OS
 #
 #  Created: 19-May-1998 (Bob Heckel)
-# Modified: 08-Sep-2026 (Bob Heckel)
+# Modified: 17-Oct-2026 (Bob Heckel)
 #^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^~^
 
 #----------------
@@ -123,8 +123,8 @@ alias l='ls'
 alias la='ls -FA --color=auto' # overridden later if non-GNU ls is present
 alias lastdocker='docker start -a -i `docker ps -q -l`'
 alias ls='ls --color --group-directories-first'
-alias ll='ls -gh --color --group-directories-first'
-alias lla='ls -agh --color --group-directories-first'
+alias ll='ls -gh --color --group-directories-first --human-readable'
+alias lla='ls -agh --color --group-directories-first --human-readable'
 alias lsd='find . -maxdepth 1 -type d' # list directories
 alias m=less
 alias one="vi $HOME/dotfiles/oneliners.txt"
@@ -640,7 +640,6 @@ case "$OSTYPE" in
       #----------------
 
       #alias hiber='pkexec xfce4-pm-helper --hibernate && sleep 3 && sudo tlsdate -V -H encrypted.google.com'
-      alias ll='ls -lh --color --group-directories-first'
       ###alias moz='export DISPLAY=158.111.250.170:0.0; mozilla&'
       ###alias sqlplus=/usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin/sqlplus
       # Print Windows Working Directory. $ pwd|sed 's/\//\\/g'" before backslashitis.
