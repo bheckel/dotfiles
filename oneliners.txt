@@ -4750,6 +4750,9 @@ tar -xzf archive.tar.gz -O | grep -n "pattern"
 # Fix time Ubuntu time lag synchronize time lag:
 sudo timedatectl set-ntp false && sudo timedatectl set-time "2026-09-17 12:30:00" && sudo timedatectl set-ntp true
 
+# Check https certificate:
+curl -Iv https://rshdev.com
+
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
 xxSCRIPTINGxx START:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-: {{{1
