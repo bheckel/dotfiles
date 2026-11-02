@@ -2837,7 +2837,7 @@ for p in `pgrep smbd`; do kill -9 $p; done
 # Kill fscking Norton antivirus
 winkill `ps -W | grep rtvscan | head -n1 | awk '{print $1}'`
 
-# Create a ~500MB (~500,000,000 bytes) dummy file of garbage (like mkfile) that is a specific size in bytes stresstest disk:
+# Create a bigfile ~500MB (~500,000,000 bytes) dummy file of garbage (like mkfile) that is a specific size in bytes stresstest disk:
 #                             ea block   num blocks
 dd if=/dev/zero of=biggarbage bs=50000 count=10000
 dd if=/dev/zero of=biggarbage bs=100000 count=10000  # gigabyte
@@ -4541,7 +4541,7 @@ gco() { \ if [ -z "$1" ];then \ git checkout develop; \ else \ git checkout feat
 xrandr
 
 # system messages since last boot:
-journalctl -b -1
+journalctl -b -1  # or just errors  sudo journalctl -b -1 -p err   or specific failure  sudo journalctl -u sshd.service -b -1
 journalctl -u '*dnf*' --since yesterday
 sudo journalctl -u fail2ban --since "24 hours ago" | grep -i ban
 journalctl --since "2015-02-02 20:30:00"
@@ -4555,6 +4555,7 @@ systemctl is-enabled docker  # or just systemctl start docker (harmless if runni
 sudo systemd-analyze time
 sudo systemd-analyze critical-chain
 systemctl list-dependencies httpd.service #--reverse
+# performance find slow loaders:
 sudo systemd-analyze blame | head -15
 systemctl list-unit-files --state=enabled --no-pager
 systemctl disable httpd
@@ -4635,14 +4636,14 @@ $ dnf list updates
 sudo dnf updateinfo list security
 
 # RHEL attended dnf mantra dnf:
-sudo dnf upgrade --refresh -y && sudo needs-restarting --reboothint && sudo dnf autoremove
-# safer:
-sudo dnf upgrade --refresh --exclude=kernel* -y && sudo dnf autoremove && sudo needs-restarting --reboothint  # then
-sudo grep -iE "scriptlet|failed|error" /var/log/dnf.rpm.log | tail -30 | tac
-dnf history info last
-uname -a && sudo grubby --default-kernel  # current
+sudo dnf upgrade --refresh -y && needs-restarting --reboothint && sudo dnf autoremove
+# best dnf safer:
+sudo dnf upgrade --refresh --exclude=kernel* -y && sudo dnf autoremove && needs-restarting --reboothint  # then
+sudo grep -iE "scriptlet|failed|error" /var/log/dnf.rpm.log | tail -20 | tac
+dnf history info last  # what was Installed/Upgraded
+uname -a && sudo grubby --default-kernel && cat /proc/cmdline  # which current kernel
 sudo dnf upgrade --refresh -y kernel*
-sudo grep -iE "scriptlet|failed|error" /var/log/dnf.rpm.log | tail -30 | tac
+sudo grep -iE "scriptlet|failed|error" /var/log/dnf.rpm.log | tail -20 | tac
 uname -a && sudo grubby --default-kernel  # compare current kernel to what installs at reboot
 sudo reboot
 
@@ -4752,6 +4753,10 @@ sudo timedatectl set-ntp false && sudo timedatectl set-time "2026-09-17 12:30:00
 
 # Check https certificate:
 curl -Iv https://rshdev.com
+
+# List installed kernels:
+rpm -qa | grep kernel
+sudo grubby --default-kernel
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
