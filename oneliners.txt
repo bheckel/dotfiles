@@ -4635,17 +4635,18 @@ $ dnf list updates
 # Anything dnf-automatic hasn't run yet:
 sudo dnf updateinfo list security
 
+uname -a && rpm -q kernel-uek  # current and future kernels
+
 # RHEL attended dnf mantra dnf:
 sudo dnf upgrade --refresh -y && needs-restarting --reboothint && sudo dnf autoremove
-# best dnf safer:
+# best safe dnf safer:
 sudo dnf upgrade --refresh --exclude=kernel* -y && sudo dnf autoremove && needs-restarting --reboothint  # then
 sudo grep -iE "scriptlet|failed|error" /var/log/dnf.rpm.log | tail -20 | tac
 dnf history info last  # what was Installed/Upgraded
-uname -a && sudo grubby --default-kernel && cat /proc/cmdline  # which current kernel
+uname -a  && cat /proc/cmdline && sudo grubby --default-kernel && sudo grubby --default-title && rpm -q kernel-uek # which is current & possibly future kernel
 sudo dnf upgrade --refresh -y kernel*
 sudo grep -iE "scriptlet|failed|error" /var/log/dnf.rpm.log | tail -20 | tac
-uname -a && sudo grubby --default-kernel  # compare current kernel to what installs at reboot
-sudo reboot
+uname -a  && cat /proc/cmdline && sudo grubby --default-kernel && sudo grubby --default-title && rpm -q kernel-uek # which is current & possibly future kernel
 
 # query dnf
 rpm -qip foo.rpm
@@ -4757,6 +4758,9 @@ curl -Iv https://rshdev.com
 # List installed kernels:
 rpm -qa | grep kernel
 sudo grubby --default-kernel
+
+# Test sshd test before restarting:
+sudo sshd -t && sudo systemctl restart sshd
 
 xxUNIXxx END:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:-:
 
