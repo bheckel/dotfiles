@@ -263,9 +263,9 @@ sbx() {
 # Last ten
 lt() {
   if test "x$1" = "x"; then
-    \ls -lt | head -n10
+    \ls -lth | head -n10
   else
-    \ls -lt "$1" | head -n10
+    \ls -lth "$1" | head -n10
   fi
 }
 
